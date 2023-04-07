@@ -1,2 +1,2 @@
-# sigo
-SiGo - Go compiler and language implementation for embedded systems
+# SiGo
+A Go compiler and language implementation for embedded systems
