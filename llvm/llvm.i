@@ -43,7 +43,12 @@
 %}
 
 %typemap(gotype) LLVMTypeKind "LLVMTypeKind"
+%typemap(gotype) LLVMIntPredicate "LLVMIntPredicate"
+%typemap(gotype) LLVMRealPredicate "LLVMRealPredicate"
+
 %ignore LLVMTypeKind;
+%ignore LLVMIntPredicate;
+%ignore LLVMRealPredicate;
 
 // Typemaps for Go bool
 %typemap(in) bool {
@@ -653,9 +658,10 @@
     $1 = $input;
 }
 
-// Handle LLVMGetTargetFromTriple manually
+// Handle some APIs manually
 
 %ignore LLVMGetTargetFromTriple;
+%ignore LLVMAddIncoming;
 
 // Strip redundant "LLVM" from function calls
 %{

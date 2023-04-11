@@ -245,7 +245,7 @@ typedef struct LLVMOpaqueTargetLibraryInfotData *LLVMTargetLibraryInfoRef;
 extern "C" {
 #endif
 
-void _wrap_Swig_free_llvm_5d1e3feecae2b244(void *_swig_go_0) {
+void _wrap_Swig_free_llvm_a0e88c3155de3083(void *_swig_go_0) {
   void *arg1 = (void *) 0 ;
   
   arg1 = *(void **)&_swig_go_0; 
@@ -255,7 +255,7 @@ void _wrap_Swig_free_llvm_5d1e3feecae2b244(void *_swig_go_0) {
 }
 
 
-void *_wrap_Swig_malloc_llvm_5d1e3feecae2b244(intgo _swig_go_0) {
+void *_wrap_Swig_malloc_llvm_a0e88c3155de3083(intgo _swig_go_0) {
   int arg1 ;
   void *result = 0 ;
   void *_swig_go_result;
@@ -268,7 +268,7 @@ void *_wrap_Swig_malloc_llvm_5d1e3feecae2b244(intgo _swig_go_0) {
 }
 
 
-void _wrap_imaxdiv_t_quot_set_llvm_5d1e3feecae2b244(imaxdiv_t *_swig_go_0, long long _swig_go_1) {
+void _wrap_imaxdiv_t_quot_set_llvm_a0e88c3155de3083(imaxdiv_t *_swig_go_0, long long _swig_go_1) {
   imaxdiv_t *arg1 = (imaxdiv_t *) 0 ;
   long long arg2 ;
   
@@ -280,7 +280,7 @@ void _wrap_imaxdiv_t_quot_set_llvm_5d1e3feecae2b244(imaxdiv_t *_swig_go_0, long 
 }
 
 
-long long _wrap_imaxdiv_t_quot_get_llvm_5d1e3feecae2b244(imaxdiv_t *_swig_go_0) {
+long long _wrap_imaxdiv_t_quot_get_llvm_a0e88c3155de3083(imaxdiv_t *_swig_go_0) {
   imaxdiv_t *arg1 = (imaxdiv_t *) 0 ;
   long long result;
   long long _swig_go_result;
@@ -293,7 +293,7 @@ long long _wrap_imaxdiv_t_quot_get_llvm_5d1e3feecae2b244(imaxdiv_t *_swig_go_0) 
 }
 
 
-void _wrap_imaxdiv_t_rem_set_llvm_5d1e3feecae2b244(imaxdiv_t *_swig_go_0, long long _swig_go_1) {
+void _wrap_imaxdiv_t_rem_set_llvm_a0e88c3155de3083(imaxdiv_t *_swig_go_0, long long _swig_go_1) {
   imaxdiv_t *arg1 = (imaxdiv_t *) 0 ;
   long long arg2 ;
   
@@ -305,7 +305,7 @@ void _wrap_imaxdiv_t_rem_set_llvm_5d1e3feecae2b244(imaxdiv_t *_swig_go_0, long l
 }
 
 
-long long _wrap_imaxdiv_t_rem_get_llvm_5d1e3feecae2b244(imaxdiv_t *_swig_go_0) {
+long long _wrap_imaxdiv_t_rem_get_llvm_a0e88c3155de3083(imaxdiv_t *_swig_go_0) {
   imaxdiv_t *arg1 = (imaxdiv_t *) 0 ;
   long long result;
   long long _swig_go_result;
@@ -318,7 +318,7 @@ long long _wrap_imaxdiv_t_rem_get_llvm_5d1e3feecae2b244(imaxdiv_t *_swig_go_0) {
 }
 
 
-imaxdiv_t *_wrap_new_imaxdiv_t_llvm_5d1e3feecae2b244() {
+imaxdiv_t *_wrap_new_imaxdiv_t_llvm_a0e88c3155de3083() {
   imaxdiv_t *result = 0 ;
   imaxdiv_t *_swig_go_result;
   
@@ -329,7 +329,7 @@ imaxdiv_t *_wrap_new_imaxdiv_t_llvm_5d1e3feecae2b244() {
 }
 
 
-void _wrap_delete_imaxdiv_t_llvm_5d1e3feecae2b244(imaxdiv_t *_swig_go_0) {
+void _wrap_delete_imaxdiv_t_llvm_a0e88c3155de3083(imaxdiv_t *_swig_go_0) {
   imaxdiv_t *arg1 = (imaxdiv_t *) 0 ;
   
   arg1 = *(imaxdiv_t **)&_swig_go_0; 
@@ -339,7 +339,7 @@ void _wrap_delete_imaxdiv_t_llvm_5d1e3feecae2b244(imaxdiv_t *_swig_go_0) {
 }
 
 
-long long _wrap_imaxabs_llvm_5d1e3feecae2b244(long long _swig_go_0) {
+long long _wrap_imaxabs_llvm_a0e88c3155de3083(long long _swig_go_0) {
   intmax_t arg1 ;
   intmax_t result;
   long long _swig_go_result;
@@ -352,7 +352,7 @@ long long _wrap_imaxabs_llvm_5d1e3feecae2b244(long long _swig_go_0) {
 }
 
 
-imaxdiv_t *_wrap_imaxdiv_llvm_5d1e3feecae2b244(long long _swig_go_0, long long _swig_go_1) {
+imaxdiv_t *_wrap_imaxdiv_llvm_a0e88c3155de3083(long long _swig_go_0, long long _swig_go_1) {
   intmax_t arg1 ;
   intmax_t arg2 ;
   imaxdiv_t result;
@@ -371,7 +371,7 @@ imaxdiv_t *_wrap_imaxdiv_llvm_5d1e3feecae2b244(long long _swig_go_0, long long _
 }
 
 
-long long _wrap_strtoimax_llvm_5d1e3feecae2b244(_gostring_ _swig_go_0, _gostring_* _swig_go_1, intgo _swig_go_2) {
+long long _wrap_strtoimax_llvm_a0e88c3155de3083(_gostring_ _swig_go_0, _gostring_* _swig_go_1, intgo _swig_go_2) {
   char *arg1 = (char *) 0 ;
   char **arg2 = (char **) 0 ;
   int arg3 ;
@@ -393,7 +393,7 @@ long long _wrap_strtoimax_llvm_5d1e3feecae2b244(_gostring_ _swig_go_0, _gostring
 }
 
 
-long long _wrap_strtoumax_llvm_5d1e3feecae2b244(_gostring_ _swig_go_0, _gostring_* _swig_go_1, intgo _swig_go_2) {
+long long _wrap_strtoumax_llvm_a0e88c3155de3083(_gostring_ _swig_go_0, _gostring_* _swig_go_1, intgo _swig_go_2) {
   char *arg1 = (char *) 0 ;
   char **arg2 = (char **) 0 ;
   int arg3 ;
@@ -415,7 +415,7 @@ long long _wrap_strtoumax_llvm_5d1e3feecae2b244(_gostring_ _swig_go_0, _gostring
 }
 
 
-void _wrap_InstallFatalErrorHandler_llvm_5d1e3feecae2b244(void* _swig_go_0) {
+void _wrap_InstallFatalErrorHandler_llvm_a0e88c3155de3083(void* _swig_go_0) {
   LLVMFatalErrorHandler arg1 = (LLVMFatalErrorHandler) 0 ;
   
   arg1 = *(LLVMFatalErrorHandler *)&_swig_go_0; 
@@ -425,19 +425,19 @@ void _wrap_InstallFatalErrorHandler_llvm_5d1e3feecae2b244(void* _swig_go_0) {
 }
 
 
-void _wrap_ResetFatalErrorHandler_llvm_5d1e3feecae2b244() {
+void _wrap_ResetFatalErrorHandler_llvm_a0e88c3155de3083() {
   LLVMResetFatalErrorHandler();
   
 }
 
 
-void _wrap_EnablePrettyStackTrace_llvm_5d1e3feecae2b244() {
+void _wrap_EnablePrettyStackTrace_llvm_a0e88c3155de3083() {
   LLVMEnablePrettyStackTrace();
   
 }
 
 
-intgo _wrap_AbortProcessAction_llvm_5d1e3feecae2b244() {
+intgo _wrap_AbortProcessAction_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -449,7 +449,7 @@ intgo _wrap_AbortProcessAction_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_PrintMessageAction_llvm_5d1e3feecae2b244() {
+intgo _wrap_PrintMessageAction_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -461,7 +461,7 @@ intgo _wrap_PrintMessageAction_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ReturnStatusAction_llvm_5d1e3feecae2b244() {
+intgo _wrap_ReturnStatusAction_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -473,7 +473,7 @@ intgo _wrap_ReturnStatusAction_llvm_5d1e3feecae2b244() {
 }
 
 
-bool _wrap_VerifyModule_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, intgo _swig_go_1, _gostring_* _swig_go_2) {
+bool _wrap_VerifyModule_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, intgo _swig_go_1, _gostring_* _swig_go_2) {
   LLVMModuleRef arg1 ;
   LLVMVerifierFailureAction arg2 ;
   char **arg3 = (char **) 0 ;
@@ -494,7 +494,7 @@ bool _wrap_VerifyModule_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, intgo _s
 }
 
 
-bool _wrap_VerifyFunction_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+bool _wrap_VerifyFunction_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMVerifierFailureAction arg2 ;
   LLVMBool result;
@@ -513,7 +513,7 @@ bool _wrap_VerifyFunction_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _
 }
 
 
-void _wrap_ViewFunctionCFG_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+void _wrap_ViewFunctionCFG_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   
   {
@@ -525,7 +525,7 @@ void _wrap_ViewFunctionCFG_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_ViewFunctionCFGOnly_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+void _wrap_ViewFunctionCFGOnly_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   
   {
@@ -537,7 +537,7 @@ void _wrap_ViewFunctionCFGOnly_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-bool _wrap_ParseBitcode_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef _swig_go_0, LLVMModuleRef *_swig_go_1, _gostring_* _swig_go_2) {
+bool _wrap_ParseBitcode_llvm_a0e88c3155de3083(LLVMMemoryBufferRef _swig_go_0, LLVMModuleRef *_swig_go_1, _gostring_* _swig_go_2) {
   LLVMMemoryBufferRef arg1 ;
   LLVMModuleRef *arg2 = (LLVMModuleRef *) 0 ;
   char **arg3 = (char **) 0 ;
@@ -558,7 +558,7 @@ bool _wrap_ParseBitcode_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef _swig_go_0, LL
 }
 
 
-bool _wrap_ParseBitcode2_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef _swig_go_0, LLVMModuleRef *_swig_go_1) {
+bool _wrap_ParseBitcode2_llvm_a0e88c3155de3083(LLVMMemoryBufferRef _swig_go_0, LLVMModuleRef *_swig_go_1) {
   LLVMMemoryBufferRef arg1 ;
   LLVMModuleRef *arg2 = (LLVMModuleRef *) 0 ;
   LLVMBool result;
@@ -577,7 +577,7 @@ bool _wrap_ParseBitcode2_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef _swig_go_0, L
 }
 
 
-bool _wrap_ParseBitcodeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, LLVMMemoryBufferRef _swig_go_1, LLVMModuleRef *_swig_go_2, _gostring_* _swig_go_3) {
+bool _wrap_ParseBitcodeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, LLVMMemoryBufferRef _swig_go_1, LLVMModuleRef *_swig_go_2, _gostring_* _swig_go_3) {
   LLVMContextRef arg1 ;
   LLVMMemoryBufferRef arg2 ;
   LLVMModuleRef *arg3 = (LLVMModuleRef *) 0 ;
@@ -602,7 +602,7 @@ bool _wrap_ParseBitcodeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0
 }
 
 
-bool _wrap_ParseBitcodeInContext2_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, LLVMMemoryBufferRef _swig_go_1, LLVMModuleRef *_swig_go_2) {
+bool _wrap_ParseBitcodeInContext2_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, LLVMMemoryBufferRef _swig_go_1, LLVMModuleRef *_swig_go_2) {
   LLVMContextRef arg1 ;
   LLVMMemoryBufferRef arg2 ;
   LLVMModuleRef *arg3 = (LLVMModuleRef *) 0 ;
@@ -625,7 +625,7 @@ bool _wrap_ParseBitcodeInContext2_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_
 }
 
 
-bool _wrap_GetBitcodeModuleInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, LLVMMemoryBufferRef _swig_go_1, LLVMModuleRef *_swig_go_2, _gostring_* _swig_go_3) {
+bool _wrap_GetBitcodeModuleInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, LLVMMemoryBufferRef _swig_go_1, LLVMModuleRef *_swig_go_2, _gostring_* _swig_go_3) {
   LLVMContextRef arg1 ;
   LLVMMemoryBufferRef arg2 ;
   LLVMModuleRef *arg3 = (LLVMModuleRef *) 0 ;
@@ -650,7 +650,7 @@ bool _wrap_GetBitcodeModuleInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_
 }
 
 
-bool _wrap_GetBitcodeModuleInContext2_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, LLVMMemoryBufferRef _swig_go_1, LLVMModuleRef *_swig_go_2) {
+bool _wrap_GetBitcodeModuleInContext2_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, LLVMMemoryBufferRef _swig_go_1, LLVMModuleRef *_swig_go_2) {
   LLVMContextRef arg1 ;
   LLVMMemoryBufferRef arg2 ;
   LLVMModuleRef *arg3 = (LLVMModuleRef *) 0 ;
@@ -673,7 +673,7 @@ bool _wrap_GetBitcodeModuleInContext2_llvm_5d1e3feecae2b244(LLVMContextRef _swig
 }
 
 
-bool _wrap_GetBitcodeModule_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef _swig_go_0, LLVMModuleRef *_swig_go_1, _gostring_* _swig_go_2) {
+bool _wrap_GetBitcodeModule_llvm_a0e88c3155de3083(LLVMMemoryBufferRef _swig_go_0, LLVMModuleRef *_swig_go_1, _gostring_* _swig_go_2) {
   LLVMMemoryBufferRef arg1 ;
   LLVMModuleRef *arg2 = (LLVMModuleRef *) 0 ;
   char **arg3 = (char **) 0 ;
@@ -694,7 +694,7 @@ bool _wrap_GetBitcodeModule_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef _swig_go_0
 }
 
 
-bool _wrap_GetBitcodeModule2_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef _swig_go_0, LLVMModuleRef *_swig_go_1) {
+bool _wrap_GetBitcodeModule2_llvm_a0e88c3155de3083(LLVMMemoryBufferRef _swig_go_0, LLVMModuleRef *_swig_go_1) {
   LLVMMemoryBufferRef arg1 ;
   LLVMModuleRef *arg2 = (LLVMModuleRef *) 0 ;
   LLVMBool result;
@@ -713,7 +713,7 @@ bool _wrap_GetBitcodeModule2_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef _swig_go_
 }
 
 
-intgo _wrap_WriteBitcodeToFile_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
+intgo _wrap_WriteBitcodeToFile_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   int result;
@@ -735,7 +735,7 @@ intgo _wrap_WriteBitcodeToFile_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, c
 }
 
 
-intgo _wrap_WriteBitcodeToFD_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, intgo _swig_go_1, intgo _swig_go_2, intgo _swig_go_3) {
+intgo _wrap_WriteBitcodeToFD_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, intgo _swig_go_1, intgo _swig_go_2, intgo _swig_go_3) {
   LLVMModuleRef arg1 ;
   int arg2 ;
   int arg3 ;
@@ -756,7 +756,7 @@ intgo _wrap_WriteBitcodeToFD_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, int
 }
 
 
-intgo _wrap_WriteBitcodeToFileHandle_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, intgo _swig_go_1) {
+intgo _wrap_WriteBitcodeToFileHandle_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, intgo _swig_go_1) {
   LLVMModuleRef arg1 ;
   int arg2 ;
   int result;
@@ -773,7 +773,7 @@ intgo _wrap_WriteBitcodeToFileHandle_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_g
 }
 
 
-LLVMMemoryBufferRef _wrap_WriteBitcodeToMemoryBuffer_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+LLVMMemoryBufferRef _wrap_WriteBitcodeToMemoryBuffer_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   LLVMMemoryBufferRef result;
   LLVMMemoryBufferRef _swig_go_result;
@@ -790,7 +790,7 @@ LLVMMemoryBufferRef _wrap_WriteBitcodeToMemoryBuffer_llvm_5d1e3feecae2b244(LLVMM
 }
 
 
-void _wrap_llvm_blake3_chunk_state_cv_set_llvm_5d1e3feecae2b244(llvm_blake3_chunk_state *_swig_go_0, intgo *_swig_go_1) {
+void _wrap_llvm_blake3_chunk_state_cv_set_llvm_a0e88c3155de3083(llvm_blake3_chunk_state *_swig_go_0, intgo *_swig_go_1) {
   llvm_blake3_chunk_state *arg1 = (llvm_blake3_chunk_state *) 0 ;
   uint32_t *arg2 ;
   
@@ -806,7 +806,7 @@ void _wrap_llvm_blake3_chunk_state_cv_set_llvm_5d1e3feecae2b244(llvm_blake3_chun
 }
 
 
-intgo *_wrap_llvm_blake3_chunk_state_cv_get_llvm_5d1e3feecae2b244(llvm_blake3_chunk_state *_swig_go_0) {
+intgo *_wrap_llvm_blake3_chunk_state_cv_get_llvm_a0e88c3155de3083(llvm_blake3_chunk_state *_swig_go_0) {
   llvm_blake3_chunk_state *arg1 = (llvm_blake3_chunk_state *) 0 ;
   uint32_t *result = 0 ;
   intgo *_swig_go_result;
@@ -819,7 +819,7 @@ intgo *_wrap_llvm_blake3_chunk_state_cv_get_llvm_5d1e3feecae2b244(llvm_blake3_ch
 }
 
 
-void _wrap_llvm_blake3_chunk_state_chunk_counter_set_llvm_5d1e3feecae2b244(llvm_blake3_chunk_state *_swig_go_0, long long _swig_go_1) {
+void _wrap_llvm_blake3_chunk_state_chunk_counter_set_llvm_a0e88c3155de3083(llvm_blake3_chunk_state *_swig_go_0, long long _swig_go_1) {
   llvm_blake3_chunk_state *arg1 = (llvm_blake3_chunk_state *) 0 ;
   uint64_t arg2 ;
   
@@ -831,7 +831,7 @@ void _wrap_llvm_blake3_chunk_state_chunk_counter_set_llvm_5d1e3feecae2b244(llvm_
 }
 
 
-long long _wrap_llvm_blake3_chunk_state_chunk_counter_get_llvm_5d1e3feecae2b244(llvm_blake3_chunk_state *_swig_go_0) {
+long long _wrap_llvm_blake3_chunk_state_chunk_counter_get_llvm_a0e88c3155de3083(llvm_blake3_chunk_state *_swig_go_0) {
   llvm_blake3_chunk_state *arg1 = (llvm_blake3_chunk_state *) 0 ;
   uint64_t result;
   long long _swig_go_result;
@@ -844,7 +844,7 @@ long long _wrap_llvm_blake3_chunk_state_chunk_counter_get_llvm_5d1e3feecae2b244(
 }
 
 
-void _wrap_llvm_blake3_chunk_state_buf_set_llvm_5d1e3feecae2b244(llvm_blake3_chunk_state *_swig_go_0, char *_swig_go_1) {
+void _wrap_llvm_blake3_chunk_state_buf_set_llvm_a0e88c3155de3083(llvm_blake3_chunk_state *_swig_go_0, char *_swig_go_1) {
   llvm_blake3_chunk_state *arg1 = (llvm_blake3_chunk_state *) 0 ;
   uint8_t *arg2 ;
   
@@ -860,7 +860,7 @@ void _wrap_llvm_blake3_chunk_state_buf_set_llvm_5d1e3feecae2b244(llvm_blake3_chu
 }
 
 
-char *_wrap_llvm_blake3_chunk_state_buf_get_llvm_5d1e3feecae2b244(llvm_blake3_chunk_state *_swig_go_0) {
+char *_wrap_llvm_blake3_chunk_state_buf_get_llvm_a0e88c3155de3083(llvm_blake3_chunk_state *_swig_go_0) {
   llvm_blake3_chunk_state *arg1 = (llvm_blake3_chunk_state *) 0 ;
   uint8_t *result = 0 ;
   char *_swig_go_result;
@@ -873,7 +873,7 @@ char *_wrap_llvm_blake3_chunk_state_buf_get_llvm_5d1e3feecae2b244(llvm_blake3_ch
 }
 
 
-void _wrap_llvm_blake3_chunk_state_buf_len_set_llvm_5d1e3feecae2b244(llvm_blake3_chunk_state *_swig_go_0, char _swig_go_1) {
+void _wrap_llvm_blake3_chunk_state_buf_len_set_llvm_a0e88c3155de3083(llvm_blake3_chunk_state *_swig_go_0, char _swig_go_1) {
   llvm_blake3_chunk_state *arg1 = (llvm_blake3_chunk_state *) 0 ;
   uint8_t arg2 ;
   
@@ -885,7 +885,7 @@ void _wrap_llvm_blake3_chunk_state_buf_len_set_llvm_5d1e3feecae2b244(llvm_blake3
 }
 
 
-char _wrap_llvm_blake3_chunk_state_buf_len_get_llvm_5d1e3feecae2b244(llvm_blake3_chunk_state *_swig_go_0) {
+char _wrap_llvm_blake3_chunk_state_buf_len_get_llvm_a0e88c3155de3083(llvm_blake3_chunk_state *_swig_go_0) {
   llvm_blake3_chunk_state *arg1 = (llvm_blake3_chunk_state *) 0 ;
   uint8_t result;
   char _swig_go_result;
@@ -898,7 +898,7 @@ char _wrap_llvm_blake3_chunk_state_buf_len_get_llvm_5d1e3feecae2b244(llvm_blake3
 }
 
 
-void _wrap_llvm_blake3_chunk_state_blocks_compressed_set_llvm_5d1e3feecae2b244(llvm_blake3_chunk_state *_swig_go_0, char _swig_go_1) {
+void _wrap_llvm_blake3_chunk_state_blocks_compressed_set_llvm_a0e88c3155de3083(llvm_blake3_chunk_state *_swig_go_0, char _swig_go_1) {
   llvm_blake3_chunk_state *arg1 = (llvm_blake3_chunk_state *) 0 ;
   uint8_t arg2 ;
   
@@ -910,7 +910,7 @@ void _wrap_llvm_blake3_chunk_state_blocks_compressed_set_llvm_5d1e3feecae2b244(l
 }
 
 
-char _wrap_llvm_blake3_chunk_state_blocks_compressed_get_llvm_5d1e3feecae2b244(llvm_blake3_chunk_state *_swig_go_0) {
+char _wrap_llvm_blake3_chunk_state_blocks_compressed_get_llvm_a0e88c3155de3083(llvm_blake3_chunk_state *_swig_go_0) {
   llvm_blake3_chunk_state *arg1 = (llvm_blake3_chunk_state *) 0 ;
   uint8_t result;
   char _swig_go_result;
@@ -923,7 +923,7 @@ char _wrap_llvm_blake3_chunk_state_blocks_compressed_get_llvm_5d1e3feecae2b244(l
 }
 
 
-void _wrap_llvm_blake3_chunk_state_flags_set_llvm_5d1e3feecae2b244(llvm_blake3_chunk_state *_swig_go_0, char _swig_go_1) {
+void _wrap_llvm_blake3_chunk_state_flags_set_llvm_a0e88c3155de3083(llvm_blake3_chunk_state *_swig_go_0, char _swig_go_1) {
   llvm_blake3_chunk_state *arg1 = (llvm_blake3_chunk_state *) 0 ;
   uint8_t arg2 ;
   
@@ -935,7 +935,7 @@ void _wrap_llvm_blake3_chunk_state_flags_set_llvm_5d1e3feecae2b244(llvm_blake3_c
 }
 
 
-char _wrap_llvm_blake3_chunk_state_flags_get_llvm_5d1e3feecae2b244(llvm_blake3_chunk_state *_swig_go_0) {
+char _wrap_llvm_blake3_chunk_state_flags_get_llvm_a0e88c3155de3083(llvm_blake3_chunk_state *_swig_go_0) {
   llvm_blake3_chunk_state *arg1 = (llvm_blake3_chunk_state *) 0 ;
   uint8_t result;
   char _swig_go_result;
@@ -948,7 +948,7 @@ char _wrap_llvm_blake3_chunk_state_flags_get_llvm_5d1e3feecae2b244(llvm_blake3_c
 }
 
 
-llvm_blake3_chunk_state *_wrap_new_llvm_blake3_chunk_state_llvm_5d1e3feecae2b244() {
+llvm_blake3_chunk_state *_wrap_new_llvm_blake3_chunk_state_llvm_a0e88c3155de3083() {
   llvm_blake3_chunk_state *result = 0 ;
   llvm_blake3_chunk_state *_swig_go_result;
   
@@ -959,7 +959,7 @@ llvm_blake3_chunk_state *_wrap_new_llvm_blake3_chunk_state_llvm_5d1e3feecae2b244
 }
 
 
-void _wrap_delete_llvm_blake3_chunk_state_llvm_5d1e3feecae2b244(llvm_blake3_chunk_state *_swig_go_0) {
+void _wrap_delete_llvm_blake3_chunk_state_llvm_a0e88c3155de3083(llvm_blake3_chunk_state *_swig_go_0) {
   llvm_blake3_chunk_state *arg1 = (llvm_blake3_chunk_state *) 0 ;
   
   arg1 = *(llvm_blake3_chunk_state **)&_swig_go_0; 
@@ -969,7 +969,7 @@ void _wrap_delete_llvm_blake3_chunk_state_llvm_5d1e3feecae2b244(llvm_blake3_chun
 }
 
 
-void _wrap_llvm_blake3_hasher_key_set_llvm_5d1e3feecae2b244(llvm_blake3_hasher *_swig_go_0, intgo *_swig_go_1) {
+void _wrap_llvm_blake3_hasher_key_set_llvm_a0e88c3155de3083(llvm_blake3_hasher *_swig_go_0, intgo *_swig_go_1) {
   llvm_blake3_hasher *arg1 = (llvm_blake3_hasher *) 0 ;
   uint32_t *arg2 ;
   
@@ -985,7 +985,7 @@ void _wrap_llvm_blake3_hasher_key_set_llvm_5d1e3feecae2b244(llvm_blake3_hasher *
 }
 
 
-intgo *_wrap_llvm_blake3_hasher_key_get_llvm_5d1e3feecae2b244(llvm_blake3_hasher *_swig_go_0) {
+intgo *_wrap_llvm_blake3_hasher_key_get_llvm_a0e88c3155de3083(llvm_blake3_hasher *_swig_go_0) {
   llvm_blake3_hasher *arg1 = (llvm_blake3_hasher *) 0 ;
   uint32_t *result = 0 ;
   intgo *_swig_go_result;
@@ -998,7 +998,7 @@ intgo *_wrap_llvm_blake3_hasher_key_get_llvm_5d1e3feecae2b244(llvm_blake3_hasher
 }
 
 
-void _wrap_llvm_blake3_hasher_chunk_set_llvm_5d1e3feecae2b244(llvm_blake3_hasher *_swig_go_0, llvm_blake3_chunk_state *_swig_go_1) {
+void _wrap_llvm_blake3_hasher_chunk_set_llvm_a0e88c3155de3083(llvm_blake3_hasher *_swig_go_0, llvm_blake3_chunk_state *_swig_go_1) {
   llvm_blake3_hasher *arg1 = (llvm_blake3_hasher *) 0 ;
   llvm_blake3_chunk_state *arg2 = (llvm_blake3_chunk_state *) 0 ;
   
@@ -1010,7 +1010,7 @@ void _wrap_llvm_blake3_hasher_chunk_set_llvm_5d1e3feecae2b244(llvm_blake3_hasher
 }
 
 
-llvm_blake3_chunk_state *_wrap_llvm_blake3_hasher_chunk_get_llvm_5d1e3feecae2b244(llvm_blake3_hasher *_swig_go_0) {
+llvm_blake3_chunk_state *_wrap_llvm_blake3_hasher_chunk_get_llvm_a0e88c3155de3083(llvm_blake3_hasher *_swig_go_0) {
   llvm_blake3_hasher *arg1 = (llvm_blake3_hasher *) 0 ;
   llvm_blake3_chunk_state *result = 0 ;
   llvm_blake3_chunk_state *_swig_go_result;
@@ -1023,7 +1023,7 @@ llvm_blake3_chunk_state *_wrap_llvm_blake3_hasher_chunk_get_llvm_5d1e3feecae2b24
 }
 
 
-void _wrap_llvm_blake3_hasher_cv_stack_len_set_llvm_5d1e3feecae2b244(llvm_blake3_hasher *_swig_go_0, char _swig_go_1) {
+void _wrap_llvm_blake3_hasher_cv_stack_len_set_llvm_a0e88c3155de3083(llvm_blake3_hasher *_swig_go_0, char _swig_go_1) {
   llvm_blake3_hasher *arg1 = (llvm_blake3_hasher *) 0 ;
   uint8_t arg2 ;
   
@@ -1035,7 +1035,7 @@ void _wrap_llvm_blake3_hasher_cv_stack_len_set_llvm_5d1e3feecae2b244(llvm_blake3
 }
 
 
-char _wrap_llvm_blake3_hasher_cv_stack_len_get_llvm_5d1e3feecae2b244(llvm_blake3_hasher *_swig_go_0) {
+char _wrap_llvm_blake3_hasher_cv_stack_len_get_llvm_a0e88c3155de3083(llvm_blake3_hasher *_swig_go_0) {
   llvm_blake3_hasher *arg1 = (llvm_blake3_hasher *) 0 ;
   uint8_t result;
   char _swig_go_result;
@@ -1048,7 +1048,7 @@ char _wrap_llvm_blake3_hasher_cv_stack_len_get_llvm_5d1e3feecae2b244(llvm_blake3
 }
 
 
-void _wrap_llvm_blake3_hasher_cv_stack_set_llvm_5d1e3feecae2b244(llvm_blake3_hasher *_swig_go_0, char *_swig_go_1) {
+void _wrap_llvm_blake3_hasher_cv_stack_set_llvm_a0e88c3155de3083(llvm_blake3_hasher *_swig_go_0, char *_swig_go_1) {
   llvm_blake3_hasher *arg1 = (llvm_blake3_hasher *) 0 ;
   uint8_t *arg2 ;
   
@@ -1064,7 +1064,7 @@ void _wrap_llvm_blake3_hasher_cv_stack_set_llvm_5d1e3feecae2b244(llvm_blake3_has
 }
 
 
-char *_wrap_llvm_blake3_hasher_cv_stack_get_llvm_5d1e3feecae2b244(llvm_blake3_hasher *_swig_go_0) {
+char *_wrap_llvm_blake3_hasher_cv_stack_get_llvm_a0e88c3155de3083(llvm_blake3_hasher *_swig_go_0) {
   llvm_blake3_hasher *arg1 = (llvm_blake3_hasher *) 0 ;
   uint8_t *result = 0 ;
   char *_swig_go_result;
@@ -1077,7 +1077,7 @@ char *_wrap_llvm_blake3_hasher_cv_stack_get_llvm_5d1e3feecae2b244(llvm_blake3_ha
 }
 
 
-llvm_blake3_hasher *_wrap_new_llvm_blake3_hasher_llvm_5d1e3feecae2b244() {
+llvm_blake3_hasher *_wrap_new_llvm_blake3_hasher_llvm_a0e88c3155de3083() {
   llvm_blake3_hasher *result = 0 ;
   llvm_blake3_hasher *_swig_go_result;
   
@@ -1088,7 +1088,7 @@ llvm_blake3_hasher *_wrap_new_llvm_blake3_hasher_llvm_5d1e3feecae2b244() {
 }
 
 
-void _wrap_delete_llvm_blake3_hasher_llvm_5d1e3feecae2b244(llvm_blake3_hasher *_swig_go_0) {
+void _wrap_delete_llvm_blake3_hasher_llvm_a0e88c3155de3083(llvm_blake3_hasher *_swig_go_0) {
   llvm_blake3_hasher *arg1 = (llvm_blake3_hasher *) 0 ;
   
   arg1 = *(llvm_blake3_hasher **)&_swig_go_0; 
@@ -1098,7 +1098,7 @@ void _wrap_delete_llvm_blake3_hasher_llvm_5d1e3feecae2b244(llvm_blake3_hasher *_
 }
 
 
-char *_wrap_llvm_blake3_version_llvm_5d1e3feecae2b244() {
+char *_wrap_llvm_blake3_version_llvm_a0e88c3155de3083() {
   char *result = 0 ;
   char *_swig_go_result;
   
@@ -1111,7 +1111,7 @@ char *_wrap_llvm_blake3_version_llvm_5d1e3feecae2b244() {
 }
 
 
-void _wrap_llvm_blake3_hasher_init_llvm_5d1e3feecae2b244(llvm_blake3_hasher *_swig_go_0) {
+void _wrap_llvm_blake3_hasher_init_llvm_a0e88c3155de3083(llvm_blake3_hasher *_swig_go_0) {
   llvm_blake3_hasher *arg1 = (llvm_blake3_hasher *) 0 ;
   
   arg1 = *(llvm_blake3_hasher **)&_swig_go_0; 
@@ -1121,7 +1121,7 @@ void _wrap_llvm_blake3_hasher_init_llvm_5d1e3feecae2b244(llvm_blake3_hasher *_sw
 }
 
 
-void _wrap_llvm_blake3_hasher_init_keyed_llvm_5d1e3feecae2b244(llvm_blake3_hasher *_swig_go_0, char *_swig_go_1) {
+void _wrap_llvm_blake3_hasher_init_keyed_llvm_a0e88c3155de3083(llvm_blake3_hasher *_swig_go_0, char *_swig_go_1) {
   llvm_blake3_hasher *arg1 = (llvm_blake3_hasher *) 0 ;
   uint8_t *arg2 ;
   
@@ -1133,7 +1133,7 @@ void _wrap_llvm_blake3_hasher_init_keyed_llvm_5d1e3feecae2b244(llvm_blake3_hashe
 }
 
 
-void _wrap_llvm_blake3_hasher_init_derive_key_llvm_5d1e3feecae2b244(llvm_blake3_hasher *_swig_go_0, char *_swig_go_1) {
+void _wrap_llvm_blake3_hasher_init_derive_key_llvm_a0e88c3155de3083(llvm_blake3_hasher *_swig_go_0, char *_swig_go_1) {
   llvm_blake3_hasher *arg1 = (llvm_blake3_hasher *) 0 ;
   char *arg2 = (char *) 0 ;
   
@@ -1150,7 +1150,7 @@ void _wrap_llvm_blake3_hasher_init_derive_key_llvm_5d1e3feecae2b244(llvm_blake3_
 }
 
 
-void _wrap_llvm_blake3_hasher_init_derive_key_raw_llvm_5d1e3feecae2b244(llvm_blake3_hasher *_swig_go_0, void *_swig_go_1, long long _swig_go_2) {
+void _wrap_llvm_blake3_hasher_init_derive_key_raw_llvm_a0e88c3155de3083(llvm_blake3_hasher *_swig_go_0, void *_swig_go_1, long long _swig_go_2) {
   llvm_blake3_hasher *arg1 = (llvm_blake3_hasher *) 0 ;
   void *arg2 = (void *) 0 ;
   size_t arg3 ;
@@ -1164,7 +1164,7 @@ void _wrap_llvm_blake3_hasher_init_derive_key_raw_llvm_5d1e3feecae2b244(llvm_bla
 }
 
 
-void _wrap_llvm_blake3_hasher_update_llvm_5d1e3feecae2b244(llvm_blake3_hasher *_swig_go_0, void *_swig_go_1, long long _swig_go_2) {
+void _wrap_llvm_blake3_hasher_update_llvm_a0e88c3155de3083(llvm_blake3_hasher *_swig_go_0, void *_swig_go_1, long long _swig_go_2) {
   llvm_blake3_hasher *arg1 = (llvm_blake3_hasher *) 0 ;
   void *arg2 = (void *) 0 ;
   size_t arg3 ;
@@ -1178,7 +1178,7 @@ void _wrap_llvm_blake3_hasher_update_llvm_5d1e3feecae2b244(llvm_blake3_hasher *_
 }
 
 
-void _wrap_llvm_blake3_hasher_finalize_llvm_5d1e3feecae2b244(llvm_blake3_hasher *_swig_go_0, char *_swig_go_1, long long _swig_go_2) {
+void _wrap_llvm_blake3_hasher_finalize_llvm_a0e88c3155de3083(llvm_blake3_hasher *_swig_go_0, char *_swig_go_1, long long _swig_go_2) {
   llvm_blake3_hasher *arg1 = (llvm_blake3_hasher *) 0 ;
   uint8_t *arg2 = (uint8_t *) 0 ;
   size_t arg3 ;
@@ -1192,7 +1192,7 @@ void _wrap_llvm_blake3_hasher_finalize_llvm_5d1e3feecae2b244(llvm_blake3_hasher 
 }
 
 
-void _wrap_llvm_blake3_hasher_finalize_seek_llvm_5d1e3feecae2b244(llvm_blake3_hasher *_swig_go_0, long long _swig_go_1, char *_swig_go_2, long long _swig_go_3) {
+void _wrap_llvm_blake3_hasher_finalize_seek_llvm_a0e88c3155de3083(llvm_blake3_hasher *_swig_go_0, long long _swig_go_1, char *_swig_go_2, long long _swig_go_3) {
   llvm_blake3_hasher *arg1 = (llvm_blake3_hasher *) 0 ;
   uint64_t arg2 ;
   uint8_t *arg3 = (uint8_t *) 0 ;
@@ -1208,7 +1208,7 @@ void _wrap_llvm_blake3_hasher_finalize_seek_llvm_5d1e3feecae2b244(llvm_blake3_ha
 }
 
 
-void _wrap_llvm_blake3_hasher_reset_llvm_5d1e3feecae2b244(llvm_blake3_hasher *_swig_go_0) {
+void _wrap_llvm_blake3_hasher_reset_llvm_a0e88c3155de3083(llvm_blake3_hasher *_swig_go_0) {
   llvm_blake3_hasher *arg1 = (llvm_blake3_hasher *) 0 ;
   
   arg1 = *(llvm_blake3_hasher **)&_swig_go_0; 
@@ -1218,7 +1218,7 @@ void _wrap_llvm_blake3_hasher_reset_llvm_5d1e3feecae2b244(llvm_blake3_hasher *_s
 }
 
 
-intgo _wrap_AnyComdatSelectionKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_AnyComdatSelectionKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1230,7 +1230,7 @@ intgo _wrap_AnyComdatSelectionKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ExactMatchComdatSelectionKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_ExactMatchComdatSelectionKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1242,7 +1242,7 @@ intgo _wrap_ExactMatchComdatSelectionKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_LargestComdatSelectionKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_LargestComdatSelectionKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1254,7 +1254,7 @@ intgo _wrap_LargestComdatSelectionKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_NoDeduplicateComdatSelectionKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_NoDeduplicateComdatSelectionKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1266,7 +1266,7 @@ intgo _wrap_NoDeduplicateComdatSelectionKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_SameSizeComdatSelectionKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_SameSizeComdatSelectionKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1278,7 +1278,7 @@ intgo _wrap_SameSizeComdatSelectionKind_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMComdatRef _wrap_GetOrInsertComdat_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
+LLVMComdatRef _wrap_GetOrInsertComdat_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   LLVMComdatRef result;
@@ -1302,7 +1302,7 @@ LLVMComdatRef _wrap_GetOrInsertComdat_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_
 }
 
 
-LLVMComdatRef _wrap_GetComdat_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMComdatRef _wrap_GetComdat_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMComdatRef result;
   LLVMComdatRef _swig_go_result;
@@ -1319,7 +1319,7 @@ LLVMComdatRef _wrap_GetComdat_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetComdat_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMComdatRef _swig_go_1) {
+void _wrap_SetComdat_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMComdatRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMComdatRef arg2 ;
   
@@ -1335,7 +1335,7 @@ void _wrap_SetComdat_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMComdatRe
 }
 
 
-intgo _wrap_GetComdatSelectionKind_llvm_5d1e3feecae2b244(LLVMComdatRef _swig_go_0) {
+intgo _wrap_GetComdatSelectionKind_llvm_a0e88c3155de3083(LLVMComdatRef _swig_go_0) {
   LLVMComdatRef arg1 ;
   LLVMComdatSelectionKind result;
   intgo _swig_go_result;
@@ -1350,7 +1350,7 @@ intgo _wrap_GetComdatSelectionKind_llvm_5d1e3feecae2b244(LLVMComdatRef _swig_go_
 }
 
 
-void _wrap_SetComdatSelectionKind_llvm_5d1e3feecae2b244(LLVMComdatRef _swig_go_0, intgo _swig_go_1) {
+void _wrap_SetComdatSelectionKind_llvm_a0e88c3155de3083(LLVMComdatRef _swig_go_0, intgo _swig_go_1) {
   LLVMComdatRef arg1 ;
   LLVMComdatSelectionKind arg2 ;
   
@@ -1364,7 +1364,7 @@ void _wrap_SetComdatSelectionKind_llvm_5d1e3feecae2b244(LLVMComdatRef _swig_go_0
 }
 
 
-intgo _wrap_Ret_llvm_5d1e3feecae2b244() {
+intgo _wrap_Ret_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1376,7 +1376,7 @@ intgo _wrap_Ret_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_Br_llvm_5d1e3feecae2b244() {
+intgo _wrap_Br_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1388,7 +1388,7 @@ intgo _wrap_Br_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_Switch_llvm_5d1e3feecae2b244() {
+intgo _wrap_Switch_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1400,7 +1400,7 @@ intgo _wrap_Switch_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_IndirectBr_llvm_5d1e3feecae2b244() {
+intgo _wrap_IndirectBr_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1412,7 +1412,7 @@ intgo _wrap_IndirectBr_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_Invoke_llvm_5d1e3feecae2b244() {
+intgo _wrap_Invoke_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1424,7 +1424,7 @@ intgo _wrap_Invoke_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_Unreachable_llvm_5d1e3feecae2b244() {
+intgo _wrap_Unreachable_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1436,7 +1436,7 @@ intgo _wrap_Unreachable_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_CallBr_llvm_5d1e3feecae2b244() {
+intgo _wrap_CallBr_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1448,7 +1448,7 @@ intgo _wrap_CallBr_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_FNeg_llvm_5d1e3feecae2b244() {
+intgo _wrap_FNeg_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1460,7 +1460,7 @@ intgo _wrap_FNeg_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_Add_llvm_5d1e3feecae2b244() {
+intgo _wrap_Add_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1472,7 +1472,7 @@ intgo _wrap_Add_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_FAdd_llvm_5d1e3feecae2b244() {
+intgo _wrap_FAdd_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1484,7 +1484,7 @@ intgo _wrap_FAdd_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_Sub_llvm_5d1e3feecae2b244() {
+intgo _wrap_Sub_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1496,7 +1496,7 @@ intgo _wrap_Sub_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_FSub_llvm_5d1e3feecae2b244() {
+intgo _wrap_FSub_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1508,7 +1508,7 @@ intgo _wrap_FSub_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_Mul_llvm_5d1e3feecae2b244() {
+intgo _wrap_Mul_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1520,7 +1520,7 @@ intgo _wrap_Mul_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_FMul_llvm_5d1e3feecae2b244() {
+intgo _wrap_FMul_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1532,7 +1532,7 @@ intgo _wrap_FMul_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_UDiv_llvm_5d1e3feecae2b244() {
+intgo _wrap_UDiv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1544,7 +1544,7 @@ intgo _wrap_UDiv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_SDiv_llvm_5d1e3feecae2b244() {
+intgo _wrap_SDiv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1556,7 +1556,7 @@ intgo _wrap_SDiv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_FDiv_llvm_5d1e3feecae2b244() {
+intgo _wrap_FDiv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1568,7 +1568,7 @@ intgo _wrap_FDiv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_URem_llvm_5d1e3feecae2b244() {
+intgo _wrap_URem_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1580,7 +1580,7 @@ intgo _wrap_URem_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_SRem_llvm_5d1e3feecae2b244() {
+intgo _wrap_SRem_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1592,7 +1592,7 @@ intgo _wrap_SRem_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_FRem_llvm_5d1e3feecae2b244() {
+intgo _wrap_FRem_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1604,7 +1604,7 @@ intgo _wrap_FRem_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_Shl_llvm_5d1e3feecae2b244() {
+intgo _wrap_Shl_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1616,7 +1616,7 @@ intgo _wrap_Shl_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_LShr_llvm_5d1e3feecae2b244() {
+intgo _wrap_LShr_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1628,7 +1628,7 @@ intgo _wrap_LShr_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AShr_llvm_5d1e3feecae2b244() {
+intgo _wrap_AShr_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1640,7 +1640,7 @@ intgo _wrap_AShr_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_And_llvm_5d1e3feecae2b244() {
+intgo _wrap_And_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1652,7 +1652,7 @@ intgo _wrap_And_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_Or_llvm_5d1e3feecae2b244() {
+intgo _wrap_Or_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1664,7 +1664,7 @@ intgo _wrap_Or_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_Xor_llvm_5d1e3feecae2b244() {
+intgo _wrap_Xor_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1676,7 +1676,7 @@ intgo _wrap_Xor_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_Alloca_llvm_5d1e3feecae2b244() {
+intgo _wrap_Alloca_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1688,7 +1688,7 @@ intgo _wrap_Alloca_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_Load_llvm_5d1e3feecae2b244() {
+intgo _wrap_Load_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1700,7 +1700,7 @@ intgo _wrap_Load_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_Store_llvm_5d1e3feecae2b244() {
+intgo _wrap_Store_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1712,7 +1712,7 @@ intgo _wrap_Store_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_GetElementPtr_llvm_5d1e3feecae2b244() {
+intgo _wrap_GetElementPtr_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1724,7 +1724,7 @@ intgo _wrap_GetElementPtr_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_Trunc_llvm_5d1e3feecae2b244() {
+intgo _wrap_Trunc_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1736,7 +1736,7 @@ intgo _wrap_Trunc_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ZExt_llvm_5d1e3feecae2b244() {
+intgo _wrap_ZExt_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1748,7 +1748,7 @@ intgo _wrap_ZExt_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_SExt_llvm_5d1e3feecae2b244() {
+intgo _wrap_SExt_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1760,7 +1760,7 @@ intgo _wrap_SExt_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_FPToUI_llvm_5d1e3feecae2b244() {
+intgo _wrap_FPToUI_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1772,7 +1772,7 @@ intgo _wrap_FPToUI_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_FPToSI_llvm_5d1e3feecae2b244() {
+intgo _wrap_FPToSI_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1784,7 +1784,7 @@ intgo _wrap_FPToSI_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_UIToFP_llvm_5d1e3feecae2b244() {
+intgo _wrap_UIToFP_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1796,7 +1796,7 @@ intgo _wrap_UIToFP_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_SIToFP_llvm_5d1e3feecae2b244() {
+intgo _wrap_SIToFP_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1808,7 +1808,7 @@ intgo _wrap_SIToFP_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_FPTrunc_llvm_5d1e3feecae2b244() {
+intgo _wrap_FPTrunc_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1820,7 +1820,7 @@ intgo _wrap_FPTrunc_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_FPExt_llvm_5d1e3feecae2b244() {
+intgo _wrap_FPExt_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1832,7 +1832,7 @@ intgo _wrap_FPExt_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_PtrToInt_llvm_5d1e3feecae2b244() {
+intgo _wrap_PtrToInt_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1844,7 +1844,7 @@ intgo _wrap_PtrToInt_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_IntToPtr_llvm_5d1e3feecae2b244() {
+intgo _wrap_IntToPtr_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1856,7 +1856,7 @@ intgo _wrap_IntToPtr_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_BitCast_llvm_5d1e3feecae2b244() {
+intgo _wrap_BitCast_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1868,7 +1868,7 @@ intgo _wrap_BitCast_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AddrSpaceCast_llvm_5d1e3feecae2b244() {
+intgo _wrap_AddrSpaceCast_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1880,7 +1880,7 @@ intgo _wrap_AddrSpaceCast_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ICmp_llvm_5d1e3feecae2b244() {
+intgo _wrap_ICmp_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1892,7 +1892,7 @@ intgo _wrap_ICmp_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_FCmp_llvm_5d1e3feecae2b244() {
+intgo _wrap_FCmp_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1904,7 +1904,7 @@ intgo _wrap_FCmp_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_PHI_llvm_5d1e3feecae2b244() {
+intgo _wrap_PHI_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1916,7 +1916,7 @@ intgo _wrap_PHI_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_Call_llvm_5d1e3feecae2b244() {
+intgo _wrap_Call_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1928,7 +1928,7 @@ intgo _wrap_Call_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_Select_llvm_5d1e3feecae2b244() {
+intgo _wrap_Select_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1940,7 +1940,7 @@ intgo _wrap_Select_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_UserOp1_llvm_5d1e3feecae2b244() {
+intgo _wrap_UserOp1_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1952,7 +1952,7 @@ intgo _wrap_UserOp1_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_UserOp2_llvm_5d1e3feecae2b244() {
+intgo _wrap_UserOp2_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1964,7 +1964,7 @@ intgo _wrap_UserOp2_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_VAArg_llvm_5d1e3feecae2b244() {
+intgo _wrap_VAArg_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1976,7 +1976,7 @@ intgo _wrap_VAArg_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ExtractElement_llvm_5d1e3feecae2b244() {
+intgo _wrap_ExtractElement_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -1988,7 +1988,7 @@ intgo _wrap_ExtractElement_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_InsertElement_llvm_5d1e3feecae2b244() {
+intgo _wrap_InsertElement_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2000,7 +2000,7 @@ intgo _wrap_InsertElement_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ShuffleVector_llvm_5d1e3feecae2b244() {
+intgo _wrap_ShuffleVector_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2012,7 +2012,7 @@ intgo _wrap_ShuffleVector_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ExtractValue_llvm_5d1e3feecae2b244() {
+intgo _wrap_ExtractValue_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2024,7 +2024,7 @@ intgo _wrap_ExtractValue_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_InsertValue_llvm_5d1e3feecae2b244() {
+intgo _wrap_InsertValue_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2036,7 +2036,7 @@ intgo _wrap_InsertValue_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_Freeze_llvm_5d1e3feecae2b244() {
+intgo _wrap_Freeze_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2048,7 +2048,7 @@ intgo _wrap_Freeze_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_Fence_llvm_5d1e3feecae2b244() {
+intgo _wrap_Fence_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2060,7 +2060,7 @@ intgo _wrap_Fence_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicCmpXchg_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicCmpXchg_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2072,7 +2072,7 @@ intgo _wrap_AtomicCmpXchg_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicRMW_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicRMW_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2084,7 +2084,7 @@ intgo _wrap_AtomicRMW_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_Resume_llvm_5d1e3feecae2b244() {
+intgo _wrap_Resume_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2096,7 +2096,7 @@ intgo _wrap_Resume_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_LandingPad_llvm_5d1e3feecae2b244() {
+intgo _wrap_LandingPad_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2108,7 +2108,7 @@ intgo _wrap_LandingPad_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_CleanupRet_llvm_5d1e3feecae2b244() {
+intgo _wrap_CleanupRet_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2120,7 +2120,7 @@ intgo _wrap_CleanupRet_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_CatchRet_llvm_5d1e3feecae2b244() {
+intgo _wrap_CatchRet_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2132,7 +2132,7 @@ intgo _wrap_CatchRet_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_CatchPad_llvm_5d1e3feecae2b244() {
+intgo _wrap_CatchPad_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2144,7 +2144,7 @@ intgo _wrap_CatchPad_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_CleanupPad_llvm_5d1e3feecae2b244() {
+intgo _wrap_CleanupPad_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2156,7 +2156,7 @@ intgo _wrap_CleanupPad_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_CatchSwitch_llvm_5d1e3feecae2b244() {
+intgo _wrap_CatchSwitch_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2168,7 +2168,7 @@ intgo _wrap_CatchSwitch_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ExternalLinkage_llvm_5d1e3feecae2b244() {
+intgo _wrap_ExternalLinkage_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2180,7 +2180,7 @@ intgo _wrap_ExternalLinkage_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AvailableExternallyLinkage_llvm_5d1e3feecae2b244() {
+intgo _wrap_AvailableExternallyLinkage_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2192,7 +2192,7 @@ intgo _wrap_AvailableExternallyLinkage_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_LinkOnceAnyLinkage_llvm_5d1e3feecae2b244() {
+intgo _wrap_LinkOnceAnyLinkage_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2204,7 +2204,7 @@ intgo _wrap_LinkOnceAnyLinkage_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_LinkOnceODRLinkage_llvm_5d1e3feecae2b244() {
+intgo _wrap_LinkOnceODRLinkage_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2216,7 +2216,7 @@ intgo _wrap_LinkOnceODRLinkage_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_LinkOnceODRAutoHideLinkage_llvm_5d1e3feecae2b244() {
+intgo _wrap_LinkOnceODRAutoHideLinkage_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2228,7 +2228,7 @@ intgo _wrap_LinkOnceODRAutoHideLinkage_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_WeakAnyLinkage_llvm_5d1e3feecae2b244() {
+intgo _wrap_WeakAnyLinkage_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2240,7 +2240,7 @@ intgo _wrap_WeakAnyLinkage_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_WeakODRLinkage_llvm_5d1e3feecae2b244() {
+intgo _wrap_WeakODRLinkage_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2252,7 +2252,7 @@ intgo _wrap_WeakODRLinkage_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AppendingLinkage_llvm_5d1e3feecae2b244() {
+intgo _wrap_AppendingLinkage_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2264,7 +2264,7 @@ intgo _wrap_AppendingLinkage_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_InternalLinkage_llvm_5d1e3feecae2b244() {
+intgo _wrap_InternalLinkage_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2276,7 +2276,7 @@ intgo _wrap_InternalLinkage_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_PrivateLinkage_llvm_5d1e3feecae2b244() {
+intgo _wrap_PrivateLinkage_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2288,7 +2288,7 @@ intgo _wrap_PrivateLinkage_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DLLImportLinkage_llvm_5d1e3feecae2b244() {
+intgo _wrap_DLLImportLinkage_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2300,7 +2300,7 @@ intgo _wrap_DLLImportLinkage_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DLLExportLinkage_llvm_5d1e3feecae2b244() {
+intgo _wrap_DLLExportLinkage_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2312,7 +2312,7 @@ intgo _wrap_DLLExportLinkage_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ExternalWeakLinkage_llvm_5d1e3feecae2b244() {
+intgo _wrap_ExternalWeakLinkage_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2324,7 +2324,7 @@ intgo _wrap_ExternalWeakLinkage_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_GhostLinkage_llvm_5d1e3feecae2b244() {
+intgo _wrap_GhostLinkage_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2336,7 +2336,7 @@ intgo _wrap_GhostLinkage_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_CommonLinkage_llvm_5d1e3feecae2b244() {
+intgo _wrap_CommonLinkage_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2348,7 +2348,7 @@ intgo _wrap_CommonLinkage_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_LinkerPrivateLinkage_llvm_5d1e3feecae2b244() {
+intgo _wrap_LinkerPrivateLinkage_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2360,7 +2360,7 @@ intgo _wrap_LinkerPrivateLinkage_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_LinkerPrivateWeakLinkage_llvm_5d1e3feecae2b244() {
+intgo _wrap_LinkerPrivateWeakLinkage_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2372,7 +2372,7 @@ intgo _wrap_LinkerPrivateWeakLinkage_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DefaultVisibility_llvm_5d1e3feecae2b244() {
+intgo _wrap_DefaultVisibility_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2384,7 +2384,7 @@ intgo _wrap_DefaultVisibility_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_HiddenVisibility_llvm_5d1e3feecae2b244() {
+intgo _wrap_HiddenVisibility_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2396,7 +2396,7 @@ intgo _wrap_HiddenVisibility_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ProtectedVisibility_llvm_5d1e3feecae2b244() {
+intgo _wrap_ProtectedVisibility_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2408,7 +2408,7 @@ intgo _wrap_ProtectedVisibility_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_NoUnnamedAddr_llvm_5d1e3feecae2b244() {
+intgo _wrap_NoUnnamedAddr_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2420,7 +2420,7 @@ intgo _wrap_NoUnnamedAddr_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_LocalUnnamedAddr_llvm_5d1e3feecae2b244() {
+intgo _wrap_LocalUnnamedAddr_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2432,7 +2432,7 @@ intgo _wrap_LocalUnnamedAddr_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_GlobalUnnamedAddr_llvm_5d1e3feecae2b244() {
+intgo _wrap_GlobalUnnamedAddr_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2444,7 +2444,7 @@ intgo _wrap_GlobalUnnamedAddr_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DefaultStorageClass_llvm_5d1e3feecae2b244() {
+intgo _wrap_DefaultStorageClass_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2456,7 +2456,7 @@ intgo _wrap_DefaultStorageClass_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DLLImportStorageClass_llvm_5d1e3feecae2b244() {
+intgo _wrap_DLLImportStorageClass_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2468,7 +2468,7 @@ intgo _wrap_DLLImportStorageClass_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DLLExportStorageClass_llvm_5d1e3feecae2b244() {
+intgo _wrap_DLLExportStorageClass_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2480,7 +2480,7 @@ intgo _wrap_DLLExportStorageClass_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_CCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_CCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2492,7 +2492,7 @@ intgo _wrap_CCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_FastCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_FastCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2504,7 +2504,7 @@ intgo _wrap_FastCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ColdCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_ColdCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2516,7 +2516,7 @@ intgo _wrap_ColdCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_GHCCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_GHCCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2528,7 +2528,7 @@ intgo _wrap_GHCCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_HiPECallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_HiPECallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2540,7 +2540,7 @@ intgo _wrap_HiPECallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_WebKitJSCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_WebKitJSCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2552,7 +2552,7 @@ intgo _wrap_WebKitJSCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AnyRegCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_AnyRegCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2564,7 +2564,7 @@ intgo _wrap_AnyRegCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_PreserveMostCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_PreserveMostCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2576,7 +2576,7 @@ intgo _wrap_PreserveMostCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_PreserveAllCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_PreserveAllCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2588,7 +2588,7 @@ intgo _wrap_PreserveAllCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_SwiftCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_SwiftCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2600,7 +2600,7 @@ intgo _wrap_SwiftCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_CXXFASTTLSCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_CXXFASTTLSCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2612,7 +2612,7 @@ intgo _wrap_CXXFASTTLSCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_X86StdcallCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_X86StdcallCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2624,7 +2624,7 @@ intgo _wrap_X86StdcallCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_X86FastcallCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_X86FastcallCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2636,7 +2636,7 @@ intgo _wrap_X86FastcallCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ARMAPCSCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_ARMAPCSCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2648,7 +2648,7 @@ intgo _wrap_ARMAPCSCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ARMAAPCSCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_ARMAAPCSCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2660,7 +2660,7 @@ intgo _wrap_ARMAAPCSCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ARMAAPCSVFPCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_ARMAAPCSVFPCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2672,7 +2672,7 @@ intgo _wrap_ARMAAPCSVFPCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_MSP430INTRCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_MSP430INTRCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2684,7 +2684,7 @@ intgo _wrap_MSP430INTRCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_X86ThisCallCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_X86ThisCallCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2696,7 +2696,7 @@ intgo _wrap_X86ThisCallCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_PTXKernelCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_PTXKernelCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2708,7 +2708,7 @@ intgo _wrap_PTXKernelCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_PTXDeviceCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_PTXDeviceCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2720,7 +2720,7 @@ intgo _wrap_PTXDeviceCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_SPIRFUNCCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_SPIRFUNCCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2732,7 +2732,7 @@ intgo _wrap_SPIRFUNCCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_SPIRKERNELCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_SPIRKERNELCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2744,7 +2744,7 @@ intgo _wrap_SPIRKERNELCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_IntelOCLBICallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_IntelOCLBICallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2756,7 +2756,7 @@ intgo _wrap_IntelOCLBICallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_X8664SysVCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_X8664SysVCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2768,7 +2768,7 @@ intgo _wrap_X8664SysVCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_Win64CallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_Win64CallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2780,7 +2780,7 @@ intgo _wrap_Win64CallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_X86VectorCallCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_X86VectorCallCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2792,7 +2792,7 @@ intgo _wrap_X86VectorCallCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_HHVMCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_HHVMCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2804,7 +2804,7 @@ intgo _wrap_HHVMCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_HHVMCCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_HHVMCCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2816,7 +2816,7 @@ intgo _wrap_HHVMCCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_X86INTRCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_X86INTRCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2828,7 +2828,7 @@ intgo _wrap_X86INTRCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AVRINTRCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_AVRINTRCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2840,7 +2840,7 @@ intgo _wrap_AVRINTRCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AVRSIGNALCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_AVRSIGNALCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2852,7 +2852,7 @@ intgo _wrap_AVRSIGNALCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AVRBUILTINCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_AVRBUILTINCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2864,7 +2864,7 @@ intgo _wrap_AVRBUILTINCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AMDGPUVSCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_AMDGPUVSCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2876,7 +2876,7 @@ intgo _wrap_AMDGPUVSCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AMDGPUGSCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_AMDGPUGSCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2888,7 +2888,7 @@ intgo _wrap_AMDGPUGSCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AMDGPUPSCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_AMDGPUPSCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2900,7 +2900,7 @@ intgo _wrap_AMDGPUPSCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AMDGPUCSCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_AMDGPUCSCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2912,7 +2912,7 @@ intgo _wrap_AMDGPUCSCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AMDGPUKERNELCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_AMDGPUKERNELCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2924,7 +2924,7 @@ intgo _wrap_AMDGPUKERNELCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_X86RegCallCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_X86RegCallCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2936,7 +2936,7 @@ intgo _wrap_X86RegCallCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AMDGPUHSCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_AMDGPUHSCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2948,7 +2948,7 @@ intgo _wrap_AMDGPUHSCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_MSP430BUILTINCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_MSP430BUILTINCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2960,7 +2960,7 @@ intgo _wrap_MSP430BUILTINCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AMDGPULSCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_AMDGPULSCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2972,7 +2972,7 @@ intgo _wrap_AMDGPULSCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AMDGPUESCallConv_llvm_5d1e3feecae2b244() {
+intgo _wrap_AMDGPUESCallConv_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2984,7 +2984,7 @@ intgo _wrap_AMDGPUESCallConv_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ArgumentValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_ArgumentValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -2996,7 +2996,7 @@ intgo _wrap_ArgumentValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_BasicBlockValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_BasicBlockValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3008,7 +3008,7 @@ intgo _wrap_BasicBlockValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_MemoryUseValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_MemoryUseValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3020,7 +3020,7 @@ intgo _wrap_MemoryUseValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_MemoryDefValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_MemoryDefValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3032,7 +3032,7 @@ intgo _wrap_MemoryDefValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_MemoryPhiValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_MemoryPhiValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3044,7 +3044,7 @@ intgo _wrap_MemoryPhiValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_FunctionValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_FunctionValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3056,7 +3056,7 @@ intgo _wrap_FunctionValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_GlobalAliasValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_GlobalAliasValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3068,7 +3068,7 @@ intgo _wrap_GlobalAliasValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_GlobalIFuncValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_GlobalIFuncValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3080,7 +3080,7 @@ intgo _wrap_GlobalIFuncValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_GlobalVariableValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_GlobalVariableValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3092,7 +3092,7 @@ intgo _wrap_GlobalVariableValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_BlockAddressValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_BlockAddressValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3104,7 +3104,7 @@ intgo _wrap_BlockAddressValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ConstantExprValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_ConstantExprValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3116,7 +3116,7 @@ intgo _wrap_ConstantExprValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ConstantArrayValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_ConstantArrayValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3128,7 +3128,7 @@ intgo _wrap_ConstantArrayValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ConstantStructValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_ConstantStructValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3140,7 +3140,7 @@ intgo _wrap_ConstantStructValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ConstantVectorValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_ConstantVectorValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3152,7 +3152,7 @@ intgo _wrap_ConstantVectorValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_UndefValueValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_UndefValueValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3164,7 +3164,7 @@ intgo _wrap_UndefValueValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ConstantAggregateZeroValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_ConstantAggregateZeroValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3176,7 +3176,7 @@ intgo _wrap_ConstantAggregateZeroValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ConstantDataArrayValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_ConstantDataArrayValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3188,7 +3188,7 @@ intgo _wrap_ConstantDataArrayValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ConstantDataVectorValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_ConstantDataVectorValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3200,7 +3200,7 @@ intgo _wrap_ConstantDataVectorValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ConstantIntValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_ConstantIntValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3212,7 +3212,7 @@ intgo _wrap_ConstantIntValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ConstantFPValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_ConstantFPValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3224,7 +3224,7 @@ intgo _wrap_ConstantFPValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ConstantPointerNullValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_ConstantPointerNullValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3236,7 +3236,7 @@ intgo _wrap_ConstantPointerNullValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ConstantTokenNoneValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_ConstantTokenNoneValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3248,7 +3248,7 @@ intgo _wrap_ConstantTokenNoneValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_MetadataAsValueValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_MetadataAsValueValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3260,7 +3260,7 @@ intgo _wrap_MetadataAsValueValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_InlineAsmValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_InlineAsmValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3272,7 +3272,7 @@ intgo _wrap_InlineAsmValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_InstructionValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_InstructionValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3284,7 +3284,7 @@ intgo _wrap_InstructionValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_PoisonValueValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_PoisonValueValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3296,7 +3296,7 @@ intgo _wrap_PoisonValueValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ConstantTargetNoneValueKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_ConstantTargetNoneValueKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3308,319 +3308,7 @@ intgo _wrap_ConstantTargetNoneValueKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_IntEQ_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMIntEQ;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_IntNE_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMIntNE;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_IntUGT_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMIntUGT;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_IntUGE_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMIntUGE;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_IntULT_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMIntULT;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_IntULE_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMIntULE;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_IntSGT_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMIntSGT;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_IntSGE_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMIntSGE;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_IntSLT_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMIntSLT;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_IntSLE_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMIntSLE;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_RealPredicateFalse_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMRealPredicateFalse;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_RealOEQ_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMRealOEQ;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_RealOGT_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMRealOGT;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_RealOGE_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMRealOGE;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_RealOLT_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMRealOLT;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_RealOLE_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMRealOLE;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_RealONE_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMRealONE;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_RealORD_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMRealORD;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_RealUNO_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMRealUNO;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_RealUEQ_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMRealUEQ;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_RealUGT_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMRealUGT;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_RealUGE_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMRealUGE;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_RealULT_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMRealULT;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_RealULE_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMRealULE;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_RealUNE_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMRealUNE;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_RealPredicateTrue_llvm_5d1e3feecae2b244() {
-  int result;
-  intgo _swig_go_result;
-  
-  
-  result = LLVMRealPredicateTrue;
-  
-  _swig_go_result = result; 
-  return _swig_go_result;
-}
-
-
-intgo _wrap_LandingPadCatch_llvm_5d1e3feecae2b244() {
+intgo _wrap_LandingPadCatch_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3632,7 +3320,7 @@ intgo _wrap_LandingPadCatch_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_LandingPadFilter_llvm_5d1e3feecae2b244() {
+intgo _wrap_LandingPadFilter_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3644,7 +3332,7 @@ intgo _wrap_LandingPadFilter_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_NotThreadLocal_llvm_5d1e3feecae2b244() {
+intgo _wrap_NotThreadLocal_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3656,7 +3344,7 @@ intgo _wrap_NotThreadLocal_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_GeneralDynamicTLSModel_llvm_5d1e3feecae2b244() {
+intgo _wrap_GeneralDynamicTLSModel_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3668,7 +3356,7 @@ intgo _wrap_GeneralDynamicTLSModel_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_LocalDynamicTLSModel_llvm_5d1e3feecae2b244() {
+intgo _wrap_LocalDynamicTLSModel_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3680,7 +3368,7 @@ intgo _wrap_LocalDynamicTLSModel_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_InitialExecTLSModel_llvm_5d1e3feecae2b244() {
+intgo _wrap_InitialExecTLSModel_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3692,7 +3380,7 @@ intgo _wrap_InitialExecTLSModel_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_LocalExecTLSModel_llvm_5d1e3feecae2b244() {
+intgo _wrap_LocalExecTLSModel_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3704,7 +3392,7 @@ intgo _wrap_LocalExecTLSModel_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicOrderingNotAtomic_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicOrderingNotAtomic_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3716,7 +3404,7 @@ intgo _wrap_AtomicOrderingNotAtomic_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicOrderingUnordered_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicOrderingUnordered_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3728,7 +3416,7 @@ intgo _wrap_AtomicOrderingUnordered_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicOrderingMonotonic_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicOrderingMonotonic_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3740,7 +3428,7 @@ intgo _wrap_AtomicOrderingMonotonic_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicOrderingAcquire_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicOrderingAcquire_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3752,7 +3440,7 @@ intgo _wrap_AtomicOrderingAcquire_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicOrderingRelease_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicOrderingRelease_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3764,7 +3452,7 @@ intgo _wrap_AtomicOrderingRelease_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicOrderingAcquireRelease_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicOrderingAcquireRelease_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3776,7 +3464,7 @@ intgo _wrap_AtomicOrderingAcquireRelease_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicOrderingSequentiallyConsistent_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicOrderingSequentiallyConsistent_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3788,7 +3476,7 @@ intgo _wrap_AtomicOrderingSequentiallyConsistent_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicRMWBinOpXchg_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicRMWBinOpXchg_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3800,7 +3488,7 @@ intgo _wrap_AtomicRMWBinOpXchg_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicRMWBinOpAdd_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicRMWBinOpAdd_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3812,7 +3500,7 @@ intgo _wrap_AtomicRMWBinOpAdd_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicRMWBinOpSub_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicRMWBinOpSub_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3824,7 +3512,7 @@ intgo _wrap_AtomicRMWBinOpSub_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicRMWBinOpAnd_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicRMWBinOpAnd_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3836,7 +3524,7 @@ intgo _wrap_AtomicRMWBinOpAnd_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicRMWBinOpNand_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicRMWBinOpNand_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3848,7 +3536,7 @@ intgo _wrap_AtomicRMWBinOpNand_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicRMWBinOpOr_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicRMWBinOpOr_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3860,7 +3548,7 @@ intgo _wrap_AtomicRMWBinOpOr_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicRMWBinOpXor_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicRMWBinOpXor_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3872,7 +3560,7 @@ intgo _wrap_AtomicRMWBinOpXor_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicRMWBinOpMax_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicRMWBinOpMax_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3884,7 +3572,7 @@ intgo _wrap_AtomicRMWBinOpMax_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicRMWBinOpMin_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicRMWBinOpMin_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3896,7 +3584,7 @@ intgo _wrap_AtomicRMWBinOpMin_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicRMWBinOpUMax_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicRMWBinOpUMax_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3908,7 +3596,7 @@ intgo _wrap_AtomicRMWBinOpUMax_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicRMWBinOpUMin_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicRMWBinOpUMin_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3920,7 +3608,7 @@ intgo _wrap_AtomicRMWBinOpUMin_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicRMWBinOpFAdd_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicRMWBinOpFAdd_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3932,7 +3620,7 @@ intgo _wrap_AtomicRMWBinOpFAdd_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicRMWBinOpFSub_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicRMWBinOpFSub_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3944,7 +3632,7 @@ intgo _wrap_AtomicRMWBinOpFSub_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicRMWBinOpFMax_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicRMWBinOpFMax_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3956,7 +3644,7 @@ intgo _wrap_AtomicRMWBinOpFMax_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AtomicRMWBinOpFMin_llvm_5d1e3feecae2b244() {
+intgo _wrap_AtomicRMWBinOpFMin_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3968,7 +3656,7 @@ intgo _wrap_AtomicRMWBinOpFMin_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DSError_llvm_5d1e3feecae2b244() {
+intgo _wrap_DSError_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3980,7 +3668,7 @@ intgo _wrap_DSError_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DSWarning_llvm_5d1e3feecae2b244() {
+intgo _wrap_DSWarning_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -3992,7 +3680,7 @@ intgo _wrap_DSWarning_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DSRemark_llvm_5d1e3feecae2b244() {
+intgo _wrap_DSRemark_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -4004,7 +3692,7 @@ intgo _wrap_DSRemark_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DSNote_llvm_5d1e3feecae2b244() {
+intgo _wrap_DSNote_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -4016,7 +3704,7 @@ intgo _wrap_DSNote_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_InlineAsmDialectATT_llvm_5d1e3feecae2b244() {
+intgo _wrap_InlineAsmDialectATT_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -4028,7 +3716,7 @@ intgo _wrap_InlineAsmDialectATT_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_InlineAsmDialectIntel_llvm_5d1e3feecae2b244() {
+intgo _wrap_InlineAsmDialectIntel_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -4040,7 +3728,7 @@ intgo _wrap_InlineAsmDialectIntel_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ModuleFlagBehaviorError_llvm_5d1e3feecae2b244() {
+intgo _wrap_ModuleFlagBehaviorError_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -4052,7 +3740,7 @@ intgo _wrap_ModuleFlagBehaviorError_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ModuleFlagBehaviorWarning_llvm_5d1e3feecae2b244() {
+intgo _wrap_ModuleFlagBehaviorWarning_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -4064,7 +3752,7 @@ intgo _wrap_ModuleFlagBehaviorWarning_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ModuleFlagBehaviorRequire_llvm_5d1e3feecae2b244() {
+intgo _wrap_ModuleFlagBehaviorRequire_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -4076,7 +3764,7 @@ intgo _wrap_ModuleFlagBehaviorRequire_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ModuleFlagBehaviorOverride_llvm_5d1e3feecae2b244() {
+intgo _wrap_ModuleFlagBehaviorOverride_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -4088,7 +3776,7 @@ intgo _wrap_ModuleFlagBehaviorOverride_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ModuleFlagBehaviorAppend_llvm_5d1e3feecae2b244() {
+intgo _wrap_ModuleFlagBehaviorAppend_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -4100,7 +3788,7 @@ intgo _wrap_ModuleFlagBehaviorAppend_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ModuleFlagBehaviorAppendUnique_llvm_5d1e3feecae2b244() {
+intgo _wrap_ModuleFlagBehaviorAppendUnique_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -4112,7 +3800,7 @@ intgo _wrap_ModuleFlagBehaviorAppendUnique_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AttributeReturnIndex_llvm_5d1e3feecae2b244() {
+intgo _wrap_AttributeReturnIndex_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -4124,7 +3812,7 @@ intgo _wrap_AttributeReturnIndex_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AttributeFunctionIndex_llvm_5d1e3feecae2b244() {
+intgo _wrap_AttributeFunctionIndex_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -4136,7 +3824,7 @@ intgo _wrap_AttributeFunctionIndex_llvm_5d1e3feecae2b244() {
 }
 
 
-void _wrap_InitializeCore_llvm_5d1e3feecae2b244(LLVMPassRegistryRef _swig_go_0) {
+void _wrap_InitializeCore_llvm_a0e88c3155de3083(LLVMPassRegistryRef _swig_go_0) {
   LLVMPassRegistryRef arg1 ;
   
   {
@@ -4148,13 +3836,13 @@ void _wrap_InitializeCore_llvm_5d1e3feecae2b244(LLVMPassRegistryRef _swig_go_0) 
 }
 
 
-void _wrap_Shutdown_llvm_5d1e3feecae2b244() {
+void _wrap_Shutdown_llvm_a0e88c3155de3083() {
   LLVMShutdown();
   
 }
 
 
-void _wrap_GetVersion_llvm_5d1e3feecae2b244(intgo *_swig_go_0, intgo *_swig_go_1, intgo *_swig_go_2) {
+void _wrap_GetVersion_llvm_a0e88c3155de3083(intgo *_swig_go_0, intgo *_swig_go_1, intgo *_swig_go_2) {
   unsigned int *arg1 = (unsigned int *) 0 ;
   unsigned int *arg2 = (unsigned int *) 0 ;
   unsigned int *arg3 = (unsigned int *) 0 ;
@@ -4168,7 +3856,7 @@ void _wrap_GetVersion_llvm_5d1e3feecae2b244(intgo *_swig_go_0, intgo *_swig_go_1
 }
 
 
-char *_wrap_CreateMessage_llvm_5d1e3feecae2b244(char *_swig_go_0) {
+char *_wrap_CreateMessage_llvm_a0e88c3155de3083(char *_swig_go_0) {
   char *arg1 = (char *) 0 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -4188,7 +3876,7 @@ char *_wrap_CreateMessage_llvm_5d1e3feecae2b244(char *_swig_go_0) {
 }
 
 
-void _wrap_DisposeMessage_llvm_5d1e3feecae2b244(char *_swig_go_0) {
+void _wrap_DisposeMessage_llvm_a0e88c3155de3083(char *_swig_go_0) {
   char *arg1 = (char *) 0 ;
   
   {
@@ -4203,7 +3891,7 @@ void _wrap_DisposeMessage_llvm_5d1e3feecae2b244(char *_swig_go_0) {
 }
 
 
-LLVMContextRef _wrap_ContextCreate_llvm_5d1e3feecae2b244() {
+LLVMContextRef _wrap_ContextCreate_llvm_a0e88c3155de3083() {
   LLVMContextRef result;
   LLVMContextRef _swig_go_result;
   
@@ -4216,7 +3904,7 @@ LLVMContextRef _wrap_ContextCreate_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMContextRef _wrap_GetGlobalContext_llvm_5d1e3feecae2b244() {
+LLVMContextRef _wrap_GetGlobalContext_llvm_a0e88c3155de3083() {
   LLVMContextRef result;
   LLVMContextRef _swig_go_result;
   
@@ -4229,7 +3917,7 @@ LLVMContextRef _wrap_GetGlobalContext_llvm_5d1e3feecae2b244() {
 }
 
 
-void _wrap_ContextSetDiagnosticHandler_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, void* _swig_go_1, void *_swig_go_2) {
+void _wrap_ContextSetDiagnosticHandler_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, void* _swig_go_1, void *_swig_go_2) {
   LLVMContextRef arg1 ;
   LLVMDiagnosticHandler arg2 = (LLVMDiagnosticHandler) 0 ;
   void *arg3 = (void *) 0 ;
@@ -4245,7 +3933,7 @@ void _wrap_ContextSetDiagnosticHandler_llvm_5d1e3feecae2b244(LLVMContextRef _swi
 }
 
 
-void* _wrap_ContextGetDiagnosticHandler_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+void* _wrap_ContextGetDiagnosticHandler_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMDiagnosticHandler result;
   void* _swig_go_result;
@@ -4260,7 +3948,7 @@ void* _wrap_ContextGetDiagnosticHandler_llvm_5d1e3feecae2b244(LLVMContextRef _sw
 }
 
 
-void *_wrap_ContextGetDiagnosticContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+void *_wrap_ContextGetDiagnosticContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   void *result = 0 ;
   void *_swig_go_result;
@@ -4275,7 +3963,7 @@ void *_wrap_ContextGetDiagnosticContext_llvm_5d1e3feecae2b244(LLVMContextRef _sw
 }
 
 
-void _wrap_ContextSetYieldCallback_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, void* _swig_go_1, void *_swig_go_2) {
+void _wrap_ContextSetYieldCallback_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, void* _swig_go_1, void *_swig_go_2) {
   LLVMContextRef arg1 ;
   LLVMYieldCallback arg2 = (LLVMYieldCallback) 0 ;
   void *arg3 = (void *) 0 ;
@@ -4291,7 +3979,7 @@ void _wrap_ContextSetYieldCallback_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go
 }
 
 
-bool _wrap_ContextShouldDiscardValueNames_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+bool _wrap_ContextShouldDiscardValueNames_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -4308,7 +3996,7 @@ bool _wrap_ContextShouldDiscardValueNames_llvm_5d1e3feecae2b244(LLVMContextRef _
 }
 
 
-void _wrap_ContextSetDiscardValueNames_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, bool _swig_go_1) {
+void _wrap_ContextSetDiscardValueNames_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, bool _swig_go_1) {
   LLVMContextRef arg1 ;
   LLVMBool arg2 ;
   
@@ -4324,7 +4012,7 @@ void _wrap_ContextSetDiscardValueNames_llvm_5d1e3feecae2b244(LLVMContextRef _swi
 }
 
 
-void _wrap_ContextDispose_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+void _wrap_ContextDispose_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   
   {
@@ -4336,7 +4024,7 @@ void _wrap_ContextDispose_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
 }
 
 
-char *_wrap_GetDiagInfoDescription_llvm_5d1e3feecae2b244(LLVMDiagnosticInfoRef _swig_go_0) {
+char *_wrap_GetDiagInfoDescription_llvm_a0e88c3155de3083(LLVMDiagnosticInfoRef _swig_go_0) {
   LLVMDiagnosticInfoRef arg1 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -4353,7 +4041,7 @@ char *_wrap_GetDiagInfoDescription_llvm_5d1e3feecae2b244(LLVMDiagnosticInfoRef _
 }
 
 
-intgo _wrap_GetDiagInfoSeverity_llvm_5d1e3feecae2b244(LLVMDiagnosticInfoRef _swig_go_0) {
+intgo _wrap_GetDiagInfoSeverity_llvm_a0e88c3155de3083(LLVMDiagnosticInfoRef _swig_go_0) {
   LLVMDiagnosticInfoRef arg1 ;
   LLVMDiagnosticSeverity result;
   intgo _swig_go_result;
@@ -4368,7 +4056,7 @@ intgo _wrap_GetDiagInfoSeverity_llvm_5d1e3feecae2b244(LLVMDiagnosticInfoRef _swi
 }
 
 
-intgo _wrap_GetMDKindIDInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, char *_swig_go_1, intgo _swig_go_2) {
+intgo _wrap_GetMDKindIDInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, char *_swig_go_1, intgo _swig_go_2) {
   LLVMContextRef arg1 ;
   char *arg2 = (char *) 0 ;
   unsigned int arg3 ;
@@ -4392,7 +4080,7 @@ intgo _wrap_GetMDKindIDInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0
 }
 
 
-intgo _wrap_GetMDKindID_llvm_5d1e3feecae2b244(char *_swig_go_0, intgo _swig_go_1) {
+intgo _wrap_GetMDKindID_llvm_a0e88c3155de3083(char *_swig_go_0, intgo _swig_go_1) {
   char *arg1 = (char *) 0 ;
   unsigned int arg2 ;
   unsigned int result;
@@ -4412,7 +4100,7 @@ intgo _wrap_GetMDKindID_llvm_5d1e3feecae2b244(char *_swig_go_0, intgo _swig_go_1
 }
 
 
-intgo _wrap_GetEnumAttributeKindForName_llvm_5d1e3feecae2b244(char *_swig_go_0, long long _swig_go_1) {
+intgo _wrap_GetEnumAttributeKindForName_llvm_a0e88c3155de3083(char *_swig_go_0, long long _swig_go_1) {
   char *arg1 = (char *) 0 ;
   size_t arg2 ;
   unsigned int result;
@@ -4432,7 +4120,7 @@ intgo _wrap_GetEnumAttributeKindForName_llvm_5d1e3feecae2b244(char *_swig_go_0, 
 }
 
 
-intgo _wrap_GetLastEnumAttributeKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_GetLastEnumAttributeKind_llvm_a0e88c3155de3083() {
   unsigned int result;
   intgo _swig_go_result;
   
@@ -4443,7 +4131,7 @@ intgo _wrap_GetLastEnumAttributeKind_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMAttributeRef _wrap_CreateEnumAttribute_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, intgo _swig_go_1, long long _swig_go_2) {
+LLVMAttributeRef _wrap_CreateEnumAttribute_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, intgo _swig_go_1, long long _swig_go_2) {
   LLVMContextRef arg1 ;
   unsigned int arg2 ;
   uint64_t arg3 ;
@@ -4464,7 +4152,7 @@ LLVMAttributeRef _wrap_CreateEnumAttribute_llvm_5d1e3feecae2b244(LLVMContextRef 
 }
 
 
-intgo _wrap_GetEnumAttributeKind_llvm_5d1e3feecae2b244(LLVMAttributeRef _swig_go_0) {
+intgo _wrap_GetEnumAttributeKind_llvm_a0e88c3155de3083(LLVMAttributeRef _swig_go_0) {
   LLVMAttributeRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -4479,7 +4167,7 @@ intgo _wrap_GetEnumAttributeKind_llvm_5d1e3feecae2b244(LLVMAttributeRef _swig_go
 }
 
 
-long long _wrap_GetEnumAttributeValue_llvm_5d1e3feecae2b244(LLVMAttributeRef _swig_go_0) {
+long long _wrap_GetEnumAttributeValue_llvm_a0e88c3155de3083(LLVMAttributeRef _swig_go_0) {
   LLVMAttributeRef arg1 ;
   uint64_t result;
   long long _swig_go_result;
@@ -4494,7 +4182,7 @@ long long _wrap_GetEnumAttributeValue_llvm_5d1e3feecae2b244(LLVMAttributeRef _sw
 }
 
 
-LLVMAttributeRef _wrap_CreateTypeAttribute_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, intgo _swig_go_1, LLVMTypeRef _swig_go_2) {
+LLVMAttributeRef _wrap_CreateTypeAttribute_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, intgo _swig_go_1, LLVMTypeRef _swig_go_2) {
   LLVMContextRef arg1 ;
   unsigned int arg2 ;
   LLVMTypeRef arg3 ;
@@ -4517,7 +4205,7 @@ LLVMAttributeRef _wrap_CreateTypeAttribute_llvm_5d1e3feecae2b244(LLVMContextRef 
 }
 
 
-LLVMTypeRef _wrap_GetTypeAttributeValue_llvm_5d1e3feecae2b244(LLVMAttributeRef _swig_go_0) {
+LLVMTypeRef _wrap_GetTypeAttributeValue_llvm_a0e88c3155de3083(LLVMAttributeRef _swig_go_0) {
   LLVMAttributeRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -4534,7 +4222,7 @@ LLVMTypeRef _wrap_GetTypeAttributeValue_llvm_5d1e3feecae2b244(LLVMAttributeRef _
 }
 
 
-LLVMAttributeRef _wrap_CreateStringAttribute_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, char *_swig_go_1, intgo _swig_go_2, char *_swig_go_3, intgo _swig_go_4) {
+LLVMAttributeRef _wrap_CreateStringAttribute_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, char *_swig_go_1, intgo _swig_go_2, char *_swig_go_3, intgo _swig_go_4) {
   LLVMContextRef arg1 ;
   char *arg2 = (char *) 0 ;
   unsigned int arg3 ;
@@ -4569,7 +4257,7 @@ LLVMAttributeRef _wrap_CreateStringAttribute_llvm_5d1e3feecae2b244(LLVMContextRe
 }
 
 
-char *_wrap_GetStringAttributeKind_llvm_5d1e3feecae2b244(LLVMAttributeRef _swig_go_0, intgo *_swig_go_1) {
+char *_wrap_GetStringAttributeKind_llvm_a0e88c3155de3083(LLVMAttributeRef _swig_go_0, intgo *_swig_go_1) {
   LLVMAttributeRef arg1 ;
   unsigned int *arg2 = (unsigned int *) 0 ;
   char *result = 0 ;
@@ -4588,7 +4276,7 @@ char *_wrap_GetStringAttributeKind_llvm_5d1e3feecae2b244(LLVMAttributeRef _swig_
 }
 
 
-char *_wrap_GetStringAttributeValue_llvm_5d1e3feecae2b244(LLVMAttributeRef _swig_go_0, intgo *_swig_go_1) {
+char *_wrap_GetStringAttributeValue_llvm_a0e88c3155de3083(LLVMAttributeRef _swig_go_0, intgo *_swig_go_1) {
   LLVMAttributeRef arg1 ;
   unsigned int *arg2 = (unsigned int *) 0 ;
   char *result = 0 ;
@@ -4607,7 +4295,7 @@ char *_wrap_GetStringAttributeValue_llvm_5d1e3feecae2b244(LLVMAttributeRef _swig
 }
 
 
-bool _wrap_IsEnumAttribute_llvm_5d1e3feecae2b244(LLVMAttributeRef _swig_go_0) {
+bool _wrap_IsEnumAttribute_llvm_a0e88c3155de3083(LLVMAttributeRef _swig_go_0) {
   LLVMAttributeRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -4624,7 +4312,7 @@ bool _wrap_IsEnumAttribute_llvm_5d1e3feecae2b244(LLVMAttributeRef _swig_go_0) {
 }
 
 
-bool _wrap_IsStringAttribute_llvm_5d1e3feecae2b244(LLVMAttributeRef _swig_go_0) {
+bool _wrap_IsStringAttribute_llvm_a0e88c3155de3083(LLVMAttributeRef _swig_go_0) {
   LLVMAttributeRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -4641,7 +4329,7 @@ bool _wrap_IsStringAttribute_llvm_5d1e3feecae2b244(LLVMAttributeRef _swig_go_0) 
 }
 
 
-bool _wrap_IsTypeAttribute_llvm_5d1e3feecae2b244(LLVMAttributeRef _swig_go_0) {
+bool _wrap_IsTypeAttribute_llvm_a0e88c3155de3083(LLVMAttributeRef _swig_go_0) {
   LLVMAttributeRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -4658,7 +4346,7 @@ bool _wrap_IsTypeAttribute_llvm_5d1e3feecae2b244(LLVMAttributeRef _swig_go_0) {
 }
 
 
-LLVMTypeRef _wrap_GetTypeByName2_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, char *_swig_go_1) {
+LLVMTypeRef _wrap_GetTypeByName2_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, char *_swig_go_1) {
   LLVMContextRef arg1 ;
   char *arg2 = (char *) 0 ;
   LLVMTypeRef result;
@@ -4682,7 +4370,7 @@ LLVMTypeRef _wrap_GetTypeByName2_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0
 }
 
 
-LLVMModuleRef _wrap_ModuleCreateWithName_llvm_5d1e3feecae2b244(char *_swig_go_0) {
+LLVMModuleRef _wrap_ModuleCreateWithName_llvm_a0e88c3155de3083(char *_swig_go_0) {
   char *arg1 = (char *) 0 ;
   LLVMModuleRef result;
   LLVMModuleRef _swig_go_result;
@@ -4702,7 +4390,7 @@ LLVMModuleRef _wrap_ModuleCreateWithName_llvm_5d1e3feecae2b244(char *_swig_go_0)
 }
 
 
-LLVMModuleRef _wrap_ModuleCreateWithNameInContext_llvm_5d1e3feecae2b244(char *_swig_go_0, LLVMContextRef _swig_go_1) {
+LLVMModuleRef _wrap_ModuleCreateWithNameInContext_llvm_a0e88c3155de3083(char *_swig_go_0, LLVMContextRef _swig_go_1) {
   char *arg1 = (char *) 0 ;
   LLVMContextRef arg2 ;
   LLVMModuleRef result;
@@ -4726,7 +4414,7 @@ LLVMModuleRef _wrap_ModuleCreateWithNameInContext_llvm_5d1e3feecae2b244(char *_s
 }
 
 
-LLVMModuleRef _wrap_CloneModule_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+LLVMModuleRef _wrap_CloneModule_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   LLVMModuleRef result;
   LLVMModuleRef _swig_go_result;
@@ -4743,7 +4431,7 @@ LLVMModuleRef _wrap_CloneModule_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) 
 }
 
 
-void _wrap_DisposeModule_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+void _wrap_DisposeModule_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   
   {
@@ -4755,7 +4443,7 @@ void _wrap_DisposeModule_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
 }
 
 
-char *_wrap_GetModuleIdentifier_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, long long *_swig_go_1) {
+char *_wrap_GetModuleIdentifier_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, long long *_swig_go_1) {
   LLVMModuleRef arg1 ;
   size_t *arg2 = (size_t *) 0 ;
   char *result = 0 ;
@@ -4774,7 +4462,7 @@ char *_wrap_GetModuleIdentifier_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, 
 }
 
 
-void _wrap_SetModuleIdentifier_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1, long long _swig_go_2) {
+void _wrap_SetModuleIdentifier_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1, long long _swig_go_2) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   size_t arg3 ;
@@ -4795,7 +4483,7 @@ void _wrap_SetModuleIdentifier_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, c
 }
 
 
-char *_wrap_GetSourceFileName_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, long long *_swig_go_1) {
+char *_wrap_GetSourceFileName_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, long long *_swig_go_1) {
   LLVMModuleRef arg1 ;
   size_t *arg2 = (size_t *) 0 ;
   char *result = 0 ;
@@ -4814,7 +4502,7 @@ char *_wrap_GetSourceFileName_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, lo
 }
 
 
-void _wrap_SetSourceFileName_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1, long long _swig_go_2) {
+void _wrap_SetSourceFileName_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1, long long _swig_go_2) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   size_t arg3 ;
@@ -4835,7 +4523,7 @@ void _wrap_SetSourceFileName_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, cha
 }
 
 
-char *_wrap_GetDataLayoutStr_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+char *_wrap_GetDataLayoutStr_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -4852,7 +4540,7 @@ char *_wrap_GetDataLayoutStr_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
 }
 
 
-char *_wrap_GetDataLayout_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+char *_wrap_GetDataLayout_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -4869,7 +4557,7 @@ char *_wrap_GetDataLayout_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
 }
 
 
-void _wrap_SetDataLayout_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
+void _wrap_SetDataLayout_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   
@@ -4888,7 +4576,7 @@ void _wrap_SetDataLayout_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_
 }
 
 
-char *_wrap_GetTarget_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+char *_wrap_GetTarget_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -4905,7 +4593,7 @@ char *_wrap_GetTarget_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
 }
 
 
-void _wrap_SetTarget_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
+void _wrap_SetTarget_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   
@@ -4924,7 +4612,7 @@ void _wrap_SetTarget_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig
 }
 
 
-LLVMModuleFlagEntry *_wrap_CopyModuleFlagsMetadata_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, long long *_swig_go_1) {
+LLVMModuleFlagEntry *_wrap_CopyModuleFlagsMetadata_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, long long *_swig_go_1) {
   LLVMModuleRef arg1 ;
   size_t *arg2 = (size_t *) 0 ;
   LLVMModuleFlagEntry *result = 0 ;
@@ -4941,7 +4629,7 @@ LLVMModuleFlagEntry *_wrap_CopyModuleFlagsMetadata_llvm_5d1e3feecae2b244(LLVMMod
 }
 
 
-void _wrap_DisposeModuleFlagsMetadata_llvm_5d1e3feecae2b244(LLVMModuleFlagEntry *_swig_go_0) {
+void _wrap_DisposeModuleFlagsMetadata_llvm_a0e88c3155de3083(LLVMModuleFlagEntry *_swig_go_0) {
   LLVMModuleFlagEntry *arg1 = (LLVMModuleFlagEntry *) 0 ;
   
   arg1 = *(LLVMModuleFlagEntry **)&_swig_go_0; 
@@ -4951,7 +4639,7 @@ void _wrap_DisposeModuleFlagsMetadata_llvm_5d1e3feecae2b244(LLVMModuleFlagEntry 
 }
 
 
-intgo _wrap_ModuleFlagEntriesGetFlagBehavior_llvm_5d1e3feecae2b244(LLVMModuleFlagEntry *_swig_go_0, intgo _swig_go_1) {
+intgo _wrap_ModuleFlagEntriesGetFlagBehavior_llvm_a0e88c3155de3083(LLVMModuleFlagEntry *_swig_go_0, intgo _swig_go_1) {
   LLVMModuleFlagEntry *arg1 = (LLVMModuleFlagEntry *) 0 ;
   unsigned int arg2 ;
   LLVMModuleFlagBehavior result;
@@ -4966,7 +4654,7 @@ intgo _wrap_ModuleFlagEntriesGetFlagBehavior_llvm_5d1e3feecae2b244(LLVMModuleFla
 }
 
 
-char *_wrap_ModuleFlagEntriesGetKey_llvm_5d1e3feecae2b244(LLVMModuleFlagEntry *_swig_go_0, intgo _swig_go_1, long long *_swig_go_2) {
+char *_wrap_ModuleFlagEntriesGetKey_llvm_a0e88c3155de3083(LLVMModuleFlagEntry *_swig_go_0, intgo _swig_go_1, long long *_swig_go_2) {
   LLVMModuleFlagEntry *arg1 = (LLVMModuleFlagEntry *) 0 ;
   unsigned int arg2 ;
   size_t *arg3 = (size_t *) 0 ;
@@ -4985,7 +4673,7 @@ char *_wrap_ModuleFlagEntriesGetKey_llvm_5d1e3feecae2b244(LLVMModuleFlagEntry *_
 }
 
 
-LLVMMetadataRef _wrap_ModuleFlagEntriesGetMetadata_llvm_5d1e3feecae2b244(LLVMModuleFlagEntry *_swig_go_0, intgo _swig_go_1) {
+LLVMMetadataRef _wrap_ModuleFlagEntriesGetMetadata_llvm_a0e88c3155de3083(LLVMModuleFlagEntry *_swig_go_0, intgo _swig_go_1) {
   LLVMModuleFlagEntry *arg1 = (LLVMModuleFlagEntry *) 0 ;
   unsigned int arg2 ;
   LLVMMetadataRef result;
@@ -5002,7 +4690,7 @@ LLVMMetadataRef _wrap_ModuleFlagEntriesGetMetadata_llvm_5d1e3feecae2b244(LLVMMod
 }
 
 
-LLVMMetadataRef _wrap_GetModuleFlag_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1, long long _swig_go_2) {
+LLVMMetadataRef _wrap_GetModuleFlag_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1, long long _swig_go_2) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   size_t arg3 ;
@@ -5028,7 +4716,7 @@ LLVMMetadataRef _wrap_GetModuleFlag_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go
 }
 
 
-void _wrap_AddModuleFlag_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, intgo _swig_go_1, char *_swig_go_2, long long _swig_go_3, LLVMMetadataRef _swig_go_4) {
+void _wrap_AddModuleFlag_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, intgo _swig_go_1, char *_swig_go_2, long long _swig_go_3, LLVMMetadataRef _swig_go_4) {
   LLVMModuleRef arg1 ;
   LLVMModuleFlagBehavior arg2 ;
   char *arg3 = (char *) 0 ;
@@ -5055,7 +4743,7 @@ void _wrap_AddModuleFlag_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, intgo _
 }
 
 
-void _wrap_DumpModule_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+void _wrap_DumpModule_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   
   {
@@ -5067,7 +4755,7 @@ void _wrap_DumpModule_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
 }
 
 
-bool _wrap_PrintModuleToFile_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1, _gostring_* _swig_go_2) {
+bool _wrap_PrintModuleToFile_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1, _gostring_* _swig_go_2) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   char **arg3 = (char **) 0 ;
@@ -5093,7 +4781,7 @@ bool _wrap_PrintModuleToFile_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, cha
 }
 
 
-char *_wrap_PrintModuleToString_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+char *_wrap_PrintModuleToString_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -5110,7 +4798,7 @@ char *_wrap_PrintModuleToString_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) 
 }
 
 
-char *_wrap_GetModuleInlineAsm_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, long long *_swig_go_1) {
+char *_wrap_GetModuleInlineAsm_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, long long *_swig_go_1) {
   LLVMModuleRef arg1 ;
   size_t *arg2 = (size_t *) 0 ;
   char *result = 0 ;
@@ -5129,7 +4817,7 @@ char *_wrap_GetModuleInlineAsm_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, l
 }
 
 
-void _wrap_SetModuleInlineAsm2_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1, long long _swig_go_2) {
+void _wrap_SetModuleInlineAsm2_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1, long long _swig_go_2) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   size_t arg3 ;
@@ -5150,7 +4838,7 @@ void _wrap_SetModuleInlineAsm2_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, c
 }
 
 
-void _wrap_AppendModuleInlineAsm_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1, long long _swig_go_2) {
+void _wrap_AppendModuleInlineAsm_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1, long long _swig_go_2) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   size_t arg3 ;
@@ -5171,7 +4859,7 @@ void _wrap_AppendModuleInlineAsm_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0,
 }
 
 
-LLVMValueRef _wrap_GetInlineAsm_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, char *_swig_go_1, long long _swig_go_2, char *_swig_go_3, long long _swig_go_4, bool _swig_go_5, bool _swig_go_6, intgo _swig_go_7, bool _swig_go_8) {
+LLVMValueRef _wrap_GetInlineAsm_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, char *_swig_go_1, long long _swig_go_2, char *_swig_go_3, long long _swig_go_4, bool _swig_go_5, bool _swig_go_6, intgo _swig_go_7, bool _swig_go_8) {
   LLVMTypeRef arg1 ;
   char *arg2 = (char *) 0 ;
   size_t arg3 ;
@@ -5220,7 +4908,7 @@ LLVMValueRef _wrap_GetInlineAsm_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, ch
 }
 
 
-LLVMContextRef _wrap_GetModuleContext_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+LLVMContextRef _wrap_GetModuleContext_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   LLVMContextRef result;
   LLVMContextRef _swig_go_result;
@@ -5237,7 +4925,7 @@ LLVMContextRef _wrap_GetModuleContext_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_
 }
 
 
-LLVMTypeRef _wrap_GetTypeByName_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
+LLVMTypeRef _wrap_GetTypeByName_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   LLVMTypeRef result;
@@ -5261,7 +4949,7 @@ LLVMTypeRef _wrap_GetTypeByName_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, 
 }
 
 
-LLVMNamedMDNodeRef _wrap_GetFirstNamedMetadata_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+LLVMNamedMDNodeRef _wrap_GetFirstNamedMetadata_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   LLVMNamedMDNodeRef result;
   LLVMNamedMDNodeRef _swig_go_result;
@@ -5278,7 +4966,7 @@ LLVMNamedMDNodeRef _wrap_GetFirstNamedMetadata_llvm_5d1e3feecae2b244(LLVMModuleR
 }
 
 
-LLVMNamedMDNodeRef _wrap_GetLastNamedMetadata_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+LLVMNamedMDNodeRef _wrap_GetLastNamedMetadata_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   LLVMNamedMDNodeRef result;
   LLVMNamedMDNodeRef _swig_go_result;
@@ -5295,7 +4983,7 @@ LLVMNamedMDNodeRef _wrap_GetLastNamedMetadata_llvm_5d1e3feecae2b244(LLVMModuleRe
 }
 
 
-LLVMNamedMDNodeRef _wrap_GetNextNamedMetadata_llvm_5d1e3feecae2b244(LLVMNamedMDNodeRef _swig_go_0) {
+LLVMNamedMDNodeRef _wrap_GetNextNamedMetadata_llvm_a0e88c3155de3083(LLVMNamedMDNodeRef _swig_go_0) {
   LLVMNamedMDNodeRef arg1 ;
   LLVMNamedMDNodeRef result;
   LLVMNamedMDNodeRef _swig_go_result;
@@ -5312,7 +5000,7 @@ LLVMNamedMDNodeRef _wrap_GetNextNamedMetadata_llvm_5d1e3feecae2b244(LLVMNamedMDN
 }
 
 
-LLVMNamedMDNodeRef _wrap_GetPreviousNamedMetadata_llvm_5d1e3feecae2b244(LLVMNamedMDNodeRef _swig_go_0) {
+LLVMNamedMDNodeRef _wrap_GetPreviousNamedMetadata_llvm_a0e88c3155de3083(LLVMNamedMDNodeRef _swig_go_0) {
   LLVMNamedMDNodeRef arg1 ;
   LLVMNamedMDNodeRef result;
   LLVMNamedMDNodeRef _swig_go_result;
@@ -5329,7 +5017,7 @@ LLVMNamedMDNodeRef _wrap_GetPreviousNamedMetadata_llvm_5d1e3feecae2b244(LLVMName
 }
 
 
-LLVMNamedMDNodeRef _wrap_GetNamedMetadata_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
+LLVMNamedMDNodeRef _wrap_GetNamedMetadata_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   size_t arg3 ;
@@ -5355,7 +5043,7 @@ LLVMNamedMDNodeRef _wrap_GetNamedMetadata_llvm_5d1e3feecae2b244(LLVMModuleRef _s
 }
 
 
-LLVMNamedMDNodeRef _wrap_GetOrInsertNamedMetadata_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
+LLVMNamedMDNodeRef _wrap_GetOrInsertNamedMetadata_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   size_t arg3 ;
@@ -5381,7 +5069,7 @@ LLVMNamedMDNodeRef _wrap_GetOrInsertNamedMetadata_llvm_5d1e3feecae2b244(LLVMModu
 }
 
 
-char *_wrap_GetNamedMetadataName_llvm_5d1e3feecae2b244(LLVMNamedMDNodeRef _swig_go_0, long long *_swig_go_1) {
+char *_wrap_GetNamedMetadataName_llvm_a0e88c3155de3083(LLVMNamedMDNodeRef _swig_go_0, long long *_swig_go_1) {
   LLVMNamedMDNodeRef arg1 ;
   size_t *arg2 = (size_t *) 0 ;
   char *result = 0 ;
@@ -5400,7 +5088,7 @@ char *_wrap_GetNamedMetadataName_llvm_5d1e3feecae2b244(LLVMNamedMDNodeRef _swig_
 }
 
 
-intgo _wrap_GetNamedMetadataNumOperands_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
+intgo _wrap_GetNamedMetadataNumOperands_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   unsigned int result;
@@ -5422,7 +5110,7 @@ intgo _wrap_GetNamedMetadataNumOperands_llvm_5d1e3feecae2b244(LLVMModuleRef _swi
 }
 
 
-void _wrap_GetNamedMetadataOperands_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1, LLVMValueRef *_swig_go_2) {
+void _wrap_GetNamedMetadataOperands_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1, LLVMValueRef *_swig_go_2) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   LLVMValueRef *arg3 = (LLVMValueRef *) 0 ;
@@ -5443,7 +5131,7 @@ void _wrap_GetNamedMetadataOperands_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go
 }
 
 
-void _wrap_AddNamedMetadataOperand_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1, LLVMValueRef _swig_go_2) {
+void _wrap_AddNamedMetadataOperand_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1, LLVMValueRef _swig_go_2) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   LLVMValueRef arg3 ;
@@ -5466,7 +5154,7 @@ void _wrap_AddNamedMetadataOperand_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_
 }
 
 
-char *_wrap_GetDebugLocDirectory_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo *_swig_go_1) {
+char *_wrap_GetDebugLocDirectory_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo *_swig_go_1) {
   LLVMValueRef arg1 ;
   unsigned int *arg2 = (unsigned int *) 0 ;
   char *result = 0 ;
@@ -5485,7 +5173,7 @@ char *_wrap_GetDebugLocDirectory_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, 
 }
 
 
-char *_wrap_GetDebugLocFilename_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo *_swig_go_1) {
+char *_wrap_GetDebugLocFilename_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo *_swig_go_1) {
   LLVMValueRef arg1 ;
   unsigned int *arg2 = (unsigned int *) 0 ;
   char *result = 0 ;
@@ -5504,7 +5192,7 @@ char *_wrap_GetDebugLocFilename_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, i
 }
 
 
-intgo _wrap_GetDebugLocLine_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetDebugLocLine_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -5519,7 +5207,7 @@ intgo _wrap_GetDebugLocLine_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-intgo _wrap_GetDebugLocColumn_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetDebugLocColumn_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -5534,7 +5222,7 @@ intgo _wrap_GetDebugLocColumn_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_AddFunction_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1, LLVMTypeRef _swig_go_2) {
+LLVMValueRef _wrap_AddFunction_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1, LLVMTypeRef _swig_go_2) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   LLVMTypeRef arg3 ;
@@ -5562,7 +5250,7 @@ LLVMValueRef _wrap_AddFunction_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, c
 }
 
 
-LLVMValueRef _wrap_GetNamedFunction_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
+LLVMValueRef _wrap_GetNamedFunction_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   LLVMValueRef result;
@@ -5586,7 +5274,7 @@ LLVMValueRef _wrap_GetNamedFunction_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go
 }
 
 
-LLVMValueRef _wrap_GetFirstFunction_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+LLVMValueRef _wrap_GetFirstFunction_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -5603,7 +5291,7 @@ LLVMValueRef _wrap_GetFirstFunction_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go
 }
 
 
-LLVMValueRef _wrap_GetLastFunction_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+LLVMValueRef _wrap_GetLastFunction_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -5620,7 +5308,7 @@ LLVMValueRef _wrap_GetLastFunction_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_
 }
 
 
-LLVMValueRef _wrap_GetNextFunction_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_GetNextFunction_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -5637,7 +5325,7 @@ LLVMValueRef _wrap_GetNextFunction_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_GetPreviousFunction_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_GetPreviousFunction_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -5654,7 +5342,7 @@ LLVMValueRef _wrap_GetPreviousFunction_llvm_5d1e3feecae2b244(LLVMValueRef _swig_
 }
 
 
-void _wrap_SetModuleInlineAsm_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
+void _wrap_SetModuleInlineAsm_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   
@@ -5673,7 +5361,7 @@ void _wrap_SetModuleInlineAsm_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, ch
 }
 
 
-intgo _wrap_GetTypeKind_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+intgo _wrap_GetTypeKind_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   LLVMTypeKind result;
   intgo _swig_go_result;
@@ -5688,7 +5376,7 @@ intgo _wrap_GetTypeKind_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-bool _wrap_TypeIsSized_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+bool _wrap_TypeIsSized_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -5705,7 +5393,7 @@ bool _wrap_TypeIsSized_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-LLVMContextRef _wrap_GetTypeContext_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+LLVMContextRef _wrap_GetTypeContext_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   LLVMContextRef result;
   LLVMContextRef _swig_go_result;
@@ -5722,7 +5410,7 @@ LLVMContextRef _wrap_GetTypeContext_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0
 }
 
 
-void _wrap_DumpType_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+void _wrap_DumpType_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   
   {
@@ -5734,7 +5422,7 @@ void _wrap_DumpType_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-char *_wrap_PrintTypeToString_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+char *_wrap_PrintTypeToString_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -5751,7 +5439,7 @@ char *_wrap_PrintTypeToString_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-LLVMTypeRef _wrap_Int1TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+LLVMTypeRef _wrap_Int1TypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -5768,7 +5456,7 @@ LLVMTypeRef _wrap_Int1TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_g
 }
 
 
-LLVMTypeRef _wrap_Int8TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+LLVMTypeRef _wrap_Int8TypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -5785,7 +5473,7 @@ LLVMTypeRef _wrap_Int8TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_g
 }
 
 
-LLVMTypeRef _wrap_Int16TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+LLVMTypeRef _wrap_Int16TypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -5802,7 +5490,7 @@ LLVMTypeRef _wrap_Int16TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_
 }
 
 
-LLVMTypeRef _wrap_Int32TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+LLVMTypeRef _wrap_Int32TypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -5819,7 +5507,7 @@ LLVMTypeRef _wrap_Int32TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_
 }
 
 
-LLVMTypeRef _wrap_Int64TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+LLVMTypeRef _wrap_Int64TypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -5836,7 +5524,7 @@ LLVMTypeRef _wrap_Int64TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_
 }
 
 
-LLVMTypeRef _wrap_Int128TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+LLVMTypeRef _wrap_Int128TypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -5853,7 +5541,7 @@ LLVMTypeRef _wrap_Int128TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig
 }
 
 
-LLVMTypeRef _wrap_IntTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, intgo _swig_go_1) {
+LLVMTypeRef _wrap_IntTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, intgo _swig_go_1) {
   LLVMContextRef arg1 ;
   unsigned int arg2 ;
   LLVMTypeRef result;
@@ -5872,7 +5560,7 @@ LLVMTypeRef _wrap_IntTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go
 }
 
 
-LLVMTypeRef _wrap_Int1Type_llvm_5d1e3feecae2b244() {
+LLVMTypeRef _wrap_Int1Type_llvm_a0e88c3155de3083() {
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
   
@@ -5885,7 +5573,7 @@ LLVMTypeRef _wrap_Int1Type_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMTypeRef _wrap_Int8Type_llvm_5d1e3feecae2b244() {
+LLVMTypeRef _wrap_Int8Type_llvm_a0e88c3155de3083() {
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
   
@@ -5898,7 +5586,7 @@ LLVMTypeRef _wrap_Int8Type_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMTypeRef _wrap_Int16Type_llvm_5d1e3feecae2b244() {
+LLVMTypeRef _wrap_Int16Type_llvm_a0e88c3155de3083() {
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
   
@@ -5911,7 +5599,7 @@ LLVMTypeRef _wrap_Int16Type_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMTypeRef _wrap_Int32Type_llvm_5d1e3feecae2b244() {
+LLVMTypeRef _wrap_Int32Type_llvm_a0e88c3155de3083() {
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
   
@@ -5924,7 +5612,7 @@ LLVMTypeRef _wrap_Int32Type_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMTypeRef _wrap_Int64Type_llvm_5d1e3feecae2b244() {
+LLVMTypeRef _wrap_Int64Type_llvm_a0e88c3155de3083() {
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
   
@@ -5937,7 +5625,7 @@ LLVMTypeRef _wrap_Int64Type_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMTypeRef _wrap_Int128Type_llvm_5d1e3feecae2b244() {
+LLVMTypeRef _wrap_Int128Type_llvm_a0e88c3155de3083() {
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
   
@@ -5950,7 +5638,7 @@ LLVMTypeRef _wrap_Int128Type_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMTypeRef _wrap_IntType_llvm_5d1e3feecae2b244(intgo _swig_go_0) {
+LLVMTypeRef _wrap_IntType_llvm_a0e88c3155de3083(intgo _swig_go_0) {
   unsigned int arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -5965,7 +5653,7 @@ LLVMTypeRef _wrap_IntType_llvm_5d1e3feecae2b244(intgo _swig_go_0) {
 }
 
 
-intgo _wrap_GetIntTypeWidth_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+intgo _wrap_GetIntTypeWidth_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -5980,7 +5668,7 @@ intgo _wrap_GetIntTypeWidth_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-LLVMTypeRef _wrap_HalfTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+LLVMTypeRef _wrap_HalfTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -5997,7 +5685,7 @@ LLVMTypeRef _wrap_HalfTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_g
 }
 
 
-LLVMTypeRef _wrap_BFloatTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+LLVMTypeRef _wrap_BFloatTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -6014,7 +5702,7 @@ LLVMTypeRef _wrap_BFloatTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig
 }
 
 
-LLVMTypeRef _wrap_FloatTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+LLVMTypeRef _wrap_FloatTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -6031,7 +5719,7 @@ LLVMTypeRef _wrap_FloatTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_
 }
 
 
-LLVMTypeRef _wrap_DoubleTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+LLVMTypeRef _wrap_DoubleTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -6048,7 +5736,7 @@ LLVMTypeRef _wrap_DoubleTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig
 }
 
 
-LLVMTypeRef _wrap_X86FP80TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+LLVMTypeRef _wrap_X86FP80TypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -6065,7 +5753,7 @@ LLVMTypeRef _wrap_X86FP80TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swi
 }
 
 
-LLVMTypeRef _wrap_FP128TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+LLVMTypeRef _wrap_FP128TypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -6082,7 +5770,7 @@ LLVMTypeRef _wrap_FP128TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_
 }
 
 
-LLVMTypeRef _wrap_PPCFP128TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+LLVMTypeRef _wrap_PPCFP128TypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -6099,7 +5787,7 @@ LLVMTypeRef _wrap_PPCFP128TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _sw
 }
 
 
-LLVMTypeRef _wrap_HalfType_llvm_5d1e3feecae2b244() {
+LLVMTypeRef _wrap_HalfType_llvm_a0e88c3155de3083() {
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
   
@@ -6112,7 +5800,7 @@ LLVMTypeRef _wrap_HalfType_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMTypeRef _wrap_BFloatType_llvm_5d1e3feecae2b244() {
+LLVMTypeRef _wrap_BFloatType_llvm_a0e88c3155de3083() {
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
   
@@ -6125,7 +5813,7 @@ LLVMTypeRef _wrap_BFloatType_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMTypeRef _wrap_FloatType_llvm_5d1e3feecae2b244() {
+LLVMTypeRef _wrap_FloatType_llvm_a0e88c3155de3083() {
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
   
@@ -6138,7 +5826,7 @@ LLVMTypeRef _wrap_FloatType_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMTypeRef _wrap_DoubleType_llvm_5d1e3feecae2b244() {
+LLVMTypeRef _wrap_DoubleType_llvm_a0e88c3155de3083() {
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
   
@@ -6151,7 +5839,7 @@ LLVMTypeRef _wrap_DoubleType_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMTypeRef _wrap_X86FP80Type_llvm_5d1e3feecae2b244() {
+LLVMTypeRef _wrap_X86FP80Type_llvm_a0e88c3155de3083() {
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
   
@@ -6164,7 +5852,7 @@ LLVMTypeRef _wrap_X86FP80Type_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMTypeRef _wrap_FP128Type_llvm_5d1e3feecae2b244() {
+LLVMTypeRef _wrap_FP128Type_llvm_a0e88c3155de3083() {
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
   
@@ -6177,7 +5865,7 @@ LLVMTypeRef _wrap_FP128Type_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMTypeRef _wrap_PPCFP128Type_llvm_5d1e3feecae2b244() {
+LLVMTypeRef _wrap_PPCFP128Type_llvm_a0e88c3155de3083() {
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
   
@@ -6190,7 +5878,7 @@ LLVMTypeRef _wrap_PPCFP128Type_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMTypeRef _wrap_FunctionType_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, LLVMTypeRef *_swig_go_1, bool _swig_go_2) {
+LLVMTypeRef _wrap_FunctionType_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, LLVMTypeRef *_swig_go_1, bool _swig_go_2) {
   LLVMTypeRef arg1 ;
   LLVMTypeRef *arg2 = (LLVMTypeRef *) 0 ;
   unsigned int arg3 ;
@@ -6223,7 +5911,7 @@ LLVMTypeRef _wrap_FunctionType_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, LLV
 }
 
 
-bool _wrap_IsFunctionVarArg_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+bool _wrap_IsFunctionVarArg_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -6240,7 +5928,7 @@ bool _wrap_IsFunctionVarArg_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-LLVMTypeRef _wrap_GetReturnType_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+LLVMTypeRef _wrap_GetReturnType_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -6257,7 +5945,7 @@ LLVMTypeRef _wrap_GetReturnType_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-intgo _wrap_CountParamTypes_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+intgo _wrap_CountParamTypes_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -6272,7 +5960,7 @@ intgo _wrap_CountParamTypes_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-void _wrap_GetParamTypes_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, LLVMTypeRef *_swig_go_1) {
+void _wrap_GetParamTypes_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, LLVMTypeRef *_swig_go_1) {
   LLVMTypeRef arg1 ;
   LLVMTypeRef *arg2 = (LLVMTypeRef *) 0 ;
   
@@ -6286,7 +5974,7 @@ void _wrap_GetParamTypes_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, LLVMTypeR
 }
 
 
-LLVMTypeRef _wrap_StructTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, LLVMTypeRef *_swig_go_1, bool _swig_go_2) {
+LLVMTypeRef _wrap_StructTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, LLVMTypeRef *_swig_go_1, bool _swig_go_2) {
   LLVMContextRef arg1 ;
   LLVMTypeRef *arg2 = (LLVMTypeRef *) 0 ;
   unsigned int arg3 ;
@@ -6319,7 +6007,7 @@ LLVMTypeRef _wrap_StructTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig
 }
 
 
-LLVMTypeRef _wrap_StructType_llvm_5d1e3feecae2b244(LLVMTypeRef *_swig_go_0, bool _swig_go_1) {
+LLVMTypeRef _wrap_StructType_llvm_a0e88c3155de3083(LLVMTypeRef *_swig_go_0, bool _swig_go_1) {
   LLVMTypeRef *arg1 = (LLVMTypeRef *) 0 ;
   unsigned int arg2 ;
   LLVMBool arg3 ;
@@ -6348,7 +6036,7 @@ LLVMTypeRef _wrap_StructType_llvm_5d1e3feecae2b244(LLVMTypeRef *_swig_go_0, bool
 }
 
 
-LLVMTypeRef _wrap_StructCreateNamed_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, char *_swig_go_1) {
+LLVMTypeRef _wrap_StructCreateNamed_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, char *_swig_go_1) {
   LLVMContextRef arg1 ;
   char *arg2 = (char *) 0 ;
   LLVMTypeRef result;
@@ -6372,7 +6060,7 @@ LLVMTypeRef _wrap_StructCreateNamed_llvm_5d1e3feecae2b244(LLVMContextRef _swig_g
 }
 
 
-char *_wrap_GetStructName_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+char *_wrap_GetStructName_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -6389,7 +6077,7 @@ char *_wrap_GetStructName_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-void _wrap_StructSetBody_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, LLVMTypeRef *_swig_go_1, bool _swig_go_2) {
+void _wrap_StructSetBody_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, LLVMTypeRef *_swig_go_1, bool _swig_go_2) {
   LLVMTypeRef arg1 ;
   LLVMTypeRef *arg2 = (LLVMTypeRef *) 0 ;
   unsigned int arg3 ;
@@ -6417,7 +6105,7 @@ void _wrap_StructSetBody_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, LLVMTypeR
 }
 
 
-intgo _wrap_CountStructElementTypes_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+intgo _wrap_CountStructElementTypes_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -6432,7 +6120,7 @@ intgo _wrap_CountStructElementTypes_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0
 }
 
 
-void _wrap_GetStructElementTypes_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, LLVMTypeRef *_swig_go_1) {
+void _wrap_GetStructElementTypes_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, LLVMTypeRef *_swig_go_1) {
   LLVMTypeRef arg1 ;
   LLVMTypeRef *arg2 = (LLVMTypeRef *) 0 ;
   
@@ -6446,7 +6134,7 @@ void _wrap_GetStructElementTypes_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, L
 }
 
 
-LLVMTypeRef _wrap_StructGetTypeAtIndex_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, intgo _swig_go_1) {
+LLVMTypeRef _wrap_StructGetTypeAtIndex_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, intgo _swig_go_1) {
   LLVMTypeRef arg1 ;
   unsigned int arg2 ;
   LLVMTypeRef result;
@@ -6465,7 +6153,7 @@ LLVMTypeRef _wrap_StructGetTypeAtIndex_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_g
 }
 
 
-bool _wrap_IsPackedStruct_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+bool _wrap_IsPackedStruct_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -6482,7 +6170,7 @@ bool _wrap_IsPackedStruct_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-bool _wrap_IsOpaqueStruct_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+bool _wrap_IsOpaqueStruct_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -6499,7 +6187,7 @@ bool _wrap_IsOpaqueStruct_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-bool _wrap_IsLiteralStruct_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+bool _wrap_IsLiteralStruct_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -6516,7 +6204,7 @@ bool _wrap_IsLiteralStruct_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-LLVMTypeRef _wrap_GetElementType_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+LLVMTypeRef _wrap_GetElementType_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -6533,7 +6221,7 @@ LLVMTypeRef _wrap_GetElementType_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-void _wrap_GetSubtypes_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, LLVMTypeRef *_swig_go_1) {
+void _wrap_GetSubtypes_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, LLVMTypeRef *_swig_go_1) {
   LLVMTypeRef arg1 ;
   LLVMTypeRef *arg2 = (LLVMTypeRef *) 0 ;
   
@@ -6547,7 +6235,7 @@ void _wrap_GetSubtypes_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, LLVMTypeRef
 }
 
 
-intgo _wrap_GetNumContainedTypes_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+intgo _wrap_GetNumContainedTypes_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -6562,7 +6250,7 @@ intgo _wrap_GetNumContainedTypes_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-LLVMTypeRef _wrap_ArrayType_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, intgo _swig_go_1) {
+LLVMTypeRef _wrap_ArrayType_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, intgo _swig_go_1) {
   LLVMTypeRef arg1 ;
   unsigned int arg2 ;
   LLVMTypeRef result;
@@ -6581,7 +6269,7 @@ LLVMTypeRef _wrap_ArrayType_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, intgo 
 }
 
 
-LLVMTypeRef _wrap_ArrayType2_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, long long _swig_go_1) {
+LLVMTypeRef _wrap_ArrayType2_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, long long _swig_go_1) {
   LLVMTypeRef arg1 ;
   uint64_t arg2 ;
   LLVMTypeRef result;
@@ -6600,7 +6288,7 @@ LLVMTypeRef _wrap_ArrayType2_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, long 
 }
 
 
-intgo _wrap_GetArrayLength_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+intgo _wrap_GetArrayLength_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -6615,7 +6303,7 @@ intgo _wrap_GetArrayLength_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-long long _wrap_GetArrayLength2_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+long long _wrap_GetArrayLength2_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   uint64_t result;
   long long _swig_go_result;
@@ -6630,7 +6318,7 @@ long long _wrap_GetArrayLength2_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-LLVMTypeRef _wrap_PointerType_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, intgo _swig_go_1) {
+LLVMTypeRef _wrap_PointerType_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, intgo _swig_go_1) {
   LLVMTypeRef arg1 ;
   unsigned int arg2 ;
   LLVMTypeRef result;
@@ -6649,7 +6337,7 @@ LLVMTypeRef _wrap_PointerType_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, intg
 }
 
 
-bool _wrap_PointerTypeIsOpaque_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+bool _wrap_PointerTypeIsOpaque_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -6666,7 +6354,7 @@ bool _wrap_PointerTypeIsOpaque_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-LLVMTypeRef _wrap_PointerTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, intgo _swig_go_1) {
+LLVMTypeRef _wrap_PointerTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, intgo _swig_go_1) {
   LLVMContextRef arg1 ;
   unsigned int arg2 ;
   LLVMTypeRef result;
@@ -6685,7 +6373,7 @@ LLVMTypeRef _wrap_PointerTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swi
 }
 
 
-intgo _wrap_GetPointerAddressSpace_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+intgo _wrap_GetPointerAddressSpace_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -6700,7 +6388,7 @@ intgo _wrap_GetPointerAddressSpace_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0)
 }
 
 
-LLVMTypeRef _wrap_VectorType_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, intgo _swig_go_1) {
+LLVMTypeRef _wrap_VectorType_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, intgo _swig_go_1) {
   LLVMTypeRef arg1 ;
   unsigned int arg2 ;
   LLVMTypeRef result;
@@ -6719,7 +6407,7 @@ LLVMTypeRef _wrap_VectorType_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, intgo
 }
 
 
-LLVMTypeRef _wrap_ScalableVectorType_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, intgo _swig_go_1) {
+LLVMTypeRef _wrap_ScalableVectorType_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, intgo _swig_go_1) {
   LLVMTypeRef arg1 ;
   unsigned int arg2 ;
   LLVMTypeRef result;
@@ -6738,7 +6426,7 @@ LLVMTypeRef _wrap_ScalableVectorType_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_
 }
 
 
-intgo _wrap_GetVectorSize_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+intgo _wrap_GetVectorSize_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -6753,7 +6441,7 @@ intgo _wrap_GetVectorSize_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-LLVMTypeRef _wrap_VoidTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+LLVMTypeRef _wrap_VoidTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -6770,7 +6458,7 @@ LLVMTypeRef _wrap_VoidTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_g
 }
 
 
-LLVMTypeRef _wrap_LabelTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+LLVMTypeRef _wrap_LabelTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -6787,7 +6475,7 @@ LLVMTypeRef _wrap_LabelTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_
 }
 
 
-LLVMTypeRef _wrap_X86MMXTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+LLVMTypeRef _wrap_X86MMXTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -6804,7 +6492,7 @@ LLVMTypeRef _wrap_X86MMXTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig
 }
 
 
-LLVMTypeRef _wrap_X86AMXTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+LLVMTypeRef _wrap_X86AMXTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -6821,7 +6509,7 @@ LLVMTypeRef _wrap_X86AMXTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig
 }
 
 
-LLVMTypeRef _wrap_TokenTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+LLVMTypeRef _wrap_TokenTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -6838,7 +6526,7 @@ LLVMTypeRef _wrap_TokenTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_
 }
 
 
-LLVMTypeRef _wrap_MetadataTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+LLVMTypeRef _wrap_MetadataTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -6855,7 +6543,7 @@ LLVMTypeRef _wrap_MetadataTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _sw
 }
 
 
-LLVMTypeRef _wrap_VoidType_llvm_5d1e3feecae2b244() {
+LLVMTypeRef _wrap_VoidType_llvm_a0e88c3155de3083() {
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
   
@@ -6868,7 +6556,7 @@ LLVMTypeRef _wrap_VoidType_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMTypeRef _wrap_LabelType_llvm_5d1e3feecae2b244() {
+LLVMTypeRef _wrap_LabelType_llvm_a0e88c3155de3083() {
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
   
@@ -6881,7 +6569,7 @@ LLVMTypeRef _wrap_LabelType_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMTypeRef _wrap_X86MMXType_llvm_5d1e3feecae2b244() {
+LLVMTypeRef _wrap_X86MMXType_llvm_a0e88c3155de3083() {
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
   
@@ -6894,7 +6582,7 @@ LLVMTypeRef _wrap_X86MMXType_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMTypeRef _wrap_X86AMXType_llvm_5d1e3feecae2b244() {
+LLVMTypeRef _wrap_X86AMXType_llvm_a0e88c3155de3083() {
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
   
@@ -6907,7 +6595,7 @@ LLVMTypeRef _wrap_X86AMXType_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMTypeRef _wrap_TargetExtTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, char *_swig_go_1, LLVMTypeRef *_swig_go_2, _goslice_ _swig_go_3) {
+LLVMTypeRef _wrap_TargetExtTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, char *_swig_go_1, LLVMTypeRef *_swig_go_2, _goslice_ _swig_go_3) {
   LLVMContextRef arg1 ;
   char *arg2 = (char *) 0 ;
   LLVMTypeRef *arg3 = (LLVMTypeRef *) 0 ;
@@ -6948,7 +6636,7 @@ LLVMTypeRef _wrap_TargetExtTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _s
 }
 
 
-LLVMTypeRef _wrap_TypeOf_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMTypeRef _wrap_TypeOf_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -6965,7 +6653,7 @@ LLVMTypeRef _wrap_TypeOf_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-intgo _wrap_GetValueKind_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetValueKind_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueKind result;
   intgo _swig_go_result;
@@ -6980,7 +6668,7 @@ intgo _wrap_GetValueKind_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-char *_wrap_GetValueName2_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, long long *_swig_go_1) {
+char *_wrap_GetValueName2_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, long long *_swig_go_1) {
   LLVMValueRef arg1 ;
   size_t *arg2 = (size_t *) 0 ;
   char *result = 0 ;
@@ -6999,7 +6687,7 @@ char *_wrap_GetValueName2_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, long lo
 }
 
 
-void _wrap_SetValueName2_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, char *_swig_go_1) {
+void _wrap_SetValueName2_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, char *_swig_go_1) {
   LLVMValueRef arg1 ;
   char *arg2 = (char *) 0 ;
   size_t arg3 ;
@@ -7020,7 +6708,7 @@ void _wrap_SetValueName2_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, char *_s
 }
 
 
-void _wrap_DumpValue_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+void _wrap_DumpValue_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   
   {
@@ -7032,7 +6720,7 @@ void _wrap_DumpValue_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-char *_wrap_PrintValueToString_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+char *_wrap_PrintValueToString_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -7049,7 +6737,7 @@ char *_wrap_PrintValueToString_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_ReplaceAllUsesWith_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+void _wrap_ReplaceAllUsesWith_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   
@@ -7065,7 +6753,7 @@ void _wrap_ReplaceAllUsesWith_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLV
 }
 
 
-bool _wrap_IsConstant_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+bool _wrap_IsConstant_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -7082,7 +6770,7 @@ bool _wrap_IsConstant_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-bool _wrap_IsUndef_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+bool _wrap_IsUndef_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -7099,7 +6787,7 @@ bool _wrap_IsUndef_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-bool _wrap_IsPoison_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+bool _wrap_IsPoison_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -7116,7 +6804,7 @@ bool _wrap_IsPoison_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_IsAArgument_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAArgument_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7133,7 +6821,7 @@ LLVMValueRef _wrap_IsAArgument_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_IsABasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsABasicBlock_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7150,7 +6838,7 @@ LLVMValueRef _wrap_IsABasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-LLVMValueRef _wrap_IsAInlineAsm_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAInlineAsm_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7167,7 +6855,7 @@ LLVMValueRef _wrap_IsAInlineAsm_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_IsAUser_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAUser_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7184,7 +6872,7 @@ LLVMValueRef _wrap_IsAUser_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_IsAConstant_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAConstant_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7201,7 +6889,7 @@ LLVMValueRef _wrap_IsAConstant_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_IsABlockAddress_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsABlockAddress_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7218,7 +6906,7 @@ LLVMValueRef _wrap_IsABlockAddress_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_IsAConstantAggregateZero_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAConstantAggregateZero_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7235,7 +6923,7 @@ LLVMValueRef _wrap_IsAConstantAggregateZero_llvm_5d1e3feecae2b244(LLVMValueRef _
 }
 
 
-LLVMValueRef _wrap_IsAConstantArray_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAConstantArray_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7252,7 +6940,7 @@ LLVMValueRef _wrap_IsAConstantArray_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_
 }
 
 
-LLVMValueRef _wrap_IsAConstantDataSequential_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAConstantDataSequential_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7269,7 +6957,7 @@ LLVMValueRef _wrap_IsAConstantDataSequential_llvm_5d1e3feecae2b244(LLVMValueRef 
 }
 
 
-LLVMValueRef _wrap_IsAConstantDataArray_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAConstantDataArray_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7286,7 +6974,7 @@ LLVMValueRef _wrap_IsAConstantDataArray_llvm_5d1e3feecae2b244(LLVMValueRef _swig
 }
 
 
-LLVMValueRef _wrap_IsAConstantDataVector_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAConstantDataVector_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7303,7 +6991,7 @@ LLVMValueRef _wrap_IsAConstantDataVector_llvm_5d1e3feecae2b244(LLVMValueRef _swi
 }
 
 
-LLVMValueRef _wrap_IsAConstantExpr_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAConstantExpr_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7320,7 +7008,7 @@ LLVMValueRef _wrap_IsAConstantExpr_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_IsAConstantFP_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAConstantFP_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7337,7 +7025,7 @@ LLVMValueRef _wrap_IsAConstantFP_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-LLVMValueRef _wrap_IsAConstantInt_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAConstantInt_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7354,7 +7042,7 @@ LLVMValueRef _wrap_IsAConstantInt_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0)
 }
 
 
-LLVMValueRef _wrap_IsAConstantPointerNull_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAConstantPointerNull_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7371,7 +7059,7 @@ LLVMValueRef _wrap_IsAConstantPointerNull_llvm_5d1e3feecae2b244(LLVMValueRef _sw
 }
 
 
-LLVMValueRef _wrap_IsAConstantStruct_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAConstantStruct_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7388,7 +7076,7 @@ LLVMValueRef _wrap_IsAConstantStruct_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go
 }
 
 
-LLVMValueRef _wrap_IsAConstantTokenNone_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAConstantTokenNone_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7405,7 +7093,7 @@ LLVMValueRef _wrap_IsAConstantTokenNone_llvm_5d1e3feecae2b244(LLVMValueRef _swig
 }
 
 
-LLVMValueRef _wrap_IsAConstantVector_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAConstantVector_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7422,7 +7110,7 @@ LLVMValueRef _wrap_IsAConstantVector_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go
 }
 
 
-LLVMValueRef _wrap_IsAGlobalValue_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAGlobalValue_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7439,7 +7127,7 @@ LLVMValueRef _wrap_IsAGlobalValue_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0)
 }
 
 
-LLVMValueRef _wrap_IsAGlobalAlias_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAGlobalAlias_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7456,7 +7144,7 @@ LLVMValueRef _wrap_IsAGlobalAlias_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0)
 }
 
 
-LLVMValueRef _wrap_IsAGlobalObject_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAGlobalObject_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7473,7 +7161,7 @@ LLVMValueRef _wrap_IsAGlobalObject_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_IsAFunction_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAFunction_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7490,7 +7178,7 @@ LLVMValueRef _wrap_IsAFunction_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_IsAGlobalVariable_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAGlobalVariable_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7507,7 +7195,7 @@ LLVMValueRef _wrap_IsAGlobalVariable_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go
 }
 
 
-LLVMValueRef _wrap_IsAGlobalIFunc_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAGlobalIFunc_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7524,7 +7212,7 @@ LLVMValueRef _wrap_IsAGlobalIFunc_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0)
 }
 
 
-LLVMValueRef _wrap_IsAUndefValue_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAUndefValue_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7541,7 +7229,7 @@ LLVMValueRef _wrap_IsAUndefValue_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-LLVMValueRef _wrap_IsAPoisonValue_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAPoisonValue_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7558,7 +7246,7 @@ LLVMValueRef _wrap_IsAPoisonValue_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0)
 }
 
 
-LLVMValueRef _wrap_IsAInstruction_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAInstruction_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7575,7 +7263,7 @@ LLVMValueRef _wrap_IsAInstruction_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0)
 }
 
 
-LLVMValueRef _wrap_IsAUnaryOperator_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAUnaryOperator_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7592,7 +7280,7 @@ LLVMValueRef _wrap_IsAUnaryOperator_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_
 }
 
 
-LLVMValueRef _wrap_IsABinaryOperator_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsABinaryOperator_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7609,7 +7297,7 @@ LLVMValueRef _wrap_IsABinaryOperator_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go
 }
 
 
-LLVMValueRef _wrap_IsACallInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsACallInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7626,7 +7314,7 @@ LLVMValueRef _wrap_IsACallInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_IsAIntrinsicInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAIntrinsicInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7643,7 +7331,7 @@ LLVMValueRef _wrap_IsAIntrinsicInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_
 }
 
 
-LLVMValueRef _wrap_IsADbgInfoIntrinsic_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsADbgInfoIntrinsic_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7660,7 +7348,7 @@ LLVMValueRef _wrap_IsADbgInfoIntrinsic_llvm_5d1e3feecae2b244(LLVMValueRef _swig_
 }
 
 
-LLVMValueRef _wrap_IsADbgVariableIntrinsic_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsADbgVariableIntrinsic_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7677,7 +7365,7 @@ LLVMValueRef _wrap_IsADbgVariableIntrinsic_llvm_5d1e3feecae2b244(LLVMValueRef _s
 }
 
 
-LLVMValueRef _wrap_IsADbgDeclareInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsADbgDeclareInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7694,7 +7382,7 @@ LLVMValueRef _wrap_IsADbgDeclareInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go
 }
 
 
-LLVMValueRef _wrap_IsADbgLabelInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsADbgLabelInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7711,7 +7399,7 @@ LLVMValueRef _wrap_IsADbgLabelInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_IsAMemIntrinsic_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAMemIntrinsic_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7728,7 +7416,7 @@ LLVMValueRef _wrap_IsAMemIntrinsic_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_IsAMemCpyInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAMemCpyInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7745,7 +7433,7 @@ LLVMValueRef _wrap_IsAMemCpyInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-LLVMValueRef _wrap_IsAMemMoveInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAMemMoveInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7762,7 +7450,7 @@ LLVMValueRef _wrap_IsAMemMoveInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0)
 }
 
 
-LLVMValueRef _wrap_IsAMemSetInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAMemSetInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7779,7 +7467,7 @@ LLVMValueRef _wrap_IsAMemSetInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-LLVMValueRef _wrap_IsACmpInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsACmpInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7796,7 +7484,7 @@ LLVMValueRef _wrap_IsACmpInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_IsAFCmpInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAFCmpInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7813,7 +7501,7 @@ LLVMValueRef _wrap_IsAFCmpInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_IsAICmpInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAICmpInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7830,7 +7518,7 @@ LLVMValueRef _wrap_IsAICmpInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_IsAExtractElementInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAExtractElementInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7847,7 +7535,7 @@ LLVMValueRef _wrap_IsAExtractElementInst_llvm_5d1e3feecae2b244(LLVMValueRef _swi
 }
 
 
-LLVMValueRef _wrap_IsAGetElementPtrInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAGetElementPtrInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7864,7 +7552,7 @@ LLVMValueRef _wrap_IsAGetElementPtrInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig
 }
 
 
-LLVMValueRef _wrap_IsAInsertElementInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAInsertElementInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7881,7 +7569,7 @@ LLVMValueRef _wrap_IsAInsertElementInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig
 }
 
 
-LLVMValueRef _wrap_IsAInsertValueInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAInsertValueInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7898,7 +7586,7 @@ LLVMValueRef _wrap_IsAInsertValueInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_g
 }
 
 
-LLVMValueRef _wrap_IsALandingPadInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsALandingPadInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7915,7 +7603,7 @@ LLVMValueRef _wrap_IsALandingPadInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go
 }
 
 
-LLVMValueRef _wrap_IsAPHINode_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAPHINode_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7932,7 +7620,7 @@ LLVMValueRef _wrap_IsAPHINode_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_IsASelectInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsASelectInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7949,7 +7637,7 @@ LLVMValueRef _wrap_IsASelectInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-LLVMValueRef _wrap_IsAShuffleVectorInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAShuffleVectorInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7966,7 +7654,7 @@ LLVMValueRef _wrap_IsAShuffleVectorInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig
 }
 
 
-LLVMValueRef _wrap_IsAStoreInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAStoreInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -7983,7 +7671,7 @@ LLVMValueRef _wrap_IsAStoreInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_IsABranchInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsABranchInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8000,7 +7688,7 @@ LLVMValueRef _wrap_IsABranchInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-LLVMValueRef _wrap_IsAIndirectBrInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAIndirectBrInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8017,7 +7705,7 @@ LLVMValueRef _wrap_IsAIndirectBrInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go
 }
 
 
-LLVMValueRef _wrap_IsAInvokeInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAInvokeInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8034,7 +7722,7 @@ LLVMValueRef _wrap_IsAInvokeInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-LLVMValueRef _wrap_IsAReturnInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAReturnInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8051,7 +7739,7 @@ LLVMValueRef _wrap_IsAReturnInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-LLVMValueRef _wrap_IsASwitchInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsASwitchInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8068,7 +7756,7 @@ LLVMValueRef _wrap_IsASwitchInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-LLVMValueRef _wrap_IsAUnreachableInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAUnreachableInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8085,7 +7773,7 @@ LLVMValueRef _wrap_IsAUnreachableInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_g
 }
 
 
-LLVMValueRef _wrap_IsAResumeInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAResumeInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8102,7 +7790,7 @@ LLVMValueRef _wrap_IsAResumeInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-LLVMValueRef _wrap_IsACleanupReturnInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsACleanupReturnInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8119,7 +7807,7 @@ LLVMValueRef _wrap_IsACleanupReturnInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig
 }
 
 
-LLVMValueRef _wrap_IsACatchReturnInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsACatchReturnInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8136,7 +7824,7 @@ LLVMValueRef _wrap_IsACatchReturnInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_g
 }
 
 
-LLVMValueRef _wrap_IsACatchSwitchInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsACatchSwitchInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8153,7 +7841,7 @@ LLVMValueRef _wrap_IsACatchSwitchInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_g
 }
 
 
-LLVMValueRef _wrap_IsACallBrInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsACallBrInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8170,7 +7858,7 @@ LLVMValueRef _wrap_IsACallBrInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-LLVMValueRef _wrap_IsAFuncletPadInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAFuncletPadInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8187,7 +7875,7 @@ LLVMValueRef _wrap_IsAFuncletPadInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go
 }
 
 
-LLVMValueRef _wrap_IsACatchPadInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsACatchPadInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8204,7 +7892,7 @@ LLVMValueRef _wrap_IsACatchPadInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_IsACleanupPadInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsACleanupPadInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8221,7 +7909,7 @@ LLVMValueRef _wrap_IsACleanupPadInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go
 }
 
 
-LLVMValueRef _wrap_IsAUnaryInstruction_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAUnaryInstruction_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8238,7 +7926,7 @@ LLVMValueRef _wrap_IsAUnaryInstruction_llvm_5d1e3feecae2b244(LLVMValueRef _swig_
 }
 
 
-LLVMValueRef _wrap_IsAAllocaInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAAllocaInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8255,7 +7943,7 @@ LLVMValueRef _wrap_IsAAllocaInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-LLVMValueRef _wrap_IsACastInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsACastInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8272,7 +7960,7 @@ LLVMValueRef _wrap_IsACastInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_IsAAddrSpaceCastInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAAddrSpaceCastInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8289,7 +7977,7 @@ LLVMValueRef _wrap_IsAAddrSpaceCastInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig
 }
 
 
-LLVMValueRef _wrap_IsABitCastInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsABitCastInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8306,7 +7994,7 @@ LLVMValueRef _wrap_IsABitCastInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0)
 }
 
 
-LLVMValueRef _wrap_IsAFPExtInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAFPExtInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8323,7 +8011,7 @@ LLVMValueRef _wrap_IsAFPExtInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_IsAFPToSIInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAFPToSIInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8340,7 +8028,7 @@ LLVMValueRef _wrap_IsAFPToSIInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-LLVMValueRef _wrap_IsAFPToUIInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAFPToUIInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8357,7 +8045,7 @@ LLVMValueRef _wrap_IsAFPToUIInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-LLVMValueRef _wrap_IsAFPTruncInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAFPTruncInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8374,7 +8062,7 @@ LLVMValueRef _wrap_IsAFPTruncInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0)
 }
 
 
-LLVMValueRef _wrap_IsAIntToPtrInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAIntToPtrInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8391,7 +8079,7 @@ LLVMValueRef _wrap_IsAIntToPtrInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_IsAPtrToIntInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAPtrToIntInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8408,7 +8096,7 @@ LLVMValueRef _wrap_IsAPtrToIntInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_IsASExtInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsASExtInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8425,7 +8113,7 @@ LLVMValueRef _wrap_IsASExtInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_IsASIToFPInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsASIToFPInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8442,7 +8130,7 @@ LLVMValueRef _wrap_IsASIToFPInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-LLVMValueRef _wrap_IsATruncInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsATruncInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8459,7 +8147,7 @@ LLVMValueRef _wrap_IsATruncInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_IsAUIToFPInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAUIToFPInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8476,7 +8164,7 @@ LLVMValueRef _wrap_IsAUIToFPInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-LLVMValueRef _wrap_IsAZExtInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAZExtInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8493,7 +8181,7 @@ LLVMValueRef _wrap_IsAZExtInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_IsAExtractValueInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAExtractValueInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8510,7 +8198,7 @@ LLVMValueRef _wrap_IsAExtractValueInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_
 }
 
 
-LLVMValueRef _wrap_IsALoadInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsALoadInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8527,7 +8215,7 @@ LLVMValueRef _wrap_IsALoadInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_IsAVAArgInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAVAArgInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8544,7 +8232,7 @@ LLVMValueRef _wrap_IsAVAArgInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_IsAFreezeInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAFreezeInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8561,7 +8249,7 @@ LLVMValueRef _wrap_IsAFreezeInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-LLVMValueRef _wrap_IsAAtomicCmpXchgInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAAtomicCmpXchgInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8578,7 +8266,7 @@ LLVMValueRef _wrap_IsAAtomicCmpXchgInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig
 }
 
 
-LLVMValueRef _wrap_IsAAtomicRMWInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAAtomicRMWInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8595,7 +8283,7 @@ LLVMValueRef _wrap_IsAAtomicRMWInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_
 }
 
 
-LLVMValueRef _wrap_IsAFenceInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAFenceInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8612,7 +8300,7 @@ LLVMValueRef _wrap_IsAFenceInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_IsAMDNode_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAMDNode_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8629,7 +8317,7 @@ LLVMValueRef _wrap_IsAMDNode_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_IsAValueAsMetadata_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAValueAsMetadata_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8646,7 +8334,7 @@ LLVMValueRef _wrap_IsAValueAsMetadata_llvm_5d1e3feecae2b244(LLVMValueRef _swig_g
 }
 
 
-LLVMValueRef _wrap_IsAMDString_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsAMDString_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8663,7 +8351,7 @@ LLVMValueRef _wrap_IsAMDString_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-char *_wrap_GetValueName_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+char *_wrap_GetValueName_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -8680,7 +8368,7 @@ char *_wrap_GetValueName_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetValueName_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, char *_swig_go_1) {
+void _wrap_SetValueName_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, char *_swig_go_1) {
   LLVMValueRef arg1 ;
   char *arg2 = (char *) 0 ;
   
@@ -8699,7 +8387,7 @@ void _wrap_SetValueName_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, char *_sw
 }
 
 
-LLVMUseRef _wrap_GetFirstUse_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMUseRef _wrap_GetFirstUse_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMUseRef result;
   LLVMUseRef _swig_go_result;
@@ -8716,7 +8404,7 @@ LLVMUseRef _wrap_GetFirstUse_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMUseRef _wrap_GetNextUse_llvm_5d1e3feecae2b244(LLVMUseRef _swig_go_0) {
+LLVMUseRef _wrap_GetNextUse_llvm_a0e88c3155de3083(LLVMUseRef _swig_go_0) {
   LLVMUseRef arg1 ;
   LLVMUseRef result;
   LLVMUseRef _swig_go_result;
@@ -8733,7 +8421,7 @@ LLVMUseRef _wrap_GetNextUse_llvm_5d1e3feecae2b244(LLVMUseRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_GetUser_llvm_5d1e3feecae2b244(LLVMUseRef _swig_go_0) {
+LLVMValueRef _wrap_GetUser_llvm_a0e88c3155de3083(LLVMUseRef _swig_go_0) {
   LLVMUseRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8750,7 +8438,7 @@ LLVMValueRef _wrap_GetUser_llvm_5d1e3feecae2b244(LLVMUseRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_GetUsedValue_llvm_5d1e3feecae2b244(LLVMUseRef _swig_go_0) {
+LLVMValueRef _wrap_GetUsedValue_llvm_a0e88c3155de3083(LLVMUseRef _swig_go_0) {
   LLVMUseRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8767,7 +8455,7 @@ LLVMValueRef _wrap_GetUsedValue_llvm_5d1e3feecae2b244(LLVMUseRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_GetOperand_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+LLVMValueRef _wrap_GetOperand_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   LLVMValueRef result;
@@ -8786,7 +8474,7 @@ LLVMValueRef _wrap_GetOperand_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, int
 }
 
 
-LLVMUseRef _wrap_GetOperandUse_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+LLVMUseRef _wrap_GetOperandUse_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   LLVMUseRef result;
@@ -8805,7 +8493,7 @@ LLVMUseRef _wrap_GetOperandUse_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, in
 }
 
 
-void _wrap_SetOperand_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1, LLVMValueRef _swig_go_2) {
+void _wrap_SetOperand_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1, LLVMValueRef _swig_go_2) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   LLVMValueRef arg3 ;
@@ -8823,7 +8511,7 @@ void _wrap_SetOperand_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig
 }
 
 
-intgo _wrap_GetNumOperands_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetNumOperands_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   int result;
   intgo _swig_go_result;
@@ -8838,7 +8526,7 @@ intgo _wrap_GetNumOperands_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_ConstNull_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+LLVMValueRef _wrap_ConstNull_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8855,7 +8543,7 @@ LLVMValueRef _wrap_ConstNull_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_ConstAllOnes_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+LLVMValueRef _wrap_ConstAllOnes_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8872,7 +8560,7 @@ LLVMValueRef _wrap_ConstAllOnes_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_GetUndef_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+LLVMValueRef _wrap_GetUndef_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8889,7 +8577,7 @@ LLVMValueRef _wrap_GetUndef_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_GetPoison_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+LLVMValueRef _wrap_GetPoison_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8906,7 +8594,7 @@ LLVMValueRef _wrap_GetPoison_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-bool _wrap_IsNull_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+bool _wrap_IsNull_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -8923,7 +8611,7 @@ bool _wrap_IsNull_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_ConstPointerNull_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+LLVMValueRef _wrap_ConstPointerNull_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -8940,7 +8628,7 @@ LLVMValueRef _wrap_ConstPointerNull_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_ConstInt_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, long long _swig_go_1, bool _swig_go_2) {
+LLVMValueRef _wrap_ConstInt_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, long long _swig_go_1, bool _swig_go_2) {
   LLVMTypeRef arg1 ;
   unsigned long long arg2 ;
   LLVMBool arg3 ;
@@ -8963,7 +8651,7 @@ LLVMValueRef _wrap_ConstInt_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, long l
 }
 
 
-LLVMValueRef _wrap_ConstIntOfArbitraryPrecision_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, intgo _swig_go_1, long long *_swig_go_2) {
+LLVMValueRef _wrap_ConstIntOfArbitraryPrecision_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, intgo _swig_go_1, long long *_swig_go_2) {
   LLVMTypeRef arg1 ;
   unsigned int arg2 ;
   uint64_t *arg3 ;
@@ -8984,7 +8672,7 @@ LLVMValueRef _wrap_ConstIntOfArbitraryPrecision_llvm_5d1e3feecae2b244(LLVMTypeRe
 }
 
 
-LLVMValueRef _wrap_ConstIntOfString_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, char *_swig_go_1, char _swig_go_2) {
+LLVMValueRef _wrap_ConstIntOfString_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, char *_swig_go_1, char _swig_go_2) {
   LLVMTypeRef arg1 ;
   char *arg2 = (char *) 0 ;
   uint8_t arg3 ;
@@ -9010,7 +8698,7 @@ LLVMValueRef _wrap_ConstIntOfString_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_ConstIntOfStringAndSize_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, char *_swig_go_1, intgo _swig_go_2, char _swig_go_3) {
+LLVMValueRef _wrap_ConstIntOfStringAndSize_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, char *_swig_go_1, intgo _swig_go_2, char _swig_go_3) {
   LLVMTypeRef arg1 ;
   char *arg2 = (char *) 0 ;
   unsigned int arg3 ;
@@ -9038,7 +8726,7 @@ LLVMValueRef _wrap_ConstIntOfStringAndSize_llvm_5d1e3feecae2b244(LLVMTypeRef _sw
 }
 
 
-LLVMValueRef _wrap_ConstReal_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, double _swig_go_1) {
+LLVMValueRef _wrap_ConstReal_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, double _swig_go_1) {
   LLVMTypeRef arg1 ;
   double arg2 ;
   LLVMValueRef result;
@@ -9057,7 +8745,7 @@ LLVMValueRef _wrap_ConstReal_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, doubl
 }
 
 
-LLVMValueRef _wrap_ConstRealOfString_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, char *_swig_go_1) {
+LLVMValueRef _wrap_ConstRealOfString_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, char *_swig_go_1) {
   LLVMTypeRef arg1 ;
   char *arg2 = (char *) 0 ;
   LLVMValueRef result;
@@ -9081,7 +8769,7 @@ LLVMValueRef _wrap_ConstRealOfString_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_
 }
 
 
-LLVMValueRef _wrap_ConstRealOfStringAndSize_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, char *_swig_go_1, intgo _swig_go_2) {
+LLVMValueRef _wrap_ConstRealOfStringAndSize_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, char *_swig_go_1, intgo _swig_go_2) {
   LLVMTypeRef arg1 ;
   char *arg2 = (char *) 0 ;
   unsigned int arg3 ;
@@ -9107,7 +8795,7 @@ LLVMValueRef _wrap_ConstRealOfStringAndSize_llvm_5d1e3feecae2b244(LLVMTypeRef _s
 }
 
 
-long long _wrap_ConstIntGetZExtValue_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+long long _wrap_ConstIntGetZExtValue_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   unsigned long long result;
   long long _swig_go_result;
@@ -9122,7 +8810,7 @@ long long _wrap_ConstIntGetZExtValue_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go
 }
 
 
-long long _wrap_ConstIntGetSExtValue_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+long long _wrap_ConstIntGetSExtValue_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   long long result;
   long long _swig_go_result;
@@ -9137,7 +8825,7 @@ long long _wrap_ConstIntGetSExtValue_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go
 }
 
 
-double _wrap_ConstRealGetDouble_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, bool *_swig_go_1) {
+double _wrap_ConstRealGetDouble_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, bool *_swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMBool *arg2 = (LLVMBool *) 0 ;
   double result;
@@ -9154,7 +8842,7 @@ double _wrap_ConstRealGetDouble_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, b
 }
 
 
-LLVMValueRef _wrap_ConstStringInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, char *_swig_go_1, intgo _swig_go_2, bool _swig_go_3) {
+LLVMValueRef _wrap_ConstStringInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, char *_swig_go_1, intgo _swig_go_2, bool _swig_go_3) {
   LLVMContextRef arg1 ;
   char *arg2 = (char *) 0 ;
   unsigned int arg3 ;
@@ -9184,7 +8872,7 @@ LLVMValueRef _wrap_ConstStringInContext_llvm_5d1e3feecae2b244(LLVMContextRef _sw
 }
 
 
-LLVMValueRef _wrap_ConstString_llvm_5d1e3feecae2b244(char *_swig_go_0, intgo _swig_go_1, bool _swig_go_2) {
+LLVMValueRef _wrap_ConstString_llvm_a0e88c3155de3083(char *_swig_go_0, intgo _swig_go_1, bool _swig_go_2) {
   char *arg1 = (char *) 0 ;
   unsigned int arg2 ;
   LLVMBool arg3 ;
@@ -9210,7 +8898,7 @@ LLVMValueRef _wrap_ConstString_llvm_5d1e3feecae2b244(char *_swig_go_0, intgo _sw
 }
 
 
-bool _wrap_IsConstantString_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+bool _wrap_IsConstantString_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -9227,7 +8915,7 @@ bool _wrap_IsConstantString_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-char *_wrap_GetAsString_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, long long *_swig_go_1) {
+char *_wrap_GetAsString_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, long long *_swig_go_1) {
   LLVMValueRef arg1 ;
   size_t *arg2 = (size_t *) 0 ;
   char *result = 0 ;
@@ -9246,7 +8934,7 @@ char *_wrap_GetAsString_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, long long
 }
 
 
-LLVMValueRef _wrap_ConstStructInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, LLVMValueRef *_swig_go_1, bool _swig_go_2) {
+LLVMValueRef _wrap_ConstStructInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, LLVMValueRef *_swig_go_1, bool _swig_go_2) {
   LLVMContextRef arg1 ;
   LLVMValueRef *arg2 = (LLVMValueRef *) 0 ;
   unsigned int arg3 ;
@@ -9279,7 +8967,7 @@ LLVMValueRef _wrap_ConstStructInContext_llvm_5d1e3feecae2b244(LLVMContextRef _sw
 }
 
 
-LLVMValueRef _wrap_ConstStruct_llvm_5d1e3feecae2b244(LLVMValueRef *_swig_go_0, bool _swig_go_1) {
+LLVMValueRef _wrap_ConstStruct_llvm_a0e88c3155de3083(LLVMValueRef *_swig_go_0, bool _swig_go_1) {
   LLVMValueRef *arg1 = (LLVMValueRef *) 0 ;
   unsigned int arg2 ;
   LLVMBool arg3 ;
@@ -9308,7 +8996,7 @@ LLVMValueRef _wrap_ConstStruct_llvm_5d1e3feecae2b244(LLVMValueRef *_swig_go_0, b
 }
 
 
-LLVMValueRef _wrap_ConstArray_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, LLVMValueRef *_swig_go_1) {
+LLVMValueRef _wrap_ConstArray_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, LLVMValueRef *_swig_go_1) {
   LLVMTypeRef arg1 ;
   LLVMValueRef *arg2 = (LLVMValueRef *) 0 ;
   unsigned int arg3 ;
@@ -9337,7 +9025,7 @@ LLVMValueRef _wrap_ConstArray_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, LLVM
 }
 
 
-LLVMValueRef _wrap_ConstArray2_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, LLVMValueRef *_swig_go_1) {
+LLVMValueRef _wrap_ConstArray2_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, LLVMValueRef *_swig_go_1) {
   LLVMTypeRef arg1 ;
   LLVMValueRef *arg2 = (LLVMValueRef *) 0 ;
   uint64_t arg3 ;
@@ -9366,7 +9054,7 @@ LLVMValueRef _wrap_ConstArray2_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, LLV
 }
 
 
-LLVMValueRef _wrap_ConstNamedStruct_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, LLVMValueRef *_swig_go_1) {
+LLVMValueRef _wrap_ConstNamedStruct_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, LLVMValueRef *_swig_go_1) {
   LLVMTypeRef arg1 ;
   LLVMValueRef *arg2 = (LLVMValueRef *) 0 ;
   unsigned int arg3 ;
@@ -9395,7 +9083,7 @@ LLVMValueRef _wrap_ConstNamedStruct_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_GetAggregateElement_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+LLVMValueRef _wrap_GetAggregateElement_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   LLVMValueRef result;
@@ -9414,7 +9102,7 @@ LLVMValueRef _wrap_GetAggregateElement_llvm_5d1e3feecae2b244(LLVMValueRef _swig_
 }
 
 
-LLVMValueRef _wrap_GetElementAsConstant_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+LLVMValueRef _wrap_GetElementAsConstant_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   LLVMValueRef result;
@@ -9433,7 +9121,7 @@ LLVMValueRef _wrap_GetElementAsConstant_llvm_5d1e3feecae2b244(LLVMValueRef _swig
 }
 
 
-LLVMValueRef _wrap_ConstVector_llvm_5d1e3feecae2b244(LLVMValueRef *_swig_go_0) {
+LLVMValueRef _wrap_ConstVector_llvm_a0e88c3155de3083(LLVMValueRef *_swig_go_0) {
   LLVMValueRef *arg1 = (LLVMValueRef *) 0 ;
   unsigned int arg2 ;
   LLVMValueRef result;
@@ -9458,7 +9146,7 @@ LLVMValueRef _wrap_ConstVector_llvm_5d1e3feecae2b244(LLVMValueRef *_swig_go_0) {
 }
 
 
-intgo _wrap_GetConstOpcode_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetConstOpcode_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMOpcode result;
   intgo _swig_go_result;
@@ -9473,7 +9161,7 @@ intgo _wrap_GetConstOpcode_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_AlignOf_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+LLVMValueRef _wrap_AlignOf_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -9490,7 +9178,7 @@ LLVMValueRef _wrap_AlignOf_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_SizeOf_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
+LLVMValueRef _wrap_SizeOf_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0) {
   LLVMTypeRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -9507,7 +9195,7 @@ LLVMValueRef _wrap_SizeOf_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_ConstNeg_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_ConstNeg_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -9524,7 +9212,7 @@ LLVMValueRef _wrap_ConstNeg_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_ConstNSWNeg_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_ConstNSWNeg_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -9541,7 +9229,7 @@ LLVMValueRef _wrap_ConstNSWNeg_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_ConstNUWNeg_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_ConstNUWNeg_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -9558,7 +9246,7 @@ LLVMValueRef _wrap_ConstNUWNeg_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_ConstNot_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_ConstNot_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -9575,7 +9263,7 @@ LLVMValueRef _wrap_ConstNot_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_ConstAdd_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+LLVMValueRef _wrap_ConstAdd_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef result;
@@ -9596,7 +9284,7 @@ LLVMValueRef _wrap_ConstAdd_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMV
 }
 
 
-LLVMValueRef _wrap_ConstNSWAdd_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+LLVMValueRef _wrap_ConstNSWAdd_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef result;
@@ -9617,7 +9305,7 @@ LLVMValueRef _wrap_ConstNSWAdd_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_ConstNUWAdd_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+LLVMValueRef _wrap_ConstNUWAdd_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef result;
@@ -9638,7 +9326,7 @@ LLVMValueRef _wrap_ConstNUWAdd_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_ConstSub_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+LLVMValueRef _wrap_ConstSub_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef result;
@@ -9659,7 +9347,7 @@ LLVMValueRef _wrap_ConstSub_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMV
 }
 
 
-LLVMValueRef _wrap_ConstNSWSub_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+LLVMValueRef _wrap_ConstNSWSub_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef result;
@@ -9680,7 +9368,7 @@ LLVMValueRef _wrap_ConstNSWSub_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_ConstNUWSub_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+LLVMValueRef _wrap_ConstNUWSub_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef result;
@@ -9701,7 +9389,7 @@ LLVMValueRef _wrap_ConstNUWSub_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_ConstMul_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+LLVMValueRef _wrap_ConstMul_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef result;
@@ -9722,7 +9410,7 @@ LLVMValueRef _wrap_ConstMul_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMV
 }
 
 
-LLVMValueRef _wrap_ConstNSWMul_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+LLVMValueRef _wrap_ConstNSWMul_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef result;
@@ -9743,7 +9431,7 @@ LLVMValueRef _wrap_ConstNSWMul_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_ConstNUWMul_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+LLVMValueRef _wrap_ConstNUWMul_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef result;
@@ -9764,7 +9452,7 @@ LLVMValueRef _wrap_ConstNUWMul_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_ConstAnd_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+LLVMValueRef _wrap_ConstAnd_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef result;
@@ -9785,7 +9473,7 @@ LLVMValueRef _wrap_ConstAnd_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMV
 }
 
 
-LLVMValueRef _wrap_ConstOr_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+LLVMValueRef _wrap_ConstOr_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef result;
@@ -9806,7 +9494,7 @@ LLVMValueRef _wrap_ConstOr_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMVa
 }
 
 
-LLVMValueRef _wrap_ConstXor_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+LLVMValueRef _wrap_ConstXor_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef result;
@@ -9827,7 +9515,7 @@ LLVMValueRef _wrap_ConstXor_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMV
 }
 
 
-LLVMValueRef _wrap_ConstICmp_llvm_5d1e3feecae2b244(intgo _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2) {
+LLVMValueRef _wrap_ConstICmp_llvm_a0e88c3155de3083(intgo _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2) {
   LLVMIntPredicate arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -9850,7 +9538,7 @@ LLVMValueRef _wrap_ConstICmp_llvm_5d1e3feecae2b244(intgo _swig_go_0, LLVMValueRe
 }
 
 
-LLVMValueRef _wrap_ConstFCmp_llvm_5d1e3feecae2b244(intgo _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2) {
+LLVMValueRef _wrap_ConstFCmp_llvm_a0e88c3155de3083(intgo _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2) {
   LLVMRealPredicate arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -9873,7 +9561,7 @@ LLVMValueRef _wrap_ConstFCmp_llvm_5d1e3feecae2b244(intgo _swig_go_0, LLVMValueRe
 }
 
 
-LLVMValueRef _wrap_ConstShl_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+LLVMValueRef _wrap_ConstShl_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef result;
@@ -9894,7 +9582,7 @@ LLVMValueRef _wrap_ConstShl_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMV
 }
 
 
-LLVMValueRef _wrap_ConstLShr_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+LLVMValueRef _wrap_ConstLShr_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef result;
@@ -9915,7 +9603,7 @@ LLVMValueRef _wrap_ConstLShr_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVM
 }
 
 
-LLVMValueRef _wrap_ConstAShr_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+LLVMValueRef _wrap_ConstAShr_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef result;
@@ -9936,7 +9624,7 @@ LLVMValueRef _wrap_ConstAShr_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVM
 }
 
 
-LLVMValueRef _wrap_ConstGEP2_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef *_swig_go_2) {
+LLVMValueRef _wrap_ConstGEP2_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef *_swig_go_2) {
   LLVMTypeRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef *arg3 = (LLVMValueRef *) 0 ;
@@ -9969,7 +9657,7 @@ LLVMValueRef _wrap_ConstGEP2_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, LLVMV
 }
 
 
-LLVMValueRef _wrap_ConstInBoundsGEP2_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef *_swig_go_2) {
+LLVMValueRef _wrap_ConstInBoundsGEP2_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef *_swig_go_2) {
   LLVMTypeRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef *arg3 = (LLVMValueRef *) 0 ;
@@ -10002,7 +9690,7 @@ LLVMValueRef _wrap_ConstInBoundsGEP2_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_
 }
 
 
-LLVMValueRef _wrap_ConstTrunc_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+LLVMValueRef _wrap_ConstTrunc_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef result;
@@ -10023,7 +9711,7 @@ LLVMValueRef _wrap_ConstTrunc_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLV
 }
 
 
-LLVMValueRef _wrap_ConstSExt_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+LLVMValueRef _wrap_ConstSExt_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef result;
@@ -10044,7 +9732,7 @@ LLVMValueRef _wrap_ConstSExt_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVM
 }
 
 
-LLVMValueRef _wrap_ConstZExt_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+LLVMValueRef _wrap_ConstZExt_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef result;
@@ -10065,7 +9753,7 @@ LLVMValueRef _wrap_ConstZExt_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVM
 }
 
 
-LLVMValueRef _wrap_ConstFPTrunc_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+LLVMValueRef _wrap_ConstFPTrunc_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef result;
@@ -10086,7 +9774,7 @@ LLVMValueRef _wrap_ConstFPTrunc_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, L
 }
 
 
-LLVMValueRef _wrap_ConstFPExt_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+LLVMValueRef _wrap_ConstFPExt_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef result;
@@ -10107,7 +9795,7 @@ LLVMValueRef _wrap_ConstFPExt_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLV
 }
 
 
-LLVMValueRef _wrap_ConstUIToFP_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+LLVMValueRef _wrap_ConstUIToFP_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef result;
@@ -10128,7 +9816,7 @@ LLVMValueRef _wrap_ConstUIToFP_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_ConstSIToFP_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+LLVMValueRef _wrap_ConstSIToFP_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef result;
@@ -10149,7 +9837,7 @@ LLVMValueRef _wrap_ConstSIToFP_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_ConstFPToUI_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+LLVMValueRef _wrap_ConstFPToUI_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef result;
@@ -10170,7 +9858,7 @@ LLVMValueRef _wrap_ConstFPToUI_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_ConstFPToSI_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+LLVMValueRef _wrap_ConstFPToSI_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef result;
@@ -10191,7 +9879,7 @@ LLVMValueRef _wrap_ConstFPToSI_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_ConstPtrToInt_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+LLVMValueRef _wrap_ConstPtrToInt_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef result;
@@ -10212,7 +9900,7 @@ LLVMValueRef _wrap_ConstPtrToInt_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_ConstIntToPtr_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+LLVMValueRef _wrap_ConstIntToPtr_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef result;
@@ -10233,7 +9921,7 @@ LLVMValueRef _wrap_ConstIntToPtr_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_ConstBitCast_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+LLVMValueRef _wrap_ConstBitCast_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef result;
@@ -10254,7 +9942,7 @@ LLVMValueRef _wrap_ConstBitCast_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, L
 }
 
 
-LLVMValueRef _wrap_ConstAddrSpaceCast_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+LLVMValueRef _wrap_ConstAddrSpaceCast_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef result;
@@ -10275,7 +9963,7 @@ LLVMValueRef _wrap_ConstAddrSpaceCast_llvm_5d1e3feecae2b244(LLVMValueRef _swig_g
 }
 
 
-LLVMValueRef _wrap_ConstZExtOrBitCast_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+LLVMValueRef _wrap_ConstZExtOrBitCast_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef result;
@@ -10296,7 +9984,7 @@ LLVMValueRef _wrap_ConstZExtOrBitCast_llvm_5d1e3feecae2b244(LLVMValueRef _swig_g
 }
 
 
-LLVMValueRef _wrap_ConstSExtOrBitCast_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+LLVMValueRef _wrap_ConstSExtOrBitCast_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef result;
@@ -10317,7 +10005,7 @@ LLVMValueRef _wrap_ConstSExtOrBitCast_llvm_5d1e3feecae2b244(LLVMValueRef _swig_g
 }
 
 
-LLVMValueRef _wrap_ConstTruncOrBitCast_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+LLVMValueRef _wrap_ConstTruncOrBitCast_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef result;
@@ -10338,7 +10026,7 @@ LLVMValueRef _wrap_ConstTruncOrBitCast_llvm_5d1e3feecae2b244(LLVMValueRef _swig_
 }
 
 
-LLVMValueRef _wrap_ConstPointerCast_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+LLVMValueRef _wrap_ConstPointerCast_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef result;
@@ -10359,7 +10047,7 @@ LLVMValueRef _wrap_ConstPointerCast_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_
 }
 
 
-LLVMValueRef _wrap_ConstIntCast_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1, bool _swig_go_2) {
+LLVMValueRef _wrap_ConstIntCast_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1, bool _swig_go_2) {
   LLVMValueRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMBool arg3 ;
@@ -10384,7 +10072,7 @@ LLVMValueRef _wrap_ConstIntCast_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, L
 }
 
 
-LLVMValueRef _wrap_ConstFPCast_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+LLVMValueRef _wrap_ConstFPCast_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef result;
@@ -10405,7 +10093,7 @@ LLVMValueRef _wrap_ConstFPCast_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_ConstExtractElement_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+LLVMValueRef _wrap_ConstExtractElement_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef result;
@@ -10426,7 +10114,7 @@ LLVMValueRef _wrap_ConstExtractElement_llvm_5d1e3feecae2b244(LLVMValueRef _swig_
 }
 
 
-LLVMValueRef _wrap_ConstInsertElement_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2) {
+LLVMValueRef _wrap_ConstInsertElement_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -10451,7 +10139,7 @@ LLVMValueRef _wrap_ConstInsertElement_llvm_5d1e3feecae2b244(LLVMValueRef _swig_g
 }
 
 
-LLVMValueRef _wrap_ConstShuffleVector_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2) {
+LLVMValueRef _wrap_ConstShuffleVector_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -10476,7 +10164,7 @@ LLVMValueRef _wrap_ConstShuffleVector_llvm_5d1e3feecae2b244(LLVMValueRef _swig_g
 }
 
 
-LLVMValueRef _wrap_BlockAddress_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
+LLVMValueRef _wrap_BlockAddress_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMBasicBlockRef arg2 ;
   LLVMValueRef result;
@@ -10497,7 +10185,7 @@ LLVMValueRef _wrap_BlockAddress_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, L
 }
 
 
-LLVMValueRef _wrap_ConstInlineAsm_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, char *_swig_go_1, char *_swig_go_2, bool _swig_go_3, bool _swig_go_4) {
+LLVMValueRef _wrap_ConstInlineAsm_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, char *_swig_go_1, char *_swig_go_2, bool _swig_go_3, bool _swig_go_4) {
   LLVMTypeRef arg1 ;
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
@@ -10536,7 +10224,7 @@ LLVMValueRef _wrap_ConstInlineAsm_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, 
 }
 
 
-LLVMModuleRef _wrap_GetGlobalParent_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMModuleRef _wrap_GetGlobalParent_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMModuleRef result;
   LLVMModuleRef _swig_go_result;
@@ -10553,7 +10241,7 @@ LLVMModuleRef _wrap_GetGlobalParent_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_
 }
 
 
-bool _wrap_IsDeclaration_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+bool _wrap_IsDeclaration_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -10570,7 +10258,7 @@ bool _wrap_IsDeclaration_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-intgo _wrap_GetLinkage_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetLinkage_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMLinkage result;
   intgo _swig_go_result;
@@ -10585,7 +10273,7 @@ intgo _wrap_GetLinkage_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetLinkage_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+void _wrap_SetLinkage_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMLinkage arg2 ;
   
@@ -10599,7 +10287,7 @@ void _wrap_SetLinkage_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig
 }
 
 
-char *_wrap_GetSection_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+char *_wrap_GetSection_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -10616,7 +10304,7 @@ char *_wrap_GetSection_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetSection_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, char *_swig_go_1) {
+void _wrap_SetSection_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, char *_swig_go_1) {
   LLVMValueRef arg1 ;
   char *arg2 = (char *) 0 ;
   
@@ -10635,7 +10323,7 @@ void _wrap_SetSection_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, char *_swig
 }
 
 
-intgo _wrap_GetVisibility_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetVisibility_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMVisibility result;
   intgo _swig_go_result;
@@ -10650,7 +10338,7 @@ intgo _wrap_GetVisibility_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetVisibility_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+void _wrap_SetVisibility_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMVisibility arg2 ;
   
@@ -10664,7 +10352,7 @@ void _wrap_SetVisibility_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _s
 }
 
 
-intgo _wrap_GetDLLStorageClass_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetDLLStorageClass_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMDLLStorageClass result;
   intgo _swig_go_result;
@@ -10679,7 +10367,7 @@ intgo _wrap_GetDLLStorageClass_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetDLLStorageClass_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+void _wrap_SetDLLStorageClass_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMDLLStorageClass arg2 ;
   
@@ -10693,7 +10381,7 @@ void _wrap_SetDLLStorageClass_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, int
 }
 
 
-intgo _wrap_GetUnnamedAddress_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetUnnamedAddress_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMUnnamedAddr result;
   intgo _swig_go_result;
@@ -10708,7 +10396,7 @@ intgo _wrap_GetUnnamedAddress_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetUnnamedAddress_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+void _wrap_SetUnnamedAddress_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMUnnamedAddr arg2 ;
   
@@ -10722,7 +10410,7 @@ void _wrap_SetUnnamedAddress_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intg
 }
 
 
-LLVMTypeRef _wrap_GlobalGetValueType_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMTypeRef _wrap_GlobalGetValueType_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -10739,7 +10427,7 @@ LLVMTypeRef _wrap_GlobalGetValueType_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go
 }
 
 
-bool _wrap_HasUnnamedAddr_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+bool _wrap_HasUnnamedAddr_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -10756,7 +10444,7 @@ bool _wrap_HasUnnamedAddr_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetUnnamedAddr_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, bool _swig_go_1) {
+void _wrap_SetUnnamedAddr_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, bool _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMBool arg2 ;
   
@@ -10772,7 +10460,7 @@ void _wrap_SetUnnamedAddr_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, bool _s
 }
 
 
-intgo _wrap_GetAlignment_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetAlignment_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -10787,7 +10475,7 @@ intgo _wrap_GetAlignment_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetAlignment_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+void _wrap_SetAlignment_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   
@@ -10801,7 +10489,7 @@ void _wrap_SetAlignment_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _sw
 }
 
 
-void _wrap_GlobalSetMetadata_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1, LLVMMetadataRef _swig_go_2) {
+void _wrap_GlobalSetMetadata_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1, LLVMMetadataRef _swig_go_2) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   LLVMMetadataRef arg3 ;
@@ -10819,7 +10507,7 @@ void _wrap_GlobalSetMetadata_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intg
 }
 
 
-void _wrap_GlobalEraseMetadata_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+void _wrap_GlobalEraseMetadata_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   
@@ -10833,7 +10521,7 @@ void _wrap_GlobalEraseMetadata_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, in
 }
 
 
-void _wrap_GlobalClearMetadata_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+void _wrap_GlobalClearMetadata_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   
   {
@@ -10845,7 +10533,7 @@ void _wrap_GlobalClearMetadata_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueMetadataEntry *_wrap_GlobalCopyAllMetadata_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, long long *_swig_go_1) {
+LLVMValueMetadataEntry *_wrap_GlobalCopyAllMetadata_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, long long *_swig_go_1) {
   LLVMValueRef arg1 ;
   size_t *arg2 = (size_t *) 0 ;
   LLVMValueMetadataEntry *result = 0 ;
@@ -10862,7 +10550,7 @@ LLVMValueMetadataEntry *_wrap_GlobalCopyAllMetadata_llvm_5d1e3feecae2b244(LLVMVa
 }
 
 
-void _wrap_DisposeValueMetadataEntries_llvm_5d1e3feecae2b244(LLVMValueMetadataEntry *_swig_go_0) {
+void _wrap_DisposeValueMetadataEntries_llvm_a0e88c3155de3083(LLVMValueMetadataEntry *_swig_go_0) {
   LLVMValueMetadataEntry *arg1 = (LLVMValueMetadataEntry *) 0 ;
   
   arg1 = *(LLVMValueMetadataEntry **)&_swig_go_0; 
@@ -10872,7 +10560,7 @@ void _wrap_DisposeValueMetadataEntries_llvm_5d1e3feecae2b244(LLVMValueMetadataEn
 }
 
 
-intgo _wrap_ValueMetadataEntriesGetKind_llvm_5d1e3feecae2b244(LLVMValueMetadataEntry *_swig_go_0, intgo _swig_go_1) {
+intgo _wrap_ValueMetadataEntriesGetKind_llvm_a0e88c3155de3083(LLVMValueMetadataEntry *_swig_go_0, intgo _swig_go_1) {
   LLVMValueMetadataEntry *arg1 = (LLVMValueMetadataEntry *) 0 ;
   unsigned int arg2 ;
   unsigned int result;
@@ -10887,7 +10575,7 @@ intgo _wrap_ValueMetadataEntriesGetKind_llvm_5d1e3feecae2b244(LLVMValueMetadataE
 }
 
 
-LLVMMetadataRef _wrap_ValueMetadataEntriesGetMetadata_llvm_5d1e3feecae2b244(LLVMValueMetadataEntry *_swig_go_0, intgo _swig_go_1) {
+LLVMMetadataRef _wrap_ValueMetadataEntriesGetMetadata_llvm_a0e88c3155de3083(LLVMValueMetadataEntry *_swig_go_0, intgo _swig_go_1) {
   LLVMValueMetadataEntry *arg1 = (LLVMValueMetadataEntry *) 0 ;
   unsigned int arg2 ;
   LLVMMetadataRef result;
@@ -10904,7 +10592,7 @@ LLVMMetadataRef _wrap_ValueMetadataEntriesGetMetadata_llvm_5d1e3feecae2b244(LLVM
 }
 
 
-LLVMValueRef _wrap_AddGlobal_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, LLVMTypeRef _swig_go_1, char *_swig_go_2) {
+LLVMValueRef _wrap_AddGlobal_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, LLVMTypeRef _swig_go_1, char *_swig_go_2) {
   LLVMModuleRef arg1 ;
   LLVMTypeRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -10932,7 +10620,7 @@ LLVMValueRef _wrap_AddGlobal_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, LLV
 }
 
 
-LLVMValueRef _wrap_AddGlobalInAddressSpace_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, LLVMTypeRef _swig_go_1, char *_swig_go_2, intgo _swig_go_3) {
+LLVMValueRef _wrap_AddGlobalInAddressSpace_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, LLVMTypeRef _swig_go_1, char *_swig_go_2, intgo _swig_go_3) {
   LLVMModuleRef arg1 ;
   LLVMTypeRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -10962,7 +10650,7 @@ LLVMValueRef _wrap_AddGlobalInAddressSpace_llvm_5d1e3feecae2b244(LLVMModuleRef _
 }
 
 
-LLVMValueRef _wrap_GetNamedGlobal_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
+LLVMValueRef _wrap_GetNamedGlobal_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   LLVMValueRef result;
@@ -10986,7 +10674,7 @@ LLVMValueRef _wrap_GetNamedGlobal_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_GetFirstGlobal_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+LLVMValueRef _wrap_GetFirstGlobal_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -11003,7 +10691,7 @@ LLVMValueRef _wrap_GetFirstGlobal_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_GetLastGlobal_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+LLVMValueRef _wrap_GetLastGlobal_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -11020,7 +10708,7 @@ LLVMValueRef _wrap_GetLastGlobal_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0)
 }
 
 
-LLVMValueRef _wrap_GetNextGlobal_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_GetNextGlobal_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -11037,7 +10725,7 @@ LLVMValueRef _wrap_GetNextGlobal_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-LLVMValueRef _wrap_GetPreviousGlobal_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_GetPreviousGlobal_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -11054,7 +10742,7 @@ LLVMValueRef _wrap_GetPreviousGlobal_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go
 }
 
 
-void _wrap_DeleteGlobal_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+void _wrap_DeleteGlobal_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   
   {
@@ -11066,7 +10754,7 @@ void _wrap_DeleteGlobal_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_GetInitializer_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_GetInitializer_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -11083,7 +10771,7 @@ LLVMValueRef _wrap_GetInitializer_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0)
 }
 
 
-void _wrap_SetInitializer_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+void _wrap_SetInitializer_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   
@@ -11099,7 +10787,7 @@ void _wrap_SetInitializer_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMVal
 }
 
 
-bool _wrap_IsThreadLocal_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+bool _wrap_IsThreadLocal_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -11116,7 +10804,7 @@ bool _wrap_IsThreadLocal_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetThreadLocal_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, bool _swig_go_1) {
+void _wrap_SetThreadLocal_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, bool _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMBool arg2 ;
   
@@ -11132,7 +10820,7 @@ void _wrap_SetThreadLocal_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, bool _s
 }
 
 
-bool _wrap_IsGlobalConstant_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+bool _wrap_IsGlobalConstant_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -11149,7 +10837,7 @@ bool _wrap_IsGlobalConstant_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetGlobalConstant_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, bool _swig_go_1) {
+void _wrap_SetGlobalConstant_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, bool _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMBool arg2 ;
   
@@ -11165,7 +10853,7 @@ void _wrap_SetGlobalConstant_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, bool
 }
 
 
-intgo _wrap_GetThreadLocalMode_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetThreadLocalMode_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMThreadLocalMode result;
   intgo _swig_go_result;
@@ -11180,7 +10868,7 @@ intgo _wrap_GetThreadLocalMode_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetThreadLocalMode_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+void _wrap_SetThreadLocalMode_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMThreadLocalMode arg2 ;
   
@@ -11194,7 +10882,7 @@ void _wrap_SetThreadLocalMode_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, int
 }
 
 
-bool _wrap_IsExternallyInitialized_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+bool _wrap_IsExternallyInitialized_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -11211,7 +10899,7 @@ bool _wrap_IsExternallyInitialized_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0
 }
 
 
-void _wrap_SetExternallyInitialized_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, bool _swig_go_1) {
+void _wrap_SetExternallyInitialized_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, bool _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMBool arg2 ;
   
@@ -11227,7 +10915,7 @@ void _wrap_SetExternallyInitialized_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_
 }
 
 
-LLVMValueRef _wrap_AddAlias2_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, LLVMTypeRef _swig_go_1, intgo _swig_go_2, LLVMValueRef _swig_go_3, char *_swig_go_4) {
+LLVMValueRef _wrap_AddAlias2_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, LLVMTypeRef _swig_go_1, intgo _swig_go_2, LLVMValueRef _swig_go_3, char *_swig_go_4) {
   LLVMModuleRef arg1 ;
   LLVMTypeRef arg2 ;
   unsigned int arg3 ;
@@ -11261,7 +10949,7 @@ LLVMValueRef _wrap_AddAlias2_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, LLV
 }
 
 
-LLVMValueRef _wrap_GetNamedGlobalAlias_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
+LLVMValueRef _wrap_GetNamedGlobalAlias_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   size_t arg3 ;
@@ -11287,7 +10975,7 @@ LLVMValueRef _wrap_GetNamedGlobalAlias_llvm_5d1e3feecae2b244(LLVMModuleRef _swig
 }
 
 
-LLVMValueRef _wrap_GetFirstGlobalAlias_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+LLVMValueRef _wrap_GetFirstGlobalAlias_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -11304,7 +10992,7 @@ LLVMValueRef _wrap_GetFirstGlobalAlias_llvm_5d1e3feecae2b244(LLVMModuleRef _swig
 }
 
 
-LLVMValueRef _wrap_GetLastGlobalAlias_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+LLVMValueRef _wrap_GetLastGlobalAlias_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -11321,7 +11009,7 @@ LLVMValueRef _wrap_GetLastGlobalAlias_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_
 }
 
 
-LLVMValueRef _wrap_GetNextGlobalAlias_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_GetNextGlobalAlias_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -11338,7 +11026,7 @@ LLVMValueRef _wrap_GetNextGlobalAlias_llvm_5d1e3feecae2b244(LLVMValueRef _swig_g
 }
 
 
-LLVMValueRef _wrap_GetPreviousGlobalAlias_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_GetPreviousGlobalAlias_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -11355,7 +11043,7 @@ LLVMValueRef _wrap_GetPreviousGlobalAlias_llvm_5d1e3feecae2b244(LLVMValueRef _sw
 }
 
 
-LLVMValueRef _wrap_AliasGetAliasee_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_AliasGetAliasee_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -11372,7 +11060,7 @@ LLVMValueRef _wrap_AliasGetAliasee_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0
 }
 
 
-void _wrap_AliasSetAliasee_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+void _wrap_AliasSetAliasee_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   
@@ -11388,7 +11076,7 @@ void _wrap_AliasSetAliasee_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMVa
 }
 
 
-void _wrap_DeleteFunction_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+void _wrap_DeleteFunction_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   
   {
@@ -11400,7 +11088,7 @@ void _wrap_DeleteFunction_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-bool _wrap_HasPersonalityFn_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+bool _wrap_HasPersonalityFn_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -11417,7 +11105,7 @@ bool _wrap_HasPersonalityFn_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_GetPersonalityFn_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_GetPersonalityFn_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -11434,7 +11122,7 @@ LLVMValueRef _wrap_GetPersonalityFn_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_
 }
 
 
-void _wrap_SetPersonalityFn_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+void _wrap_SetPersonalityFn_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   
@@ -11450,7 +11138,7 @@ void _wrap_SetPersonalityFn_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMV
 }
 
 
-intgo _wrap_LookupIntrinsicID_llvm_5d1e3feecae2b244(char *_swig_go_0) {
+intgo _wrap_LookupIntrinsicID_llvm_a0e88c3155de3083(char *_swig_go_0) {
   char *arg1 = (char *) 0 ;
   size_t arg2 ;
   unsigned int result;
@@ -11470,7 +11158,7 @@ intgo _wrap_LookupIntrinsicID_llvm_5d1e3feecae2b244(char *_swig_go_0) {
 }
 
 
-intgo _wrap_GetIntrinsicID_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetIntrinsicID_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -11485,7 +11173,7 @@ intgo _wrap_GetIntrinsicID_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_GetIntrinsicDeclaration_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, intgo _swig_go_1, LLVMTypeRef *_swig_go_2, long long _swig_go_3) {
+LLVMValueRef _wrap_GetIntrinsicDeclaration_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, intgo _swig_go_1, LLVMTypeRef *_swig_go_2, long long _swig_go_3) {
   LLVMModuleRef arg1 ;
   unsigned int arg2 ;
   LLVMTypeRef *arg3 = (LLVMTypeRef *) 0 ;
@@ -11508,7 +11196,7 @@ LLVMValueRef _wrap_GetIntrinsicDeclaration_llvm_5d1e3feecae2b244(LLVMModuleRef _
 }
 
 
-LLVMTypeRef _wrap_IntrinsicGetType_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, intgo _swig_go_1, LLVMTypeRef *_swig_go_2, long long _swig_go_3) {
+LLVMTypeRef _wrap_IntrinsicGetType_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, intgo _swig_go_1, LLVMTypeRef *_swig_go_2, long long _swig_go_3) {
   LLVMContextRef arg1 ;
   unsigned int arg2 ;
   LLVMTypeRef *arg3 = (LLVMTypeRef *) 0 ;
@@ -11531,7 +11219,7 @@ LLVMTypeRef _wrap_IntrinsicGetType_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go
 }
 
 
-char *_wrap_IntrinsicGetName_llvm_5d1e3feecae2b244(intgo _swig_go_0, long long *_swig_go_1) {
+char *_wrap_IntrinsicGetName_llvm_a0e88c3155de3083(intgo _swig_go_0, long long *_swig_go_1) {
   unsigned int arg1 ;
   size_t *arg2 = (size_t *) 0 ;
   char *result = 0 ;
@@ -11548,7 +11236,7 @@ char *_wrap_IntrinsicGetName_llvm_5d1e3feecae2b244(intgo _swig_go_0, long long *
 }
 
 
-char *_wrap_IntrinsicCopyOverloadedName_llvm_5d1e3feecae2b244(intgo _swig_go_0, LLVMTypeRef *_swig_go_1, long long _swig_go_2, long long *_swig_go_3) {
+char *_wrap_IntrinsicCopyOverloadedName_llvm_a0e88c3155de3083(intgo _swig_go_0, LLVMTypeRef *_swig_go_1, long long _swig_go_2, long long *_swig_go_3) {
   unsigned int arg1 ;
   LLVMTypeRef *arg2 = (LLVMTypeRef *) 0 ;
   size_t arg3 ;
@@ -11569,7 +11257,7 @@ char *_wrap_IntrinsicCopyOverloadedName_llvm_5d1e3feecae2b244(intgo _swig_go_0, 
 }
 
 
-char *_wrap_IntrinsicCopyOverloadedName2_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, intgo _swig_go_1, LLVMTypeRef *_swig_go_2, long long _swig_go_3, long long *_swig_go_4) {
+char *_wrap_IntrinsicCopyOverloadedName2_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, intgo _swig_go_1, LLVMTypeRef *_swig_go_2, long long _swig_go_3, long long *_swig_go_4) {
   LLVMModuleRef arg1 ;
   unsigned int arg2 ;
   LLVMTypeRef *arg3 = (LLVMTypeRef *) 0 ;
@@ -11594,7 +11282,7 @@ char *_wrap_IntrinsicCopyOverloadedName2_llvm_5d1e3feecae2b244(LLVMModuleRef _sw
 }
 
 
-bool _wrap_IntrinsicIsOverloaded_llvm_5d1e3feecae2b244(intgo _swig_go_0) {
+bool _wrap_IntrinsicIsOverloaded_llvm_a0e88c3155de3083(intgo _swig_go_0) {
   unsigned int arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -11609,7 +11297,7 @@ bool _wrap_IntrinsicIsOverloaded_llvm_5d1e3feecae2b244(intgo _swig_go_0) {
 }
 
 
-intgo _wrap_GetFunctionCallConv_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetFunctionCallConv_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -11624,7 +11312,7 @@ intgo _wrap_GetFunctionCallConv_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetFunctionCallConv_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+void _wrap_SetFunctionCallConv_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   
@@ -11638,7 +11326,7 @@ void _wrap_SetFunctionCallConv_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, in
 }
 
 
-char *_wrap_GetGC_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+char *_wrap_GetGC_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -11655,7 +11343,7 @@ char *_wrap_GetGC_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetGC_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, char *_swig_go_1) {
+void _wrap_SetGC_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, char *_swig_go_1) {
   LLVMValueRef arg1 ;
   char *arg2 = (char *) 0 ;
   
@@ -11674,7 +11362,7 @@ void _wrap_SetGC_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, char *_swig_go_1
 }
 
 
-void _wrap_AddAttributeAtIndex_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1, LLVMAttributeRef _swig_go_2) {
+void _wrap_AddAttributeAtIndex_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1, LLVMAttributeRef _swig_go_2) {
   LLVMValueRef arg1 ;
   LLVMAttributeIndex arg2 ;
   LLVMAttributeRef arg3 ;
@@ -11692,7 +11380,7 @@ void _wrap_AddAttributeAtIndex_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, in
 }
 
 
-intgo _wrap_GetAttributeCountAtIndex_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+intgo _wrap_GetAttributeCountAtIndex_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMAttributeIndex arg2 ;
   unsigned int result;
@@ -11709,7 +11397,7 @@ intgo _wrap_GetAttributeCountAtIndex_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go
 }
 
 
-void _wrap_GetAttributesAtIndex_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1, LLVMAttributeRef *_swig_go_2) {
+void _wrap_GetAttributesAtIndex_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1, LLVMAttributeRef *_swig_go_2) {
   LLVMValueRef arg1 ;
   LLVMAttributeIndex arg2 ;
   LLVMAttributeRef *arg3 = (LLVMAttributeRef *) 0 ;
@@ -11725,7 +11413,7 @@ void _wrap_GetAttributesAtIndex_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, i
 }
 
 
-LLVMAttributeRef _wrap_GetEnumAttributeAtIndex_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1, intgo _swig_go_2) {
+LLVMAttributeRef _wrap_GetEnumAttributeAtIndex_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1, intgo _swig_go_2) {
   LLVMValueRef arg1 ;
   LLVMAttributeIndex arg2 ;
   unsigned int arg3 ;
@@ -11746,7 +11434,7 @@ LLVMAttributeRef _wrap_GetEnumAttributeAtIndex_llvm_5d1e3feecae2b244(LLVMValueRe
 }
 
 
-LLVMAttributeRef _wrap_GetStringAttributeAtIndex_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1, char *_swig_go_2, intgo _swig_go_3) {
+LLVMAttributeRef _wrap_GetStringAttributeAtIndex_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1, char *_swig_go_2, intgo _swig_go_3) {
   LLVMValueRef arg1 ;
   LLVMAttributeIndex arg2 ;
   char *arg3 = (char *) 0 ;
@@ -11774,7 +11462,7 @@ LLVMAttributeRef _wrap_GetStringAttributeAtIndex_llvm_5d1e3feecae2b244(LLVMValue
 }
 
 
-void _wrap_RemoveEnumAttributeAtIndex_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1, intgo _swig_go_2) {
+void _wrap_RemoveEnumAttributeAtIndex_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1, intgo _swig_go_2) {
   LLVMValueRef arg1 ;
   LLVMAttributeIndex arg2 ;
   unsigned int arg3 ;
@@ -11790,7 +11478,7 @@ void _wrap_RemoveEnumAttributeAtIndex_llvm_5d1e3feecae2b244(LLVMValueRef _swig_g
 }
 
 
-void _wrap_RemoveStringAttributeAtIndex_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1, char *_swig_go_2, intgo _swig_go_3) {
+void _wrap_RemoveStringAttributeAtIndex_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1, char *_swig_go_2, intgo _swig_go_3) {
   LLVMValueRef arg1 ;
   LLVMAttributeIndex arg2 ;
   char *arg3 = (char *) 0 ;
@@ -11813,7 +11501,7 @@ void _wrap_RemoveStringAttributeAtIndex_llvm_5d1e3feecae2b244(LLVMValueRef _swig
 }
 
 
-void _wrap_AddTargetDependentFunctionAttr_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, char *_swig_go_1, char *_swig_go_2) {
+void _wrap_AddTargetDependentFunctionAttr_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, char *_swig_go_1, char *_swig_go_2) {
   LLVMValueRef arg1 ;
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
@@ -11839,7 +11527,7 @@ void _wrap_AddTargetDependentFunctionAttr_llvm_5d1e3feecae2b244(LLVMValueRef _sw
 }
 
 
-intgo _wrap_CountParams_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_CountParams_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -11854,7 +11542,7 @@ intgo _wrap_CountParams_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_GetParams_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef *_swig_go_1) {
+void _wrap_GetParams_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef *_swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef *arg2 = (LLVMValueRef *) 0 ;
   
@@ -11868,7 +11556,7 @@ void _wrap_GetParams_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef
 }
 
 
-LLVMValueRef _wrap_GetParam_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+LLVMValueRef _wrap_GetParam_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   LLVMValueRef result;
@@ -11887,7 +11575,7 @@ LLVMValueRef _wrap_GetParam_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo
 }
 
 
-LLVMValueRef _wrap_GetParamParent_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_GetParamParent_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -11904,7 +11592,7 @@ LLVMValueRef _wrap_GetParamParent_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0)
 }
 
 
-LLVMValueRef _wrap_GetFirstParam_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_GetFirstParam_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -11921,7 +11609,7 @@ LLVMValueRef _wrap_GetFirstParam_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-LLVMValueRef _wrap_GetLastParam_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_GetLastParam_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -11938,7 +11626,7 @@ LLVMValueRef _wrap_GetLastParam_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_GetNextParam_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_GetNextParam_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -11955,7 +11643,7 @@ LLVMValueRef _wrap_GetNextParam_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_GetPreviousParam_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_GetPreviousParam_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -11972,7 +11660,7 @@ LLVMValueRef _wrap_GetPreviousParam_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_
 }
 
 
-void _wrap_SetParamAlignment_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+void _wrap_SetParamAlignment_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   
@@ -11986,7 +11674,7 @@ void _wrap_SetParamAlignment_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intg
 }
 
 
-LLVMValueRef _wrap_AddGlobalIFunc_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1, LLVMTypeRef _swig_go_2, intgo _swig_go_3, LLVMValueRef _swig_go_4) {
+LLVMValueRef _wrap_AddGlobalIFunc_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1, LLVMTypeRef _swig_go_2, intgo _swig_go_3, LLVMValueRef _swig_go_4) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   size_t arg3 ;
@@ -12022,7 +11710,7 @@ LLVMValueRef _wrap_AddGlobalIFunc_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_GetNamedGlobalIFunc_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
+LLVMValueRef _wrap_GetNamedGlobalIFunc_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, char *_swig_go_1) {
   LLVMModuleRef arg1 ;
   char *arg2 = (char *) 0 ;
   size_t arg3 ;
@@ -12048,7 +11736,7 @@ LLVMValueRef _wrap_GetNamedGlobalIFunc_llvm_5d1e3feecae2b244(LLVMModuleRef _swig
 }
 
 
-LLVMValueRef _wrap_GetFirstGlobalIFunc_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+LLVMValueRef _wrap_GetFirstGlobalIFunc_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -12065,7 +11753,7 @@ LLVMValueRef _wrap_GetFirstGlobalIFunc_llvm_5d1e3feecae2b244(LLVMModuleRef _swig
 }
 
 
-LLVMValueRef _wrap_GetLastGlobalIFunc_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+LLVMValueRef _wrap_GetLastGlobalIFunc_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -12082,7 +11770,7 @@ LLVMValueRef _wrap_GetLastGlobalIFunc_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_
 }
 
 
-LLVMValueRef _wrap_GetNextGlobalIFunc_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_GetNextGlobalIFunc_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -12099,7 +11787,7 @@ LLVMValueRef _wrap_GetNextGlobalIFunc_llvm_5d1e3feecae2b244(LLVMValueRef _swig_g
 }
 
 
-LLVMValueRef _wrap_GetPreviousGlobalIFunc_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_GetPreviousGlobalIFunc_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -12116,7 +11804,7 @@ LLVMValueRef _wrap_GetPreviousGlobalIFunc_llvm_5d1e3feecae2b244(LLVMValueRef _sw
 }
 
 
-LLVMValueRef _wrap_GetGlobalIFuncResolver_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_GetGlobalIFuncResolver_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -12133,7 +11821,7 @@ LLVMValueRef _wrap_GetGlobalIFuncResolver_llvm_5d1e3feecae2b244(LLVMValueRef _sw
 }
 
 
-void _wrap_SetGlobalIFuncResolver_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+void _wrap_SetGlobalIFuncResolver_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   
@@ -12149,7 +11837,7 @@ void _wrap_SetGlobalIFuncResolver_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0,
 }
 
 
-void _wrap_EraseGlobalIFunc_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+void _wrap_EraseGlobalIFunc_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   
   {
@@ -12161,7 +11849,7 @@ void _wrap_EraseGlobalIFunc_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_RemoveGlobalIFunc_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+void _wrap_RemoveGlobalIFunc_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   
   {
@@ -12173,7 +11861,7 @@ void _wrap_RemoveGlobalIFunc_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMMetadataRef _wrap_MDStringInContext2_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, char *_swig_go_1, long long _swig_go_2) {
+LLVMMetadataRef _wrap_MDStringInContext2_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, char *_swig_go_1, long long _swig_go_2) {
   LLVMContextRef arg1 ;
   char *arg2 = (char *) 0 ;
   size_t arg3 ;
@@ -12199,7 +11887,7 @@ LLVMMetadataRef _wrap_MDStringInContext2_llvm_5d1e3feecae2b244(LLVMContextRef _s
 }
 
 
-LLVMMetadataRef _wrap_MDNodeInContext2_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, LLVMMetadataRef *_swig_go_1, long long _swig_go_2) {
+LLVMMetadataRef _wrap_MDNodeInContext2_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, LLVMMetadataRef *_swig_go_1, long long _swig_go_2) {
   LLVMContextRef arg1 ;
   LLVMMetadataRef *arg2 = (LLVMMetadataRef *) 0 ;
   size_t arg3 ;
@@ -12220,7 +11908,7 @@ LLVMMetadataRef _wrap_MDNodeInContext2_llvm_5d1e3feecae2b244(LLVMContextRef _swi
 }
 
 
-LLVMValueRef _wrap_MetadataAsValue_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, LLVMMetadataRef _swig_go_1) {
+LLVMValueRef _wrap_MetadataAsValue_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, LLVMMetadataRef _swig_go_1) {
   LLVMContextRef arg1 ;
   LLVMMetadataRef arg2 ;
   LLVMValueRef result;
@@ -12241,7 +11929,7 @@ LLVMValueRef _wrap_MetadataAsValue_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go
 }
 
 
-LLVMMetadataRef _wrap_ValueAsMetadata_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMMetadataRef _wrap_ValueAsMetadata_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMMetadataRef result;
   LLVMMetadataRef _swig_go_result;
@@ -12258,7 +11946,7 @@ LLVMMetadataRef _wrap_ValueAsMetadata_llvm_5d1e3feecae2b244(LLVMValueRef _swig_g
 }
 
 
-char *_wrap_GetMDString_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo *_swig_go_1) {
+char *_wrap_GetMDString_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo *_swig_go_1) {
   LLVMValueRef arg1 ;
   unsigned int *arg2 = (unsigned int *) 0 ;
   char *result = 0 ;
@@ -12277,7 +11965,7 @@ char *_wrap_GetMDString_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo *_s
 }
 
 
-intgo _wrap_GetMDNodeNumOperands_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetMDNodeNumOperands_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -12292,7 +11980,7 @@ intgo _wrap_GetMDNodeNumOperands_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-void _wrap_GetMDNodeOperands_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef *_swig_go_1) {
+void _wrap_GetMDNodeOperands_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef *_swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef *arg2 = (LLVMValueRef *) 0 ;
   
@@ -12306,7 +11994,7 @@ void _wrap_GetMDNodeOperands_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVM
 }
 
 
-void _wrap_ReplaceMDNodeOperandWith_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1, LLVMMetadataRef _swig_go_2) {
+void _wrap_ReplaceMDNodeOperandWith_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1, LLVMMetadataRef _swig_go_2) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   LLVMMetadataRef arg3 ;
@@ -12324,7 +12012,7 @@ void _wrap_ReplaceMDNodeOperandWith_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_
 }
 
 
-LLVMValueRef _wrap_MDStringInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, char *_swig_go_1, intgo _swig_go_2) {
+LLVMValueRef _wrap_MDStringInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, char *_swig_go_1, intgo _swig_go_2) {
   LLVMContextRef arg1 ;
   char *arg2 = (char *) 0 ;
   unsigned int arg3 ;
@@ -12350,7 +12038,7 @@ LLVMValueRef _wrap_MDStringInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_
 }
 
 
-LLVMValueRef _wrap_MDString_llvm_5d1e3feecae2b244(char *_swig_go_0, intgo _swig_go_1) {
+LLVMValueRef _wrap_MDString_llvm_a0e88c3155de3083(char *_swig_go_0, intgo _swig_go_1) {
   char *arg1 = (char *) 0 ;
   unsigned int arg2 ;
   LLVMValueRef result;
@@ -12372,7 +12060,7 @@ LLVMValueRef _wrap_MDString_llvm_5d1e3feecae2b244(char *_swig_go_0, intgo _swig_
 }
 
 
-LLVMValueRef _wrap_MDNodeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, LLVMValueRef *_swig_go_1) {
+LLVMValueRef _wrap_MDNodeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, LLVMValueRef *_swig_go_1) {
   LLVMContextRef arg1 ;
   LLVMValueRef *arg2 = (LLVMValueRef *) 0 ;
   unsigned int arg3 ;
@@ -12401,7 +12089,7 @@ LLVMValueRef _wrap_MDNodeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go
 }
 
 
-LLVMValueRef _wrap_MDNode_llvm_5d1e3feecae2b244(LLVMValueRef *_swig_go_0) {
+LLVMValueRef _wrap_MDNode_llvm_a0e88c3155de3083(LLVMValueRef *_swig_go_0) {
   LLVMValueRef *arg1 = (LLVMValueRef *) 0 ;
   unsigned int arg2 ;
   LLVMValueRef result;
@@ -12426,7 +12114,7 @@ LLVMValueRef _wrap_MDNode_llvm_5d1e3feecae2b244(LLVMValueRef *_swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_BasicBlockAsValue_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _swig_go_0) {
+LLVMValueRef _wrap_BasicBlockAsValue_llvm_a0e88c3155de3083(LLVMBasicBlockRef _swig_go_0) {
   LLVMBasicBlockRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -12443,7 +12131,7 @@ LLVMValueRef _wrap_BasicBlockAsValue_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _sw
 }
 
 
-bool _wrap_ValueIsBasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+bool _wrap_ValueIsBasicBlock_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -12460,7 +12148,7 @@ bool _wrap_ValueIsBasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMBasicBlockRef _wrap_ValueAsBasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMBasicBlockRef _wrap_ValueAsBasicBlock_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBasicBlockRef result;
   LLVMBasicBlockRef _swig_go_result;
@@ -12477,7 +12165,7 @@ LLVMBasicBlockRef _wrap_ValueAsBasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef _sw
 }
 
 
-char *_wrap_GetBasicBlockName_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _swig_go_0) {
+char *_wrap_GetBasicBlockName_llvm_a0e88c3155de3083(LLVMBasicBlockRef _swig_go_0) {
   LLVMBasicBlockRef arg1 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -12494,7 +12182,7 @@ char *_wrap_GetBasicBlockName_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_GetBasicBlockParent_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _swig_go_0) {
+LLVMValueRef _wrap_GetBasicBlockParent_llvm_a0e88c3155de3083(LLVMBasicBlockRef _swig_go_0) {
   LLVMBasicBlockRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -12511,7 +12199,7 @@ LLVMValueRef _wrap_GetBasicBlockParent_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _
 }
 
 
-LLVMValueRef _wrap_GetBasicBlockTerminator_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _swig_go_0) {
+LLVMValueRef _wrap_GetBasicBlockTerminator_llvm_a0e88c3155de3083(LLVMBasicBlockRef _swig_go_0) {
   LLVMBasicBlockRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -12528,7 +12216,7 @@ LLVMValueRef _wrap_GetBasicBlockTerminator_llvm_5d1e3feecae2b244(LLVMBasicBlockR
 }
 
 
-intgo _wrap_CountBasicBlocks_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_CountBasicBlocks_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -12543,7 +12231,7 @@ intgo _wrap_CountBasicBlocks_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_GetBasicBlocks_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMBasicBlockRef *_swig_go_1) {
+void _wrap_GetBasicBlocks_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMBasicBlockRef *_swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMBasicBlockRef *arg2 = (LLVMBasicBlockRef *) 0 ;
   
@@ -12557,7 +12245,7 @@ void _wrap_GetBasicBlocks_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMBas
 }
 
 
-LLVMBasicBlockRef _wrap_GetFirstBasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMBasicBlockRef _wrap_GetFirstBasicBlock_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBasicBlockRef result;
   LLVMBasicBlockRef _swig_go_result;
@@ -12574,7 +12262,7 @@ LLVMBasicBlockRef _wrap_GetFirstBasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef _s
 }
 
 
-LLVMBasicBlockRef _wrap_GetLastBasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMBasicBlockRef _wrap_GetLastBasicBlock_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBasicBlockRef result;
   LLVMBasicBlockRef _swig_go_result;
@@ -12591,7 +12279,7 @@ LLVMBasicBlockRef _wrap_GetLastBasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef _sw
 }
 
 
-LLVMBasicBlockRef _wrap_GetNextBasicBlock_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _swig_go_0) {
+LLVMBasicBlockRef _wrap_GetNextBasicBlock_llvm_a0e88c3155de3083(LLVMBasicBlockRef _swig_go_0) {
   LLVMBasicBlockRef arg1 ;
   LLVMBasicBlockRef result;
   LLVMBasicBlockRef _swig_go_result;
@@ -12608,7 +12296,7 @@ LLVMBasicBlockRef _wrap_GetNextBasicBlock_llvm_5d1e3feecae2b244(LLVMBasicBlockRe
 }
 
 
-LLVMBasicBlockRef _wrap_GetPreviousBasicBlock_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _swig_go_0) {
+LLVMBasicBlockRef _wrap_GetPreviousBasicBlock_llvm_a0e88c3155de3083(LLVMBasicBlockRef _swig_go_0) {
   LLVMBasicBlockRef arg1 ;
   LLVMBasicBlockRef result;
   LLVMBasicBlockRef _swig_go_result;
@@ -12625,7 +12313,7 @@ LLVMBasicBlockRef _wrap_GetPreviousBasicBlock_llvm_5d1e3feecae2b244(LLVMBasicBlo
 }
 
 
-LLVMBasicBlockRef _wrap_GetEntryBasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMBasicBlockRef _wrap_GetEntryBasicBlock_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBasicBlockRef result;
   LLVMBasicBlockRef _swig_go_result;
@@ -12642,7 +12330,7 @@ LLVMBasicBlockRef _wrap_GetEntryBasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef _s
 }
 
 
-void _wrap_InsertExistingBasicBlockAfterInsertBlock_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
+void _wrap_InsertExistingBasicBlockAfterInsertBlock_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
   LLVMBuilderRef arg1 ;
   LLVMBasicBlockRef arg2 ;
   
@@ -12658,7 +12346,7 @@ void _wrap_InsertExistingBasicBlockAfterInsertBlock_llvm_5d1e3feecae2b244(LLVMBu
 }
 
 
-void _wrap_AppendExistingBasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
+void _wrap_AppendExistingBasicBlock_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMBasicBlockRef arg2 ;
   
@@ -12674,7 +12362,7 @@ void _wrap_AppendExistingBasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_
 }
 
 
-LLVMBasicBlockRef _wrap_CreateBasicBlockInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, char *_swig_go_1) {
+LLVMBasicBlockRef _wrap_CreateBasicBlockInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, char *_swig_go_1) {
   LLVMContextRef arg1 ;
   char *arg2 = (char *) 0 ;
   LLVMBasicBlockRef result;
@@ -12698,7 +12386,7 @@ LLVMBasicBlockRef _wrap_CreateBasicBlockInContext_llvm_5d1e3feecae2b244(LLVMCont
 }
 
 
-LLVMBasicBlockRef _wrap_AppendBasicBlockInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, LLVMValueRef _swig_go_1, char *_swig_go_2) {
+LLVMBasicBlockRef _wrap_AppendBasicBlockInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, LLVMValueRef _swig_go_1, char *_swig_go_2) {
   LLVMContextRef arg1 ;
   LLVMValueRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -12726,7 +12414,7 @@ LLVMBasicBlockRef _wrap_AppendBasicBlockInContext_llvm_5d1e3feecae2b244(LLVMCont
 }
 
 
-LLVMBasicBlockRef _wrap_AppendBasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, char *_swig_go_1) {
+LLVMBasicBlockRef _wrap_AppendBasicBlock_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, char *_swig_go_1) {
   LLVMValueRef arg1 ;
   char *arg2 = (char *) 0 ;
   LLVMBasicBlockRef result;
@@ -12750,7 +12438,7 @@ LLVMBasicBlockRef _wrap_AppendBasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef _swi
 }
 
 
-LLVMBasicBlockRef _wrap_InsertBasicBlockInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, LLVMBasicBlockRef _swig_go_1, char *_swig_go_2) {
+LLVMBasicBlockRef _wrap_InsertBasicBlockInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, LLVMBasicBlockRef _swig_go_1, char *_swig_go_2) {
   LLVMContextRef arg1 ;
   LLVMBasicBlockRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -12778,7 +12466,7 @@ LLVMBasicBlockRef _wrap_InsertBasicBlockInContext_llvm_5d1e3feecae2b244(LLVMCont
 }
 
 
-LLVMBasicBlockRef _wrap_InsertBasicBlock_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _swig_go_0, char *_swig_go_1) {
+LLVMBasicBlockRef _wrap_InsertBasicBlock_llvm_a0e88c3155de3083(LLVMBasicBlockRef _swig_go_0, char *_swig_go_1) {
   LLVMBasicBlockRef arg1 ;
   char *arg2 = (char *) 0 ;
   LLVMBasicBlockRef result;
@@ -12802,7 +12490,7 @@ LLVMBasicBlockRef _wrap_InsertBasicBlock_llvm_5d1e3feecae2b244(LLVMBasicBlockRef
 }
 
 
-void _wrap_DeleteBasicBlock_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _swig_go_0) {
+void _wrap_DeleteBasicBlock_llvm_a0e88c3155de3083(LLVMBasicBlockRef _swig_go_0) {
   LLVMBasicBlockRef arg1 ;
   
   {
@@ -12814,7 +12502,7 @@ void _wrap_DeleteBasicBlock_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _swig_go_0) 
 }
 
 
-void _wrap_RemoveBasicBlockFromParent_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _swig_go_0) {
+void _wrap_RemoveBasicBlockFromParent_llvm_a0e88c3155de3083(LLVMBasicBlockRef _swig_go_0) {
   LLVMBasicBlockRef arg1 ;
   
   {
@@ -12826,7 +12514,7 @@ void _wrap_RemoveBasicBlockFromParent_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _s
 }
 
 
-void _wrap_MoveBasicBlockBefore_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
+void _wrap_MoveBasicBlockBefore_llvm_a0e88c3155de3083(LLVMBasicBlockRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
   LLVMBasicBlockRef arg1 ;
   LLVMBasicBlockRef arg2 ;
   
@@ -12842,7 +12530,7 @@ void _wrap_MoveBasicBlockBefore_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _swig_go
 }
 
 
-void _wrap_MoveBasicBlockAfter_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
+void _wrap_MoveBasicBlockAfter_llvm_a0e88c3155de3083(LLVMBasicBlockRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
   LLVMBasicBlockRef arg1 ;
   LLVMBasicBlockRef arg2 ;
   
@@ -12858,7 +12546,7 @@ void _wrap_MoveBasicBlockAfter_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _swig_go_
 }
 
 
-LLVMValueRef _wrap_GetFirstInstruction_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _swig_go_0) {
+LLVMValueRef _wrap_GetFirstInstruction_llvm_a0e88c3155de3083(LLVMBasicBlockRef _swig_go_0) {
   LLVMBasicBlockRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -12875,7 +12563,7 @@ LLVMValueRef _wrap_GetFirstInstruction_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _
 }
 
 
-LLVMValueRef _wrap_GetLastInstruction_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _swig_go_0) {
+LLVMValueRef _wrap_GetLastInstruction_llvm_a0e88c3155de3083(LLVMBasicBlockRef _swig_go_0) {
   LLVMBasicBlockRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -12892,7 +12580,7 @@ LLVMValueRef _wrap_GetLastInstruction_llvm_5d1e3feecae2b244(LLVMBasicBlockRef _s
 }
 
 
-intgo _wrap_HasMetadata_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_HasMetadata_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   int result;
   intgo _swig_go_result;
@@ -12907,7 +12595,7 @@ intgo _wrap_HasMetadata_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_GetMetadata_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+LLVMValueRef _wrap_GetMetadata_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   LLVMValueRef result;
@@ -12926,7 +12614,7 @@ LLVMValueRef _wrap_GetMetadata_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, in
 }
 
 
-void _wrap_SetMetadata_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1, LLVMValueRef _swig_go_2) {
+void _wrap_SetMetadata_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1, LLVMValueRef _swig_go_2) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   LLVMValueRef arg3 ;
@@ -12944,7 +12632,7 @@ void _wrap_SetMetadata_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swi
 }
 
 
-LLVMValueMetadataEntry *_wrap_InstructionGetAllMetadataOtherThanDebugLoc_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, long long *_swig_go_1) {
+LLVMValueMetadataEntry *_wrap_InstructionGetAllMetadataOtherThanDebugLoc_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, long long *_swig_go_1) {
   LLVMValueRef arg1 ;
   size_t *arg2 = (size_t *) 0 ;
   LLVMValueMetadataEntry *result = 0 ;
@@ -12961,7 +12649,7 @@ LLVMValueMetadataEntry *_wrap_InstructionGetAllMetadataOtherThanDebugLoc_llvm_5d
 }
 
 
-LLVMBasicBlockRef _wrap_GetInstructionParent_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMBasicBlockRef _wrap_GetInstructionParent_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBasicBlockRef result;
   LLVMBasicBlockRef _swig_go_result;
@@ -12978,7 +12666,7 @@ LLVMBasicBlockRef _wrap_GetInstructionParent_llvm_5d1e3feecae2b244(LLVMValueRef 
 }
 
 
-LLVMValueRef _wrap_GetNextInstruction_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_GetNextInstruction_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -12995,7 +12683,7 @@ LLVMValueRef _wrap_GetNextInstruction_llvm_5d1e3feecae2b244(LLVMValueRef _swig_g
 }
 
 
-LLVMValueRef _wrap_GetPreviousInstruction_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_GetPreviousInstruction_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -13012,7 +12700,7 @@ LLVMValueRef _wrap_GetPreviousInstruction_llvm_5d1e3feecae2b244(LLVMValueRef _sw
 }
 
 
-void _wrap_InstructionRemoveFromParent_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+void _wrap_InstructionRemoveFromParent_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   
   {
@@ -13024,7 +12712,7 @@ void _wrap_InstructionRemoveFromParent_llvm_5d1e3feecae2b244(LLVMValueRef _swig_
 }
 
 
-void _wrap_InstructionEraseFromParent_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+void _wrap_InstructionEraseFromParent_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   
   {
@@ -13036,7 +12724,7 @@ void _wrap_InstructionEraseFromParent_llvm_5d1e3feecae2b244(LLVMValueRef _swig_g
 }
 
 
-void _wrap_DeleteInstruction_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+void _wrap_DeleteInstruction_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   
   {
@@ -13048,7 +12736,7 @@ void _wrap_DeleteInstruction_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-intgo _wrap_GetInstructionOpcode_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetInstructionOpcode_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMOpcode result;
   intgo _swig_go_result;
@@ -13063,7 +12751,7 @@ intgo _wrap_GetInstructionOpcode_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) 
 }
 
 
-intgo _wrap_GetICmpPredicate_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetICmpPredicate_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMIntPredicate result;
   intgo _swig_go_result;
@@ -13078,7 +12766,7 @@ intgo _wrap_GetICmpPredicate_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-intgo _wrap_GetFCmpPredicate_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetFCmpPredicate_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMRealPredicate result;
   intgo _swig_go_result;
@@ -13093,7 +12781,7 @@ intgo _wrap_GetFCmpPredicate_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_InstructionClone_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_InstructionClone_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -13110,7 +12798,7 @@ LLVMValueRef _wrap_InstructionClone_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_
 }
 
 
-LLVMValueRef _wrap_IsATerminatorInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_IsATerminatorInst_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -13127,7 +12815,7 @@ LLVMValueRef _wrap_IsATerminatorInst_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go
 }
 
 
-intgo _wrap_GetNumArgOperands_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetNumArgOperands_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -13142,7 +12830,7 @@ intgo _wrap_GetNumArgOperands_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetInstructionCallConv_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+void _wrap_SetInstructionCallConv_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   
@@ -13156,7 +12844,7 @@ void _wrap_SetInstructionCallConv_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0,
 }
 
 
-intgo _wrap_GetInstructionCallConv_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetInstructionCallConv_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -13171,7 +12859,7 @@ intgo _wrap_GetInstructionCallConv_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0
 }
 
 
-void _wrap_SetInstrParamAlignment_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1, intgo _swig_go_2) {
+void _wrap_SetInstrParamAlignment_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1, intgo _swig_go_2) {
   LLVMValueRef arg1 ;
   LLVMAttributeIndex arg2 ;
   unsigned int arg3 ;
@@ -13187,7 +12875,7 @@ void _wrap_SetInstrParamAlignment_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0,
 }
 
 
-void _wrap_AddCallSiteAttribute_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1, LLVMAttributeRef _swig_go_2) {
+void _wrap_AddCallSiteAttribute_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1, LLVMAttributeRef _swig_go_2) {
   LLVMValueRef arg1 ;
   LLVMAttributeIndex arg2 ;
   LLVMAttributeRef arg3 ;
@@ -13205,7 +12893,7 @@ void _wrap_AddCallSiteAttribute_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, i
 }
 
 
-intgo _wrap_GetCallSiteAttributeCount_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+intgo _wrap_GetCallSiteAttributeCount_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMAttributeIndex arg2 ;
   unsigned int result;
@@ -13222,7 +12910,7 @@ intgo _wrap_GetCallSiteAttributeCount_llvm_5d1e3feecae2b244(LLVMValueRef _swig_g
 }
 
 
-void _wrap_GetCallSiteAttributes_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1, LLVMAttributeRef *_swig_go_2) {
+void _wrap_GetCallSiteAttributes_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1, LLVMAttributeRef *_swig_go_2) {
   LLVMValueRef arg1 ;
   LLVMAttributeIndex arg2 ;
   LLVMAttributeRef *arg3 = (LLVMAttributeRef *) 0 ;
@@ -13238,7 +12926,7 @@ void _wrap_GetCallSiteAttributes_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, 
 }
 
 
-LLVMAttributeRef _wrap_GetCallSiteEnumAttribute_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1, intgo _swig_go_2) {
+LLVMAttributeRef _wrap_GetCallSiteEnumAttribute_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1, intgo _swig_go_2) {
   LLVMValueRef arg1 ;
   LLVMAttributeIndex arg2 ;
   unsigned int arg3 ;
@@ -13259,7 +12947,7 @@ LLVMAttributeRef _wrap_GetCallSiteEnumAttribute_llvm_5d1e3feecae2b244(LLVMValueR
 }
 
 
-LLVMAttributeRef _wrap_GetCallSiteStringAttribute_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1, char *_swig_go_2, intgo _swig_go_3) {
+LLVMAttributeRef _wrap_GetCallSiteStringAttribute_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1, char *_swig_go_2, intgo _swig_go_3) {
   LLVMValueRef arg1 ;
   LLVMAttributeIndex arg2 ;
   char *arg3 = (char *) 0 ;
@@ -13287,7 +12975,7 @@ LLVMAttributeRef _wrap_GetCallSiteStringAttribute_llvm_5d1e3feecae2b244(LLVMValu
 }
 
 
-void _wrap_RemoveCallSiteEnumAttribute_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1, intgo _swig_go_2) {
+void _wrap_RemoveCallSiteEnumAttribute_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1, intgo _swig_go_2) {
   LLVMValueRef arg1 ;
   LLVMAttributeIndex arg2 ;
   unsigned int arg3 ;
@@ -13303,7 +12991,7 @@ void _wrap_RemoveCallSiteEnumAttribute_llvm_5d1e3feecae2b244(LLVMValueRef _swig_
 }
 
 
-void _wrap_RemoveCallSiteStringAttribute_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1, char *_swig_go_2, intgo _swig_go_3) {
+void _wrap_RemoveCallSiteStringAttribute_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1, char *_swig_go_2, intgo _swig_go_3) {
   LLVMValueRef arg1 ;
   LLVMAttributeIndex arg2 ;
   char *arg3 = (char *) 0 ;
@@ -13326,7 +13014,7 @@ void _wrap_RemoveCallSiteStringAttribute_llvm_5d1e3feecae2b244(LLVMValueRef _swi
 }
 
 
-LLVMTypeRef _wrap_GetCalledFunctionType_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMTypeRef _wrap_GetCalledFunctionType_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -13343,7 +13031,7 @@ LLVMTypeRef _wrap_GetCalledFunctionType_llvm_5d1e3feecae2b244(LLVMValueRef _swig
 }
 
 
-LLVMValueRef _wrap_GetCalledValue_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_GetCalledValue_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -13360,7 +13048,7 @@ LLVMValueRef _wrap_GetCalledValue_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0)
 }
 
 
-bool _wrap_IsTailCall_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+bool _wrap_IsTailCall_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -13377,7 +13065,7 @@ bool _wrap_IsTailCall_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetTailCall_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, bool _swig_go_1) {
+void _wrap_SetTailCall_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, bool _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMBool arg2 ;
   
@@ -13393,7 +13081,7 @@ void _wrap_SetTailCall_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, bool _swig
 }
 
 
-LLVMBasicBlockRef _wrap_GetNormalDest_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMBasicBlockRef _wrap_GetNormalDest_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBasicBlockRef result;
   LLVMBasicBlockRef _swig_go_result;
@@ -13410,7 +13098,7 @@ LLVMBasicBlockRef _wrap_GetNormalDest_llvm_5d1e3feecae2b244(LLVMValueRef _swig_g
 }
 
 
-LLVMBasicBlockRef _wrap_GetUnwindDest_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMBasicBlockRef _wrap_GetUnwindDest_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBasicBlockRef result;
   LLVMBasicBlockRef _swig_go_result;
@@ -13427,7 +13115,7 @@ LLVMBasicBlockRef _wrap_GetUnwindDest_llvm_5d1e3feecae2b244(LLVMValueRef _swig_g
 }
 
 
-void _wrap_SetNormalDest_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
+void _wrap_SetNormalDest_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMBasicBlockRef arg2 ;
   
@@ -13443,7 +13131,7 @@ void _wrap_SetNormalDest_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMBasi
 }
 
 
-void _wrap_SetUnwindDest_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
+void _wrap_SetUnwindDest_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMBasicBlockRef arg2 ;
   
@@ -13459,7 +13147,7 @@ void _wrap_SetUnwindDest_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMBasi
 }
 
 
-intgo _wrap_GetNumSuccessors_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetNumSuccessors_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -13474,7 +13162,7 @@ intgo _wrap_GetNumSuccessors_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMBasicBlockRef _wrap_GetSuccessor_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+LLVMBasicBlockRef _wrap_GetSuccessor_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   LLVMBasicBlockRef result;
@@ -13493,7 +13181,7 @@ LLVMBasicBlockRef _wrap_GetSuccessor_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go
 }
 
 
-void _wrap_SetSuccessor_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1, LLVMBasicBlockRef _swig_go_2) {
+void _wrap_SetSuccessor_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1, LLVMBasicBlockRef _swig_go_2) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   LLVMBasicBlockRef arg3 ;
@@ -13511,7 +13199,7 @@ void _wrap_SetSuccessor_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _sw
 }
 
 
-bool _wrap_IsConditional_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+bool _wrap_IsConditional_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -13528,7 +13216,7 @@ bool _wrap_IsConditional_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_GetCondition_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_GetCondition_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -13545,7 +13233,7 @@ LLVMValueRef _wrap_GetCondition_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetCondition_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+void _wrap_SetCondition_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   
@@ -13561,7 +13249,7 @@ void _wrap_SetCondition_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValue
 }
 
 
-LLVMBasicBlockRef _wrap_GetSwitchDefaultDest_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMBasicBlockRef _wrap_GetSwitchDefaultDest_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBasicBlockRef result;
   LLVMBasicBlockRef _swig_go_result;
@@ -13578,7 +13266,7 @@ LLVMBasicBlockRef _wrap_GetSwitchDefaultDest_llvm_5d1e3feecae2b244(LLVMValueRef 
 }
 
 
-LLVMTypeRef _wrap_GetAllocatedType_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMTypeRef _wrap_GetAllocatedType_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -13595,7 +13283,7 @@ LLVMTypeRef _wrap_GetAllocatedType_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0
 }
 
 
-bool _wrap_IsInBounds_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+bool _wrap_IsInBounds_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -13612,7 +13300,7 @@ bool _wrap_IsInBounds_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetIsInBounds_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, bool _swig_go_1) {
+void _wrap_SetIsInBounds_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, bool _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMBool arg2 ;
   
@@ -13628,7 +13316,7 @@ void _wrap_SetIsInBounds_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, bool _sw
 }
 
 
-LLVMTypeRef _wrap_GetGEPSourceElementType_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMTypeRef _wrap_GetGEPSourceElementType_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -13645,25 +13333,7 @@ LLVMTypeRef _wrap_GetGEPSourceElementType_llvm_5d1e3feecae2b244(LLVMValueRef _sw
 }
 
 
-void _wrap_AddIncoming_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef *_swig_go_1, LLVMBasicBlockRef *_swig_go_2, intgo _swig_go_3) {
-  LLVMValueRef arg1 ;
-  LLVMValueRef *arg2 = (LLVMValueRef *) 0 ;
-  LLVMBasicBlockRef *arg3 = (LLVMBasicBlockRef *) 0 ;
-  unsigned int arg4 ;
-  
-  {
-    arg1 = _swig_go_0;
-  }
-  arg2 = *(LLVMValueRef **)&_swig_go_1; 
-  arg3 = *(LLVMBasicBlockRef **)&_swig_go_2; 
-  arg4 = (unsigned int)_swig_go_3; 
-  
-  LLVMAddIncoming(arg1,arg2,arg3,arg4);
-  
-}
-
-
-intgo _wrap_CountIncoming_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_CountIncoming_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -13678,7 +13348,7 @@ intgo _wrap_CountIncoming_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_GetIncomingValue_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+LLVMValueRef _wrap_GetIncomingValue_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   LLVMValueRef result;
@@ -13697,7 +13367,7 @@ LLVMValueRef _wrap_GetIncomingValue_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_
 }
 
 
-LLVMBasicBlockRef _wrap_GetIncomingBlock_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+LLVMBasicBlockRef _wrap_GetIncomingBlock_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   LLVMBasicBlockRef result;
@@ -13716,7 +13386,7 @@ LLVMBasicBlockRef _wrap_GetIncomingBlock_llvm_5d1e3feecae2b244(LLVMValueRef _swi
 }
 
 
-intgo _wrap_GetNumIndices_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetNumIndices_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -13731,7 +13401,7 @@ intgo _wrap_GetNumIndices_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-intgo *_wrap_GetIndices_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo *_wrap_GetIndices_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   unsigned int *result = 0 ;
   intgo *_swig_go_result;
@@ -13746,7 +13416,7 @@ intgo *_wrap_GetIndices_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMBuilderRef _wrap_CreateBuilderInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0) {
+LLVMBuilderRef _wrap_CreateBuilderInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0) {
   LLVMContextRef arg1 ;
   LLVMBuilderRef result;
   LLVMBuilderRef _swig_go_result;
@@ -13763,7 +13433,7 @@ LLVMBuilderRef _wrap_CreateBuilderInContext_llvm_5d1e3feecae2b244(LLVMContextRef
 }
 
 
-LLVMBuilderRef _wrap_CreateBuilder_llvm_5d1e3feecae2b244() {
+LLVMBuilderRef _wrap_CreateBuilder_llvm_a0e88c3155de3083() {
   LLVMBuilderRef result;
   LLVMBuilderRef _swig_go_result;
   
@@ -13776,7 +13446,7 @@ LLVMBuilderRef _wrap_CreateBuilder_llvm_5d1e3feecae2b244() {
 }
 
 
-void _wrap_PositionBuilder_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMBasicBlockRef _swig_go_1, LLVMValueRef _swig_go_2) {
+void _wrap_PositionBuilder_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMBasicBlockRef _swig_go_1, LLVMValueRef _swig_go_2) {
   LLVMBuilderRef arg1 ;
   LLVMBasicBlockRef arg2 ;
   LLVMValueRef arg3 ;
@@ -13796,7 +13466,7 @@ void _wrap_PositionBuilder_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVM
 }
 
 
-void _wrap_PositionBuilderBefore_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1) {
+void _wrap_PositionBuilderBefore_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   
@@ -13812,7 +13482,7 @@ void _wrap_PositionBuilderBefore_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0
 }
 
 
-void _wrap_PositionBuilderAtEnd_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
+void _wrap_PositionBuilderAtEnd_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
   LLVMBuilderRef arg1 ;
   LLVMBasicBlockRef arg2 ;
   
@@ -13828,7 +13498,7 @@ void _wrap_PositionBuilderAtEnd_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0,
 }
 
 
-LLVMBasicBlockRef _wrap_GetInsertBlock_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0) {
+LLVMBasicBlockRef _wrap_GetInsertBlock_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0) {
   LLVMBuilderRef arg1 ;
   LLVMBasicBlockRef result;
   LLVMBasicBlockRef _swig_go_result;
@@ -13845,7 +13515,7 @@ LLVMBasicBlockRef _wrap_GetInsertBlock_llvm_5d1e3feecae2b244(LLVMBuilderRef _swi
 }
 
 
-void _wrap_ClearInsertionPosition_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0) {
+void _wrap_ClearInsertionPosition_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0) {
   LLVMBuilderRef arg1 ;
   
   {
@@ -13857,7 +13527,7 @@ void _wrap_ClearInsertionPosition_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_
 }
 
 
-void _wrap_InsertIntoBuilder_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1) {
+void _wrap_InsertIntoBuilder_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   
@@ -13873,7 +13543,7 @@ void _wrap_InsertIntoBuilder_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LL
 }
 
 
-void _wrap_InsertIntoBuilderWithName_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, char *_swig_go_2) {
+void _wrap_InsertIntoBuilderWithName_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, char *_swig_go_2) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -13896,7 +13566,7 @@ void _wrap_InsertIntoBuilderWithName_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_
 }
 
 
-void _wrap_DisposeBuilder_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0) {
+void _wrap_DisposeBuilder_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0) {
   LLVMBuilderRef arg1 ;
   
   {
@@ -13908,7 +13578,7 @@ void _wrap_DisposeBuilder_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0) {
 }
 
 
-LLVMMetadataRef _wrap_GetCurrentDebugLocation2_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0) {
+LLVMMetadataRef _wrap_GetCurrentDebugLocation2_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0) {
   LLVMBuilderRef arg1 ;
   LLVMMetadataRef result;
   LLVMMetadataRef _swig_go_result;
@@ -13925,7 +13595,7 @@ LLVMMetadataRef _wrap_GetCurrentDebugLocation2_llvm_5d1e3feecae2b244(LLVMBuilder
 }
 
 
-void _wrap_SetCurrentDebugLocation2_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1) {
+void _wrap_SetCurrentDebugLocation2_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1) {
   LLVMBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   
@@ -13941,7 +13611,7 @@ void _wrap_SetCurrentDebugLocation2_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_g
 }
 
 
-void _wrap_SetInstDebugLocation_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1) {
+void _wrap_SetInstDebugLocation_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   
@@ -13957,7 +13627,7 @@ void _wrap_SetInstDebugLocation_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0,
 }
 
 
-void _wrap_AddMetadataToInst_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1) {
+void _wrap_AddMetadataToInst_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   
@@ -13973,7 +13643,7 @@ void _wrap_AddMetadataToInst_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LL
 }
 
 
-LLVMMetadataRef _wrap_BuilderGetDefaultFPMathTag_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0) {
+LLVMMetadataRef _wrap_BuilderGetDefaultFPMathTag_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0) {
   LLVMBuilderRef arg1 ;
   LLVMMetadataRef result;
   LLVMMetadataRef _swig_go_result;
@@ -13990,7 +13660,7 @@ LLVMMetadataRef _wrap_BuilderGetDefaultFPMathTag_llvm_5d1e3feecae2b244(LLVMBuild
 }
 
 
-void _wrap_BuilderSetDefaultFPMathTag_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1) {
+void _wrap_BuilderSetDefaultFPMathTag_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1) {
   LLVMBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   
@@ -14006,7 +13676,7 @@ void _wrap_BuilderSetDefaultFPMathTag_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig
 }
 
 
-void _wrap_SetCurrentDebugLocation_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1) {
+void _wrap_SetCurrentDebugLocation_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   
@@ -14022,7 +13692,7 @@ void _wrap_SetCurrentDebugLocation_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go
 }
 
 
-LLVMValueRef _wrap_GetCurrentDebugLocation_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0) {
+LLVMValueRef _wrap_GetCurrentDebugLocation_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -14039,7 +13709,7 @@ LLVMValueRef _wrap_GetCurrentDebugLocation_llvm_5d1e3feecae2b244(LLVMBuilderRef 
 }
 
 
-LLVMValueRef _wrap_BuildRetVoid_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0) {
+LLVMValueRef _wrap_BuildRetVoid_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -14056,7 +13726,7 @@ LLVMValueRef _wrap_BuildRetVoid_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0)
 }
 
 
-LLVMValueRef _wrap_BuildRet_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1) {
+LLVMValueRef _wrap_BuildRet_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef result;
@@ -14077,7 +13747,7 @@ LLVMValueRef _wrap_BuildRet_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLV
 }
 
 
-LLVMValueRef _wrap_BuildAggregateRet_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef *_swig_go_1) {
+LLVMValueRef _wrap_BuildAggregateRet_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef *_swig_go_1) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef *arg2 = (LLVMValueRef *) 0 ;
   unsigned int arg3 ;
@@ -14106,7 +13776,7 @@ LLVMValueRef _wrap_BuildAggregateRet_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_
 }
 
 
-LLVMValueRef _wrap_BuildBr_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
+LLVMValueRef _wrap_BuildBr_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
   LLVMBuilderRef arg1 ;
   LLVMBasicBlockRef arg2 ;
   LLVMValueRef result;
@@ -14127,7 +13797,7 @@ LLVMValueRef _wrap_BuildBr_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVM
 }
 
 
-LLVMValueRef _wrap_BuildCondBr_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMBasicBlockRef _swig_go_2, LLVMBasicBlockRef _swig_go_3) {
+LLVMValueRef _wrap_BuildCondBr_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMBasicBlockRef _swig_go_2, LLVMBasicBlockRef _swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMBasicBlockRef arg3 ;
@@ -14156,7 +13826,7 @@ LLVMValueRef _wrap_BuildCondBr_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildSwitch_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMBasicBlockRef _swig_go_2, intgo _swig_go_3) {
+LLVMValueRef _wrap_BuildSwitch_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMBasicBlockRef _swig_go_2, intgo _swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMBasicBlockRef arg3 ;
@@ -14183,7 +13853,7 @@ LLVMValueRef _wrap_BuildSwitch_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildIndirectBr_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, intgo _swig_go_2) {
+LLVMValueRef _wrap_BuildIndirectBr_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, intgo _swig_go_2) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   unsigned int arg3 ;
@@ -14206,7 +13876,7 @@ LLVMValueRef _wrap_BuildIndirectBr_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go
 }
 
 
-LLVMValueRef _wrap_BuildInvoke2_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef *_swig_go_3, LLVMBasicBlockRef _swig_go_4, LLVMBasicBlockRef _swig_go_5, char *_swig_go_6) {
+LLVMValueRef _wrap_BuildInvoke2_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef *_swig_go_3, LLVMBasicBlockRef _swig_go_4, LLVMBasicBlockRef _swig_go_5, char *_swig_go_6) {
   LLVMBuilderRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef arg3 ;
@@ -14258,7 +13928,7 @@ LLVMValueRef _wrap_BuildInvoke2_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0,
 }
 
 
-LLVMValueRef _wrap_BuildUnreachable_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0) {
+LLVMValueRef _wrap_BuildUnreachable_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -14275,7 +13945,7 @@ LLVMValueRef _wrap_BuildUnreachable_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_g
 }
 
 
-LLVMValueRef _wrap_BuildResume_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1) {
+LLVMValueRef _wrap_BuildResume_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef result;
@@ -14296,7 +13966,7 @@ LLVMValueRef _wrap_BuildResume_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildLandingPad_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, LLVMValueRef _swig_go_2, intgo _swig_go_3, char *_swig_go_4) {
+LLVMValueRef _wrap_BuildLandingPad_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, LLVMValueRef _swig_go_2, intgo _swig_go_3, char *_swig_go_4) {
   LLVMBuilderRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef arg3 ;
@@ -14330,7 +14000,7 @@ LLVMValueRef _wrap_BuildLandingPad_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go
 }
 
 
-LLVMValueRef _wrap_BuildCleanupRet_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMBasicBlockRef _swig_go_2) {
+LLVMValueRef _wrap_BuildCleanupRet_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMBasicBlockRef _swig_go_2) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMBasicBlockRef arg3 ;
@@ -14355,7 +14025,7 @@ LLVMValueRef _wrap_BuildCleanupRet_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go
 }
 
 
-LLVMValueRef _wrap_BuildCatchRet_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMBasicBlockRef _swig_go_2) {
+LLVMValueRef _wrap_BuildCatchRet_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMBasicBlockRef _swig_go_2) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMBasicBlockRef arg3 ;
@@ -14380,7 +14050,7 @@ LLVMValueRef _wrap_BuildCatchRet_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_BuildCatchPad_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef *_swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildCatchPad_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef *_swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef *arg3 = (LLVMValueRef *) 0 ;
@@ -14420,7 +14090,7 @@ LLVMValueRef _wrap_BuildCatchPad_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_BuildCleanupPad_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef *_swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildCleanupPad_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef *_swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef *arg3 = (LLVMValueRef *) 0 ;
@@ -14460,7 +14130,7 @@ LLVMValueRef _wrap_BuildCleanupPad_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go
 }
 
 
-LLVMValueRef _wrap_BuildCatchSwitch_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMBasicBlockRef _swig_go_2, intgo _swig_go_3, char *_swig_go_4) {
+LLVMValueRef _wrap_BuildCatchSwitch_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMBasicBlockRef _swig_go_2, intgo _swig_go_3, char *_swig_go_4) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMBasicBlockRef arg3 ;
@@ -14494,7 +14164,7 @@ LLVMValueRef _wrap_BuildCatchSwitch_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_g
 }
 
 
-void _wrap_AddCase_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMBasicBlockRef _swig_go_2) {
+void _wrap_AddCase_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMBasicBlockRef _swig_go_2) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMBasicBlockRef arg3 ;
@@ -14514,7 +14184,7 @@ void _wrap_AddCase_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _
 }
 
 
-void _wrap_AddDestination_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
+void _wrap_AddDestination_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMBasicBlockRef arg2 ;
   
@@ -14530,7 +14200,7 @@ void _wrap_AddDestination_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMBas
 }
 
 
-intgo _wrap_GetNumClauses_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetNumClauses_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -14545,7 +14215,7 @@ intgo _wrap_GetNumClauses_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-LLVMValueRef _wrap_GetClause_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+LLVMValueRef _wrap_GetClause_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   LLVMValueRef result;
@@ -14564,7 +14234,7 @@ LLVMValueRef _wrap_GetClause_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intg
 }
 
 
-void _wrap_AddClause_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+void _wrap_AddClause_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   
@@ -14580,7 +14250,7 @@ void _wrap_AddClause_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef
 }
 
 
-bool _wrap_IsCleanup_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+bool _wrap_IsCleanup_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -14597,7 +14267,7 @@ bool _wrap_IsCleanup_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetCleanup_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, bool _swig_go_1) {
+void _wrap_SetCleanup_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, bool _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMBool arg2 ;
   
@@ -14613,7 +14283,7 @@ void _wrap_SetCleanup_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, bool _swig_
 }
 
 
-void _wrap_AddHandler_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
+void _wrap_AddHandler_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMBasicBlockRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMBasicBlockRef arg2 ;
   
@@ -14629,7 +14299,7 @@ void _wrap_AddHandler_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMBasicBl
 }
 
 
-intgo _wrap_GetNumHandlers_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetNumHandlers_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -14644,7 +14314,7 @@ intgo _wrap_GetNumHandlers_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_GetHandlers_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMBasicBlockRef *_swig_go_1) {
+void _wrap_GetHandlers_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMBasicBlockRef *_swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMBasicBlockRef *arg2 = (LLVMBasicBlockRef *) 0 ;
   
@@ -14658,7 +14328,7 @@ void _wrap_GetHandlers_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMBasicB
 }
 
 
-LLVMValueRef _wrap_GetArgOperand_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+LLVMValueRef _wrap_GetArgOperand_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   LLVMValueRef result;
@@ -14677,7 +14347,7 @@ LLVMValueRef _wrap_GetArgOperand_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, 
 }
 
 
-void _wrap_SetArgOperand_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1, LLVMValueRef _swig_go_2) {
+void _wrap_SetArgOperand_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1, LLVMValueRef _swig_go_2) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   LLVMValueRef arg3 ;
@@ -14695,7 +14365,7 @@ void _wrap_SetArgOperand_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _s
 }
 
 
-LLVMValueRef _wrap_GetParentCatchSwitch_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMValueRef _wrap_GetParentCatchSwitch_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMValueRef result;
   LLVMValueRef _swig_go_result;
@@ -14712,7 +14382,7 @@ LLVMValueRef _wrap_GetParentCatchSwitch_llvm_5d1e3feecae2b244(LLVMValueRef _swig
 }
 
 
-void _wrap_SetParentCatchSwitch_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
+void _wrap_SetParentCatchSwitch_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMValueRef arg2 ;
   
@@ -14728,7 +14398,7 @@ void _wrap_SetParentCatchSwitch_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, L
 }
 
 
-LLVMValueRef _wrap_BuildAdd_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildAdd_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -14760,7 +14430,7 @@ LLVMValueRef _wrap_BuildAdd_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLV
 }
 
 
-LLVMValueRef _wrap_BuildNSWAdd_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildNSWAdd_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -14792,7 +14462,7 @@ LLVMValueRef _wrap_BuildNSWAdd_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildNUWAdd_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildNUWAdd_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -14824,7 +14494,7 @@ LLVMValueRef _wrap_BuildNUWAdd_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildFAdd_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildFAdd_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -14856,7 +14526,7 @@ LLVMValueRef _wrap_BuildFAdd_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_BuildSub_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildSub_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -14888,7 +14558,7 @@ LLVMValueRef _wrap_BuildSub_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLV
 }
 
 
-LLVMValueRef _wrap_BuildNSWSub_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildNSWSub_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -14920,7 +14590,7 @@ LLVMValueRef _wrap_BuildNSWSub_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildNUWSub_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildNUWSub_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -14952,7 +14622,7 @@ LLVMValueRef _wrap_BuildNUWSub_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildFSub_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildFSub_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -14984,7 +14654,7 @@ LLVMValueRef _wrap_BuildFSub_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_BuildMul_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildMul_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -15016,7 +14686,7 @@ LLVMValueRef _wrap_BuildMul_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLV
 }
 
 
-LLVMValueRef _wrap_BuildNSWMul_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildNSWMul_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -15048,7 +14718,7 @@ LLVMValueRef _wrap_BuildNSWMul_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildNUWMul_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildNUWMul_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -15080,7 +14750,7 @@ LLVMValueRef _wrap_BuildNUWMul_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildFMul_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildFMul_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -15112,7 +14782,7 @@ LLVMValueRef _wrap_BuildFMul_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_BuildUDiv_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildUDiv_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -15144,7 +14814,7 @@ LLVMValueRef _wrap_BuildUDiv_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_BuildExactUDiv_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildExactUDiv_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -15176,7 +14846,7 @@ LLVMValueRef _wrap_BuildExactUDiv_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_
 }
 
 
-LLVMValueRef _wrap_BuildSDiv_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildSDiv_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -15208,7 +14878,7 @@ LLVMValueRef _wrap_BuildSDiv_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_BuildExactSDiv_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildExactSDiv_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -15240,7 +14910,7 @@ LLVMValueRef _wrap_BuildExactSDiv_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_
 }
 
 
-LLVMValueRef _wrap_BuildFDiv_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildFDiv_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -15272,7 +14942,7 @@ LLVMValueRef _wrap_BuildFDiv_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_BuildURem_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildURem_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -15304,7 +14974,7 @@ LLVMValueRef _wrap_BuildURem_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_BuildSRem_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildSRem_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -15336,7 +15006,7 @@ LLVMValueRef _wrap_BuildSRem_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_BuildFRem_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildFRem_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -15368,7 +15038,7 @@ LLVMValueRef _wrap_BuildFRem_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_BuildShl_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildShl_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -15400,7 +15070,7 @@ LLVMValueRef _wrap_BuildShl_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLV
 }
 
 
-LLVMValueRef _wrap_BuildLShr_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildLShr_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -15432,7 +15102,7 @@ LLVMValueRef _wrap_BuildLShr_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_BuildAShr_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildAShr_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -15464,7 +15134,7 @@ LLVMValueRef _wrap_BuildAShr_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_BuildAnd_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildAnd_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -15496,7 +15166,7 @@ LLVMValueRef _wrap_BuildAnd_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLV
 }
 
 
-LLVMValueRef _wrap_BuildOr_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildOr_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -15528,7 +15198,7 @@ LLVMValueRef _wrap_BuildOr_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVM
 }
 
 
-LLVMValueRef _wrap_BuildXor_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildXor_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -15560,7 +15230,7 @@ LLVMValueRef _wrap_BuildXor_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLV
 }
 
 
-LLVMValueRef _wrap_BuildBinOp_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, intgo _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef _swig_go_3, char *_swig_go_4) {
+LLVMValueRef _wrap_BuildBinOp_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, intgo _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef _swig_go_3, char *_swig_go_4) {
   LLVMBuilderRef arg1 ;
   LLVMOpcode arg2 ;
   LLVMValueRef arg3 ;
@@ -15594,7 +15264,7 @@ LLVMValueRef _wrap_BuildBinOp_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, i
 }
 
 
-LLVMValueRef _wrap_BuildNeg_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, char *_swig_go_2) {
+LLVMValueRef _wrap_BuildNeg_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, char *_swig_go_2) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -15622,7 +15292,7 @@ LLVMValueRef _wrap_BuildNeg_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLV
 }
 
 
-LLVMValueRef _wrap_BuildNSWNeg_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, char *_swig_go_2) {
+LLVMValueRef _wrap_BuildNSWNeg_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, char *_swig_go_2) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -15650,7 +15320,7 @@ LLVMValueRef _wrap_BuildNSWNeg_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildNUWNeg_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, char *_swig_go_2) {
+LLVMValueRef _wrap_BuildNUWNeg_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, char *_swig_go_2) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -15678,7 +15348,7 @@ LLVMValueRef _wrap_BuildNUWNeg_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildFNeg_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, char *_swig_go_2) {
+LLVMValueRef _wrap_BuildFNeg_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, char *_swig_go_2) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -15706,7 +15376,7 @@ LLVMValueRef _wrap_BuildFNeg_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_BuildNot_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, char *_swig_go_2) {
+LLVMValueRef _wrap_BuildNot_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, char *_swig_go_2) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -15734,7 +15404,7 @@ LLVMValueRef _wrap_BuildNot_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLV
 }
 
 
-LLVMValueRef _wrap_BuildMalloc_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, char *_swig_go_2) {
+LLVMValueRef _wrap_BuildMalloc_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, char *_swig_go_2) {
   LLVMBuilderRef arg1 ;
   LLVMTypeRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -15762,7 +15432,7 @@ LLVMValueRef _wrap_BuildMalloc_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildArrayMalloc_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildArrayMalloc_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef arg3 ;
@@ -15794,7 +15464,7 @@ LLVMValueRef _wrap_BuildArrayMalloc_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_g
 }
 
 
-LLVMValueRef _wrap_BuildMemSet_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef _swig_go_3, intgo _swig_go_4) {
+LLVMValueRef _wrap_BuildMemSet_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef _swig_go_3, intgo _swig_go_4) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -15825,7 +15495,7 @@ LLVMValueRef _wrap_BuildMemSet_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildMemCpy_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, intgo _swig_go_2, LLVMValueRef _swig_go_3, intgo _swig_go_4, LLVMValueRef _swig_go_5) {
+LLVMValueRef _wrap_BuildMemCpy_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, intgo _swig_go_2, LLVMValueRef _swig_go_3, intgo _swig_go_4, LLVMValueRef _swig_go_5) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   unsigned int arg3 ;
@@ -15858,7 +15528,7 @@ LLVMValueRef _wrap_BuildMemCpy_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildMemMove_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, intgo _swig_go_2, LLVMValueRef _swig_go_3, intgo _swig_go_4, LLVMValueRef _swig_go_5) {
+LLVMValueRef _wrap_BuildMemMove_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, intgo _swig_go_2, LLVMValueRef _swig_go_3, intgo _swig_go_4, LLVMValueRef _swig_go_5) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   unsigned int arg3 ;
@@ -15891,7 +15561,7 @@ LLVMValueRef _wrap_BuildMemMove_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0,
 }
 
 
-LLVMValueRef _wrap_BuildAlloca_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, char *_swig_go_2) {
+LLVMValueRef _wrap_BuildAlloca_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, char *_swig_go_2) {
   LLVMBuilderRef arg1 ;
   LLVMTypeRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -15919,7 +15589,7 @@ LLVMValueRef _wrap_BuildAlloca_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildArrayAlloca_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildArrayAlloca_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef arg3 ;
@@ -15951,7 +15621,7 @@ LLVMValueRef _wrap_BuildArrayAlloca_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_g
 }
 
 
-LLVMValueRef _wrap_BuildFree_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1) {
+LLVMValueRef _wrap_BuildFree_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef result;
@@ -15972,7 +15642,7 @@ LLVMValueRef _wrap_BuildFree_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_BuildLoad2_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildLoad2_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef arg3 ;
@@ -16004,7 +15674,7 @@ LLVMValueRef _wrap_BuildLoad2_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, L
 }
 
 
-LLVMValueRef _wrap_BuildStore_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2) {
+LLVMValueRef _wrap_BuildStore_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -16029,7 +15699,7 @@ LLVMValueRef _wrap_BuildStore_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, L
 }
 
 
-LLVMValueRef _wrap_BuildGEP2_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef *_swig_go_3, char *_swig_go_4) {
+LLVMValueRef _wrap_BuildGEP2_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef *_swig_go_3, char *_swig_go_4) {
   LLVMBuilderRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef arg3 ;
@@ -16073,7 +15743,7 @@ LLVMValueRef _wrap_BuildGEP2_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_BuildInBoundsGEP2_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef *_swig_go_3, char *_swig_go_4) {
+LLVMValueRef _wrap_BuildInBoundsGEP2_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef *_swig_go_3, char *_swig_go_4) {
   LLVMBuilderRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef arg3 ;
@@ -16117,7 +15787,7 @@ LLVMValueRef _wrap_BuildInBoundsGEP2_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_
 }
 
 
-LLVMValueRef _wrap_BuildStructGEP2_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, LLVMValueRef _swig_go_2, intgo _swig_go_3, char *_swig_go_4) {
+LLVMValueRef _wrap_BuildStructGEP2_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, LLVMValueRef _swig_go_2, intgo _swig_go_3, char *_swig_go_4) {
   LLVMBuilderRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef arg3 ;
@@ -16151,7 +15821,7 @@ LLVMValueRef _wrap_BuildStructGEP2_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go
 }
 
 
-LLVMValueRef _wrap_BuildGlobalString_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, char *_swig_go_1, char *_swig_go_2) {
+LLVMValueRef _wrap_BuildGlobalString_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, char *_swig_go_1, char *_swig_go_2) {
   LLVMBuilderRef arg1 ;
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
@@ -16182,7 +15852,7 @@ LLVMValueRef _wrap_BuildGlobalString_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_
 }
 
 
-LLVMValueRef _wrap_BuildGlobalStringPtr_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, char *_swig_go_1, char *_swig_go_2) {
+LLVMValueRef _wrap_BuildGlobalStringPtr_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, char *_swig_go_1, char *_swig_go_2) {
   LLVMBuilderRef arg1 ;
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
@@ -16213,7 +15883,7 @@ LLVMValueRef _wrap_BuildGlobalStringPtr_llvm_5d1e3feecae2b244(LLVMBuilderRef _sw
 }
 
 
-bool _wrap_GetVolatile_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+bool _wrap_GetVolatile_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -16230,7 +15900,7 @@ bool _wrap_GetVolatile_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetVolatile_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, bool _swig_go_1) {
+void _wrap_SetVolatile_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, bool _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMBool arg2 ;
   
@@ -16246,7 +15916,7 @@ void _wrap_SetVolatile_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, bool _swig
 }
 
 
-bool _wrap_GetWeak_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+bool _wrap_GetWeak_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -16263,7 +15933,7 @@ bool _wrap_GetWeak_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetWeak_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, bool _swig_go_1) {
+void _wrap_SetWeak_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, bool _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMBool arg2 ;
   
@@ -16279,7 +15949,7 @@ void _wrap_SetWeak_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, bool _swig_go_
 }
 
 
-intgo _wrap_GetOrdering_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetOrdering_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMAtomicOrdering result;
   intgo _swig_go_result;
@@ -16294,7 +15964,7 @@ intgo _wrap_GetOrdering_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetOrdering_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+void _wrap_SetOrdering_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMAtomicOrdering arg2 ;
   
@@ -16308,7 +15978,7 @@ void _wrap_SetOrdering_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swi
 }
 
 
-intgo _wrap_GetAtomicRMWBinOp_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetAtomicRMWBinOp_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMAtomicRMWBinOp result;
   intgo _swig_go_result;
@@ -16323,7 +15993,7 @@ intgo _wrap_GetAtomicRMWBinOp_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetAtomicRMWBinOp_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+void _wrap_SetAtomicRMWBinOp_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMAtomicRMWBinOp arg2 ;
   
@@ -16337,7 +16007,7 @@ void _wrap_SetAtomicRMWBinOp_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intg
 }
 
 
-LLVMValueRef _wrap_BuildTrunc_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildTrunc_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMTypeRef arg3 ;
@@ -16369,7 +16039,7 @@ LLVMValueRef _wrap_BuildTrunc_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, L
 }
 
 
-LLVMValueRef _wrap_BuildZExt_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildZExt_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMTypeRef arg3 ;
@@ -16401,7 +16071,7 @@ LLVMValueRef _wrap_BuildZExt_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_BuildSExt_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildSExt_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMTypeRef arg3 ;
@@ -16433,7 +16103,7 @@ LLVMValueRef _wrap_BuildSExt_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LL
 }
 
 
-LLVMValueRef _wrap_BuildFPToUI_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildFPToUI_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMTypeRef arg3 ;
@@ -16465,7 +16135,7 @@ LLVMValueRef _wrap_BuildFPToUI_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildFPToSI_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildFPToSI_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMTypeRef arg3 ;
@@ -16497,7 +16167,7 @@ LLVMValueRef _wrap_BuildFPToSI_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildUIToFP_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildUIToFP_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMTypeRef arg3 ;
@@ -16529,7 +16199,7 @@ LLVMValueRef _wrap_BuildUIToFP_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildSIToFP_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildSIToFP_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMTypeRef arg3 ;
@@ -16561,7 +16231,7 @@ LLVMValueRef _wrap_BuildSIToFP_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildFPTrunc_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildFPTrunc_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMTypeRef arg3 ;
@@ -16593,7 +16263,7 @@ LLVMValueRef _wrap_BuildFPTrunc_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0,
 }
 
 
-LLVMValueRef _wrap_BuildFPExt_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildFPExt_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMTypeRef arg3 ;
@@ -16625,7 +16295,7 @@ LLVMValueRef _wrap_BuildFPExt_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, L
 }
 
 
-LLVMValueRef _wrap_BuildPtrToInt_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildPtrToInt_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMTypeRef arg3 ;
@@ -16657,7 +16327,7 @@ LLVMValueRef _wrap_BuildPtrToInt_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_BuildIntToPtr_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildIntToPtr_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMTypeRef arg3 ;
@@ -16689,7 +16359,7 @@ LLVMValueRef _wrap_BuildIntToPtr_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_BuildBitCast_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildBitCast_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMTypeRef arg3 ;
@@ -16721,7 +16391,7 @@ LLVMValueRef _wrap_BuildBitCast_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0,
 }
 
 
-LLVMValueRef _wrap_BuildAddrSpaceCast_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildAddrSpaceCast_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMTypeRef arg3 ;
@@ -16753,7 +16423,7 @@ LLVMValueRef _wrap_BuildAddrSpaceCast_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig
 }
 
 
-LLVMValueRef _wrap_BuildZExtOrBitCast_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildZExtOrBitCast_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMTypeRef arg3 ;
@@ -16785,7 +16455,7 @@ LLVMValueRef _wrap_BuildZExtOrBitCast_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig
 }
 
 
-LLVMValueRef _wrap_BuildSExtOrBitCast_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildSExtOrBitCast_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMTypeRef arg3 ;
@@ -16817,7 +16487,7 @@ LLVMValueRef _wrap_BuildSExtOrBitCast_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig
 }
 
 
-LLVMValueRef _wrap_BuildTruncOrBitCast_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildTruncOrBitCast_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMTypeRef arg3 ;
@@ -16849,7 +16519,7 @@ LLVMValueRef _wrap_BuildTruncOrBitCast_llvm_5d1e3feecae2b244(LLVMBuilderRef _swi
 }
 
 
-LLVMValueRef _wrap_BuildCast_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, intgo _swig_go_1, LLVMValueRef _swig_go_2, LLVMTypeRef _swig_go_3, char *_swig_go_4) {
+LLVMValueRef _wrap_BuildCast_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, intgo _swig_go_1, LLVMValueRef _swig_go_2, LLVMTypeRef _swig_go_3, char *_swig_go_4) {
   LLVMBuilderRef arg1 ;
   LLVMOpcode arg2 ;
   LLVMValueRef arg3 ;
@@ -16883,7 +16553,7 @@ LLVMValueRef _wrap_BuildCast_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, in
 }
 
 
-LLVMValueRef _wrap_BuildPointerCast_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildPointerCast_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMTypeRef arg3 ;
@@ -16915,7 +16585,7 @@ LLVMValueRef _wrap_BuildPointerCast_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_g
 }
 
 
-LLVMValueRef _wrap_BuildIntCast2_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, bool _swig_go_3, char *_swig_go_4) {
+LLVMValueRef _wrap_BuildIntCast2_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, bool _swig_go_3, char *_swig_go_4) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMTypeRef arg3 ;
@@ -16951,7 +16621,7 @@ LLVMValueRef _wrap_BuildIntCast2_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_BuildFPCast_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildFPCast_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMTypeRef arg3 ;
@@ -16983,7 +16653,7 @@ LLVMValueRef _wrap_BuildFPCast_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildIntCast_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildIntCast_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMTypeRef arg3 ;
@@ -17015,7 +16685,7 @@ LLVMValueRef _wrap_BuildIntCast_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0,
 }
 
 
-intgo _wrap_GetCastOpcode_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, bool _swig_go_1, LLVMTypeRef _swig_go_2, bool _swig_go_3) {
+intgo _wrap_GetCastOpcode_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, bool _swig_go_1, LLVMTypeRef _swig_go_2, bool _swig_go_3) {
   LLVMValueRef arg1 ;
   LLVMBool arg2 ;
   LLVMTypeRef arg3 ;
@@ -17042,7 +16712,7 @@ intgo _wrap_GetCastOpcode_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, bool _s
 }
 
 
-LLVMValueRef _wrap_BuildICmp_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, intgo _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef _swig_go_3, char *_swig_go_4) {
+LLVMValueRef _wrap_BuildICmp_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, intgo _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef _swig_go_3, char *_swig_go_4) {
   LLVMBuilderRef arg1 ;
   LLVMIntPredicate arg2 ;
   LLVMValueRef arg3 ;
@@ -17076,7 +16746,7 @@ LLVMValueRef _wrap_BuildICmp_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, in
 }
 
 
-LLVMValueRef _wrap_BuildFCmp_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, intgo _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef _swig_go_3, char *_swig_go_4) {
+LLVMValueRef _wrap_BuildFCmp_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, intgo _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef _swig_go_3, char *_swig_go_4) {
   LLVMBuilderRef arg1 ;
   LLVMRealPredicate arg2 ;
   LLVMValueRef arg3 ;
@@ -17110,7 +16780,7 @@ LLVMValueRef _wrap_BuildFCmp_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, in
 }
 
 
-LLVMValueRef _wrap_BuildPhi_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, char *_swig_go_2) {
+LLVMValueRef _wrap_BuildPhi_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, char *_swig_go_2) {
   LLVMBuilderRef arg1 ;
   LLVMTypeRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -17138,7 +16808,7 @@ LLVMValueRef _wrap_BuildPhi_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLV
 }
 
 
-LLVMValueRef _wrap_BuildCall2_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef *_swig_go_3, char *_swig_go_4) {
+LLVMValueRef _wrap_BuildCall2_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef *_swig_go_3, char *_swig_go_4) {
   LLVMBuilderRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef arg3 ;
@@ -17182,7 +16852,7 @@ LLVMValueRef _wrap_BuildCall2_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, L
 }
 
 
-LLVMValueRef _wrap_BuildSelect_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef _swig_go_3, char *_swig_go_4) {
+LLVMValueRef _wrap_BuildSelect_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef _swig_go_3, char *_swig_go_4) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -17218,7 +16888,7 @@ LLVMValueRef _wrap_BuildSelect_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildVAArg_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildVAArg_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMTypeRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMTypeRef arg3 ;
@@ -17250,7 +16920,7 @@ LLVMValueRef _wrap_BuildVAArg_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, L
 }
 
 
-LLVMValueRef _wrap_BuildExtractElement_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildExtractElement_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -17282,7 +16952,7 @@ LLVMValueRef _wrap_BuildExtractElement_llvm_5d1e3feecae2b244(LLVMBuilderRef _swi
 }
 
 
-LLVMValueRef _wrap_BuildInsertElement_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef _swig_go_3, char *_swig_go_4) {
+LLVMValueRef _wrap_BuildInsertElement_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef _swig_go_3, char *_swig_go_4) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -17318,7 +16988,7 @@ LLVMValueRef _wrap_BuildInsertElement_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig
 }
 
 
-LLVMValueRef _wrap_BuildShuffleVector_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef _swig_go_3, char *_swig_go_4) {
+LLVMValueRef _wrap_BuildShuffleVector_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef _swig_go_3, char *_swig_go_4) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -17354,7 +17024,7 @@ LLVMValueRef _wrap_BuildShuffleVector_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig
 }
 
 
-LLVMValueRef _wrap_BuildExtractValue_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, intgo _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildExtractValue_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, intgo _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   unsigned int arg3 ;
@@ -17384,7 +17054,7 @@ LLVMValueRef _wrap_BuildExtractValue_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_
 }
 
 
-LLVMValueRef _wrap_BuildInsertValue_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, intgo _swig_go_3, char *_swig_go_4) {
+LLVMValueRef _wrap_BuildInsertValue_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, intgo _swig_go_3, char *_swig_go_4) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -17418,7 +17088,7 @@ LLVMValueRef _wrap_BuildInsertValue_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_g
 }
 
 
-LLVMValueRef _wrap_BuildFreeze_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, char *_swig_go_2) {
+LLVMValueRef _wrap_BuildFreeze_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, char *_swig_go_2) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -17446,7 +17116,7 @@ LLVMValueRef _wrap_BuildFreeze_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildIsNull_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, char *_swig_go_2) {
+LLVMValueRef _wrap_BuildIsNull_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, char *_swig_go_2) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -17474,7 +17144,7 @@ LLVMValueRef _wrap_BuildIsNull_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, 
 }
 
 
-LLVMValueRef _wrap_BuildIsNotNull_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, char *_swig_go_2) {
+LLVMValueRef _wrap_BuildIsNotNull_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, char *_swig_go_2) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -17502,7 +17172,7 @@ LLVMValueRef _wrap_BuildIsNotNull_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_
 }
 
 
-LLVMValueRef _wrap_BuildPtrDiff2_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef _swig_go_3, char *_swig_go_4) {
+LLVMValueRef _wrap_BuildPtrDiff2_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMTypeRef _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef _swig_go_3, char *_swig_go_4) {
   LLVMBuilderRef arg1 ;
   LLVMTypeRef arg2 ;
   LLVMValueRef arg3 ;
@@ -17538,7 +17208,7 @@ LLVMValueRef _wrap_BuildPtrDiff2_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0
 }
 
 
-LLVMValueRef _wrap_BuildFence_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, intgo _swig_go_1, bool _swig_go_2, char *_swig_go_3) {
+LLVMValueRef _wrap_BuildFence_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, intgo _swig_go_1, bool _swig_go_2, char *_swig_go_3) {
   LLVMBuilderRef arg1 ;
   LLVMAtomicOrdering arg2 ;
   LLVMBool arg3 ;
@@ -17568,7 +17238,7 @@ LLVMValueRef _wrap_BuildFence_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, i
 }
 
 
-LLVMValueRef _wrap_BuildAtomicRMW_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, intgo _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef _swig_go_3, intgo _swig_go_4, bool _swig_go_5) {
+LLVMValueRef _wrap_BuildAtomicRMW_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, intgo _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef _swig_go_3, intgo _swig_go_4, bool _swig_go_5) {
   LLVMBuilderRef arg1 ;
   LLVMAtomicRMWBinOp arg2 ;
   LLVMValueRef arg3 ;
@@ -17601,7 +17271,7 @@ LLVMValueRef _wrap_BuildAtomicRMW_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_
 }
 
 
-LLVMValueRef _wrap_BuildAtomicCmpXchg_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef _swig_go_3, intgo _swig_go_4, intgo _swig_go_5, bool _swig_go_6) {
+LLVMValueRef _wrap_BuildAtomicCmpXchg_llvm_a0e88c3155de3083(LLVMBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMValueRef _swig_go_2, LLVMValueRef _swig_go_3, intgo _swig_go_4, intgo _swig_go_5, bool _swig_go_6) {
   LLVMBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMValueRef arg3 ;
@@ -17638,7 +17308,7 @@ LLVMValueRef _wrap_BuildAtomicCmpXchg_llvm_5d1e3feecae2b244(LLVMBuilderRef _swig
 }
 
 
-intgo _wrap_GetNumMaskElements_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetNumMaskElements_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -17653,7 +17323,7 @@ intgo _wrap_GetNumMaskElements_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-intgo _wrap_GetUndefMaskElem_llvm_5d1e3feecae2b244() {
+intgo _wrap_GetUndefMaskElem_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -17664,7 +17334,7 @@ intgo _wrap_GetUndefMaskElem_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_GetMaskValue_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+intgo _wrap_GetMaskValue_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   unsigned int arg2 ;
   int result;
@@ -17681,7 +17351,7 @@ intgo _wrap_GetMaskValue_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _s
 }
 
 
-bool _wrap_IsAtomicSingleThread_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+bool _wrap_IsAtomicSingleThread_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -17698,7 +17368,7 @@ bool _wrap_IsAtomicSingleThread_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
 }
 
 
-void _wrap_SetAtomicSingleThread_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, bool _swig_go_1) {
+void _wrap_SetAtomicSingleThread_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, bool _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMBool arg2 ;
   
@@ -17714,7 +17384,7 @@ void _wrap_SetAtomicSingleThread_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, 
 }
 
 
-intgo _wrap_GetCmpXchgSuccessOrdering_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetCmpXchgSuccessOrdering_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMAtomicOrdering result;
   intgo _swig_go_result;
@@ -17729,7 +17399,7 @@ intgo _wrap_GetCmpXchgSuccessOrdering_llvm_5d1e3feecae2b244(LLVMValueRef _swig_g
 }
 
 
-void _wrap_SetCmpXchgSuccessOrdering_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+void _wrap_SetCmpXchgSuccessOrdering_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMAtomicOrdering arg2 ;
   
@@ -17743,7 +17413,7 @@ void _wrap_SetCmpXchgSuccessOrdering_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go
 }
 
 
-intgo _wrap_GetCmpXchgFailureOrdering_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+intgo _wrap_GetCmpXchgFailureOrdering_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMAtomicOrdering result;
   intgo _swig_go_result;
@@ -17758,7 +17428,7 @@ intgo _wrap_GetCmpXchgFailureOrdering_llvm_5d1e3feecae2b244(LLVMValueRef _swig_g
 }
 
 
-void _wrap_SetCmpXchgFailureOrdering_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
+void _wrap_SetCmpXchgFailureOrdering_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, intgo _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMAtomicOrdering arg2 ;
   
@@ -17772,7 +17442,7 @@ void _wrap_SetCmpXchgFailureOrdering_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go
 }
 
 
-LLVMModuleProviderRef _wrap_CreateModuleProviderForExistingModule_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+LLVMModuleProviderRef _wrap_CreateModuleProviderForExistingModule_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   LLVMModuleProviderRef result;
   LLVMModuleProviderRef _swig_go_result;
@@ -17789,7 +17459,7 @@ LLVMModuleProviderRef _wrap_CreateModuleProviderForExistingModule_llvm_5d1e3feec
 }
 
 
-void _wrap_DisposeModuleProvider_llvm_5d1e3feecae2b244(LLVMModuleProviderRef _swig_go_0) {
+void _wrap_DisposeModuleProvider_llvm_a0e88c3155de3083(LLVMModuleProviderRef _swig_go_0) {
   LLVMModuleProviderRef arg1 ;
   
   {
@@ -17801,7 +17471,7 @@ void _wrap_DisposeModuleProvider_llvm_5d1e3feecae2b244(LLVMModuleProviderRef _sw
 }
 
 
-bool _wrap_CreateMemoryBufferWithContentsOfFile_llvm_5d1e3feecae2b244(char *_swig_go_0, LLVMMemoryBufferRef *_swig_go_1, _gostring_* _swig_go_2) {
+bool _wrap_CreateMemoryBufferWithContentsOfFile_llvm_a0e88c3155de3083(char *_swig_go_0, LLVMMemoryBufferRef *_swig_go_1, _gostring_* _swig_go_2) {
   char *arg1 = (char *) 0 ;
   LLVMMemoryBufferRef *arg2 = (LLVMMemoryBufferRef *) 0 ;
   char **arg3 = (char **) 0 ;
@@ -17825,7 +17495,7 @@ bool _wrap_CreateMemoryBufferWithContentsOfFile_llvm_5d1e3feecae2b244(char *_swi
 }
 
 
-bool _wrap_CreateMemoryBufferWithSTDIN_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef *_swig_go_0, _gostring_* _swig_go_1) {
+bool _wrap_CreateMemoryBufferWithSTDIN_llvm_a0e88c3155de3083(LLVMMemoryBufferRef *_swig_go_0, _gostring_* _swig_go_1) {
   LLVMMemoryBufferRef *arg1 = (LLVMMemoryBufferRef *) 0 ;
   char **arg2 = (char **) 0 ;
   LLVMBool result;
@@ -17842,7 +17512,7 @@ bool _wrap_CreateMemoryBufferWithSTDIN_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef
 }
 
 
-LLVMMemoryBufferRef _wrap_CreateMemoryBufferWithMemoryRange_llvm_5d1e3feecae2b244(char *_swig_go_0, long long _swig_go_1, char *_swig_go_2, bool _swig_go_3) {
+LLVMMemoryBufferRef _wrap_CreateMemoryBufferWithMemoryRange_llvm_a0e88c3155de3083(char *_swig_go_0, long long _swig_go_1, char *_swig_go_2, bool _swig_go_3) {
   char *arg1 = (char *) 0 ;
   size_t arg2 ;
   char *arg3 = (char *) 0 ;
@@ -17875,7 +17545,7 @@ LLVMMemoryBufferRef _wrap_CreateMemoryBufferWithMemoryRange_llvm_5d1e3feecae2b24
 }
 
 
-LLVMMemoryBufferRef _wrap_CreateMemoryBufferWithMemoryRangeCopy_llvm_5d1e3feecae2b244(char *_swig_go_0, long long _swig_go_1, char *_swig_go_2) {
+LLVMMemoryBufferRef _wrap_CreateMemoryBufferWithMemoryRangeCopy_llvm_a0e88c3155de3083(char *_swig_go_0, long long _swig_go_1, char *_swig_go_2) {
   char *arg1 = (char *) 0 ;
   size_t arg2 ;
   char *arg3 = (char *) 0 ;
@@ -17904,7 +17574,7 @@ LLVMMemoryBufferRef _wrap_CreateMemoryBufferWithMemoryRangeCopy_llvm_5d1e3feecae
 }
 
 
-char *_wrap_GetBufferStart_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef _swig_go_0) {
+char *_wrap_GetBufferStart_llvm_a0e88c3155de3083(LLVMMemoryBufferRef _swig_go_0) {
   LLVMMemoryBufferRef arg1 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -17921,7 +17591,7 @@ char *_wrap_GetBufferStart_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef _swig_go_0)
 }
 
 
-long long _wrap_GetBufferSize_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef _swig_go_0) {
+long long _wrap_GetBufferSize_llvm_a0e88c3155de3083(LLVMMemoryBufferRef _swig_go_0) {
   LLVMMemoryBufferRef arg1 ;
   size_t result;
   long long _swig_go_result;
@@ -17936,7 +17606,7 @@ long long _wrap_GetBufferSize_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef _swig_go
 }
 
 
-void _wrap_DisposeMemoryBuffer_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef _swig_go_0) {
+void _wrap_DisposeMemoryBuffer_llvm_a0e88c3155de3083(LLVMMemoryBufferRef _swig_go_0) {
   LLVMMemoryBufferRef arg1 ;
   
   {
@@ -17948,7 +17618,7 @@ void _wrap_DisposeMemoryBuffer_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef _swig_g
 }
 
 
-LLVMPassRegistryRef _wrap_GetGlobalPassRegistry_llvm_5d1e3feecae2b244() {
+LLVMPassRegistryRef _wrap_GetGlobalPassRegistry_llvm_a0e88c3155de3083() {
   LLVMPassRegistryRef result;
   LLVMPassRegistryRef _swig_go_result;
   
@@ -17961,7 +17631,7 @@ LLVMPassRegistryRef _wrap_GetGlobalPassRegistry_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMPassManagerRef _wrap_CreatePassManager_llvm_5d1e3feecae2b244() {
+LLVMPassManagerRef _wrap_CreatePassManager_llvm_a0e88c3155de3083() {
   LLVMPassManagerRef result;
   LLVMPassManagerRef _swig_go_result;
   
@@ -17974,7 +17644,7 @@ LLVMPassManagerRef _wrap_CreatePassManager_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMPassManagerRef _wrap_CreateFunctionPassManagerForModule_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+LLVMPassManagerRef _wrap_CreateFunctionPassManagerForModule_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   LLVMPassManagerRef result;
   LLVMPassManagerRef _swig_go_result;
@@ -17991,7 +17661,7 @@ LLVMPassManagerRef _wrap_CreateFunctionPassManagerForModule_llvm_5d1e3feecae2b24
 }
 
 
-LLVMPassManagerRef _wrap_CreateFunctionPassManager_llvm_5d1e3feecae2b244(LLVMModuleProviderRef _swig_go_0) {
+LLVMPassManagerRef _wrap_CreateFunctionPassManager_llvm_a0e88c3155de3083(LLVMModuleProviderRef _swig_go_0) {
   LLVMModuleProviderRef arg1 ;
   LLVMPassManagerRef result;
   LLVMPassManagerRef _swig_go_result;
@@ -18008,7 +17678,7 @@ LLVMPassManagerRef _wrap_CreateFunctionPassManager_llvm_5d1e3feecae2b244(LLVMMod
 }
 
 
-bool _wrap_RunPassManager_llvm_5d1e3feecae2b244(LLVMPassManagerRef _swig_go_0, LLVMModuleRef _swig_go_1) {
+bool _wrap_RunPassManager_llvm_a0e88c3155de3083(LLVMPassManagerRef _swig_go_0, LLVMModuleRef _swig_go_1) {
   LLVMPassManagerRef arg1 ;
   LLVMModuleRef arg2 ;
   LLVMBool result;
@@ -18029,7 +17699,7 @@ bool _wrap_RunPassManager_llvm_5d1e3feecae2b244(LLVMPassManagerRef _swig_go_0, L
 }
 
 
-bool _wrap_InitializeFunctionPassManager_llvm_5d1e3feecae2b244(LLVMPassManagerRef _swig_go_0) {
+bool _wrap_InitializeFunctionPassManager_llvm_a0e88c3155de3083(LLVMPassManagerRef _swig_go_0) {
   LLVMPassManagerRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -18046,7 +17716,7 @@ bool _wrap_InitializeFunctionPassManager_llvm_5d1e3feecae2b244(LLVMPassManagerRe
 }
 
 
-bool _wrap_RunFunctionPassManager_llvm_5d1e3feecae2b244(LLVMPassManagerRef _swig_go_0, LLVMValueRef _swig_go_1) {
+bool _wrap_RunFunctionPassManager_llvm_a0e88c3155de3083(LLVMPassManagerRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMPassManagerRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMBool result;
@@ -18067,7 +17737,7 @@ bool _wrap_RunFunctionPassManager_llvm_5d1e3feecae2b244(LLVMPassManagerRef _swig
 }
 
 
-bool _wrap_FinalizeFunctionPassManager_llvm_5d1e3feecae2b244(LLVMPassManagerRef _swig_go_0) {
+bool _wrap_FinalizeFunctionPassManager_llvm_a0e88c3155de3083(LLVMPassManagerRef _swig_go_0) {
   LLVMPassManagerRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -18084,7 +17754,7 @@ bool _wrap_FinalizeFunctionPassManager_llvm_5d1e3feecae2b244(LLVMPassManagerRef 
 }
 
 
-void _wrap_DisposePassManager_llvm_5d1e3feecae2b244(LLVMPassManagerRef _swig_go_0) {
+void _wrap_DisposePassManager_llvm_a0e88c3155de3083(LLVMPassManagerRef _swig_go_0) {
   LLVMPassManagerRef arg1 ;
   
   {
@@ -18096,7 +17766,7 @@ void _wrap_DisposePassManager_llvm_5d1e3feecae2b244(LLVMPassManagerRef _swig_go_
 }
 
 
-bool _wrap_StartMultithreaded_llvm_5d1e3feecae2b244() {
+bool _wrap_StartMultithreaded_llvm_a0e88c3155de3083() {
   LLVMBool result;
   bool _swig_go_result;
   
@@ -18109,13 +17779,13 @@ bool _wrap_StartMultithreaded_llvm_5d1e3feecae2b244() {
 }
 
 
-void _wrap_StopMultithreaded_llvm_5d1e3feecae2b244() {
+void _wrap_StopMultithreaded_llvm_a0e88c3155de3083() {
   LLVMStopMultithreaded();
   
 }
 
 
-bool _wrap_IsMultithreaded_llvm_5d1e3feecae2b244() {
+bool _wrap_IsMultithreaded_llvm_a0e88c3155de3083() {
   LLVMBool result;
   bool _swig_go_result;
   
@@ -18128,7 +17798,7 @@ bool _wrap_IsMultithreaded_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagZero_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagZero_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18140,7 +17810,7 @@ intgo _wrap_DIFlagZero_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagPrivate_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagPrivate_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18152,7 +17822,7 @@ intgo _wrap_DIFlagPrivate_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagProtected_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagProtected_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18164,7 +17834,7 @@ intgo _wrap_DIFlagProtected_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagPublic_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagPublic_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18176,7 +17846,7 @@ intgo _wrap_DIFlagPublic_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagFwdDecl_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagFwdDecl_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18188,7 +17858,7 @@ intgo _wrap_DIFlagFwdDecl_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagAppleBlock_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagAppleBlock_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18200,7 +17870,7 @@ intgo _wrap_DIFlagAppleBlock_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagReservedBit4_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagReservedBit4_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18212,7 +17882,7 @@ intgo _wrap_DIFlagReservedBit4_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagVirtual_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagVirtual_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18224,7 +17894,7 @@ intgo _wrap_DIFlagVirtual_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagArtificial_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagArtificial_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18236,7 +17906,7 @@ intgo _wrap_DIFlagArtificial_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagExplicit_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagExplicit_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18248,7 +17918,7 @@ intgo _wrap_DIFlagExplicit_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagPrototyped_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagPrototyped_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18260,7 +17930,7 @@ intgo _wrap_DIFlagPrototyped_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagObjcClassComplete_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagObjcClassComplete_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18272,7 +17942,7 @@ intgo _wrap_DIFlagObjcClassComplete_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagObjectPointer_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagObjectPointer_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18284,7 +17954,7 @@ intgo _wrap_DIFlagObjectPointer_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagVector_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagVector_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18296,7 +17966,7 @@ intgo _wrap_DIFlagVector_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagStaticMember_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagStaticMember_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18308,7 +17978,7 @@ intgo _wrap_DIFlagStaticMember_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagLValueReference_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagLValueReference_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18320,7 +17990,7 @@ intgo _wrap_DIFlagLValueReference_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagRValueReference_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagRValueReference_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18332,7 +18002,7 @@ intgo _wrap_DIFlagRValueReference_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagReserved_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagReserved_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18344,7 +18014,7 @@ intgo _wrap_DIFlagReserved_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagSingleInheritance_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagSingleInheritance_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18356,7 +18026,7 @@ intgo _wrap_DIFlagSingleInheritance_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagMultipleInheritance_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagMultipleInheritance_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18368,7 +18038,7 @@ intgo _wrap_DIFlagMultipleInheritance_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagVirtualInheritance_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagVirtualInheritance_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18380,7 +18050,7 @@ intgo _wrap_DIFlagVirtualInheritance_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagIntroducedVirtual_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagIntroducedVirtual_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18392,7 +18062,7 @@ intgo _wrap_DIFlagIntroducedVirtual_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagBitField_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagBitField_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18404,7 +18074,7 @@ intgo _wrap_DIFlagBitField_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagNoReturn_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagNoReturn_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18416,7 +18086,7 @@ intgo _wrap_DIFlagNoReturn_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagTypePassByValue_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagTypePassByValue_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18428,7 +18098,7 @@ intgo _wrap_DIFlagTypePassByValue_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagTypePassByReference_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagTypePassByReference_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18440,7 +18110,7 @@ intgo _wrap_DIFlagTypePassByReference_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagEnumClass_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagEnumClass_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18452,7 +18122,7 @@ intgo _wrap_DIFlagEnumClass_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagFixedEnum_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagFixedEnum_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18464,7 +18134,7 @@ intgo _wrap_DIFlagFixedEnum_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagThunk_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagThunk_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18476,7 +18146,7 @@ intgo _wrap_DIFlagThunk_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagNonTrivial_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagNonTrivial_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18488,7 +18158,7 @@ intgo _wrap_DIFlagNonTrivial_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagBigEndian_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagBigEndian_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18500,7 +18170,7 @@ intgo _wrap_DIFlagBigEndian_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagLittleEndian_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagLittleEndian_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18512,7 +18182,7 @@ intgo _wrap_DIFlagLittleEndian_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagIndirectVirtualBase_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagIndirectVirtualBase_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18524,7 +18194,7 @@ intgo _wrap_DIFlagIndirectVirtualBase_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagAccessibility_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagAccessibility_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18536,7 +18206,7 @@ intgo _wrap_DIFlagAccessibility_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFlagPtrToMemberRep_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFlagPtrToMemberRep_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18548,7 +18218,7 @@ intgo _wrap_DIFlagPtrToMemberRep_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageC89_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageC89_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18560,7 +18230,7 @@ intgo _wrap_DWARFSourceLanguageC89_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageC_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageC_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18572,7 +18242,7 @@ intgo _wrap_DWARFSourceLanguageC_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageAda83_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageAda83_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18584,7 +18254,7 @@ intgo _wrap_DWARFSourceLanguageAda83_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageC_plus_plus_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageC_plus_plus_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18596,7 +18266,7 @@ intgo _wrap_DWARFSourceLanguageC_plus_plus_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageCobol74_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageCobol74_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18608,7 +18278,7 @@ intgo _wrap_DWARFSourceLanguageCobol74_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageCobol85_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageCobol85_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18620,7 +18290,7 @@ intgo _wrap_DWARFSourceLanguageCobol85_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageFortran77_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageFortran77_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18632,7 +18302,7 @@ intgo _wrap_DWARFSourceLanguageFortran77_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageFortran90_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageFortran90_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18644,7 +18314,7 @@ intgo _wrap_DWARFSourceLanguageFortran90_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguagePascal83_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguagePascal83_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18656,7 +18326,7 @@ intgo _wrap_DWARFSourceLanguagePascal83_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageModula2_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageModula2_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18668,7 +18338,7 @@ intgo _wrap_DWARFSourceLanguageModula2_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageJava_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageJava_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18680,7 +18350,7 @@ intgo _wrap_DWARFSourceLanguageJava_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageC99_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageC99_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18692,7 +18362,7 @@ intgo _wrap_DWARFSourceLanguageC99_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageAda95_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageAda95_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18704,7 +18374,7 @@ intgo _wrap_DWARFSourceLanguageAda95_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageFortran95_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageFortran95_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18716,7 +18386,7 @@ intgo _wrap_DWARFSourceLanguageFortran95_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguagePLI_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguagePLI_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18728,7 +18398,7 @@ intgo _wrap_DWARFSourceLanguagePLI_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageObjC_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageObjC_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18740,7 +18410,7 @@ intgo _wrap_DWARFSourceLanguageObjC_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageObjC_plus_plus_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageObjC_plus_plus_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18752,7 +18422,7 @@ intgo _wrap_DWARFSourceLanguageObjC_plus_plus_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageUPC_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageUPC_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18764,7 +18434,7 @@ intgo _wrap_DWARFSourceLanguageUPC_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageD_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageD_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18776,7 +18446,7 @@ intgo _wrap_DWARFSourceLanguageD_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguagePython_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguagePython_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18788,7 +18458,7 @@ intgo _wrap_DWARFSourceLanguagePython_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageOpenCL_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageOpenCL_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18800,7 +18470,7 @@ intgo _wrap_DWARFSourceLanguageOpenCL_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageGo_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageGo_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18812,7 +18482,7 @@ intgo _wrap_DWARFSourceLanguageGo_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageModula3_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageModula3_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18824,7 +18494,7 @@ intgo _wrap_DWARFSourceLanguageModula3_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageHaskell_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageHaskell_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18836,7 +18506,7 @@ intgo _wrap_DWARFSourceLanguageHaskell_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageC_plus_plus_03_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageC_plus_plus_03_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18848,7 +18518,7 @@ intgo _wrap_DWARFSourceLanguageC_plus_plus_03_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageC_plus_plus_11_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageC_plus_plus_11_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18860,7 +18530,7 @@ intgo _wrap_DWARFSourceLanguageC_plus_plus_11_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageOCaml_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageOCaml_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18872,7 +18542,7 @@ intgo _wrap_DWARFSourceLanguageOCaml_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageRust_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageRust_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18884,7 +18554,7 @@ intgo _wrap_DWARFSourceLanguageRust_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageC11_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageC11_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18896,7 +18566,7 @@ intgo _wrap_DWARFSourceLanguageC11_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageSwift_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageSwift_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18908,7 +18578,7 @@ intgo _wrap_DWARFSourceLanguageSwift_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageJulia_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageJulia_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18920,7 +18590,7 @@ intgo _wrap_DWARFSourceLanguageJulia_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageDylan_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageDylan_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18932,7 +18602,7 @@ intgo _wrap_DWARFSourceLanguageDylan_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageC_plus_plus_14_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageC_plus_plus_14_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18944,7 +18614,7 @@ intgo _wrap_DWARFSourceLanguageC_plus_plus_14_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageFortran03_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageFortran03_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18956,7 +18626,7 @@ intgo _wrap_DWARFSourceLanguageFortran03_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageFortran08_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageFortran08_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18968,7 +18638,7 @@ intgo _wrap_DWARFSourceLanguageFortran08_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageRenderScript_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageRenderScript_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18980,7 +18650,7 @@ intgo _wrap_DWARFSourceLanguageRenderScript_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageBLISS_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageBLISS_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -18992,7 +18662,7 @@ intgo _wrap_DWARFSourceLanguageBLISS_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageKotlin_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageKotlin_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19004,7 +18674,7 @@ intgo _wrap_DWARFSourceLanguageKotlin_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageZig_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageZig_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19016,7 +18686,7 @@ intgo _wrap_DWARFSourceLanguageZig_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageCrystal_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageCrystal_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19028,7 +18698,7 @@ intgo _wrap_DWARFSourceLanguageCrystal_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageC_plus_plus_17_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageC_plus_plus_17_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19040,7 +18710,7 @@ intgo _wrap_DWARFSourceLanguageC_plus_plus_17_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageC_plus_plus_20_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageC_plus_plus_20_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19052,7 +18722,7 @@ intgo _wrap_DWARFSourceLanguageC_plus_plus_20_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageC17_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageC17_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19064,7 +18734,7 @@ intgo _wrap_DWARFSourceLanguageC17_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageFortran18_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageFortran18_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19076,7 +18746,7 @@ intgo _wrap_DWARFSourceLanguageFortran18_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageAda2005_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageAda2005_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19088,7 +18758,7 @@ intgo _wrap_DWARFSourceLanguageAda2005_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageAda2012_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageAda2012_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19100,7 +18770,7 @@ intgo _wrap_DWARFSourceLanguageAda2012_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageMips_Assembler_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageMips_Assembler_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19112,7 +18782,7 @@ intgo _wrap_DWARFSourceLanguageMips_Assembler_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageGOOGLE_RenderScript_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageGOOGLE_RenderScript_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19124,7 +18794,7 @@ intgo _wrap_DWARFSourceLanguageGOOGLE_RenderScript_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFSourceLanguageBORLAND_Delphi_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFSourceLanguageBORLAND_Delphi_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19136,7 +18806,7 @@ intgo _wrap_DWARFSourceLanguageBORLAND_Delphi_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFEmissionNone_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFEmissionNone_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19148,7 +18818,7 @@ intgo _wrap_DWARFEmissionNone_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFEmissionFull_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFEmissionFull_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19160,7 +18830,7 @@ intgo _wrap_DWARFEmissionFull_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFEmissionLineTablesOnly_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFEmissionLineTablesOnly_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19172,7 +18842,7 @@ intgo _wrap_DWARFEmissionLineTablesOnly_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_MDStringMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_MDStringMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19184,7 +18854,7 @@ intgo _wrap_MDStringMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ConstantAsMetadataMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_ConstantAsMetadataMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19196,7 +18866,7 @@ intgo _wrap_ConstantAsMetadataMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_LocalAsMetadataMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_LocalAsMetadataMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19208,7 +18878,7 @@ intgo _wrap_LocalAsMetadataMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DistinctMDOperandPlaceholderMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DistinctMDOperandPlaceholderMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19220,7 +18890,7 @@ intgo _wrap_DistinctMDOperandPlaceholderMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_MDTupleMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_MDTupleMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19232,7 +18902,7 @@ intgo _wrap_MDTupleMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DILocationMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DILocationMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19244,7 +18914,7 @@ intgo _wrap_DILocationMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIExpressionMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIExpressionMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19256,7 +18926,7 @@ intgo _wrap_DIExpressionMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIGlobalVariableExpressionMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIGlobalVariableExpressionMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19268,7 +18938,7 @@ intgo _wrap_DIGlobalVariableExpressionMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_GenericDINodeMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_GenericDINodeMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19280,7 +18950,7 @@ intgo _wrap_GenericDINodeMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DISubrangeMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DISubrangeMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19292,7 +18962,7 @@ intgo _wrap_DISubrangeMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIEnumeratorMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIEnumeratorMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19304,7 +18974,7 @@ intgo _wrap_DIEnumeratorMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIBasicTypeMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIBasicTypeMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19316,7 +18986,7 @@ intgo _wrap_DIBasicTypeMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIDerivedTypeMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIDerivedTypeMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19328,7 +18998,7 @@ intgo _wrap_DIDerivedTypeMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DICompositeTypeMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DICompositeTypeMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19340,7 +19010,7 @@ intgo _wrap_DICompositeTypeMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DISubroutineTypeMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DISubroutineTypeMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19352,7 +19022,7 @@ intgo _wrap_DISubroutineTypeMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIFileMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIFileMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19364,7 +19034,7 @@ intgo _wrap_DIFileMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DICompileUnitMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DICompileUnitMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19376,7 +19046,7 @@ intgo _wrap_DICompileUnitMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DISubprogramMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DISubprogramMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19388,7 +19058,7 @@ intgo _wrap_DISubprogramMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DILexicalBlockMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DILexicalBlockMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19400,7 +19070,7 @@ intgo _wrap_DILexicalBlockMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DILexicalBlockFileMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DILexicalBlockFileMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19412,7 +19082,7 @@ intgo _wrap_DILexicalBlockFileMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DINamespaceMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DINamespaceMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19424,7 +19094,7 @@ intgo _wrap_DINamespaceMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIModuleMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIModuleMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19436,7 +19106,7 @@ intgo _wrap_DIModuleMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DITemplateTypeParameterMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DITemplateTypeParameterMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19448,7 +19118,7 @@ intgo _wrap_DITemplateTypeParameterMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DITemplateValueParameterMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DITemplateValueParameterMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19460,7 +19130,7 @@ intgo _wrap_DITemplateValueParameterMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIGlobalVariableMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIGlobalVariableMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19472,7 +19142,7 @@ intgo _wrap_DIGlobalVariableMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DILocalVariableMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DILocalVariableMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19484,7 +19154,7 @@ intgo _wrap_DILocalVariableMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DILabelMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DILabelMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19496,7 +19166,7 @@ intgo _wrap_DILabelMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIObjCPropertyMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIObjCPropertyMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19508,7 +19178,7 @@ intgo _wrap_DIObjCPropertyMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIImportedEntityMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIImportedEntityMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19520,7 +19190,7 @@ intgo _wrap_DIImportedEntityMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIMacroMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIMacroMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19532,7 +19202,7 @@ intgo _wrap_DIMacroMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIMacroFileMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIMacroFileMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19544,7 +19214,7 @@ intgo _wrap_DIMacroFileMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DICommonBlockMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DICommonBlockMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19556,7 +19226,7 @@ intgo _wrap_DICommonBlockMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIStringTypeMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIStringTypeMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19568,7 +19238,7 @@ intgo _wrap_DIStringTypeMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIGenericSubrangeMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIGenericSubrangeMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19580,7 +19250,7 @@ intgo _wrap_DIGenericSubrangeMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIArgListMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIArgListMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19592,7 +19262,7 @@ intgo _wrap_DIArgListMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DIAssignIDMetadataKind_llvm_5d1e3feecae2b244() {
+intgo _wrap_DIAssignIDMetadataKind_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19604,7 +19274,7 @@ intgo _wrap_DIAssignIDMetadataKind_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFMacinfoRecordTypeDefine_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFMacinfoRecordTypeDefine_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19616,7 +19286,7 @@ intgo _wrap_DWARFMacinfoRecordTypeDefine_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFMacinfoRecordTypeMacro_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFMacinfoRecordTypeMacro_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19628,7 +19298,7 @@ intgo _wrap_DWARFMacinfoRecordTypeMacro_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFMacinfoRecordTypeStartFile_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFMacinfoRecordTypeStartFile_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19640,7 +19310,7 @@ intgo _wrap_DWARFMacinfoRecordTypeStartFile_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFMacinfoRecordTypeEndFile_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFMacinfoRecordTypeEndFile_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19652,7 +19322,7 @@ intgo _wrap_DWARFMacinfoRecordTypeEndFile_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DWARFMacinfoRecordTypeVendorExt_llvm_5d1e3feecae2b244() {
+intgo _wrap_DWARFMacinfoRecordTypeVendorExt_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -19664,7 +19334,7 @@ intgo _wrap_DWARFMacinfoRecordTypeVendorExt_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_DebugMetadataVersion_llvm_5d1e3feecae2b244() {
+intgo _wrap_DebugMetadataVersion_llvm_a0e88c3155de3083() {
   unsigned int result;
   intgo _swig_go_result;
   
@@ -19675,7 +19345,7 @@ intgo _wrap_DebugMetadataVersion_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_GetModuleDebugMetadataVersion_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+intgo _wrap_GetModuleDebugMetadataVersion_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -19690,7 +19360,7 @@ intgo _wrap_GetModuleDebugMetadataVersion_llvm_5d1e3feecae2b244(LLVMModuleRef _s
 }
 
 
-bool _wrap_StripModuleDebugInfo_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+bool _wrap_StripModuleDebugInfo_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -19707,7 +19377,7 @@ bool _wrap_StripModuleDebugInfo_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) 
 }
 
 
-LLVMDIBuilderRef _wrap_CreateDIBuilderDisallowUnresolved_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+LLVMDIBuilderRef _wrap_CreateDIBuilderDisallowUnresolved_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   LLVMDIBuilderRef result;
   LLVMDIBuilderRef _swig_go_result;
@@ -19724,7 +19394,7 @@ LLVMDIBuilderRef _wrap_CreateDIBuilderDisallowUnresolved_llvm_5d1e3feecae2b244(L
 }
 
 
-LLVMDIBuilderRef _wrap_CreateDIBuilder_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+LLVMDIBuilderRef _wrap_CreateDIBuilder_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   LLVMDIBuilderRef result;
   LLVMDIBuilderRef _swig_go_result;
@@ -19741,7 +19411,7 @@ LLVMDIBuilderRef _wrap_CreateDIBuilder_llvm_5d1e3feecae2b244(LLVMModuleRef _swig
 }
 
 
-void _wrap_DisposeDIBuilder_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0) {
+void _wrap_DisposeDIBuilder_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0) {
   LLVMDIBuilderRef arg1 ;
   
   {
@@ -19753,7 +19423,7 @@ void _wrap_DisposeDIBuilder_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0) {
 }
 
 
-void _wrap_DIBuilderFinalize_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0) {
+void _wrap_DIBuilderFinalize_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0) {
   LLVMDIBuilderRef arg1 ;
   
   {
@@ -19765,7 +19435,7 @@ void _wrap_DIBuilderFinalize_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0) 
 }
 
 
-void _wrap_DIBuilderFinalizeSubprogram_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1) {
+void _wrap_DIBuilderFinalizeSubprogram_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   
@@ -19781,7 +19451,7 @@ void _wrap_DIBuilderFinalizeSubprogram_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _s
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateCompileUnit_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, intgo _swig_go_1, LLVMMetadataRef _swig_go_2, char *_swig_go_3, long long _swig_go_4, bool _swig_go_5, char *_swig_go_6, long long _swig_go_7, intgo _swig_go_8, char *_swig_go_9, long long _swig_go_10, intgo _swig_go_11, intgo _swig_go_12, bool _swig_go_13, bool _swig_go_14, char *_swig_go_15, long long _swig_go_16, char *_swig_go_17, long long _swig_go_18) {
+LLVMMetadataRef _wrap_DIBuilderCreateCompileUnit_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, intgo _swig_go_1, LLVMMetadataRef _swig_go_2, char *_swig_go_3, long long _swig_go_4, bool _swig_go_5, char *_swig_go_6, long long _swig_go_7, intgo _swig_go_8, char *_swig_go_9, long long _swig_go_10, intgo _swig_go_11, intgo _swig_go_12, bool _swig_go_13, bool _swig_go_14, char *_swig_go_15, long long _swig_go_16, char *_swig_go_17, long long _swig_go_18) {
   LLVMDIBuilderRef arg1 ;
   LLVMDWARFSourceLanguage arg2 ;
   LLVMMetadataRef arg3 ;
@@ -19867,7 +19537,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateCompileUnit_llvm_5d1e3feecae2b244(LLVMDIBui
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateFile_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, char *_swig_go_1, char *_swig_go_2) {
+LLVMMetadataRef _wrap_DIBuilderCreateFile_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, char *_swig_go_1, char *_swig_go_2) {
   LLVMDIBuilderRef arg1 ;
   char *arg2 = (char *) 0 ;
   size_t arg3 ;
@@ -19902,7 +19572,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateFile_llvm_5d1e3feecae2b244(LLVMDIBuilderRef
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateModule_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, char *_swig_go_3, long long _swig_go_4, char *_swig_go_5, long long _swig_go_6, char *_swig_go_7, long long _swig_go_8) {
+LLVMMetadataRef _wrap_DIBuilderCreateModule_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, char *_swig_go_3, long long _swig_go_4, char *_swig_go_5, long long _swig_go_6, char *_swig_go_7, long long _swig_go_8) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -19959,7 +19629,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateModule_llvm_5d1e3feecae2b244(LLVMDIBuilderR
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateNameSpace_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, bool _swig_go_3) {
+LLVMMetadataRef _wrap_DIBuilderCreateNameSpace_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, bool _swig_go_3) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -19993,7 +19663,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateNameSpace_llvm_5d1e3feecae2b244(LLVMDIBuild
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateFunction_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, char *_swig_go_3, LLVMMetadataRef _swig_go_4, intgo _swig_go_5, LLVMMetadataRef _swig_go_6, bool _swig_go_7, bool _swig_go_8, intgo _swig_go_9, intgo _swig_go_10, bool _swig_go_11) {
+LLVMMetadataRef _wrap_DIBuilderCreateFunction_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, char *_swig_go_3, LLVMMetadataRef _swig_go_4, intgo _swig_go_5, LLVMMetadataRef _swig_go_6, bool _swig_go_7, bool _swig_go_8, intgo _swig_go_9, intgo _swig_go_10, bool _swig_go_11) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -20058,7 +19728,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateFunction_llvm_5d1e3feecae2b244(LLVMDIBuilde
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateLexicalBlock_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, LLVMMetadataRef _swig_go_2, intgo _swig_go_3, intgo _swig_go_4) {
+LLVMMetadataRef _wrap_DIBuilderCreateLexicalBlock_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, LLVMMetadataRef _swig_go_2, intgo _swig_go_3, intgo _swig_go_4) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   LLVMMetadataRef arg3 ;
@@ -20087,7 +19757,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateLexicalBlock_llvm_5d1e3feecae2b244(LLVMDIBu
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateLexicalBlockFile_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, LLVMMetadataRef _swig_go_2, intgo _swig_go_3) {
+LLVMMetadataRef _wrap_DIBuilderCreateLexicalBlockFile_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, LLVMMetadataRef _swig_go_2, intgo _swig_go_3) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   LLVMMetadataRef arg3 ;
@@ -20114,7 +19784,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateLexicalBlockFile_llvm_5d1e3feecae2b244(LLVM
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateImportedModuleFromNamespace_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, LLVMMetadataRef _swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4) {
+LLVMMetadataRef _wrap_DIBuilderCreateImportedModuleFromNamespace_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, LLVMMetadataRef _swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   LLVMMetadataRef arg3 ;
@@ -20145,7 +19815,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateImportedModuleFromNamespace_llvm_5d1e3feeca
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateImportedModuleFromAlias_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, LLVMMetadataRef _swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, LLVMMetadataRef *_swig_go_5) {
+LLVMMetadataRef _wrap_DIBuilderCreateImportedModuleFromAlias_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, LLVMMetadataRef _swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, LLVMMetadataRef *_swig_go_5) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   LLVMMetadataRef arg3 ;
@@ -20188,7 +19858,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateImportedModuleFromAlias_llvm_5d1e3feecae2b2
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateImportedModuleFromModule_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, LLVMMetadataRef _swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, LLVMMetadataRef *_swig_go_5) {
+LLVMMetadataRef _wrap_DIBuilderCreateImportedModuleFromModule_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, LLVMMetadataRef _swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, LLVMMetadataRef *_swig_go_5) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   LLVMMetadataRef arg3 ;
@@ -20231,7 +19901,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateImportedModuleFromModule_llvm_5d1e3feecae2b
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateImportedDeclaration_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, LLVMMetadataRef _swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, char *_swig_go_5, LLVMMetadataRef *_swig_go_6) {
+LLVMMetadataRef _wrap_DIBuilderCreateImportedDeclaration_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, LLVMMetadataRef _swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, char *_swig_go_5, LLVMMetadataRef *_swig_go_6) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   LLVMMetadataRef arg3 ;
@@ -20283,7 +19953,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateImportedDeclaration_llvm_5d1e3feecae2b244(L
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateDebugLocation_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, intgo _swig_go_1, intgo _swig_go_2, LLVMMetadataRef _swig_go_3, LLVMMetadataRef _swig_go_4) {
+LLVMMetadataRef _wrap_DIBuilderCreateDebugLocation_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, intgo _swig_go_1, intgo _swig_go_2, LLVMMetadataRef _swig_go_3, LLVMMetadataRef _swig_go_4) {
   LLVMContextRef arg1 ;
   unsigned int arg2 ;
   unsigned int arg3 ;
@@ -20312,7 +19982,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateDebugLocation_llvm_5d1e3feecae2b244(LLVMCon
 }
 
 
-intgo _wrap_DILocationGetLine_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
+intgo _wrap_DILocationGetLine_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0) {
   LLVMMetadataRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -20327,7 +19997,7 @@ intgo _wrap_DILocationGetLine_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) 
 }
 
 
-intgo _wrap_DILocationGetColumn_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
+intgo _wrap_DILocationGetColumn_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0) {
   LLVMMetadataRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -20342,7 +20012,7 @@ intgo _wrap_DILocationGetColumn_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0
 }
 
 
-LLVMMetadataRef _wrap_DILocationGetScope_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
+LLVMMetadataRef _wrap_DILocationGetScope_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0) {
   LLVMMetadataRef arg1 ;
   LLVMMetadataRef result;
   LLVMMetadataRef _swig_go_result;
@@ -20359,7 +20029,7 @@ LLVMMetadataRef _wrap_DILocationGetScope_llvm_5d1e3feecae2b244(LLVMMetadataRef _
 }
 
 
-LLVMMetadataRef _wrap_DILocationGetInlinedAt_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
+LLVMMetadataRef _wrap_DILocationGetInlinedAt_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0) {
   LLVMMetadataRef arg1 ;
   LLVMMetadataRef result;
   LLVMMetadataRef _swig_go_result;
@@ -20376,7 +20046,7 @@ LLVMMetadataRef _wrap_DILocationGetInlinedAt_llvm_5d1e3feecae2b244(LLVMMetadataR
 }
 
 
-LLVMMetadataRef _wrap_DIScopeGetFile_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
+LLVMMetadataRef _wrap_DIScopeGetFile_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0) {
   LLVMMetadataRef arg1 ;
   LLVMMetadataRef result;
   LLVMMetadataRef _swig_go_result;
@@ -20393,7 +20063,7 @@ LLVMMetadataRef _wrap_DIScopeGetFile_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig
 }
 
 
-char *_wrap_DIFileGetDirectory_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0, intgo *_swig_go_1) {
+char *_wrap_DIFileGetDirectory_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0, intgo *_swig_go_1) {
   LLVMMetadataRef arg1 ;
   unsigned int *arg2 = (unsigned int *) 0 ;
   char *result = 0 ;
@@ -20412,7 +20082,7 @@ char *_wrap_DIFileGetDirectory_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0,
 }
 
 
-char *_wrap_DIFileGetFilename_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0, intgo *_swig_go_1) {
+char *_wrap_DIFileGetFilename_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0, intgo *_swig_go_1) {
   LLVMMetadataRef arg1 ;
   unsigned int *arg2 = (unsigned int *) 0 ;
   char *result = 0 ;
@@ -20431,7 +20101,7 @@ char *_wrap_DIFileGetFilename_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0, 
 }
 
 
-char *_wrap_DIFileGetSource_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0, intgo *_swig_go_1) {
+char *_wrap_DIFileGetSource_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0, intgo *_swig_go_1) {
   LLVMMetadataRef arg1 ;
   unsigned int *arg2 = (unsigned int *) 0 ;
   char *result = 0 ;
@@ -20450,7 +20120,7 @@ char *_wrap_DIFileGetSource_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0, in
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderGetOrCreateTypeArray_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef *_swig_go_1, long long _swig_go_2) {
+LLVMMetadataRef _wrap_DIBuilderGetOrCreateTypeArray_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef *_swig_go_1, long long _swig_go_2) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef *arg2 = (LLVMMetadataRef *) 0 ;
   size_t arg3 ;
@@ -20471,7 +20141,7 @@ LLVMMetadataRef _wrap_DIBuilderGetOrCreateTypeArray_llvm_5d1e3feecae2b244(LLVMDI
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateSubroutineType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, LLVMMetadataRef *_swig_go_2, intgo _swig_go_3) {
+LLVMMetadataRef _wrap_DIBuilderCreateSubroutineType_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, LLVMMetadataRef *_swig_go_2, intgo _swig_go_3) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   LLVMMetadataRef *arg3 = (LLVMMetadataRef *) 0 ;
@@ -20506,7 +20176,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateSubroutineType_llvm_5d1e3feecae2b244(LLVMDI
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateMacro_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, intgo _swig_go_2, intgo _swig_go_3, char *_swig_go_4, char *_swig_go_5, long long _swig_go_6) {
+LLVMMetadataRef _wrap_DIBuilderCreateMacro_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, intgo _swig_go_2, intgo _swig_go_3, char *_swig_go_4, char *_swig_go_5, long long _swig_go_6) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   unsigned int arg3 ;
@@ -20549,7 +20219,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateMacro_llvm_5d1e3feecae2b244(LLVMDIBuilderRe
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateTempMacroFile_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, intgo _swig_go_2, LLVMMetadataRef _swig_go_3) {
+LLVMMetadataRef _wrap_DIBuilderCreateTempMacroFile_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, intgo _swig_go_2, LLVMMetadataRef _swig_go_3) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   unsigned int arg3 ;
@@ -20576,7 +20246,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateTempMacroFile_llvm_5d1e3feecae2b244(LLVMDIB
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateEnumerator_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, char *_swig_go_1, long long _swig_go_2, bool _swig_go_3) {
+LLVMMetadataRef _wrap_DIBuilderCreateEnumerator_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, char *_swig_go_1, long long _swig_go_2, bool _swig_go_3) {
   LLVMDIBuilderRef arg1 ;
   char *arg2 = (char *) 0 ;
   size_t arg3 ;
@@ -20608,7 +20278,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateEnumerator_llvm_5d1e3feecae2b244(LLVMDIBuil
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateEnumerationType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, long long _swig_go_5, intgo _swig_go_6, LLVMMetadataRef *_swig_go_7, LLVMMetadataRef _swig_go_8) {
+LLVMMetadataRef _wrap_DIBuilderCreateEnumerationType_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, long long _swig_go_5, intgo _swig_go_6, LLVMMetadataRef *_swig_go_7, LLVMMetadataRef _swig_go_8) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -20664,7 +20334,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateEnumerationType_llvm_5d1e3feecae2b244(LLVMD
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateUnionType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, long long _swig_go_5, intgo _swig_go_6, intgo _swig_go_7, LLVMMetadataRef *_swig_go_8, intgo _swig_go_9, char *_swig_go_10) {
+LLVMMetadataRef _wrap_DIBuilderCreateUnionType_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, long long _swig_go_5, intgo _swig_go_6, intgo _swig_go_7, LLVMMetadataRef *_swig_go_8, intgo _swig_go_9, char *_swig_go_10) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -20729,7 +20399,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateUnionType_llvm_5d1e3feecae2b244(LLVMDIBuild
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateArrayType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, long long _swig_go_1, intgo _swig_go_2, LLVMMetadataRef _swig_go_3, LLVMMetadataRef *_swig_go_4) {
+LLVMMetadataRef _wrap_DIBuilderCreateArrayType_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, long long _swig_go_1, intgo _swig_go_2, LLVMMetadataRef _swig_go_3, LLVMMetadataRef *_swig_go_4) {
   LLVMDIBuilderRef arg1 ;
   uint64_t arg2 ;
   uint32_t arg3 ;
@@ -20766,7 +20436,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateArrayType_llvm_5d1e3feecae2b244(LLVMDIBuild
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateVectorType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, long long _swig_go_1, intgo _swig_go_2, LLVMMetadataRef _swig_go_3, LLVMMetadataRef *_swig_go_4) {
+LLVMMetadataRef _wrap_DIBuilderCreateVectorType_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, long long _swig_go_1, intgo _swig_go_2, LLVMMetadataRef _swig_go_3, LLVMMetadataRef *_swig_go_4) {
   LLVMDIBuilderRef arg1 ;
   uint64_t arg2 ;
   uint32_t arg3 ;
@@ -20803,7 +20473,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateVectorType_llvm_5d1e3feecae2b244(LLVMDIBuil
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateUnspecifiedType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, char *_swig_go_1) {
+LLVMMetadataRef _wrap_DIBuilderCreateUnspecifiedType_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, char *_swig_go_1) {
   LLVMDIBuilderRef arg1 ;
   char *arg2 = (char *) 0 ;
   size_t arg3 ;
@@ -20829,7 +20499,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateUnspecifiedType_llvm_5d1e3feecae2b244(LLVMD
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateBasicType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, char *_swig_go_1, long long _swig_go_2, intgo _swig_go_3, intgo _swig_go_4) {
+LLVMMetadataRef _wrap_DIBuilderCreateBasicType_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, char *_swig_go_1, long long _swig_go_2, intgo _swig_go_3, intgo _swig_go_4) {
   LLVMDIBuilderRef arg1 ;
   char *arg2 = (char *) 0 ;
   size_t arg3 ;
@@ -20861,7 +20531,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateBasicType_llvm_5d1e3feecae2b244(LLVMDIBuild
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreatePointerType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, long long _swig_go_2, intgo _swig_go_3, intgo _swig_go_4, char *_swig_go_5) {
+LLVMMetadataRef _wrap_DIBuilderCreatePointerType_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, long long _swig_go_2, intgo _swig_go_3, intgo _swig_go_4, char *_swig_go_5) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   uint64_t arg3 ;
@@ -20897,7 +20567,7 @@ LLVMMetadataRef _wrap_DIBuilderCreatePointerType_llvm_5d1e3feecae2b244(LLVMDIBui
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateStructType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, long long _swig_go_5, intgo _swig_go_6, intgo _swig_go_7, LLVMMetadataRef _swig_go_8, LLVMMetadataRef *_swig_go_9, intgo _swig_go_10, LLVMMetadataRef _swig_go_11, char *_swig_go_12) {
+LLVMMetadataRef _wrap_DIBuilderCreateStructType_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, long long _swig_go_5, intgo _swig_go_6, intgo _swig_go_7, LLVMMetadataRef _swig_go_8, LLVMMetadataRef *_swig_go_9, intgo _swig_go_10, LLVMMetadataRef _swig_go_11, char *_swig_go_12) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -20970,7 +20640,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateStructType_llvm_5d1e3feecae2b244(LLVMDIBuil
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateMemberType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, long long _swig_go_5, intgo _swig_go_6, long long _swig_go_7, intgo _swig_go_8, LLVMMetadataRef _swig_go_9) {
+LLVMMetadataRef _wrap_DIBuilderCreateMemberType_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, long long _swig_go_5, intgo _swig_go_6, long long _swig_go_7, intgo _swig_go_8, LLVMMetadataRef _swig_go_9) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -21018,7 +20688,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateMemberType_llvm_5d1e3feecae2b244(LLVMDIBuil
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateStaticMemberType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, LLVMMetadataRef _swig_go_5, intgo _swig_go_6, LLVMValueRef _swig_go_7, intgo _swig_go_8) {
+LLVMMetadataRef _wrap_DIBuilderCreateStaticMemberType_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, LLVMMetadataRef _swig_go_5, intgo _swig_go_6, LLVMValueRef _swig_go_7, intgo _swig_go_8) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -21066,7 +20736,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateStaticMemberType_llvm_5d1e3feecae2b244(LLVM
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateMemberPointerType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, LLVMMetadataRef _swig_go_2, long long _swig_go_3, intgo _swig_go_4, intgo _swig_go_5) {
+LLVMMetadataRef _wrap_DIBuilderCreateMemberPointerType_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, LLVMMetadataRef _swig_go_2, long long _swig_go_3, intgo _swig_go_4, intgo _swig_go_5) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   LLVMMetadataRef arg3 ;
@@ -21097,7 +20767,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateMemberPointerType_llvm_5d1e3feecae2b244(LLV
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateObjCIVar_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, char *_swig_go_1, LLVMMetadataRef _swig_go_2, intgo _swig_go_3, long long _swig_go_4, intgo _swig_go_5, long long _swig_go_6, intgo _swig_go_7, LLVMMetadataRef _swig_go_8, LLVMMetadataRef _swig_go_9) {
+LLVMMetadataRef _wrap_DIBuilderCreateObjCIVar_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, char *_swig_go_1, LLVMMetadataRef _swig_go_2, intgo _swig_go_3, long long _swig_go_4, intgo _swig_go_5, long long _swig_go_6, intgo _swig_go_7, LLVMMetadataRef _swig_go_8, LLVMMetadataRef _swig_go_9) {
   LLVMDIBuilderRef arg1 ;
   char *arg2 = (char *) 0 ;
   size_t arg3 ;
@@ -21145,7 +20815,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateObjCIVar_llvm_5d1e3feecae2b244(LLVMDIBuilde
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateObjCProperty_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, char *_swig_go_1, LLVMMetadataRef _swig_go_2, intgo _swig_go_3, char *_swig_go_4, long long _swig_go_5, char *_swig_go_6, long long _swig_go_7, intgo _swig_go_8, LLVMMetadataRef _swig_go_9) {
+LLVMMetadataRef _wrap_DIBuilderCreateObjCProperty_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, char *_swig_go_1, LLVMMetadataRef _swig_go_2, intgo _swig_go_3, char *_swig_go_4, long long _swig_go_5, char *_swig_go_6, long long _swig_go_7, intgo _swig_go_8, LLVMMetadataRef _swig_go_9) {
   LLVMDIBuilderRef arg1 ;
   char *arg2 = (char *) 0 ;
   size_t arg3 ;
@@ -21201,7 +20871,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateObjCProperty_llvm_5d1e3feecae2b244(LLVMDIBu
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateObjectPointerType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1) {
+LLVMMetadataRef _wrap_DIBuilderCreateObjectPointerType_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   LLVMMetadataRef result;
@@ -21222,7 +20892,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateObjectPointerType_llvm_5d1e3feecae2b244(LLV
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateQualifiedType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, intgo _swig_go_1, LLVMMetadataRef _swig_go_2) {
+LLVMMetadataRef _wrap_DIBuilderCreateQualifiedType_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, intgo _swig_go_1, LLVMMetadataRef _swig_go_2) {
   LLVMDIBuilderRef arg1 ;
   unsigned int arg2 ;
   LLVMMetadataRef arg3 ;
@@ -21245,7 +20915,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateQualifiedType_llvm_5d1e3feecae2b244(LLVMDIB
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateReferenceType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, intgo _swig_go_1, LLVMMetadataRef _swig_go_2) {
+LLVMMetadataRef _wrap_DIBuilderCreateReferenceType_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, intgo _swig_go_1, LLVMMetadataRef _swig_go_2) {
   LLVMDIBuilderRef arg1 ;
   unsigned int arg2 ;
   LLVMMetadataRef arg3 ;
@@ -21268,7 +20938,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateReferenceType_llvm_5d1e3feecae2b244(LLVMDIB
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateNullPtrType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0) {
+LLVMMetadataRef _wrap_DIBuilderCreateNullPtrType_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef result;
   LLVMMetadataRef _swig_go_result;
@@ -21285,7 +20955,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateNullPtrType_llvm_5d1e3feecae2b244(LLVMDIBui
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateTypedef_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, LLVMMetadataRef _swig_go_5, intgo _swig_go_6) {
+LLVMMetadataRef _wrap_DIBuilderCreateTypedef_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, LLVMMetadataRef _swig_go_5, intgo _swig_go_6) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -21327,7 +20997,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateTypedef_llvm_5d1e3feecae2b244(LLVMDIBuilder
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateInheritance_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, LLVMMetadataRef _swig_go_2, long long _swig_go_3, intgo _swig_go_4, intgo _swig_go_5) {
+LLVMMetadataRef _wrap_DIBuilderCreateInheritance_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, LLVMMetadataRef _swig_go_2, long long _swig_go_3, intgo _swig_go_4, intgo _swig_go_5) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   LLVMMetadataRef arg3 ;
@@ -21358,7 +21028,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateInheritance_llvm_5d1e3feecae2b244(LLVMDIBui
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateForwardDecl_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, intgo _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, LLVMMetadataRef _swig_go_4, intgo _swig_go_5, intgo _swig_go_6, long long _swig_go_7, intgo _swig_go_8, char *_swig_go_9, long long _swig_go_10) {
+LLVMMetadataRef _wrap_DIBuilderCreateForwardDecl_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, intgo _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, LLVMMetadataRef _swig_go_4, intgo _swig_go_5, intgo _swig_go_6, long long _swig_go_7, intgo _swig_go_8, char *_swig_go_9, long long _swig_go_10) {
   LLVMDIBuilderRef arg1 ;
   unsigned int arg2 ;
   char *arg3 = (char *) 0 ;
@@ -21411,7 +21081,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateForwardDecl_llvm_5d1e3feecae2b244(LLVMDIBui
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateReplaceableCompositeType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, intgo _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, LLVMMetadataRef _swig_go_4, intgo _swig_go_5, intgo _swig_go_6, long long _swig_go_7, intgo _swig_go_8, intgo _swig_go_9, char *_swig_go_10, long long _swig_go_11) {
+LLVMMetadataRef _wrap_DIBuilderCreateReplaceableCompositeType_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, intgo _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, LLVMMetadataRef _swig_go_4, intgo _swig_go_5, intgo _swig_go_6, long long _swig_go_7, intgo _swig_go_8, intgo _swig_go_9, char *_swig_go_10, long long _swig_go_11) {
   LLVMDIBuilderRef arg1 ;
   unsigned int arg2 ;
   char *arg3 = (char *) 0 ;
@@ -21466,7 +21136,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateReplaceableCompositeType_llvm_5d1e3feecae2b
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateBitFieldMemberType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, long long _swig_go_5, long long _swig_go_6, long long _swig_go_7, intgo _swig_go_8, LLVMMetadataRef _swig_go_9) {
+LLVMMetadataRef _wrap_DIBuilderCreateBitFieldMemberType_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, long long _swig_go_5, long long _swig_go_6, long long _swig_go_7, intgo _swig_go_8, LLVMMetadataRef _swig_go_9) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -21514,7 +21184,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateBitFieldMemberType_llvm_5d1e3feecae2b244(LL
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateClassType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, long long _swig_go_5, intgo _swig_go_6, long long _swig_go_7, intgo _swig_go_8, LLVMMetadataRef _swig_go_9, LLVMMetadataRef *_swig_go_10, LLVMMetadataRef _swig_go_11, LLVMMetadataRef _swig_go_12, char *_swig_go_13, long long _swig_go_14) {
+LLVMMetadataRef _wrap_DIBuilderCreateClassType_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, long long _swig_go_5, intgo _swig_go_6, long long _swig_go_7, intgo _swig_go_8, LLVMMetadataRef _swig_go_9, LLVMMetadataRef *_swig_go_10, LLVMMetadataRef _swig_go_11, LLVMMetadataRef _swig_go_12, char *_swig_go_13, long long _swig_go_14) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -21591,7 +21261,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateClassType_llvm_5d1e3feecae2b244(LLVMDIBuild
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateArtificialType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1) {
+LLVMMetadataRef _wrap_DIBuilderCreateArtificialType_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   LLVMMetadataRef result;
@@ -21612,7 +21282,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateArtificialType_llvm_5d1e3feecae2b244(LLVMDI
 }
 
 
-char *_wrap_DITypeGetName_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0, long long *_swig_go_1) {
+char *_wrap_DITypeGetName_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0, long long *_swig_go_1) {
   LLVMMetadataRef arg1 ;
   size_t *arg2 = (size_t *) 0 ;
   char *result = 0 ;
@@ -21631,7 +21301,7 @@ char *_wrap_DITypeGetName_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0, long
 }
 
 
-long long _wrap_DITypeGetSizeInBits_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
+long long _wrap_DITypeGetSizeInBits_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0) {
   LLVMMetadataRef arg1 ;
   uint64_t result;
   long long _swig_go_result;
@@ -21646,7 +21316,7 @@ long long _wrap_DITypeGetSizeInBits_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_
 }
 
 
-long long _wrap_DITypeGetOffsetInBits_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
+long long _wrap_DITypeGetOffsetInBits_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0) {
   LLVMMetadataRef arg1 ;
   uint64_t result;
   long long _swig_go_result;
@@ -21661,7 +21331,7 @@ long long _wrap_DITypeGetOffsetInBits_llvm_5d1e3feecae2b244(LLVMMetadataRef _swi
 }
 
 
-intgo _wrap_DITypeGetAlignInBits_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
+intgo _wrap_DITypeGetAlignInBits_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0) {
   LLVMMetadataRef arg1 ;
   uint32_t result;
   intgo _swig_go_result;
@@ -21676,7 +21346,7 @@ intgo _wrap_DITypeGetAlignInBits_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_
 }
 
 
-intgo _wrap_DITypeGetLine_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
+intgo _wrap_DITypeGetLine_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0) {
   LLVMMetadataRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -21691,7 +21361,7 @@ intgo _wrap_DITypeGetLine_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
 }
 
 
-intgo _wrap_DITypeGetFlags_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
+intgo _wrap_DITypeGetFlags_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0) {
   LLVMMetadataRef arg1 ;
   LLVMDIFlags result;
   intgo _swig_go_result;
@@ -21706,7 +21376,7 @@ intgo _wrap_DITypeGetFlags_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderGetOrCreateSubrange_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, long long _swig_go_1, long long _swig_go_2) {
+LLVMMetadataRef _wrap_DIBuilderGetOrCreateSubrange_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, long long _swig_go_1, long long _swig_go_2) {
   LLVMDIBuilderRef arg1 ;
   int64_t arg2 ;
   int64_t arg3 ;
@@ -21727,7 +21397,7 @@ LLVMMetadataRef _wrap_DIBuilderGetOrCreateSubrange_llvm_5d1e3feecae2b244(LLVMDIB
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderGetOrCreateArray_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef *_swig_go_1, long long _swig_go_2) {
+LLVMMetadataRef _wrap_DIBuilderGetOrCreateArray_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef *_swig_go_1, long long _swig_go_2) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef *arg2 = (LLVMMetadataRef *) 0 ;
   size_t arg3 ;
@@ -21748,7 +21418,7 @@ LLVMMetadataRef _wrap_DIBuilderGetOrCreateArray_llvm_5d1e3feecae2b244(LLVMDIBuil
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateExpression_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, _goslice_ _swig_go_1) {
+LLVMMetadataRef _wrap_DIBuilderCreateExpression_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, _goslice_ _swig_go_1) {
   LLVMDIBuilderRef arg1 ;
   uint64_t *arg2 = (uint64_t *) 0 ;
   size_t arg3 ;
@@ -21770,7 +21440,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateExpression_llvm_5d1e3feecae2b244(LLVMDIBuil
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateConstantValueExpression_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, long long _swig_go_1) {
+LLVMMetadataRef _wrap_DIBuilderCreateConstantValueExpression_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, long long _swig_go_1) {
   LLVMDIBuilderRef arg1 ;
   uint64_t arg2 ;
   LLVMMetadataRef result;
@@ -21789,7 +21459,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateConstantValueExpression_llvm_5d1e3feecae2b2
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateGlobalVariableExpression_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, char *_swig_go_3, long long _swig_go_4, LLVMMetadataRef _swig_go_5, intgo _swig_go_6, LLVMMetadataRef _swig_go_7, bool _swig_go_8, LLVMMetadataRef _swig_go_9, LLVMMetadataRef _swig_go_10, intgo _swig_go_11) {
+LLVMMetadataRef _wrap_DIBuilderCreateGlobalVariableExpression_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, char *_swig_go_3, long long _swig_go_4, LLVMMetadataRef _swig_go_5, intgo _swig_go_6, LLVMMetadataRef _swig_go_7, bool _swig_go_8, LLVMMetadataRef _swig_go_9, LLVMMetadataRef _swig_go_10, intgo _swig_go_11) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -21852,7 +21522,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateGlobalVariableExpression_llvm_5d1e3feecae2b
 }
 
 
-short _wrap_GetDINodeTag_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
+short _wrap_GetDINodeTag_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0) {
   LLVMMetadataRef arg1 ;
   uint16_t result;
   short _swig_go_result;
@@ -21867,7 +21537,7 @@ short _wrap_GetDINodeTag_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
 }
 
 
-LLVMMetadataRef _wrap_DIGlobalVariableExpressionGetVariable_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
+LLVMMetadataRef _wrap_DIGlobalVariableExpressionGetVariable_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0) {
   LLVMMetadataRef arg1 ;
   LLVMMetadataRef result;
   LLVMMetadataRef _swig_go_result;
@@ -21884,7 +21554,7 @@ LLVMMetadataRef _wrap_DIGlobalVariableExpressionGetVariable_llvm_5d1e3feecae2b24
 }
 
 
-LLVMMetadataRef _wrap_DIGlobalVariableExpressionGetExpression_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
+LLVMMetadataRef _wrap_DIGlobalVariableExpressionGetExpression_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0) {
   LLVMMetadataRef arg1 ;
   LLVMMetadataRef result;
   LLVMMetadataRef _swig_go_result;
@@ -21901,7 +21571,7 @@ LLVMMetadataRef _wrap_DIGlobalVariableExpressionGetExpression_llvm_5d1e3feecae2b
 }
 
 
-LLVMMetadataRef _wrap_DIVariableGetFile_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
+LLVMMetadataRef _wrap_DIVariableGetFile_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0) {
   LLVMMetadataRef arg1 ;
   LLVMMetadataRef result;
   LLVMMetadataRef _swig_go_result;
@@ -21918,7 +21588,7 @@ LLVMMetadataRef _wrap_DIVariableGetFile_llvm_5d1e3feecae2b244(LLVMMetadataRef _s
 }
 
 
-LLVMMetadataRef _wrap_DIVariableGetScope_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
+LLVMMetadataRef _wrap_DIVariableGetScope_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0) {
   LLVMMetadataRef arg1 ;
   LLVMMetadataRef result;
   LLVMMetadataRef _swig_go_result;
@@ -21935,7 +21605,7 @@ LLVMMetadataRef _wrap_DIVariableGetScope_llvm_5d1e3feecae2b244(LLVMMetadataRef _
 }
 
 
-intgo _wrap_DIVariableGetLine_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
+intgo _wrap_DIVariableGetLine_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0) {
   LLVMMetadataRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -21950,7 +21620,7 @@ intgo _wrap_DIVariableGetLine_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) 
 }
 
 
-LLVMMetadataRef _wrap_TemporaryMDNode_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, LLVMMetadataRef *_swig_go_1, long long _swig_go_2) {
+LLVMMetadataRef _wrap_TemporaryMDNode_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, LLVMMetadataRef *_swig_go_1, long long _swig_go_2) {
   LLVMContextRef arg1 ;
   LLVMMetadataRef *arg2 = (LLVMMetadataRef *) 0 ;
   size_t arg3 ;
@@ -21971,7 +21641,7 @@ LLVMMetadataRef _wrap_TemporaryMDNode_llvm_5d1e3feecae2b244(LLVMContextRef _swig
 }
 
 
-void _wrap_DisposeTemporaryMDNode_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
+void _wrap_DisposeTemporaryMDNode_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0) {
   LLVMMetadataRef arg1 ;
   
   {
@@ -21983,7 +21653,7 @@ void _wrap_DisposeTemporaryMDNode_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go
 }
 
 
-void _wrap_MetadataReplaceAllUsesWith_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0, LLVMMetadataRef _swig_go_1) {
+void _wrap_MetadataReplaceAllUsesWith_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0, LLVMMetadataRef _swig_go_1) {
   LLVMMetadataRef arg1 ;
   LLVMMetadataRef arg2 ;
   
@@ -21999,7 +21669,7 @@ void _wrap_MetadataReplaceAllUsesWith_llvm_5d1e3feecae2b244(LLVMMetadataRef _swi
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateTempGlobalVariableFwdDecl_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, char *_swig_go_3, long long _swig_go_4, LLVMMetadataRef _swig_go_5, intgo _swig_go_6, LLVMMetadataRef _swig_go_7, bool _swig_go_8, LLVMMetadataRef _swig_go_9, intgo _swig_go_10) {
+LLVMMetadataRef _wrap_DIBuilderCreateTempGlobalVariableFwdDecl_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, char *_swig_go_3, long long _swig_go_4, LLVMMetadataRef _swig_go_5, intgo _swig_go_6, LLVMMetadataRef _swig_go_7, bool _swig_go_8, LLVMMetadataRef _swig_go_9, intgo _swig_go_10) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -22058,7 +21728,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateTempGlobalVariableFwdDecl_llvm_5d1e3feecae2
 }
 
 
-LLVMValueRef _wrap_DIBuilderInsertDeclareBefore_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMMetadataRef _swig_go_2, LLVMMetadataRef _swig_go_3, LLVMMetadataRef _swig_go_4, LLVMValueRef _swig_go_5) {
+LLVMValueRef _wrap_DIBuilderInsertDeclareBefore_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMMetadataRef _swig_go_2, LLVMMetadataRef _swig_go_3, LLVMMetadataRef _swig_go_4, LLVMValueRef _swig_go_5) {
   LLVMDIBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMMetadataRef arg3 ;
@@ -22095,7 +21765,7 @@ LLVMValueRef _wrap_DIBuilderInsertDeclareBefore_llvm_5d1e3feecae2b244(LLVMDIBuil
 }
 
 
-LLVMValueRef _wrap_DIBuilderInsertDeclareAtEnd_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMMetadataRef _swig_go_2, LLVMMetadataRef _swig_go_3, LLVMMetadataRef _swig_go_4, LLVMBasicBlockRef _swig_go_5) {
+LLVMValueRef _wrap_DIBuilderInsertDeclareAtEnd_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMMetadataRef _swig_go_2, LLVMMetadataRef _swig_go_3, LLVMMetadataRef _swig_go_4, LLVMBasicBlockRef _swig_go_5) {
   LLVMDIBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMMetadataRef arg3 ;
@@ -22132,7 +21802,7 @@ LLVMValueRef _wrap_DIBuilderInsertDeclareAtEnd_llvm_5d1e3feecae2b244(LLVMDIBuild
 }
 
 
-LLVMValueRef _wrap_DIBuilderInsertDbgValueBefore_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMMetadataRef _swig_go_2, LLVMMetadataRef _swig_go_3, LLVMMetadataRef _swig_go_4, LLVMValueRef _swig_go_5) {
+LLVMValueRef _wrap_DIBuilderInsertDbgValueBefore_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMMetadataRef _swig_go_2, LLVMMetadataRef _swig_go_3, LLVMMetadataRef _swig_go_4, LLVMValueRef _swig_go_5) {
   LLVMDIBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMMetadataRef arg3 ;
@@ -22169,7 +21839,7 @@ LLVMValueRef _wrap_DIBuilderInsertDbgValueBefore_llvm_5d1e3feecae2b244(LLVMDIBui
 }
 
 
-LLVMValueRef _wrap_DIBuilderInsertDbgValueAtEnd_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMMetadataRef _swig_go_2, LLVMMetadataRef _swig_go_3, LLVMMetadataRef _swig_go_4, LLVMBasicBlockRef _swig_go_5) {
+LLVMValueRef _wrap_DIBuilderInsertDbgValueAtEnd_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMValueRef _swig_go_1, LLVMMetadataRef _swig_go_2, LLVMMetadataRef _swig_go_3, LLVMMetadataRef _swig_go_4, LLVMBasicBlockRef _swig_go_5) {
   LLVMDIBuilderRef arg1 ;
   LLVMValueRef arg2 ;
   LLVMMetadataRef arg3 ;
@@ -22206,7 +21876,7 @@ LLVMValueRef _wrap_DIBuilderInsertDbgValueAtEnd_llvm_5d1e3feecae2b244(LLVMDIBuil
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateAutoVariable_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, LLVMMetadataRef _swig_go_5, bool _swig_go_6, intgo _swig_go_7, intgo _swig_go_8) {
+LLVMMetadataRef _wrap_DIBuilderCreateAutoVariable_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, LLVMMetadataRef _swig_go_3, intgo _swig_go_4, LLVMMetadataRef _swig_go_5, bool _swig_go_6, intgo _swig_go_7, intgo _swig_go_8) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -22254,7 +21924,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateAutoVariable_llvm_5d1e3feecae2b244(LLVMDIBu
 }
 
 
-LLVMMetadataRef _wrap_DIBuilderCreateParameterVariable_llvm_5d1e3feecae2b244(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, intgo _swig_go_3, LLVMMetadataRef _swig_go_4, intgo _swig_go_5, LLVMMetadataRef _swig_go_6, bool _swig_go_7, intgo _swig_go_8) {
+LLVMMetadataRef _wrap_DIBuilderCreateParameterVariable_llvm_a0e88c3155de3083(LLVMDIBuilderRef _swig_go_0, LLVMMetadataRef _swig_go_1, char *_swig_go_2, intgo _swig_go_3, LLVMMetadataRef _swig_go_4, intgo _swig_go_5, LLVMMetadataRef _swig_go_6, bool _swig_go_7, intgo _swig_go_8) {
   LLVMDIBuilderRef arg1 ;
   LLVMMetadataRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -22302,7 +21972,7 @@ LLVMMetadataRef _wrap_DIBuilderCreateParameterVariable_llvm_5d1e3feecae2b244(LLV
 }
 
 
-LLVMMetadataRef _wrap_GetSubprogram_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMMetadataRef _wrap_GetSubprogram_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMMetadataRef result;
   LLVMMetadataRef _swig_go_result;
@@ -22319,7 +21989,7 @@ LLVMMetadataRef _wrap_GetSubprogram_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_
 }
 
 
-void _wrap_SetSubprogram_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMMetadataRef _swig_go_1) {
+void _wrap_SetSubprogram_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMMetadataRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMMetadataRef arg2 ;
   
@@ -22335,7 +22005,7 @@ void _wrap_SetSubprogram_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMMeta
 }
 
 
-intgo _wrap_DISubprogramGetLine_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
+intgo _wrap_DISubprogramGetLine_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0) {
   LLVMMetadataRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -22350,7 +22020,7 @@ intgo _wrap_DISubprogramGetLine_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0
 }
 
 
-LLVMMetadataRef _wrap_InstructionGetDebugLoc_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0) {
+LLVMMetadataRef _wrap_InstructionGetDebugLoc_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0) {
   LLVMValueRef arg1 ;
   LLVMMetadataRef result;
   LLVMMetadataRef _swig_go_result;
@@ -22367,7 +22037,7 @@ LLVMMetadataRef _wrap_InstructionGetDebugLoc_llvm_5d1e3feecae2b244(LLVMValueRef 
 }
 
 
-void _wrap_InstructionSetDebugLoc_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0, LLVMMetadataRef _swig_go_1) {
+void _wrap_InstructionSetDebugLoc_llvm_a0e88c3155de3083(LLVMValueRef _swig_go_0, LLVMMetadataRef _swig_go_1) {
   LLVMValueRef arg1 ;
   LLVMMetadataRef arg2 ;
   
@@ -22383,7 +22053,7 @@ void _wrap_InstructionSetDebugLoc_llvm_5d1e3feecae2b244(LLVMValueRef _swig_go_0,
 }
 
 
-intgo _wrap_GetMetadataKind_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
+intgo _wrap_GetMetadataKind_llvm_a0e88c3155de3083(LLVMMetadataRef _swig_go_0) {
   LLVMMetadataRef arg1 ;
   LLVMMetadataKind result;
   intgo _swig_go_result;
@@ -22398,7 +22068,7 @@ intgo _wrap_GetMetadataKind_llvm_5d1e3feecae2b244(LLVMMetadataRef _swig_go_0) {
 }
 
 
-LLVMDisasmContextRef _wrap_CreateDisasm_llvm_5d1e3feecae2b244(char *_swig_go_0, void *_swig_go_1, intgo _swig_go_2, void* _swig_go_3, void* _swig_go_4) {
+LLVMDisasmContextRef _wrap_CreateDisasm_llvm_a0e88c3155de3083(char *_swig_go_0, void *_swig_go_1, intgo _swig_go_2, void* _swig_go_3, void* _swig_go_4) {
   char *arg1 = (char *) 0 ;
   void *arg2 = (void *) 0 ;
   int arg3 ;
@@ -22424,7 +22094,7 @@ LLVMDisasmContextRef _wrap_CreateDisasm_llvm_5d1e3feecae2b244(char *_swig_go_0, 
 }
 
 
-LLVMDisasmContextRef _wrap_CreateDisasmCPU_llvm_5d1e3feecae2b244(char *_swig_go_0, char *_swig_go_1, void *_swig_go_2, intgo _swig_go_3, void* _swig_go_4, void* _swig_go_5) {
+LLVMDisasmContextRef _wrap_CreateDisasmCPU_llvm_a0e88c3155de3083(char *_swig_go_0, char *_swig_go_1, void *_swig_go_2, intgo _swig_go_3, void* _swig_go_4, void* _swig_go_5) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
   void *arg3 = (void *) 0 ;
@@ -22457,7 +22127,7 @@ LLVMDisasmContextRef _wrap_CreateDisasmCPU_llvm_5d1e3feecae2b244(char *_swig_go_
 }
 
 
-LLVMDisasmContextRef _wrap_CreateDisasmCPUFeatures_llvm_5d1e3feecae2b244(char *_swig_go_0, char *_swig_go_1, char *_swig_go_2, void *_swig_go_3, intgo _swig_go_4, void* _swig_go_5, void* _swig_go_6) {
+LLVMDisasmContextRef _wrap_CreateDisasmCPUFeatures_llvm_a0e88c3155de3083(char *_swig_go_0, char *_swig_go_1, char *_swig_go_2, void *_swig_go_3, intgo _swig_go_4, void* _swig_go_5, void* _swig_go_6) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
@@ -22497,7 +22167,7 @@ LLVMDisasmContextRef _wrap_CreateDisasmCPUFeatures_llvm_5d1e3feecae2b244(char *_
 }
 
 
-intgo _wrap_SetDisasmOptions_llvm_5d1e3feecae2b244(LLVMDisasmContextRef _swig_go_0, long long _swig_go_1) {
+intgo _wrap_SetDisasmOptions_llvm_a0e88c3155de3083(LLVMDisasmContextRef _swig_go_0, long long _swig_go_1) {
   LLVMDisasmContextRef arg1 = (LLVMDisasmContextRef) 0 ;
   uint64_t arg2 ;
   int result;
@@ -22512,7 +22182,7 @@ intgo _wrap_SetDisasmOptions_llvm_5d1e3feecae2b244(LLVMDisasmContextRef _swig_go
 }
 
 
-void _wrap_DisasmDispose_llvm_5d1e3feecae2b244(LLVMDisasmContextRef _swig_go_0) {
+void _wrap_DisasmDispose_llvm_a0e88c3155de3083(LLVMDisasmContextRef _swig_go_0) {
   LLVMDisasmContextRef arg1 = (LLVMDisasmContextRef) 0 ;
   
   arg1 = *(LLVMDisasmContextRef *)&_swig_go_0; 
@@ -22522,7 +22192,7 @@ void _wrap_DisasmDispose_llvm_5d1e3feecae2b244(LLVMDisasmContextRef _swig_go_0) 
 }
 
 
-long long _wrap_DisasmInstruction_llvm_5d1e3feecae2b244(LLVMDisasmContextRef _swig_go_0, char *_swig_go_1, long long _swig_go_2, long long _swig_go_3, char *_swig_go_4, long long _swig_go_5) {
+long long _wrap_DisasmInstruction_llvm_a0e88c3155de3083(LLVMDisasmContextRef _swig_go_0, char *_swig_go_1, long long _swig_go_2, long long _swig_go_3, char *_swig_go_4, long long _swig_go_5) {
   LLVMDisasmContextRef arg1 = (LLVMDisasmContextRef) 0 ;
   uint8_t *arg2 = (uint8_t *) 0 ;
   uint64_t arg3 ;
@@ -22550,7 +22220,7 @@ long long _wrap_DisasmInstruction_llvm_5d1e3feecae2b244(LLVMDisasmContextRef _sw
 }
 
 
-void _wrap_OpInfoSymbol1_Present_set_llvm_5d1e3feecae2b244(struct LLVMOpInfoSymbol1 *_swig_go_0, long long _swig_go_1) {
+void _wrap_OpInfoSymbol1_Present_set_llvm_a0e88c3155de3083(struct LLVMOpInfoSymbol1 *_swig_go_0, long long _swig_go_1) {
   struct LLVMOpInfoSymbol1 *arg1 = (struct LLVMOpInfoSymbol1 *) 0 ;
   uint64_t arg2 ;
   
@@ -22562,7 +22232,7 @@ void _wrap_OpInfoSymbol1_Present_set_llvm_5d1e3feecae2b244(struct LLVMOpInfoSymb
 }
 
 
-long long _wrap_OpInfoSymbol1_Present_get_llvm_5d1e3feecae2b244(struct LLVMOpInfoSymbol1 *_swig_go_0) {
+long long _wrap_OpInfoSymbol1_Present_get_llvm_a0e88c3155de3083(struct LLVMOpInfoSymbol1 *_swig_go_0) {
   struct LLVMOpInfoSymbol1 *arg1 = (struct LLVMOpInfoSymbol1 *) 0 ;
   uint64_t result;
   long long _swig_go_result;
@@ -22575,7 +22245,7 @@ long long _wrap_OpInfoSymbol1_Present_get_llvm_5d1e3feecae2b244(struct LLVMOpInf
 }
 
 
-void _wrap_OpInfoSymbol1_Name_set_llvm_5d1e3feecae2b244(struct LLVMOpInfoSymbol1 *_swig_go_0, char *_swig_go_1) {
+void _wrap_OpInfoSymbol1_Name_set_llvm_a0e88c3155de3083(struct LLVMOpInfoSymbol1 *_swig_go_0, char *_swig_go_1) {
   struct LLVMOpInfoSymbol1 *arg1 = (struct LLVMOpInfoSymbol1 *) 0 ;
   char *arg2 = (char *) 0 ;
   
@@ -22599,7 +22269,7 @@ void _wrap_OpInfoSymbol1_Name_set_llvm_5d1e3feecae2b244(struct LLVMOpInfoSymbol1
 }
 
 
-char *_wrap_OpInfoSymbol1_Name_get_llvm_5d1e3feecae2b244(struct LLVMOpInfoSymbol1 *_swig_go_0) {
+char *_wrap_OpInfoSymbol1_Name_get_llvm_a0e88c3155de3083(struct LLVMOpInfoSymbol1 *_swig_go_0) {
   struct LLVMOpInfoSymbol1 *arg1 = (struct LLVMOpInfoSymbol1 *) 0 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -22614,7 +22284,7 @@ char *_wrap_OpInfoSymbol1_Name_get_llvm_5d1e3feecae2b244(struct LLVMOpInfoSymbol
 }
 
 
-void _wrap_OpInfoSymbol1_Value_set_llvm_5d1e3feecae2b244(struct LLVMOpInfoSymbol1 *_swig_go_0, long long _swig_go_1) {
+void _wrap_OpInfoSymbol1_Value_set_llvm_a0e88c3155de3083(struct LLVMOpInfoSymbol1 *_swig_go_0, long long _swig_go_1) {
   struct LLVMOpInfoSymbol1 *arg1 = (struct LLVMOpInfoSymbol1 *) 0 ;
   uint64_t arg2 ;
   
@@ -22626,7 +22296,7 @@ void _wrap_OpInfoSymbol1_Value_set_llvm_5d1e3feecae2b244(struct LLVMOpInfoSymbol
 }
 
 
-long long _wrap_OpInfoSymbol1_Value_get_llvm_5d1e3feecae2b244(struct LLVMOpInfoSymbol1 *_swig_go_0) {
+long long _wrap_OpInfoSymbol1_Value_get_llvm_a0e88c3155de3083(struct LLVMOpInfoSymbol1 *_swig_go_0) {
   struct LLVMOpInfoSymbol1 *arg1 = (struct LLVMOpInfoSymbol1 *) 0 ;
   uint64_t result;
   long long _swig_go_result;
@@ -22639,7 +22309,7 @@ long long _wrap_OpInfoSymbol1_Value_get_llvm_5d1e3feecae2b244(struct LLVMOpInfoS
 }
 
 
-struct LLVMOpInfoSymbol1 *_wrap_new_OpInfoSymbol1_llvm_5d1e3feecae2b244() {
+struct LLVMOpInfoSymbol1 *_wrap_new_OpInfoSymbol1_llvm_a0e88c3155de3083() {
   struct LLVMOpInfoSymbol1 *result = 0 ;
   struct LLVMOpInfoSymbol1 *_swig_go_result;
   
@@ -22650,7 +22320,7 @@ struct LLVMOpInfoSymbol1 *_wrap_new_OpInfoSymbol1_llvm_5d1e3feecae2b244() {
 }
 
 
-void _wrap_delete_OpInfoSymbol1_llvm_5d1e3feecae2b244(struct LLVMOpInfoSymbol1 *_swig_go_0) {
+void _wrap_delete_OpInfoSymbol1_llvm_a0e88c3155de3083(struct LLVMOpInfoSymbol1 *_swig_go_0) {
   struct LLVMOpInfoSymbol1 *arg1 = (struct LLVMOpInfoSymbol1 *) 0 ;
   
   arg1 = *(struct LLVMOpInfoSymbol1 **)&_swig_go_0; 
@@ -22660,7 +22330,7 @@ void _wrap_delete_OpInfoSymbol1_llvm_5d1e3feecae2b244(struct LLVMOpInfoSymbol1 *
 }
 
 
-void _wrap_OpInfo1_AddSymbol_set_llvm_5d1e3feecae2b244(struct LLVMOpInfo1 *_swig_go_0, struct LLVMOpInfoSymbol1 *_swig_go_1) {
+void _wrap_OpInfo1_AddSymbol_set_llvm_a0e88c3155de3083(struct LLVMOpInfo1 *_swig_go_0, struct LLVMOpInfoSymbol1 *_swig_go_1) {
   struct LLVMOpInfo1 *arg1 = (struct LLVMOpInfo1 *) 0 ;
   struct LLVMOpInfoSymbol1 *arg2 = (struct LLVMOpInfoSymbol1 *) 0 ;
   
@@ -22672,7 +22342,7 @@ void _wrap_OpInfo1_AddSymbol_set_llvm_5d1e3feecae2b244(struct LLVMOpInfo1 *_swig
 }
 
 
-struct LLVMOpInfoSymbol1 *_wrap_OpInfo1_AddSymbol_get_llvm_5d1e3feecae2b244(struct LLVMOpInfo1 *_swig_go_0) {
+struct LLVMOpInfoSymbol1 *_wrap_OpInfo1_AddSymbol_get_llvm_a0e88c3155de3083(struct LLVMOpInfo1 *_swig_go_0) {
   struct LLVMOpInfo1 *arg1 = (struct LLVMOpInfo1 *) 0 ;
   struct LLVMOpInfoSymbol1 *result = 0 ;
   struct LLVMOpInfoSymbol1 *_swig_go_result;
@@ -22685,7 +22355,7 @@ struct LLVMOpInfoSymbol1 *_wrap_OpInfo1_AddSymbol_get_llvm_5d1e3feecae2b244(stru
 }
 
 
-void _wrap_OpInfo1_SubtractSymbol_set_llvm_5d1e3feecae2b244(struct LLVMOpInfo1 *_swig_go_0, struct LLVMOpInfoSymbol1 *_swig_go_1) {
+void _wrap_OpInfo1_SubtractSymbol_set_llvm_a0e88c3155de3083(struct LLVMOpInfo1 *_swig_go_0, struct LLVMOpInfoSymbol1 *_swig_go_1) {
   struct LLVMOpInfo1 *arg1 = (struct LLVMOpInfo1 *) 0 ;
   struct LLVMOpInfoSymbol1 *arg2 = (struct LLVMOpInfoSymbol1 *) 0 ;
   
@@ -22697,7 +22367,7 @@ void _wrap_OpInfo1_SubtractSymbol_set_llvm_5d1e3feecae2b244(struct LLVMOpInfo1 *
 }
 
 
-struct LLVMOpInfoSymbol1 *_wrap_OpInfo1_SubtractSymbol_get_llvm_5d1e3feecae2b244(struct LLVMOpInfo1 *_swig_go_0) {
+struct LLVMOpInfoSymbol1 *_wrap_OpInfo1_SubtractSymbol_get_llvm_a0e88c3155de3083(struct LLVMOpInfo1 *_swig_go_0) {
   struct LLVMOpInfo1 *arg1 = (struct LLVMOpInfo1 *) 0 ;
   struct LLVMOpInfoSymbol1 *result = 0 ;
   struct LLVMOpInfoSymbol1 *_swig_go_result;
@@ -22710,7 +22380,7 @@ struct LLVMOpInfoSymbol1 *_wrap_OpInfo1_SubtractSymbol_get_llvm_5d1e3feecae2b244
 }
 
 
-void _wrap_OpInfo1_Value_set_llvm_5d1e3feecae2b244(struct LLVMOpInfo1 *_swig_go_0, long long _swig_go_1) {
+void _wrap_OpInfo1_Value_set_llvm_a0e88c3155de3083(struct LLVMOpInfo1 *_swig_go_0, long long _swig_go_1) {
   struct LLVMOpInfo1 *arg1 = (struct LLVMOpInfo1 *) 0 ;
   uint64_t arg2 ;
   
@@ -22722,7 +22392,7 @@ void _wrap_OpInfo1_Value_set_llvm_5d1e3feecae2b244(struct LLVMOpInfo1 *_swig_go_
 }
 
 
-long long _wrap_OpInfo1_Value_get_llvm_5d1e3feecae2b244(struct LLVMOpInfo1 *_swig_go_0) {
+long long _wrap_OpInfo1_Value_get_llvm_a0e88c3155de3083(struct LLVMOpInfo1 *_swig_go_0) {
   struct LLVMOpInfo1 *arg1 = (struct LLVMOpInfo1 *) 0 ;
   uint64_t result;
   long long _swig_go_result;
@@ -22735,7 +22405,7 @@ long long _wrap_OpInfo1_Value_get_llvm_5d1e3feecae2b244(struct LLVMOpInfo1 *_swi
 }
 
 
-void _wrap_OpInfo1_VariantKind_set_llvm_5d1e3feecae2b244(struct LLVMOpInfo1 *_swig_go_0, long long _swig_go_1) {
+void _wrap_OpInfo1_VariantKind_set_llvm_a0e88c3155de3083(struct LLVMOpInfo1 *_swig_go_0, long long _swig_go_1) {
   struct LLVMOpInfo1 *arg1 = (struct LLVMOpInfo1 *) 0 ;
   uint64_t arg2 ;
   
@@ -22747,7 +22417,7 @@ void _wrap_OpInfo1_VariantKind_set_llvm_5d1e3feecae2b244(struct LLVMOpInfo1 *_sw
 }
 
 
-long long _wrap_OpInfo1_VariantKind_get_llvm_5d1e3feecae2b244(struct LLVMOpInfo1 *_swig_go_0) {
+long long _wrap_OpInfo1_VariantKind_get_llvm_a0e88c3155de3083(struct LLVMOpInfo1 *_swig_go_0) {
   struct LLVMOpInfo1 *arg1 = (struct LLVMOpInfo1 *) 0 ;
   uint64_t result;
   long long _swig_go_result;
@@ -22760,7 +22430,7 @@ long long _wrap_OpInfo1_VariantKind_get_llvm_5d1e3feecae2b244(struct LLVMOpInfo1
 }
 
 
-struct LLVMOpInfo1 *_wrap_new_OpInfo1_llvm_5d1e3feecae2b244() {
+struct LLVMOpInfo1 *_wrap_new_OpInfo1_llvm_a0e88c3155de3083() {
   struct LLVMOpInfo1 *result = 0 ;
   struct LLVMOpInfo1 *_swig_go_result;
   
@@ -22771,7 +22441,7 @@ struct LLVMOpInfo1 *_wrap_new_OpInfo1_llvm_5d1e3feecae2b244() {
 }
 
 
-void _wrap_delete_OpInfo1_llvm_5d1e3feecae2b244(struct LLVMOpInfo1 *_swig_go_0) {
+void _wrap_delete_OpInfo1_llvm_a0e88c3155de3083(struct LLVMOpInfo1 *_swig_go_0) {
   struct LLVMOpInfo1 *arg1 = (struct LLVMOpInfo1 *) 0 ;
   
   arg1 = *(struct LLVMOpInfo1 **)&_swig_go_0; 
@@ -22781,7 +22451,7 @@ void _wrap_delete_OpInfo1_llvm_5d1e3feecae2b244(struct LLVMOpInfo1 *_swig_go_0) 
 }
 
 
-LLVMErrorTypeId _wrap_GetErrorTypeId_llvm_5d1e3feecae2b244(struct LLVMOpaqueError *_swig_go_0) {
+LLVMErrorTypeId _wrap_GetErrorTypeId_llvm_a0e88c3155de3083(struct LLVMOpaqueError *_swig_go_0) {
   LLVMErrorRef arg1 = (LLVMErrorRef) 0 ;
   LLVMErrorTypeId result;
   LLVMErrorTypeId _swig_go_result;
@@ -22794,7 +22464,7 @@ LLVMErrorTypeId _wrap_GetErrorTypeId_llvm_5d1e3feecae2b244(struct LLVMOpaqueErro
 }
 
 
-void _wrap_ConsumeError_llvm_5d1e3feecae2b244(struct LLVMOpaqueError *_swig_go_0) {
+void _wrap_ConsumeError_llvm_a0e88c3155de3083(struct LLVMOpaqueError *_swig_go_0) {
   LLVMErrorRef arg1 = (LLVMErrorRef) 0 ;
   
   arg1 = *(LLVMErrorRef *)&_swig_go_0; 
@@ -22804,7 +22474,7 @@ void _wrap_ConsumeError_llvm_5d1e3feecae2b244(struct LLVMOpaqueError *_swig_go_0
 }
 
 
-char *_wrap_GetErrorMessage_llvm_5d1e3feecae2b244(struct LLVMOpaqueError *_swig_go_0) {
+char *_wrap_GetErrorMessage_llvm_a0e88c3155de3083(struct LLVMOpaqueError *_swig_go_0) {
   LLVMErrorRef arg1 = (LLVMErrorRef) 0 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -22819,7 +22489,7 @@ char *_wrap_GetErrorMessage_llvm_5d1e3feecae2b244(struct LLVMOpaqueError *_swig_
 }
 
 
-void _wrap_DisposeErrorMessage_llvm_5d1e3feecae2b244(char *_swig_go_0) {
+void _wrap_DisposeErrorMessage_llvm_a0e88c3155de3083(char *_swig_go_0) {
   char *arg1 = (char *) 0 ;
   
   {
@@ -22834,7 +22504,7 @@ void _wrap_DisposeErrorMessage_llvm_5d1e3feecae2b244(char *_swig_go_0) {
 }
 
 
-LLVMErrorTypeId _wrap_GetStringErrorTypeId_llvm_5d1e3feecae2b244() {
+LLVMErrorTypeId _wrap_GetStringErrorTypeId_llvm_a0e88c3155de3083() {
   LLVMErrorTypeId result;
   LLVMErrorTypeId _swig_go_result;
   
@@ -22845,7 +22515,7 @@ LLVMErrorTypeId _wrap_GetStringErrorTypeId_llvm_5d1e3feecae2b244() {
 }
 
 
-struct LLVMOpaqueError *_wrap_CreateStringError_llvm_5d1e3feecae2b244(char *_swig_go_0) {
+struct LLVMOpaqueError *_wrap_CreateStringError_llvm_a0e88c3155de3083(char *_swig_go_0) {
   char *arg1 = (char *) 0 ;
   LLVMErrorRef result;
   struct LLVMOpaqueError *_swig_go_result;
@@ -22863,19 +22533,19 @@ struct LLVMOpaqueError *_wrap_CreateStringError_llvm_5d1e3feecae2b244(char *_swi
 }
 
 
-void _wrap_LinkInMCJIT_llvm_5d1e3feecae2b244() {
+void _wrap_LinkInMCJIT_llvm_a0e88c3155de3083() {
   LLVMLinkInMCJIT();
   
 }
 
 
-void _wrap_LinkInInterpreter_llvm_5d1e3feecae2b244() {
+void _wrap_LinkInInterpreter_llvm_a0e88c3155de3083() {
   LLVMLinkInInterpreter();
   
 }
 
 
-void _wrap_MCJITCompilerOptions_OptLevel_set_llvm_5d1e3feecae2b244(struct LLVMMCJITCompilerOptions *_swig_go_0, intgo _swig_go_1) {
+void _wrap_MCJITCompilerOptions_OptLevel_set_llvm_a0e88c3155de3083(struct LLVMMCJITCompilerOptions *_swig_go_0, intgo _swig_go_1) {
   struct LLVMMCJITCompilerOptions *arg1 = (struct LLVMMCJITCompilerOptions *) 0 ;
   unsigned int arg2 ;
   
@@ -22887,7 +22557,7 @@ void _wrap_MCJITCompilerOptions_OptLevel_set_llvm_5d1e3feecae2b244(struct LLVMMC
 }
 
 
-intgo _wrap_MCJITCompilerOptions_OptLevel_get_llvm_5d1e3feecae2b244(struct LLVMMCJITCompilerOptions *_swig_go_0) {
+intgo _wrap_MCJITCompilerOptions_OptLevel_get_llvm_a0e88c3155de3083(struct LLVMMCJITCompilerOptions *_swig_go_0) {
   struct LLVMMCJITCompilerOptions *arg1 = (struct LLVMMCJITCompilerOptions *) 0 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -22900,7 +22570,7 @@ intgo _wrap_MCJITCompilerOptions_OptLevel_get_llvm_5d1e3feecae2b244(struct LLVMM
 }
 
 
-void _wrap_MCJITCompilerOptions_CodeModel_set_llvm_5d1e3feecae2b244(struct LLVMMCJITCompilerOptions *_swig_go_0, intgo _swig_go_1) {
+void _wrap_MCJITCompilerOptions_CodeModel_set_llvm_a0e88c3155de3083(struct LLVMMCJITCompilerOptions *_swig_go_0, intgo _swig_go_1) {
   struct LLVMMCJITCompilerOptions *arg1 = (struct LLVMMCJITCompilerOptions *) 0 ;
   LLVMCodeModel arg2 ;
   
@@ -22912,7 +22582,7 @@ void _wrap_MCJITCompilerOptions_CodeModel_set_llvm_5d1e3feecae2b244(struct LLVMM
 }
 
 
-intgo _wrap_MCJITCompilerOptions_CodeModel_get_llvm_5d1e3feecae2b244(struct LLVMMCJITCompilerOptions *_swig_go_0) {
+intgo _wrap_MCJITCompilerOptions_CodeModel_get_llvm_a0e88c3155de3083(struct LLVMMCJITCompilerOptions *_swig_go_0) {
   struct LLVMMCJITCompilerOptions *arg1 = (struct LLVMMCJITCompilerOptions *) 0 ;
   LLVMCodeModel result;
   intgo _swig_go_result;
@@ -22925,7 +22595,7 @@ intgo _wrap_MCJITCompilerOptions_CodeModel_get_llvm_5d1e3feecae2b244(struct LLVM
 }
 
 
-void _wrap_MCJITCompilerOptions_NoFramePointerElim_set_llvm_5d1e3feecae2b244(struct LLVMMCJITCompilerOptions *_swig_go_0, bool _swig_go_1) {
+void _wrap_MCJITCompilerOptions_NoFramePointerElim_set_llvm_a0e88c3155de3083(struct LLVMMCJITCompilerOptions *_swig_go_0, bool _swig_go_1) {
   struct LLVMMCJITCompilerOptions *arg1 = (struct LLVMMCJITCompilerOptions *) 0 ;
   LLVMBool arg2 ;
   
@@ -22939,7 +22609,7 @@ void _wrap_MCJITCompilerOptions_NoFramePointerElim_set_llvm_5d1e3feecae2b244(str
 }
 
 
-bool _wrap_MCJITCompilerOptions_NoFramePointerElim_get_llvm_5d1e3feecae2b244(struct LLVMMCJITCompilerOptions *_swig_go_0) {
+bool _wrap_MCJITCompilerOptions_NoFramePointerElim_get_llvm_a0e88c3155de3083(struct LLVMMCJITCompilerOptions *_swig_go_0) {
   struct LLVMMCJITCompilerOptions *arg1 = (struct LLVMMCJITCompilerOptions *) 0 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -22954,7 +22624,7 @@ bool _wrap_MCJITCompilerOptions_NoFramePointerElim_get_llvm_5d1e3feecae2b244(str
 }
 
 
-void _wrap_MCJITCompilerOptions_EnableFastISel_set_llvm_5d1e3feecae2b244(struct LLVMMCJITCompilerOptions *_swig_go_0, bool _swig_go_1) {
+void _wrap_MCJITCompilerOptions_EnableFastISel_set_llvm_a0e88c3155de3083(struct LLVMMCJITCompilerOptions *_swig_go_0, bool _swig_go_1) {
   struct LLVMMCJITCompilerOptions *arg1 = (struct LLVMMCJITCompilerOptions *) 0 ;
   LLVMBool arg2 ;
   
@@ -22968,7 +22638,7 @@ void _wrap_MCJITCompilerOptions_EnableFastISel_set_llvm_5d1e3feecae2b244(struct 
 }
 
 
-bool _wrap_MCJITCompilerOptions_EnableFastISel_get_llvm_5d1e3feecae2b244(struct LLVMMCJITCompilerOptions *_swig_go_0) {
+bool _wrap_MCJITCompilerOptions_EnableFastISel_get_llvm_a0e88c3155de3083(struct LLVMMCJITCompilerOptions *_swig_go_0) {
   struct LLVMMCJITCompilerOptions *arg1 = (struct LLVMMCJITCompilerOptions *) 0 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -22983,7 +22653,7 @@ bool _wrap_MCJITCompilerOptions_EnableFastISel_get_llvm_5d1e3feecae2b244(struct 
 }
 
 
-void _wrap_MCJITCompilerOptions_MCJMM_set_llvm_5d1e3feecae2b244(struct LLVMMCJITCompilerOptions *_swig_go_0, struct LLVMOpaqueMCJITMemoryManager *_swig_go_1) {
+void _wrap_MCJITCompilerOptions_MCJMM_set_llvm_a0e88c3155de3083(struct LLVMMCJITCompilerOptions *_swig_go_0, struct LLVMOpaqueMCJITMemoryManager *_swig_go_1) {
   struct LLVMMCJITCompilerOptions *arg1 = (struct LLVMMCJITCompilerOptions *) 0 ;
   LLVMMCJITMemoryManagerRef arg2 = (LLVMMCJITMemoryManagerRef) 0 ;
   
@@ -22995,7 +22665,7 @@ void _wrap_MCJITCompilerOptions_MCJMM_set_llvm_5d1e3feecae2b244(struct LLVMMCJIT
 }
 
 
-struct LLVMOpaqueMCJITMemoryManager *_wrap_MCJITCompilerOptions_MCJMM_get_llvm_5d1e3feecae2b244(struct LLVMMCJITCompilerOptions *_swig_go_0) {
+struct LLVMOpaqueMCJITMemoryManager *_wrap_MCJITCompilerOptions_MCJMM_get_llvm_a0e88c3155de3083(struct LLVMMCJITCompilerOptions *_swig_go_0) {
   struct LLVMMCJITCompilerOptions *arg1 = (struct LLVMMCJITCompilerOptions *) 0 ;
   LLVMMCJITMemoryManagerRef result;
   struct LLVMOpaqueMCJITMemoryManager *_swig_go_result;
@@ -23008,7 +22678,7 @@ struct LLVMOpaqueMCJITMemoryManager *_wrap_MCJITCompilerOptions_MCJMM_get_llvm_5
 }
 
 
-struct LLVMMCJITCompilerOptions *_wrap_new_MCJITCompilerOptions_llvm_5d1e3feecae2b244() {
+struct LLVMMCJITCompilerOptions *_wrap_new_MCJITCompilerOptions_llvm_a0e88c3155de3083() {
   struct LLVMMCJITCompilerOptions *result = 0 ;
   struct LLVMMCJITCompilerOptions *_swig_go_result;
   
@@ -23019,7 +22689,7 @@ struct LLVMMCJITCompilerOptions *_wrap_new_MCJITCompilerOptions_llvm_5d1e3feecae
 }
 
 
-void _wrap_delete_MCJITCompilerOptions_llvm_5d1e3feecae2b244(struct LLVMMCJITCompilerOptions *_swig_go_0) {
+void _wrap_delete_MCJITCompilerOptions_llvm_a0e88c3155de3083(struct LLVMMCJITCompilerOptions *_swig_go_0) {
   struct LLVMMCJITCompilerOptions *arg1 = (struct LLVMMCJITCompilerOptions *) 0 ;
   
   arg1 = *(struct LLVMMCJITCompilerOptions **)&_swig_go_0; 
@@ -23029,7 +22699,7 @@ void _wrap_delete_MCJITCompilerOptions_llvm_5d1e3feecae2b244(struct LLVMMCJITCom
 }
 
 
-struct LLVMOpaqueGenericValue *_wrap_CreateGenericValueOfInt_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, long long _swig_go_1, bool _swig_go_2) {
+struct LLVMOpaqueGenericValue *_wrap_CreateGenericValueOfInt_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, long long _swig_go_1, bool _swig_go_2) {
   LLVMTypeRef arg1 ;
   unsigned long long arg2 ;
   LLVMBool arg3 ;
@@ -23050,7 +22720,7 @@ struct LLVMOpaqueGenericValue *_wrap_CreateGenericValueOfInt_llvm_5d1e3feecae2b2
 }
 
 
-struct LLVMOpaqueGenericValue *_wrap_CreateGenericValueOfPointer_llvm_5d1e3feecae2b244(void *_swig_go_0) {
+struct LLVMOpaqueGenericValue *_wrap_CreateGenericValueOfPointer_llvm_a0e88c3155de3083(void *_swig_go_0) {
   void *arg1 = (void *) 0 ;
   LLVMGenericValueRef result;
   struct LLVMOpaqueGenericValue *_swig_go_result;
@@ -23063,7 +22733,7 @@ struct LLVMOpaqueGenericValue *_wrap_CreateGenericValueOfPointer_llvm_5d1e3feeca
 }
 
 
-struct LLVMOpaqueGenericValue *_wrap_CreateGenericValueOfFloat_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, double _swig_go_1) {
+struct LLVMOpaqueGenericValue *_wrap_CreateGenericValueOfFloat_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, double _swig_go_1) {
   LLVMTypeRef arg1 ;
   double arg2 ;
   LLVMGenericValueRef result;
@@ -23080,7 +22750,7 @@ struct LLVMOpaqueGenericValue *_wrap_CreateGenericValueOfFloat_llvm_5d1e3feecae2
 }
 
 
-intgo _wrap_GenericValueIntWidth_llvm_5d1e3feecae2b244(struct LLVMOpaqueGenericValue *_swig_go_0) {
+intgo _wrap_GenericValueIntWidth_llvm_a0e88c3155de3083(struct LLVMOpaqueGenericValue *_swig_go_0) {
   LLVMGenericValueRef arg1 = (LLVMGenericValueRef) 0 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -23093,7 +22763,7 @@ intgo _wrap_GenericValueIntWidth_llvm_5d1e3feecae2b244(struct LLVMOpaqueGenericV
 }
 
 
-long long _wrap_GenericValueToInt_llvm_5d1e3feecae2b244(struct LLVMOpaqueGenericValue *_swig_go_0, bool _swig_go_1) {
+long long _wrap_GenericValueToInt_llvm_a0e88c3155de3083(struct LLVMOpaqueGenericValue *_swig_go_0, bool _swig_go_1) {
   LLVMGenericValueRef arg1 = (LLVMGenericValueRef) 0 ;
   LLVMBool arg2 ;
   unsigned long long result;
@@ -23110,7 +22780,7 @@ long long _wrap_GenericValueToInt_llvm_5d1e3feecae2b244(struct LLVMOpaqueGeneric
 }
 
 
-void *_wrap_GenericValueToPointer_llvm_5d1e3feecae2b244(struct LLVMOpaqueGenericValue *_swig_go_0) {
+void *_wrap_GenericValueToPointer_llvm_a0e88c3155de3083(struct LLVMOpaqueGenericValue *_swig_go_0) {
   LLVMGenericValueRef arg1 = (LLVMGenericValueRef) 0 ;
   void *result = 0 ;
   void *_swig_go_result;
@@ -23123,7 +22793,7 @@ void *_wrap_GenericValueToPointer_llvm_5d1e3feecae2b244(struct LLVMOpaqueGeneric
 }
 
 
-double _wrap_GenericValueToFloat_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, struct LLVMOpaqueGenericValue *_swig_go_1) {
+double _wrap_GenericValueToFloat_llvm_a0e88c3155de3083(LLVMTypeRef _swig_go_0, struct LLVMOpaqueGenericValue *_swig_go_1) {
   LLVMTypeRef arg1 ;
   LLVMGenericValueRef arg2 = (LLVMGenericValueRef) 0 ;
   double result;
@@ -23140,7 +22810,7 @@ double _wrap_GenericValueToFloat_llvm_5d1e3feecae2b244(LLVMTypeRef _swig_go_0, s
 }
 
 
-void _wrap_DisposeGenericValue_llvm_5d1e3feecae2b244(struct LLVMOpaqueGenericValue *_swig_go_0) {
+void _wrap_DisposeGenericValue_llvm_a0e88c3155de3083(struct LLVMOpaqueGenericValue *_swig_go_0) {
   LLVMGenericValueRef arg1 = (LLVMGenericValueRef) 0 ;
   
   arg1 = *(LLVMGenericValueRef *)&_swig_go_0; 
@@ -23150,7 +22820,7 @@ void _wrap_DisposeGenericValue_llvm_5d1e3feecae2b244(struct LLVMOpaqueGenericVal
 }
 
 
-bool _wrap_CreateExecutionEngineForModule_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine **_swig_go_0, LLVMModuleRef _swig_go_1, _gostring_* _swig_go_2) {
+bool _wrap_CreateExecutionEngineForModule_llvm_a0e88c3155de3083(struct LLVMOpaqueExecutionEngine **_swig_go_0, LLVMModuleRef _swig_go_1, _gostring_* _swig_go_2) {
   LLVMExecutionEngineRef *arg1 = (LLVMExecutionEngineRef *) 0 ;
   LLVMModuleRef arg2 ;
   char **arg3 = (char **) 0 ;
@@ -23171,7 +22841,7 @@ bool _wrap_CreateExecutionEngineForModule_llvm_5d1e3feecae2b244(struct LLVMOpaqu
 }
 
 
-bool _wrap_CreateInterpreterForModule_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine **_swig_go_0, LLVMModuleRef _swig_go_1, _gostring_* _swig_go_2) {
+bool _wrap_CreateInterpreterForModule_llvm_a0e88c3155de3083(struct LLVMOpaqueExecutionEngine **_swig_go_0, LLVMModuleRef _swig_go_1, _gostring_* _swig_go_2) {
   LLVMExecutionEngineRef *arg1 = (LLVMExecutionEngineRef *) 0 ;
   LLVMModuleRef arg2 ;
   char **arg3 = (char **) 0 ;
@@ -23192,7 +22862,7 @@ bool _wrap_CreateInterpreterForModule_llvm_5d1e3feecae2b244(struct LLVMOpaqueExe
 }
 
 
-bool _wrap_CreateJITCompilerForModule_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine **_swig_go_0, LLVMModuleRef _swig_go_1, intgo _swig_go_2, _gostring_* _swig_go_3) {
+bool _wrap_CreateJITCompilerForModule_llvm_a0e88c3155de3083(struct LLVMOpaqueExecutionEngine **_swig_go_0, LLVMModuleRef _swig_go_1, intgo _swig_go_2, _gostring_* _swig_go_3) {
   LLVMExecutionEngineRef *arg1 = (LLVMExecutionEngineRef *) 0 ;
   LLVMModuleRef arg2 ;
   unsigned int arg3 ;
@@ -23215,7 +22885,7 @@ bool _wrap_CreateJITCompilerForModule_llvm_5d1e3feecae2b244(struct LLVMOpaqueExe
 }
 
 
-void _wrap_InitializeMCJITCompilerOptions_llvm_5d1e3feecae2b244(struct LLVMMCJITCompilerOptions *_swig_go_0, long long _swig_go_1) {
+void _wrap_InitializeMCJITCompilerOptions_llvm_a0e88c3155de3083(struct LLVMMCJITCompilerOptions *_swig_go_0, long long _swig_go_1) {
   struct LLVMMCJITCompilerOptions *arg1 = (struct LLVMMCJITCompilerOptions *) 0 ;
   size_t arg2 ;
   
@@ -23227,7 +22897,7 @@ void _wrap_InitializeMCJITCompilerOptions_llvm_5d1e3feecae2b244(struct LLVMMCJIT
 }
 
 
-bool _wrap_CreateMCJITCompilerForModule_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine **_swig_go_0, LLVMModuleRef _swig_go_1, struct LLVMMCJITCompilerOptions *_swig_go_2, long long _swig_go_3, _gostring_* _swig_go_4) {
+bool _wrap_CreateMCJITCompilerForModule_llvm_a0e88c3155de3083(struct LLVMOpaqueExecutionEngine **_swig_go_0, LLVMModuleRef _swig_go_1, struct LLVMMCJITCompilerOptions *_swig_go_2, long long _swig_go_3, _gostring_* _swig_go_4) {
   LLVMExecutionEngineRef *arg1 = (LLVMExecutionEngineRef *) 0 ;
   LLVMModuleRef arg2 ;
   struct LLVMMCJITCompilerOptions *arg3 = (struct LLVMMCJITCompilerOptions *) 0 ;
@@ -23252,7 +22922,7 @@ bool _wrap_CreateMCJITCompilerForModule_llvm_5d1e3feecae2b244(struct LLVMOpaqueE
 }
 
 
-void _wrap_DisposeExecutionEngine_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine *_swig_go_0) {
+void _wrap_DisposeExecutionEngine_llvm_a0e88c3155de3083(struct LLVMOpaqueExecutionEngine *_swig_go_0) {
   LLVMExecutionEngineRef arg1 = (LLVMExecutionEngineRef) 0 ;
   
   arg1 = *(LLVMExecutionEngineRef *)&_swig_go_0; 
@@ -23262,7 +22932,7 @@ void _wrap_DisposeExecutionEngine_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecuti
 }
 
 
-void _wrap_RunStaticConstructors_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine *_swig_go_0) {
+void _wrap_RunStaticConstructors_llvm_a0e88c3155de3083(struct LLVMOpaqueExecutionEngine *_swig_go_0) {
   LLVMExecutionEngineRef arg1 = (LLVMExecutionEngineRef) 0 ;
   
   arg1 = *(LLVMExecutionEngineRef *)&_swig_go_0; 
@@ -23272,7 +22942,7 @@ void _wrap_RunStaticConstructors_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutio
 }
 
 
-void _wrap_RunStaticDestructors_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine *_swig_go_0) {
+void _wrap_RunStaticDestructors_llvm_a0e88c3155de3083(struct LLVMOpaqueExecutionEngine *_swig_go_0) {
   LLVMExecutionEngineRef arg1 = (LLVMExecutionEngineRef) 0 ;
   
   arg1 = *(LLVMExecutionEngineRef *)&_swig_go_0; 
@@ -23282,7 +22952,7 @@ void _wrap_RunStaticDestructors_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecution
 }
 
 
-intgo _wrap_RunFunctionAsMain_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine *_swig_go_0, LLVMValueRef _swig_go_1, intgo _swig_go_2, _gostring_* _swig_go_3, _gostring_* _swig_go_4) {
+intgo _wrap_RunFunctionAsMain_llvm_a0e88c3155de3083(struct LLVMOpaqueExecutionEngine *_swig_go_0, LLVMValueRef _swig_go_1, intgo _swig_go_2, _gostring_* _swig_go_3, _gostring_* _swig_go_4) {
   LLVMExecutionEngineRef arg1 = (LLVMExecutionEngineRef) 0 ;
   LLVMValueRef arg2 ;
   unsigned int arg3 ;
@@ -23305,7 +22975,7 @@ intgo _wrap_RunFunctionAsMain_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEn
 }
 
 
-struct LLVMOpaqueGenericValue *_wrap_RunFunction_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine *_swig_go_0, LLVMValueRef _swig_go_1, intgo _swig_go_2, struct LLVMOpaqueGenericValue **_swig_go_3) {
+struct LLVMOpaqueGenericValue *_wrap_RunFunction_llvm_a0e88c3155de3083(struct LLVMOpaqueExecutionEngine *_swig_go_0, LLVMValueRef _swig_go_1, intgo _swig_go_2, struct LLVMOpaqueGenericValue **_swig_go_3) {
   LLVMExecutionEngineRef arg1 = (LLVMExecutionEngineRef) 0 ;
   LLVMValueRef arg2 ;
   unsigned int arg3 ;
@@ -23326,7 +22996,7 @@ struct LLVMOpaqueGenericValue *_wrap_RunFunction_llvm_5d1e3feecae2b244(struct LL
 }
 
 
-void _wrap_FreeMachineCodeForFunction_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine *_swig_go_0, LLVMValueRef _swig_go_1) {
+void _wrap_FreeMachineCodeForFunction_llvm_a0e88c3155de3083(struct LLVMOpaqueExecutionEngine *_swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMExecutionEngineRef arg1 = (LLVMExecutionEngineRef) 0 ;
   LLVMValueRef arg2 ;
   
@@ -23340,7 +23010,7 @@ void _wrap_FreeMachineCodeForFunction_llvm_5d1e3feecae2b244(struct LLVMOpaqueExe
 }
 
 
-void _wrap_AddModule_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine *_swig_go_0, LLVMModuleRef _swig_go_1) {
+void _wrap_AddModule_llvm_a0e88c3155de3083(struct LLVMOpaqueExecutionEngine *_swig_go_0, LLVMModuleRef _swig_go_1) {
   LLVMExecutionEngineRef arg1 = (LLVMExecutionEngineRef) 0 ;
   LLVMModuleRef arg2 ;
   
@@ -23354,7 +23024,7 @@ void _wrap_AddModule_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine *_sw
 }
 
 
-bool _wrap_RemoveModule_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine *_swig_go_0, LLVMModuleRef _swig_go_1, LLVMModuleRef *_swig_go_2, _gostring_* _swig_go_3) {
+bool _wrap_RemoveModule_llvm_a0e88c3155de3083(struct LLVMOpaqueExecutionEngine *_swig_go_0, LLVMModuleRef _swig_go_1, LLVMModuleRef *_swig_go_2, _gostring_* _swig_go_3) {
   LLVMExecutionEngineRef arg1 = (LLVMExecutionEngineRef) 0 ;
   LLVMModuleRef arg2 ;
   LLVMModuleRef *arg3 = (LLVMModuleRef *) 0 ;
@@ -23377,7 +23047,7 @@ bool _wrap_RemoveModule_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine *
 }
 
 
-bool _wrap_FindFunction_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine *_swig_go_0, char *_swig_go_1, LLVMValueRef *_swig_go_2) {
+bool _wrap_FindFunction_llvm_a0e88c3155de3083(struct LLVMOpaqueExecutionEngine *_swig_go_0, char *_swig_go_1, LLVMValueRef *_swig_go_2) {
   LLVMExecutionEngineRef arg1 = (LLVMExecutionEngineRef) 0 ;
   char *arg2 = (char *) 0 ;
   LLVMValueRef *arg3 = (LLVMValueRef *) 0 ;
@@ -23401,7 +23071,7 @@ bool _wrap_FindFunction_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine *
 }
 
 
-void *_wrap_RecompileAndRelinkFunction_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine *_swig_go_0, LLVMValueRef _swig_go_1) {
+void *_wrap_RecompileAndRelinkFunction_llvm_a0e88c3155de3083(struct LLVMOpaqueExecutionEngine *_swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMExecutionEngineRef arg1 = (LLVMExecutionEngineRef) 0 ;
   LLVMValueRef arg2 ;
   void *result = 0 ;
@@ -23418,7 +23088,7 @@ void *_wrap_RecompileAndRelinkFunction_llvm_5d1e3feecae2b244(struct LLVMOpaqueEx
 }
 
 
-LLVMTargetDataRef _wrap_GetExecutionEngineTargetData_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine *_swig_go_0) {
+LLVMTargetDataRef _wrap_GetExecutionEngineTargetData_llvm_a0e88c3155de3083(struct LLVMOpaqueExecutionEngine *_swig_go_0) {
   LLVMExecutionEngineRef arg1 = (LLVMExecutionEngineRef) 0 ;
   LLVMTargetDataRef result;
   LLVMTargetDataRef _swig_go_result;
@@ -23433,7 +23103,7 @@ LLVMTargetDataRef _wrap_GetExecutionEngineTargetData_llvm_5d1e3feecae2b244(struc
 }
 
 
-LLVMTargetMachineRef _wrap_GetExecutionEngineTargetMachine_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine *_swig_go_0) {
+LLVMTargetMachineRef _wrap_GetExecutionEngineTargetMachine_llvm_a0e88c3155de3083(struct LLVMOpaqueExecutionEngine *_swig_go_0) {
   LLVMExecutionEngineRef arg1 = (LLVMExecutionEngineRef) 0 ;
   LLVMTargetMachineRef result;
   LLVMTargetMachineRef _swig_go_result;
@@ -23448,7 +23118,7 @@ LLVMTargetMachineRef _wrap_GetExecutionEngineTargetMachine_llvm_5d1e3feecae2b244
 }
 
 
-void _wrap_AddGlobalMapping_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine *_swig_go_0, LLVMValueRef _swig_go_1, void *_swig_go_2) {
+void _wrap_AddGlobalMapping_llvm_a0e88c3155de3083(struct LLVMOpaqueExecutionEngine *_swig_go_0, LLVMValueRef _swig_go_1, void *_swig_go_2) {
   LLVMExecutionEngineRef arg1 = (LLVMExecutionEngineRef) 0 ;
   LLVMValueRef arg2 ;
   void *arg3 = (void *) 0 ;
@@ -23464,7 +23134,7 @@ void _wrap_AddGlobalMapping_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngi
 }
 
 
-void *_wrap_GetPointerToGlobal_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine *_swig_go_0, LLVMValueRef _swig_go_1) {
+void *_wrap_GetPointerToGlobal_llvm_a0e88c3155de3083(struct LLVMOpaqueExecutionEngine *_swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMExecutionEngineRef arg1 = (LLVMExecutionEngineRef) 0 ;
   LLVMValueRef arg2 ;
   void *result = 0 ;
@@ -23481,7 +23151,7 @@ void *_wrap_GetPointerToGlobal_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionE
 }
 
 
-long long _wrap_GetGlobalValueAddress_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine *_swig_go_0, char *_swig_go_1) {
+long long _wrap_GetGlobalValueAddress_llvm_a0e88c3155de3083(struct LLVMOpaqueExecutionEngine *_swig_go_0, char *_swig_go_1) {
   LLVMExecutionEngineRef arg1 = (LLVMExecutionEngineRef) 0 ;
   char *arg2 = (char *) 0 ;
   uint64_t result;
@@ -23501,7 +23171,7 @@ long long _wrap_GetGlobalValueAddress_llvm_5d1e3feecae2b244(struct LLVMOpaqueExe
 }
 
 
-long long _wrap_GetFunctionAddress_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine *_swig_go_0, char *_swig_go_1) {
+long long _wrap_GetFunctionAddress_llvm_a0e88c3155de3083(struct LLVMOpaqueExecutionEngine *_swig_go_0, char *_swig_go_1) {
   LLVMExecutionEngineRef arg1 = (LLVMExecutionEngineRef) 0 ;
   char *arg2 = (char *) 0 ;
   uint64_t result;
@@ -23521,7 +23191,7 @@ long long _wrap_GetFunctionAddress_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecut
 }
 
 
-bool _wrap_ExecutionEngineGetErrMsg_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecutionEngine *_swig_go_0, _gostring_* _swig_go_1) {
+bool _wrap_ExecutionEngineGetErrMsg_llvm_a0e88c3155de3083(struct LLVMOpaqueExecutionEngine *_swig_go_0, _gostring_* _swig_go_1) {
   LLVMExecutionEngineRef arg1 = (LLVMExecutionEngineRef) 0 ;
   char **arg2 = (char **) 0 ;
   LLVMBool result;
@@ -23538,7 +23208,7 @@ bool _wrap_ExecutionEngineGetErrMsg_llvm_5d1e3feecae2b244(struct LLVMOpaqueExecu
 }
 
 
-struct LLVMOpaqueMCJITMemoryManager *_wrap_CreateSimpleMCJITMemoryManager_llvm_5d1e3feecae2b244(void *_swig_go_0, void* _swig_go_1, void* _swig_go_2, void* _swig_go_3, void* _swig_go_4) {
+struct LLVMOpaqueMCJITMemoryManager *_wrap_CreateSimpleMCJITMemoryManager_llvm_a0e88c3155de3083(void *_swig_go_0, void* _swig_go_1, void* _swig_go_2, void* _swig_go_3, void* _swig_go_4) {
   void *arg1 = (void *) 0 ;
   LLVMMemoryManagerAllocateCodeSectionCallback arg2 = (LLVMMemoryManagerAllocateCodeSectionCallback) 0 ;
   LLVMMemoryManagerAllocateDataSectionCallback arg3 = (LLVMMemoryManagerAllocateDataSectionCallback) 0 ;
@@ -23559,7 +23229,7 @@ struct LLVMOpaqueMCJITMemoryManager *_wrap_CreateSimpleMCJITMemoryManager_llvm_5
 }
 
 
-void _wrap_DisposeMCJITMemoryManager_llvm_5d1e3feecae2b244(struct LLVMOpaqueMCJITMemoryManager *_swig_go_0) {
+void _wrap_DisposeMCJITMemoryManager_llvm_a0e88c3155de3083(struct LLVMOpaqueMCJITMemoryManager *_swig_go_0) {
   LLVMMCJITMemoryManagerRef arg1 = (LLVMMCJITMemoryManagerRef) 0 ;
   
   arg1 = *(LLVMMCJITMemoryManagerRef *)&_swig_go_0; 
@@ -23569,7 +23239,7 @@ void _wrap_DisposeMCJITMemoryManager_llvm_5d1e3feecae2b244(struct LLVMOpaqueMCJI
 }
 
 
-LLVMJITEventListenerRef _wrap_CreateGDBRegistrationListener_llvm_5d1e3feecae2b244() {
+LLVMJITEventListenerRef _wrap_CreateGDBRegistrationListener_llvm_a0e88c3155de3083() {
   LLVMJITEventListenerRef result;
   LLVMJITEventListenerRef _swig_go_result;
   
@@ -23582,7 +23252,7 @@ LLVMJITEventListenerRef _wrap_CreateGDBRegistrationListener_llvm_5d1e3feecae2b24
 }
 
 
-LLVMJITEventListenerRef _wrap_CreateIntelJITEventListener_llvm_5d1e3feecae2b244() {
+LLVMJITEventListenerRef _wrap_CreateIntelJITEventListener_llvm_a0e88c3155de3083() {
   LLVMJITEventListenerRef result;
   LLVMJITEventListenerRef _swig_go_result;
   
@@ -23595,7 +23265,7 @@ LLVMJITEventListenerRef _wrap_CreateIntelJITEventListener_llvm_5d1e3feecae2b244(
 }
 
 
-LLVMJITEventListenerRef _wrap_CreateOProfileJITEventListener_llvm_5d1e3feecae2b244() {
+LLVMJITEventListenerRef _wrap_CreateOProfileJITEventListener_llvm_a0e88c3155de3083() {
   LLVMJITEventListenerRef result;
   LLVMJITEventListenerRef _swig_go_result;
   
@@ -23608,7 +23278,7 @@ LLVMJITEventListenerRef _wrap_CreateOProfileJITEventListener_llvm_5d1e3feecae2b2
 }
 
 
-LLVMJITEventListenerRef _wrap_CreatePerfJITEventListener_llvm_5d1e3feecae2b244() {
+LLVMJITEventListenerRef _wrap_CreatePerfJITEventListener_llvm_a0e88c3155de3083() {
   LLVMJITEventListenerRef result;
   LLVMJITEventListenerRef _swig_go_result;
   
@@ -23621,7 +23291,7 @@ LLVMJITEventListenerRef _wrap_CreatePerfJITEventListener_llvm_5d1e3feecae2b244()
 }
 
 
-void _wrap_InitializeTransformUtils_llvm_5d1e3feecae2b244(LLVMPassRegistryRef _swig_go_0) {
+void _wrap_InitializeTransformUtils_llvm_a0e88c3155de3083(LLVMPassRegistryRef _swig_go_0) {
   LLVMPassRegistryRef arg1 ;
   
   {
@@ -23633,7 +23303,7 @@ void _wrap_InitializeTransformUtils_llvm_5d1e3feecae2b244(LLVMPassRegistryRef _s
 }
 
 
-void _wrap_InitializeScalarOpts_llvm_5d1e3feecae2b244(LLVMPassRegistryRef _swig_go_0) {
+void _wrap_InitializeScalarOpts_llvm_a0e88c3155de3083(LLVMPassRegistryRef _swig_go_0) {
   LLVMPassRegistryRef arg1 ;
   
   {
@@ -23645,7 +23315,7 @@ void _wrap_InitializeScalarOpts_llvm_5d1e3feecae2b244(LLVMPassRegistryRef _swig_
 }
 
 
-void _wrap_InitializeVectorization_llvm_5d1e3feecae2b244(LLVMPassRegistryRef _swig_go_0) {
+void _wrap_InitializeVectorization_llvm_a0e88c3155de3083(LLVMPassRegistryRef _swig_go_0) {
   LLVMPassRegistryRef arg1 ;
   
   {
@@ -23657,7 +23327,7 @@ void _wrap_InitializeVectorization_llvm_5d1e3feecae2b244(LLVMPassRegistryRef _sw
 }
 
 
-void _wrap_InitializeInstCombine_llvm_5d1e3feecae2b244(LLVMPassRegistryRef _swig_go_0) {
+void _wrap_InitializeInstCombine_llvm_a0e88c3155de3083(LLVMPassRegistryRef _swig_go_0) {
   LLVMPassRegistryRef arg1 ;
   
   {
@@ -23669,7 +23339,7 @@ void _wrap_InitializeInstCombine_llvm_5d1e3feecae2b244(LLVMPassRegistryRef _swig
 }
 
 
-void _wrap_InitializeIPO_llvm_5d1e3feecae2b244(LLVMPassRegistryRef _swig_go_0) {
+void _wrap_InitializeIPO_llvm_a0e88c3155de3083(LLVMPassRegistryRef _swig_go_0) {
   LLVMPassRegistryRef arg1 ;
   
   {
@@ -23681,7 +23351,7 @@ void _wrap_InitializeIPO_llvm_5d1e3feecae2b244(LLVMPassRegistryRef _swig_go_0) {
 }
 
 
-void _wrap_InitializeAnalysis_llvm_5d1e3feecae2b244(LLVMPassRegistryRef _swig_go_0) {
+void _wrap_InitializeAnalysis_llvm_a0e88c3155de3083(LLVMPassRegistryRef _swig_go_0) {
   LLVMPassRegistryRef arg1 ;
   
   {
@@ -23693,7 +23363,7 @@ void _wrap_InitializeAnalysis_llvm_5d1e3feecae2b244(LLVMPassRegistryRef _swig_go
 }
 
 
-void _wrap_InitializeIPA_llvm_5d1e3feecae2b244(LLVMPassRegistryRef _swig_go_0) {
+void _wrap_InitializeIPA_llvm_a0e88c3155de3083(LLVMPassRegistryRef _swig_go_0) {
   LLVMPassRegistryRef arg1 ;
   
   {
@@ -23705,7 +23375,7 @@ void _wrap_InitializeIPA_llvm_5d1e3feecae2b244(LLVMPassRegistryRef _swig_go_0) {
 }
 
 
-void _wrap_InitializeCodeGen_llvm_5d1e3feecae2b244(LLVMPassRegistryRef _swig_go_0) {
+void _wrap_InitializeCodeGen_llvm_a0e88c3155de3083(LLVMPassRegistryRef _swig_go_0) {
   LLVMPassRegistryRef arg1 ;
   
   {
@@ -23717,7 +23387,7 @@ void _wrap_InitializeCodeGen_llvm_5d1e3feecae2b244(LLVMPassRegistryRef _swig_go_
 }
 
 
-void _wrap_InitializeTarget_llvm_5d1e3feecae2b244(LLVMPassRegistryRef _swig_go_0) {
+void _wrap_InitializeTarget_llvm_a0e88c3155de3083(LLVMPassRegistryRef _swig_go_0) {
   LLVMPassRegistryRef arg1 ;
   
   {
@@ -23729,7 +23399,7 @@ void _wrap_InitializeTarget_llvm_5d1e3feecae2b244(LLVMPassRegistryRef _swig_go_0
 }
 
 
-bool _wrap_ParseIRInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, LLVMMemoryBufferRef _swig_go_1, LLVMModuleRef *_swig_go_2, _gostring_* _swig_go_3) {
+bool _wrap_ParseIRInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, LLVMMemoryBufferRef _swig_go_1, LLVMModuleRef *_swig_go_2, _gostring_* _swig_go_3) {
   LLVMContextRef arg1 ;
   LLVMMemoryBufferRef arg2 ;
   LLVMModuleRef *arg3 = (LLVMModuleRef *) 0 ;
@@ -23754,7 +23424,7 @@ bool _wrap_ParseIRInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, LLV
 }
 
 
-intgo _wrap_LinkerDestroySource_llvm_5d1e3feecae2b244() {
+intgo _wrap_LinkerDestroySource_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -23766,7 +23436,7 @@ intgo _wrap_LinkerDestroySource_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_LinkerPreserveSource_Removed_llvm_5d1e3feecae2b244() {
+intgo _wrap_LinkerPreserveSource_Removed_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -23778,7 +23448,7 @@ intgo _wrap_LinkerPreserveSource_Removed_llvm_5d1e3feecae2b244() {
 }
 
 
-bool _wrap_LinkModules2_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, LLVMModuleRef _swig_go_1) {
+bool _wrap_LinkModules2_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, LLVMModuleRef _swig_go_1) {
   LLVMModuleRef arg1 ;
   LLVMModuleRef arg2 ;
   LLVMBool result;
@@ -23799,7 +23469,7 @@ bool _wrap_LinkModules2_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, LLVMModu
 }
 
 
-intgo _wrap_BinaryTypeArchive_llvm_5d1e3feecae2b244() {
+intgo _wrap_BinaryTypeArchive_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -23811,7 +23481,7 @@ intgo _wrap_BinaryTypeArchive_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_BinaryTypeMachOUniversalBinary_llvm_5d1e3feecae2b244() {
+intgo _wrap_BinaryTypeMachOUniversalBinary_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -23823,7 +23493,7 @@ intgo _wrap_BinaryTypeMachOUniversalBinary_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_BinaryTypeCOFFImportFile_llvm_5d1e3feecae2b244() {
+intgo _wrap_BinaryTypeCOFFImportFile_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -23835,7 +23505,7 @@ intgo _wrap_BinaryTypeCOFFImportFile_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_BinaryTypeIR_llvm_5d1e3feecae2b244() {
+intgo _wrap_BinaryTypeIR_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -23847,7 +23517,7 @@ intgo _wrap_BinaryTypeIR_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_BinaryTypeWinRes_llvm_5d1e3feecae2b244() {
+intgo _wrap_BinaryTypeWinRes_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -23859,7 +23529,7 @@ intgo _wrap_BinaryTypeWinRes_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_BinaryTypeCOFF_llvm_5d1e3feecae2b244() {
+intgo _wrap_BinaryTypeCOFF_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -23871,7 +23541,7 @@ intgo _wrap_BinaryTypeCOFF_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_BinaryTypeELF32L_llvm_5d1e3feecae2b244() {
+intgo _wrap_BinaryTypeELF32L_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -23883,7 +23553,7 @@ intgo _wrap_BinaryTypeELF32L_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_BinaryTypeELF32B_llvm_5d1e3feecae2b244() {
+intgo _wrap_BinaryTypeELF32B_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -23895,7 +23565,7 @@ intgo _wrap_BinaryTypeELF32B_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_BinaryTypeELF64L_llvm_5d1e3feecae2b244() {
+intgo _wrap_BinaryTypeELF64L_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -23907,7 +23577,7 @@ intgo _wrap_BinaryTypeELF64L_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_BinaryTypeELF64B_llvm_5d1e3feecae2b244() {
+intgo _wrap_BinaryTypeELF64B_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -23919,7 +23589,7 @@ intgo _wrap_BinaryTypeELF64B_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_BinaryTypeMachO32L_llvm_5d1e3feecae2b244() {
+intgo _wrap_BinaryTypeMachO32L_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -23931,7 +23601,7 @@ intgo _wrap_BinaryTypeMachO32L_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_BinaryTypeMachO32B_llvm_5d1e3feecae2b244() {
+intgo _wrap_BinaryTypeMachO32B_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -23943,7 +23613,7 @@ intgo _wrap_BinaryTypeMachO32B_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_BinaryTypeMachO64L_llvm_5d1e3feecae2b244() {
+intgo _wrap_BinaryTypeMachO64L_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -23955,7 +23625,7 @@ intgo _wrap_BinaryTypeMachO64L_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_BinaryTypeMachO64B_llvm_5d1e3feecae2b244() {
+intgo _wrap_BinaryTypeMachO64B_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -23967,7 +23637,7 @@ intgo _wrap_BinaryTypeMachO64B_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_BinaryTypeWasm_llvm_5d1e3feecae2b244() {
+intgo _wrap_BinaryTypeWasm_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -23979,7 +23649,7 @@ intgo _wrap_BinaryTypeWasm_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_BinaryTypeOffload_llvm_5d1e3feecae2b244() {
+intgo _wrap_BinaryTypeOffload_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -23991,7 +23661,7 @@ intgo _wrap_BinaryTypeOffload_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMBinaryRef _wrap_CreateBinary_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef _swig_go_0, LLVMContextRef _swig_go_1, _gostring_* _swig_go_2) {
+LLVMBinaryRef _wrap_CreateBinary_llvm_a0e88c3155de3083(LLVMMemoryBufferRef _swig_go_0, LLVMContextRef _swig_go_1, _gostring_* _swig_go_2) {
   LLVMMemoryBufferRef arg1 ;
   LLVMContextRef arg2 ;
   char **arg3 = (char **) 0 ;
@@ -24014,7 +23684,7 @@ LLVMBinaryRef _wrap_CreateBinary_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef _swig
 }
 
 
-void _wrap_DisposeBinary_llvm_5d1e3feecae2b244(LLVMBinaryRef _swig_go_0) {
+void _wrap_DisposeBinary_llvm_a0e88c3155de3083(LLVMBinaryRef _swig_go_0) {
   LLVMBinaryRef arg1 ;
   
   {
@@ -24026,7 +23696,7 @@ void _wrap_DisposeBinary_llvm_5d1e3feecae2b244(LLVMBinaryRef _swig_go_0) {
 }
 
 
-LLVMMemoryBufferRef _wrap_BinaryCopyMemoryBuffer_llvm_5d1e3feecae2b244(LLVMBinaryRef _swig_go_0) {
+LLVMMemoryBufferRef _wrap_BinaryCopyMemoryBuffer_llvm_a0e88c3155de3083(LLVMBinaryRef _swig_go_0) {
   LLVMBinaryRef arg1 ;
   LLVMMemoryBufferRef result;
   LLVMMemoryBufferRef _swig_go_result;
@@ -24043,7 +23713,7 @@ LLVMMemoryBufferRef _wrap_BinaryCopyMemoryBuffer_llvm_5d1e3feecae2b244(LLVMBinar
 }
 
 
-intgo _wrap_BinaryGetType_llvm_5d1e3feecae2b244(LLVMBinaryRef _swig_go_0) {
+intgo _wrap_BinaryGetType_llvm_a0e88c3155de3083(LLVMBinaryRef _swig_go_0) {
   LLVMBinaryRef arg1 ;
   LLVMBinaryType result;
   intgo _swig_go_result;
@@ -24058,7 +23728,7 @@ intgo _wrap_BinaryGetType_llvm_5d1e3feecae2b244(LLVMBinaryRef _swig_go_0) {
 }
 
 
-LLVMBinaryRef _wrap_MachOUniversalBinaryCopyObjectForArch_llvm_5d1e3feecae2b244(LLVMBinaryRef _swig_go_0, char *_swig_go_1, long long _swig_go_2, _gostring_* _swig_go_3) {
+LLVMBinaryRef _wrap_MachOUniversalBinaryCopyObjectForArch_llvm_a0e88c3155de3083(LLVMBinaryRef _swig_go_0, char *_swig_go_1, long long _swig_go_2, _gostring_* _swig_go_3) {
   LLVMBinaryRef arg1 ;
   char *arg2 = (char *) 0 ;
   size_t arg3 ;
@@ -24086,7 +23756,7 @@ LLVMBinaryRef _wrap_MachOUniversalBinaryCopyObjectForArch_llvm_5d1e3feecae2b244(
 }
 
 
-struct LLVMOpaqueSectionIterator *_wrap_ObjectFileCopySectionIterator_llvm_5d1e3feecae2b244(LLVMBinaryRef _swig_go_0) {
+struct LLVMOpaqueSectionIterator *_wrap_ObjectFileCopySectionIterator_llvm_a0e88c3155de3083(LLVMBinaryRef _swig_go_0) {
   LLVMBinaryRef arg1 ;
   LLVMSectionIteratorRef result;
   struct LLVMOpaqueSectionIterator *_swig_go_result;
@@ -24101,7 +23771,7 @@ struct LLVMOpaqueSectionIterator *_wrap_ObjectFileCopySectionIterator_llvm_5d1e3
 }
 
 
-bool _wrap_ObjectFileIsSectionIteratorAtEnd_llvm_5d1e3feecae2b244(LLVMBinaryRef _swig_go_0, struct LLVMOpaqueSectionIterator *_swig_go_1) {
+bool _wrap_ObjectFileIsSectionIteratorAtEnd_llvm_a0e88c3155de3083(LLVMBinaryRef _swig_go_0, struct LLVMOpaqueSectionIterator *_swig_go_1) {
   LLVMBinaryRef arg1 ;
   LLVMSectionIteratorRef arg2 = (LLVMSectionIteratorRef) 0 ;
   LLVMBool result;
@@ -24120,7 +23790,7 @@ bool _wrap_ObjectFileIsSectionIteratorAtEnd_llvm_5d1e3feecae2b244(LLVMBinaryRef 
 }
 
 
-struct LLVMOpaqueSymbolIterator *_wrap_ObjectFileCopySymbolIterator_llvm_5d1e3feecae2b244(LLVMBinaryRef _swig_go_0) {
+struct LLVMOpaqueSymbolIterator *_wrap_ObjectFileCopySymbolIterator_llvm_a0e88c3155de3083(LLVMBinaryRef _swig_go_0) {
   LLVMBinaryRef arg1 ;
   LLVMSymbolIteratorRef result;
   struct LLVMOpaqueSymbolIterator *_swig_go_result;
@@ -24135,7 +23805,7 @@ struct LLVMOpaqueSymbolIterator *_wrap_ObjectFileCopySymbolIterator_llvm_5d1e3fe
 }
 
 
-bool _wrap_ObjectFileIsSymbolIteratorAtEnd_llvm_5d1e3feecae2b244(LLVMBinaryRef _swig_go_0, struct LLVMOpaqueSymbolIterator *_swig_go_1) {
+bool _wrap_ObjectFileIsSymbolIteratorAtEnd_llvm_a0e88c3155de3083(LLVMBinaryRef _swig_go_0, struct LLVMOpaqueSymbolIterator *_swig_go_1) {
   LLVMBinaryRef arg1 ;
   LLVMSymbolIteratorRef arg2 = (LLVMSymbolIteratorRef) 0 ;
   LLVMBool result;
@@ -24154,7 +23824,7 @@ bool _wrap_ObjectFileIsSymbolIteratorAtEnd_llvm_5d1e3feecae2b244(LLVMBinaryRef _
 }
 
 
-void _wrap_DisposeSectionIterator_llvm_5d1e3feecae2b244(struct LLVMOpaqueSectionIterator *_swig_go_0) {
+void _wrap_DisposeSectionIterator_llvm_a0e88c3155de3083(struct LLVMOpaqueSectionIterator *_swig_go_0) {
   LLVMSectionIteratorRef arg1 = (LLVMSectionIteratorRef) 0 ;
   
   arg1 = *(LLVMSectionIteratorRef *)&_swig_go_0; 
@@ -24164,7 +23834,7 @@ void _wrap_DisposeSectionIterator_llvm_5d1e3feecae2b244(struct LLVMOpaqueSection
 }
 
 
-void _wrap_MoveToNextSection_llvm_5d1e3feecae2b244(struct LLVMOpaqueSectionIterator *_swig_go_0) {
+void _wrap_MoveToNextSection_llvm_a0e88c3155de3083(struct LLVMOpaqueSectionIterator *_swig_go_0) {
   LLVMSectionIteratorRef arg1 = (LLVMSectionIteratorRef) 0 ;
   
   arg1 = *(LLVMSectionIteratorRef *)&_swig_go_0; 
@@ -24174,7 +23844,7 @@ void _wrap_MoveToNextSection_llvm_5d1e3feecae2b244(struct LLVMOpaqueSectionItera
 }
 
 
-void _wrap_MoveToContainingSection_llvm_5d1e3feecae2b244(struct LLVMOpaqueSectionIterator *_swig_go_0, struct LLVMOpaqueSymbolIterator *_swig_go_1) {
+void _wrap_MoveToContainingSection_llvm_a0e88c3155de3083(struct LLVMOpaqueSectionIterator *_swig_go_0, struct LLVMOpaqueSymbolIterator *_swig_go_1) {
   LLVMSectionIteratorRef arg1 = (LLVMSectionIteratorRef) 0 ;
   LLVMSymbolIteratorRef arg2 = (LLVMSymbolIteratorRef) 0 ;
   
@@ -24186,7 +23856,7 @@ void _wrap_MoveToContainingSection_llvm_5d1e3feecae2b244(struct LLVMOpaqueSectio
 }
 
 
-void _wrap_DisposeSymbolIterator_llvm_5d1e3feecae2b244(struct LLVMOpaqueSymbolIterator *_swig_go_0) {
+void _wrap_DisposeSymbolIterator_llvm_a0e88c3155de3083(struct LLVMOpaqueSymbolIterator *_swig_go_0) {
   LLVMSymbolIteratorRef arg1 = (LLVMSymbolIteratorRef) 0 ;
   
   arg1 = *(LLVMSymbolIteratorRef *)&_swig_go_0; 
@@ -24196,7 +23866,7 @@ void _wrap_DisposeSymbolIterator_llvm_5d1e3feecae2b244(struct LLVMOpaqueSymbolIt
 }
 
 
-void _wrap_MoveToNextSymbol_llvm_5d1e3feecae2b244(struct LLVMOpaqueSymbolIterator *_swig_go_0) {
+void _wrap_MoveToNextSymbol_llvm_a0e88c3155de3083(struct LLVMOpaqueSymbolIterator *_swig_go_0) {
   LLVMSymbolIteratorRef arg1 = (LLVMSymbolIteratorRef) 0 ;
   
   arg1 = *(LLVMSymbolIteratorRef *)&_swig_go_0; 
@@ -24206,7 +23876,7 @@ void _wrap_MoveToNextSymbol_llvm_5d1e3feecae2b244(struct LLVMOpaqueSymbolIterato
 }
 
 
-char *_wrap_GetSectionName_llvm_5d1e3feecae2b244(struct LLVMOpaqueSectionIterator *_swig_go_0) {
+char *_wrap_GetSectionName_llvm_a0e88c3155de3083(struct LLVMOpaqueSectionIterator *_swig_go_0) {
   LLVMSectionIteratorRef arg1 = (LLVMSectionIteratorRef) 0 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -24221,7 +23891,7 @@ char *_wrap_GetSectionName_llvm_5d1e3feecae2b244(struct LLVMOpaqueSectionIterato
 }
 
 
-long long _wrap_GetSectionSize_llvm_5d1e3feecae2b244(struct LLVMOpaqueSectionIterator *_swig_go_0) {
+long long _wrap_GetSectionSize_llvm_a0e88c3155de3083(struct LLVMOpaqueSectionIterator *_swig_go_0) {
   LLVMSectionIteratorRef arg1 = (LLVMSectionIteratorRef) 0 ;
   uint64_t result;
   long long _swig_go_result;
@@ -24234,7 +23904,7 @@ long long _wrap_GetSectionSize_llvm_5d1e3feecae2b244(struct LLVMOpaqueSectionIte
 }
 
 
-char *_wrap_GetSectionContents_llvm_5d1e3feecae2b244(struct LLVMOpaqueSectionIterator *_swig_go_0) {
+char *_wrap_GetSectionContents_llvm_a0e88c3155de3083(struct LLVMOpaqueSectionIterator *_swig_go_0) {
   LLVMSectionIteratorRef arg1 = (LLVMSectionIteratorRef) 0 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -24249,7 +23919,7 @@ char *_wrap_GetSectionContents_llvm_5d1e3feecae2b244(struct LLVMOpaqueSectionIte
 }
 
 
-long long _wrap_GetSectionAddress_llvm_5d1e3feecae2b244(struct LLVMOpaqueSectionIterator *_swig_go_0) {
+long long _wrap_GetSectionAddress_llvm_a0e88c3155de3083(struct LLVMOpaqueSectionIterator *_swig_go_0) {
   LLVMSectionIteratorRef arg1 = (LLVMSectionIteratorRef) 0 ;
   uint64_t result;
   long long _swig_go_result;
@@ -24262,7 +23932,7 @@ long long _wrap_GetSectionAddress_llvm_5d1e3feecae2b244(struct LLVMOpaqueSection
 }
 
 
-bool _wrap_GetSectionContainsSymbol_llvm_5d1e3feecae2b244(struct LLVMOpaqueSectionIterator *_swig_go_0, struct LLVMOpaqueSymbolIterator *_swig_go_1) {
+bool _wrap_GetSectionContainsSymbol_llvm_a0e88c3155de3083(struct LLVMOpaqueSectionIterator *_swig_go_0, struct LLVMOpaqueSymbolIterator *_swig_go_1) {
   LLVMSectionIteratorRef arg1 = (LLVMSectionIteratorRef) 0 ;
   LLVMSymbolIteratorRef arg2 = (LLVMSymbolIteratorRef) 0 ;
   LLVMBool result;
@@ -24279,7 +23949,7 @@ bool _wrap_GetSectionContainsSymbol_llvm_5d1e3feecae2b244(struct LLVMOpaqueSecti
 }
 
 
-struct LLVMOpaqueRelocationIterator *_wrap_GetRelocations_llvm_5d1e3feecae2b244(struct LLVMOpaqueSectionIterator *_swig_go_0) {
+struct LLVMOpaqueRelocationIterator *_wrap_GetRelocations_llvm_a0e88c3155de3083(struct LLVMOpaqueSectionIterator *_swig_go_0) {
   LLVMSectionIteratorRef arg1 = (LLVMSectionIteratorRef) 0 ;
   LLVMRelocationIteratorRef result;
   struct LLVMOpaqueRelocationIterator *_swig_go_result;
@@ -24292,7 +23962,7 @@ struct LLVMOpaqueRelocationIterator *_wrap_GetRelocations_llvm_5d1e3feecae2b244(
 }
 
 
-void _wrap_DisposeRelocationIterator_llvm_5d1e3feecae2b244(struct LLVMOpaqueRelocationIterator *_swig_go_0) {
+void _wrap_DisposeRelocationIterator_llvm_a0e88c3155de3083(struct LLVMOpaqueRelocationIterator *_swig_go_0) {
   LLVMRelocationIteratorRef arg1 = (LLVMRelocationIteratorRef) 0 ;
   
   arg1 = *(LLVMRelocationIteratorRef *)&_swig_go_0; 
@@ -24302,7 +23972,7 @@ void _wrap_DisposeRelocationIterator_llvm_5d1e3feecae2b244(struct LLVMOpaqueRelo
 }
 
 
-bool _wrap_IsRelocationIteratorAtEnd_llvm_5d1e3feecae2b244(struct LLVMOpaqueSectionIterator *_swig_go_0, struct LLVMOpaqueRelocationIterator *_swig_go_1) {
+bool _wrap_IsRelocationIteratorAtEnd_llvm_a0e88c3155de3083(struct LLVMOpaqueSectionIterator *_swig_go_0, struct LLVMOpaqueRelocationIterator *_swig_go_1) {
   LLVMSectionIteratorRef arg1 = (LLVMSectionIteratorRef) 0 ;
   LLVMRelocationIteratorRef arg2 = (LLVMRelocationIteratorRef) 0 ;
   LLVMBool result;
@@ -24319,7 +23989,7 @@ bool _wrap_IsRelocationIteratorAtEnd_llvm_5d1e3feecae2b244(struct LLVMOpaqueSect
 }
 
 
-void _wrap_MoveToNextRelocation_llvm_5d1e3feecae2b244(struct LLVMOpaqueRelocationIterator *_swig_go_0) {
+void _wrap_MoveToNextRelocation_llvm_a0e88c3155de3083(struct LLVMOpaqueRelocationIterator *_swig_go_0) {
   LLVMRelocationIteratorRef arg1 = (LLVMRelocationIteratorRef) 0 ;
   
   arg1 = *(LLVMRelocationIteratorRef *)&_swig_go_0; 
@@ -24329,7 +23999,7 @@ void _wrap_MoveToNextRelocation_llvm_5d1e3feecae2b244(struct LLVMOpaqueRelocatio
 }
 
 
-char *_wrap_GetSymbolName_llvm_5d1e3feecae2b244(struct LLVMOpaqueSymbolIterator *_swig_go_0) {
+char *_wrap_GetSymbolName_llvm_a0e88c3155de3083(struct LLVMOpaqueSymbolIterator *_swig_go_0) {
   LLVMSymbolIteratorRef arg1 = (LLVMSymbolIteratorRef) 0 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -24344,7 +24014,7 @@ char *_wrap_GetSymbolName_llvm_5d1e3feecae2b244(struct LLVMOpaqueSymbolIterator 
 }
 
 
-long long _wrap_GetSymbolAddress_llvm_5d1e3feecae2b244(struct LLVMOpaqueSymbolIterator *_swig_go_0) {
+long long _wrap_GetSymbolAddress_llvm_a0e88c3155de3083(struct LLVMOpaqueSymbolIterator *_swig_go_0) {
   LLVMSymbolIteratorRef arg1 = (LLVMSymbolIteratorRef) 0 ;
   uint64_t result;
   long long _swig_go_result;
@@ -24357,7 +24027,7 @@ long long _wrap_GetSymbolAddress_llvm_5d1e3feecae2b244(struct LLVMOpaqueSymbolIt
 }
 
 
-long long _wrap_GetSymbolSize_llvm_5d1e3feecae2b244(struct LLVMOpaqueSymbolIterator *_swig_go_0) {
+long long _wrap_GetSymbolSize_llvm_a0e88c3155de3083(struct LLVMOpaqueSymbolIterator *_swig_go_0) {
   LLVMSymbolIteratorRef arg1 = (LLVMSymbolIteratorRef) 0 ;
   uint64_t result;
   long long _swig_go_result;
@@ -24370,7 +24040,7 @@ long long _wrap_GetSymbolSize_llvm_5d1e3feecae2b244(struct LLVMOpaqueSymbolItera
 }
 
 
-long long _wrap_GetRelocationOffset_llvm_5d1e3feecae2b244(struct LLVMOpaqueRelocationIterator *_swig_go_0) {
+long long _wrap_GetRelocationOffset_llvm_a0e88c3155de3083(struct LLVMOpaqueRelocationIterator *_swig_go_0) {
   LLVMRelocationIteratorRef arg1 = (LLVMRelocationIteratorRef) 0 ;
   uint64_t result;
   long long _swig_go_result;
@@ -24383,7 +24053,7 @@ long long _wrap_GetRelocationOffset_llvm_5d1e3feecae2b244(struct LLVMOpaqueReloc
 }
 
 
-struct LLVMOpaqueSymbolIterator *_wrap_GetRelocationSymbol_llvm_5d1e3feecae2b244(struct LLVMOpaqueRelocationIterator *_swig_go_0) {
+struct LLVMOpaqueSymbolIterator *_wrap_GetRelocationSymbol_llvm_a0e88c3155de3083(struct LLVMOpaqueRelocationIterator *_swig_go_0) {
   LLVMRelocationIteratorRef arg1 = (LLVMRelocationIteratorRef) 0 ;
   LLVMSymbolIteratorRef result;
   struct LLVMOpaqueSymbolIterator *_swig_go_result;
@@ -24396,7 +24066,7 @@ struct LLVMOpaqueSymbolIterator *_wrap_GetRelocationSymbol_llvm_5d1e3feecae2b244
 }
 
 
-long long _wrap_GetRelocationType_llvm_5d1e3feecae2b244(struct LLVMOpaqueRelocationIterator *_swig_go_0) {
+long long _wrap_GetRelocationType_llvm_a0e88c3155de3083(struct LLVMOpaqueRelocationIterator *_swig_go_0) {
   LLVMRelocationIteratorRef arg1 = (LLVMRelocationIteratorRef) 0 ;
   uint64_t result;
   long long _swig_go_result;
@@ -24409,7 +24079,7 @@ long long _wrap_GetRelocationType_llvm_5d1e3feecae2b244(struct LLVMOpaqueRelocat
 }
 
 
-char *_wrap_GetRelocationTypeName_llvm_5d1e3feecae2b244(struct LLVMOpaqueRelocationIterator *_swig_go_0) {
+char *_wrap_GetRelocationTypeName_llvm_a0e88c3155de3083(struct LLVMOpaqueRelocationIterator *_swig_go_0) {
   LLVMRelocationIteratorRef arg1 = (LLVMRelocationIteratorRef) 0 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -24424,7 +24094,7 @@ char *_wrap_GetRelocationTypeName_llvm_5d1e3feecae2b244(struct LLVMOpaqueRelocat
 }
 
 
-char *_wrap_GetRelocationValueString_llvm_5d1e3feecae2b244(struct LLVMOpaqueRelocationIterator *_swig_go_0) {
+char *_wrap_GetRelocationValueString_llvm_a0e88c3155de3083(struct LLVMOpaqueRelocationIterator *_swig_go_0) {
   LLVMRelocationIteratorRef arg1 = (LLVMRelocationIteratorRef) 0 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -24439,7 +24109,7 @@ char *_wrap_GetRelocationValueString_llvm_5d1e3feecae2b244(struct LLVMOpaqueRelo
 }
 
 
-struct LLVMOpaqueObjectFile *_wrap_CreateObjectFile_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef _swig_go_0) {
+struct LLVMOpaqueObjectFile *_wrap_CreateObjectFile_llvm_a0e88c3155de3083(LLVMMemoryBufferRef _swig_go_0) {
   LLVMMemoryBufferRef arg1 ;
   LLVMObjectFileRef result;
   struct LLVMOpaqueObjectFile *_swig_go_result;
@@ -24454,7 +24124,7 @@ struct LLVMOpaqueObjectFile *_wrap_CreateObjectFile_llvm_5d1e3feecae2b244(LLVMMe
 }
 
 
-void _wrap_DisposeObjectFile_llvm_5d1e3feecae2b244(struct LLVMOpaqueObjectFile *_swig_go_0) {
+void _wrap_DisposeObjectFile_llvm_a0e88c3155de3083(struct LLVMOpaqueObjectFile *_swig_go_0) {
   LLVMObjectFileRef arg1 = (LLVMObjectFileRef) 0 ;
   
   arg1 = *(LLVMObjectFileRef *)&_swig_go_0; 
@@ -24464,7 +24134,7 @@ void _wrap_DisposeObjectFile_llvm_5d1e3feecae2b244(struct LLVMOpaqueObjectFile *
 }
 
 
-struct LLVMOpaqueSectionIterator *_wrap_GetSections_llvm_5d1e3feecae2b244(struct LLVMOpaqueObjectFile *_swig_go_0) {
+struct LLVMOpaqueSectionIterator *_wrap_GetSections_llvm_a0e88c3155de3083(struct LLVMOpaqueObjectFile *_swig_go_0) {
   LLVMObjectFileRef arg1 = (LLVMObjectFileRef) 0 ;
   LLVMSectionIteratorRef result;
   struct LLVMOpaqueSectionIterator *_swig_go_result;
@@ -24477,7 +24147,7 @@ struct LLVMOpaqueSectionIterator *_wrap_GetSections_llvm_5d1e3feecae2b244(struct
 }
 
 
-bool _wrap_IsSectionIteratorAtEnd_llvm_5d1e3feecae2b244(struct LLVMOpaqueObjectFile *_swig_go_0, struct LLVMOpaqueSectionIterator *_swig_go_1) {
+bool _wrap_IsSectionIteratorAtEnd_llvm_a0e88c3155de3083(struct LLVMOpaqueObjectFile *_swig_go_0, struct LLVMOpaqueSectionIterator *_swig_go_1) {
   LLVMObjectFileRef arg1 = (LLVMObjectFileRef) 0 ;
   LLVMSectionIteratorRef arg2 = (LLVMSectionIteratorRef) 0 ;
   LLVMBool result;
@@ -24494,7 +24164,7 @@ bool _wrap_IsSectionIteratorAtEnd_llvm_5d1e3feecae2b244(struct LLVMOpaqueObjectF
 }
 
 
-struct LLVMOpaqueSymbolIterator *_wrap_GetSymbols_llvm_5d1e3feecae2b244(struct LLVMOpaqueObjectFile *_swig_go_0) {
+struct LLVMOpaqueSymbolIterator *_wrap_GetSymbols_llvm_a0e88c3155de3083(struct LLVMOpaqueObjectFile *_swig_go_0) {
   LLVMObjectFileRef arg1 = (LLVMObjectFileRef) 0 ;
   LLVMSymbolIteratorRef result;
   struct LLVMOpaqueSymbolIterator *_swig_go_result;
@@ -24507,7 +24177,7 @@ struct LLVMOpaqueSymbolIterator *_wrap_GetSymbols_llvm_5d1e3feecae2b244(struct L
 }
 
 
-bool _wrap_IsSymbolIteratorAtEnd_llvm_5d1e3feecae2b244(struct LLVMOpaqueObjectFile *_swig_go_0, struct LLVMOpaqueSymbolIterator *_swig_go_1) {
+bool _wrap_IsSymbolIteratorAtEnd_llvm_a0e88c3155de3083(struct LLVMOpaqueObjectFile *_swig_go_0, struct LLVMOpaqueSymbolIterator *_swig_go_1) {
   LLVMObjectFileRef arg1 = (LLVMObjectFileRef) 0 ;
   LLVMSymbolIteratorRef arg2 = (LLVMSymbolIteratorRef) 0 ;
   LLVMBool result;
@@ -24524,7 +24194,7 @@ bool _wrap_IsSymbolIteratorAtEnd_llvm_5d1e3feecae2b244(struct LLVMOpaqueObjectFi
 }
 
 
-bool _wrap_LoadLibraryPermanently_llvm_5d1e3feecae2b244(char *_swig_go_0) {
+bool _wrap_LoadLibraryPermanently_llvm_a0e88c3155de3083(char *_swig_go_0) {
   char *arg1 = (char *) 0 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -24544,7 +24214,7 @@ bool _wrap_LoadLibraryPermanently_llvm_5d1e3feecae2b244(char *_swig_go_0) {
 }
 
 
-void _wrap_ParseCommandLineOptions_llvm_5d1e3feecae2b244(intgo _swig_go_0, _gostring_* _swig_go_1, char *_swig_go_2) {
+void _wrap_ParseCommandLineOptions_llvm_a0e88c3155de3083(intgo _swig_go_0, _gostring_* _swig_go_1, char *_swig_go_2) {
   int arg1 ;
   char **arg2 = (char **) 0 ;
   char *arg3 = (char *) 0 ;
@@ -24563,7 +24233,7 @@ void _wrap_ParseCommandLineOptions_llvm_5d1e3feecae2b244(intgo _swig_go_0, _gost
 }
 
 
-void *_wrap_SearchForAddressOfSymbol_llvm_5d1e3feecae2b244(char *_swig_go_0) {
+void *_wrap_SearchForAddressOfSymbol_llvm_a0e88c3155de3083(char *_swig_go_0) {
   char *arg1 = (char *) 0 ;
   void *result = 0 ;
   void *_swig_go_result;
@@ -24581,7 +24251,7 @@ void *_wrap_SearchForAddressOfSymbol_llvm_5d1e3feecae2b244(char *_swig_go_0) {
 }
 
 
-void _wrap_AddSymbol_llvm_5d1e3feecae2b244(char *_swig_go_0, void *_swig_go_1) {
+void _wrap_AddSymbol_llvm_a0e88c3155de3083(char *_swig_go_0, void *_swig_go_1) {
   char *arg1 = (char *) 0 ;
   void *arg2 = (void *) 0 ;
   
@@ -24598,7 +24268,7 @@ void _wrap_AddSymbol_llvm_5d1e3feecae2b244(char *_swig_go_0, void *_swig_go_1) {
 }
 
 
-intgo _wrap_BigEndian_llvm_5d1e3feecae2b244() {
+intgo _wrap_BigEndian_llvm_a0e88c3155de3083() {
   enum LLVMByteOrdering result;
   intgo _swig_go_result;
   
@@ -24610,7 +24280,7 @@ intgo _wrap_BigEndian_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_LittleEndian_llvm_5d1e3feecae2b244() {
+intgo _wrap_LittleEndian_llvm_a0e88c3155de3083() {
   enum LLVMByteOrdering result;
   intgo _swig_go_result;
   
@@ -24622,43 +24292,43 @@ intgo _wrap_LittleEndian_llvm_5d1e3feecae2b244() {
 }
 
 
-void _wrap_InitializeAllTargetInfos_llvm_5d1e3feecae2b244() {
+void _wrap_InitializeAllTargetInfos_llvm_a0e88c3155de3083() {
   LLVMInitializeAllTargetInfos();
   
 }
 
 
-void _wrap_InitializeAllTargets_llvm_5d1e3feecae2b244() {
+void _wrap_InitializeAllTargets_llvm_a0e88c3155de3083() {
   LLVMInitializeAllTargets();
   
 }
 
 
-void _wrap_InitializeAllTargetMCs_llvm_5d1e3feecae2b244() {
+void _wrap_InitializeAllTargetMCs_llvm_a0e88c3155de3083() {
   LLVMInitializeAllTargetMCs();
   
 }
 
 
-void _wrap_InitializeAllAsmPrinters_llvm_5d1e3feecae2b244() {
+void _wrap_InitializeAllAsmPrinters_llvm_a0e88c3155de3083() {
   LLVMInitializeAllAsmPrinters();
   
 }
 
 
-void _wrap_InitializeAllAsmParsers_llvm_5d1e3feecae2b244() {
+void _wrap_InitializeAllAsmParsers_llvm_a0e88c3155de3083() {
   LLVMInitializeAllAsmParsers();
   
 }
 
 
-void _wrap_InitializeAllDisassemblers_llvm_5d1e3feecae2b244() {
+void _wrap_InitializeAllDisassemblers_llvm_a0e88c3155de3083() {
   LLVMInitializeAllDisassemblers();
   
 }
 
 
-bool _wrap_InitializeNativeTarget_llvm_5d1e3feecae2b244() {
+bool _wrap_InitializeNativeTarget_llvm_a0e88c3155de3083() {
   LLVMBool result;
   bool _swig_go_result;
   
@@ -24671,7 +24341,7 @@ bool _wrap_InitializeNativeTarget_llvm_5d1e3feecae2b244() {
 }
 
 
-bool _wrap_InitializeNativeAsmParser_llvm_5d1e3feecae2b244() {
+bool _wrap_InitializeNativeAsmParser_llvm_a0e88c3155de3083() {
   LLVMBool result;
   bool _swig_go_result;
   
@@ -24684,7 +24354,7 @@ bool _wrap_InitializeNativeAsmParser_llvm_5d1e3feecae2b244() {
 }
 
 
-bool _wrap_InitializeNativeAsmPrinter_llvm_5d1e3feecae2b244() {
+bool _wrap_InitializeNativeAsmPrinter_llvm_a0e88c3155de3083() {
   LLVMBool result;
   bool _swig_go_result;
   
@@ -24697,7 +24367,7 @@ bool _wrap_InitializeNativeAsmPrinter_llvm_5d1e3feecae2b244() {
 }
 
 
-bool _wrap_InitializeNativeDisassembler_llvm_5d1e3feecae2b244() {
+bool _wrap_InitializeNativeDisassembler_llvm_a0e88c3155de3083() {
   LLVMBool result;
   bool _swig_go_result;
   
@@ -24710,7 +24380,7 @@ bool _wrap_InitializeNativeDisassembler_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMTargetDataRef _wrap_GetModuleDataLayout_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0) {
+LLVMTargetDataRef _wrap_GetModuleDataLayout_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0) {
   LLVMModuleRef arg1 ;
   LLVMTargetDataRef result;
   LLVMTargetDataRef _swig_go_result;
@@ -24727,7 +24397,7 @@ LLVMTargetDataRef _wrap_GetModuleDataLayout_llvm_5d1e3feecae2b244(LLVMModuleRef 
 }
 
 
-void _wrap_SetModuleDataLayout_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, LLVMTargetDataRef _swig_go_1) {
+void _wrap_SetModuleDataLayout_llvm_a0e88c3155de3083(LLVMModuleRef _swig_go_0, LLVMTargetDataRef _swig_go_1) {
   LLVMModuleRef arg1 ;
   LLVMTargetDataRef arg2 ;
   
@@ -24743,7 +24413,7 @@ void _wrap_SetModuleDataLayout_llvm_5d1e3feecae2b244(LLVMModuleRef _swig_go_0, L
 }
 
 
-LLVMTargetDataRef _wrap_CreateTargetData_llvm_5d1e3feecae2b244(char *_swig_go_0) {
+LLVMTargetDataRef _wrap_CreateTargetData_llvm_a0e88c3155de3083(char *_swig_go_0) {
   char *arg1 = (char *) 0 ;
   LLVMTargetDataRef result;
   LLVMTargetDataRef _swig_go_result;
@@ -24763,7 +24433,7 @@ LLVMTargetDataRef _wrap_CreateTargetData_llvm_5d1e3feecae2b244(char *_swig_go_0)
 }
 
 
-void _wrap_DisposeTargetData_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0) {
+void _wrap_DisposeTargetData_llvm_a0e88c3155de3083(LLVMTargetDataRef _swig_go_0) {
   LLVMTargetDataRef arg1 ;
   
   {
@@ -24775,7 +24445,7 @@ void _wrap_DisposeTargetData_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0)
 }
 
 
-void _wrap_AddTargetLibraryInfo_llvm_5d1e3feecae2b244(LLVMTargetLibraryInfoRef _swig_go_0, LLVMPassManagerRef _swig_go_1) {
+void _wrap_AddTargetLibraryInfo_llvm_a0e88c3155de3083(LLVMTargetLibraryInfoRef _swig_go_0, LLVMPassManagerRef _swig_go_1) {
   LLVMTargetLibraryInfoRef arg1 ;
   LLVMPassManagerRef arg2 ;
   
@@ -24791,7 +24461,7 @@ void _wrap_AddTargetLibraryInfo_llvm_5d1e3feecae2b244(LLVMTargetLibraryInfoRef _
 }
 
 
-char *_wrap_CopyStringRepOfTargetData_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0) {
+char *_wrap_CopyStringRepOfTargetData_llvm_a0e88c3155de3083(LLVMTargetDataRef _swig_go_0) {
   LLVMTargetDataRef arg1 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -24808,7 +24478,7 @@ char *_wrap_CopyStringRepOfTargetData_llvm_5d1e3feecae2b244(LLVMTargetDataRef _s
 }
 
 
-intgo _wrap_ByteOrder_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0) {
+intgo _wrap_ByteOrder_llvm_a0e88c3155de3083(LLVMTargetDataRef _swig_go_0) {
   LLVMTargetDataRef arg1 ;
   enum LLVMByteOrdering result;
   intgo _swig_go_result;
@@ -24823,7 +24493,7 @@ intgo _wrap_ByteOrder_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0) {
 }
 
 
-intgo _wrap_PointerSize_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0) {
+intgo _wrap_PointerSize_llvm_a0e88c3155de3083(LLVMTargetDataRef _swig_go_0) {
   LLVMTargetDataRef arg1 ;
   unsigned int result;
   intgo _swig_go_result;
@@ -24838,7 +24508,7 @@ intgo _wrap_PointerSize_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0) {
 }
 
 
-intgo _wrap_PointerSizeForAS_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0, intgo _swig_go_1) {
+intgo _wrap_PointerSizeForAS_llvm_a0e88c3155de3083(LLVMTargetDataRef _swig_go_0, intgo _swig_go_1) {
   LLVMTargetDataRef arg1 ;
   unsigned int arg2 ;
   unsigned int result;
@@ -24855,7 +24525,7 @@ intgo _wrap_PointerSizeForAS_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0,
 }
 
 
-LLVMTypeRef _wrap_IntPtrType_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0) {
+LLVMTypeRef _wrap_IntPtrType_llvm_a0e88c3155de3083(LLVMTargetDataRef _swig_go_0) {
   LLVMTargetDataRef arg1 ;
   LLVMTypeRef result;
   LLVMTypeRef _swig_go_result;
@@ -24872,7 +24542,7 @@ LLVMTypeRef _wrap_IntPtrType_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0)
 }
 
 
-LLVMTypeRef _wrap_IntPtrTypeForAS_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0, intgo _swig_go_1) {
+LLVMTypeRef _wrap_IntPtrTypeForAS_llvm_a0e88c3155de3083(LLVMTargetDataRef _swig_go_0, intgo _swig_go_1) {
   LLVMTargetDataRef arg1 ;
   unsigned int arg2 ;
   LLVMTypeRef result;
@@ -24891,7 +24561,7 @@ LLVMTypeRef _wrap_IntPtrTypeForAS_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_
 }
 
 
-LLVMTypeRef _wrap_IntPtrTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, LLVMTargetDataRef _swig_go_1) {
+LLVMTypeRef _wrap_IntPtrTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, LLVMTargetDataRef _swig_go_1) {
   LLVMContextRef arg1 ;
   LLVMTargetDataRef arg2 ;
   LLVMTypeRef result;
@@ -24912,7 +24582,7 @@ LLVMTypeRef _wrap_IntPtrTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig
 }
 
 
-LLVMTypeRef _wrap_IntPtrTypeForASInContext_llvm_5d1e3feecae2b244(LLVMContextRef _swig_go_0, LLVMTargetDataRef _swig_go_1, intgo _swig_go_2) {
+LLVMTypeRef _wrap_IntPtrTypeForASInContext_llvm_a0e88c3155de3083(LLVMContextRef _swig_go_0, LLVMTargetDataRef _swig_go_1, intgo _swig_go_2) {
   LLVMContextRef arg1 ;
   LLVMTargetDataRef arg2 ;
   unsigned int arg3 ;
@@ -24935,7 +24605,7 @@ LLVMTypeRef _wrap_IntPtrTypeForASInContext_llvm_5d1e3feecae2b244(LLVMContextRef 
 }
 
 
-long long _wrap_SizeOfTypeInBits_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+long long _wrap_SizeOfTypeInBits_llvm_a0e88c3155de3083(LLVMTargetDataRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMTargetDataRef arg1 ;
   LLVMTypeRef arg2 ;
   unsigned long long result;
@@ -24954,7 +24624,7 @@ long long _wrap_SizeOfTypeInBits_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_g
 }
 
 
-long long _wrap_StoreSizeOfType_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+long long _wrap_StoreSizeOfType_llvm_a0e88c3155de3083(LLVMTargetDataRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMTargetDataRef arg1 ;
   LLVMTypeRef arg2 ;
   unsigned long long result;
@@ -24973,7 +24643,7 @@ long long _wrap_StoreSizeOfType_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go
 }
 
 
-long long _wrap_ABISizeOfType_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+long long _wrap_ABISizeOfType_llvm_a0e88c3155de3083(LLVMTargetDataRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMTargetDataRef arg1 ;
   LLVMTypeRef arg2 ;
   unsigned long long result;
@@ -24992,7 +24662,7 @@ long long _wrap_ABISizeOfType_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0
 }
 
 
-intgo _wrap_ABIAlignmentOfType_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+intgo _wrap_ABIAlignmentOfType_llvm_a0e88c3155de3083(LLVMTargetDataRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMTargetDataRef arg1 ;
   LLVMTypeRef arg2 ;
   unsigned int result;
@@ -25011,7 +24681,7 @@ intgo _wrap_ABIAlignmentOfType_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_
 }
 
 
-intgo _wrap_CallFrameAlignmentOfType_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+intgo _wrap_CallFrameAlignmentOfType_llvm_a0e88c3155de3083(LLVMTargetDataRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMTargetDataRef arg1 ;
   LLVMTypeRef arg2 ;
   unsigned int result;
@@ -25030,7 +24700,7 @@ intgo _wrap_CallFrameAlignmentOfType_llvm_5d1e3feecae2b244(LLVMTargetDataRef _sw
 }
 
 
-intgo _wrap_PreferredAlignmentOfType_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0, LLVMTypeRef _swig_go_1) {
+intgo _wrap_PreferredAlignmentOfType_llvm_a0e88c3155de3083(LLVMTargetDataRef _swig_go_0, LLVMTypeRef _swig_go_1) {
   LLVMTargetDataRef arg1 ;
   LLVMTypeRef arg2 ;
   unsigned int result;
@@ -25049,7 +24719,7 @@ intgo _wrap_PreferredAlignmentOfType_llvm_5d1e3feecae2b244(LLVMTargetDataRef _sw
 }
 
 
-intgo _wrap_PreferredAlignmentOfGlobal_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0, LLVMValueRef _swig_go_1) {
+intgo _wrap_PreferredAlignmentOfGlobal_llvm_a0e88c3155de3083(LLVMTargetDataRef _swig_go_0, LLVMValueRef _swig_go_1) {
   LLVMTargetDataRef arg1 ;
   LLVMValueRef arg2 ;
   unsigned int result;
@@ -25068,7 +24738,7 @@ intgo _wrap_PreferredAlignmentOfGlobal_llvm_5d1e3feecae2b244(LLVMTargetDataRef _
 }
 
 
-intgo _wrap_ElementAtOffset_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0, LLVMTypeRef _swig_go_1, long long _swig_go_2) {
+intgo _wrap_ElementAtOffset_llvm_a0e88c3155de3083(LLVMTargetDataRef _swig_go_0, LLVMTypeRef _swig_go_1, long long _swig_go_2) {
   LLVMTargetDataRef arg1 ;
   LLVMTypeRef arg2 ;
   unsigned long long arg3 ;
@@ -25089,7 +24759,7 @@ intgo _wrap_ElementAtOffset_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0, 
 }
 
 
-long long _wrap_OffsetOfElement_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go_0, LLVMTypeRef _swig_go_1, intgo _swig_go_2) {
+long long _wrap_OffsetOfElement_llvm_a0e88c3155de3083(LLVMTargetDataRef _swig_go_0, LLVMTypeRef _swig_go_1, intgo _swig_go_2) {
   LLVMTargetDataRef arg1 ;
   LLVMTypeRef arg2 ;
   unsigned int arg3 ;
@@ -25110,7 +24780,7 @@ long long _wrap_OffsetOfElement_llvm_5d1e3feecae2b244(LLVMTargetDataRef _swig_go
 }
 
 
-intgo _wrap_CodeGenLevelNone_llvm_5d1e3feecae2b244() {
+intgo _wrap_CodeGenLevelNone_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -25122,7 +24792,7 @@ intgo _wrap_CodeGenLevelNone_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_CodeGenLevelLess_llvm_5d1e3feecae2b244() {
+intgo _wrap_CodeGenLevelLess_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -25134,7 +24804,7 @@ intgo _wrap_CodeGenLevelLess_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_CodeGenLevelDefault_llvm_5d1e3feecae2b244() {
+intgo _wrap_CodeGenLevelDefault_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -25146,7 +24816,7 @@ intgo _wrap_CodeGenLevelDefault_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_CodeGenLevelAggressive_llvm_5d1e3feecae2b244() {
+intgo _wrap_CodeGenLevelAggressive_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -25158,7 +24828,7 @@ intgo _wrap_CodeGenLevelAggressive_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_RelocDefault_llvm_5d1e3feecae2b244() {
+intgo _wrap_RelocDefault_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -25170,7 +24840,7 @@ intgo _wrap_RelocDefault_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_RelocStatic_llvm_5d1e3feecae2b244() {
+intgo _wrap_RelocStatic_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -25182,7 +24852,7 @@ intgo _wrap_RelocStatic_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_RelocPIC_llvm_5d1e3feecae2b244() {
+intgo _wrap_RelocPIC_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -25194,7 +24864,7 @@ intgo _wrap_RelocPIC_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_RelocDynamicNoPic_llvm_5d1e3feecae2b244() {
+intgo _wrap_RelocDynamicNoPic_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -25206,7 +24876,7 @@ intgo _wrap_RelocDynamicNoPic_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_RelocROPI_llvm_5d1e3feecae2b244() {
+intgo _wrap_RelocROPI_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -25218,7 +24888,7 @@ intgo _wrap_RelocROPI_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_RelocRWPI_llvm_5d1e3feecae2b244() {
+intgo _wrap_RelocRWPI_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -25230,7 +24900,7 @@ intgo _wrap_RelocRWPI_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_RelocROPI_RWPI_llvm_5d1e3feecae2b244() {
+intgo _wrap_RelocROPI_RWPI_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -25242,7 +24912,7 @@ intgo _wrap_RelocROPI_RWPI_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_CodeModelDefault_llvm_5d1e3feecae2b244() {
+intgo _wrap_CodeModelDefault_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -25254,7 +24924,7 @@ intgo _wrap_CodeModelDefault_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_CodeModelJITDefault_llvm_5d1e3feecae2b244() {
+intgo _wrap_CodeModelJITDefault_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -25266,7 +24936,7 @@ intgo _wrap_CodeModelJITDefault_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_CodeModelTiny_llvm_5d1e3feecae2b244() {
+intgo _wrap_CodeModelTiny_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -25278,7 +24948,7 @@ intgo _wrap_CodeModelTiny_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_CodeModelSmall_llvm_5d1e3feecae2b244() {
+intgo _wrap_CodeModelSmall_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -25290,7 +24960,7 @@ intgo _wrap_CodeModelSmall_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_CodeModelKernel_llvm_5d1e3feecae2b244() {
+intgo _wrap_CodeModelKernel_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -25302,7 +24972,7 @@ intgo _wrap_CodeModelKernel_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_CodeModelMedium_llvm_5d1e3feecae2b244() {
+intgo _wrap_CodeModelMedium_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -25314,7 +24984,7 @@ intgo _wrap_CodeModelMedium_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_CodeModelLarge_llvm_5d1e3feecae2b244() {
+intgo _wrap_CodeModelLarge_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -25326,7 +24996,7 @@ intgo _wrap_CodeModelLarge_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_AssemblyFile_llvm_5d1e3feecae2b244() {
+intgo _wrap_AssemblyFile_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -25338,7 +25008,7 @@ intgo _wrap_AssemblyFile_llvm_5d1e3feecae2b244() {
 }
 
 
-intgo _wrap_ObjectFile_llvm_5d1e3feecae2b244() {
+intgo _wrap_ObjectFile_llvm_a0e88c3155de3083() {
   int result;
   intgo _swig_go_result;
   
@@ -25350,7 +25020,7 @@ intgo _wrap_ObjectFile_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMTargetRef _wrap_GetFirstTarget_llvm_5d1e3feecae2b244() {
+LLVMTargetRef _wrap_GetFirstTarget_llvm_a0e88c3155de3083() {
   LLVMTargetRef result;
   LLVMTargetRef _swig_go_result;
   
@@ -25363,7 +25033,7 @@ LLVMTargetRef _wrap_GetFirstTarget_llvm_5d1e3feecae2b244() {
 }
 
 
-LLVMTargetRef _wrap_GetNextTarget_llvm_5d1e3feecae2b244(LLVMTargetRef _swig_go_0) {
+LLVMTargetRef _wrap_GetNextTarget_llvm_a0e88c3155de3083(LLVMTargetRef _swig_go_0) {
   LLVMTargetRef arg1 ;
   LLVMTargetRef result;
   LLVMTargetRef _swig_go_result;
@@ -25380,7 +25050,7 @@ LLVMTargetRef _wrap_GetNextTarget_llvm_5d1e3feecae2b244(LLVMTargetRef _swig_go_0
 }
 
 
-LLVMTargetRef _wrap_GetTargetFromName_llvm_5d1e3feecae2b244(char *_swig_go_0) {
+LLVMTargetRef _wrap_GetTargetFromName_llvm_a0e88c3155de3083(char *_swig_go_0) {
   char *arg1 = (char *) 0 ;
   LLVMTargetRef result;
   LLVMTargetRef _swig_go_result;
@@ -25400,7 +25070,7 @@ LLVMTargetRef _wrap_GetTargetFromName_llvm_5d1e3feecae2b244(char *_swig_go_0) {
 }
 
 
-char *_wrap_GetTargetName_llvm_5d1e3feecae2b244(LLVMTargetRef _swig_go_0) {
+char *_wrap_GetTargetName_llvm_a0e88c3155de3083(LLVMTargetRef _swig_go_0) {
   LLVMTargetRef arg1 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -25417,7 +25087,7 @@ char *_wrap_GetTargetName_llvm_5d1e3feecae2b244(LLVMTargetRef _swig_go_0) {
 }
 
 
-char *_wrap_GetTargetDescription_llvm_5d1e3feecae2b244(LLVMTargetRef _swig_go_0) {
+char *_wrap_GetTargetDescription_llvm_a0e88c3155de3083(LLVMTargetRef _swig_go_0) {
   LLVMTargetRef arg1 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -25434,7 +25104,7 @@ char *_wrap_GetTargetDescription_llvm_5d1e3feecae2b244(LLVMTargetRef _swig_go_0)
 }
 
 
-bool _wrap_TargetHasJIT_llvm_5d1e3feecae2b244(LLVMTargetRef _swig_go_0) {
+bool _wrap_TargetHasJIT_llvm_a0e88c3155de3083(LLVMTargetRef _swig_go_0) {
   LLVMTargetRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -25451,7 +25121,7 @@ bool _wrap_TargetHasJIT_llvm_5d1e3feecae2b244(LLVMTargetRef _swig_go_0) {
 }
 
 
-bool _wrap_TargetHasTargetMachine_llvm_5d1e3feecae2b244(LLVMTargetRef _swig_go_0) {
+bool _wrap_TargetHasTargetMachine_llvm_a0e88c3155de3083(LLVMTargetRef _swig_go_0) {
   LLVMTargetRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -25468,7 +25138,7 @@ bool _wrap_TargetHasTargetMachine_llvm_5d1e3feecae2b244(LLVMTargetRef _swig_go_0
 }
 
 
-bool _wrap_TargetHasAsmBackend_llvm_5d1e3feecae2b244(LLVMTargetRef _swig_go_0) {
+bool _wrap_TargetHasAsmBackend_llvm_a0e88c3155de3083(LLVMTargetRef _swig_go_0) {
   LLVMTargetRef arg1 ;
   LLVMBool result;
   bool _swig_go_result;
@@ -25485,7 +25155,7 @@ bool _wrap_TargetHasAsmBackend_llvm_5d1e3feecae2b244(LLVMTargetRef _swig_go_0) {
 }
 
 
-LLVMTargetMachineRef _wrap_CreateTargetMachine_llvm_5d1e3feecae2b244(LLVMTargetRef _swig_go_0, char *_swig_go_1, char *_swig_go_2, char *_swig_go_3, intgo _swig_go_4, intgo _swig_go_5, intgo _swig_go_6) {
+LLVMTargetMachineRef _wrap_CreateTargetMachine_llvm_a0e88c3155de3083(LLVMTargetRef _swig_go_0, char *_swig_go_1, char *_swig_go_2, char *_swig_go_3, intgo _swig_go_4, intgo _swig_go_5, intgo _swig_go_6) {
   LLVMTargetRef arg1 ;
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
@@ -25529,7 +25199,7 @@ LLVMTargetMachineRef _wrap_CreateTargetMachine_llvm_5d1e3feecae2b244(LLVMTargetR
 }
 
 
-void _wrap_DisposeTargetMachine_llvm_5d1e3feecae2b244(LLVMTargetMachineRef _swig_go_0) {
+void _wrap_DisposeTargetMachine_llvm_a0e88c3155de3083(LLVMTargetMachineRef _swig_go_0) {
   LLVMTargetMachineRef arg1 ;
   
   {
@@ -25541,7 +25211,7 @@ void _wrap_DisposeTargetMachine_llvm_5d1e3feecae2b244(LLVMTargetMachineRef _swig
 }
 
 
-LLVMTargetRef _wrap_GetTargetMachineTarget_llvm_5d1e3feecae2b244(LLVMTargetMachineRef _swig_go_0) {
+LLVMTargetRef _wrap_GetTargetMachineTarget_llvm_a0e88c3155de3083(LLVMTargetMachineRef _swig_go_0) {
   LLVMTargetMachineRef arg1 ;
   LLVMTargetRef result;
   LLVMTargetRef _swig_go_result;
@@ -25558,7 +25228,7 @@ LLVMTargetRef _wrap_GetTargetMachineTarget_llvm_5d1e3feecae2b244(LLVMTargetMachi
 }
 
 
-char *_wrap_GetTargetMachineTriple_llvm_5d1e3feecae2b244(LLVMTargetMachineRef _swig_go_0) {
+char *_wrap_GetTargetMachineTriple_llvm_a0e88c3155de3083(LLVMTargetMachineRef _swig_go_0) {
   LLVMTargetMachineRef arg1 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -25575,7 +25245,7 @@ char *_wrap_GetTargetMachineTriple_llvm_5d1e3feecae2b244(LLVMTargetMachineRef _s
 }
 
 
-char *_wrap_GetTargetMachineCPU_llvm_5d1e3feecae2b244(LLVMTargetMachineRef _swig_go_0) {
+char *_wrap_GetTargetMachineCPU_llvm_a0e88c3155de3083(LLVMTargetMachineRef _swig_go_0) {
   LLVMTargetMachineRef arg1 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -25592,7 +25262,7 @@ char *_wrap_GetTargetMachineCPU_llvm_5d1e3feecae2b244(LLVMTargetMachineRef _swig
 }
 
 
-char *_wrap_GetTargetMachineFeatureString_llvm_5d1e3feecae2b244(LLVMTargetMachineRef _swig_go_0) {
+char *_wrap_GetTargetMachineFeatureString_llvm_a0e88c3155de3083(LLVMTargetMachineRef _swig_go_0) {
   LLVMTargetMachineRef arg1 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -25609,7 +25279,7 @@ char *_wrap_GetTargetMachineFeatureString_llvm_5d1e3feecae2b244(LLVMTargetMachin
 }
 
 
-LLVMTargetDataRef _wrap_CreateTargetDataLayout_llvm_5d1e3feecae2b244(LLVMTargetMachineRef _swig_go_0) {
+LLVMTargetDataRef _wrap_CreateTargetDataLayout_llvm_a0e88c3155de3083(LLVMTargetMachineRef _swig_go_0) {
   LLVMTargetMachineRef arg1 ;
   LLVMTargetDataRef result;
   LLVMTargetDataRef _swig_go_result;
@@ -25626,7 +25296,7 @@ LLVMTargetDataRef _wrap_CreateTargetDataLayout_llvm_5d1e3feecae2b244(LLVMTargetM
 }
 
 
-void _wrap_SetTargetMachineAsmVerbosity_llvm_5d1e3feecae2b244(LLVMTargetMachineRef _swig_go_0, bool _swig_go_1) {
+void _wrap_SetTargetMachineAsmVerbosity_llvm_a0e88c3155de3083(LLVMTargetMachineRef _swig_go_0, bool _swig_go_1) {
   LLVMTargetMachineRef arg1 ;
   LLVMBool arg2 ;
   
@@ -25642,7 +25312,7 @@ void _wrap_SetTargetMachineAsmVerbosity_llvm_5d1e3feecae2b244(LLVMTargetMachineR
 }
 
 
-bool _wrap_TargetMachineEmitToFile_llvm_5d1e3feecae2b244(LLVMTargetMachineRef _swig_go_0, LLVMModuleRef _swig_go_1, char *_swig_go_2, intgo _swig_go_3, _gostring_* _swig_go_4) {
+bool _wrap_TargetMachineEmitToFile_llvm_a0e88c3155de3083(LLVMTargetMachineRef _swig_go_0, LLVMModuleRef _swig_go_1, char *_swig_go_2, intgo _swig_go_3, _gostring_* _swig_go_4) {
   LLVMTargetMachineRef arg1 ;
   LLVMModuleRef arg2 ;
   char *arg3 = (char *) 0 ;
@@ -25674,7 +25344,7 @@ bool _wrap_TargetMachineEmitToFile_llvm_5d1e3feecae2b244(LLVMTargetMachineRef _s
 }
 
 
-bool _wrap_TargetMachineEmitToMemoryBuffer_llvm_5d1e3feecae2b244(LLVMTargetMachineRef _swig_go_0, LLVMModuleRef _swig_go_1, intgo _swig_go_2, _gostring_* _swig_go_3, LLVMMemoryBufferRef *_swig_go_4) {
+bool _wrap_TargetMachineEmitToMemoryBuffer_llvm_a0e88c3155de3083(LLVMTargetMachineRef _swig_go_0, LLVMModuleRef _swig_go_1, intgo _swig_go_2, _gostring_* _swig_go_3, LLVMMemoryBufferRef *_swig_go_4) {
   LLVMTargetMachineRef arg1 ;
   LLVMModuleRef arg2 ;
   LLVMCodeGenFileType arg3 ;
@@ -25701,7 +25371,7 @@ bool _wrap_TargetMachineEmitToMemoryBuffer_llvm_5d1e3feecae2b244(LLVMTargetMachi
 }
 
 
-char *_wrap_GetDefaultTargetTriple_llvm_5d1e3feecae2b244() {
+char *_wrap_GetDefaultTargetTriple_llvm_a0e88c3155de3083() {
   char *result = 0 ;
   char *_swig_go_result;
   
@@ -25714,7 +25384,7 @@ char *_wrap_GetDefaultTargetTriple_llvm_5d1e3feecae2b244() {
 }
 
 
-char *_wrap_NormalizeTargetTriple_llvm_5d1e3feecae2b244(char *_swig_go_0) {
+char *_wrap_NormalizeTargetTriple_llvm_a0e88c3155de3083(char *_swig_go_0) {
   char *arg1 = (char *) 0 ;
   char *result = 0 ;
   char *_swig_go_result;
@@ -25734,7 +25404,7 @@ char *_wrap_NormalizeTargetTriple_llvm_5d1e3feecae2b244(char *_swig_go_0) {
 }
 
 
-char *_wrap_GetHostCPUName_llvm_5d1e3feecae2b244() {
+char *_wrap_GetHostCPUName_llvm_a0e88c3155de3083() {
   char *result = 0 ;
   char *_swig_go_result;
   
@@ -25747,7 +25417,7 @@ char *_wrap_GetHostCPUName_llvm_5d1e3feecae2b244() {
 }
 
 
-char *_wrap_GetHostCPUFeatures_llvm_5d1e3feecae2b244() {
+char *_wrap_GetHostCPUFeatures_llvm_a0e88c3155de3083() {
   char *result = 0 ;
   char *_swig_go_result;
   
@@ -25760,7 +25430,7 @@ char *_wrap_GetHostCPUFeatures_llvm_5d1e3feecae2b244() {
 }
 
 
-void _wrap_AddAnalysisPasses_llvm_5d1e3feecae2b244(LLVMTargetMachineRef _swig_go_0, LLVMPassManagerRef _swig_go_1) {
+void _wrap_AddAnalysisPasses_llvm_a0e88c3155de3083(LLVMTargetMachineRef _swig_go_0, LLVMPassManagerRef _swig_go_1) {
   LLVMTargetMachineRef arg1 ;
   LLVMPassManagerRef arg2 ;
   

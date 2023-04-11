@@ -169,1460 +169,1433 @@ typedef long long swig_type_133;
 typedef long long swig_type_134;
 typedef long long swig_type_135;
 typedef long long swig_type_136;
-extern void _wrap_Swig_free_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern uintptr_t _wrap_Swig_malloc_llvm_5d1e3feecae2b244(swig_intgo arg1);
-extern void _wrap_imaxdiv_t_quot_set_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_type_1 arg2);
-extern swig_type_2 _wrap_imaxdiv_t_quot_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_imaxdiv_t_rem_set_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_type_3 arg2);
-extern swig_type_4 _wrap_imaxdiv_t_rem_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern uintptr_t _wrap_new_imaxdiv_t_llvm_5d1e3feecae2b244(void);
-extern void _wrap_delete_imaxdiv_t_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern swig_type_5 _wrap_imaxabs_llvm_5d1e3feecae2b244(swig_type_6 arg1);
-extern uintptr_t _wrap_imaxdiv_llvm_5d1e3feecae2b244(swig_type_7 arg1, swig_type_8 arg2);
-extern swig_type_9 _wrap_strtoimax_llvm_5d1e3feecae2b244(swig_type_10 arg1, swig_voidp arg2, swig_intgo arg3);
-extern swig_type_11 _wrap_strtoumax_llvm_5d1e3feecae2b244(swig_type_12 arg1, swig_voidp arg2, swig_intgo arg3);
-extern void _wrap_InstallFatalErrorHandler_llvm_5d1e3feecae2b244(swig_type_13 arg1);
-extern void _wrap_ResetFatalErrorHandler_llvm_5d1e3feecae2b244(void);
-extern void _wrap_EnablePrettyStackTrace_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AbortProcessAction_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_PrintMessageAction_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ReturnStatusAction_llvm_5d1e3feecae2b244(void);
-extern _Bool _wrap_VerifyModule_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_intgo arg2, swig_voidp arg3);
-extern _Bool _wrap_VerifyFunction_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern void _wrap_ViewFunctionCFG_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_ViewFunctionCFGOnly_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern _Bool _wrap_ParseBitcode_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef arg1, uintptr_t arg2, swig_voidp arg3);
-extern _Bool _wrap_ParseBitcode2_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef arg1, uintptr_t arg2);
-extern _Bool _wrap_ParseBitcodeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1, LLVMMemoryBufferRef arg2, uintptr_t arg3, swig_voidp arg4);
-extern _Bool _wrap_ParseBitcodeInContext2_llvm_5d1e3feecae2b244(LLVMContextRef arg1, LLVMMemoryBufferRef arg2, uintptr_t arg3);
-extern _Bool _wrap_GetBitcodeModuleInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1, LLVMMemoryBufferRef arg2, uintptr_t arg3, swig_voidp arg4);
-extern _Bool _wrap_GetBitcodeModuleInContext2_llvm_5d1e3feecae2b244(LLVMContextRef arg1, LLVMMemoryBufferRef arg2, uintptr_t arg3);
-extern _Bool _wrap_GetBitcodeModule_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef arg1, uintptr_t arg2, swig_voidp arg3);
-extern _Bool _wrap_GetBitcodeModule2_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef arg1, uintptr_t arg2);
-extern swig_intgo _wrap_WriteBitcodeToFile_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2);
-extern swig_intgo _wrap_WriteBitcodeToFD_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_intgo arg2, swig_intgo arg3, swig_intgo arg4);
-extern swig_intgo _wrap_WriteBitcodeToFileHandle_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_intgo arg2);
-extern LLVMMemoryBufferRef _wrap_WriteBitcodeToMemoryBuffer_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern void _wrap_llvm_blake3_chunk_state_cv_set_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_voidp arg2);
-extern swig_voidp _wrap_llvm_blake3_chunk_state_cv_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_llvm_blake3_chunk_state_chunk_counter_set_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_type_14 arg2);
-extern swig_type_15 _wrap_llvm_blake3_chunk_state_chunk_counter_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_llvm_blake3_chunk_state_buf_set_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_voidp arg2);
-extern swig_voidp _wrap_llvm_blake3_chunk_state_buf_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_llvm_blake3_chunk_state_buf_len_set_llvm_5d1e3feecae2b244(uintptr_t arg1, char arg2);
-extern char _wrap_llvm_blake3_chunk_state_buf_len_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_llvm_blake3_chunk_state_blocks_compressed_set_llvm_5d1e3feecae2b244(uintptr_t arg1, char arg2);
-extern char _wrap_llvm_blake3_chunk_state_blocks_compressed_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_llvm_blake3_chunk_state_flags_set_llvm_5d1e3feecae2b244(uintptr_t arg1, char arg2);
-extern char _wrap_llvm_blake3_chunk_state_flags_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern uintptr_t _wrap_new_llvm_blake3_chunk_state_llvm_5d1e3feecae2b244(void);
-extern void _wrap_delete_llvm_blake3_chunk_state_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_llvm_blake3_hasher_key_set_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_voidp arg2);
-extern swig_voidp _wrap_llvm_blake3_hasher_key_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_llvm_blake3_hasher_chunk_set_llvm_5d1e3feecae2b244(uintptr_t arg1, uintptr_t arg2);
-extern uintptr_t _wrap_llvm_blake3_hasher_chunk_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_llvm_blake3_hasher_cv_stack_len_set_llvm_5d1e3feecae2b244(uintptr_t arg1, char arg2);
-extern char _wrap_llvm_blake3_hasher_cv_stack_len_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_llvm_blake3_hasher_cv_stack_set_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_voidp arg2);
-extern swig_voidp _wrap_llvm_blake3_hasher_cv_stack_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern uintptr_t _wrap_new_llvm_blake3_hasher_llvm_5d1e3feecae2b244(void);
-extern void _wrap_delete_llvm_blake3_hasher_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern swig_voidp _wrap_llvm_blake3_version_llvm_5d1e3feecae2b244(void);
-extern void _wrap_llvm_blake3_hasher_init_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_llvm_blake3_hasher_init_keyed_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_voidp arg2);
-extern void _wrap_llvm_blake3_hasher_init_derive_key_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_voidp arg2);
-extern void _wrap_llvm_blake3_hasher_init_derive_key_raw_llvm_5d1e3feecae2b244(uintptr_t arg1, uintptr_t arg2, swig_type_16 arg3);
-extern void _wrap_llvm_blake3_hasher_update_llvm_5d1e3feecae2b244(uintptr_t arg1, uintptr_t arg2, swig_type_17 arg3);
-extern void _wrap_llvm_blake3_hasher_finalize_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_voidp arg2, swig_type_18 arg3);
-extern void _wrap_llvm_blake3_hasher_finalize_seek_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_type_19 arg2, swig_voidp arg3, swig_type_20 arg4);
-extern void _wrap_llvm_blake3_hasher_reset_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern swig_intgo _wrap_AnyComdatSelectionKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ExactMatchComdatSelectionKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_LargestComdatSelectionKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_NoDeduplicateComdatSelectionKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_SameSizeComdatSelectionKind_llvm_5d1e3feecae2b244(void);
-extern LLVMComdatRef _wrap_GetOrInsertComdat_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2);
-extern LLVMComdatRef _wrap_GetComdat_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetComdat_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMComdatRef arg2);
-extern swig_intgo _wrap_GetComdatSelectionKind_llvm_5d1e3feecae2b244(LLVMComdatRef arg1);
-extern void _wrap_SetComdatSelectionKind_llvm_5d1e3feecae2b244(LLVMComdatRef arg1, swig_intgo arg2);
-extern swig_intgo _wrap_Ret_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_Br_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_Switch_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_IndirectBr_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_Invoke_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_Unreachable_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_CallBr_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_FNeg_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_Add_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_FAdd_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_Sub_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_FSub_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_Mul_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_FMul_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_UDiv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_SDiv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_FDiv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_URem_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_SRem_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_FRem_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_Shl_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_LShr_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AShr_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_And_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_Or_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_Xor_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_Alloca_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_Load_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_Store_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_GetElementPtr_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_Trunc_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ZExt_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_SExt_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_FPToUI_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_FPToSI_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_UIToFP_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_SIToFP_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_FPTrunc_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_FPExt_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_PtrToInt_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_IntToPtr_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_BitCast_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AddrSpaceCast_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ICmp_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_FCmp_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_PHI_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_Call_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_Select_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_UserOp1_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_UserOp2_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_VAArg_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ExtractElement_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_InsertElement_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ShuffleVector_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ExtractValue_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_InsertValue_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_Freeze_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_Fence_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicCmpXchg_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicRMW_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_Resume_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_LandingPad_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_CleanupRet_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_CatchRet_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_CatchPad_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_CleanupPad_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_CatchSwitch_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ExternalLinkage_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AvailableExternallyLinkage_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_LinkOnceAnyLinkage_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_LinkOnceODRLinkage_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_LinkOnceODRAutoHideLinkage_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_WeakAnyLinkage_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_WeakODRLinkage_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AppendingLinkage_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_InternalLinkage_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_PrivateLinkage_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DLLImportLinkage_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DLLExportLinkage_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ExternalWeakLinkage_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_GhostLinkage_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_CommonLinkage_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_LinkerPrivateLinkage_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_LinkerPrivateWeakLinkage_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DefaultVisibility_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_HiddenVisibility_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ProtectedVisibility_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_NoUnnamedAddr_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_LocalUnnamedAddr_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_GlobalUnnamedAddr_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DefaultStorageClass_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DLLImportStorageClass_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DLLExportStorageClass_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_CCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_FastCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ColdCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_GHCCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_HiPECallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_WebKitJSCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AnyRegCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_PreserveMostCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_PreserveAllCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_SwiftCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_CXXFASTTLSCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_X86StdcallCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_X86FastcallCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ARMAPCSCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ARMAAPCSCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ARMAAPCSVFPCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_MSP430INTRCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_X86ThisCallCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_PTXKernelCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_PTXDeviceCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_SPIRFUNCCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_SPIRKERNELCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_IntelOCLBICallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_X8664SysVCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_Win64CallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_X86VectorCallCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_HHVMCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_HHVMCCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_X86INTRCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AVRINTRCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AVRSIGNALCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AVRBUILTINCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AMDGPUVSCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AMDGPUGSCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AMDGPUPSCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AMDGPUCSCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AMDGPUKERNELCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_X86RegCallCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AMDGPUHSCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_MSP430BUILTINCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AMDGPULSCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AMDGPUESCallConv_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ArgumentValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_BasicBlockValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_MemoryUseValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_MemoryDefValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_MemoryPhiValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_FunctionValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_GlobalAliasValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_GlobalIFuncValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_GlobalVariableValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_BlockAddressValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ConstantExprValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ConstantArrayValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ConstantStructValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ConstantVectorValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_UndefValueValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ConstantAggregateZeroValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ConstantDataArrayValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ConstantDataVectorValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ConstantIntValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ConstantFPValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ConstantPointerNullValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ConstantTokenNoneValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_MetadataAsValueValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_InlineAsmValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_InstructionValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_PoisonValueValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ConstantTargetNoneValueKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_IntEQ_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_IntNE_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_IntUGT_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_IntUGE_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_IntULT_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_IntULE_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_IntSGT_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_IntSGE_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_IntSLT_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_IntSLE_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RealPredicateFalse_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RealOEQ_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RealOGT_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RealOGE_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RealOLT_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RealOLE_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RealONE_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RealORD_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RealUNO_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RealUEQ_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RealUGT_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RealUGE_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RealULT_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RealULE_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RealUNE_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RealPredicateTrue_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_LandingPadCatch_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_LandingPadFilter_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_NotThreadLocal_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_GeneralDynamicTLSModel_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_LocalDynamicTLSModel_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_InitialExecTLSModel_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_LocalExecTLSModel_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicOrderingNotAtomic_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicOrderingUnordered_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicOrderingMonotonic_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicOrderingAcquire_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicOrderingRelease_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicOrderingAcquireRelease_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicOrderingSequentiallyConsistent_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicRMWBinOpXchg_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicRMWBinOpAdd_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicRMWBinOpSub_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicRMWBinOpAnd_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicRMWBinOpNand_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicRMWBinOpOr_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicRMWBinOpXor_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicRMWBinOpMax_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicRMWBinOpMin_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicRMWBinOpUMax_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicRMWBinOpUMin_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicRMWBinOpFAdd_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicRMWBinOpFSub_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicRMWBinOpFMax_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AtomicRMWBinOpFMin_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DSError_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DSWarning_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DSRemark_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DSNote_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_InlineAsmDialectATT_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_InlineAsmDialectIntel_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ModuleFlagBehaviorError_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ModuleFlagBehaviorWarning_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ModuleFlagBehaviorRequire_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ModuleFlagBehaviorOverride_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ModuleFlagBehaviorAppend_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ModuleFlagBehaviorAppendUnique_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AttributeReturnIndex_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AttributeFunctionIndex_llvm_5d1e3feecae2b244(void);
-extern void _wrap_InitializeCore_llvm_5d1e3feecae2b244(LLVMPassRegistryRef arg1);
-extern void _wrap_Shutdown_llvm_5d1e3feecae2b244(void);
-extern void _wrap_GetVersion_llvm_5d1e3feecae2b244(swig_voidp arg1, swig_voidp arg2, swig_voidp arg3);
-extern swig_voidp _wrap_CreateMessage_llvm_5d1e3feecae2b244(swig_voidp arg1);
-extern void _wrap_DisposeMessage_llvm_5d1e3feecae2b244(swig_voidp arg1);
-extern LLVMContextRef _wrap_ContextCreate_llvm_5d1e3feecae2b244(void);
-extern LLVMContextRef _wrap_GetGlobalContext_llvm_5d1e3feecae2b244(void);
-extern void _wrap_ContextSetDiagnosticHandler_llvm_5d1e3feecae2b244(LLVMContextRef arg1, swig_type_21 arg2, uintptr_t arg3);
-extern swig_type_22 _wrap_ContextGetDiagnosticHandler_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern uintptr_t _wrap_ContextGetDiagnosticContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern void _wrap_ContextSetYieldCallback_llvm_5d1e3feecae2b244(LLVMContextRef arg1, swig_type_23 arg2, uintptr_t arg3);
-extern _Bool _wrap_ContextShouldDiscardValueNames_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern void _wrap_ContextSetDiscardValueNames_llvm_5d1e3feecae2b244(LLVMContextRef arg1, _Bool arg2);
-extern void _wrap_ContextDispose_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern swig_voidp _wrap_GetDiagInfoDescription_llvm_5d1e3feecae2b244(LLVMDiagnosticInfoRef arg1);
-extern swig_intgo _wrap_GetDiagInfoSeverity_llvm_5d1e3feecae2b244(LLVMDiagnosticInfoRef arg1);
-extern swig_intgo _wrap_GetMDKindIDInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1, swig_voidp arg2, swig_intgo arg3);
-extern swig_intgo _wrap_GetMDKindID_llvm_5d1e3feecae2b244(swig_voidp arg1, swig_intgo arg2);
-extern swig_intgo _wrap_GetEnumAttributeKindForName_llvm_5d1e3feecae2b244(swig_voidp arg1, swig_type_24 arg2);
-extern swig_intgo _wrap_GetLastEnumAttributeKind_llvm_5d1e3feecae2b244(void);
-extern LLVMAttributeRef _wrap_CreateEnumAttribute_llvm_5d1e3feecae2b244(LLVMContextRef arg1, swig_intgo arg2, swig_type_25 arg3);
-extern swig_intgo _wrap_GetEnumAttributeKind_llvm_5d1e3feecae2b244(LLVMAttributeRef arg1);
-extern swig_type_26 _wrap_GetEnumAttributeValue_llvm_5d1e3feecae2b244(LLVMAttributeRef arg1);
-extern LLVMAttributeRef _wrap_CreateTypeAttribute_llvm_5d1e3feecae2b244(LLVMContextRef arg1, swig_intgo arg2, LLVMTypeRef arg3);
-extern LLVMTypeRef _wrap_GetTypeAttributeValue_llvm_5d1e3feecae2b244(LLVMAttributeRef arg1);
-extern LLVMAttributeRef _wrap_CreateStringAttribute_llvm_5d1e3feecae2b244(LLVMContextRef arg1, swig_voidp arg2, swig_intgo arg3, swig_voidp arg4, swig_intgo arg5);
-extern swig_voidp _wrap_GetStringAttributeKind_llvm_5d1e3feecae2b244(LLVMAttributeRef arg1, swig_voidp arg2);
-extern swig_voidp _wrap_GetStringAttributeValue_llvm_5d1e3feecae2b244(LLVMAttributeRef arg1, swig_voidp arg2);
-extern _Bool _wrap_IsEnumAttribute_llvm_5d1e3feecae2b244(LLVMAttributeRef arg1);
-extern _Bool _wrap_IsStringAttribute_llvm_5d1e3feecae2b244(LLVMAttributeRef arg1);
-extern _Bool _wrap_IsTypeAttribute_llvm_5d1e3feecae2b244(LLVMAttributeRef arg1);
-extern LLVMTypeRef _wrap_GetTypeByName2_llvm_5d1e3feecae2b244(LLVMContextRef arg1, swig_voidp arg2);
-extern LLVMModuleRef _wrap_ModuleCreateWithName_llvm_5d1e3feecae2b244(swig_voidp arg1);
-extern LLVMModuleRef _wrap_ModuleCreateWithNameInContext_llvm_5d1e3feecae2b244(swig_voidp arg1, LLVMContextRef arg2);
-extern LLVMModuleRef _wrap_CloneModule_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern void _wrap_DisposeModule_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern swig_voidp _wrap_GetModuleIdentifier_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2);
-extern void _wrap_SetModuleIdentifier_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2, swig_type_27 arg3);
-extern swig_voidp _wrap_GetSourceFileName_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2);
-extern void _wrap_SetSourceFileName_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2, swig_type_28 arg3);
-extern swig_voidp _wrap_GetDataLayoutStr_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern swig_voidp _wrap_GetDataLayout_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern void _wrap_SetDataLayout_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2);
-extern swig_voidp _wrap_GetTarget_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern void _wrap_SetTarget_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2);
-extern uintptr_t _wrap_CopyModuleFlagsMetadata_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2);
-extern void _wrap_DisposeModuleFlagsMetadata_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern swig_intgo _wrap_ModuleFlagEntriesGetFlagBehavior_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_intgo arg2);
-extern swig_voidp _wrap_ModuleFlagEntriesGetKey_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_intgo arg2, swig_voidp arg3);
-extern LLVMMetadataRef _wrap_ModuleFlagEntriesGetMetadata_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_intgo arg2);
-extern LLVMMetadataRef _wrap_GetModuleFlag_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2, swig_type_29 arg3);
-extern void _wrap_AddModuleFlag_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_intgo arg2, swig_voidp arg3, swig_type_30 arg4, LLVMMetadataRef arg5);
-extern void _wrap_DumpModule_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern _Bool _wrap_PrintModuleToFile_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2, swig_voidp arg3);
-extern swig_voidp _wrap_PrintModuleToString_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern swig_voidp _wrap_GetModuleInlineAsm_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2);
-extern void _wrap_SetModuleInlineAsm2_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2, swig_type_31 arg3);
-extern void _wrap_AppendModuleInlineAsm_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2, swig_type_32 arg3);
-extern LLVMValueRef _wrap_GetInlineAsm_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, swig_voidp arg2, swig_type_33 arg3, swig_voidp arg4, swig_type_34 arg5, _Bool arg6, _Bool arg7, swig_intgo arg8, _Bool arg9);
-extern LLVMContextRef _wrap_GetModuleContext_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern LLVMTypeRef _wrap_GetTypeByName_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2);
-extern LLVMNamedMDNodeRef _wrap_GetFirstNamedMetadata_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern LLVMNamedMDNodeRef _wrap_GetLastNamedMetadata_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern LLVMNamedMDNodeRef _wrap_GetNextNamedMetadata_llvm_5d1e3feecae2b244(LLVMNamedMDNodeRef arg1);
-extern LLVMNamedMDNodeRef _wrap_GetPreviousNamedMetadata_llvm_5d1e3feecae2b244(LLVMNamedMDNodeRef arg1);
-extern LLVMNamedMDNodeRef _wrap_GetNamedMetadata_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2);
-extern LLVMNamedMDNodeRef _wrap_GetOrInsertNamedMetadata_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2);
-extern swig_voidp _wrap_GetNamedMetadataName_llvm_5d1e3feecae2b244(LLVMNamedMDNodeRef arg1, swig_voidp arg2);
-extern swig_intgo _wrap_GetNamedMetadataNumOperands_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2);
-extern void _wrap_GetNamedMetadataOperands_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2, uintptr_t arg3);
-extern void _wrap_AddNamedMetadataOperand_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2, LLVMValueRef arg3);
-extern swig_voidp _wrap_GetDebugLocDirectory_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_voidp arg2);
-extern swig_voidp _wrap_GetDebugLocFilename_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_voidp arg2);
-extern swig_intgo _wrap_GetDebugLocLine_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern swig_intgo _wrap_GetDebugLocColumn_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_AddFunction_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2, LLVMTypeRef arg3);
-extern LLVMValueRef _wrap_GetNamedFunction_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2);
-extern LLVMValueRef _wrap_GetFirstFunction_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern LLVMValueRef _wrap_GetLastFunction_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern LLVMValueRef _wrap_GetNextFunction_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_GetPreviousFunction_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetModuleInlineAsm_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2);
-extern swig_intgo _wrap_GetTypeKind_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern _Bool _wrap_TypeIsSized_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern LLVMContextRef _wrap_GetTypeContext_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern void _wrap_DumpType_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern swig_voidp _wrap_PrintTypeToString_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern LLVMTypeRef _wrap_Int1TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern LLVMTypeRef _wrap_Int8TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern LLVMTypeRef _wrap_Int16TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern LLVMTypeRef _wrap_Int32TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern LLVMTypeRef _wrap_Int64TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern LLVMTypeRef _wrap_Int128TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern LLVMTypeRef _wrap_IntTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1, swig_intgo arg2);
-extern LLVMTypeRef _wrap_Int1Type_llvm_5d1e3feecae2b244(void);
-extern LLVMTypeRef _wrap_Int8Type_llvm_5d1e3feecae2b244(void);
-extern LLVMTypeRef _wrap_Int16Type_llvm_5d1e3feecae2b244(void);
-extern LLVMTypeRef _wrap_Int32Type_llvm_5d1e3feecae2b244(void);
-extern LLVMTypeRef _wrap_Int64Type_llvm_5d1e3feecae2b244(void);
-extern LLVMTypeRef _wrap_Int128Type_llvm_5d1e3feecae2b244(void);
-extern LLVMTypeRef _wrap_IntType_llvm_5d1e3feecae2b244(swig_intgo arg1);
-extern swig_intgo _wrap_GetIntTypeWidth_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern LLVMTypeRef _wrap_HalfTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern LLVMTypeRef _wrap_BFloatTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern LLVMTypeRef _wrap_FloatTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern LLVMTypeRef _wrap_DoubleTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern LLVMTypeRef _wrap_X86FP80TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern LLVMTypeRef _wrap_FP128TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern LLVMTypeRef _wrap_PPCFP128TypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern LLVMTypeRef _wrap_HalfType_llvm_5d1e3feecae2b244(void);
-extern LLVMTypeRef _wrap_BFloatType_llvm_5d1e3feecae2b244(void);
-extern LLVMTypeRef _wrap_FloatType_llvm_5d1e3feecae2b244(void);
-extern LLVMTypeRef _wrap_DoubleType_llvm_5d1e3feecae2b244(void);
-extern LLVMTypeRef _wrap_X86FP80Type_llvm_5d1e3feecae2b244(void);
-extern LLVMTypeRef _wrap_FP128Type_llvm_5d1e3feecae2b244(void);
-extern LLVMTypeRef _wrap_PPCFP128Type_llvm_5d1e3feecae2b244(void);
-extern LLVMTypeRef _wrap_FunctionType_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, swig_voidp arg2, _Bool arg3);
-extern _Bool _wrap_IsFunctionVarArg_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern LLVMTypeRef _wrap_GetReturnType_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern swig_intgo _wrap_CountParamTypes_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern void _wrap_GetParamTypes_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, uintptr_t arg2);
-extern LLVMTypeRef _wrap_StructTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1, swig_voidp arg2, _Bool arg3);
-extern LLVMTypeRef _wrap_StructType_llvm_5d1e3feecae2b244(swig_voidp arg1, _Bool arg2);
-extern LLVMTypeRef _wrap_StructCreateNamed_llvm_5d1e3feecae2b244(LLVMContextRef arg1, swig_voidp arg2);
-extern swig_voidp _wrap_GetStructName_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern void _wrap_StructSetBody_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, swig_voidp arg2, _Bool arg3);
-extern swig_intgo _wrap_CountStructElementTypes_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern void _wrap_GetStructElementTypes_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, uintptr_t arg2);
-extern LLVMTypeRef _wrap_StructGetTypeAtIndex_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, swig_intgo arg2);
-extern _Bool _wrap_IsPackedStruct_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern _Bool _wrap_IsOpaqueStruct_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern _Bool _wrap_IsLiteralStruct_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern LLVMTypeRef _wrap_GetElementType_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern void _wrap_GetSubtypes_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, uintptr_t arg2);
-extern swig_intgo _wrap_GetNumContainedTypes_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern LLVMTypeRef _wrap_ArrayType_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, swig_intgo arg2);
-extern LLVMTypeRef _wrap_ArrayType2_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, swig_type_35 arg2);
-extern swig_intgo _wrap_GetArrayLength_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern swig_type_36 _wrap_GetArrayLength2_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern LLVMTypeRef _wrap_PointerType_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, swig_intgo arg2);
-extern _Bool _wrap_PointerTypeIsOpaque_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern LLVMTypeRef _wrap_PointerTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1, swig_intgo arg2);
-extern swig_intgo _wrap_GetPointerAddressSpace_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern LLVMTypeRef _wrap_VectorType_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, swig_intgo arg2);
-extern LLVMTypeRef _wrap_ScalableVectorType_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, swig_intgo arg2);
-extern swig_intgo _wrap_GetVectorSize_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern LLVMTypeRef _wrap_VoidTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern LLVMTypeRef _wrap_LabelTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern LLVMTypeRef _wrap_X86MMXTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern LLVMTypeRef _wrap_X86AMXTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern LLVMTypeRef _wrap_TokenTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern LLVMTypeRef _wrap_MetadataTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern LLVMTypeRef _wrap_VoidType_llvm_5d1e3feecae2b244(void);
-extern LLVMTypeRef _wrap_LabelType_llvm_5d1e3feecae2b244(void);
-extern LLVMTypeRef _wrap_X86MMXType_llvm_5d1e3feecae2b244(void);
-extern LLVMTypeRef _wrap_X86AMXType_llvm_5d1e3feecae2b244(void);
-extern LLVMTypeRef _wrap_TargetExtTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1, swig_voidp arg2, swig_voidp arg3, swig_type_37 arg4);
-extern LLVMTypeRef _wrap_TypeOf_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern swig_intgo _wrap_GetValueKind_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern swig_voidp _wrap_GetValueName2_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_voidp arg2);
-extern void _wrap_SetValueName2_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_voidp arg2);
-extern void _wrap_DumpValue_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern swig_voidp _wrap_PrintValueToString_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_ReplaceAllUsesWith_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern _Bool _wrap_IsConstant_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern _Bool _wrap_IsUndef_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern _Bool _wrap_IsPoison_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAArgument_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsABasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAInlineAsm_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAUser_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAConstant_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsABlockAddress_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAConstantAggregateZero_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAConstantArray_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAConstantDataSequential_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAConstantDataArray_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAConstantDataVector_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAConstantExpr_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAConstantFP_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAConstantInt_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAConstantPointerNull_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAConstantStruct_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAConstantTokenNone_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAConstantVector_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAGlobalValue_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAGlobalAlias_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAGlobalObject_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAFunction_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAGlobalVariable_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAGlobalIFunc_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAUndefValue_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAPoisonValue_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAInstruction_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAUnaryOperator_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsABinaryOperator_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsACallInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAIntrinsicInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsADbgInfoIntrinsic_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsADbgVariableIntrinsic_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsADbgDeclareInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsADbgLabelInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAMemIntrinsic_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAMemCpyInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAMemMoveInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAMemSetInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsACmpInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAFCmpInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAICmpInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAExtractElementInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAGetElementPtrInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAInsertElementInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAInsertValueInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsALandingPadInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAPHINode_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsASelectInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAShuffleVectorInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAStoreInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsABranchInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAIndirectBrInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAInvokeInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAReturnInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsASwitchInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAUnreachableInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAResumeInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsACleanupReturnInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsACatchReturnInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsACatchSwitchInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsACallBrInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAFuncletPadInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsACatchPadInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsACleanupPadInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAUnaryInstruction_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAAllocaInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsACastInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAAddrSpaceCastInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsABitCastInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAFPExtInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAFPToSIInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAFPToUIInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAFPTruncInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAIntToPtrInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAPtrToIntInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsASExtInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsASIToFPInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsATruncInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAUIToFPInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAZExtInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAExtractValueInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsALoadInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAVAArgInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAFreezeInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAAtomicCmpXchgInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAAtomicRMWInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAFenceInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAMDNode_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAValueAsMetadata_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsAMDString_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern swig_voidp _wrap_GetValueName_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetValueName_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_voidp arg2);
-extern LLVMUseRef _wrap_GetFirstUse_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMUseRef _wrap_GetNextUse_llvm_5d1e3feecae2b244(LLVMUseRef arg1);
-extern LLVMValueRef _wrap_GetUser_llvm_5d1e3feecae2b244(LLVMUseRef arg1);
-extern LLVMValueRef _wrap_GetUsedValue_llvm_5d1e3feecae2b244(LLVMUseRef arg1);
-extern LLVMValueRef _wrap_GetOperand_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern LLVMUseRef _wrap_GetOperandUse_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern void _wrap_SetOperand_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2, LLVMValueRef arg3);
-extern swig_intgo _wrap_GetNumOperands_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_ConstNull_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern LLVMValueRef _wrap_ConstAllOnes_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern LLVMValueRef _wrap_GetUndef_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern LLVMValueRef _wrap_GetPoison_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern _Bool _wrap_IsNull_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_ConstPointerNull_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern LLVMValueRef _wrap_ConstInt_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, swig_type_38 arg2, _Bool arg3);
-extern LLVMValueRef _wrap_ConstIntOfArbitraryPrecision_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, swig_intgo arg2, swig_voidp arg3);
-extern LLVMValueRef _wrap_ConstIntOfString_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, swig_voidp arg2, char arg3);
-extern LLVMValueRef _wrap_ConstIntOfStringAndSize_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, swig_voidp arg2, swig_intgo arg3, char arg4);
-extern LLVMValueRef _wrap_ConstReal_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, double arg2);
-extern LLVMValueRef _wrap_ConstRealOfString_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, swig_voidp arg2);
-extern LLVMValueRef _wrap_ConstRealOfStringAndSize_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, swig_voidp arg2, swig_intgo arg3);
-extern swig_type_39 _wrap_ConstIntGetZExtValue_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern swig_type_40 _wrap_ConstIntGetSExtValue_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern double _wrap_ConstRealGetDouble_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_voidp arg2);
-extern LLVMValueRef _wrap_ConstStringInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1, swig_voidp arg2, swig_intgo arg3, _Bool arg4);
-extern LLVMValueRef _wrap_ConstString_llvm_5d1e3feecae2b244(swig_voidp arg1, swig_intgo arg2, _Bool arg3);
-extern _Bool _wrap_IsConstantString_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern swig_voidp _wrap_GetAsString_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_voidp arg2);
-extern LLVMValueRef _wrap_ConstStructInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1, swig_voidp arg2, _Bool arg3);
-extern LLVMValueRef _wrap_ConstStruct_llvm_5d1e3feecae2b244(swig_voidp arg1, _Bool arg2);
-extern LLVMValueRef _wrap_ConstArray_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, swig_voidp arg2);
-extern LLVMValueRef _wrap_ConstArray2_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, swig_voidp arg2);
-extern LLVMValueRef _wrap_ConstNamedStruct_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, swig_voidp arg2);
-extern LLVMValueRef _wrap_GetAggregateElement_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern LLVMValueRef _wrap_GetElementAsConstant_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern LLVMValueRef _wrap_ConstVector_llvm_5d1e3feecae2b244(swig_voidp arg1);
-extern swig_intgo _wrap_GetConstOpcode_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_AlignOf_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern LLVMValueRef _wrap_SizeOf_llvm_5d1e3feecae2b244(LLVMTypeRef arg1);
-extern LLVMValueRef _wrap_ConstNeg_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_ConstNSWNeg_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_ConstNUWNeg_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_ConstNot_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_ConstAdd_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern LLVMValueRef _wrap_ConstNSWAdd_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern LLVMValueRef _wrap_ConstNUWAdd_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern LLVMValueRef _wrap_ConstSub_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern LLVMValueRef _wrap_ConstNSWSub_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern LLVMValueRef _wrap_ConstNUWSub_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern LLVMValueRef _wrap_ConstMul_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern LLVMValueRef _wrap_ConstNSWMul_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern LLVMValueRef _wrap_ConstNUWMul_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern LLVMValueRef _wrap_ConstAnd_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern LLVMValueRef _wrap_ConstOr_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern LLVMValueRef _wrap_ConstXor_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern LLVMValueRef _wrap_ConstICmp_llvm_5d1e3feecae2b244(swig_intgo arg1, LLVMValueRef arg2, LLVMValueRef arg3);
-extern LLVMValueRef _wrap_ConstFCmp_llvm_5d1e3feecae2b244(swig_intgo arg1, LLVMValueRef arg2, LLVMValueRef arg3);
-extern LLVMValueRef _wrap_ConstShl_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern LLVMValueRef _wrap_ConstLShr_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern LLVMValueRef _wrap_ConstAShr_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern LLVMValueRef _wrap_ConstGEP2_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, LLVMValueRef arg2, swig_voidp arg3);
-extern LLVMValueRef _wrap_ConstInBoundsGEP2_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, LLVMValueRef arg2, swig_voidp arg3);
-extern LLVMValueRef _wrap_ConstTrunc_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMTypeRef arg2);
-extern LLVMValueRef _wrap_ConstSExt_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMTypeRef arg2);
-extern LLVMValueRef _wrap_ConstZExt_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMTypeRef arg2);
-extern LLVMValueRef _wrap_ConstFPTrunc_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMTypeRef arg2);
-extern LLVMValueRef _wrap_ConstFPExt_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMTypeRef arg2);
-extern LLVMValueRef _wrap_ConstUIToFP_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMTypeRef arg2);
-extern LLVMValueRef _wrap_ConstSIToFP_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMTypeRef arg2);
-extern LLVMValueRef _wrap_ConstFPToUI_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMTypeRef arg2);
-extern LLVMValueRef _wrap_ConstFPToSI_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMTypeRef arg2);
-extern LLVMValueRef _wrap_ConstPtrToInt_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMTypeRef arg2);
-extern LLVMValueRef _wrap_ConstIntToPtr_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMTypeRef arg2);
-extern LLVMValueRef _wrap_ConstBitCast_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMTypeRef arg2);
-extern LLVMValueRef _wrap_ConstAddrSpaceCast_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMTypeRef arg2);
-extern LLVMValueRef _wrap_ConstZExtOrBitCast_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMTypeRef arg2);
-extern LLVMValueRef _wrap_ConstSExtOrBitCast_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMTypeRef arg2);
-extern LLVMValueRef _wrap_ConstTruncOrBitCast_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMTypeRef arg2);
-extern LLVMValueRef _wrap_ConstPointerCast_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMTypeRef arg2);
-extern LLVMValueRef _wrap_ConstIntCast_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMTypeRef arg2, _Bool arg3);
-extern LLVMValueRef _wrap_ConstFPCast_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMTypeRef arg2);
-extern LLVMValueRef _wrap_ConstExtractElement_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern LLVMValueRef _wrap_ConstInsertElement_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2, LLVMValueRef arg3);
-extern LLVMValueRef _wrap_ConstShuffleVector_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2, LLVMValueRef arg3);
-extern LLVMValueRef _wrap_BlockAddress_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMBasicBlockRef arg2);
-extern LLVMValueRef _wrap_ConstInlineAsm_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, swig_voidp arg2, swig_voidp arg3, _Bool arg4, _Bool arg5);
-extern LLVMModuleRef _wrap_GetGlobalParent_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern _Bool _wrap_IsDeclaration_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern swig_intgo _wrap_GetLinkage_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetLinkage_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern swig_voidp _wrap_GetSection_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetSection_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_voidp arg2);
-extern swig_intgo _wrap_GetVisibility_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetVisibility_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern swig_intgo _wrap_GetDLLStorageClass_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetDLLStorageClass_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern swig_intgo _wrap_GetUnnamedAddress_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetUnnamedAddress_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern LLVMTypeRef _wrap_GlobalGetValueType_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern _Bool _wrap_HasUnnamedAddr_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetUnnamedAddr_llvm_5d1e3feecae2b244(LLVMValueRef arg1, _Bool arg2);
-extern swig_intgo _wrap_GetAlignment_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetAlignment_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern void _wrap_GlobalSetMetadata_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2, LLVMMetadataRef arg3);
-extern void _wrap_GlobalEraseMetadata_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern void _wrap_GlobalClearMetadata_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern uintptr_t _wrap_GlobalCopyAllMetadata_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_voidp arg2);
-extern void _wrap_DisposeValueMetadataEntries_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern swig_intgo _wrap_ValueMetadataEntriesGetKind_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_intgo arg2);
-extern LLVMMetadataRef _wrap_ValueMetadataEntriesGetMetadata_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_intgo arg2);
-extern LLVMValueRef _wrap_AddGlobal_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, LLVMTypeRef arg2, swig_voidp arg3);
-extern LLVMValueRef _wrap_AddGlobalInAddressSpace_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, LLVMTypeRef arg2, swig_voidp arg3, swig_intgo arg4);
-extern LLVMValueRef _wrap_GetNamedGlobal_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2);
-extern LLVMValueRef _wrap_GetFirstGlobal_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern LLVMValueRef _wrap_GetLastGlobal_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern LLVMValueRef _wrap_GetNextGlobal_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_GetPreviousGlobal_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_DeleteGlobal_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_GetInitializer_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetInitializer_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern _Bool _wrap_IsThreadLocal_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetThreadLocal_llvm_5d1e3feecae2b244(LLVMValueRef arg1, _Bool arg2);
-extern _Bool _wrap_IsGlobalConstant_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetGlobalConstant_llvm_5d1e3feecae2b244(LLVMValueRef arg1, _Bool arg2);
-extern swig_intgo _wrap_GetThreadLocalMode_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetThreadLocalMode_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern _Bool _wrap_IsExternallyInitialized_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetExternallyInitialized_llvm_5d1e3feecae2b244(LLVMValueRef arg1, _Bool arg2);
-extern LLVMValueRef _wrap_AddAlias2_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, LLVMTypeRef arg2, swig_intgo arg3, LLVMValueRef arg4, swig_voidp arg5);
-extern LLVMValueRef _wrap_GetNamedGlobalAlias_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2);
-extern LLVMValueRef _wrap_GetFirstGlobalAlias_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern LLVMValueRef _wrap_GetLastGlobalAlias_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern LLVMValueRef _wrap_GetNextGlobalAlias_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_GetPreviousGlobalAlias_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_AliasGetAliasee_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_AliasSetAliasee_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern void _wrap_DeleteFunction_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern _Bool _wrap_HasPersonalityFn_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_GetPersonalityFn_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetPersonalityFn_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern swig_intgo _wrap_LookupIntrinsicID_llvm_5d1e3feecae2b244(swig_voidp arg1);
-extern swig_intgo _wrap_GetIntrinsicID_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_GetIntrinsicDeclaration_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_intgo arg2, uintptr_t arg3, swig_type_41 arg4);
-extern LLVMTypeRef _wrap_IntrinsicGetType_llvm_5d1e3feecae2b244(LLVMContextRef arg1, swig_intgo arg2, uintptr_t arg3, swig_type_42 arg4);
-extern swig_voidp _wrap_IntrinsicGetName_llvm_5d1e3feecae2b244(swig_intgo arg1, swig_voidp arg2);
-extern swig_voidp _wrap_IntrinsicCopyOverloadedName_llvm_5d1e3feecae2b244(swig_intgo arg1, uintptr_t arg2, swig_type_43 arg3, swig_voidp arg4);
-extern swig_voidp _wrap_IntrinsicCopyOverloadedName2_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_intgo arg2, uintptr_t arg3, swig_type_44 arg4, swig_voidp arg5);
-extern _Bool _wrap_IntrinsicIsOverloaded_llvm_5d1e3feecae2b244(swig_intgo arg1);
-extern swig_intgo _wrap_GetFunctionCallConv_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetFunctionCallConv_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern swig_voidp _wrap_GetGC_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetGC_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_voidp arg2);
-extern void _wrap_AddAttributeAtIndex_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2, LLVMAttributeRef arg3);
-extern swig_intgo _wrap_GetAttributeCountAtIndex_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern void _wrap_GetAttributesAtIndex_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2, uintptr_t arg3);
-extern LLVMAttributeRef _wrap_GetEnumAttributeAtIndex_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2, swig_intgo arg3);
-extern LLVMAttributeRef _wrap_GetStringAttributeAtIndex_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2, swig_voidp arg3, swig_intgo arg4);
-extern void _wrap_RemoveEnumAttributeAtIndex_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2, swig_intgo arg3);
-extern void _wrap_RemoveStringAttributeAtIndex_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2, swig_voidp arg3, swig_intgo arg4);
-extern void _wrap_AddTargetDependentFunctionAttr_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_voidp arg2, swig_voidp arg3);
-extern swig_intgo _wrap_CountParams_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_GetParams_llvm_5d1e3feecae2b244(LLVMValueRef arg1, uintptr_t arg2);
-extern LLVMValueRef _wrap_GetParam_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern LLVMValueRef _wrap_GetParamParent_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_GetFirstParam_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_GetLastParam_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_GetNextParam_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_GetPreviousParam_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetParamAlignment_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern LLVMValueRef _wrap_AddGlobalIFunc_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2, LLVMTypeRef arg3, swig_intgo arg4, LLVMValueRef arg5);
-extern LLVMValueRef _wrap_GetNamedGlobalIFunc_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, swig_voidp arg2);
-extern LLVMValueRef _wrap_GetFirstGlobalIFunc_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern LLVMValueRef _wrap_GetLastGlobalIFunc_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern LLVMValueRef _wrap_GetNextGlobalIFunc_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_GetPreviousGlobalIFunc_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_GetGlobalIFuncResolver_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetGlobalIFuncResolver_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern void _wrap_EraseGlobalIFunc_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_RemoveGlobalIFunc_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMMetadataRef _wrap_MDStringInContext2_llvm_5d1e3feecae2b244(LLVMContextRef arg1, swig_voidp arg2, swig_type_45 arg3);
-extern LLVMMetadataRef _wrap_MDNodeInContext2_llvm_5d1e3feecae2b244(LLVMContextRef arg1, uintptr_t arg2, swig_type_46 arg3);
-extern LLVMValueRef _wrap_MetadataAsValue_llvm_5d1e3feecae2b244(LLVMContextRef arg1, LLVMMetadataRef arg2);
-extern LLVMMetadataRef _wrap_ValueAsMetadata_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern swig_voidp _wrap_GetMDString_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_voidp arg2);
-extern swig_intgo _wrap_GetMDNodeNumOperands_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_GetMDNodeOperands_llvm_5d1e3feecae2b244(LLVMValueRef arg1, uintptr_t arg2);
-extern void _wrap_ReplaceMDNodeOperandWith_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2, LLVMMetadataRef arg3);
-extern LLVMValueRef _wrap_MDStringInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1, swig_voidp arg2, swig_intgo arg3);
-extern LLVMValueRef _wrap_MDString_llvm_5d1e3feecae2b244(swig_voidp arg1, swig_intgo arg2);
-extern LLVMValueRef _wrap_MDNodeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1, swig_voidp arg2);
-extern LLVMValueRef _wrap_MDNode_llvm_5d1e3feecae2b244(swig_voidp arg1);
-extern LLVMValueRef _wrap_BasicBlockAsValue_llvm_5d1e3feecae2b244(LLVMBasicBlockRef arg1);
-extern _Bool _wrap_ValueIsBasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMBasicBlockRef _wrap_ValueAsBasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern swig_voidp _wrap_GetBasicBlockName_llvm_5d1e3feecae2b244(LLVMBasicBlockRef arg1);
-extern LLVMValueRef _wrap_GetBasicBlockParent_llvm_5d1e3feecae2b244(LLVMBasicBlockRef arg1);
-extern LLVMValueRef _wrap_GetBasicBlockTerminator_llvm_5d1e3feecae2b244(LLVMBasicBlockRef arg1);
-extern swig_intgo _wrap_CountBasicBlocks_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_GetBasicBlocks_llvm_5d1e3feecae2b244(LLVMValueRef arg1, uintptr_t arg2);
-extern LLVMBasicBlockRef _wrap_GetFirstBasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMBasicBlockRef _wrap_GetLastBasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMBasicBlockRef _wrap_GetNextBasicBlock_llvm_5d1e3feecae2b244(LLVMBasicBlockRef arg1);
-extern LLVMBasicBlockRef _wrap_GetPreviousBasicBlock_llvm_5d1e3feecae2b244(LLVMBasicBlockRef arg1);
-extern LLVMBasicBlockRef _wrap_GetEntryBasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_InsertExistingBasicBlockAfterInsertBlock_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMBasicBlockRef arg2);
-extern void _wrap_AppendExistingBasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMBasicBlockRef arg2);
-extern LLVMBasicBlockRef _wrap_CreateBasicBlockInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1, swig_voidp arg2);
-extern LLVMBasicBlockRef _wrap_AppendBasicBlockInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1, LLVMValueRef arg2, swig_voidp arg3);
-extern LLVMBasicBlockRef _wrap_AppendBasicBlock_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_voidp arg2);
-extern LLVMBasicBlockRef _wrap_InsertBasicBlockInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1, LLVMBasicBlockRef arg2, swig_voidp arg3);
-extern LLVMBasicBlockRef _wrap_InsertBasicBlock_llvm_5d1e3feecae2b244(LLVMBasicBlockRef arg1, swig_voidp arg2);
-extern void _wrap_DeleteBasicBlock_llvm_5d1e3feecae2b244(LLVMBasicBlockRef arg1);
-extern void _wrap_RemoveBasicBlockFromParent_llvm_5d1e3feecae2b244(LLVMBasicBlockRef arg1);
-extern void _wrap_MoveBasicBlockBefore_llvm_5d1e3feecae2b244(LLVMBasicBlockRef arg1, LLVMBasicBlockRef arg2);
-extern void _wrap_MoveBasicBlockAfter_llvm_5d1e3feecae2b244(LLVMBasicBlockRef arg1, LLVMBasicBlockRef arg2);
-extern LLVMValueRef _wrap_GetFirstInstruction_llvm_5d1e3feecae2b244(LLVMBasicBlockRef arg1);
-extern LLVMValueRef _wrap_GetLastInstruction_llvm_5d1e3feecae2b244(LLVMBasicBlockRef arg1);
-extern swig_intgo _wrap_HasMetadata_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_GetMetadata_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern void _wrap_SetMetadata_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2, LLVMValueRef arg3);
-extern uintptr_t _wrap_InstructionGetAllMetadataOtherThanDebugLoc_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_voidp arg2);
-extern LLVMBasicBlockRef _wrap_GetInstructionParent_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_GetNextInstruction_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_GetPreviousInstruction_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_InstructionRemoveFromParent_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_InstructionEraseFromParent_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_DeleteInstruction_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern swig_intgo _wrap_GetInstructionOpcode_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern swig_intgo _wrap_GetICmpPredicate_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern swig_intgo _wrap_GetFCmpPredicate_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_InstructionClone_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_IsATerminatorInst_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern swig_intgo _wrap_GetNumArgOperands_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetInstructionCallConv_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern swig_intgo _wrap_GetInstructionCallConv_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetInstrParamAlignment_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2, swig_intgo arg3);
-extern void _wrap_AddCallSiteAttribute_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2, LLVMAttributeRef arg3);
-extern swig_intgo _wrap_GetCallSiteAttributeCount_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern void _wrap_GetCallSiteAttributes_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2, uintptr_t arg3);
-extern LLVMAttributeRef _wrap_GetCallSiteEnumAttribute_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2, swig_intgo arg3);
-extern LLVMAttributeRef _wrap_GetCallSiteStringAttribute_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2, swig_voidp arg3, swig_intgo arg4);
-extern void _wrap_RemoveCallSiteEnumAttribute_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2, swig_intgo arg3);
-extern void _wrap_RemoveCallSiteStringAttribute_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2, swig_voidp arg3, swig_intgo arg4);
-extern LLVMTypeRef _wrap_GetCalledFunctionType_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_GetCalledValue_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern _Bool _wrap_IsTailCall_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetTailCall_llvm_5d1e3feecae2b244(LLVMValueRef arg1, _Bool arg2);
-extern LLVMBasicBlockRef _wrap_GetNormalDest_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMBasicBlockRef _wrap_GetUnwindDest_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetNormalDest_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMBasicBlockRef arg2);
-extern void _wrap_SetUnwindDest_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMBasicBlockRef arg2);
-extern swig_intgo _wrap_GetNumSuccessors_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMBasicBlockRef _wrap_GetSuccessor_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern void _wrap_SetSuccessor_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2, LLVMBasicBlockRef arg3);
-extern _Bool _wrap_IsConditional_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_GetCondition_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetCondition_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern LLVMBasicBlockRef _wrap_GetSwitchDefaultDest_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMTypeRef _wrap_GetAllocatedType_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern _Bool _wrap_IsInBounds_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetIsInBounds_llvm_5d1e3feecae2b244(LLVMValueRef arg1, _Bool arg2);
-extern LLVMTypeRef _wrap_GetGEPSourceElementType_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_AddIncoming_llvm_5d1e3feecae2b244(LLVMValueRef arg1, uintptr_t arg2, uintptr_t arg3, swig_intgo arg4);
-extern swig_intgo _wrap_CountIncoming_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_GetIncomingValue_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern LLVMBasicBlockRef _wrap_GetIncomingBlock_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern swig_intgo _wrap_GetNumIndices_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern swig_voidp _wrap_GetIndices_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMBuilderRef _wrap_CreateBuilderInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1);
-extern LLVMBuilderRef _wrap_CreateBuilder_llvm_5d1e3feecae2b244(void);
-extern void _wrap_PositionBuilder_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMBasicBlockRef arg2, LLVMValueRef arg3);
-extern void _wrap_PositionBuilderBefore_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2);
-extern void _wrap_PositionBuilderAtEnd_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMBasicBlockRef arg2);
-extern LLVMBasicBlockRef _wrap_GetInsertBlock_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1);
-extern void _wrap_ClearInsertionPosition_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1);
-extern void _wrap_InsertIntoBuilder_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2);
-extern void _wrap_InsertIntoBuilderWithName_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3);
-extern void _wrap_DisposeBuilder_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1);
-extern LLVMMetadataRef _wrap_GetCurrentDebugLocation2_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1);
-extern void _wrap_SetCurrentDebugLocation2_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMMetadataRef arg2);
-extern void _wrap_SetInstDebugLocation_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2);
-extern void _wrap_AddMetadataToInst_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2);
-extern LLVMMetadataRef _wrap_BuilderGetDefaultFPMathTag_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1);
-extern void _wrap_BuilderSetDefaultFPMathTag_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMMetadataRef arg2);
-extern void _wrap_SetCurrentDebugLocation_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2);
-extern LLVMValueRef _wrap_GetCurrentDebugLocation_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1);
-extern LLVMValueRef _wrap_BuildRetVoid_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1);
-extern LLVMValueRef _wrap_BuildRet_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2);
-extern LLVMValueRef _wrap_BuildAggregateRet_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, swig_voidp arg2);
-extern LLVMValueRef _wrap_BuildBr_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMBasicBlockRef arg2);
-extern LLVMValueRef _wrap_BuildCondBr_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMBasicBlockRef arg3, LLVMBasicBlockRef arg4);
-extern LLVMValueRef _wrap_BuildSwitch_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMBasicBlockRef arg3, swig_intgo arg4);
-extern LLVMValueRef _wrap_BuildIndirectBr_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_intgo arg3);
-extern LLVMValueRef _wrap_BuildInvoke2_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMTypeRef arg2, LLVMValueRef arg3, swig_voidp arg4, LLVMBasicBlockRef arg5, LLVMBasicBlockRef arg6, swig_voidp arg7);
-extern LLVMValueRef _wrap_BuildUnreachable_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1);
-extern LLVMValueRef _wrap_BuildResume_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2);
-extern LLVMValueRef _wrap_BuildLandingPad_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMTypeRef arg2, LLVMValueRef arg3, swig_intgo arg4, swig_voidp arg5);
-extern LLVMValueRef _wrap_BuildCleanupRet_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMBasicBlockRef arg3);
-extern LLVMValueRef _wrap_BuildCatchRet_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMBasicBlockRef arg3);
-extern LLVMValueRef _wrap_BuildCatchPad_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildCleanupPad_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildCatchSwitch_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMBasicBlockRef arg3, swig_intgo arg4, swig_voidp arg5);
-extern void _wrap_AddCase_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2, LLVMBasicBlockRef arg3);
-extern void _wrap_AddDestination_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMBasicBlockRef arg2);
-extern swig_intgo _wrap_GetNumClauses_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern LLVMValueRef _wrap_GetClause_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern void _wrap_AddClause_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern _Bool _wrap_IsCleanup_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetCleanup_llvm_5d1e3feecae2b244(LLVMValueRef arg1, _Bool arg2);
-extern void _wrap_AddHandler_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMBasicBlockRef arg2);
-extern swig_intgo _wrap_GetNumHandlers_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_GetHandlers_llvm_5d1e3feecae2b244(LLVMValueRef arg1, uintptr_t arg2);
-extern LLVMValueRef _wrap_GetArgOperand_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern void _wrap_SetArgOperand_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2, LLVMValueRef arg3);
-extern LLVMValueRef _wrap_GetParentCatchSwitch_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetParentCatchSwitch_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMValueRef arg2);
-extern LLVMValueRef _wrap_BuildAdd_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildNSWAdd_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildNUWAdd_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildFAdd_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildSub_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildNSWSub_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildNUWSub_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildFSub_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildMul_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildNSWMul_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildNUWMul_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildFMul_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildUDiv_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildExactUDiv_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildSDiv_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildExactSDiv_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildFDiv_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildURem_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildSRem_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildFRem_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildShl_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildLShr_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildAShr_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildAnd_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildOr_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildXor_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildBinOp_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, swig_intgo arg2, LLVMValueRef arg3, LLVMValueRef arg4, swig_voidp arg5);
-extern LLVMValueRef _wrap_BuildNeg_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3);
-extern LLVMValueRef _wrap_BuildNSWNeg_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3);
-extern LLVMValueRef _wrap_BuildNUWNeg_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3);
-extern LLVMValueRef _wrap_BuildFNeg_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3);
-extern LLVMValueRef _wrap_BuildNot_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3);
-extern LLVMValueRef _wrap_BuildMalloc_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMTypeRef arg2, swig_voidp arg3);
-extern LLVMValueRef _wrap_BuildArrayMalloc_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMTypeRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildMemSet_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, LLVMValueRef arg4, swig_intgo arg5);
-extern LLVMValueRef _wrap_BuildMemCpy_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_intgo arg3, LLVMValueRef arg4, swig_intgo arg5, LLVMValueRef arg6);
-extern LLVMValueRef _wrap_BuildMemMove_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_intgo arg3, LLVMValueRef arg4, swig_intgo arg5, LLVMValueRef arg6);
-extern LLVMValueRef _wrap_BuildAlloca_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMTypeRef arg2, swig_voidp arg3);
-extern LLVMValueRef _wrap_BuildArrayAlloca_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMTypeRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildFree_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2);
-extern LLVMValueRef _wrap_BuildLoad2_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMTypeRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildStore_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3);
-extern LLVMValueRef _wrap_BuildGEP2_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMTypeRef arg2, LLVMValueRef arg3, swig_voidp arg4, swig_voidp arg5);
-extern LLVMValueRef _wrap_BuildInBoundsGEP2_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMTypeRef arg2, LLVMValueRef arg3, swig_voidp arg4, swig_voidp arg5);
-extern LLVMValueRef _wrap_BuildStructGEP2_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMTypeRef arg2, LLVMValueRef arg3, swig_intgo arg4, swig_voidp arg5);
-extern LLVMValueRef _wrap_BuildGlobalString_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, swig_voidp arg2, swig_voidp arg3);
-extern LLVMValueRef _wrap_BuildGlobalStringPtr_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, swig_voidp arg2, swig_voidp arg3);
-extern _Bool _wrap_GetVolatile_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetVolatile_llvm_5d1e3feecae2b244(LLVMValueRef arg1, _Bool arg2);
-extern _Bool _wrap_GetWeak_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetWeak_llvm_5d1e3feecae2b244(LLVMValueRef arg1, _Bool arg2);
-extern swig_intgo _wrap_GetOrdering_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetOrdering_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern swig_intgo _wrap_GetAtomicRMWBinOp_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetAtomicRMWBinOp_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern LLVMValueRef _wrap_BuildTrunc_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildZExt_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildSExt_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildFPToUI_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildFPToSI_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildUIToFP_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildSIToFP_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildFPTrunc_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildFPExt_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildPtrToInt_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildIntToPtr_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildBitCast_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildAddrSpaceCast_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildZExtOrBitCast_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildSExtOrBitCast_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildTruncOrBitCast_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildCast_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, swig_intgo arg2, LLVMValueRef arg3, LLVMTypeRef arg4, swig_voidp arg5);
-extern LLVMValueRef _wrap_BuildPointerCast_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildIntCast2_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, _Bool arg4, swig_voidp arg5);
-extern LLVMValueRef _wrap_BuildFPCast_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildIntCast_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
-extern swig_intgo _wrap_GetCastOpcode_llvm_5d1e3feecae2b244(LLVMValueRef arg1, _Bool arg2, LLVMTypeRef arg3, _Bool arg4);
-extern LLVMValueRef _wrap_BuildICmp_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, swig_intgo arg2, LLVMValueRef arg3, LLVMValueRef arg4, swig_voidp arg5);
-extern LLVMValueRef _wrap_BuildFCmp_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, swig_intgo arg2, LLVMValueRef arg3, LLVMValueRef arg4, swig_voidp arg5);
-extern LLVMValueRef _wrap_BuildPhi_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMTypeRef arg2, swig_voidp arg3);
-extern LLVMValueRef _wrap_BuildCall2_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMTypeRef arg2, LLVMValueRef arg3, swig_voidp arg4, swig_voidp arg5);
-extern LLVMValueRef _wrap_BuildSelect_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, LLVMValueRef arg4, swig_voidp arg5);
-extern LLVMValueRef _wrap_BuildVAArg_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildExtractElement_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildInsertElement_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, LLVMValueRef arg4, swig_voidp arg5);
-extern LLVMValueRef _wrap_BuildShuffleVector_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, LLVMValueRef arg4, swig_voidp arg5);
-extern LLVMValueRef _wrap_BuildExtractValue_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_intgo arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildInsertValue_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_intgo arg4, swig_voidp arg5);
-extern LLVMValueRef _wrap_BuildFreeze_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3);
-extern LLVMValueRef _wrap_BuildIsNull_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3);
-extern LLVMValueRef _wrap_BuildIsNotNull_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3);
-extern LLVMValueRef _wrap_BuildPtrDiff2_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMTypeRef arg2, LLVMValueRef arg3, LLVMValueRef arg4, swig_voidp arg5);
-extern LLVMValueRef _wrap_BuildFence_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, swig_intgo arg2, _Bool arg3, swig_voidp arg4);
-extern LLVMValueRef _wrap_BuildAtomicRMW_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, swig_intgo arg2, LLVMValueRef arg3, LLVMValueRef arg4, swig_intgo arg5, _Bool arg6);
-extern LLVMValueRef _wrap_BuildAtomicCmpXchg_llvm_5d1e3feecae2b244(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, LLVMValueRef arg4, swig_intgo arg5, swig_intgo arg6, _Bool arg7);
-extern swig_intgo _wrap_GetNumMaskElements_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern swig_intgo _wrap_GetUndefMaskElem_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_GetMaskValue_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern _Bool _wrap_IsAtomicSingleThread_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetAtomicSingleThread_llvm_5d1e3feecae2b244(LLVMValueRef arg1, _Bool arg2);
-extern swig_intgo _wrap_GetCmpXchgSuccessOrdering_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetCmpXchgSuccessOrdering_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern swig_intgo _wrap_GetCmpXchgFailureOrdering_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetCmpXchgFailureOrdering_llvm_5d1e3feecae2b244(LLVMValueRef arg1, swig_intgo arg2);
-extern LLVMModuleProviderRef _wrap_CreateModuleProviderForExistingModule_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern void _wrap_DisposeModuleProvider_llvm_5d1e3feecae2b244(LLVMModuleProviderRef arg1);
-extern _Bool _wrap_CreateMemoryBufferWithContentsOfFile_llvm_5d1e3feecae2b244(swig_voidp arg1, uintptr_t arg2, swig_voidp arg3);
-extern _Bool _wrap_CreateMemoryBufferWithSTDIN_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_voidp arg2);
-extern LLVMMemoryBufferRef _wrap_CreateMemoryBufferWithMemoryRange_llvm_5d1e3feecae2b244(swig_voidp arg1, swig_type_47 arg2, swig_voidp arg3, _Bool arg4);
-extern LLVMMemoryBufferRef _wrap_CreateMemoryBufferWithMemoryRangeCopy_llvm_5d1e3feecae2b244(swig_voidp arg1, swig_type_48 arg2, swig_voidp arg3);
-extern swig_voidp _wrap_GetBufferStart_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef arg1);
-extern swig_type_49 _wrap_GetBufferSize_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef arg1);
-extern void _wrap_DisposeMemoryBuffer_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef arg1);
-extern LLVMPassRegistryRef _wrap_GetGlobalPassRegistry_llvm_5d1e3feecae2b244(void);
-extern LLVMPassManagerRef _wrap_CreatePassManager_llvm_5d1e3feecae2b244(void);
-extern LLVMPassManagerRef _wrap_CreateFunctionPassManagerForModule_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern LLVMPassManagerRef _wrap_CreateFunctionPassManager_llvm_5d1e3feecae2b244(LLVMModuleProviderRef arg1);
-extern _Bool _wrap_RunPassManager_llvm_5d1e3feecae2b244(LLVMPassManagerRef arg1, LLVMModuleRef arg2);
-extern _Bool _wrap_InitializeFunctionPassManager_llvm_5d1e3feecae2b244(LLVMPassManagerRef arg1);
-extern _Bool _wrap_RunFunctionPassManager_llvm_5d1e3feecae2b244(LLVMPassManagerRef arg1, LLVMValueRef arg2);
-extern _Bool _wrap_FinalizeFunctionPassManager_llvm_5d1e3feecae2b244(LLVMPassManagerRef arg1);
-extern void _wrap_DisposePassManager_llvm_5d1e3feecae2b244(LLVMPassManagerRef arg1);
-extern _Bool _wrap_StartMultithreaded_llvm_5d1e3feecae2b244(void);
-extern void _wrap_StopMultithreaded_llvm_5d1e3feecae2b244(void);
-extern _Bool _wrap_IsMultithreaded_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagZero_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagPrivate_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagProtected_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagPublic_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagFwdDecl_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagAppleBlock_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagReservedBit4_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagVirtual_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagArtificial_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagExplicit_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagPrototyped_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagObjcClassComplete_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagObjectPointer_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagVector_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagStaticMember_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagLValueReference_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagRValueReference_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagReserved_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagSingleInheritance_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagMultipleInheritance_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagVirtualInheritance_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagIntroducedVirtual_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagBitField_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagNoReturn_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagTypePassByValue_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagTypePassByReference_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagEnumClass_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagFixedEnum_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagThunk_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagNonTrivial_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagBigEndian_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagLittleEndian_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagIndirectVirtualBase_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagAccessibility_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFlagPtrToMemberRep_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageC89_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageC_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageAda83_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageC_plus_plus_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageCobol74_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageCobol85_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageFortran77_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageFortran90_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguagePascal83_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageModula2_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageJava_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageC99_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageAda95_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageFortran95_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguagePLI_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageObjC_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageObjC_plus_plus_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageUPC_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageD_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguagePython_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageOpenCL_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageGo_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageModula3_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageHaskell_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageC_plus_plus_03_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageC_plus_plus_11_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageOCaml_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageRust_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageC11_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageSwift_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageJulia_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageDylan_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageC_plus_plus_14_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageFortran03_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageFortran08_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageRenderScript_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageBLISS_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageKotlin_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageZig_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageCrystal_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageC_plus_plus_17_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageC_plus_plus_20_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageC17_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageFortran18_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageAda2005_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageAda2012_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageMips_Assembler_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageGOOGLE_RenderScript_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFSourceLanguageBORLAND_Delphi_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFEmissionNone_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFEmissionFull_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFEmissionLineTablesOnly_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_MDStringMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ConstantAsMetadataMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_LocalAsMetadataMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DistinctMDOperandPlaceholderMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_MDTupleMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DILocationMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIExpressionMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIGlobalVariableExpressionMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_GenericDINodeMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DISubrangeMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIEnumeratorMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIBasicTypeMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIDerivedTypeMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DICompositeTypeMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DISubroutineTypeMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIFileMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DICompileUnitMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DISubprogramMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DILexicalBlockMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DILexicalBlockFileMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DINamespaceMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIModuleMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DITemplateTypeParameterMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DITemplateValueParameterMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIGlobalVariableMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DILocalVariableMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DILabelMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIObjCPropertyMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIImportedEntityMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIMacroMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIMacroFileMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DICommonBlockMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIStringTypeMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIGenericSubrangeMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIArgListMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DIAssignIDMetadataKind_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFMacinfoRecordTypeDefine_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFMacinfoRecordTypeMacro_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFMacinfoRecordTypeStartFile_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFMacinfoRecordTypeEndFile_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DWARFMacinfoRecordTypeVendorExt_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_DebugMetadataVersion_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_GetModuleDebugMetadataVersion_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern _Bool _wrap_StripModuleDebugInfo_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern LLVMDIBuilderRef _wrap_CreateDIBuilderDisallowUnresolved_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern LLVMDIBuilderRef _wrap_CreateDIBuilder_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern void _wrap_DisposeDIBuilder_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1);
-extern void _wrap_DIBuilderFinalize_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1);
-extern void _wrap_DIBuilderFinalizeSubprogram_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2);
-extern LLVMMetadataRef _wrap_DIBuilderCreateCompileUnit_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, swig_intgo arg2, LLVMMetadataRef arg3, swig_voidp arg4, swig_type_50 arg5, _Bool arg6, swig_voidp arg7, swig_type_51 arg8, swig_intgo arg9, swig_voidp arg10, swig_type_52 arg11, swig_intgo arg12, swig_intgo arg13, _Bool arg14, _Bool arg15, swig_voidp arg16, swig_type_53 arg17, swig_voidp arg18, swig_type_54 arg19);
-extern LLVMMetadataRef _wrap_DIBuilderCreateFile_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, swig_voidp arg2, swig_voidp arg3);
-extern LLVMMetadataRef _wrap_DIBuilderCreateModule_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, swig_voidp arg4, swig_type_55 arg5, swig_voidp arg6, swig_type_56 arg7, swig_voidp arg8, swig_type_57 arg9);
-extern LLVMMetadataRef _wrap_DIBuilderCreateNameSpace_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, _Bool arg4);
-extern LLVMMetadataRef _wrap_DIBuilderCreateFunction_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, swig_voidp arg4, LLVMMetadataRef arg5, swig_intgo arg6, LLVMMetadataRef arg7, _Bool arg8, _Bool arg9, swig_intgo arg10, swig_intgo arg11, _Bool arg12);
-extern LLVMMetadataRef _wrap_DIBuilderCreateLexicalBlock_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, LLVMMetadataRef arg3, swig_intgo arg4, swig_intgo arg5);
-extern LLVMMetadataRef _wrap_DIBuilderCreateLexicalBlockFile_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, LLVMMetadataRef arg3, swig_intgo arg4);
-extern LLVMMetadataRef _wrap_DIBuilderCreateImportedModuleFromNamespace_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, LLVMMetadataRef arg3, LLVMMetadataRef arg4, swig_intgo arg5);
-extern LLVMMetadataRef _wrap_DIBuilderCreateImportedModuleFromAlias_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, LLVMMetadataRef arg3, LLVMMetadataRef arg4, swig_intgo arg5, swig_voidp arg6);
-extern LLVMMetadataRef _wrap_DIBuilderCreateImportedModuleFromModule_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, LLVMMetadataRef arg3, LLVMMetadataRef arg4, swig_intgo arg5, swig_voidp arg6);
-extern LLVMMetadataRef _wrap_DIBuilderCreateImportedDeclaration_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, LLVMMetadataRef arg3, LLVMMetadataRef arg4, swig_intgo arg5, swig_voidp arg6, swig_voidp arg7);
-extern LLVMMetadataRef _wrap_DIBuilderCreateDebugLocation_llvm_5d1e3feecae2b244(LLVMContextRef arg1, swig_intgo arg2, swig_intgo arg3, LLVMMetadataRef arg4, LLVMMetadataRef arg5);
-extern swig_intgo _wrap_DILocationGetLine_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1);
-extern swig_intgo _wrap_DILocationGetColumn_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1);
-extern LLVMMetadataRef _wrap_DILocationGetScope_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1);
-extern LLVMMetadataRef _wrap_DILocationGetInlinedAt_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1);
-extern LLVMMetadataRef _wrap_DIScopeGetFile_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1);
-extern swig_voidp _wrap_DIFileGetDirectory_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1, swig_voidp arg2);
-extern swig_voidp _wrap_DIFileGetFilename_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1, swig_voidp arg2);
-extern swig_voidp _wrap_DIFileGetSource_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1, swig_voidp arg2);
-extern LLVMMetadataRef _wrap_DIBuilderGetOrCreateTypeArray_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, uintptr_t arg2, swig_type_58 arg3);
-extern LLVMMetadataRef _wrap_DIBuilderCreateSubroutineType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, swig_intgo arg4);
-extern LLVMMetadataRef _wrap_DIBuilderCreateMacro_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_intgo arg3, swig_intgo arg4, swig_voidp arg5, swig_voidp arg6, swig_type_59 arg7);
-extern LLVMMetadataRef _wrap_DIBuilderCreateTempMacroFile_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_intgo arg3, LLVMMetadataRef arg4);
-extern LLVMMetadataRef _wrap_DIBuilderCreateEnumerator_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, swig_voidp arg2, swig_type_60 arg3, _Bool arg4);
-extern LLVMMetadataRef _wrap_DIBuilderCreateEnumerationType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, LLVMMetadataRef arg4, swig_intgo arg5, swig_type_61 arg6, swig_intgo arg7, swig_voidp arg8, LLVMMetadataRef arg9);
-extern LLVMMetadataRef _wrap_DIBuilderCreateUnionType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, LLVMMetadataRef arg4, swig_intgo arg5, swig_type_62 arg6, swig_intgo arg7, swig_intgo arg8, swig_voidp arg9, swig_intgo arg10, swig_voidp arg11);
-extern LLVMMetadataRef _wrap_DIBuilderCreateArrayType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, swig_type_63 arg2, swig_intgo arg3, LLVMMetadataRef arg4, swig_voidp arg5);
-extern LLVMMetadataRef _wrap_DIBuilderCreateVectorType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, swig_type_64 arg2, swig_intgo arg3, LLVMMetadataRef arg4, swig_voidp arg5);
-extern LLVMMetadataRef _wrap_DIBuilderCreateUnspecifiedType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, swig_voidp arg2);
-extern LLVMMetadataRef _wrap_DIBuilderCreateBasicType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, swig_voidp arg2, swig_type_65 arg3, swig_intgo arg4, swig_intgo arg5);
-extern LLVMMetadataRef _wrap_DIBuilderCreatePointerType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_type_66 arg3, swig_intgo arg4, swig_intgo arg5, swig_voidp arg6);
-extern LLVMMetadataRef _wrap_DIBuilderCreateStructType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, LLVMMetadataRef arg4, swig_intgo arg5, swig_type_67 arg6, swig_intgo arg7, swig_intgo arg8, LLVMMetadataRef arg9, swig_voidp arg10, swig_intgo arg11, LLVMMetadataRef arg12, swig_voidp arg13);
-extern LLVMMetadataRef _wrap_DIBuilderCreateMemberType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, LLVMMetadataRef arg4, swig_intgo arg5, swig_type_68 arg6, swig_intgo arg7, swig_type_69 arg8, swig_intgo arg9, LLVMMetadataRef arg10);
-extern LLVMMetadataRef _wrap_DIBuilderCreateStaticMemberType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, LLVMMetadataRef arg4, swig_intgo arg5, LLVMMetadataRef arg6, swig_intgo arg7, LLVMValueRef arg8, swig_intgo arg9);
-extern LLVMMetadataRef _wrap_DIBuilderCreateMemberPointerType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, LLVMMetadataRef arg3, swig_type_70 arg4, swig_intgo arg5, swig_intgo arg6);
-extern LLVMMetadataRef _wrap_DIBuilderCreateObjCIVar_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, swig_voidp arg2, LLVMMetadataRef arg3, swig_intgo arg4, swig_type_71 arg5, swig_intgo arg6, swig_type_72 arg7, swig_intgo arg8, LLVMMetadataRef arg9, LLVMMetadataRef arg10);
-extern LLVMMetadataRef _wrap_DIBuilderCreateObjCProperty_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, swig_voidp arg2, LLVMMetadataRef arg3, swig_intgo arg4, swig_voidp arg5, swig_type_73 arg6, swig_voidp arg7, swig_type_74 arg8, swig_intgo arg9, LLVMMetadataRef arg10);
-extern LLVMMetadataRef _wrap_DIBuilderCreateObjectPointerType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2);
-extern LLVMMetadataRef _wrap_DIBuilderCreateQualifiedType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, swig_intgo arg2, LLVMMetadataRef arg3);
-extern LLVMMetadataRef _wrap_DIBuilderCreateReferenceType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, swig_intgo arg2, LLVMMetadataRef arg3);
-extern LLVMMetadataRef _wrap_DIBuilderCreateNullPtrType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1);
-extern LLVMMetadataRef _wrap_DIBuilderCreateTypedef_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, LLVMMetadataRef arg4, swig_intgo arg5, LLVMMetadataRef arg6, swig_intgo arg7);
-extern LLVMMetadataRef _wrap_DIBuilderCreateInheritance_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, LLVMMetadataRef arg3, swig_type_75 arg4, swig_intgo arg5, swig_intgo arg6);
-extern LLVMMetadataRef _wrap_DIBuilderCreateForwardDecl_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, swig_intgo arg2, swig_voidp arg3, LLVMMetadataRef arg4, LLVMMetadataRef arg5, swig_intgo arg6, swig_intgo arg7, swig_type_76 arg8, swig_intgo arg9, swig_voidp arg10, swig_type_77 arg11);
-extern LLVMMetadataRef _wrap_DIBuilderCreateReplaceableCompositeType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, swig_intgo arg2, swig_voidp arg3, LLVMMetadataRef arg4, LLVMMetadataRef arg5, swig_intgo arg6, swig_intgo arg7, swig_type_78 arg8, swig_intgo arg9, swig_intgo arg10, swig_voidp arg11, swig_type_79 arg12);
-extern LLVMMetadataRef _wrap_DIBuilderCreateBitFieldMemberType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, LLVMMetadataRef arg4, swig_intgo arg5, swig_type_80 arg6, swig_type_81 arg7, swig_type_82 arg8, swig_intgo arg9, LLVMMetadataRef arg10);
-extern LLVMMetadataRef _wrap_DIBuilderCreateClassType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, LLVMMetadataRef arg4, swig_intgo arg5, swig_type_83 arg6, swig_intgo arg7, swig_type_84 arg8, swig_intgo arg9, LLVMMetadataRef arg10, swig_voidp arg11, LLVMMetadataRef arg12, LLVMMetadataRef arg13, swig_voidp arg14, swig_type_85 arg15);
-extern LLVMMetadataRef _wrap_DIBuilderCreateArtificialType_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2);
-extern swig_voidp _wrap_DITypeGetName_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1, swig_voidp arg2);
-extern swig_type_86 _wrap_DITypeGetSizeInBits_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1);
-extern swig_type_87 _wrap_DITypeGetOffsetInBits_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1);
-extern swig_intgo _wrap_DITypeGetAlignInBits_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1);
-extern swig_intgo _wrap_DITypeGetLine_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1);
-extern swig_intgo _wrap_DITypeGetFlags_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1);
-extern LLVMMetadataRef _wrap_DIBuilderGetOrCreateSubrange_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, swig_type_88 arg2, swig_type_89 arg3);
-extern LLVMMetadataRef _wrap_DIBuilderGetOrCreateArray_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, uintptr_t arg2, swig_type_90 arg3);
-extern LLVMMetadataRef _wrap_DIBuilderCreateExpression_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, swig_type_91 arg2);
-extern LLVMMetadataRef _wrap_DIBuilderCreateConstantValueExpression_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, swig_type_92 arg2);
-extern LLVMMetadataRef _wrap_DIBuilderCreateGlobalVariableExpression_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, swig_voidp arg4, swig_type_93 arg5, LLVMMetadataRef arg6, swig_intgo arg7, LLVMMetadataRef arg8, _Bool arg9, LLVMMetadataRef arg10, LLVMMetadataRef arg11, swig_intgo arg12);
-extern short _wrap_GetDINodeTag_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1);
-extern LLVMMetadataRef _wrap_DIGlobalVariableExpressionGetVariable_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1);
-extern LLVMMetadataRef _wrap_DIGlobalVariableExpressionGetExpression_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1);
-extern LLVMMetadataRef _wrap_DIVariableGetFile_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1);
-extern LLVMMetadataRef _wrap_DIVariableGetScope_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1);
-extern swig_intgo _wrap_DIVariableGetLine_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1);
-extern LLVMMetadataRef _wrap_TemporaryMDNode_llvm_5d1e3feecae2b244(LLVMContextRef arg1, uintptr_t arg2, swig_type_94 arg3);
-extern void _wrap_DisposeTemporaryMDNode_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1);
-extern void _wrap_MetadataReplaceAllUsesWith_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1, LLVMMetadataRef arg2);
-extern LLVMMetadataRef _wrap_DIBuilderCreateTempGlobalVariableFwdDecl_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, swig_voidp arg4, swig_type_95 arg5, LLVMMetadataRef arg6, swig_intgo arg7, LLVMMetadataRef arg8, _Bool arg9, LLVMMetadataRef arg10, swig_intgo arg11);
-extern LLVMValueRef _wrap_DIBuilderInsertDeclareBefore_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMValueRef arg2, LLVMMetadataRef arg3, LLVMMetadataRef arg4, LLVMMetadataRef arg5, LLVMValueRef arg6);
-extern LLVMValueRef _wrap_DIBuilderInsertDeclareAtEnd_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMValueRef arg2, LLVMMetadataRef arg3, LLVMMetadataRef arg4, LLVMMetadataRef arg5, LLVMBasicBlockRef arg6);
-extern LLVMValueRef _wrap_DIBuilderInsertDbgValueBefore_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMValueRef arg2, LLVMMetadataRef arg3, LLVMMetadataRef arg4, LLVMMetadataRef arg5, LLVMValueRef arg6);
-extern LLVMValueRef _wrap_DIBuilderInsertDbgValueAtEnd_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMValueRef arg2, LLVMMetadataRef arg3, LLVMMetadataRef arg4, LLVMMetadataRef arg5, LLVMBasicBlockRef arg6);
-extern LLVMMetadataRef _wrap_DIBuilderCreateAutoVariable_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, LLVMMetadataRef arg4, swig_intgo arg5, LLVMMetadataRef arg6, _Bool arg7, swig_intgo arg8, swig_intgo arg9);
-extern LLVMMetadataRef _wrap_DIBuilderCreateParameterVariable_llvm_5d1e3feecae2b244(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, swig_intgo arg4, LLVMMetadataRef arg5, swig_intgo arg6, LLVMMetadataRef arg7, _Bool arg8, swig_intgo arg9);
-extern LLVMMetadataRef _wrap_GetSubprogram_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_SetSubprogram_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMMetadataRef arg2);
-extern swig_intgo _wrap_DISubprogramGetLine_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1);
-extern LLVMMetadataRef _wrap_InstructionGetDebugLoc_llvm_5d1e3feecae2b244(LLVMValueRef arg1);
-extern void _wrap_InstructionSetDebugLoc_llvm_5d1e3feecae2b244(LLVMValueRef arg1, LLVMMetadataRef arg2);
-extern swig_intgo _wrap_GetMetadataKind_llvm_5d1e3feecae2b244(LLVMMetadataRef arg1);
-extern uintptr_t _wrap_CreateDisasm_llvm_5d1e3feecae2b244(swig_voidp arg1, uintptr_t arg2, swig_intgo arg3, swig_type_96 arg4, swig_type_97 arg5);
-extern uintptr_t _wrap_CreateDisasmCPU_llvm_5d1e3feecae2b244(swig_voidp arg1, swig_voidp arg2, uintptr_t arg3, swig_intgo arg4, swig_type_98 arg5, swig_type_99 arg6);
-extern uintptr_t _wrap_CreateDisasmCPUFeatures_llvm_5d1e3feecae2b244(swig_voidp arg1, swig_voidp arg2, swig_voidp arg3, uintptr_t arg4, swig_intgo arg5, swig_type_100 arg6, swig_type_101 arg7);
-extern swig_intgo _wrap_SetDisasmOptions_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_type_102 arg2);
-extern void _wrap_DisasmDispose_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern swig_type_103 _wrap_DisasmInstruction_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_voidp arg2, swig_type_104 arg3, swig_type_105 arg4, swig_voidp arg5, swig_type_106 arg6);
-extern void _wrap_OpInfoSymbol1_Present_set_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_type_107 arg2);
-extern swig_type_108 _wrap_OpInfoSymbol1_Present_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_OpInfoSymbol1_Name_set_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_voidp arg2);
-extern swig_voidp _wrap_OpInfoSymbol1_Name_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_OpInfoSymbol1_Value_set_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_type_109 arg2);
-extern swig_type_110 _wrap_OpInfoSymbol1_Value_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern uintptr_t _wrap_new_OpInfoSymbol1_llvm_5d1e3feecae2b244(void);
-extern void _wrap_delete_OpInfoSymbol1_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_OpInfo1_AddSymbol_set_llvm_5d1e3feecae2b244(uintptr_t arg1, uintptr_t arg2);
-extern uintptr_t _wrap_OpInfo1_AddSymbol_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_OpInfo1_SubtractSymbol_set_llvm_5d1e3feecae2b244(uintptr_t arg1, uintptr_t arg2);
-extern uintptr_t _wrap_OpInfo1_SubtractSymbol_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_OpInfo1_Value_set_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_type_111 arg2);
-extern swig_type_112 _wrap_OpInfo1_Value_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_OpInfo1_VariantKind_set_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_type_113 arg2);
-extern swig_type_114 _wrap_OpInfo1_VariantKind_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern uintptr_t _wrap_new_OpInfo1_llvm_5d1e3feecae2b244(void);
-extern void _wrap_delete_OpInfo1_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern uintptr_t _wrap_GetErrorTypeId_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_ConsumeError_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern swig_voidp _wrap_GetErrorMessage_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_DisposeErrorMessage_llvm_5d1e3feecae2b244(swig_voidp arg1);
-extern uintptr_t _wrap_GetStringErrorTypeId_llvm_5d1e3feecae2b244(void);
-extern uintptr_t _wrap_CreateStringError_llvm_5d1e3feecae2b244(swig_voidp arg1);
-extern void _wrap_LinkInMCJIT_llvm_5d1e3feecae2b244(void);
-extern void _wrap_LinkInInterpreter_llvm_5d1e3feecae2b244(void);
-extern void _wrap_MCJITCompilerOptions_OptLevel_set_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_intgo arg2);
-extern swig_intgo _wrap_MCJITCompilerOptions_OptLevel_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_MCJITCompilerOptions_CodeModel_set_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_intgo arg2);
-extern swig_intgo _wrap_MCJITCompilerOptions_CodeModel_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_MCJITCompilerOptions_NoFramePointerElim_set_llvm_5d1e3feecae2b244(uintptr_t arg1, _Bool arg2);
-extern _Bool _wrap_MCJITCompilerOptions_NoFramePointerElim_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_MCJITCompilerOptions_EnableFastISel_set_llvm_5d1e3feecae2b244(uintptr_t arg1, _Bool arg2);
-extern _Bool _wrap_MCJITCompilerOptions_EnableFastISel_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_MCJITCompilerOptions_MCJMM_set_llvm_5d1e3feecae2b244(uintptr_t arg1, uintptr_t arg2);
-extern uintptr_t _wrap_MCJITCompilerOptions_MCJMM_get_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern uintptr_t _wrap_new_MCJITCompilerOptions_llvm_5d1e3feecae2b244(void);
-extern void _wrap_delete_MCJITCompilerOptions_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern uintptr_t _wrap_CreateGenericValueOfInt_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, swig_type_115 arg2, _Bool arg3);
-extern uintptr_t _wrap_CreateGenericValueOfPointer_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern uintptr_t _wrap_CreateGenericValueOfFloat_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, double arg2);
-extern swig_intgo _wrap_GenericValueIntWidth_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern swig_type_116 _wrap_GenericValueToInt_llvm_5d1e3feecae2b244(uintptr_t arg1, _Bool arg2);
-extern uintptr_t _wrap_GenericValueToPointer_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern double _wrap_GenericValueToFloat_llvm_5d1e3feecae2b244(LLVMTypeRef arg1, uintptr_t arg2);
-extern void _wrap_DisposeGenericValue_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern _Bool _wrap_CreateExecutionEngineForModule_llvm_5d1e3feecae2b244(uintptr_t arg1, LLVMModuleRef arg2, swig_voidp arg3);
-extern _Bool _wrap_CreateInterpreterForModule_llvm_5d1e3feecae2b244(uintptr_t arg1, LLVMModuleRef arg2, swig_voidp arg3);
-extern _Bool _wrap_CreateJITCompilerForModule_llvm_5d1e3feecae2b244(uintptr_t arg1, LLVMModuleRef arg2, swig_intgo arg3, swig_voidp arg4);
-extern void _wrap_InitializeMCJITCompilerOptions_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_type_117 arg2);
-extern _Bool _wrap_CreateMCJITCompilerForModule_llvm_5d1e3feecae2b244(uintptr_t arg1, LLVMModuleRef arg2, uintptr_t arg3, swig_type_118 arg4, swig_voidp arg5);
-extern void _wrap_DisposeExecutionEngine_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_RunStaticConstructors_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_RunStaticDestructors_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern swig_intgo _wrap_RunFunctionAsMain_llvm_5d1e3feecae2b244(uintptr_t arg1, LLVMValueRef arg2, swig_intgo arg3, swig_voidp arg4, swig_voidp arg5);
-extern uintptr_t _wrap_RunFunction_llvm_5d1e3feecae2b244(uintptr_t arg1, LLVMValueRef arg2, swig_intgo arg3, uintptr_t arg4);
-extern void _wrap_FreeMachineCodeForFunction_llvm_5d1e3feecae2b244(uintptr_t arg1, LLVMValueRef arg2);
-extern void _wrap_AddModule_llvm_5d1e3feecae2b244(uintptr_t arg1, LLVMModuleRef arg2);
-extern _Bool _wrap_RemoveModule_llvm_5d1e3feecae2b244(uintptr_t arg1, LLVMModuleRef arg2, uintptr_t arg3, swig_voidp arg4);
-extern _Bool _wrap_FindFunction_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_voidp arg2, uintptr_t arg3);
-extern uintptr_t _wrap_RecompileAndRelinkFunction_llvm_5d1e3feecae2b244(uintptr_t arg1, LLVMValueRef arg2);
-extern LLVMTargetDataRef _wrap_GetExecutionEngineTargetData_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern LLVMTargetMachineRef _wrap_GetExecutionEngineTargetMachine_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_AddGlobalMapping_llvm_5d1e3feecae2b244(uintptr_t arg1, LLVMValueRef arg2, uintptr_t arg3);
-extern uintptr_t _wrap_GetPointerToGlobal_llvm_5d1e3feecae2b244(uintptr_t arg1, LLVMValueRef arg2);
-extern swig_type_119 _wrap_GetGlobalValueAddress_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_voidp arg2);
-extern swig_type_120 _wrap_GetFunctionAddress_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_voidp arg2);
-extern _Bool _wrap_ExecutionEngineGetErrMsg_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_voidp arg2);
-extern uintptr_t _wrap_CreateSimpleMCJITMemoryManager_llvm_5d1e3feecae2b244(uintptr_t arg1, swig_type_121 arg2, swig_type_122 arg3, swig_type_123 arg4, swig_type_124 arg5);
-extern void _wrap_DisposeMCJITMemoryManager_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern LLVMJITEventListenerRef _wrap_CreateGDBRegistrationListener_llvm_5d1e3feecae2b244(void);
-extern LLVMJITEventListenerRef _wrap_CreateIntelJITEventListener_llvm_5d1e3feecae2b244(void);
-extern LLVMJITEventListenerRef _wrap_CreateOProfileJITEventListener_llvm_5d1e3feecae2b244(void);
-extern LLVMJITEventListenerRef _wrap_CreatePerfJITEventListener_llvm_5d1e3feecae2b244(void);
-extern void _wrap_InitializeTransformUtils_llvm_5d1e3feecae2b244(LLVMPassRegistryRef arg1);
-extern void _wrap_InitializeScalarOpts_llvm_5d1e3feecae2b244(LLVMPassRegistryRef arg1);
-extern void _wrap_InitializeVectorization_llvm_5d1e3feecae2b244(LLVMPassRegistryRef arg1);
-extern void _wrap_InitializeInstCombine_llvm_5d1e3feecae2b244(LLVMPassRegistryRef arg1);
-extern void _wrap_InitializeIPO_llvm_5d1e3feecae2b244(LLVMPassRegistryRef arg1);
-extern void _wrap_InitializeAnalysis_llvm_5d1e3feecae2b244(LLVMPassRegistryRef arg1);
-extern void _wrap_InitializeIPA_llvm_5d1e3feecae2b244(LLVMPassRegistryRef arg1);
-extern void _wrap_InitializeCodeGen_llvm_5d1e3feecae2b244(LLVMPassRegistryRef arg1);
-extern void _wrap_InitializeTarget_llvm_5d1e3feecae2b244(LLVMPassRegistryRef arg1);
-extern _Bool _wrap_ParseIRInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1, LLVMMemoryBufferRef arg2, uintptr_t arg3, swig_voidp arg4);
-extern swig_intgo _wrap_LinkerDestroySource_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_LinkerPreserveSource_Removed_llvm_5d1e3feecae2b244(void);
-extern _Bool _wrap_LinkModules2_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, LLVMModuleRef arg2);
-extern swig_intgo _wrap_BinaryTypeArchive_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_BinaryTypeMachOUniversalBinary_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_BinaryTypeCOFFImportFile_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_BinaryTypeIR_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_BinaryTypeWinRes_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_BinaryTypeCOFF_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_BinaryTypeELF32L_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_BinaryTypeELF32B_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_BinaryTypeELF64L_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_BinaryTypeELF64B_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_BinaryTypeMachO32L_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_BinaryTypeMachO32B_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_BinaryTypeMachO64L_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_BinaryTypeMachO64B_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_BinaryTypeWasm_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_BinaryTypeOffload_llvm_5d1e3feecae2b244(void);
-extern LLVMBinaryRef _wrap_CreateBinary_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef arg1, LLVMContextRef arg2, swig_voidp arg3);
-extern void _wrap_DisposeBinary_llvm_5d1e3feecae2b244(LLVMBinaryRef arg1);
-extern LLVMMemoryBufferRef _wrap_BinaryCopyMemoryBuffer_llvm_5d1e3feecae2b244(LLVMBinaryRef arg1);
-extern swig_intgo _wrap_BinaryGetType_llvm_5d1e3feecae2b244(LLVMBinaryRef arg1);
-extern LLVMBinaryRef _wrap_MachOUniversalBinaryCopyObjectForArch_llvm_5d1e3feecae2b244(LLVMBinaryRef arg1, swig_voidp arg2, swig_type_125 arg3, swig_voidp arg4);
-extern uintptr_t _wrap_ObjectFileCopySectionIterator_llvm_5d1e3feecae2b244(LLVMBinaryRef arg1);
-extern _Bool _wrap_ObjectFileIsSectionIteratorAtEnd_llvm_5d1e3feecae2b244(LLVMBinaryRef arg1, uintptr_t arg2);
-extern uintptr_t _wrap_ObjectFileCopySymbolIterator_llvm_5d1e3feecae2b244(LLVMBinaryRef arg1);
-extern _Bool _wrap_ObjectFileIsSymbolIteratorAtEnd_llvm_5d1e3feecae2b244(LLVMBinaryRef arg1, uintptr_t arg2);
-extern void _wrap_DisposeSectionIterator_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_MoveToNextSection_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_MoveToContainingSection_llvm_5d1e3feecae2b244(uintptr_t arg1, uintptr_t arg2);
-extern void _wrap_DisposeSymbolIterator_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_MoveToNextSymbol_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern swig_voidp _wrap_GetSectionName_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern swig_type_126 _wrap_GetSectionSize_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern swig_voidp _wrap_GetSectionContents_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern swig_type_127 _wrap_GetSectionAddress_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern _Bool _wrap_GetSectionContainsSymbol_llvm_5d1e3feecae2b244(uintptr_t arg1, uintptr_t arg2);
-extern uintptr_t _wrap_GetRelocations_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern void _wrap_DisposeRelocationIterator_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern _Bool _wrap_IsRelocationIteratorAtEnd_llvm_5d1e3feecae2b244(uintptr_t arg1, uintptr_t arg2);
-extern void _wrap_MoveToNextRelocation_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern swig_voidp _wrap_GetSymbolName_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern swig_type_128 _wrap_GetSymbolAddress_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern swig_type_129 _wrap_GetSymbolSize_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern swig_type_130 _wrap_GetRelocationOffset_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern uintptr_t _wrap_GetRelocationSymbol_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern swig_type_131 _wrap_GetRelocationType_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern swig_voidp _wrap_GetRelocationTypeName_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern swig_voidp _wrap_GetRelocationValueString_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern uintptr_t _wrap_CreateObjectFile_llvm_5d1e3feecae2b244(LLVMMemoryBufferRef arg1);
-extern void _wrap_DisposeObjectFile_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern uintptr_t _wrap_GetSections_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern _Bool _wrap_IsSectionIteratorAtEnd_llvm_5d1e3feecae2b244(uintptr_t arg1, uintptr_t arg2);
-extern uintptr_t _wrap_GetSymbols_llvm_5d1e3feecae2b244(uintptr_t arg1);
-extern _Bool _wrap_IsSymbolIteratorAtEnd_llvm_5d1e3feecae2b244(uintptr_t arg1, uintptr_t arg2);
-extern _Bool _wrap_LoadLibraryPermanently_llvm_5d1e3feecae2b244(swig_voidp arg1);
-extern void _wrap_ParseCommandLineOptions_llvm_5d1e3feecae2b244(swig_intgo arg1, swig_voidp arg2, swig_voidp arg3);
-extern uintptr_t _wrap_SearchForAddressOfSymbol_llvm_5d1e3feecae2b244(swig_voidp arg1);
-extern void _wrap_AddSymbol_llvm_5d1e3feecae2b244(swig_voidp arg1, uintptr_t arg2);
-extern swig_intgo _wrap_BigEndian_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_LittleEndian_llvm_5d1e3feecae2b244(void);
-extern void _wrap_InitializeAllTargetInfos_llvm_5d1e3feecae2b244(void);
-extern void _wrap_InitializeAllTargets_llvm_5d1e3feecae2b244(void);
-extern void _wrap_InitializeAllTargetMCs_llvm_5d1e3feecae2b244(void);
-extern void _wrap_InitializeAllAsmPrinters_llvm_5d1e3feecae2b244(void);
-extern void _wrap_InitializeAllAsmParsers_llvm_5d1e3feecae2b244(void);
-extern void _wrap_InitializeAllDisassemblers_llvm_5d1e3feecae2b244(void);
-extern _Bool _wrap_InitializeNativeTarget_llvm_5d1e3feecae2b244(void);
-extern _Bool _wrap_InitializeNativeAsmParser_llvm_5d1e3feecae2b244(void);
-extern _Bool _wrap_InitializeNativeAsmPrinter_llvm_5d1e3feecae2b244(void);
-extern _Bool _wrap_InitializeNativeDisassembler_llvm_5d1e3feecae2b244(void);
-extern LLVMTargetDataRef _wrap_GetModuleDataLayout_llvm_5d1e3feecae2b244(LLVMModuleRef arg1);
-extern void _wrap_SetModuleDataLayout_llvm_5d1e3feecae2b244(LLVMModuleRef arg1, LLVMTargetDataRef arg2);
-extern LLVMTargetDataRef _wrap_CreateTargetData_llvm_5d1e3feecae2b244(swig_voidp arg1);
-extern void _wrap_DisposeTargetData_llvm_5d1e3feecae2b244(LLVMTargetDataRef arg1);
-extern void _wrap_AddTargetLibraryInfo_llvm_5d1e3feecae2b244(LLVMTargetLibraryInfoRef arg1, LLVMPassManagerRef arg2);
-extern swig_voidp _wrap_CopyStringRepOfTargetData_llvm_5d1e3feecae2b244(LLVMTargetDataRef arg1);
-extern swig_intgo _wrap_ByteOrder_llvm_5d1e3feecae2b244(LLVMTargetDataRef arg1);
-extern swig_intgo _wrap_PointerSize_llvm_5d1e3feecae2b244(LLVMTargetDataRef arg1);
-extern swig_intgo _wrap_PointerSizeForAS_llvm_5d1e3feecae2b244(LLVMTargetDataRef arg1, swig_intgo arg2);
-extern LLVMTypeRef _wrap_IntPtrType_llvm_5d1e3feecae2b244(LLVMTargetDataRef arg1);
-extern LLVMTypeRef _wrap_IntPtrTypeForAS_llvm_5d1e3feecae2b244(LLVMTargetDataRef arg1, swig_intgo arg2);
-extern LLVMTypeRef _wrap_IntPtrTypeInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1, LLVMTargetDataRef arg2);
-extern LLVMTypeRef _wrap_IntPtrTypeForASInContext_llvm_5d1e3feecae2b244(LLVMContextRef arg1, LLVMTargetDataRef arg2, swig_intgo arg3);
-extern swig_type_132 _wrap_SizeOfTypeInBits_llvm_5d1e3feecae2b244(LLVMTargetDataRef arg1, LLVMTypeRef arg2);
-extern swig_type_133 _wrap_StoreSizeOfType_llvm_5d1e3feecae2b244(LLVMTargetDataRef arg1, LLVMTypeRef arg2);
-extern swig_type_134 _wrap_ABISizeOfType_llvm_5d1e3feecae2b244(LLVMTargetDataRef arg1, LLVMTypeRef arg2);
-extern swig_intgo _wrap_ABIAlignmentOfType_llvm_5d1e3feecae2b244(LLVMTargetDataRef arg1, LLVMTypeRef arg2);
-extern swig_intgo _wrap_CallFrameAlignmentOfType_llvm_5d1e3feecae2b244(LLVMTargetDataRef arg1, LLVMTypeRef arg2);
-extern swig_intgo _wrap_PreferredAlignmentOfType_llvm_5d1e3feecae2b244(LLVMTargetDataRef arg1, LLVMTypeRef arg2);
-extern swig_intgo _wrap_PreferredAlignmentOfGlobal_llvm_5d1e3feecae2b244(LLVMTargetDataRef arg1, LLVMValueRef arg2);
-extern swig_intgo _wrap_ElementAtOffset_llvm_5d1e3feecae2b244(LLVMTargetDataRef arg1, LLVMTypeRef arg2, swig_type_135 arg3);
-extern swig_type_136 _wrap_OffsetOfElement_llvm_5d1e3feecae2b244(LLVMTargetDataRef arg1, LLVMTypeRef arg2, swig_intgo arg3);
-extern swig_intgo _wrap_CodeGenLevelNone_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_CodeGenLevelLess_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_CodeGenLevelDefault_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_CodeGenLevelAggressive_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RelocDefault_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RelocStatic_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RelocPIC_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RelocDynamicNoPic_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RelocROPI_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RelocRWPI_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_RelocROPI_RWPI_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_CodeModelDefault_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_CodeModelJITDefault_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_CodeModelTiny_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_CodeModelSmall_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_CodeModelKernel_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_CodeModelMedium_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_CodeModelLarge_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_AssemblyFile_llvm_5d1e3feecae2b244(void);
-extern swig_intgo _wrap_ObjectFile_llvm_5d1e3feecae2b244(void);
-extern LLVMTargetRef _wrap_GetFirstTarget_llvm_5d1e3feecae2b244(void);
-extern LLVMTargetRef _wrap_GetNextTarget_llvm_5d1e3feecae2b244(LLVMTargetRef arg1);
-extern LLVMTargetRef _wrap_GetTargetFromName_llvm_5d1e3feecae2b244(swig_voidp arg1);
-extern swig_voidp _wrap_GetTargetName_llvm_5d1e3feecae2b244(LLVMTargetRef arg1);
-extern swig_voidp _wrap_GetTargetDescription_llvm_5d1e3feecae2b244(LLVMTargetRef arg1);
-extern _Bool _wrap_TargetHasJIT_llvm_5d1e3feecae2b244(LLVMTargetRef arg1);
-extern _Bool _wrap_TargetHasTargetMachine_llvm_5d1e3feecae2b244(LLVMTargetRef arg1);
-extern _Bool _wrap_TargetHasAsmBackend_llvm_5d1e3feecae2b244(LLVMTargetRef arg1);
-extern LLVMTargetMachineRef _wrap_CreateTargetMachine_llvm_5d1e3feecae2b244(LLVMTargetRef arg1, swig_voidp arg2, swig_voidp arg3, swig_voidp arg4, swig_intgo arg5, swig_intgo arg6, swig_intgo arg7);
-extern void _wrap_DisposeTargetMachine_llvm_5d1e3feecae2b244(LLVMTargetMachineRef arg1);
-extern LLVMTargetRef _wrap_GetTargetMachineTarget_llvm_5d1e3feecae2b244(LLVMTargetMachineRef arg1);
-extern swig_voidp _wrap_GetTargetMachineTriple_llvm_5d1e3feecae2b244(LLVMTargetMachineRef arg1);
-extern swig_voidp _wrap_GetTargetMachineCPU_llvm_5d1e3feecae2b244(LLVMTargetMachineRef arg1);
-extern swig_voidp _wrap_GetTargetMachineFeatureString_llvm_5d1e3feecae2b244(LLVMTargetMachineRef arg1);
-extern LLVMTargetDataRef _wrap_CreateTargetDataLayout_llvm_5d1e3feecae2b244(LLVMTargetMachineRef arg1);
-extern void _wrap_SetTargetMachineAsmVerbosity_llvm_5d1e3feecae2b244(LLVMTargetMachineRef arg1, _Bool arg2);
-extern _Bool _wrap_TargetMachineEmitToFile_llvm_5d1e3feecae2b244(LLVMTargetMachineRef arg1, LLVMModuleRef arg2, swig_voidp arg3, swig_intgo arg4, swig_voidp arg5);
-extern _Bool _wrap_TargetMachineEmitToMemoryBuffer_llvm_5d1e3feecae2b244(LLVMTargetMachineRef arg1, LLVMModuleRef arg2, swig_intgo arg3, swig_voidp arg4, uintptr_t arg5);
-extern swig_voidp _wrap_GetDefaultTargetTriple_llvm_5d1e3feecae2b244(void);
-extern swig_voidp _wrap_NormalizeTargetTriple_llvm_5d1e3feecae2b244(swig_voidp arg1);
-extern swig_voidp _wrap_GetHostCPUName_llvm_5d1e3feecae2b244(void);
-extern swig_voidp _wrap_GetHostCPUFeatures_llvm_5d1e3feecae2b244(void);
-extern void _wrap_AddAnalysisPasses_llvm_5d1e3feecae2b244(LLVMTargetMachineRef arg1, LLVMPassManagerRef arg2);
+extern void _wrap_Swig_free_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern uintptr_t _wrap_Swig_malloc_llvm_a0e88c3155de3083(swig_intgo arg1);
+extern void _wrap_imaxdiv_t_quot_set_llvm_a0e88c3155de3083(uintptr_t arg1, swig_type_1 arg2);
+extern swig_type_2 _wrap_imaxdiv_t_quot_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_imaxdiv_t_rem_set_llvm_a0e88c3155de3083(uintptr_t arg1, swig_type_3 arg2);
+extern swig_type_4 _wrap_imaxdiv_t_rem_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern uintptr_t _wrap_new_imaxdiv_t_llvm_a0e88c3155de3083(void);
+extern void _wrap_delete_imaxdiv_t_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern swig_type_5 _wrap_imaxabs_llvm_a0e88c3155de3083(swig_type_6 arg1);
+extern uintptr_t _wrap_imaxdiv_llvm_a0e88c3155de3083(swig_type_7 arg1, swig_type_8 arg2);
+extern swig_type_9 _wrap_strtoimax_llvm_a0e88c3155de3083(swig_type_10 arg1, swig_voidp arg2, swig_intgo arg3);
+extern swig_type_11 _wrap_strtoumax_llvm_a0e88c3155de3083(swig_type_12 arg1, swig_voidp arg2, swig_intgo arg3);
+extern void _wrap_InstallFatalErrorHandler_llvm_a0e88c3155de3083(swig_type_13 arg1);
+extern void _wrap_ResetFatalErrorHandler_llvm_a0e88c3155de3083(void);
+extern void _wrap_EnablePrettyStackTrace_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AbortProcessAction_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_PrintMessageAction_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ReturnStatusAction_llvm_a0e88c3155de3083(void);
+extern _Bool _wrap_VerifyModule_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_intgo arg2, swig_voidp arg3);
+extern _Bool _wrap_VerifyFunction_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern void _wrap_ViewFunctionCFG_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_ViewFunctionCFGOnly_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern _Bool _wrap_ParseBitcode_llvm_a0e88c3155de3083(LLVMMemoryBufferRef arg1, uintptr_t arg2, swig_voidp arg3);
+extern _Bool _wrap_ParseBitcode2_llvm_a0e88c3155de3083(LLVMMemoryBufferRef arg1, uintptr_t arg2);
+extern _Bool _wrap_ParseBitcodeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1, LLVMMemoryBufferRef arg2, uintptr_t arg3, swig_voidp arg4);
+extern _Bool _wrap_ParseBitcodeInContext2_llvm_a0e88c3155de3083(LLVMContextRef arg1, LLVMMemoryBufferRef arg2, uintptr_t arg3);
+extern _Bool _wrap_GetBitcodeModuleInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1, LLVMMemoryBufferRef arg2, uintptr_t arg3, swig_voidp arg4);
+extern _Bool _wrap_GetBitcodeModuleInContext2_llvm_a0e88c3155de3083(LLVMContextRef arg1, LLVMMemoryBufferRef arg2, uintptr_t arg3);
+extern _Bool _wrap_GetBitcodeModule_llvm_a0e88c3155de3083(LLVMMemoryBufferRef arg1, uintptr_t arg2, swig_voidp arg3);
+extern _Bool _wrap_GetBitcodeModule2_llvm_a0e88c3155de3083(LLVMMemoryBufferRef arg1, uintptr_t arg2);
+extern swig_intgo _wrap_WriteBitcodeToFile_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2);
+extern swig_intgo _wrap_WriteBitcodeToFD_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_intgo arg2, swig_intgo arg3, swig_intgo arg4);
+extern swig_intgo _wrap_WriteBitcodeToFileHandle_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_intgo arg2);
+extern LLVMMemoryBufferRef _wrap_WriteBitcodeToMemoryBuffer_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern void _wrap_llvm_blake3_chunk_state_cv_set_llvm_a0e88c3155de3083(uintptr_t arg1, swig_voidp arg2);
+extern swig_voidp _wrap_llvm_blake3_chunk_state_cv_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_llvm_blake3_chunk_state_chunk_counter_set_llvm_a0e88c3155de3083(uintptr_t arg1, swig_type_14 arg2);
+extern swig_type_15 _wrap_llvm_blake3_chunk_state_chunk_counter_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_llvm_blake3_chunk_state_buf_set_llvm_a0e88c3155de3083(uintptr_t arg1, swig_voidp arg2);
+extern swig_voidp _wrap_llvm_blake3_chunk_state_buf_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_llvm_blake3_chunk_state_buf_len_set_llvm_a0e88c3155de3083(uintptr_t arg1, char arg2);
+extern char _wrap_llvm_blake3_chunk_state_buf_len_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_llvm_blake3_chunk_state_blocks_compressed_set_llvm_a0e88c3155de3083(uintptr_t arg1, char arg2);
+extern char _wrap_llvm_blake3_chunk_state_blocks_compressed_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_llvm_blake3_chunk_state_flags_set_llvm_a0e88c3155de3083(uintptr_t arg1, char arg2);
+extern char _wrap_llvm_blake3_chunk_state_flags_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern uintptr_t _wrap_new_llvm_blake3_chunk_state_llvm_a0e88c3155de3083(void);
+extern void _wrap_delete_llvm_blake3_chunk_state_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_llvm_blake3_hasher_key_set_llvm_a0e88c3155de3083(uintptr_t arg1, swig_voidp arg2);
+extern swig_voidp _wrap_llvm_blake3_hasher_key_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_llvm_blake3_hasher_chunk_set_llvm_a0e88c3155de3083(uintptr_t arg1, uintptr_t arg2);
+extern uintptr_t _wrap_llvm_blake3_hasher_chunk_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_llvm_blake3_hasher_cv_stack_len_set_llvm_a0e88c3155de3083(uintptr_t arg1, char arg2);
+extern char _wrap_llvm_blake3_hasher_cv_stack_len_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_llvm_blake3_hasher_cv_stack_set_llvm_a0e88c3155de3083(uintptr_t arg1, swig_voidp arg2);
+extern swig_voidp _wrap_llvm_blake3_hasher_cv_stack_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern uintptr_t _wrap_new_llvm_blake3_hasher_llvm_a0e88c3155de3083(void);
+extern void _wrap_delete_llvm_blake3_hasher_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern swig_voidp _wrap_llvm_blake3_version_llvm_a0e88c3155de3083(void);
+extern void _wrap_llvm_blake3_hasher_init_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_llvm_blake3_hasher_init_keyed_llvm_a0e88c3155de3083(uintptr_t arg1, swig_voidp arg2);
+extern void _wrap_llvm_blake3_hasher_init_derive_key_llvm_a0e88c3155de3083(uintptr_t arg1, swig_voidp arg2);
+extern void _wrap_llvm_blake3_hasher_init_derive_key_raw_llvm_a0e88c3155de3083(uintptr_t arg1, uintptr_t arg2, swig_type_16 arg3);
+extern void _wrap_llvm_blake3_hasher_update_llvm_a0e88c3155de3083(uintptr_t arg1, uintptr_t arg2, swig_type_17 arg3);
+extern void _wrap_llvm_blake3_hasher_finalize_llvm_a0e88c3155de3083(uintptr_t arg1, swig_voidp arg2, swig_type_18 arg3);
+extern void _wrap_llvm_blake3_hasher_finalize_seek_llvm_a0e88c3155de3083(uintptr_t arg1, swig_type_19 arg2, swig_voidp arg3, swig_type_20 arg4);
+extern void _wrap_llvm_blake3_hasher_reset_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern swig_intgo _wrap_AnyComdatSelectionKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ExactMatchComdatSelectionKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_LargestComdatSelectionKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_NoDeduplicateComdatSelectionKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_SameSizeComdatSelectionKind_llvm_a0e88c3155de3083(void);
+extern LLVMComdatRef _wrap_GetOrInsertComdat_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2);
+extern LLVMComdatRef _wrap_GetComdat_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetComdat_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMComdatRef arg2);
+extern swig_intgo _wrap_GetComdatSelectionKind_llvm_a0e88c3155de3083(LLVMComdatRef arg1);
+extern void _wrap_SetComdatSelectionKind_llvm_a0e88c3155de3083(LLVMComdatRef arg1, swig_intgo arg2);
+extern swig_intgo _wrap_Ret_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_Br_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_Switch_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_IndirectBr_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_Invoke_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_Unreachable_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_CallBr_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_FNeg_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_Add_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_FAdd_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_Sub_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_FSub_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_Mul_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_FMul_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_UDiv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_SDiv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_FDiv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_URem_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_SRem_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_FRem_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_Shl_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_LShr_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AShr_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_And_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_Or_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_Xor_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_Alloca_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_Load_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_Store_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_GetElementPtr_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_Trunc_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ZExt_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_SExt_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_FPToUI_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_FPToSI_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_UIToFP_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_SIToFP_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_FPTrunc_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_FPExt_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_PtrToInt_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_IntToPtr_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_BitCast_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AddrSpaceCast_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ICmp_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_FCmp_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_PHI_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_Call_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_Select_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_UserOp1_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_UserOp2_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_VAArg_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ExtractElement_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_InsertElement_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ShuffleVector_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ExtractValue_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_InsertValue_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_Freeze_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_Fence_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicCmpXchg_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicRMW_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_Resume_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_LandingPad_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_CleanupRet_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_CatchRet_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_CatchPad_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_CleanupPad_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_CatchSwitch_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ExternalLinkage_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AvailableExternallyLinkage_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_LinkOnceAnyLinkage_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_LinkOnceODRLinkage_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_LinkOnceODRAutoHideLinkage_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_WeakAnyLinkage_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_WeakODRLinkage_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AppendingLinkage_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_InternalLinkage_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_PrivateLinkage_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DLLImportLinkage_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DLLExportLinkage_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ExternalWeakLinkage_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_GhostLinkage_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_CommonLinkage_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_LinkerPrivateLinkage_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_LinkerPrivateWeakLinkage_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DefaultVisibility_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_HiddenVisibility_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ProtectedVisibility_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_NoUnnamedAddr_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_LocalUnnamedAddr_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_GlobalUnnamedAddr_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DefaultStorageClass_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DLLImportStorageClass_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DLLExportStorageClass_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_CCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_FastCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ColdCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_GHCCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_HiPECallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_WebKitJSCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AnyRegCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_PreserveMostCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_PreserveAllCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_SwiftCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_CXXFASTTLSCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_X86StdcallCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_X86FastcallCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ARMAPCSCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ARMAAPCSCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ARMAAPCSVFPCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_MSP430INTRCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_X86ThisCallCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_PTXKernelCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_PTXDeviceCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_SPIRFUNCCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_SPIRKERNELCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_IntelOCLBICallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_X8664SysVCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_Win64CallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_X86VectorCallCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_HHVMCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_HHVMCCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_X86INTRCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AVRINTRCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AVRSIGNALCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AVRBUILTINCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AMDGPUVSCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AMDGPUGSCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AMDGPUPSCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AMDGPUCSCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AMDGPUKERNELCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_X86RegCallCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AMDGPUHSCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_MSP430BUILTINCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AMDGPULSCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AMDGPUESCallConv_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ArgumentValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_BasicBlockValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_MemoryUseValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_MemoryDefValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_MemoryPhiValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_FunctionValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_GlobalAliasValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_GlobalIFuncValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_GlobalVariableValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_BlockAddressValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ConstantExprValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ConstantArrayValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ConstantStructValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ConstantVectorValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_UndefValueValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ConstantAggregateZeroValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ConstantDataArrayValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ConstantDataVectorValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ConstantIntValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ConstantFPValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ConstantPointerNullValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ConstantTokenNoneValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_MetadataAsValueValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_InlineAsmValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_InstructionValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_PoisonValueValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ConstantTargetNoneValueKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_LandingPadCatch_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_LandingPadFilter_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_NotThreadLocal_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_GeneralDynamicTLSModel_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_LocalDynamicTLSModel_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_InitialExecTLSModel_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_LocalExecTLSModel_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicOrderingNotAtomic_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicOrderingUnordered_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicOrderingMonotonic_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicOrderingAcquire_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicOrderingRelease_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicOrderingAcquireRelease_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicOrderingSequentiallyConsistent_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicRMWBinOpXchg_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicRMWBinOpAdd_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicRMWBinOpSub_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicRMWBinOpAnd_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicRMWBinOpNand_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicRMWBinOpOr_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicRMWBinOpXor_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicRMWBinOpMax_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicRMWBinOpMin_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicRMWBinOpUMax_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicRMWBinOpUMin_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicRMWBinOpFAdd_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicRMWBinOpFSub_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicRMWBinOpFMax_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AtomicRMWBinOpFMin_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DSError_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DSWarning_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DSRemark_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DSNote_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_InlineAsmDialectATT_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_InlineAsmDialectIntel_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ModuleFlagBehaviorError_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ModuleFlagBehaviorWarning_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ModuleFlagBehaviorRequire_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ModuleFlagBehaviorOverride_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ModuleFlagBehaviorAppend_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ModuleFlagBehaviorAppendUnique_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AttributeReturnIndex_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AttributeFunctionIndex_llvm_a0e88c3155de3083(void);
+extern void _wrap_InitializeCore_llvm_a0e88c3155de3083(LLVMPassRegistryRef arg1);
+extern void _wrap_Shutdown_llvm_a0e88c3155de3083(void);
+extern void _wrap_GetVersion_llvm_a0e88c3155de3083(swig_voidp arg1, swig_voidp arg2, swig_voidp arg3);
+extern swig_voidp _wrap_CreateMessage_llvm_a0e88c3155de3083(swig_voidp arg1);
+extern void _wrap_DisposeMessage_llvm_a0e88c3155de3083(swig_voidp arg1);
+extern LLVMContextRef _wrap_ContextCreate_llvm_a0e88c3155de3083(void);
+extern LLVMContextRef _wrap_GetGlobalContext_llvm_a0e88c3155de3083(void);
+extern void _wrap_ContextSetDiagnosticHandler_llvm_a0e88c3155de3083(LLVMContextRef arg1, swig_type_21 arg2, uintptr_t arg3);
+extern swig_type_22 _wrap_ContextGetDiagnosticHandler_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern uintptr_t _wrap_ContextGetDiagnosticContext_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern void _wrap_ContextSetYieldCallback_llvm_a0e88c3155de3083(LLVMContextRef arg1, swig_type_23 arg2, uintptr_t arg3);
+extern _Bool _wrap_ContextShouldDiscardValueNames_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern void _wrap_ContextSetDiscardValueNames_llvm_a0e88c3155de3083(LLVMContextRef arg1, _Bool arg2);
+extern void _wrap_ContextDispose_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern swig_voidp _wrap_GetDiagInfoDescription_llvm_a0e88c3155de3083(LLVMDiagnosticInfoRef arg1);
+extern swig_intgo _wrap_GetDiagInfoSeverity_llvm_a0e88c3155de3083(LLVMDiagnosticInfoRef arg1);
+extern swig_intgo _wrap_GetMDKindIDInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1, swig_voidp arg2, swig_intgo arg3);
+extern swig_intgo _wrap_GetMDKindID_llvm_a0e88c3155de3083(swig_voidp arg1, swig_intgo arg2);
+extern swig_intgo _wrap_GetEnumAttributeKindForName_llvm_a0e88c3155de3083(swig_voidp arg1, swig_type_24 arg2);
+extern swig_intgo _wrap_GetLastEnumAttributeKind_llvm_a0e88c3155de3083(void);
+extern LLVMAttributeRef _wrap_CreateEnumAttribute_llvm_a0e88c3155de3083(LLVMContextRef arg1, swig_intgo arg2, swig_type_25 arg3);
+extern swig_intgo _wrap_GetEnumAttributeKind_llvm_a0e88c3155de3083(LLVMAttributeRef arg1);
+extern swig_type_26 _wrap_GetEnumAttributeValue_llvm_a0e88c3155de3083(LLVMAttributeRef arg1);
+extern LLVMAttributeRef _wrap_CreateTypeAttribute_llvm_a0e88c3155de3083(LLVMContextRef arg1, swig_intgo arg2, LLVMTypeRef arg3);
+extern LLVMTypeRef _wrap_GetTypeAttributeValue_llvm_a0e88c3155de3083(LLVMAttributeRef arg1);
+extern LLVMAttributeRef _wrap_CreateStringAttribute_llvm_a0e88c3155de3083(LLVMContextRef arg1, swig_voidp arg2, swig_intgo arg3, swig_voidp arg4, swig_intgo arg5);
+extern swig_voidp _wrap_GetStringAttributeKind_llvm_a0e88c3155de3083(LLVMAttributeRef arg1, swig_voidp arg2);
+extern swig_voidp _wrap_GetStringAttributeValue_llvm_a0e88c3155de3083(LLVMAttributeRef arg1, swig_voidp arg2);
+extern _Bool _wrap_IsEnumAttribute_llvm_a0e88c3155de3083(LLVMAttributeRef arg1);
+extern _Bool _wrap_IsStringAttribute_llvm_a0e88c3155de3083(LLVMAttributeRef arg1);
+extern _Bool _wrap_IsTypeAttribute_llvm_a0e88c3155de3083(LLVMAttributeRef arg1);
+extern LLVMTypeRef _wrap_GetTypeByName2_llvm_a0e88c3155de3083(LLVMContextRef arg1, swig_voidp arg2);
+extern LLVMModuleRef _wrap_ModuleCreateWithName_llvm_a0e88c3155de3083(swig_voidp arg1);
+extern LLVMModuleRef _wrap_ModuleCreateWithNameInContext_llvm_a0e88c3155de3083(swig_voidp arg1, LLVMContextRef arg2);
+extern LLVMModuleRef _wrap_CloneModule_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern void _wrap_DisposeModule_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern swig_voidp _wrap_GetModuleIdentifier_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2);
+extern void _wrap_SetModuleIdentifier_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2, swig_type_27 arg3);
+extern swig_voidp _wrap_GetSourceFileName_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2);
+extern void _wrap_SetSourceFileName_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2, swig_type_28 arg3);
+extern swig_voidp _wrap_GetDataLayoutStr_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern swig_voidp _wrap_GetDataLayout_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern void _wrap_SetDataLayout_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2);
+extern swig_voidp _wrap_GetTarget_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern void _wrap_SetTarget_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2);
+extern uintptr_t _wrap_CopyModuleFlagsMetadata_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2);
+extern void _wrap_DisposeModuleFlagsMetadata_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern swig_intgo _wrap_ModuleFlagEntriesGetFlagBehavior_llvm_a0e88c3155de3083(uintptr_t arg1, swig_intgo arg2);
+extern swig_voidp _wrap_ModuleFlagEntriesGetKey_llvm_a0e88c3155de3083(uintptr_t arg1, swig_intgo arg2, swig_voidp arg3);
+extern LLVMMetadataRef _wrap_ModuleFlagEntriesGetMetadata_llvm_a0e88c3155de3083(uintptr_t arg1, swig_intgo arg2);
+extern LLVMMetadataRef _wrap_GetModuleFlag_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2, swig_type_29 arg3);
+extern void _wrap_AddModuleFlag_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_intgo arg2, swig_voidp arg3, swig_type_30 arg4, LLVMMetadataRef arg5);
+extern void _wrap_DumpModule_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern _Bool _wrap_PrintModuleToFile_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2, swig_voidp arg3);
+extern swig_voidp _wrap_PrintModuleToString_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern swig_voidp _wrap_GetModuleInlineAsm_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2);
+extern void _wrap_SetModuleInlineAsm2_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2, swig_type_31 arg3);
+extern void _wrap_AppendModuleInlineAsm_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2, swig_type_32 arg3);
+extern LLVMValueRef _wrap_GetInlineAsm_llvm_a0e88c3155de3083(LLVMTypeRef arg1, swig_voidp arg2, swig_type_33 arg3, swig_voidp arg4, swig_type_34 arg5, _Bool arg6, _Bool arg7, swig_intgo arg8, _Bool arg9);
+extern LLVMContextRef _wrap_GetModuleContext_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern LLVMTypeRef _wrap_GetTypeByName_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2);
+extern LLVMNamedMDNodeRef _wrap_GetFirstNamedMetadata_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern LLVMNamedMDNodeRef _wrap_GetLastNamedMetadata_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern LLVMNamedMDNodeRef _wrap_GetNextNamedMetadata_llvm_a0e88c3155de3083(LLVMNamedMDNodeRef arg1);
+extern LLVMNamedMDNodeRef _wrap_GetPreviousNamedMetadata_llvm_a0e88c3155de3083(LLVMNamedMDNodeRef arg1);
+extern LLVMNamedMDNodeRef _wrap_GetNamedMetadata_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2);
+extern LLVMNamedMDNodeRef _wrap_GetOrInsertNamedMetadata_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2);
+extern swig_voidp _wrap_GetNamedMetadataName_llvm_a0e88c3155de3083(LLVMNamedMDNodeRef arg1, swig_voidp arg2);
+extern swig_intgo _wrap_GetNamedMetadataNumOperands_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2);
+extern void _wrap_GetNamedMetadataOperands_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2, uintptr_t arg3);
+extern void _wrap_AddNamedMetadataOperand_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2, LLVMValueRef arg3);
+extern swig_voidp _wrap_GetDebugLocDirectory_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_voidp arg2);
+extern swig_voidp _wrap_GetDebugLocFilename_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_voidp arg2);
+extern swig_intgo _wrap_GetDebugLocLine_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern swig_intgo _wrap_GetDebugLocColumn_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_AddFunction_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2, LLVMTypeRef arg3);
+extern LLVMValueRef _wrap_GetNamedFunction_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2);
+extern LLVMValueRef _wrap_GetFirstFunction_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern LLVMValueRef _wrap_GetLastFunction_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern LLVMValueRef _wrap_GetNextFunction_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_GetPreviousFunction_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetModuleInlineAsm_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2);
+extern swig_intgo _wrap_GetTypeKind_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern _Bool _wrap_TypeIsSized_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern LLVMContextRef _wrap_GetTypeContext_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern void _wrap_DumpType_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern swig_voidp _wrap_PrintTypeToString_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern LLVMTypeRef _wrap_Int1TypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern LLVMTypeRef _wrap_Int8TypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern LLVMTypeRef _wrap_Int16TypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern LLVMTypeRef _wrap_Int32TypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern LLVMTypeRef _wrap_Int64TypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern LLVMTypeRef _wrap_Int128TypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern LLVMTypeRef _wrap_IntTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1, swig_intgo arg2);
+extern LLVMTypeRef _wrap_Int1Type_llvm_a0e88c3155de3083(void);
+extern LLVMTypeRef _wrap_Int8Type_llvm_a0e88c3155de3083(void);
+extern LLVMTypeRef _wrap_Int16Type_llvm_a0e88c3155de3083(void);
+extern LLVMTypeRef _wrap_Int32Type_llvm_a0e88c3155de3083(void);
+extern LLVMTypeRef _wrap_Int64Type_llvm_a0e88c3155de3083(void);
+extern LLVMTypeRef _wrap_Int128Type_llvm_a0e88c3155de3083(void);
+extern LLVMTypeRef _wrap_IntType_llvm_a0e88c3155de3083(swig_intgo arg1);
+extern swig_intgo _wrap_GetIntTypeWidth_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern LLVMTypeRef _wrap_HalfTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern LLVMTypeRef _wrap_BFloatTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern LLVMTypeRef _wrap_FloatTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern LLVMTypeRef _wrap_DoubleTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern LLVMTypeRef _wrap_X86FP80TypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern LLVMTypeRef _wrap_FP128TypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern LLVMTypeRef _wrap_PPCFP128TypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern LLVMTypeRef _wrap_HalfType_llvm_a0e88c3155de3083(void);
+extern LLVMTypeRef _wrap_BFloatType_llvm_a0e88c3155de3083(void);
+extern LLVMTypeRef _wrap_FloatType_llvm_a0e88c3155de3083(void);
+extern LLVMTypeRef _wrap_DoubleType_llvm_a0e88c3155de3083(void);
+extern LLVMTypeRef _wrap_X86FP80Type_llvm_a0e88c3155de3083(void);
+extern LLVMTypeRef _wrap_FP128Type_llvm_a0e88c3155de3083(void);
+extern LLVMTypeRef _wrap_PPCFP128Type_llvm_a0e88c3155de3083(void);
+extern LLVMTypeRef _wrap_FunctionType_llvm_a0e88c3155de3083(LLVMTypeRef arg1, swig_voidp arg2, _Bool arg3);
+extern _Bool _wrap_IsFunctionVarArg_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern LLVMTypeRef _wrap_GetReturnType_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern swig_intgo _wrap_CountParamTypes_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern void _wrap_GetParamTypes_llvm_a0e88c3155de3083(LLVMTypeRef arg1, uintptr_t arg2);
+extern LLVMTypeRef _wrap_StructTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1, swig_voidp arg2, _Bool arg3);
+extern LLVMTypeRef _wrap_StructType_llvm_a0e88c3155de3083(swig_voidp arg1, _Bool arg2);
+extern LLVMTypeRef _wrap_StructCreateNamed_llvm_a0e88c3155de3083(LLVMContextRef arg1, swig_voidp arg2);
+extern swig_voidp _wrap_GetStructName_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern void _wrap_StructSetBody_llvm_a0e88c3155de3083(LLVMTypeRef arg1, swig_voidp arg2, _Bool arg3);
+extern swig_intgo _wrap_CountStructElementTypes_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern void _wrap_GetStructElementTypes_llvm_a0e88c3155de3083(LLVMTypeRef arg1, uintptr_t arg2);
+extern LLVMTypeRef _wrap_StructGetTypeAtIndex_llvm_a0e88c3155de3083(LLVMTypeRef arg1, swig_intgo arg2);
+extern _Bool _wrap_IsPackedStruct_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern _Bool _wrap_IsOpaqueStruct_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern _Bool _wrap_IsLiteralStruct_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern LLVMTypeRef _wrap_GetElementType_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern void _wrap_GetSubtypes_llvm_a0e88c3155de3083(LLVMTypeRef arg1, uintptr_t arg2);
+extern swig_intgo _wrap_GetNumContainedTypes_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern LLVMTypeRef _wrap_ArrayType_llvm_a0e88c3155de3083(LLVMTypeRef arg1, swig_intgo arg2);
+extern LLVMTypeRef _wrap_ArrayType2_llvm_a0e88c3155de3083(LLVMTypeRef arg1, swig_type_35 arg2);
+extern swig_intgo _wrap_GetArrayLength_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern swig_type_36 _wrap_GetArrayLength2_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern LLVMTypeRef _wrap_PointerType_llvm_a0e88c3155de3083(LLVMTypeRef arg1, swig_intgo arg2);
+extern _Bool _wrap_PointerTypeIsOpaque_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern LLVMTypeRef _wrap_PointerTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1, swig_intgo arg2);
+extern swig_intgo _wrap_GetPointerAddressSpace_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern LLVMTypeRef _wrap_VectorType_llvm_a0e88c3155de3083(LLVMTypeRef arg1, swig_intgo arg2);
+extern LLVMTypeRef _wrap_ScalableVectorType_llvm_a0e88c3155de3083(LLVMTypeRef arg1, swig_intgo arg2);
+extern swig_intgo _wrap_GetVectorSize_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern LLVMTypeRef _wrap_VoidTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern LLVMTypeRef _wrap_LabelTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern LLVMTypeRef _wrap_X86MMXTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern LLVMTypeRef _wrap_X86AMXTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern LLVMTypeRef _wrap_TokenTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern LLVMTypeRef _wrap_MetadataTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern LLVMTypeRef _wrap_VoidType_llvm_a0e88c3155de3083(void);
+extern LLVMTypeRef _wrap_LabelType_llvm_a0e88c3155de3083(void);
+extern LLVMTypeRef _wrap_X86MMXType_llvm_a0e88c3155de3083(void);
+extern LLVMTypeRef _wrap_X86AMXType_llvm_a0e88c3155de3083(void);
+extern LLVMTypeRef _wrap_TargetExtTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1, swig_voidp arg2, swig_voidp arg3, swig_type_37 arg4);
+extern LLVMTypeRef _wrap_TypeOf_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern swig_intgo _wrap_GetValueKind_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern swig_voidp _wrap_GetValueName2_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_voidp arg2);
+extern void _wrap_SetValueName2_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_voidp arg2);
+extern void _wrap_DumpValue_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern swig_voidp _wrap_PrintValueToString_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_ReplaceAllUsesWith_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern _Bool _wrap_IsConstant_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern _Bool _wrap_IsUndef_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern _Bool _wrap_IsPoison_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAArgument_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsABasicBlock_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAInlineAsm_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAUser_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAConstant_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsABlockAddress_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAConstantAggregateZero_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAConstantArray_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAConstantDataSequential_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAConstantDataArray_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAConstantDataVector_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAConstantExpr_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAConstantFP_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAConstantInt_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAConstantPointerNull_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAConstantStruct_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAConstantTokenNone_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAConstantVector_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAGlobalValue_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAGlobalAlias_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAGlobalObject_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAFunction_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAGlobalVariable_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAGlobalIFunc_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAUndefValue_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAPoisonValue_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAInstruction_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAUnaryOperator_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsABinaryOperator_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsACallInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAIntrinsicInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsADbgInfoIntrinsic_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsADbgVariableIntrinsic_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsADbgDeclareInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsADbgLabelInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAMemIntrinsic_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAMemCpyInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAMemMoveInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAMemSetInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsACmpInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAFCmpInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAICmpInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAExtractElementInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAGetElementPtrInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAInsertElementInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAInsertValueInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsALandingPadInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAPHINode_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsASelectInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAShuffleVectorInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAStoreInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsABranchInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAIndirectBrInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAInvokeInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAReturnInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsASwitchInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAUnreachableInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAResumeInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsACleanupReturnInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsACatchReturnInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsACatchSwitchInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsACallBrInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAFuncletPadInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsACatchPadInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsACleanupPadInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAUnaryInstruction_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAAllocaInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsACastInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAAddrSpaceCastInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsABitCastInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAFPExtInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAFPToSIInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAFPToUIInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAFPTruncInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAIntToPtrInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAPtrToIntInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsASExtInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsASIToFPInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsATruncInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAUIToFPInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAZExtInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAExtractValueInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsALoadInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAVAArgInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAFreezeInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAAtomicCmpXchgInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAAtomicRMWInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAFenceInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAMDNode_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAValueAsMetadata_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsAMDString_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern swig_voidp _wrap_GetValueName_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetValueName_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_voidp arg2);
+extern LLVMUseRef _wrap_GetFirstUse_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMUseRef _wrap_GetNextUse_llvm_a0e88c3155de3083(LLVMUseRef arg1);
+extern LLVMValueRef _wrap_GetUser_llvm_a0e88c3155de3083(LLVMUseRef arg1);
+extern LLVMValueRef _wrap_GetUsedValue_llvm_a0e88c3155de3083(LLVMUseRef arg1);
+extern LLVMValueRef _wrap_GetOperand_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern LLVMUseRef _wrap_GetOperandUse_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern void _wrap_SetOperand_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2, LLVMValueRef arg3);
+extern swig_intgo _wrap_GetNumOperands_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_ConstNull_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern LLVMValueRef _wrap_ConstAllOnes_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern LLVMValueRef _wrap_GetUndef_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern LLVMValueRef _wrap_GetPoison_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern _Bool _wrap_IsNull_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_ConstPointerNull_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern LLVMValueRef _wrap_ConstInt_llvm_a0e88c3155de3083(LLVMTypeRef arg1, swig_type_38 arg2, _Bool arg3);
+extern LLVMValueRef _wrap_ConstIntOfArbitraryPrecision_llvm_a0e88c3155de3083(LLVMTypeRef arg1, swig_intgo arg2, swig_voidp arg3);
+extern LLVMValueRef _wrap_ConstIntOfString_llvm_a0e88c3155de3083(LLVMTypeRef arg1, swig_voidp arg2, char arg3);
+extern LLVMValueRef _wrap_ConstIntOfStringAndSize_llvm_a0e88c3155de3083(LLVMTypeRef arg1, swig_voidp arg2, swig_intgo arg3, char arg4);
+extern LLVMValueRef _wrap_ConstReal_llvm_a0e88c3155de3083(LLVMTypeRef arg1, double arg2);
+extern LLVMValueRef _wrap_ConstRealOfString_llvm_a0e88c3155de3083(LLVMTypeRef arg1, swig_voidp arg2);
+extern LLVMValueRef _wrap_ConstRealOfStringAndSize_llvm_a0e88c3155de3083(LLVMTypeRef arg1, swig_voidp arg2, swig_intgo arg3);
+extern swig_type_39 _wrap_ConstIntGetZExtValue_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern swig_type_40 _wrap_ConstIntGetSExtValue_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern double _wrap_ConstRealGetDouble_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_voidp arg2);
+extern LLVMValueRef _wrap_ConstStringInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1, swig_voidp arg2, swig_intgo arg3, _Bool arg4);
+extern LLVMValueRef _wrap_ConstString_llvm_a0e88c3155de3083(swig_voidp arg1, swig_intgo arg2, _Bool arg3);
+extern _Bool _wrap_IsConstantString_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern swig_voidp _wrap_GetAsString_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_voidp arg2);
+extern LLVMValueRef _wrap_ConstStructInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1, swig_voidp arg2, _Bool arg3);
+extern LLVMValueRef _wrap_ConstStruct_llvm_a0e88c3155de3083(swig_voidp arg1, _Bool arg2);
+extern LLVMValueRef _wrap_ConstArray_llvm_a0e88c3155de3083(LLVMTypeRef arg1, swig_voidp arg2);
+extern LLVMValueRef _wrap_ConstArray2_llvm_a0e88c3155de3083(LLVMTypeRef arg1, swig_voidp arg2);
+extern LLVMValueRef _wrap_ConstNamedStruct_llvm_a0e88c3155de3083(LLVMTypeRef arg1, swig_voidp arg2);
+extern LLVMValueRef _wrap_GetAggregateElement_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern LLVMValueRef _wrap_GetElementAsConstant_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern LLVMValueRef _wrap_ConstVector_llvm_a0e88c3155de3083(swig_voidp arg1);
+extern swig_intgo _wrap_GetConstOpcode_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_AlignOf_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern LLVMValueRef _wrap_SizeOf_llvm_a0e88c3155de3083(LLVMTypeRef arg1);
+extern LLVMValueRef _wrap_ConstNeg_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_ConstNSWNeg_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_ConstNUWNeg_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_ConstNot_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_ConstAdd_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern LLVMValueRef _wrap_ConstNSWAdd_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern LLVMValueRef _wrap_ConstNUWAdd_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern LLVMValueRef _wrap_ConstSub_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern LLVMValueRef _wrap_ConstNSWSub_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern LLVMValueRef _wrap_ConstNUWSub_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern LLVMValueRef _wrap_ConstMul_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern LLVMValueRef _wrap_ConstNSWMul_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern LLVMValueRef _wrap_ConstNUWMul_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern LLVMValueRef _wrap_ConstAnd_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern LLVMValueRef _wrap_ConstOr_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern LLVMValueRef _wrap_ConstXor_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern LLVMValueRef _wrap_ConstICmp_llvm_a0e88c3155de3083(swig_intgo arg1, LLVMValueRef arg2, LLVMValueRef arg3);
+extern LLVMValueRef _wrap_ConstFCmp_llvm_a0e88c3155de3083(swig_intgo arg1, LLVMValueRef arg2, LLVMValueRef arg3);
+extern LLVMValueRef _wrap_ConstShl_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern LLVMValueRef _wrap_ConstLShr_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern LLVMValueRef _wrap_ConstAShr_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern LLVMValueRef _wrap_ConstGEP2_llvm_a0e88c3155de3083(LLVMTypeRef arg1, LLVMValueRef arg2, swig_voidp arg3);
+extern LLVMValueRef _wrap_ConstInBoundsGEP2_llvm_a0e88c3155de3083(LLVMTypeRef arg1, LLVMValueRef arg2, swig_voidp arg3);
+extern LLVMValueRef _wrap_ConstTrunc_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMTypeRef arg2);
+extern LLVMValueRef _wrap_ConstSExt_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMTypeRef arg2);
+extern LLVMValueRef _wrap_ConstZExt_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMTypeRef arg2);
+extern LLVMValueRef _wrap_ConstFPTrunc_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMTypeRef arg2);
+extern LLVMValueRef _wrap_ConstFPExt_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMTypeRef arg2);
+extern LLVMValueRef _wrap_ConstUIToFP_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMTypeRef arg2);
+extern LLVMValueRef _wrap_ConstSIToFP_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMTypeRef arg2);
+extern LLVMValueRef _wrap_ConstFPToUI_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMTypeRef arg2);
+extern LLVMValueRef _wrap_ConstFPToSI_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMTypeRef arg2);
+extern LLVMValueRef _wrap_ConstPtrToInt_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMTypeRef arg2);
+extern LLVMValueRef _wrap_ConstIntToPtr_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMTypeRef arg2);
+extern LLVMValueRef _wrap_ConstBitCast_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMTypeRef arg2);
+extern LLVMValueRef _wrap_ConstAddrSpaceCast_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMTypeRef arg2);
+extern LLVMValueRef _wrap_ConstZExtOrBitCast_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMTypeRef arg2);
+extern LLVMValueRef _wrap_ConstSExtOrBitCast_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMTypeRef arg2);
+extern LLVMValueRef _wrap_ConstTruncOrBitCast_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMTypeRef arg2);
+extern LLVMValueRef _wrap_ConstPointerCast_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMTypeRef arg2);
+extern LLVMValueRef _wrap_ConstIntCast_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMTypeRef arg2, _Bool arg3);
+extern LLVMValueRef _wrap_ConstFPCast_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMTypeRef arg2);
+extern LLVMValueRef _wrap_ConstExtractElement_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern LLVMValueRef _wrap_ConstInsertElement_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2, LLVMValueRef arg3);
+extern LLVMValueRef _wrap_ConstShuffleVector_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2, LLVMValueRef arg3);
+extern LLVMValueRef _wrap_BlockAddress_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMBasicBlockRef arg2);
+extern LLVMValueRef _wrap_ConstInlineAsm_llvm_a0e88c3155de3083(LLVMTypeRef arg1, swig_voidp arg2, swig_voidp arg3, _Bool arg4, _Bool arg5);
+extern LLVMModuleRef _wrap_GetGlobalParent_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern _Bool _wrap_IsDeclaration_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern swig_intgo _wrap_GetLinkage_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetLinkage_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern swig_voidp _wrap_GetSection_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetSection_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_voidp arg2);
+extern swig_intgo _wrap_GetVisibility_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetVisibility_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern swig_intgo _wrap_GetDLLStorageClass_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetDLLStorageClass_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern swig_intgo _wrap_GetUnnamedAddress_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetUnnamedAddress_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern LLVMTypeRef _wrap_GlobalGetValueType_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern _Bool _wrap_HasUnnamedAddr_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetUnnamedAddr_llvm_a0e88c3155de3083(LLVMValueRef arg1, _Bool arg2);
+extern swig_intgo _wrap_GetAlignment_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetAlignment_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern void _wrap_GlobalSetMetadata_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2, LLVMMetadataRef arg3);
+extern void _wrap_GlobalEraseMetadata_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern void _wrap_GlobalClearMetadata_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern uintptr_t _wrap_GlobalCopyAllMetadata_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_voidp arg2);
+extern void _wrap_DisposeValueMetadataEntries_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern swig_intgo _wrap_ValueMetadataEntriesGetKind_llvm_a0e88c3155de3083(uintptr_t arg1, swig_intgo arg2);
+extern LLVMMetadataRef _wrap_ValueMetadataEntriesGetMetadata_llvm_a0e88c3155de3083(uintptr_t arg1, swig_intgo arg2);
+extern LLVMValueRef _wrap_AddGlobal_llvm_a0e88c3155de3083(LLVMModuleRef arg1, LLVMTypeRef arg2, swig_voidp arg3);
+extern LLVMValueRef _wrap_AddGlobalInAddressSpace_llvm_a0e88c3155de3083(LLVMModuleRef arg1, LLVMTypeRef arg2, swig_voidp arg3, swig_intgo arg4);
+extern LLVMValueRef _wrap_GetNamedGlobal_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2);
+extern LLVMValueRef _wrap_GetFirstGlobal_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern LLVMValueRef _wrap_GetLastGlobal_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern LLVMValueRef _wrap_GetNextGlobal_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_GetPreviousGlobal_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_DeleteGlobal_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_GetInitializer_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetInitializer_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern _Bool _wrap_IsThreadLocal_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetThreadLocal_llvm_a0e88c3155de3083(LLVMValueRef arg1, _Bool arg2);
+extern _Bool _wrap_IsGlobalConstant_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetGlobalConstant_llvm_a0e88c3155de3083(LLVMValueRef arg1, _Bool arg2);
+extern swig_intgo _wrap_GetThreadLocalMode_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetThreadLocalMode_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern _Bool _wrap_IsExternallyInitialized_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetExternallyInitialized_llvm_a0e88c3155de3083(LLVMValueRef arg1, _Bool arg2);
+extern LLVMValueRef _wrap_AddAlias2_llvm_a0e88c3155de3083(LLVMModuleRef arg1, LLVMTypeRef arg2, swig_intgo arg3, LLVMValueRef arg4, swig_voidp arg5);
+extern LLVMValueRef _wrap_GetNamedGlobalAlias_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2);
+extern LLVMValueRef _wrap_GetFirstGlobalAlias_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern LLVMValueRef _wrap_GetLastGlobalAlias_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern LLVMValueRef _wrap_GetNextGlobalAlias_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_GetPreviousGlobalAlias_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_AliasGetAliasee_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_AliasSetAliasee_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern void _wrap_DeleteFunction_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern _Bool _wrap_HasPersonalityFn_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_GetPersonalityFn_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetPersonalityFn_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern swig_intgo _wrap_LookupIntrinsicID_llvm_a0e88c3155de3083(swig_voidp arg1);
+extern swig_intgo _wrap_GetIntrinsicID_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_GetIntrinsicDeclaration_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_intgo arg2, uintptr_t arg3, swig_type_41 arg4);
+extern LLVMTypeRef _wrap_IntrinsicGetType_llvm_a0e88c3155de3083(LLVMContextRef arg1, swig_intgo arg2, uintptr_t arg3, swig_type_42 arg4);
+extern swig_voidp _wrap_IntrinsicGetName_llvm_a0e88c3155de3083(swig_intgo arg1, swig_voidp arg2);
+extern swig_voidp _wrap_IntrinsicCopyOverloadedName_llvm_a0e88c3155de3083(swig_intgo arg1, uintptr_t arg2, swig_type_43 arg3, swig_voidp arg4);
+extern swig_voidp _wrap_IntrinsicCopyOverloadedName2_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_intgo arg2, uintptr_t arg3, swig_type_44 arg4, swig_voidp arg5);
+extern _Bool _wrap_IntrinsicIsOverloaded_llvm_a0e88c3155de3083(swig_intgo arg1);
+extern swig_intgo _wrap_GetFunctionCallConv_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetFunctionCallConv_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern swig_voidp _wrap_GetGC_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetGC_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_voidp arg2);
+extern void _wrap_AddAttributeAtIndex_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2, LLVMAttributeRef arg3);
+extern swig_intgo _wrap_GetAttributeCountAtIndex_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern void _wrap_GetAttributesAtIndex_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2, uintptr_t arg3);
+extern LLVMAttributeRef _wrap_GetEnumAttributeAtIndex_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2, swig_intgo arg3);
+extern LLVMAttributeRef _wrap_GetStringAttributeAtIndex_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2, swig_voidp arg3, swig_intgo arg4);
+extern void _wrap_RemoveEnumAttributeAtIndex_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2, swig_intgo arg3);
+extern void _wrap_RemoveStringAttributeAtIndex_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2, swig_voidp arg3, swig_intgo arg4);
+extern void _wrap_AddTargetDependentFunctionAttr_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_voidp arg2, swig_voidp arg3);
+extern swig_intgo _wrap_CountParams_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_GetParams_llvm_a0e88c3155de3083(LLVMValueRef arg1, uintptr_t arg2);
+extern LLVMValueRef _wrap_GetParam_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern LLVMValueRef _wrap_GetParamParent_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_GetFirstParam_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_GetLastParam_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_GetNextParam_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_GetPreviousParam_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetParamAlignment_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern LLVMValueRef _wrap_AddGlobalIFunc_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2, LLVMTypeRef arg3, swig_intgo arg4, LLVMValueRef arg5);
+extern LLVMValueRef _wrap_GetNamedGlobalIFunc_llvm_a0e88c3155de3083(LLVMModuleRef arg1, swig_voidp arg2);
+extern LLVMValueRef _wrap_GetFirstGlobalIFunc_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern LLVMValueRef _wrap_GetLastGlobalIFunc_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern LLVMValueRef _wrap_GetNextGlobalIFunc_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_GetPreviousGlobalIFunc_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_GetGlobalIFuncResolver_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetGlobalIFuncResolver_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern void _wrap_EraseGlobalIFunc_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_RemoveGlobalIFunc_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMMetadataRef _wrap_MDStringInContext2_llvm_a0e88c3155de3083(LLVMContextRef arg1, swig_voidp arg2, swig_type_45 arg3);
+extern LLVMMetadataRef _wrap_MDNodeInContext2_llvm_a0e88c3155de3083(LLVMContextRef arg1, uintptr_t arg2, swig_type_46 arg3);
+extern LLVMValueRef _wrap_MetadataAsValue_llvm_a0e88c3155de3083(LLVMContextRef arg1, LLVMMetadataRef arg2);
+extern LLVMMetadataRef _wrap_ValueAsMetadata_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern swig_voidp _wrap_GetMDString_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_voidp arg2);
+extern swig_intgo _wrap_GetMDNodeNumOperands_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_GetMDNodeOperands_llvm_a0e88c3155de3083(LLVMValueRef arg1, uintptr_t arg2);
+extern void _wrap_ReplaceMDNodeOperandWith_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2, LLVMMetadataRef arg3);
+extern LLVMValueRef _wrap_MDStringInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1, swig_voidp arg2, swig_intgo arg3);
+extern LLVMValueRef _wrap_MDString_llvm_a0e88c3155de3083(swig_voidp arg1, swig_intgo arg2);
+extern LLVMValueRef _wrap_MDNodeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1, swig_voidp arg2);
+extern LLVMValueRef _wrap_MDNode_llvm_a0e88c3155de3083(swig_voidp arg1);
+extern LLVMValueRef _wrap_BasicBlockAsValue_llvm_a0e88c3155de3083(LLVMBasicBlockRef arg1);
+extern _Bool _wrap_ValueIsBasicBlock_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMBasicBlockRef _wrap_ValueAsBasicBlock_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern swig_voidp _wrap_GetBasicBlockName_llvm_a0e88c3155de3083(LLVMBasicBlockRef arg1);
+extern LLVMValueRef _wrap_GetBasicBlockParent_llvm_a0e88c3155de3083(LLVMBasicBlockRef arg1);
+extern LLVMValueRef _wrap_GetBasicBlockTerminator_llvm_a0e88c3155de3083(LLVMBasicBlockRef arg1);
+extern swig_intgo _wrap_CountBasicBlocks_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_GetBasicBlocks_llvm_a0e88c3155de3083(LLVMValueRef arg1, uintptr_t arg2);
+extern LLVMBasicBlockRef _wrap_GetFirstBasicBlock_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMBasicBlockRef _wrap_GetLastBasicBlock_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMBasicBlockRef _wrap_GetNextBasicBlock_llvm_a0e88c3155de3083(LLVMBasicBlockRef arg1);
+extern LLVMBasicBlockRef _wrap_GetPreviousBasicBlock_llvm_a0e88c3155de3083(LLVMBasicBlockRef arg1);
+extern LLVMBasicBlockRef _wrap_GetEntryBasicBlock_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_InsertExistingBasicBlockAfterInsertBlock_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMBasicBlockRef arg2);
+extern void _wrap_AppendExistingBasicBlock_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMBasicBlockRef arg2);
+extern LLVMBasicBlockRef _wrap_CreateBasicBlockInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1, swig_voidp arg2);
+extern LLVMBasicBlockRef _wrap_AppendBasicBlockInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1, LLVMValueRef arg2, swig_voidp arg3);
+extern LLVMBasicBlockRef _wrap_AppendBasicBlock_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_voidp arg2);
+extern LLVMBasicBlockRef _wrap_InsertBasicBlockInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1, LLVMBasicBlockRef arg2, swig_voidp arg3);
+extern LLVMBasicBlockRef _wrap_InsertBasicBlock_llvm_a0e88c3155de3083(LLVMBasicBlockRef arg1, swig_voidp arg2);
+extern void _wrap_DeleteBasicBlock_llvm_a0e88c3155de3083(LLVMBasicBlockRef arg1);
+extern void _wrap_RemoveBasicBlockFromParent_llvm_a0e88c3155de3083(LLVMBasicBlockRef arg1);
+extern void _wrap_MoveBasicBlockBefore_llvm_a0e88c3155de3083(LLVMBasicBlockRef arg1, LLVMBasicBlockRef arg2);
+extern void _wrap_MoveBasicBlockAfter_llvm_a0e88c3155de3083(LLVMBasicBlockRef arg1, LLVMBasicBlockRef arg2);
+extern LLVMValueRef _wrap_GetFirstInstruction_llvm_a0e88c3155de3083(LLVMBasicBlockRef arg1);
+extern LLVMValueRef _wrap_GetLastInstruction_llvm_a0e88c3155de3083(LLVMBasicBlockRef arg1);
+extern swig_intgo _wrap_HasMetadata_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_GetMetadata_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern void _wrap_SetMetadata_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2, LLVMValueRef arg3);
+extern uintptr_t _wrap_InstructionGetAllMetadataOtherThanDebugLoc_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_voidp arg2);
+extern LLVMBasicBlockRef _wrap_GetInstructionParent_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_GetNextInstruction_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_GetPreviousInstruction_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_InstructionRemoveFromParent_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_InstructionEraseFromParent_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_DeleteInstruction_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern swig_intgo _wrap_GetInstructionOpcode_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern swig_intgo _wrap_GetICmpPredicate_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern swig_intgo _wrap_GetFCmpPredicate_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_InstructionClone_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_IsATerminatorInst_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern swig_intgo _wrap_GetNumArgOperands_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetInstructionCallConv_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern swig_intgo _wrap_GetInstructionCallConv_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetInstrParamAlignment_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2, swig_intgo arg3);
+extern void _wrap_AddCallSiteAttribute_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2, LLVMAttributeRef arg3);
+extern swig_intgo _wrap_GetCallSiteAttributeCount_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern void _wrap_GetCallSiteAttributes_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2, uintptr_t arg3);
+extern LLVMAttributeRef _wrap_GetCallSiteEnumAttribute_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2, swig_intgo arg3);
+extern LLVMAttributeRef _wrap_GetCallSiteStringAttribute_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2, swig_voidp arg3, swig_intgo arg4);
+extern void _wrap_RemoveCallSiteEnumAttribute_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2, swig_intgo arg3);
+extern void _wrap_RemoveCallSiteStringAttribute_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2, swig_voidp arg3, swig_intgo arg4);
+extern LLVMTypeRef _wrap_GetCalledFunctionType_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_GetCalledValue_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern _Bool _wrap_IsTailCall_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetTailCall_llvm_a0e88c3155de3083(LLVMValueRef arg1, _Bool arg2);
+extern LLVMBasicBlockRef _wrap_GetNormalDest_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMBasicBlockRef _wrap_GetUnwindDest_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetNormalDest_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMBasicBlockRef arg2);
+extern void _wrap_SetUnwindDest_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMBasicBlockRef arg2);
+extern swig_intgo _wrap_GetNumSuccessors_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMBasicBlockRef _wrap_GetSuccessor_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern void _wrap_SetSuccessor_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2, LLVMBasicBlockRef arg3);
+extern _Bool _wrap_IsConditional_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_GetCondition_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetCondition_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern LLVMBasicBlockRef _wrap_GetSwitchDefaultDest_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMTypeRef _wrap_GetAllocatedType_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern _Bool _wrap_IsInBounds_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetIsInBounds_llvm_a0e88c3155de3083(LLVMValueRef arg1, _Bool arg2);
+extern LLVMTypeRef _wrap_GetGEPSourceElementType_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern swig_intgo _wrap_CountIncoming_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_GetIncomingValue_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern LLVMBasicBlockRef _wrap_GetIncomingBlock_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern swig_intgo _wrap_GetNumIndices_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern swig_voidp _wrap_GetIndices_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMBuilderRef _wrap_CreateBuilderInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1);
+extern LLVMBuilderRef _wrap_CreateBuilder_llvm_a0e88c3155de3083(void);
+extern void _wrap_PositionBuilder_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMBasicBlockRef arg2, LLVMValueRef arg3);
+extern void _wrap_PositionBuilderBefore_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2);
+extern void _wrap_PositionBuilderAtEnd_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMBasicBlockRef arg2);
+extern LLVMBasicBlockRef _wrap_GetInsertBlock_llvm_a0e88c3155de3083(LLVMBuilderRef arg1);
+extern void _wrap_ClearInsertionPosition_llvm_a0e88c3155de3083(LLVMBuilderRef arg1);
+extern void _wrap_InsertIntoBuilder_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2);
+extern void _wrap_InsertIntoBuilderWithName_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3);
+extern void _wrap_DisposeBuilder_llvm_a0e88c3155de3083(LLVMBuilderRef arg1);
+extern LLVMMetadataRef _wrap_GetCurrentDebugLocation2_llvm_a0e88c3155de3083(LLVMBuilderRef arg1);
+extern void _wrap_SetCurrentDebugLocation2_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMMetadataRef arg2);
+extern void _wrap_SetInstDebugLocation_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2);
+extern void _wrap_AddMetadataToInst_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2);
+extern LLVMMetadataRef _wrap_BuilderGetDefaultFPMathTag_llvm_a0e88c3155de3083(LLVMBuilderRef arg1);
+extern void _wrap_BuilderSetDefaultFPMathTag_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMMetadataRef arg2);
+extern void _wrap_SetCurrentDebugLocation_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2);
+extern LLVMValueRef _wrap_GetCurrentDebugLocation_llvm_a0e88c3155de3083(LLVMBuilderRef arg1);
+extern LLVMValueRef _wrap_BuildRetVoid_llvm_a0e88c3155de3083(LLVMBuilderRef arg1);
+extern LLVMValueRef _wrap_BuildRet_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2);
+extern LLVMValueRef _wrap_BuildAggregateRet_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, swig_voidp arg2);
+extern LLVMValueRef _wrap_BuildBr_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMBasicBlockRef arg2);
+extern LLVMValueRef _wrap_BuildCondBr_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMBasicBlockRef arg3, LLVMBasicBlockRef arg4);
+extern LLVMValueRef _wrap_BuildSwitch_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMBasicBlockRef arg3, swig_intgo arg4);
+extern LLVMValueRef _wrap_BuildIndirectBr_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_intgo arg3);
+extern LLVMValueRef _wrap_BuildInvoke2_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMTypeRef arg2, LLVMValueRef arg3, swig_voidp arg4, LLVMBasicBlockRef arg5, LLVMBasicBlockRef arg6, swig_voidp arg7);
+extern LLVMValueRef _wrap_BuildUnreachable_llvm_a0e88c3155de3083(LLVMBuilderRef arg1);
+extern LLVMValueRef _wrap_BuildResume_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2);
+extern LLVMValueRef _wrap_BuildLandingPad_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMTypeRef arg2, LLVMValueRef arg3, swig_intgo arg4, swig_voidp arg5);
+extern LLVMValueRef _wrap_BuildCleanupRet_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMBasicBlockRef arg3);
+extern LLVMValueRef _wrap_BuildCatchRet_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMBasicBlockRef arg3);
+extern LLVMValueRef _wrap_BuildCatchPad_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildCleanupPad_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildCatchSwitch_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMBasicBlockRef arg3, swig_intgo arg4, swig_voidp arg5);
+extern void _wrap_AddCase_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2, LLVMBasicBlockRef arg3);
+extern void _wrap_AddDestination_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMBasicBlockRef arg2);
+extern swig_intgo _wrap_GetNumClauses_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern LLVMValueRef _wrap_GetClause_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern void _wrap_AddClause_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern _Bool _wrap_IsCleanup_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetCleanup_llvm_a0e88c3155de3083(LLVMValueRef arg1, _Bool arg2);
+extern void _wrap_AddHandler_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMBasicBlockRef arg2);
+extern swig_intgo _wrap_GetNumHandlers_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_GetHandlers_llvm_a0e88c3155de3083(LLVMValueRef arg1, uintptr_t arg2);
+extern LLVMValueRef _wrap_GetArgOperand_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern void _wrap_SetArgOperand_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2, LLVMValueRef arg3);
+extern LLVMValueRef _wrap_GetParentCatchSwitch_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetParentCatchSwitch_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMValueRef arg2);
+extern LLVMValueRef _wrap_BuildAdd_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildNSWAdd_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildNUWAdd_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildFAdd_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildSub_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildNSWSub_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildNUWSub_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildFSub_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildMul_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildNSWMul_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildNUWMul_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildFMul_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildUDiv_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildExactUDiv_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildSDiv_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildExactSDiv_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildFDiv_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildURem_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildSRem_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildFRem_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildShl_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildLShr_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildAShr_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildAnd_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildOr_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildXor_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildBinOp_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, swig_intgo arg2, LLVMValueRef arg3, LLVMValueRef arg4, swig_voidp arg5);
+extern LLVMValueRef _wrap_BuildNeg_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3);
+extern LLVMValueRef _wrap_BuildNSWNeg_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3);
+extern LLVMValueRef _wrap_BuildNUWNeg_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3);
+extern LLVMValueRef _wrap_BuildFNeg_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3);
+extern LLVMValueRef _wrap_BuildNot_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3);
+extern LLVMValueRef _wrap_BuildMalloc_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMTypeRef arg2, swig_voidp arg3);
+extern LLVMValueRef _wrap_BuildArrayMalloc_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMTypeRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildMemSet_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, LLVMValueRef arg4, swig_intgo arg5);
+extern LLVMValueRef _wrap_BuildMemCpy_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_intgo arg3, LLVMValueRef arg4, swig_intgo arg5, LLVMValueRef arg6);
+extern LLVMValueRef _wrap_BuildMemMove_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_intgo arg3, LLVMValueRef arg4, swig_intgo arg5, LLVMValueRef arg6);
+extern LLVMValueRef _wrap_BuildAlloca_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMTypeRef arg2, swig_voidp arg3);
+extern LLVMValueRef _wrap_BuildArrayAlloca_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMTypeRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildFree_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2);
+extern LLVMValueRef _wrap_BuildLoad2_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMTypeRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildStore_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3);
+extern LLVMValueRef _wrap_BuildGEP2_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMTypeRef arg2, LLVMValueRef arg3, swig_voidp arg4, swig_voidp arg5);
+extern LLVMValueRef _wrap_BuildInBoundsGEP2_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMTypeRef arg2, LLVMValueRef arg3, swig_voidp arg4, swig_voidp arg5);
+extern LLVMValueRef _wrap_BuildStructGEP2_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMTypeRef arg2, LLVMValueRef arg3, swig_intgo arg4, swig_voidp arg5);
+extern LLVMValueRef _wrap_BuildGlobalString_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, swig_voidp arg2, swig_voidp arg3);
+extern LLVMValueRef _wrap_BuildGlobalStringPtr_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, swig_voidp arg2, swig_voidp arg3);
+extern _Bool _wrap_GetVolatile_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetVolatile_llvm_a0e88c3155de3083(LLVMValueRef arg1, _Bool arg2);
+extern _Bool _wrap_GetWeak_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetWeak_llvm_a0e88c3155de3083(LLVMValueRef arg1, _Bool arg2);
+extern swig_intgo _wrap_GetOrdering_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetOrdering_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern swig_intgo _wrap_GetAtomicRMWBinOp_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetAtomicRMWBinOp_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern LLVMValueRef _wrap_BuildTrunc_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildZExt_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildSExt_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildFPToUI_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildFPToSI_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildUIToFP_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildSIToFP_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildFPTrunc_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildFPExt_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildPtrToInt_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildIntToPtr_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildBitCast_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildAddrSpaceCast_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildZExtOrBitCast_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildSExtOrBitCast_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildTruncOrBitCast_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildCast_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, swig_intgo arg2, LLVMValueRef arg3, LLVMTypeRef arg4, swig_voidp arg5);
+extern LLVMValueRef _wrap_BuildPointerCast_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildIntCast2_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, _Bool arg4, swig_voidp arg5);
+extern LLVMValueRef _wrap_BuildFPCast_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildIntCast_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
+extern swig_intgo _wrap_GetCastOpcode_llvm_a0e88c3155de3083(LLVMValueRef arg1, _Bool arg2, LLVMTypeRef arg3, _Bool arg4);
+extern LLVMValueRef _wrap_BuildICmp_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, swig_intgo arg2, LLVMValueRef arg3, LLVMValueRef arg4, swig_voidp arg5);
+extern LLVMValueRef _wrap_BuildFCmp_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, swig_intgo arg2, LLVMValueRef arg3, LLVMValueRef arg4, swig_voidp arg5);
+extern LLVMValueRef _wrap_BuildPhi_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMTypeRef arg2, swig_voidp arg3);
+extern LLVMValueRef _wrap_BuildCall2_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMTypeRef arg2, LLVMValueRef arg3, swig_voidp arg4, swig_voidp arg5);
+extern LLVMValueRef _wrap_BuildSelect_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, LLVMValueRef arg4, swig_voidp arg5);
+extern LLVMValueRef _wrap_BuildVAArg_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMTypeRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildExtractElement_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildInsertElement_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, LLVMValueRef arg4, swig_voidp arg5);
+extern LLVMValueRef _wrap_BuildShuffleVector_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, LLVMValueRef arg4, swig_voidp arg5);
+extern LLVMValueRef _wrap_BuildExtractValue_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_intgo arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildInsertValue_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, swig_intgo arg4, swig_voidp arg5);
+extern LLVMValueRef _wrap_BuildFreeze_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3);
+extern LLVMValueRef _wrap_BuildIsNull_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3);
+extern LLVMValueRef _wrap_BuildIsNotNull_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, swig_voidp arg3);
+extern LLVMValueRef _wrap_BuildPtrDiff2_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMTypeRef arg2, LLVMValueRef arg3, LLVMValueRef arg4, swig_voidp arg5);
+extern LLVMValueRef _wrap_BuildFence_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, swig_intgo arg2, _Bool arg3, swig_voidp arg4);
+extern LLVMValueRef _wrap_BuildAtomicRMW_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, swig_intgo arg2, LLVMValueRef arg3, LLVMValueRef arg4, swig_intgo arg5, _Bool arg6);
+extern LLVMValueRef _wrap_BuildAtomicCmpXchg_llvm_a0e88c3155de3083(LLVMBuilderRef arg1, LLVMValueRef arg2, LLVMValueRef arg3, LLVMValueRef arg4, swig_intgo arg5, swig_intgo arg6, _Bool arg7);
+extern swig_intgo _wrap_GetNumMaskElements_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern swig_intgo _wrap_GetUndefMaskElem_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_GetMaskValue_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern _Bool _wrap_IsAtomicSingleThread_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetAtomicSingleThread_llvm_a0e88c3155de3083(LLVMValueRef arg1, _Bool arg2);
+extern swig_intgo _wrap_GetCmpXchgSuccessOrdering_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetCmpXchgSuccessOrdering_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern swig_intgo _wrap_GetCmpXchgFailureOrdering_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetCmpXchgFailureOrdering_llvm_a0e88c3155de3083(LLVMValueRef arg1, swig_intgo arg2);
+extern LLVMModuleProviderRef _wrap_CreateModuleProviderForExistingModule_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern void _wrap_DisposeModuleProvider_llvm_a0e88c3155de3083(LLVMModuleProviderRef arg1);
+extern _Bool _wrap_CreateMemoryBufferWithContentsOfFile_llvm_a0e88c3155de3083(swig_voidp arg1, uintptr_t arg2, swig_voidp arg3);
+extern _Bool _wrap_CreateMemoryBufferWithSTDIN_llvm_a0e88c3155de3083(uintptr_t arg1, swig_voidp arg2);
+extern LLVMMemoryBufferRef _wrap_CreateMemoryBufferWithMemoryRange_llvm_a0e88c3155de3083(swig_voidp arg1, swig_type_47 arg2, swig_voidp arg3, _Bool arg4);
+extern LLVMMemoryBufferRef _wrap_CreateMemoryBufferWithMemoryRangeCopy_llvm_a0e88c3155de3083(swig_voidp arg1, swig_type_48 arg2, swig_voidp arg3);
+extern swig_voidp _wrap_GetBufferStart_llvm_a0e88c3155de3083(LLVMMemoryBufferRef arg1);
+extern swig_type_49 _wrap_GetBufferSize_llvm_a0e88c3155de3083(LLVMMemoryBufferRef arg1);
+extern void _wrap_DisposeMemoryBuffer_llvm_a0e88c3155de3083(LLVMMemoryBufferRef arg1);
+extern LLVMPassRegistryRef _wrap_GetGlobalPassRegistry_llvm_a0e88c3155de3083(void);
+extern LLVMPassManagerRef _wrap_CreatePassManager_llvm_a0e88c3155de3083(void);
+extern LLVMPassManagerRef _wrap_CreateFunctionPassManagerForModule_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern LLVMPassManagerRef _wrap_CreateFunctionPassManager_llvm_a0e88c3155de3083(LLVMModuleProviderRef arg1);
+extern _Bool _wrap_RunPassManager_llvm_a0e88c3155de3083(LLVMPassManagerRef arg1, LLVMModuleRef arg2);
+extern _Bool _wrap_InitializeFunctionPassManager_llvm_a0e88c3155de3083(LLVMPassManagerRef arg1);
+extern _Bool _wrap_RunFunctionPassManager_llvm_a0e88c3155de3083(LLVMPassManagerRef arg1, LLVMValueRef arg2);
+extern _Bool _wrap_FinalizeFunctionPassManager_llvm_a0e88c3155de3083(LLVMPassManagerRef arg1);
+extern void _wrap_DisposePassManager_llvm_a0e88c3155de3083(LLVMPassManagerRef arg1);
+extern _Bool _wrap_StartMultithreaded_llvm_a0e88c3155de3083(void);
+extern void _wrap_StopMultithreaded_llvm_a0e88c3155de3083(void);
+extern _Bool _wrap_IsMultithreaded_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagZero_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagPrivate_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagProtected_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagPublic_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagFwdDecl_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagAppleBlock_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagReservedBit4_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagVirtual_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagArtificial_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagExplicit_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagPrototyped_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagObjcClassComplete_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagObjectPointer_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagVector_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagStaticMember_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagLValueReference_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagRValueReference_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagReserved_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagSingleInheritance_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagMultipleInheritance_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagVirtualInheritance_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagIntroducedVirtual_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagBitField_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagNoReturn_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagTypePassByValue_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagTypePassByReference_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagEnumClass_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagFixedEnum_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagThunk_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagNonTrivial_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagBigEndian_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagLittleEndian_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagIndirectVirtualBase_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagAccessibility_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFlagPtrToMemberRep_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageC89_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageC_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageAda83_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageC_plus_plus_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageCobol74_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageCobol85_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageFortran77_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageFortran90_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguagePascal83_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageModula2_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageJava_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageC99_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageAda95_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageFortran95_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguagePLI_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageObjC_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageObjC_plus_plus_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageUPC_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageD_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguagePython_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageOpenCL_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageGo_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageModula3_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageHaskell_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageC_plus_plus_03_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageC_plus_plus_11_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageOCaml_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageRust_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageC11_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageSwift_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageJulia_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageDylan_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageC_plus_plus_14_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageFortran03_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageFortran08_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageRenderScript_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageBLISS_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageKotlin_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageZig_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageCrystal_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageC_plus_plus_17_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageC_plus_plus_20_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageC17_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageFortran18_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageAda2005_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageAda2012_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageMips_Assembler_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageGOOGLE_RenderScript_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFSourceLanguageBORLAND_Delphi_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFEmissionNone_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFEmissionFull_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFEmissionLineTablesOnly_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_MDStringMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ConstantAsMetadataMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_LocalAsMetadataMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DistinctMDOperandPlaceholderMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_MDTupleMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DILocationMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIExpressionMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIGlobalVariableExpressionMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_GenericDINodeMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DISubrangeMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIEnumeratorMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIBasicTypeMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIDerivedTypeMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DICompositeTypeMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DISubroutineTypeMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIFileMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DICompileUnitMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DISubprogramMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DILexicalBlockMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DILexicalBlockFileMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DINamespaceMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIModuleMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DITemplateTypeParameterMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DITemplateValueParameterMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIGlobalVariableMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DILocalVariableMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DILabelMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIObjCPropertyMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIImportedEntityMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIMacroMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIMacroFileMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DICommonBlockMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIStringTypeMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIGenericSubrangeMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIArgListMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DIAssignIDMetadataKind_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFMacinfoRecordTypeDefine_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFMacinfoRecordTypeMacro_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFMacinfoRecordTypeStartFile_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFMacinfoRecordTypeEndFile_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DWARFMacinfoRecordTypeVendorExt_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_DebugMetadataVersion_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_GetModuleDebugMetadataVersion_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern _Bool _wrap_StripModuleDebugInfo_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern LLVMDIBuilderRef _wrap_CreateDIBuilderDisallowUnresolved_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern LLVMDIBuilderRef _wrap_CreateDIBuilder_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern void _wrap_DisposeDIBuilder_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1);
+extern void _wrap_DIBuilderFinalize_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1);
+extern void _wrap_DIBuilderFinalizeSubprogram_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2);
+extern LLVMMetadataRef _wrap_DIBuilderCreateCompileUnit_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, swig_intgo arg2, LLVMMetadataRef arg3, swig_voidp arg4, swig_type_50 arg5, _Bool arg6, swig_voidp arg7, swig_type_51 arg8, swig_intgo arg9, swig_voidp arg10, swig_type_52 arg11, swig_intgo arg12, swig_intgo arg13, _Bool arg14, _Bool arg15, swig_voidp arg16, swig_type_53 arg17, swig_voidp arg18, swig_type_54 arg19);
+extern LLVMMetadataRef _wrap_DIBuilderCreateFile_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, swig_voidp arg2, swig_voidp arg3);
+extern LLVMMetadataRef _wrap_DIBuilderCreateModule_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, swig_voidp arg4, swig_type_55 arg5, swig_voidp arg6, swig_type_56 arg7, swig_voidp arg8, swig_type_57 arg9);
+extern LLVMMetadataRef _wrap_DIBuilderCreateNameSpace_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, _Bool arg4);
+extern LLVMMetadataRef _wrap_DIBuilderCreateFunction_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, swig_voidp arg4, LLVMMetadataRef arg5, swig_intgo arg6, LLVMMetadataRef arg7, _Bool arg8, _Bool arg9, swig_intgo arg10, swig_intgo arg11, _Bool arg12);
+extern LLVMMetadataRef _wrap_DIBuilderCreateLexicalBlock_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, LLVMMetadataRef arg3, swig_intgo arg4, swig_intgo arg5);
+extern LLVMMetadataRef _wrap_DIBuilderCreateLexicalBlockFile_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, LLVMMetadataRef arg3, swig_intgo arg4);
+extern LLVMMetadataRef _wrap_DIBuilderCreateImportedModuleFromNamespace_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, LLVMMetadataRef arg3, LLVMMetadataRef arg4, swig_intgo arg5);
+extern LLVMMetadataRef _wrap_DIBuilderCreateImportedModuleFromAlias_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, LLVMMetadataRef arg3, LLVMMetadataRef arg4, swig_intgo arg5, swig_voidp arg6);
+extern LLVMMetadataRef _wrap_DIBuilderCreateImportedModuleFromModule_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, LLVMMetadataRef arg3, LLVMMetadataRef arg4, swig_intgo arg5, swig_voidp arg6);
+extern LLVMMetadataRef _wrap_DIBuilderCreateImportedDeclaration_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, LLVMMetadataRef arg3, LLVMMetadataRef arg4, swig_intgo arg5, swig_voidp arg6, swig_voidp arg7);
+extern LLVMMetadataRef _wrap_DIBuilderCreateDebugLocation_llvm_a0e88c3155de3083(LLVMContextRef arg1, swig_intgo arg2, swig_intgo arg3, LLVMMetadataRef arg4, LLVMMetadataRef arg5);
+extern swig_intgo _wrap_DILocationGetLine_llvm_a0e88c3155de3083(LLVMMetadataRef arg1);
+extern swig_intgo _wrap_DILocationGetColumn_llvm_a0e88c3155de3083(LLVMMetadataRef arg1);
+extern LLVMMetadataRef _wrap_DILocationGetScope_llvm_a0e88c3155de3083(LLVMMetadataRef arg1);
+extern LLVMMetadataRef _wrap_DILocationGetInlinedAt_llvm_a0e88c3155de3083(LLVMMetadataRef arg1);
+extern LLVMMetadataRef _wrap_DIScopeGetFile_llvm_a0e88c3155de3083(LLVMMetadataRef arg1);
+extern swig_voidp _wrap_DIFileGetDirectory_llvm_a0e88c3155de3083(LLVMMetadataRef arg1, swig_voidp arg2);
+extern swig_voidp _wrap_DIFileGetFilename_llvm_a0e88c3155de3083(LLVMMetadataRef arg1, swig_voidp arg2);
+extern swig_voidp _wrap_DIFileGetSource_llvm_a0e88c3155de3083(LLVMMetadataRef arg1, swig_voidp arg2);
+extern LLVMMetadataRef _wrap_DIBuilderGetOrCreateTypeArray_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, uintptr_t arg2, swig_type_58 arg3);
+extern LLVMMetadataRef _wrap_DIBuilderCreateSubroutineType_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, swig_intgo arg4);
+extern LLVMMetadataRef _wrap_DIBuilderCreateMacro_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_intgo arg3, swig_intgo arg4, swig_voidp arg5, swig_voidp arg6, swig_type_59 arg7);
+extern LLVMMetadataRef _wrap_DIBuilderCreateTempMacroFile_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_intgo arg3, LLVMMetadataRef arg4);
+extern LLVMMetadataRef _wrap_DIBuilderCreateEnumerator_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, swig_voidp arg2, swig_type_60 arg3, _Bool arg4);
+extern LLVMMetadataRef _wrap_DIBuilderCreateEnumerationType_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, LLVMMetadataRef arg4, swig_intgo arg5, swig_type_61 arg6, swig_intgo arg7, swig_voidp arg8, LLVMMetadataRef arg9);
+extern LLVMMetadataRef _wrap_DIBuilderCreateUnionType_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, LLVMMetadataRef arg4, swig_intgo arg5, swig_type_62 arg6, swig_intgo arg7, swig_intgo arg8, swig_voidp arg9, swig_intgo arg10, swig_voidp arg11);
+extern LLVMMetadataRef _wrap_DIBuilderCreateArrayType_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, swig_type_63 arg2, swig_intgo arg3, LLVMMetadataRef arg4, swig_voidp arg5);
+extern LLVMMetadataRef _wrap_DIBuilderCreateVectorType_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, swig_type_64 arg2, swig_intgo arg3, LLVMMetadataRef arg4, swig_voidp arg5);
+extern LLVMMetadataRef _wrap_DIBuilderCreateUnspecifiedType_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, swig_voidp arg2);
+extern LLVMMetadataRef _wrap_DIBuilderCreateBasicType_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, swig_voidp arg2, swig_type_65 arg3, swig_intgo arg4, swig_intgo arg5);
+extern LLVMMetadataRef _wrap_DIBuilderCreatePointerType_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_type_66 arg3, swig_intgo arg4, swig_intgo arg5, swig_voidp arg6);
+extern LLVMMetadataRef _wrap_DIBuilderCreateStructType_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, LLVMMetadataRef arg4, swig_intgo arg5, swig_type_67 arg6, swig_intgo arg7, swig_intgo arg8, LLVMMetadataRef arg9, swig_voidp arg10, swig_intgo arg11, LLVMMetadataRef arg12, swig_voidp arg13);
+extern LLVMMetadataRef _wrap_DIBuilderCreateMemberType_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, LLVMMetadataRef arg4, swig_intgo arg5, swig_type_68 arg6, swig_intgo arg7, swig_type_69 arg8, swig_intgo arg9, LLVMMetadataRef arg10);
+extern LLVMMetadataRef _wrap_DIBuilderCreateStaticMemberType_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, LLVMMetadataRef arg4, swig_intgo arg5, LLVMMetadataRef arg6, swig_intgo arg7, LLVMValueRef arg8, swig_intgo arg9);
+extern LLVMMetadataRef _wrap_DIBuilderCreateMemberPointerType_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, LLVMMetadataRef arg3, swig_type_70 arg4, swig_intgo arg5, swig_intgo arg6);
+extern LLVMMetadataRef _wrap_DIBuilderCreateObjCIVar_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, swig_voidp arg2, LLVMMetadataRef arg3, swig_intgo arg4, swig_type_71 arg5, swig_intgo arg6, swig_type_72 arg7, swig_intgo arg8, LLVMMetadataRef arg9, LLVMMetadataRef arg10);
+extern LLVMMetadataRef _wrap_DIBuilderCreateObjCProperty_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, swig_voidp arg2, LLVMMetadataRef arg3, swig_intgo arg4, swig_voidp arg5, swig_type_73 arg6, swig_voidp arg7, swig_type_74 arg8, swig_intgo arg9, LLVMMetadataRef arg10);
+extern LLVMMetadataRef _wrap_DIBuilderCreateObjectPointerType_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2);
+extern LLVMMetadataRef _wrap_DIBuilderCreateQualifiedType_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, swig_intgo arg2, LLVMMetadataRef arg3);
+extern LLVMMetadataRef _wrap_DIBuilderCreateReferenceType_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, swig_intgo arg2, LLVMMetadataRef arg3);
+extern LLVMMetadataRef _wrap_DIBuilderCreateNullPtrType_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1);
+extern LLVMMetadataRef _wrap_DIBuilderCreateTypedef_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, LLVMMetadataRef arg4, swig_intgo arg5, LLVMMetadataRef arg6, swig_intgo arg7);
+extern LLVMMetadataRef _wrap_DIBuilderCreateInheritance_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, LLVMMetadataRef arg3, swig_type_75 arg4, swig_intgo arg5, swig_intgo arg6);
+extern LLVMMetadataRef _wrap_DIBuilderCreateForwardDecl_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, swig_intgo arg2, swig_voidp arg3, LLVMMetadataRef arg4, LLVMMetadataRef arg5, swig_intgo arg6, swig_intgo arg7, swig_type_76 arg8, swig_intgo arg9, swig_voidp arg10, swig_type_77 arg11);
+extern LLVMMetadataRef _wrap_DIBuilderCreateReplaceableCompositeType_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, swig_intgo arg2, swig_voidp arg3, LLVMMetadataRef arg4, LLVMMetadataRef arg5, swig_intgo arg6, swig_intgo arg7, swig_type_78 arg8, swig_intgo arg9, swig_intgo arg10, swig_voidp arg11, swig_type_79 arg12);
+extern LLVMMetadataRef _wrap_DIBuilderCreateBitFieldMemberType_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, LLVMMetadataRef arg4, swig_intgo arg5, swig_type_80 arg6, swig_type_81 arg7, swig_type_82 arg8, swig_intgo arg9, LLVMMetadataRef arg10);
+extern LLVMMetadataRef _wrap_DIBuilderCreateClassType_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, LLVMMetadataRef arg4, swig_intgo arg5, swig_type_83 arg6, swig_intgo arg7, swig_type_84 arg8, swig_intgo arg9, LLVMMetadataRef arg10, swig_voidp arg11, LLVMMetadataRef arg12, LLVMMetadataRef arg13, swig_voidp arg14, swig_type_85 arg15);
+extern LLVMMetadataRef _wrap_DIBuilderCreateArtificialType_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2);
+extern swig_voidp _wrap_DITypeGetName_llvm_a0e88c3155de3083(LLVMMetadataRef arg1, swig_voidp arg2);
+extern swig_type_86 _wrap_DITypeGetSizeInBits_llvm_a0e88c3155de3083(LLVMMetadataRef arg1);
+extern swig_type_87 _wrap_DITypeGetOffsetInBits_llvm_a0e88c3155de3083(LLVMMetadataRef arg1);
+extern swig_intgo _wrap_DITypeGetAlignInBits_llvm_a0e88c3155de3083(LLVMMetadataRef arg1);
+extern swig_intgo _wrap_DITypeGetLine_llvm_a0e88c3155de3083(LLVMMetadataRef arg1);
+extern swig_intgo _wrap_DITypeGetFlags_llvm_a0e88c3155de3083(LLVMMetadataRef arg1);
+extern LLVMMetadataRef _wrap_DIBuilderGetOrCreateSubrange_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, swig_type_88 arg2, swig_type_89 arg3);
+extern LLVMMetadataRef _wrap_DIBuilderGetOrCreateArray_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, uintptr_t arg2, swig_type_90 arg3);
+extern LLVMMetadataRef _wrap_DIBuilderCreateExpression_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, swig_type_91 arg2);
+extern LLVMMetadataRef _wrap_DIBuilderCreateConstantValueExpression_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, swig_type_92 arg2);
+extern LLVMMetadataRef _wrap_DIBuilderCreateGlobalVariableExpression_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, swig_voidp arg4, swig_type_93 arg5, LLVMMetadataRef arg6, swig_intgo arg7, LLVMMetadataRef arg8, _Bool arg9, LLVMMetadataRef arg10, LLVMMetadataRef arg11, swig_intgo arg12);
+extern short _wrap_GetDINodeTag_llvm_a0e88c3155de3083(LLVMMetadataRef arg1);
+extern LLVMMetadataRef _wrap_DIGlobalVariableExpressionGetVariable_llvm_a0e88c3155de3083(LLVMMetadataRef arg1);
+extern LLVMMetadataRef _wrap_DIGlobalVariableExpressionGetExpression_llvm_a0e88c3155de3083(LLVMMetadataRef arg1);
+extern LLVMMetadataRef _wrap_DIVariableGetFile_llvm_a0e88c3155de3083(LLVMMetadataRef arg1);
+extern LLVMMetadataRef _wrap_DIVariableGetScope_llvm_a0e88c3155de3083(LLVMMetadataRef arg1);
+extern swig_intgo _wrap_DIVariableGetLine_llvm_a0e88c3155de3083(LLVMMetadataRef arg1);
+extern LLVMMetadataRef _wrap_TemporaryMDNode_llvm_a0e88c3155de3083(LLVMContextRef arg1, uintptr_t arg2, swig_type_94 arg3);
+extern void _wrap_DisposeTemporaryMDNode_llvm_a0e88c3155de3083(LLVMMetadataRef arg1);
+extern void _wrap_MetadataReplaceAllUsesWith_llvm_a0e88c3155de3083(LLVMMetadataRef arg1, LLVMMetadataRef arg2);
+extern LLVMMetadataRef _wrap_DIBuilderCreateTempGlobalVariableFwdDecl_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, swig_voidp arg4, swig_type_95 arg5, LLVMMetadataRef arg6, swig_intgo arg7, LLVMMetadataRef arg8, _Bool arg9, LLVMMetadataRef arg10, swig_intgo arg11);
+extern LLVMValueRef _wrap_DIBuilderInsertDeclareBefore_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMValueRef arg2, LLVMMetadataRef arg3, LLVMMetadataRef arg4, LLVMMetadataRef arg5, LLVMValueRef arg6);
+extern LLVMValueRef _wrap_DIBuilderInsertDeclareAtEnd_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMValueRef arg2, LLVMMetadataRef arg3, LLVMMetadataRef arg4, LLVMMetadataRef arg5, LLVMBasicBlockRef arg6);
+extern LLVMValueRef _wrap_DIBuilderInsertDbgValueBefore_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMValueRef arg2, LLVMMetadataRef arg3, LLVMMetadataRef arg4, LLVMMetadataRef arg5, LLVMValueRef arg6);
+extern LLVMValueRef _wrap_DIBuilderInsertDbgValueAtEnd_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMValueRef arg2, LLVMMetadataRef arg3, LLVMMetadataRef arg4, LLVMMetadataRef arg5, LLVMBasicBlockRef arg6);
+extern LLVMMetadataRef _wrap_DIBuilderCreateAutoVariable_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, LLVMMetadataRef arg4, swig_intgo arg5, LLVMMetadataRef arg6, _Bool arg7, swig_intgo arg8, swig_intgo arg9);
+extern LLVMMetadataRef _wrap_DIBuilderCreateParameterVariable_llvm_a0e88c3155de3083(LLVMDIBuilderRef arg1, LLVMMetadataRef arg2, swig_voidp arg3, swig_intgo arg4, LLVMMetadataRef arg5, swig_intgo arg6, LLVMMetadataRef arg7, _Bool arg8, swig_intgo arg9);
+extern LLVMMetadataRef _wrap_GetSubprogram_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_SetSubprogram_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMMetadataRef arg2);
+extern swig_intgo _wrap_DISubprogramGetLine_llvm_a0e88c3155de3083(LLVMMetadataRef arg1);
+extern LLVMMetadataRef _wrap_InstructionGetDebugLoc_llvm_a0e88c3155de3083(LLVMValueRef arg1);
+extern void _wrap_InstructionSetDebugLoc_llvm_a0e88c3155de3083(LLVMValueRef arg1, LLVMMetadataRef arg2);
+extern swig_intgo _wrap_GetMetadataKind_llvm_a0e88c3155de3083(LLVMMetadataRef arg1);
+extern uintptr_t _wrap_CreateDisasm_llvm_a0e88c3155de3083(swig_voidp arg1, uintptr_t arg2, swig_intgo arg3, swig_type_96 arg4, swig_type_97 arg5);
+extern uintptr_t _wrap_CreateDisasmCPU_llvm_a0e88c3155de3083(swig_voidp arg1, swig_voidp arg2, uintptr_t arg3, swig_intgo arg4, swig_type_98 arg5, swig_type_99 arg6);
+extern uintptr_t _wrap_CreateDisasmCPUFeatures_llvm_a0e88c3155de3083(swig_voidp arg1, swig_voidp arg2, swig_voidp arg3, uintptr_t arg4, swig_intgo arg5, swig_type_100 arg6, swig_type_101 arg7);
+extern swig_intgo _wrap_SetDisasmOptions_llvm_a0e88c3155de3083(uintptr_t arg1, swig_type_102 arg2);
+extern void _wrap_DisasmDispose_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern swig_type_103 _wrap_DisasmInstruction_llvm_a0e88c3155de3083(uintptr_t arg1, swig_voidp arg2, swig_type_104 arg3, swig_type_105 arg4, swig_voidp arg5, swig_type_106 arg6);
+extern void _wrap_OpInfoSymbol1_Present_set_llvm_a0e88c3155de3083(uintptr_t arg1, swig_type_107 arg2);
+extern swig_type_108 _wrap_OpInfoSymbol1_Present_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_OpInfoSymbol1_Name_set_llvm_a0e88c3155de3083(uintptr_t arg1, swig_voidp arg2);
+extern swig_voidp _wrap_OpInfoSymbol1_Name_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_OpInfoSymbol1_Value_set_llvm_a0e88c3155de3083(uintptr_t arg1, swig_type_109 arg2);
+extern swig_type_110 _wrap_OpInfoSymbol1_Value_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern uintptr_t _wrap_new_OpInfoSymbol1_llvm_a0e88c3155de3083(void);
+extern void _wrap_delete_OpInfoSymbol1_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_OpInfo1_AddSymbol_set_llvm_a0e88c3155de3083(uintptr_t arg1, uintptr_t arg2);
+extern uintptr_t _wrap_OpInfo1_AddSymbol_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_OpInfo1_SubtractSymbol_set_llvm_a0e88c3155de3083(uintptr_t arg1, uintptr_t arg2);
+extern uintptr_t _wrap_OpInfo1_SubtractSymbol_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_OpInfo1_Value_set_llvm_a0e88c3155de3083(uintptr_t arg1, swig_type_111 arg2);
+extern swig_type_112 _wrap_OpInfo1_Value_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_OpInfo1_VariantKind_set_llvm_a0e88c3155de3083(uintptr_t arg1, swig_type_113 arg2);
+extern swig_type_114 _wrap_OpInfo1_VariantKind_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern uintptr_t _wrap_new_OpInfo1_llvm_a0e88c3155de3083(void);
+extern void _wrap_delete_OpInfo1_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern uintptr_t _wrap_GetErrorTypeId_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_ConsumeError_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern swig_voidp _wrap_GetErrorMessage_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_DisposeErrorMessage_llvm_a0e88c3155de3083(swig_voidp arg1);
+extern uintptr_t _wrap_GetStringErrorTypeId_llvm_a0e88c3155de3083(void);
+extern uintptr_t _wrap_CreateStringError_llvm_a0e88c3155de3083(swig_voidp arg1);
+extern void _wrap_LinkInMCJIT_llvm_a0e88c3155de3083(void);
+extern void _wrap_LinkInInterpreter_llvm_a0e88c3155de3083(void);
+extern void _wrap_MCJITCompilerOptions_OptLevel_set_llvm_a0e88c3155de3083(uintptr_t arg1, swig_intgo arg2);
+extern swig_intgo _wrap_MCJITCompilerOptions_OptLevel_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_MCJITCompilerOptions_CodeModel_set_llvm_a0e88c3155de3083(uintptr_t arg1, swig_intgo arg2);
+extern swig_intgo _wrap_MCJITCompilerOptions_CodeModel_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_MCJITCompilerOptions_NoFramePointerElim_set_llvm_a0e88c3155de3083(uintptr_t arg1, _Bool arg2);
+extern _Bool _wrap_MCJITCompilerOptions_NoFramePointerElim_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_MCJITCompilerOptions_EnableFastISel_set_llvm_a0e88c3155de3083(uintptr_t arg1, _Bool arg2);
+extern _Bool _wrap_MCJITCompilerOptions_EnableFastISel_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_MCJITCompilerOptions_MCJMM_set_llvm_a0e88c3155de3083(uintptr_t arg1, uintptr_t arg2);
+extern uintptr_t _wrap_MCJITCompilerOptions_MCJMM_get_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern uintptr_t _wrap_new_MCJITCompilerOptions_llvm_a0e88c3155de3083(void);
+extern void _wrap_delete_MCJITCompilerOptions_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern uintptr_t _wrap_CreateGenericValueOfInt_llvm_a0e88c3155de3083(LLVMTypeRef arg1, swig_type_115 arg2, _Bool arg3);
+extern uintptr_t _wrap_CreateGenericValueOfPointer_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern uintptr_t _wrap_CreateGenericValueOfFloat_llvm_a0e88c3155de3083(LLVMTypeRef arg1, double arg2);
+extern swig_intgo _wrap_GenericValueIntWidth_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern swig_type_116 _wrap_GenericValueToInt_llvm_a0e88c3155de3083(uintptr_t arg1, _Bool arg2);
+extern uintptr_t _wrap_GenericValueToPointer_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern double _wrap_GenericValueToFloat_llvm_a0e88c3155de3083(LLVMTypeRef arg1, uintptr_t arg2);
+extern void _wrap_DisposeGenericValue_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern _Bool _wrap_CreateExecutionEngineForModule_llvm_a0e88c3155de3083(uintptr_t arg1, LLVMModuleRef arg2, swig_voidp arg3);
+extern _Bool _wrap_CreateInterpreterForModule_llvm_a0e88c3155de3083(uintptr_t arg1, LLVMModuleRef arg2, swig_voidp arg3);
+extern _Bool _wrap_CreateJITCompilerForModule_llvm_a0e88c3155de3083(uintptr_t arg1, LLVMModuleRef arg2, swig_intgo arg3, swig_voidp arg4);
+extern void _wrap_InitializeMCJITCompilerOptions_llvm_a0e88c3155de3083(uintptr_t arg1, swig_type_117 arg2);
+extern _Bool _wrap_CreateMCJITCompilerForModule_llvm_a0e88c3155de3083(uintptr_t arg1, LLVMModuleRef arg2, uintptr_t arg3, swig_type_118 arg4, swig_voidp arg5);
+extern void _wrap_DisposeExecutionEngine_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_RunStaticConstructors_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_RunStaticDestructors_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern swig_intgo _wrap_RunFunctionAsMain_llvm_a0e88c3155de3083(uintptr_t arg1, LLVMValueRef arg2, swig_intgo arg3, swig_voidp arg4, swig_voidp arg5);
+extern uintptr_t _wrap_RunFunction_llvm_a0e88c3155de3083(uintptr_t arg1, LLVMValueRef arg2, swig_intgo arg3, uintptr_t arg4);
+extern void _wrap_FreeMachineCodeForFunction_llvm_a0e88c3155de3083(uintptr_t arg1, LLVMValueRef arg2);
+extern void _wrap_AddModule_llvm_a0e88c3155de3083(uintptr_t arg1, LLVMModuleRef arg2);
+extern _Bool _wrap_RemoveModule_llvm_a0e88c3155de3083(uintptr_t arg1, LLVMModuleRef arg2, uintptr_t arg3, swig_voidp arg4);
+extern _Bool _wrap_FindFunction_llvm_a0e88c3155de3083(uintptr_t arg1, swig_voidp arg2, uintptr_t arg3);
+extern uintptr_t _wrap_RecompileAndRelinkFunction_llvm_a0e88c3155de3083(uintptr_t arg1, LLVMValueRef arg2);
+extern LLVMTargetDataRef _wrap_GetExecutionEngineTargetData_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern LLVMTargetMachineRef _wrap_GetExecutionEngineTargetMachine_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_AddGlobalMapping_llvm_a0e88c3155de3083(uintptr_t arg1, LLVMValueRef arg2, uintptr_t arg3);
+extern uintptr_t _wrap_GetPointerToGlobal_llvm_a0e88c3155de3083(uintptr_t arg1, LLVMValueRef arg2);
+extern swig_type_119 _wrap_GetGlobalValueAddress_llvm_a0e88c3155de3083(uintptr_t arg1, swig_voidp arg2);
+extern swig_type_120 _wrap_GetFunctionAddress_llvm_a0e88c3155de3083(uintptr_t arg1, swig_voidp arg2);
+extern _Bool _wrap_ExecutionEngineGetErrMsg_llvm_a0e88c3155de3083(uintptr_t arg1, swig_voidp arg2);
+extern uintptr_t _wrap_CreateSimpleMCJITMemoryManager_llvm_a0e88c3155de3083(uintptr_t arg1, swig_type_121 arg2, swig_type_122 arg3, swig_type_123 arg4, swig_type_124 arg5);
+extern void _wrap_DisposeMCJITMemoryManager_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern LLVMJITEventListenerRef _wrap_CreateGDBRegistrationListener_llvm_a0e88c3155de3083(void);
+extern LLVMJITEventListenerRef _wrap_CreateIntelJITEventListener_llvm_a0e88c3155de3083(void);
+extern LLVMJITEventListenerRef _wrap_CreateOProfileJITEventListener_llvm_a0e88c3155de3083(void);
+extern LLVMJITEventListenerRef _wrap_CreatePerfJITEventListener_llvm_a0e88c3155de3083(void);
+extern void _wrap_InitializeTransformUtils_llvm_a0e88c3155de3083(LLVMPassRegistryRef arg1);
+extern void _wrap_InitializeScalarOpts_llvm_a0e88c3155de3083(LLVMPassRegistryRef arg1);
+extern void _wrap_InitializeVectorization_llvm_a0e88c3155de3083(LLVMPassRegistryRef arg1);
+extern void _wrap_InitializeInstCombine_llvm_a0e88c3155de3083(LLVMPassRegistryRef arg1);
+extern void _wrap_InitializeIPO_llvm_a0e88c3155de3083(LLVMPassRegistryRef arg1);
+extern void _wrap_InitializeAnalysis_llvm_a0e88c3155de3083(LLVMPassRegistryRef arg1);
+extern void _wrap_InitializeIPA_llvm_a0e88c3155de3083(LLVMPassRegistryRef arg1);
+extern void _wrap_InitializeCodeGen_llvm_a0e88c3155de3083(LLVMPassRegistryRef arg1);
+extern void _wrap_InitializeTarget_llvm_a0e88c3155de3083(LLVMPassRegistryRef arg1);
+extern _Bool _wrap_ParseIRInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1, LLVMMemoryBufferRef arg2, uintptr_t arg3, swig_voidp arg4);
+extern swig_intgo _wrap_LinkerDestroySource_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_LinkerPreserveSource_Removed_llvm_a0e88c3155de3083(void);
+extern _Bool _wrap_LinkModules2_llvm_a0e88c3155de3083(LLVMModuleRef arg1, LLVMModuleRef arg2);
+extern swig_intgo _wrap_BinaryTypeArchive_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_BinaryTypeMachOUniversalBinary_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_BinaryTypeCOFFImportFile_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_BinaryTypeIR_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_BinaryTypeWinRes_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_BinaryTypeCOFF_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_BinaryTypeELF32L_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_BinaryTypeELF32B_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_BinaryTypeELF64L_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_BinaryTypeELF64B_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_BinaryTypeMachO32L_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_BinaryTypeMachO32B_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_BinaryTypeMachO64L_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_BinaryTypeMachO64B_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_BinaryTypeWasm_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_BinaryTypeOffload_llvm_a0e88c3155de3083(void);
+extern LLVMBinaryRef _wrap_CreateBinary_llvm_a0e88c3155de3083(LLVMMemoryBufferRef arg1, LLVMContextRef arg2, swig_voidp arg3);
+extern void _wrap_DisposeBinary_llvm_a0e88c3155de3083(LLVMBinaryRef arg1);
+extern LLVMMemoryBufferRef _wrap_BinaryCopyMemoryBuffer_llvm_a0e88c3155de3083(LLVMBinaryRef arg1);
+extern swig_intgo _wrap_BinaryGetType_llvm_a0e88c3155de3083(LLVMBinaryRef arg1);
+extern LLVMBinaryRef _wrap_MachOUniversalBinaryCopyObjectForArch_llvm_a0e88c3155de3083(LLVMBinaryRef arg1, swig_voidp arg2, swig_type_125 arg3, swig_voidp arg4);
+extern uintptr_t _wrap_ObjectFileCopySectionIterator_llvm_a0e88c3155de3083(LLVMBinaryRef arg1);
+extern _Bool _wrap_ObjectFileIsSectionIteratorAtEnd_llvm_a0e88c3155de3083(LLVMBinaryRef arg1, uintptr_t arg2);
+extern uintptr_t _wrap_ObjectFileCopySymbolIterator_llvm_a0e88c3155de3083(LLVMBinaryRef arg1);
+extern _Bool _wrap_ObjectFileIsSymbolIteratorAtEnd_llvm_a0e88c3155de3083(LLVMBinaryRef arg1, uintptr_t arg2);
+extern void _wrap_DisposeSectionIterator_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_MoveToNextSection_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_MoveToContainingSection_llvm_a0e88c3155de3083(uintptr_t arg1, uintptr_t arg2);
+extern void _wrap_DisposeSymbolIterator_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_MoveToNextSymbol_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern swig_voidp _wrap_GetSectionName_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern swig_type_126 _wrap_GetSectionSize_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern swig_voidp _wrap_GetSectionContents_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern swig_type_127 _wrap_GetSectionAddress_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern _Bool _wrap_GetSectionContainsSymbol_llvm_a0e88c3155de3083(uintptr_t arg1, uintptr_t arg2);
+extern uintptr_t _wrap_GetRelocations_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern void _wrap_DisposeRelocationIterator_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern _Bool _wrap_IsRelocationIteratorAtEnd_llvm_a0e88c3155de3083(uintptr_t arg1, uintptr_t arg2);
+extern void _wrap_MoveToNextRelocation_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern swig_voidp _wrap_GetSymbolName_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern swig_type_128 _wrap_GetSymbolAddress_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern swig_type_129 _wrap_GetSymbolSize_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern swig_type_130 _wrap_GetRelocationOffset_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern uintptr_t _wrap_GetRelocationSymbol_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern swig_type_131 _wrap_GetRelocationType_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern swig_voidp _wrap_GetRelocationTypeName_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern swig_voidp _wrap_GetRelocationValueString_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern uintptr_t _wrap_CreateObjectFile_llvm_a0e88c3155de3083(LLVMMemoryBufferRef arg1);
+extern void _wrap_DisposeObjectFile_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern uintptr_t _wrap_GetSections_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern _Bool _wrap_IsSectionIteratorAtEnd_llvm_a0e88c3155de3083(uintptr_t arg1, uintptr_t arg2);
+extern uintptr_t _wrap_GetSymbols_llvm_a0e88c3155de3083(uintptr_t arg1);
+extern _Bool _wrap_IsSymbolIteratorAtEnd_llvm_a0e88c3155de3083(uintptr_t arg1, uintptr_t arg2);
+extern _Bool _wrap_LoadLibraryPermanently_llvm_a0e88c3155de3083(swig_voidp arg1);
+extern void _wrap_ParseCommandLineOptions_llvm_a0e88c3155de3083(swig_intgo arg1, swig_voidp arg2, swig_voidp arg3);
+extern uintptr_t _wrap_SearchForAddressOfSymbol_llvm_a0e88c3155de3083(swig_voidp arg1);
+extern void _wrap_AddSymbol_llvm_a0e88c3155de3083(swig_voidp arg1, uintptr_t arg2);
+extern swig_intgo _wrap_BigEndian_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_LittleEndian_llvm_a0e88c3155de3083(void);
+extern void _wrap_InitializeAllTargetInfos_llvm_a0e88c3155de3083(void);
+extern void _wrap_InitializeAllTargets_llvm_a0e88c3155de3083(void);
+extern void _wrap_InitializeAllTargetMCs_llvm_a0e88c3155de3083(void);
+extern void _wrap_InitializeAllAsmPrinters_llvm_a0e88c3155de3083(void);
+extern void _wrap_InitializeAllAsmParsers_llvm_a0e88c3155de3083(void);
+extern void _wrap_InitializeAllDisassemblers_llvm_a0e88c3155de3083(void);
+extern _Bool _wrap_InitializeNativeTarget_llvm_a0e88c3155de3083(void);
+extern _Bool _wrap_InitializeNativeAsmParser_llvm_a0e88c3155de3083(void);
+extern _Bool _wrap_InitializeNativeAsmPrinter_llvm_a0e88c3155de3083(void);
+extern _Bool _wrap_InitializeNativeDisassembler_llvm_a0e88c3155de3083(void);
+extern LLVMTargetDataRef _wrap_GetModuleDataLayout_llvm_a0e88c3155de3083(LLVMModuleRef arg1);
+extern void _wrap_SetModuleDataLayout_llvm_a0e88c3155de3083(LLVMModuleRef arg1, LLVMTargetDataRef arg2);
+extern LLVMTargetDataRef _wrap_CreateTargetData_llvm_a0e88c3155de3083(swig_voidp arg1);
+extern void _wrap_DisposeTargetData_llvm_a0e88c3155de3083(LLVMTargetDataRef arg1);
+extern void _wrap_AddTargetLibraryInfo_llvm_a0e88c3155de3083(LLVMTargetLibraryInfoRef arg1, LLVMPassManagerRef arg2);
+extern swig_voidp _wrap_CopyStringRepOfTargetData_llvm_a0e88c3155de3083(LLVMTargetDataRef arg1);
+extern swig_intgo _wrap_ByteOrder_llvm_a0e88c3155de3083(LLVMTargetDataRef arg1);
+extern swig_intgo _wrap_PointerSize_llvm_a0e88c3155de3083(LLVMTargetDataRef arg1);
+extern swig_intgo _wrap_PointerSizeForAS_llvm_a0e88c3155de3083(LLVMTargetDataRef arg1, swig_intgo arg2);
+extern LLVMTypeRef _wrap_IntPtrType_llvm_a0e88c3155de3083(LLVMTargetDataRef arg1);
+extern LLVMTypeRef _wrap_IntPtrTypeForAS_llvm_a0e88c3155de3083(LLVMTargetDataRef arg1, swig_intgo arg2);
+extern LLVMTypeRef _wrap_IntPtrTypeInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1, LLVMTargetDataRef arg2);
+extern LLVMTypeRef _wrap_IntPtrTypeForASInContext_llvm_a0e88c3155de3083(LLVMContextRef arg1, LLVMTargetDataRef arg2, swig_intgo arg3);
+extern swig_type_132 _wrap_SizeOfTypeInBits_llvm_a0e88c3155de3083(LLVMTargetDataRef arg1, LLVMTypeRef arg2);
+extern swig_type_133 _wrap_StoreSizeOfType_llvm_a0e88c3155de3083(LLVMTargetDataRef arg1, LLVMTypeRef arg2);
+extern swig_type_134 _wrap_ABISizeOfType_llvm_a0e88c3155de3083(LLVMTargetDataRef arg1, LLVMTypeRef arg2);
+extern swig_intgo _wrap_ABIAlignmentOfType_llvm_a0e88c3155de3083(LLVMTargetDataRef arg1, LLVMTypeRef arg2);
+extern swig_intgo _wrap_CallFrameAlignmentOfType_llvm_a0e88c3155de3083(LLVMTargetDataRef arg1, LLVMTypeRef arg2);
+extern swig_intgo _wrap_PreferredAlignmentOfType_llvm_a0e88c3155de3083(LLVMTargetDataRef arg1, LLVMTypeRef arg2);
+extern swig_intgo _wrap_PreferredAlignmentOfGlobal_llvm_a0e88c3155de3083(LLVMTargetDataRef arg1, LLVMValueRef arg2);
+extern swig_intgo _wrap_ElementAtOffset_llvm_a0e88c3155de3083(LLVMTargetDataRef arg1, LLVMTypeRef arg2, swig_type_135 arg3);
+extern swig_type_136 _wrap_OffsetOfElement_llvm_a0e88c3155de3083(LLVMTargetDataRef arg1, LLVMTypeRef arg2, swig_intgo arg3);
+extern swig_intgo _wrap_CodeGenLevelNone_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_CodeGenLevelLess_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_CodeGenLevelDefault_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_CodeGenLevelAggressive_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_RelocDefault_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_RelocStatic_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_RelocPIC_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_RelocDynamicNoPic_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_RelocROPI_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_RelocRWPI_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_RelocROPI_RWPI_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_CodeModelDefault_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_CodeModelJITDefault_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_CodeModelTiny_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_CodeModelSmall_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_CodeModelKernel_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_CodeModelMedium_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_CodeModelLarge_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_AssemblyFile_llvm_a0e88c3155de3083(void);
+extern swig_intgo _wrap_ObjectFile_llvm_a0e88c3155de3083(void);
+extern LLVMTargetRef _wrap_GetFirstTarget_llvm_a0e88c3155de3083(void);
+extern LLVMTargetRef _wrap_GetNextTarget_llvm_a0e88c3155de3083(LLVMTargetRef arg1);
+extern LLVMTargetRef _wrap_GetTargetFromName_llvm_a0e88c3155de3083(swig_voidp arg1);
+extern swig_voidp _wrap_GetTargetName_llvm_a0e88c3155de3083(LLVMTargetRef arg1);
+extern swig_voidp _wrap_GetTargetDescription_llvm_a0e88c3155de3083(LLVMTargetRef arg1);
+extern _Bool _wrap_TargetHasJIT_llvm_a0e88c3155de3083(LLVMTargetRef arg1);
+extern _Bool _wrap_TargetHasTargetMachine_llvm_a0e88c3155de3083(LLVMTargetRef arg1);
+extern _Bool _wrap_TargetHasAsmBackend_llvm_a0e88c3155de3083(LLVMTargetRef arg1);
+extern LLVMTargetMachineRef _wrap_CreateTargetMachine_llvm_a0e88c3155de3083(LLVMTargetRef arg1, swig_voidp arg2, swig_voidp arg3, swig_voidp arg4, swig_intgo arg5, swig_intgo arg6, swig_intgo arg7);
+extern void _wrap_DisposeTargetMachine_llvm_a0e88c3155de3083(LLVMTargetMachineRef arg1);
+extern LLVMTargetRef _wrap_GetTargetMachineTarget_llvm_a0e88c3155de3083(LLVMTargetMachineRef arg1);
+extern swig_voidp _wrap_GetTargetMachineTriple_llvm_a0e88c3155de3083(LLVMTargetMachineRef arg1);
+extern swig_voidp _wrap_GetTargetMachineCPU_llvm_a0e88c3155de3083(LLVMTargetMachineRef arg1);
+extern swig_voidp _wrap_GetTargetMachineFeatureString_llvm_a0e88c3155de3083(LLVMTargetMachineRef arg1);
+extern LLVMTargetDataRef _wrap_CreateTargetDataLayout_llvm_a0e88c3155de3083(LLVMTargetMachineRef arg1);
+extern void _wrap_SetTargetMachineAsmVerbosity_llvm_a0e88c3155de3083(LLVMTargetMachineRef arg1, _Bool arg2);
+extern _Bool _wrap_TargetMachineEmitToFile_llvm_a0e88c3155de3083(LLVMTargetMachineRef arg1, LLVMModuleRef arg2, swig_voidp arg3, swig_intgo arg4, swig_voidp arg5);
+extern _Bool _wrap_TargetMachineEmitToMemoryBuffer_llvm_a0e88c3155de3083(LLVMTargetMachineRef arg1, LLVMModuleRef arg2, swig_intgo arg3, swig_voidp arg4, uintptr_t arg5);
+extern swig_voidp _wrap_GetDefaultTargetTriple_llvm_a0e88c3155de3083(void);
+extern swig_voidp _wrap_NormalizeTargetTriple_llvm_a0e88c3155de3083(swig_voidp arg1);
+extern swig_voidp _wrap_GetHostCPUName_llvm_a0e88c3155de3083(void);
+extern swig_voidp _wrap_GetHostCPUFeatures_llvm_a0e88c3155de3083(void);
+extern void _wrap_AddAnalysisPasses_llvm_a0e88c3155de3083(LLVMTargetMachineRef arg1, LLVMPassManagerRef arg2);
 #undef intgo
 */
 import "C"
@@ -1650,13 +1623,13 @@ type _ sync.Mutex
 
 func Swig_free(arg1 uintptr) {
 	_swig_i_0 := arg1
-	C._wrap_Swig_free_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_Swig_free_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 func Swig_malloc(arg1 int) (_swig_ret uintptr) {
 	var swig_r uintptr
 	_swig_i_0 := arg1
-	swig_r = (uintptr)(C._wrap_Swig_malloc_llvm_5d1e3feecae2b244(C.swig_intgo(_swig_i_0)))
+	swig_r = (uintptr)(C._wrap_Swig_malloc_llvm_a0e88c3155de3083(C.swig_intgo(_swig_i_0)))
 	return swig_r
 }
 
@@ -1672,38 +1645,38 @@ func (p SwigcptrImaxdiv_t) SwigIsImaxdiv_t() {
 func (arg1 SwigcptrImaxdiv_t) SetQuot(arg2 int64) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_imaxdiv_t_quot_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_type_1(_swig_i_1))
+	C._wrap_imaxdiv_t_quot_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_type_1(_swig_i_1))
 }
 
 func (arg1 SwigcptrImaxdiv_t) GetQuot() (_swig_ret int64) {
 	var swig_r int64
 	_swig_i_0 := arg1
-	swig_r = (int64)(C._wrap_imaxdiv_t_quot_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (int64)(C._wrap_imaxdiv_t_quot_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func (arg1 SwigcptrImaxdiv_t) SetRem(arg2 int64) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_imaxdiv_t_rem_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_type_3(_swig_i_1))
+	C._wrap_imaxdiv_t_rem_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_type_3(_swig_i_1))
 }
 
 func (arg1 SwigcptrImaxdiv_t) GetRem() (_swig_ret int64) {
 	var swig_r int64
 	_swig_i_0 := arg1
-	swig_r = (int64)(C._wrap_imaxdiv_t_rem_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (int64)(C._wrap_imaxdiv_t_rem_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func NewImaxdiv_t() (_swig_ret Imaxdiv_t) {
 	var swig_r Imaxdiv_t
-	swig_r = (Imaxdiv_t)(SwigcptrImaxdiv_t(C._wrap_new_imaxdiv_t_llvm_5d1e3feecae2b244()))
+	swig_r = (Imaxdiv_t)(SwigcptrImaxdiv_t(C._wrap_new_imaxdiv_t_llvm_a0e88c3155de3083()))
 	return swig_r
 }
 
 func DeleteImaxdiv_t(arg1 Imaxdiv_t) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_delete_imaxdiv_t_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_delete_imaxdiv_t_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 type Imaxdiv_t interface {
@@ -1718,7 +1691,7 @@ type Imaxdiv_t interface {
 func Imaxabs(arg1 int64) (_swig_ret int64) {
 	var swig_r int64
 	_swig_i_0 := arg1
-	swig_r = (int64)(C._wrap_imaxabs_llvm_5d1e3feecae2b244(C.swig_type_6(_swig_i_0)))
+	swig_r = (int64)(C._wrap_imaxabs_llvm_a0e88c3155de3083(C.swig_type_6(_swig_i_0)))
 	return swig_r
 }
 
@@ -1726,7 +1699,7 @@ func Imaxdiv(arg1 int64, arg2 int64) (_swig_ret Imaxdiv_t) {
 	var swig_r Imaxdiv_t
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	swig_r = (Imaxdiv_t)(SwigcptrImaxdiv_t(C._wrap_imaxdiv_llvm_5d1e3feecae2b244(C.swig_type_7(_swig_i_0), C.swig_type_8(_swig_i_1))))
+	swig_r = (Imaxdiv_t)(SwigcptrImaxdiv_t(C._wrap_imaxdiv_llvm_a0e88c3155de3083(C.swig_type_7(_swig_i_0), C.swig_type_8(_swig_i_1))))
 	return swig_r
 }
 
@@ -1735,7 +1708,7 @@ func Strtoimax(arg1 string, arg2 *string, arg3 int) (_swig_ret int64) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	swig_r = (int64)(C._wrap_strtoimax_llvm_5d1e3feecae2b244(*(*C.swig_type_10)(unsafe.Pointer(&_swig_i_0)), C.swig_voidp(_swig_i_1), C.swig_intgo(_swig_i_2)))
+	swig_r = (int64)(C._wrap_strtoimax_llvm_a0e88c3155de3083(*(*C.swig_type_10)(unsafe.Pointer(&_swig_i_0)), C.swig_voidp(_swig_i_1), C.swig_intgo(_swig_i_2)))
 	if Swig_escape_always_false {
 		Swig_escape_val = arg1
 	}
@@ -1747,7 +1720,7 @@ func Strtoumax(arg1 string, arg2 *string, arg3 int) (_swig_ret uint64) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	swig_r = (uint64)(C._wrap_strtoumax_llvm_5d1e3feecae2b244(*(*C.swig_type_12)(unsafe.Pointer(&_swig_i_0)), C.swig_voidp(_swig_i_1), C.swig_intgo(_swig_i_2)))
+	swig_r = (uint64)(C._wrap_strtoumax_llvm_a0e88c3155de3083(*(*C.swig_type_12)(unsafe.Pointer(&_swig_i_0)), C.swig_voidp(_swig_i_1), C.swig_intgo(_swig_i_2)))
 	if Swig_escape_always_false {
 		Swig_escape_val = arg1
 	}
@@ -1756,22 +1729,22 @@ func Strtoumax(arg1 string, arg2 *string, arg3 int) (_swig_ret uint64) {
 
 func InstallFatalErrorHandler(arg1 _swig_fnptr) {
 	_swig_i_0 := arg1
-	C._wrap_InstallFatalErrorHandler_llvm_5d1e3feecae2b244(C.swig_type_13(_swig_i_0))
+	C._wrap_InstallFatalErrorHandler_llvm_a0e88c3155de3083(C.swig_type_13(_swig_i_0))
 }
 
 func ResetFatalErrorHandler() {
-	C._wrap_ResetFatalErrorHandler_llvm_5d1e3feecae2b244()
+	C._wrap_ResetFatalErrorHandler_llvm_a0e88c3155de3083()
 }
 
 func EnablePrettyStackTrace() {
-	C._wrap_EnablePrettyStackTrace_llvm_5d1e3feecae2b244()
+	C._wrap_EnablePrettyStackTrace_llvm_a0e88c3155de3083()
 }
 
 type LLVMVerifierFailureAction int
 
 func _swig_getAbortProcessAction() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AbortProcessAction_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AbortProcessAction_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -1779,7 +1752,7 @@ var AbortProcessAction int = _swig_getAbortProcessAction()
 
 func _swig_getPrintMessageAction() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_PrintMessageAction_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_PrintMessageAction_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -1787,7 +1760,7 @@ var PrintMessageAction int = _swig_getPrintMessageAction()
 
 func _swig_getReturnStatusAction() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ReturnStatusAction_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ReturnStatusAction_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -1805,7 +1778,7 @@ func VerifyModule(arg1 LLVMModuleRef, arg2 LLVMVerifierFailureAction, arg3 *stri
 	}
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	swig_r = (bool)(C._wrap_VerifyModule_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_voidp(_swig_i_2)))
+	swig_r = (bool)(C._wrap_VerifyModule_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_voidp(_swig_i_2)))
 	return swig_r
 }
 
@@ -1820,7 +1793,7 @@ func VerifyFunction(arg1 LLVMValueRef, arg2 LLVMVerifierFailureAction) (_swig_re
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (bool)(C._wrap_VerifyFunction_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1)))
+	swig_r = (bool)(C._wrap_VerifyFunction_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1)))
 	return swig_r
 }
 
@@ -1833,7 +1806,7 @@ func ViewFunctionCFG(arg1 LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_ViewFunctionCFG_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))
+	C._wrap_ViewFunctionCFG_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))
 }
 
 func ViewFunctionCFGOnly(arg1 LLVMValueRef) {
@@ -1845,7 +1818,7 @@ func ViewFunctionCFGOnly(arg1 LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_ViewFunctionCFGOnly_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))
+	C._wrap_ViewFunctionCFGOnly_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))
 }
 
 func ParseBitcode(arg1 LLVMMemoryBufferRef, arg2 LLVMModuleRef, arg3 *string) (_swig_ret bool) {
@@ -1860,7 +1833,7 @@ func ParseBitcode(arg1 LLVMMemoryBufferRef, arg2 LLVMModuleRef, arg3 *string) (_
 	}
 	_swig_i_1 := getSwigcptr(arg2)
 	_swig_i_2 := arg3
-	swig_r = (bool)(C._wrap_ParseBitcode_llvm_5d1e3feecae2b244(C.LLVMMemoryBufferRef(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_voidp(_swig_i_2)))
+	swig_r = (bool)(C._wrap_ParseBitcode_llvm_a0e88c3155de3083(C.LLVMMemoryBufferRef(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_voidp(_swig_i_2)))
 	return swig_r
 }
 
@@ -1875,7 +1848,7 @@ func ParseBitcode2(arg1 LLVMMemoryBufferRef, arg2 LLVMModuleRef) (_swig_ret bool
 		}
 	}
 	_swig_i_1 := getSwigcptr(arg2)
-	swig_r = (bool)(C._wrap_ParseBitcode2_llvm_5d1e3feecae2b244(C.LLVMMemoryBufferRef(_swig_i_0), C.uintptr_t(_swig_i_1)))
+	swig_r = (bool)(C._wrap_ParseBitcode2_llvm_a0e88c3155de3083(C.LLVMMemoryBufferRef(_swig_i_0), C.uintptr_t(_swig_i_1)))
 	return swig_r
 }
 
@@ -1899,7 +1872,7 @@ func ParseBitcodeInContext(arg1 LLVMContextRef, arg2 LLVMMemoryBufferRef, arg3 L
 	}
 	_swig_i_2 := getSwigcptr(arg3)
 	_swig_i_3 := arg4
-	swig_r = (bool)(C._wrap_ParseBitcodeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.LLVMMemoryBufferRef(_swig_i_1), C.uintptr_t(_swig_i_2), C.swig_voidp(_swig_i_3)))
+	swig_r = (bool)(C._wrap_ParseBitcodeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.LLVMMemoryBufferRef(_swig_i_1), C.uintptr_t(_swig_i_2), C.swig_voidp(_swig_i_3)))
 	return swig_r
 }
 
@@ -1922,7 +1895,7 @@ func ParseBitcodeInContext2(arg1 LLVMContextRef, arg2 LLVMMemoryBufferRef, arg3 
 		}
 	}
 	_swig_i_2 := getSwigcptr(arg3)
-	swig_r = (bool)(C._wrap_ParseBitcodeInContext2_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.LLVMMemoryBufferRef(_swig_i_1), C.uintptr_t(_swig_i_2)))
+	swig_r = (bool)(C._wrap_ParseBitcodeInContext2_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.LLVMMemoryBufferRef(_swig_i_1), C.uintptr_t(_swig_i_2)))
 	return swig_r
 }
 
@@ -1946,7 +1919,7 @@ func GetBitcodeModuleInContext(arg1 LLVMContextRef, arg2 LLVMMemoryBufferRef, ar
 	}
 	_swig_i_2 := getSwigcptr(arg3)
 	_swig_i_3 := arg4
-	swig_r = (bool)(C._wrap_GetBitcodeModuleInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.LLVMMemoryBufferRef(_swig_i_1), C.uintptr_t(_swig_i_2), C.swig_voidp(_swig_i_3)))
+	swig_r = (bool)(C._wrap_GetBitcodeModuleInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.LLVMMemoryBufferRef(_swig_i_1), C.uintptr_t(_swig_i_2), C.swig_voidp(_swig_i_3)))
 	return swig_r
 }
 
@@ -1969,7 +1942,7 @@ func GetBitcodeModuleInContext2(arg1 LLVMContextRef, arg2 LLVMMemoryBufferRef, a
 		}
 	}
 	_swig_i_2 := getSwigcptr(arg3)
-	swig_r = (bool)(C._wrap_GetBitcodeModuleInContext2_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.LLVMMemoryBufferRef(_swig_i_1), C.uintptr_t(_swig_i_2)))
+	swig_r = (bool)(C._wrap_GetBitcodeModuleInContext2_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.LLVMMemoryBufferRef(_swig_i_1), C.uintptr_t(_swig_i_2)))
 	return swig_r
 }
 
@@ -1985,7 +1958,7 @@ func GetBitcodeModule(arg1 LLVMMemoryBufferRef, arg2 LLVMModuleRef, arg3 *string
 	}
 	_swig_i_1 := getSwigcptr(arg2)
 	_swig_i_2 := arg3
-	swig_r = (bool)(C._wrap_GetBitcodeModule_llvm_5d1e3feecae2b244(C.LLVMMemoryBufferRef(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_voidp(_swig_i_2)))
+	swig_r = (bool)(C._wrap_GetBitcodeModule_llvm_a0e88c3155de3083(C.LLVMMemoryBufferRef(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_voidp(_swig_i_2)))
 	return swig_r
 }
 
@@ -2000,7 +1973,7 @@ func GetBitcodeModule2(arg1 LLVMMemoryBufferRef, arg2 LLVMModuleRef) (_swig_ret 
 		}
 	}
 	_swig_i_1 := getSwigcptr(arg2)
-	swig_r = (bool)(C._wrap_GetBitcodeModule2_llvm_5d1e3feecae2b244(C.LLVMMemoryBufferRef(_swig_i_0), C.uintptr_t(_swig_i_1)))
+	swig_r = (bool)(C._wrap_GetBitcodeModule2_llvm_a0e88c3155de3083(C.LLVMMemoryBufferRef(_swig_i_0), C.uintptr_t(_swig_i_1)))
 	return swig_r
 }
 
@@ -2021,7 +1994,7 @@ func WriteBitcodeToFile(arg1 LLVMModuleRef, arg2 string) (_swig_ret int) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	swig_r = (int)(C._wrap_WriteBitcodeToFile_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (int)(C._wrap_WriteBitcodeToFile_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	return swig_r
 }
 
@@ -2038,7 +2011,7 @@ func WriteBitcodeToFD(arg1 LLVMModuleRef, arg2 int, arg3 int, arg4 int) (_swig_r
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
 	_swig_i_3 := arg4
-	swig_r = (int)(C._wrap_WriteBitcodeToFD_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_intgo(_swig_i_3)))
+	swig_r = (int)(C._wrap_WriteBitcodeToFD_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_intgo(_swig_i_3)))
 	return swig_r
 }
 
@@ -2053,7 +2026,7 @@ func WriteBitcodeToFileHandle(arg1 LLVMModuleRef, arg2 int) (_swig_ret int) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (int)(C._wrap_WriteBitcodeToFileHandle_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_intgo(_swig_i_1)))
+	swig_r = (int)(C._wrap_WriteBitcodeToFileHandle_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_intgo(_swig_i_1)))
 	return swig_r
 }
 
@@ -2067,7 +2040,7 @@ func WriteBitcodeToMemoryBuffer(arg1 LLVMModuleRef) (_swig_ret LLVMMemoryBufferR
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_WriteBitcodeToMemoryBuffer_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_WriteBitcodeToMemoryBuffer_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0))))
 	var swig_r_1 LLVMMemoryBufferRef
 	{
 		if swig_r == nil {
@@ -2098,90 +2071,90 @@ func (p SwigcptrLlvm_blake3_chunk_state) SwigIsLlvm_blake3_chunk_state() {
 func (arg1 SwigcptrLlvm_blake3_chunk_state) SetCv(arg2 *uint) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_llvm_blake3_chunk_state_cv_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1))
+	C._wrap_llvm_blake3_chunk_state_cv_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1))
 }
 
 func (arg1 SwigcptrLlvm_blake3_chunk_state) GetCv() (_swig_ret *uint) {
 	var swig_r *uint
 	_swig_i_0 := arg1
-	swig_r = (*uint)(C._wrap_llvm_blake3_chunk_state_cv_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (*uint)(C._wrap_llvm_blake3_chunk_state_cv_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func (arg1 SwigcptrLlvm_blake3_chunk_state) SetChunk_counter(arg2 uint64) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_llvm_blake3_chunk_state_chunk_counter_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_type_14(_swig_i_1))
+	C._wrap_llvm_blake3_chunk_state_chunk_counter_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_type_14(_swig_i_1))
 }
 
 func (arg1 SwigcptrLlvm_blake3_chunk_state) GetChunk_counter() (_swig_ret uint64) {
 	var swig_r uint64
 	_swig_i_0 := arg1
-	swig_r = (uint64)(C._wrap_llvm_blake3_chunk_state_chunk_counter_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (uint64)(C._wrap_llvm_blake3_chunk_state_chunk_counter_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func (arg1 SwigcptrLlvm_blake3_chunk_state) SetBuf(arg2 *byte) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_llvm_blake3_chunk_state_buf_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1))
+	C._wrap_llvm_blake3_chunk_state_buf_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1))
 }
 
 func (arg1 SwigcptrLlvm_blake3_chunk_state) GetBuf() (_swig_ret *byte) {
 	var swig_r *byte
 	_swig_i_0 := arg1
-	swig_r = (*byte)(C._wrap_llvm_blake3_chunk_state_buf_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (*byte)(C._wrap_llvm_blake3_chunk_state_buf_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func (arg1 SwigcptrLlvm_blake3_chunk_state) SetBuf_len(arg2 byte) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_llvm_blake3_chunk_state_buf_len_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.char(_swig_i_1))
+	C._wrap_llvm_blake3_chunk_state_buf_len_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.char(_swig_i_1))
 }
 
 func (arg1 SwigcptrLlvm_blake3_chunk_state) GetBuf_len() (_swig_ret byte) {
 	var swig_r byte
 	_swig_i_0 := arg1
-	swig_r = (byte)(C._wrap_llvm_blake3_chunk_state_buf_len_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (byte)(C._wrap_llvm_blake3_chunk_state_buf_len_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func (arg1 SwigcptrLlvm_blake3_chunk_state) SetBlocks_compressed(arg2 byte) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_llvm_blake3_chunk_state_blocks_compressed_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.char(_swig_i_1))
+	C._wrap_llvm_blake3_chunk_state_blocks_compressed_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.char(_swig_i_1))
 }
 
 func (arg1 SwigcptrLlvm_blake3_chunk_state) GetBlocks_compressed() (_swig_ret byte) {
 	var swig_r byte
 	_swig_i_0 := arg1
-	swig_r = (byte)(C._wrap_llvm_blake3_chunk_state_blocks_compressed_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (byte)(C._wrap_llvm_blake3_chunk_state_blocks_compressed_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func (arg1 SwigcptrLlvm_blake3_chunk_state) SetFlags(arg2 byte) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_llvm_blake3_chunk_state_flags_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.char(_swig_i_1))
+	C._wrap_llvm_blake3_chunk_state_flags_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.char(_swig_i_1))
 }
 
 func (arg1 SwigcptrLlvm_blake3_chunk_state) GetFlags() (_swig_ret byte) {
 	var swig_r byte
 	_swig_i_0 := arg1
-	swig_r = (byte)(C._wrap_llvm_blake3_chunk_state_flags_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (byte)(C._wrap_llvm_blake3_chunk_state_flags_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func NewLlvm_blake3_chunk_state() (_swig_ret Llvm_blake3_chunk_state) {
 	var swig_r Llvm_blake3_chunk_state
-	swig_r = (Llvm_blake3_chunk_state)(SwigcptrLlvm_blake3_chunk_state(C._wrap_new_llvm_blake3_chunk_state_llvm_5d1e3feecae2b244()))
+	swig_r = (Llvm_blake3_chunk_state)(SwigcptrLlvm_blake3_chunk_state(C._wrap_new_llvm_blake3_chunk_state_llvm_a0e88c3155de3083()))
 	return swig_r
 }
 
 func DeleteLlvm_blake3_chunk_state(arg1 Llvm_blake3_chunk_state) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_delete_llvm_blake3_chunk_state_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_delete_llvm_blake3_chunk_state_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 type Llvm_blake3_chunk_state interface {
@@ -2213,64 +2186,64 @@ func (p SwigcptrLlvm_blake3_hasher) SwigIsLlvm_blake3_hasher() {
 func (arg1 SwigcptrLlvm_blake3_hasher) SetKey(arg2 *uint) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_llvm_blake3_hasher_key_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1))
+	C._wrap_llvm_blake3_hasher_key_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1))
 }
 
 func (arg1 SwigcptrLlvm_blake3_hasher) GetKey() (_swig_ret *uint) {
 	var swig_r *uint
 	_swig_i_0 := arg1
-	swig_r = (*uint)(C._wrap_llvm_blake3_hasher_key_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (*uint)(C._wrap_llvm_blake3_hasher_key_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func (arg1 SwigcptrLlvm_blake3_hasher) SetChunk(arg2 Llvm_blake3_chunk_state) {
 	_swig_i_0 := arg1
 	_swig_i_1 := getSwigcptr(arg2)
-	C._wrap_llvm_blake3_hasher_chunk_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1))
+	C._wrap_llvm_blake3_hasher_chunk_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1))
 }
 
 func (arg1 SwigcptrLlvm_blake3_hasher) GetChunk() (_swig_ret Llvm_blake3_chunk_state) {
 	var swig_r Llvm_blake3_chunk_state
 	_swig_i_0 := arg1
-	swig_r = (Llvm_blake3_chunk_state)(SwigcptrLlvm_blake3_chunk_state(C._wrap_llvm_blake3_hasher_chunk_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))))
+	swig_r = (Llvm_blake3_chunk_state)(SwigcptrLlvm_blake3_chunk_state(C._wrap_llvm_blake3_hasher_chunk_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))))
 	return swig_r
 }
 
 func (arg1 SwigcptrLlvm_blake3_hasher) SetCv_stack_len(arg2 byte) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_llvm_blake3_hasher_cv_stack_len_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.char(_swig_i_1))
+	C._wrap_llvm_blake3_hasher_cv_stack_len_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.char(_swig_i_1))
 }
 
 func (arg1 SwigcptrLlvm_blake3_hasher) GetCv_stack_len() (_swig_ret byte) {
 	var swig_r byte
 	_swig_i_0 := arg1
-	swig_r = (byte)(C._wrap_llvm_blake3_hasher_cv_stack_len_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (byte)(C._wrap_llvm_blake3_hasher_cv_stack_len_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func (arg1 SwigcptrLlvm_blake3_hasher) SetCv_stack(arg2 *byte) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_llvm_blake3_hasher_cv_stack_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1))
+	C._wrap_llvm_blake3_hasher_cv_stack_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1))
 }
 
 func (arg1 SwigcptrLlvm_blake3_hasher) GetCv_stack() (_swig_ret *byte) {
 	var swig_r *byte
 	_swig_i_0 := arg1
-	swig_r = (*byte)(C._wrap_llvm_blake3_hasher_cv_stack_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (*byte)(C._wrap_llvm_blake3_hasher_cv_stack_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func NewLlvm_blake3_hasher() (_swig_ret Llvm_blake3_hasher) {
 	var swig_r Llvm_blake3_hasher
-	swig_r = (Llvm_blake3_hasher)(SwigcptrLlvm_blake3_hasher(C._wrap_new_llvm_blake3_hasher_llvm_5d1e3feecae2b244()))
+	swig_r = (Llvm_blake3_hasher)(SwigcptrLlvm_blake3_hasher(C._wrap_new_llvm_blake3_hasher_llvm_a0e88c3155de3083()))
 	return swig_r
 }
 
 func DeleteLlvm_blake3_hasher(arg1 Llvm_blake3_hasher) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_delete_llvm_blake3_hasher_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_delete_llvm_blake3_hasher_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 type Llvm_blake3_hasher interface {
@@ -2288,7 +2261,7 @@ type Llvm_blake3_hasher interface {
 
 func Llvm_blake3_version() (_swig_ret string) {
 	var swig_r *C.char
-	swig_r = (*C.char)(C._wrap_llvm_blake3_version_llvm_5d1e3feecae2b244())
+	swig_r = (*C.char)(C._wrap_llvm_blake3_version_llvm_a0e88c3155de3083())
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -2301,13 +2274,13 @@ func Llvm_blake3_version() (_swig_ret string) {
 
 func Llvm_blake3_hasher_init(arg1 Llvm_blake3_hasher) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_llvm_blake3_hasher_init_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_llvm_blake3_hasher_init_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 func Llvm_blake3_hasher_init_keyed(arg1 Llvm_blake3_hasher, arg2 *byte) {
 	_swig_i_0 := getSwigcptr(arg1)
 	_swig_i_1 := arg2
-	C._wrap_llvm_blake3_hasher_init_keyed_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1))
+	C._wrap_llvm_blake3_hasher_init_keyed_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1))
 }
 
 func Llvm_blake3_hasher_init_derive_key(arg1 Llvm_blake3_hasher, arg2 string) {
@@ -2319,28 +2292,28 @@ func Llvm_blake3_hasher_init_derive_key(arg1 Llvm_blake3_hasher, arg2 string) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	C._wrap_llvm_blake3_hasher_init_derive_key_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1))
+	C._wrap_llvm_blake3_hasher_init_derive_key_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1))
 }
 
 func Llvm_blake3_hasher_init_derive_key_raw(arg1 Llvm_blake3_hasher, arg2 uintptr, arg3 int64) {
 	_swig_i_0 := getSwigcptr(arg1)
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	C._wrap_llvm_blake3_hasher_init_derive_key_raw_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_type_16(_swig_i_2))
+	C._wrap_llvm_blake3_hasher_init_derive_key_raw_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_type_16(_swig_i_2))
 }
 
 func Llvm_blake3_hasher_update(arg1 Llvm_blake3_hasher, arg2 uintptr, arg3 int64) {
 	_swig_i_0 := getSwigcptr(arg1)
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	C._wrap_llvm_blake3_hasher_update_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_type_17(_swig_i_2))
+	C._wrap_llvm_blake3_hasher_update_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_type_17(_swig_i_2))
 }
 
 func Llvm_blake3_hasher_finalize(arg1 Llvm_blake3_hasher, arg2 *byte, arg3 int64) {
 	_swig_i_0 := getSwigcptr(arg1)
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	C._wrap_llvm_blake3_hasher_finalize_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_18(_swig_i_2))
+	C._wrap_llvm_blake3_hasher_finalize_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_18(_swig_i_2))
 }
 
 func Llvm_blake3_hasher_finalize_seek(arg1 Llvm_blake3_hasher, arg2 uint64, arg3 *byte, arg4 int64) {
@@ -2348,19 +2321,19 @@ func Llvm_blake3_hasher_finalize_seek(arg1 Llvm_blake3_hasher, arg2 uint64, arg3
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
 	_swig_i_3 := arg4
-	C._wrap_llvm_blake3_hasher_finalize_seek_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_type_19(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_type_20(_swig_i_3))
+	C._wrap_llvm_blake3_hasher_finalize_seek_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_type_19(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_type_20(_swig_i_3))
 }
 
 func Llvm_blake3_hasher_reset(arg1 Llvm_blake3_hasher) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_llvm_blake3_hasher_reset_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_llvm_blake3_hasher_reset_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 type LLVMComdatSelectionKind int
 
 func _swig_getAnyComdatSelectionKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AnyComdatSelectionKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AnyComdatSelectionKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2368,7 +2341,7 @@ var AnyComdatSelectionKind int = _swig_getAnyComdatSelectionKind()
 
 func _swig_getExactMatchComdatSelectionKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ExactMatchComdatSelectionKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ExactMatchComdatSelectionKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2376,7 +2349,7 @@ var ExactMatchComdatSelectionKind int = _swig_getExactMatchComdatSelectionKind()
 
 func _swig_getLargestComdatSelectionKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_LargestComdatSelectionKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_LargestComdatSelectionKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2384,7 +2357,7 @@ var LargestComdatSelectionKind int = _swig_getLargestComdatSelectionKind()
 
 func _swig_getNoDeduplicateComdatSelectionKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_NoDeduplicateComdatSelectionKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_NoDeduplicateComdatSelectionKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2392,7 +2365,7 @@ var NoDeduplicateComdatSelectionKind int = _swig_getNoDeduplicateComdatSelection
 
 func _swig_getSameSizeComdatSelectionKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_SameSizeComdatSelectionKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_SameSizeComdatSelectionKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2415,7 +2388,7 @@ func GetOrInsertComdat(arg1 LLVMModuleRef, arg2 string) (_swig_ret LLVMComdatRef
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetOrInsertComdat_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetOrInsertComdat_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	var swig_r_1 LLVMComdatRef
 	{
 		if swig_r == nil {
@@ -2437,7 +2410,7 @@ func GetComdat(arg1 LLVMValueRef) (_swig_ret LLVMComdatRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetComdat_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetComdat_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMComdatRef
 	{
 		if swig_r == nil {
@@ -2466,7 +2439,7 @@ func SetComdat(arg1 LLVMValueRef, arg2 LLVMComdatRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_SetComdat_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMComdatRef(_swig_i_1))
+	C._wrap_SetComdat_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMComdatRef(_swig_i_1))
 }
 
 func GetComdatSelectionKind(arg1 LLVMComdatRef) (_swig_ret LLVMComdatSelectionKind) {
@@ -2479,7 +2452,7 @@ func GetComdatSelectionKind(arg1 LLVMComdatRef) (_swig_ret LLVMComdatSelectionKi
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (LLVMComdatSelectionKind)(C._wrap_GetComdatSelectionKind_llvm_5d1e3feecae2b244(C.LLVMComdatRef(_swig_i_0)))
+	swig_r = (LLVMComdatSelectionKind)(C._wrap_GetComdatSelectionKind_llvm_a0e88c3155de3083(C.LLVMComdatRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -2493,14 +2466,14 @@ func SetComdatSelectionKind(arg1 LLVMComdatRef, arg2 LLVMComdatSelectionKind) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetComdatSelectionKind_llvm_5d1e3feecae2b244(C.LLVMComdatRef(_swig_i_0), C.swig_intgo(_swig_i_1))
+	C._wrap_SetComdatSelectionKind_llvm_a0e88c3155de3083(C.LLVMComdatRef(_swig_i_0), C.swig_intgo(_swig_i_1))
 }
 
 type LLVMOpcode int
 
 func _swig_getRet() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_Ret_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_Ret_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2508,7 +2481,7 @@ var Ret int = _swig_getRet()
 
 func _swig_getBr() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_Br_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_Br_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2516,7 +2489,7 @@ var Br int = _swig_getBr()
 
 func _swig_getSwitch() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_Switch_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_Switch_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2524,7 +2497,7 @@ var Switch int = _swig_getSwitch()
 
 func _swig_getIndirectBr() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_IndirectBr_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_IndirectBr_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2532,7 +2505,7 @@ var IndirectBr int = _swig_getIndirectBr()
 
 func _swig_getInvoke() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_Invoke_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_Invoke_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2540,7 +2513,7 @@ var Invoke int = _swig_getInvoke()
 
 func _swig_getUnreachable() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_Unreachable_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_Unreachable_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2548,7 +2521,7 @@ var Unreachable int = _swig_getUnreachable()
 
 func _swig_getCallBr() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_CallBr_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_CallBr_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2556,7 +2529,7 @@ var CallBr int = _swig_getCallBr()
 
 func _swig_getFNeg() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_FNeg_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_FNeg_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2564,7 +2537,7 @@ var FNeg int = _swig_getFNeg()
 
 func _swig_getAdd() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_Add_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_Add_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2572,7 +2545,7 @@ var Add int = _swig_getAdd()
 
 func _swig_getFAdd() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_FAdd_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_FAdd_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2580,7 +2553,7 @@ var FAdd int = _swig_getFAdd()
 
 func _swig_getSub() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_Sub_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_Sub_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2588,7 +2561,7 @@ var Sub int = _swig_getSub()
 
 func _swig_getFSub() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_FSub_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_FSub_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2596,7 +2569,7 @@ var FSub int = _swig_getFSub()
 
 func _swig_getMul() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_Mul_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_Mul_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2604,7 +2577,7 @@ var Mul int = _swig_getMul()
 
 func _swig_getFMul() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_FMul_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_FMul_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2612,7 +2585,7 @@ var FMul int = _swig_getFMul()
 
 func _swig_getUDiv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_UDiv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_UDiv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2620,7 +2593,7 @@ var UDiv int = _swig_getUDiv()
 
 func _swig_getSDiv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_SDiv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_SDiv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2628,7 +2601,7 @@ var SDiv int = _swig_getSDiv()
 
 func _swig_getFDiv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_FDiv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_FDiv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2636,7 +2609,7 @@ var FDiv int = _swig_getFDiv()
 
 func _swig_getURem() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_URem_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_URem_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2644,7 +2617,7 @@ var URem int = _swig_getURem()
 
 func _swig_getSRem() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_SRem_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_SRem_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2652,7 +2625,7 @@ var SRem int = _swig_getSRem()
 
 func _swig_getFRem() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_FRem_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_FRem_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2660,7 +2633,7 @@ var FRem int = _swig_getFRem()
 
 func _swig_getShl() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_Shl_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_Shl_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2668,7 +2641,7 @@ var Shl int = _swig_getShl()
 
 func _swig_getLShr() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_LShr_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_LShr_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2676,7 +2649,7 @@ var LShr int = _swig_getLShr()
 
 func _swig_getAShr() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AShr_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AShr_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2684,7 +2657,7 @@ var AShr int = _swig_getAShr()
 
 func _swig_getAnd() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_And_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_And_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2692,7 +2665,7 @@ var And int = _swig_getAnd()
 
 func _swig_getOr() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_Or_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_Or_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2700,7 +2673,7 @@ var Or int = _swig_getOr()
 
 func _swig_getXor() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_Xor_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_Xor_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2708,7 +2681,7 @@ var Xor int = _swig_getXor()
 
 func _swig_getAlloca() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_Alloca_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_Alloca_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2716,7 +2689,7 @@ var Alloca int = _swig_getAlloca()
 
 func _swig_getLoad() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_Load_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_Load_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2724,7 +2697,7 @@ var Load int = _swig_getLoad()
 
 func _swig_getStore() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_Store_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_Store_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2732,7 +2705,7 @@ var Store int = _swig_getStore()
 
 func _swig_getGetElementPtr() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_GetElementPtr_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_GetElementPtr_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2740,7 +2713,7 @@ var GetElementPtr int = _swig_getGetElementPtr()
 
 func _swig_getTrunc() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_Trunc_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_Trunc_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2748,7 +2721,7 @@ var Trunc int = _swig_getTrunc()
 
 func _swig_getZExt() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ZExt_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ZExt_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2756,7 +2729,7 @@ var ZExt int = _swig_getZExt()
 
 func _swig_getSExt() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_SExt_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_SExt_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2764,7 +2737,7 @@ var SExt int = _swig_getSExt()
 
 func _swig_getFPToUI() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_FPToUI_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_FPToUI_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2772,7 +2745,7 @@ var FPToUI int = _swig_getFPToUI()
 
 func _swig_getFPToSI() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_FPToSI_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_FPToSI_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2780,7 +2753,7 @@ var FPToSI int = _swig_getFPToSI()
 
 func _swig_getUIToFP() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_UIToFP_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_UIToFP_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2788,7 +2761,7 @@ var UIToFP int = _swig_getUIToFP()
 
 func _swig_getSIToFP() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_SIToFP_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_SIToFP_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2796,7 +2769,7 @@ var SIToFP int = _swig_getSIToFP()
 
 func _swig_getFPTrunc() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_FPTrunc_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_FPTrunc_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2804,7 +2777,7 @@ var FPTrunc int = _swig_getFPTrunc()
 
 func _swig_getFPExt() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_FPExt_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_FPExt_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2812,7 +2785,7 @@ var FPExt int = _swig_getFPExt()
 
 func _swig_getPtrToInt() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_PtrToInt_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_PtrToInt_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2820,7 +2793,7 @@ var PtrToInt int = _swig_getPtrToInt()
 
 func _swig_getIntToPtr() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_IntToPtr_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_IntToPtr_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2828,7 +2801,7 @@ var IntToPtr int = _swig_getIntToPtr()
 
 func _swig_getBitCast() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_BitCast_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_BitCast_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2836,7 +2809,7 @@ var BitCast int = _swig_getBitCast()
 
 func _swig_getAddrSpaceCast() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AddrSpaceCast_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AddrSpaceCast_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2844,7 +2817,7 @@ var AddrSpaceCast int = _swig_getAddrSpaceCast()
 
 func _swig_getICmp() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ICmp_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ICmp_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2852,7 +2825,7 @@ var ICmp int = _swig_getICmp()
 
 func _swig_getFCmp() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_FCmp_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_FCmp_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2860,7 +2833,7 @@ var FCmp int = _swig_getFCmp()
 
 func _swig_getPHI() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_PHI_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_PHI_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2868,7 +2841,7 @@ var PHI int = _swig_getPHI()
 
 func _swig_getCall() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_Call_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_Call_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2876,7 +2849,7 @@ var Call int = _swig_getCall()
 
 func _swig_getSelect() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_Select_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_Select_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2884,7 +2857,7 @@ var Select int = _swig_getSelect()
 
 func _swig_getUserOp1() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_UserOp1_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_UserOp1_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2892,7 +2865,7 @@ var UserOp1 int = _swig_getUserOp1()
 
 func _swig_getUserOp2() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_UserOp2_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_UserOp2_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2900,7 +2873,7 @@ var UserOp2 int = _swig_getUserOp2()
 
 func _swig_getVAArg() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_VAArg_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_VAArg_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2908,7 +2881,7 @@ var VAArg int = _swig_getVAArg()
 
 func _swig_getExtractElement() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ExtractElement_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ExtractElement_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2916,7 +2889,7 @@ var ExtractElement int = _swig_getExtractElement()
 
 func _swig_getInsertElement() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_InsertElement_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_InsertElement_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2924,7 +2897,7 @@ var InsertElement int = _swig_getInsertElement()
 
 func _swig_getShuffleVector() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ShuffleVector_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ShuffleVector_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2932,7 +2905,7 @@ var ShuffleVector int = _swig_getShuffleVector()
 
 func _swig_getExtractValue() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ExtractValue_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ExtractValue_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2940,7 +2913,7 @@ var ExtractValue int = _swig_getExtractValue()
 
 func _swig_getInsertValue() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_InsertValue_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_InsertValue_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2948,7 +2921,7 @@ var InsertValue int = _swig_getInsertValue()
 
 func _swig_getFreeze() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_Freeze_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_Freeze_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2956,7 +2929,7 @@ var Freeze int = _swig_getFreeze()
 
 func _swig_getFence() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_Fence_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_Fence_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2964,7 +2937,7 @@ var Fence int = _swig_getFence()
 
 func _swig_getAtomicCmpXchg() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicCmpXchg_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicCmpXchg_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2972,7 +2945,7 @@ var AtomicCmpXchg int = _swig_getAtomicCmpXchg()
 
 func _swig_getAtomicRMW() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicRMW_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicRMW_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2980,7 +2953,7 @@ var AtomicRMW int = _swig_getAtomicRMW()
 
 func _swig_getResume() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_Resume_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_Resume_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2988,7 +2961,7 @@ var Resume int = _swig_getResume()
 
 func _swig_getLandingPad() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_LandingPad_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_LandingPad_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -2996,7 +2969,7 @@ var LandingPad int = _swig_getLandingPad()
 
 func _swig_getCleanupRet() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_CleanupRet_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_CleanupRet_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3004,7 +2977,7 @@ var CleanupRet int = _swig_getCleanupRet()
 
 func _swig_getCatchRet() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_CatchRet_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_CatchRet_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3012,7 +2985,7 @@ var CatchRet int = _swig_getCatchRet()
 
 func _swig_getCatchPad() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_CatchPad_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_CatchPad_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3020,7 +2993,7 @@ var CatchPad int = _swig_getCatchPad()
 
 func _swig_getCleanupPad() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_CleanupPad_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_CleanupPad_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3028,7 +3001,7 @@ var CleanupPad int = _swig_getCleanupPad()
 
 func _swig_getCatchSwitch() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_CatchSwitch_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_CatchSwitch_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3038,7 +3011,7 @@ type LLVMLinkage int
 
 func _swig_getExternalLinkage() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ExternalLinkage_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ExternalLinkage_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3046,7 +3019,7 @@ var ExternalLinkage int = _swig_getExternalLinkage()
 
 func _swig_getAvailableExternallyLinkage() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AvailableExternallyLinkage_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AvailableExternallyLinkage_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3054,7 +3027,7 @@ var AvailableExternallyLinkage int = _swig_getAvailableExternallyLinkage()
 
 func _swig_getLinkOnceAnyLinkage() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_LinkOnceAnyLinkage_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_LinkOnceAnyLinkage_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3062,7 +3035,7 @@ var LinkOnceAnyLinkage int = _swig_getLinkOnceAnyLinkage()
 
 func _swig_getLinkOnceODRLinkage() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_LinkOnceODRLinkage_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_LinkOnceODRLinkage_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3070,7 +3043,7 @@ var LinkOnceODRLinkage int = _swig_getLinkOnceODRLinkage()
 
 func _swig_getLinkOnceODRAutoHideLinkage() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_LinkOnceODRAutoHideLinkage_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_LinkOnceODRAutoHideLinkage_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3078,7 +3051,7 @@ var LinkOnceODRAutoHideLinkage int = _swig_getLinkOnceODRAutoHideLinkage()
 
 func _swig_getWeakAnyLinkage() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_WeakAnyLinkage_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_WeakAnyLinkage_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3086,7 +3059,7 @@ var WeakAnyLinkage int = _swig_getWeakAnyLinkage()
 
 func _swig_getWeakODRLinkage() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_WeakODRLinkage_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_WeakODRLinkage_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3094,7 +3067,7 @@ var WeakODRLinkage int = _swig_getWeakODRLinkage()
 
 func _swig_getAppendingLinkage() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AppendingLinkage_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AppendingLinkage_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3102,7 +3075,7 @@ var AppendingLinkage int = _swig_getAppendingLinkage()
 
 func _swig_getInternalLinkage() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_InternalLinkage_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_InternalLinkage_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3110,7 +3083,7 @@ var InternalLinkage int = _swig_getInternalLinkage()
 
 func _swig_getPrivateLinkage() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_PrivateLinkage_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_PrivateLinkage_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3118,7 +3091,7 @@ var PrivateLinkage int = _swig_getPrivateLinkage()
 
 func _swig_getDLLImportLinkage() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DLLImportLinkage_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DLLImportLinkage_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3126,7 +3099,7 @@ var DLLImportLinkage int = _swig_getDLLImportLinkage()
 
 func _swig_getDLLExportLinkage() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DLLExportLinkage_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DLLExportLinkage_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3134,7 +3107,7 @@ var DLLExportLinkage int = _swig_getDLLExportLinkage()
 
 func _swig_getExternalWeakLinkage() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ExternalWeakLinkage_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ExternalWeakLinkage_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3142,7 +3115,7 @@ var ExternalWeakLinkage int = _swig_getExternalWeakLinkage()
 
 func _swig_getGhostLinkage() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_GhostLinkage_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_GhostLinkage_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3150,7 +3123,7 @@ var GhostLinkage int = _swig_getGhostLinkage()
 
 func _swig_getCommonLinkage() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_CommonLinkage_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_CommonLinkage_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3158,7 +3131,7 @@ var CommonLinkage int = _swig_getCommonLinkage()
 
 func _swig_getLinkerPrivateLinkage() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_LinkerPrivateLinkage_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_LinkerPrivateLinkage_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3166,7 +3139,7 @@ var LinkerPrivateLinkage int = _swig_getLinkerPrivateLinkage()
 
 func _swig_getLinkerPrivateWeakLinkage() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_LinkerPrivateWeakLinkage_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_LinkerPrivateWeakLinkage_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3176,7 +3149,7 @@ type LLVMVisibility int
 
 func _swig_getDefaultVisibility() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DefaultVisibility_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DefaultVisibility_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3184,7 +3157,7 @@ var DefaultVisibility int = _swig_getDefaultVisibility()
 
 func _swig_getHiddenVisibility() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_HiddenVisibility_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_HiddenVisibility_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3192,7 +3165,7 @@ var HiddenVisibility int = _swig_getHiddenVisibility()
 
 func _swig_getProtectedVisibility() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ProtectedVisibility_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ProtectedVisibility_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3202,7 +3175,7 @@ type LLVMUnnamedAddr int
 
 func _swig_getNoUnnamedAddr() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_NoUnnamedAddr_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_NoUnnamedAddr_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3210,7 +3183,7 @@ var NoUnnamedAddr int = _swig_getNoUnnamedAddr()
 
 func _swig_getLocalUnnamedAddr() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_LocalUnnamedAddr_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_LocalUnnamedAddr_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3218,7 +3191,7 @@ var LocalUnnamedAddr int = _swig_getLocalUnnamedAddr()
 
 func _swig_getGlobalUnnamedAddr() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_GlobalUnnamedAddr_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_GlobalUnnamedAddr_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3228,7 +3201,7 @@ type LLVMDLLStorageClass int
 
 func _swig_getDefaultStorageClass() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DefaultStorageClass_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DefaultStorageClass_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3236,7 +3209,7 @@ var DefaultStorageClass int = _swig_getDefaultStorageClass()
 
 func _swig_getDLLImportStorageClass() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DLLImportStorageClass_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DLLImportStorageClass_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3244,7 +3217,7 @@ var DLLImportStorageClass int = _swig_getDLLImportStorageClass()
 
 func _swig_getDLLExportStorageClass() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DLLExportStorageClass_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DLLExportStorageClass_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3254,7 +3227,7 @@ type LLVMCallConv int
 
 func _swig_getCCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_CCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_CCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3262,7 +3235,7 @@ var CCallConv int = _swig_getCCallConv()
 
 func _swig_getFastCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_FastCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_FastCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3270,7 +3243,7 @@ var FastCallConv int = _swig_getFastCallConv()
 
 func _swig_getColdCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ColdCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ColdCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3278,7 +3251,7 @@ var ColdCallConv int = _swig_getColdCallConv()
 
 func _swig_getGHCCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_GHCCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_GHCCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3286,7 +3259,7 @@ var GHCCallConv int = _swig_getGHCCallConv()
 
 func _swig_getHiPECallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_HiPECallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_HiPECallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3294,7 +3267,7 @@ var HiPECallConv int = _swig_getHiPECallConv()
 
 func _swig_getWebKitJSCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_WebKitJSCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_WebKitJSCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3302,7 +3275,7 @@ var WebKitJSCallConv int = _swig_getWebKitJSCallConv()
 
 func _swig_getAnyRegCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AnyRegCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AnyRegCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3310,7 +3283,7 @@ var AnyRegCallConv int = _swig_getAnyRegCallConv()
 
 func _swig_getPreserveMostCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_PreserveMostCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_PreserveMostCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3318,7 +3291,7 @@ var PreserveMostCallConv int = _swig_getPreserveMostCallConv()
 
 func _swig_getPreserveAllCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_PreserveAllCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_PreserveAllCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3326,7 +3299,7 @@ var PreserveAllCallConv int = _swig_getPreserveAllCallConv()
 
 func _swig_getSwiftCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_SwiftCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_SwiftCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3334,7 +3307,7 @@ var SwiftCallConv int = _swig_getSwiftCallConv()
 
 func _swig_getCXXFASTTLSCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_CXXFASTTLSCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_CXXFASTTLSCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3342,7 +3315,7 @@ var CXXFASTTLSCallConv int = _swig_getCXXFASTTLSCallConv()
 
 func _swig_getX86StdcallCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_X86StdcallCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_X86StdcallCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3350,7 +3323,7 @@ var X86StdcallCallConv int = _swig_getX86StdcallCallConv()
 
 func _swig_getX86FastcallCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_X86FastcallCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_X86FastcallCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3358,7 +3331,7 @@ var X86FastcallCallConv int = _swig_getX86FastcallCallConv()
 
 func _swig_getARMAPCSCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ARMAPCSCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ARMAPCSCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3366,7 +3339,7 @@ var ARMAPCSCallConv int = _swig_getARMAPCSCallConv()
 
 func _swig_getARMAAPCSCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ARMAAPCSCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ARMAAPCSCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3374,7 +3347,7 @@ var ARMAAPCSCallConv int = _swig_getARMAAPCSCallConv()
 
 func _swig_getARMAAPCSVFPCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ARMAAPCSVFPCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ARMAAPCSVFPCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3382,7 +3355,7 @@ var ARMAAPCSVFPCallConv int = _swig_getARMAAPCSVFPCallConv()
 
 func _swig_getMSP430INTRCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_MSP430INTRCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_MSP430INTRCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3390,7 +3363,7 @@ var MSP430INTRCallConv int = _swig_getMSP430INTRCallConv()
 
 func _swig_getX86ThisCallCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_X86ThisCallCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_X86ThisCallCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3398,7 +3371,7 @@ var X86ThisCallCallConv int = _swig_getX86ThisCallCallConv()
 
 func _swig_getPTXKernelCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_PTXKernelCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_PTXKernelCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3406,7 +3379,7 @@ var PTXKernelCallConv int = _swig_getPTXKernelCallConv()
 
 func _swig_getPTXDeviceCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_PTXDeviceCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_PTXDeviceCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3414,7 +3387,7 @@ var PTXDeviceCallConv int = _swig_getPTXDeviceCallConv()
 
 func _swig_getSPIRFUNCCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_SPIRFUNCCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_SPIRFUNCCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3422,7 +3395,7 @@ var SPIRFUNCCallConv int = _swig_getSPIRFUNCCallConv()
 
 func _swig_getSPIRKERNELCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_SPIRKERNELCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_SPIRKERNELCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3430,7 +3403,7 @@ var SPIRKERNELCallConv int = _swig_getSPIRKERNELCallConv()
 
 func _swig_getIntelOCLBICallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_IntelOCLBICallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_IntelOCLBICallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3438,7 +3411,7 @@ var IntelOCLBICallConv int = _swig_getIntelOCLBICallConv()
 
 func _swig_getX8664SysVCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_X8664SysVCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_X8664SysVCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3446,7 +3419,7 @@ var X8664SysVCallConv int = _swig_getX8664SysVCallConv()
 
 func _swig_getWin64CallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_Win64CallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_Win64CallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3454,7 +3427,7 @@ var Win64CallConv int = _swig_getWin64CallConv()
 
 func _swig_getX86VectorCallCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_X86VectorCallCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_X86VectorCallCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3462,7 +3435,7 @@ var X86VectorCallCallConv int = _swig_getX86VectorCallCallConv()
 
 func _swig_getHHVMCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_HHVMCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_HHVMCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3470,7 +3443,7 @@ var HHVMCallConv int = _swig_getHHVMCallConv()
 
 func _swig_getHHVMCCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_HHVMCCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_HHVMCCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3478,7 +3451,7 @@ var HHVMCCallConv int = _swig_getHHVMCCallConv()
 
 func _swig_getX86INTRCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_X86INTRCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_X86INTRCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3486,7 +3459,7 @@ var X86INTRCallConv int = _swig_getX86INTRCallConv()
 
 func _swig_getAVRINTRCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AVRINTRCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AVRINTRCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3494,7 +3467,7 @@ var AVRINTRCallConv int = _swig_getAVRINTRCallConv()
 
 func _swig_getAVRSIGNALCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AVRSIGNALCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AVRSIGNALCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3502,7 +3475,7 @@ var AVRSIGNALCallConv int = _swig_getAVRSIGNALCallConv()
 
 func _swig_getAVRBUILTINCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AVRBUILTINCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AVRBUILTINCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3510,7 +3483,7 @@ var AVRBUILTINCallConv int = _swig_getAVRBUILTINCallConv()
 
 func _swig_getAMDGPUVSCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AMDGPUVSCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AMDGPUVSCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3518,7 +3491,7 @@ var AMDGPUVSCallConv int = _swig_getAMDGPUVSCallConv()
 
 func _swig_getAMDGPUGSCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AMDGPUGSCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AMDGPUGSCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3526,7 +3499,7 @@ var AMDGPUGSCallConv int = _swig_getAMDGPUGSCallConv()
 
 func _swig_getAMDGPUPSCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AMDGPUPSCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AMDGPUPSCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3534,7 +3507,7 @@ var AMDGPUPSCallConv int = _swig_getAMDGPUPSCallConv()
 
 func _swig_getAMDGPUCSCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AMDGPUCSCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AMDGPUCSCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3542,7 +3515,7 @@ var AMDGPUCSCallConv int = _swig_getAMDGPUCSCallConv()
 
 func _swig_getAMDGPUKERNELCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AMDGPUKERNELCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AMDGPUKERNELCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3550,7 +3523,7 @@ var AMDGPUKERNELCallConv int = _swig_getAMDGPUKERNELCallConv()
 
 func _swig_getX86RegCallCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_X86RegCallCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_X86RegCallCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3558,7 +3531,7 @@ var X86RegCallCallConv int = _swig_getX86RegCallCallConv()
 
 func _swig_getAMDGPUHSCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AMDGPUHSCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AMDGPUHSCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3566,7 +3539,7 @@ var AMDGPUHSCallConv int = _swig_getAMDGPUHSCallConv()
 
 func _swig_getMSP430BUILTINCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_MSP430BUILTINCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_MSP430BUILTINCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3574,7 +3547,7 @@ var MSP430BUILTINCallConv int = _swig_getMSP430BUILTINCallConv()
 
 func _swig_getAMDGPULSCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AMDGPULSCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AMDGPULSCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3582,7 +3555,7 @@ var AMDGPULSCallConv int = _swig_getAMDGPULSCallConv()
 
 func _swig_getAMDGPUESCallConv() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AMDGPUESCallConv_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AMDGPUESCallConv_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3592,7 +3565,7 @@ type LLVMValueKind int
 
 func _swig_getArgumentValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ArgumentValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ArgumentValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3600,7 +3573,7 @@ var ArgumentValueKind int = _swig_getArgumentValueKind()
 
 func _swig_getBasicBlockValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_BasicBlockValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_BasicBlockValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3608,7 +3581,7 @@ var BasicBlockValueKind int = _swig_getBasicBlockValueKind()
 
 func _swig_getMemoryUseValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_MemoryUseValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_MemoryUseValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3616,7 +3589,7 @@ var MemoryUseValueKind int = _swig_getMemoryUseValueKind()
 
 func _swig_getMemoryDefValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_MemoryDefValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_MemoryDefValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3624,7 +3597,7 @@ var MemoryDefValueKind int = _swig_getMemoryDefValueKind()
 
 func _swig_getMemoryPhiValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_MemoryPhiValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_MemoryPhiValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3632,7 +3605,7 @@ var MemoryPhiValueKind int = _swig_getMemoryPhiValueKind()
 
 func _swig_getFunctionValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_FunctionValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_FunctionValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3640,7 +3613,7 @@ var FunctionValueKind int = _swig_getFunctionValueKind()
 
 func _swig_getGlobalAliasValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_GlobalAliasValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_GlobalAliasValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3648,7 +3621,7 @@ var GlobalAliasValueKind int = _swig_getGlobalAliasValueKind()
 
 func _swig_getGlobalIFuncValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_GlobalIFuncValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_GlobalIFuncValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3656,7 +3629,7 @@ var GlobalIFuncValueKind int = _swig_getGlobalIFuncValueKind()
 
 func _swig_getGlobalVariableValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_GlobalVariableValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_GlobalVariableValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3664,7 +3637,7 @@ var GlobalVariableValueKind int = _swig_getGlobalVariableValueKind()
 
 func _swig_getBlockAddressValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_BlockAddressValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_BlockAddressValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3672,7 +3645,7 @@ var BlockAddressValueKind int = _swig_getBlockAddressValueKind()
 
 func _swig_getConstantExprValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ConstantExprValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ConstantExprValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3680,7 +3653,7 @@ var ConstantExprValueKind int = _swig_getConstantExprValueKind()
 
 func _swig_getConstantArrayValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ConstantArrayValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ConstantArrayValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3688,7 +3661,7 @@ var ConstantArrayValueKind int = _swig_getConstantArrayValueKind()
 
 func _swig_getConstantStructValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ConstantStructValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ConstantStructValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3696,7 +3669,7 @@ var ConstantStructValueKind int = _swig_getConstantStructValueKind()
 
 func _swig_getConstantVectorValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ConstantVectorValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ConstantVectorValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3704,7 +3677,7 @@ var ConstantVectorValueKind int = _swig_getConstantVectorValueKind()
 
 func _swig_getUndefValueValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_UndefValueValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_UndefValueValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3712,7 +3685,7 @@ var UndefValueValueKind int = _swig_getUndefValueValueKind()
 
 func _swig_getConstantAggregateZeroValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ConstantAggregateZeroValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ConstantAggregateZeroValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3720,7 +3693,7 @@ var ConstantAggregateZeroValueKind int = _swig_getConstantAggregateZeroValueKind
 
 func _swig_getConstantDataArrayValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ConstantDataArrayValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ConstantDataArrayValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3728,7 +3701,7 @@ var ConstantDataArrayValueKind int = _swig_getConstantDataArrayValueKind()
 
 func _swig_getConstantDataVectorValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ConstantDataVectorValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ConstantDataVectorValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3736,7 +3709,7 @@ var ConstantDataVectorValueKind int = _swig_getConstantDataVectorValueKind()
 
 func _swig_getConstantIntValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ConstantIntValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ConstantIntValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3744,7 +3717,7 @@ var ConstantIntValueKind int = _swig_getConstantIntValueKind()
 
 func _swig_getConstantFPValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ConstantFPValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ConstantFPValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3752,7 +3725,7 @@ var ConstantFPValueKind int = _swig_getConstantFPValueKind()
 
 func _swig_getConstantPointerNullValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ConstantPointerNullValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ConstantPointerNullValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3760,7 +3733,7 @@ var ConstantPointerNullValueKind int = _swig_getConstantPointerNullValueKind()
 
 func _swig_getConstantTokenNoneValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ConstantTokenNoneValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ConstantTokenNoneValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3768,7 +3741,7 @@ var ConstantTokenNoneValueKind int = _swig_getConstantTokenNoneValueKind()
 
 func _swig_getMetadataAsValueValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_MetadataAsValueValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_MetadataAsValueValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3776,7 +3749,7 @@ var MetadataAsValueValueKind int = _swig_getMetadataAsValueValueKind()
 
 func _swig_getInlineAsmValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_InlineAsmValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_InlineAsmValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3784,7 +3757,7 @@ var InlineAsmValueKind int = _swig_getInlineAsmValueKind()
 
 func _swig_getInstructionValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_InstructionValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_InstructionValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3792,7 +3765,7 @@ var InstructionValueKind int = _swig_getInstructionValueKind()
 
 func _swig_getPoisonValueValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_PoisonValueValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_PoisonValueValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -3800,229 +3773,17 @@ var PoisonValueValueKind int = _swig_getPoisonValueValueKind()
 
 func _swig_getConstantTargetNoneValueKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ConstantTargetNoneValueKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ConstantTargetNoneValueKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
 var ConstantTargetNoneValueKind int = _swig_getConstantTargetNoneValueKind()
 
-type LLVMIntPredicate int
-
-func _swig_getIntEQ() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_IntEQ_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var IntEQ int = _swig_getIntEQ()
-
-func _swig_getIntNE() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_IntNE_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var IntNE int = _swig_getIntNE()
-
-func _swig_getIntUGT() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_IntUGT_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var IntUGT int = _swig_getIntUGT()
-
-func _swig_getIntUGE() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_IntUGE_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var IntUGE int = _swig_getIntUGE()
-
-func _swig_getIntULT() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_IntULT_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var IntULT int = _swig_getIntULT()
-
-func _swig_getIntULE() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_IntULE_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var IntULE int = _swig_getIntULE()
-
-func _swig_getIntSGT() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_IntSGT_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var IntSGT int = _swig_getIntSGT()
-
-func _swig_getIntSGE() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_IntSGE_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var IntSGE int = _swig_getIntSGE()
-
-func _swig_getIntSLT() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_IntSLT_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var IntSLT int = _swig_getIntSLT()
-
-func _swig_getIntSLE() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_IntSLE_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var IntSLE int = _swig_getIntSLE()
-
-type LLVMRealPredicate int
-
-func _swig_getRealPredicateFalse() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_RealPredicateFalse_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var RealPredicateFalse int = _swig_getRealPredicateFalse()
-
-func _swig_getRealOEQ() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_RealOEQ_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var RealOEQ int = _swig_getRealOEQ()
-
-func _swig_getRealOGT() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_RealOGT_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var RealOGT int = _swig_getRealOGT()
-
-func _swig_getRealOGE() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_RealOGE_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var RealOGE int = _swig_getRealOGE()
-
-func _swig_getRealOLT() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_RealOLT_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var RealOLT int = _swig_getRealOLT()
-
-func _swig_getRealOLE() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_RealOLE_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var RealOLE int = _swig_getRealOLE()
-
-func _swig_getRealONE() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_RealONE_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var RealONE int = _swig_getRealONE()
-
-func _swig_getRealORD() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_RealORD_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var RealORD int = _swig_getRealORD()
-
-func _swig_getRealUNO() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_RealUNO_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var RealUNO int = _swig_getRealUNO()
-
-func _swig_getRealUEQ() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_RealUEQ_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var RealUEQ int = _swig_getRealUEQ()
-
-func _swig_getRealUGT() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_RealUGT_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var RealUGT int = _swig_getRealUGT()
-
-func _swig_getRealUGE() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_RealUGE_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var RealUGE int = _swig_getRealUGE()
-
-func _swig_getRealULT() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_RealULT_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var RealULT int = _swig_getRealULT()
-
-func _swig_getRealULE() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_RealULE_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var RealULE int = _swig_getRealULE()
-
-func _swig_getRealUNE() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_RealUNE_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var RealUNE int = _swig_getRealUNE()
-
-func _swig_getRealPredicateTrue() (_swig_ret int) {
-	var swig_r int
-	swig_r = (int)(C._wrap_RealPredicateTrue_llvm_5d1e3feecae2b244())
-	return swig_r
-}
-
-var RealPredicateTrue int = _swig_getRealPredicateTrue()
-
 type LLVMLandingPadClauseTy int
 
 func _swig_getLandingPadCatch() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_LandingPadCatch_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_LandingPadCatch_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4030,7 +3791,7 @@ var LandingPadCatch int = _swig_getLandingPadCatch()
 
 func _swig_getLandingPadFilter() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_LandingPadFilter_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_LandingPadFilter_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4040,7 +3801,7 @@ type LLVMThreadLocalMode int
 
 func _swig_getNotThreadLocal() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_NotThreadLocal_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_NotThreadLocal_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4048,7 +3809,7 @@ var NotThreadLocal int = _swig_getNotThreadLocal()
 
 func _swig_getGeneralDynamicTLSModel() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_GeneralDynamicTLSModel_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_GeneralDynamicTLSModel_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4056,7 +3817,7 @@ var GeneralDynamicTLSModel int = _swig_getGeneralDynamicTLSModel()
 
 func _swig_getLocalDynamicTLSModel() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_LocalDynamicTLSModel_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_LocalDynamicTLSModel_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4064,7 +3825,7 @@ var LocalDynamicTLSModel int = _swig_getLocalDynamicTLSModel()
 
 func _swig_getInitialExecTLSModel() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_InitialExecTLSModel_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_InitialExecTLSModel_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4072,7 +3833,7 @@ var InitialExecTLSModel int = _swig_getInitialExecTLSModel()
 
 func _swig_getLocalExecTLSModel() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_LocalExecTLSModel_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_LocalExecTLSModel_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4082,7 +3843,7 @@ type LLVMAtomicOrdering int
 
 func _swig_getAtomicOrderingNotAtomic() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicOrderingNotAtomic_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicOrderingNotAtomic_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4090,7 +3851,7 @@ var AtomicOrderingNotAtomic int = _swig_getAtomicOrderingNotAtomic()
 
 func _swig_getAtomicOrderingUnordered() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicOrderingUnordered_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicOrderingUnordered_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4098,7 +3859,7 @@ var AtomicOrderingUnordered int = _swig_getAtomicOrderingUnordered()
 
 func _swig_getAtomicOrderingMonotonic() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicOrderingMonotonic_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicOrderingMonotonic_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4106,7 +3867,7 @@ var AtomicOrderingMonotonic int = _swig_getAtomicOrderingMonotonic()
 
 func _swig_getAtomicOrderingAcquire() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicOrderingAcquire_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicOrderingAcquire_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4114,7 +3875,7 @@ var AtomicOrderingAcquire int = _swig_getAtomicOrderingAcquire()
 
 func _swig_getAtomicOrderingRelease() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicOrderingRelease_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicOrderingRelease_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4122,7 +3883,7 @@ var AtomicOrderingRelease int = _swig_getAtomicOrderingRelease()
 
 func _swig_getAtomicOrderingAcquireRelease() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicOrderingAcquireRelease_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicOrderingAcquireRelease_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4130,7 +3891,7 @@ var AtomicOrderingAcquireRelease int = _swig_getAtomicOrderingAcquireRelease()
 
 func _swig_getAtomicOrderingSequentiallyConsistent() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicOrderingSequentiallyConsistent_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicOrderingSequentiallyConsistent_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4140,7 +3901,7 @@ type LLVMAtomicRMWBinOp int
 
 func _swig_getAtomicRMWBinOpXchg() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicRMWBinOpXchg_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicRMWBinOpXchg_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4148,7 +3909,7 @@ var AtomicRMWBinOpXchg int = _swig_getAtomicRMWBinOpXchg()
 
 func _swig_getAtomicRMWBinOpAdd() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicRMWBinOpAdd_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicRMWBinOpAdd_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4156,7 +3917,7 @@ var AtomicRMWBinOpAdd int = _swig_getAtomicRMWBinOpAdd()
 
 func _swig_getAtomicRMWBinOpSub() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicRMWBinOpSub_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicRMWBinOpSub_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4164,7 +3925,7 @@ var AtomicRMWBinOpSub int = _swig_getAtomicRMWBinOpSub()
 
 func _swig_getAtomicRMWBinOpAnd() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicRMWBinOpAnd_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicRMWBinOpAnd_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4172,7 +3933,7 @@ var AtomicRMWBinOpAnd int = _swig_getAtomicRMWBinOpAnd()
 
 func _swig_getAtomicRMWBinOpNand() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicRMWBinOpNand_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicRMWBinOpNand_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4180,7 +3941,7 @@ var AtomicRMWBinOpNand int = _swig_getAtomicRMWBinOpNand()
 
 func _swig_getAtomicRMWBinOpOr() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicRMWBinOpOr_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicRMWBinOpOr_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4188,7 +3949,7 @@ var AtomicRMWBinOpOr int = _swig_getAtomicRMWBinOpOr()
 
 func _swig_getAtomicRMWBinOpXor() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicRMWBinOpXor_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicRMWBinOpXor_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4196,7 +3957,7 @@ var AtomicRMWBinOpXor int = _swig_getAtomicRMWBinOpXor()
 
 func _swig_getAtomicRMWBinOpMax() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicRMWBinOpMax_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicRMWBinOpMax_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4204,7 +3965,7 @@ var AtomicRMWBinOpMax int = _swig_getAtomicRMWBinOpMax()
 
 func _swig_getAtomicRMWBinOpMin() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicRMWBinOpMin_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicRMWBinOpMin_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4212,7 +3973,7 @@ var AtomicRMWBinOpMin int = _swig_getAtomicRMWBinOpMin()
 
 func _swig_getAtomicRMWBinOpUMax() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicRMWBinOpUMax_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicRMWBinOpUMax_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4220,7 +3981,7 @@ var AtomicRMWBinOpUMax int = _swig_getAtomicRMWBinOpUMax()
 
 func _swig_getAtomicRMWBinOpUMin() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicRMWBinOpUMin_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicRMWBinOpUMin_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4228,7 +3989,7 @@ var AtomicRMWBinOpUMin int = _swig_getAtomicRMWBinOpUMin()
 
 func _swig_getAtomicRMWBinOpFAdd() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicRMWBinOpFAdd_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicRMWBinOpFAdd_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4236,7 +3997,7 @@ var AtomicRMWBinOpFAdd int = _swig_getAtomicRMWBinOpFAdd()
 
 func _swig_getAtomicRMWBinOpFSub() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicRMWBinOpFSub_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicRMWBinOpFSub_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4244,7 +4005,7 @@ var AtomicRMWBinOpFSub int = _swig_getAtomicRMWBinOpFSub()
 
 func _swig_getAtomicRMWBinOpFMax() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicRMWBinOpFMax_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicRMWBinOpFMax_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4252,7 +4013,7 @@ var AtomicRMWBinOpFMax int = _swig_getAtomicRMWBinOpFMax()
 
 func _swig_getAtomicRMWBinOpFMin() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AtomicRMWBinOpFMin_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AtomicRMWBinOpFMin_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4262,7 +4023,7 @@ type LLVMDiagnosticSeverity int
 
 func _swig_getDSError() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DSError_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DSError_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4270,7 +4031,7 @@ var DSError int = _swig_getDSError()
 
 func _swig_getDSWarning() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DSWarning_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DSWarning_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4278,7 +4039,7 @@ var DSWarning int = _swig_getDSWarning()
 
 func _swig_getDSRemark() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DSRemark_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DSRemark_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4286,7 +4047,7 @@ var DSRemark int = _swig_getDSRemark()
 
 func _swig_getDSNote() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DSNote_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DSNote_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4296,7 +4057,7 @@ type LLVMInlineAsmDialect int
 
 func _swig_getInlineAsmDialectATT() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_InlineAsmDialectATT_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_InlineAsmDialectATT_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4304,7 +4065,7 @@ var InlineAsmDialectATT int = _swig_getInlineAsmDialectATT()
 
 func _swig_getInlineAsmDialectIntel() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_InlineAsmDialectIntel_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_InlineAsmDialectIntel_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4314,7 +4075,7 @@ type LLVMModuleFlagBehavior int
 
 func _swig_getModuleFlagBehaviorError() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ModuleFlagBehaviorError_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ModuleFlagBehaviorError_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4322,7 +4083,7 @@ var ModuleFlagBehaviorError int = _swig_getModuleFlagBehaviorError()
 
 func _swig_getModuleFlagBehaviorWarning() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ModuleFlagBehaviorWarning_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ModuleFlagBehaviorWarning_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4330,7 +4091,7 @@ var ModuleFlagBehaviorWarning int = _swig_getModuleFlagBehaviorWarning()
 
 func _swig_getModuleFlagBehaviorRequire() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ModuleFlagBehaviorRequire_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ModuleFlagBehaviorRequire_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4338,7 +4099,7 @@ var ModuleFlagBehaviorRequire int = _swig_getModuleFlagBehaviorRequire()
 
 func _swig_getModuleFlagBehaviorOverride() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ModuleFlagBehaviorOverride_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ModuleFlagBehaviorOverride_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4346,7 +4107,7 @@ var ModuleFlagBehaviorOverride int = _swig_getModuleFlagBehaviorOverride()
 
 func _swig_getModuleFlagBehaviorAppend() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ModuleFlagBehaviorAppend_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ModuleFlagBehaviorAppend_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4354,7 +4115,7 @@ var ModuleFlagBehaviorAppend int = _swig_getModuleFlagBehaviorAppend()
 
 func _swig_getModuleFlagBehaviorAppendUnique() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ModuleFlagBehaviorAppendUnique_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ModuleFlagBehaviorAppendUnique_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4362,7 +4123,7 @@ var ModuleFlagBehaviorAppendUnique int = _swig_getModuleFlagBehaviorAppendUnique
 
 func _swig_getAttributeReturnIndex() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AttributeReturnIndex_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AttributeReturnIndex_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4370,7 +4131,7 @@ var AttributeReturnIndex int = _swig_getAttributeReturnIndex()
 
 func _swig_getAttributeFunctionIndex() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AttributeFunctionIndex_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AttributeFunctionIndex_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4385,18 +4146,18 @@ func InitializeCore(arg1 LLVMPassRegistryRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_InitializeCore_llvm_5d1e3feecae2b244(C.LLVMPassRegistryRef(_swig_i_0))
+	C._wrap_InitializeCore_llvm_a0e88c3155de3083(C.LLVMPassRegistryRef(_swig_i_0))
 }
 
 func Shutdown() {
-	C._wrap_Shutdown_llvm_5d1e3feecae2b244()
+	C._wrap_Shutdown_llvm_a0e88c3155de3083()
 }
 
 func GetVersion(arg1 *uint, arg2 *uint, arg3 *uint) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	C._wrap_GetVersion_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2))
+	C._wrap_GetVersion_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2))
 }
 
 func CreateMessage(arg1 string) (_swig_ret string) {
@@ -4408,7 +4169,7 @@ func CreateMessage(arg1 string) (_swig_ret string) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_0))
 	}
-	swig_r = (*C.char)(C._wrap_CreateMessage_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_CreateMessage_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -4427,12 +4188,12 @@ func DisposeMessage(arg1 string) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_0))
 	}
-	C._wrap_DisposeMessage_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0))
+	C._wrap_DisposeMessage_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0))
 }
 
 func ContextCreate() (_swig_ret LLVMContextRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ContextCreate_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ContextCreate_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMContextRef
 	{
 		if swig_r == nil {
@@ -4446,7 +4207,7 @@ func ContextCreate() (_swig_ret LLVMContextRef) {
 
 func GetGlobalContext() (_swig_ret LLVMContextRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetGlobalContext_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetGlobalContext_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMContextRef
 	{
 		if swig_r == nil {
@@ -4469,7 +4230,7 @@ func ContextSetDiagnosticHandler(arg1 LLVMContextRef, arg2 _swig_fnptr, arg3 uin
 	}
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	C._wrap_ContextSetDiagnosticHandler_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.swig_type_21(_swig_i_1), C.uintptr_t(_swig_i_2))
+	C._wrap_ContextSetDiagnosticHandler_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.swig_type_21(_swig_i_1), C.uintptr_t(_swig_i_2))
 }
 
 func ContextGetDiagnosticHandler(arg1 LLVMContextRef) (_swig_ret _swig_fnptr) {
@@ -4482,7 +4243,7 @@ func ContextGetDiagnosticHandler(arg1 LLVMContextRef) (_swig_ret _swig_fnptr) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (_swig_fnptr)(C._wrap_ContextGetDiagnosticHandler_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0)))
+	swig_r = (_swig_fnptr)(C._wrap_ContextGetDiagnosticHandler_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -4496,7 +4257,7 @@ func ContextGetDiagnosticContext(arg1 LLVMContextRef) (_swig_ret uintptr) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uintptr)(C._wrap_ContextGetDiagnosticContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0)))
+	swig_r = (uintptr)(C._wrap_ContextGetDiagnosticContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -4511,7 +4272,7 @@ func ContextSetYieldCallback(arg1 LLVMContextRef, arg2 _swig_fnptr, arg3 uintptr
 	}
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	C._wrap_ContextSetYieldCallback_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.swig_type_23(_swig_i_1), C.uintptr_t(_swig_i_2))
+	C._wrap_ContextSetYieldCallback_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.swig_type_23(_swig_i_1), C.uintptr_t(_swig_i_2))
 }
 
 func ContextShouldDiscardValueNames(arg1 LLVMContextRef) (_swig_ret bool) {
@@ -4524,7 +4285,7 @@ func ContextShouldDiscardValueNames(arg1 LLVMContextRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_ContextShouldDiscardValueNames_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_ContextShouldDiscardValueNames_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -4538,7 +4299,7 @@ func ContextSetDiscardValueNames(arg1 LLVMContextRef, arg2 bool) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_ContextSetDiscardValueNames_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C._Bool(_swig_i_1))
+	C._wrap_ContextSetDiscardValueNames_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C._Bool(_swig_i_1))
 }
 
 func ContextDispose(arg1 LLVMContextRef) {
@@ -4550,7 +4311,7 @@ func ContextDispose(arg1 LLVMContextRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_ContextDispose_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0))
+	C._wrap_ContextDispose_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0))
 }
 
 func GetDiagInfoDescription(arg1 LLVMDiagnosticInfoRef) (_swig_ret string) {
@@ -4563,7 +4324,7 @@ func GetDiagInfoDescription(arg1 LLVMDiagnosticInfoRef) (_swig_ret string) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (*C.char)(C._wrap_GetDiagInfoDescription_llvm_5d1e3feecae2b244(C.LLVMDiagnosticInfoRef(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_GetDiagInfoDescription_llvm_a0e88c3155de3083(C.LLVMDiagnosticInfoRef(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -4584,7 +4345,7 @@ func GetDiagInfoSeverity(arg1 LLVMDiagnosticInfoRef) (_swig_ret LLVMDiagnosticSe
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (LLVMDiagnosticSeverity)(C._wrap_GetDiagInfoSeverity_llvm_5d1e3feecae2b244(C.LLVMDiagnosticInfoRef(_swig_i_0)))
+	swig_r = (LLVMDiagnosticSeverity)(C._wrap_GetDiagInfoSeverity_llvm_a0e88c3155de3083(C.LLVMDiagnosticInfoRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -4606,7 +4367,7 @@ func GetMDKindIDInContext(arg1 LLVMContextRef, arg2 string, arg3 uint) (_swig_re
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
 	_swig_i_2 := arg3
-	swig_r = (uint)(C._wrap_GetMDKindIDInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_intgo(_swig_i_2)))
+	swig_r = (uint)(C._wrap_GetMDKindIDInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_intgo(_swig_i_2)))
 	return swig_r
 }
 
@@ -4620,7 +4381,7 @@ func GetMDKindID(arg1 string, arg2 uint) (_swig_ret uint) {
 		//defer C.free(unsafe.Pointer(_swig_i_0))
 	}
 	_swig_i_1 := arg2
-	swig_r = (uint)(C._wrap_GetMDKindID_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0), C.swig_intgo(_swig_i_1)))
+	swig_r = (uint)(C._wrap_GetMDKindID_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0), C.swig_intgo(_swig_i_1)))
 	return swig_r
 }
 
@@ -4634,13 +4395,13 @@ func GetEnumAttributeKindForName(arg1 string, arg2 int64) (_swig_ret uint) {
 		//defer C.free(unsafe.Pointer(_swig_i_0))
 	}
 	_swig_i_1 := arg2
-	swig_r = (uint)(C._wrap_GetEnumAttributeKindForName_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0), C.swig_type_24(_swig_i_1)))
+	swig_r = (uint)(C._wrap_GetEnumAttributeKindForName_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0), C.swig_type_24(_swig_i_1)))
 	return swig_r
 }
 
 func GetLastEnumAttributeKind() (_swig_ret uint) {
 	var swig_r uint
-	swig_r = (uint)(C._wrap_GetLastEnumAttributeKind_llvm_5d1e3feecae2b244())
+	swig_r = (uint)(C._wrap_GetLastEnumAttributeKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -4656,7 +4417,7 @@ func CreateEnumAttribute(arg1 LLVMContextRef, arg2 uint, arg3 uint64) (_swig_ret
 	}
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateEnumAttribute_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_type_25(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateEnumAttribute_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_type_25(_swig_i_2))))
 	var swig_r_1 LLVMAttributeRef
 	{
 		if swig_r == nil {
@@ -4678,7 +4439,7 @@ func GetEnumAttributeKind(arg1 LLVMAttributeRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_GetEnumAttributeKind_llvm_5d1e3feecae2b244(C.LLVMAttributeRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GetEnumAttributeKind_llvm_a0e88c3155de3083(C.LLVMAttributeRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -4692,7 +4453,7 @@ func GetEnumAttributeValue(arg1 LLVMAttributeRef) (_swig_ret uint64) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint64)(C._wrap_GetEnumAttributeValue_llvm_5d1e3feecae2b244(C.LLVMAttributeRef(_swig_i_0)))
+	swig_r = (uint64)(C._wrap_GetEnumAttributeValue_llvm_a0e88c3155de3083(C.LLVMAttributeRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -4715,7 +4476,7 @@ func CreateTypeAttribute(arg1 LLVMContextRef, arg2 uint, arg3 LLVMTypeRef) (_swi
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateTypeAttribute_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMTypeRef(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateTypeAttribute_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMTypeRef(_swig_i_2))))
 	var swig_r_1 LLVMAttributeRef
 	{
 		if swig_r == nil {
@@ -4737,7 +4498,7 @@ func GetTypeAttributeValue(arg1 LLVMAttributeRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetTypeAttributeValue_llvm_5d1e3feecae2b244(C.LLVMAttributeRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetTypeAttributeValue_llvm_a0e88c3155de3083(C.LLVMAttributeRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -4775,7 +4536,7 @@ func CreateStringAttribute(arg1 LLVMContextRef, arg2 string, arg3 uint, arg4 str
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
 	_swig_i_4 := arg5
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateStringAttribute_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_intgo(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateStringAttribute_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_intgo(_swig_i_4))))
 	var swig_r_1 LLVMAttributeRef
 	{
 		if swig_r == nil {
@@ -4798,7 +4559,7 @@ func GetStringAttributeKind(arg1 LLVMAttributeRef, arg2 *uint) (_swig_ret string
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (*C.char)(C._wrap_GetStringAttributeKind_llvm_5d1e3feecae2b244(C.LLVMAttributeRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (*C.char)(C._wrap_GetStringAttributeKind_llvm_a0e88c3155de3083(C.LLVMAttributeRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -4820,7 +4581,7 @@ func GetStringAttributeValue(arg1 LLVMAttributeRef, arg2 *uint) (_swig_ret strin
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (*C.char)(C._wrap_GetStringAttributeValue_llvm_5d1e3feecae2b244(C.LLVMAttributeRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (*C.char)(C._wrap_GetStringAttributeValue_llvm_a0e88c3155de3083(C.LLVMAttributeRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -4841,7 +4602,7 @@ func IsEnumAttribute(arg1 LLVMAttributeRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_IsEnumAttribute_llvm_5d1e3feecae2b244(C.LLVMAttributeRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IsEnumAttribute_llvm_a0e88c3155de3083(C.LLVMAttributeRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -4855,7 +4616,7 @@ func IsStringAttribute(arg1 LLVMAttributeRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_IsStringAttribute_llvm_5d1e3feecae2b244(C.LLVMAttributeRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IsStringAttribute_llvm_a0e88c3155de3083(C.LLVMAttributeRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -4869,7 +4630,7 @@ func IsTypeAttribute(arg1 LLVMAttributeRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_IsTypeAttribute_llvm_5d1e3feecae2b244(C.LLVMAttributeRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IsTypeAttribute_llvm_a0e88c3155de3083(C.LLVMAttributeRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -4890,7 +4651,7 @@ func GetTypeByName2(arg1 LLVMContextRef, arg2 string) (_swig_ret LLVMTypeRef) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetTypeByName2_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetTypeByName2_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -4911,7 +4672,7 @@ func ModuleCreateWithName(arg1 string) (_swig_ret LLVMModuleRef) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_0))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ModuleCreateWithName_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ModuleCreateWithName_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0))))
 	var swig_r_1 LLVMModuleRef
 	{
 		if swig_r == nil {
@@ -4940,7 +4701,7 @@ func ModuleCreateWithNameInContext(arg1 string, arg2 LLVMContextRef) (_swig_ret 
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ModuleCreateWithNameInContext_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0), C.LLVMContextRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ModuleCreateWithNameInContext_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0), C.LLVMContextRef(_swig_i_1))))
 	var swig_r_1 LLVMModuleRef
 	{
 		if swig_r == nil {
@@ -4962,7 +4723,7 @@ func CloneModule(arg1 LLVMModuleRef) (_swig_ret LLVMModuleRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CloneModule_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CloneModule_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0))))
 	var swig_r_1 LLVMModuleRef
 	{
 		if swig_r == nil {
@@ -4983,7 +4744,7 @@ func DisposeModule(arg1 LLVMModuleRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_DisposeModule_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0))
+	C._wrap_DisposeModule_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0))
 }
 
 func GetModuleIdentifier(arg1 LLVMModuleRef, arg2 *int64) (_swig_ret string) {
@@ -4997,7 +4758,7 @@ func GetModuleIdentifier(arg1 LLVMModuleRef, arg2 *int64) (_swig_ret string) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (*C.char)(C._wrap_GetModuleIdentifier_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (*C.char)(C._wrap_GetModuleIdentifier_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -5025,7 +4786,7 @@ func SetModuleIdentifier(arg1 LLVMModuleRef, arg2 string, arg3 int64) {
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
 	_swig_i_2 := arg3
-	C._wrap_SetModuleIdentifier_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_27(_swig_i_2))
+	C._wrap_SetModuleIdentifier_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_27(_swig_i_2))
 }
 
 func GetSourceFileName(arg1 LLVMModuleRef, arg2 *int64) (_swig_ret string) {
@@ -5039,7 +4800,7 @@ func GetSourceFileName(arg1 LLVMModuleRef, arg2 *int64) (_swig_ret string) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (*C.char)(C._wrap_GetSourceFileName_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (*C.char)(C._wrap_GetSourceFileName_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -5067,7 +4828,7 @@ func SetSourceFileName(arg1 LLVMModuleRef, arg2 string, arg3 int64) {
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
 	_swig_i_2 := arg3
-	C._wrap_SetSourceFileName_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_28(_swig_i_2))
+	C._wrap_SetSourceFileName_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_28(_swig_i_2))
 }
 
 func GetDataLayoutStr(arg1 LLVMModuleRef) (_swig_ret string) {
@@ -5080,7 +4841,7 @@ func GetDataLayoutStr(arg1 LLVMModuleRef) (_swig_ret string) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (*C.char)(C._wrap_GetDataLayoutStr_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_GetDataLayoutStr_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -5101,7 +4862,7 @@ func GetDataLayout(arg1 LLVMModuleRef) (_swig_ret string) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (*C.char)(C._wrap_GetDataLayout_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_GetDataLayout_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -5128,7 +4889,7 @@ func SetDataLayout(arg1 LLVMModuleRef, arg2 string) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	C._wrap_SetDataLayout_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))
+	C._wrap_SetDataLayout_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))
 }
 
 func GetTarget(arg1 LLVMModuleRef) (_swig_ret string) {
@@ -5141,7 +4902,7 @@ func GetTarget(arg1 LLVMModuleRef) (_swig_ret string) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (*C.char)(C._wrap_GetTarget_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_GetTarget_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -5168,7 +4929,7 @@ func SetTarget(arg1 LLVMModuleRef, arg2 string) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	C._wrap_SetTarget_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))
+	C._wrap_SetTarget_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))
 }
 
 func CopyModuleFlagsMetadata(arg1 LLVMModuleRef, arg2 *int64) (_swig_ret LLVMModuleFlagEntry) {
@@ -5182,20 +4943,20 @@ func CopyModuleFlagsMetadata(arg1 LLVMModuleRef, arg2 *int64) (_swig_ret LLVMMod
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (LLVMModuleFlagEntry)(SwigcptrLLVMModuleFlagEntry(C._wrap_CopyModuleFlagsMetadata_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (LLVMModuleFlagEntry)(SwigcptrLLVMModuleFlagEntry(C._wrap_CopyModuleFlagsMetadata_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	return swig_r
 }
 
 func DisposeModuleFlagsMetadata(arg1 LLVMModuleFlagEntry) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_DisposeModuleFlagsMetadata_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_DisposeModuleFlagsMetadata_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 func ModuleFlagEntriesGetFlagBehavior(arg1 LLVMModuleFlagEntry, arg2 uint) (_swig_ret LLVMModuleFlagBehavior) {
 	var swig_r LLVMModuleFlagBehavior
 	_swig_i_0 := getSwigcptr(arg1)
 	_swig_i_1 := arg2
-	swig_r = (LLVMModuleFlagBehavior)(C._wrap_ModuleFlagEntriesGetFlagBehavior_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1)))
+	swig_r = (LLVMModuleFlagBehavior)(C._wrap_ModuleFlagEntriesGetFlagBehavior_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1)))
 	return swig_r
 }
 
@@ -5204,7 +4965,7 @@ func ModuleFlagEntriesGetKey(arg1 LLVMModuleFlagEntry, arg2 uint, arg3 *int64) (
 	_swig_i_0 := getSwigcptr(arg1)
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	swig_r = (*C.char)(C._wrap_ModuleFlagEntriesGetKey_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_voidp(_swig_i_2)))
+	swig_r = (*C.char)(C._wrap_ModuleFlagEntriesGetKey_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_voidp(_swig_i_2)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -5219,7 +4980,7 @@ func ModuleFlagEntriesGetMetadata(arg1 LLVMModuleFlagEntry, arg2 uint) (_swig_re
 	var swig_r unsafe.Pointer
 	_swig_i_0 := getSwigcptr(arg1)
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ModuleFlagEntriesGetMetadata_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ModuleFlagEntriesGetMetadata_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -5249,7 +5010,7 @@ func GetModuleFlag(arg1 LLVMModuleRef, arg2 string, arg3 int64) (_swig_ret LLVMM
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetModuleFlag_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_29(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetModuleFlag_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_29(_swig_i_2))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -5287,7 +5048,7 @@ func AddModuleFlag(arg1 LLVMModuleRef, arg2 LLVMModuleFlagBehavior, arg3 string,
 			_swig_i_4 = unsafe.Pointer(arg5.Swigcptr())
 		}
 	}
-	C._wrap_AddModuleFlag_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_type_30(_swig_i_3), C.LLVMMetadataRef(_swig_i_4))
+	C._wrap_AddModuleFlag_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_type_30(_swig_i_3), C.LLVMMetadataRef(_swig_i_4))
 }
 
 func DumpModule(arg1 LLVMModuleRef) {
@@ -5299,7 +5060,7 @@ func DumpModule(arg1 LLVMModuleRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_DumpModule_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0))
+	C._wrap_DumpModule_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0))
 }
 
 func PrintModuleToFile(arg1 LLVMModuleRef, arg2 string, arg3 *string) (_swig_ret bool) {
@@ -5320,7 +5081,7 @@ func PrintModuleToFile(arg1 LLVMModuleRef, arg2 string, arg3 *string) (_swig_ret
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
 	_swig_i_2 := arg3
-	swig_r = (bool)(C._wrap_PrintModuleToFile_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2)))
+	swig_r = (bool)(C._wrap_PrintModuleToFile_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2)))
 	return swig_r
 }
 
@@ -5334,7 +5095,7 @@ func PrintModuleToString(arg1 LLVMModuleRef) (_swig_ret string) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (*C.char)(C._wrap_PrintModuleToString_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_PrintModuleToString_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -5356,7 +5117,7 @@ func GetModuleInlineAsm(arg1 LLVMModuleRef, arg2 *int64) (_swig_ret string) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (*C.char)(C._wrap_GetModuleInlineAsm_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (*C.char)(C._wrap_GetModuleInlineAsm_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -5384,7 +5145,7 @@ func SetModuleInlineAsm2(arg1 LLVMModuleRef, arg2 string, arg3 int64) {
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
 	_swig_i_2 := arg3
-	C._wrap_SetModuleInlineAsm2_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_31(_swig_i_2))
+	C._wrap_SetModuleInlineAsm2_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_31(_swig_i_2))
 }
 
 func AppendModuleInlineAsm(arg1 LLVMModuleRef, arg2 string, arg3 int64) {
@@ -5404,7 +5165,7 @@ func AppendModuleInlineAsm(arg1 LLVMModuleRef, arg2 string, arg3 int64) {
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
 	_swig_i_2 := arg3
-	C._wrap_AppendModuleInlineAsm_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_32(_swig_i_2))
+	C._wrap_AppendModuleInlineAsm_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_32(_swig_i_2))
 }
 
 func GetInlineAsm(arg1 LLVMTypeRef, arg2 string, arg3 int64, arg4 string, arg5 int64, arg6 bool, arg7 bool, arg8 LLVMInlineAsmDialect, arg9 bool) (_swig_ret LLVMValueRef) {
@@ -5437,7 +5198,7 @@ func GetInlineAsm(arg1 LLVMTypeRef, arg2 string, arg3 int64, arg4 string, arg5 i
 	_swig_i_6 := arg7
 	_swig_i_7 := arg8
 	_swig_i_8 := arg9
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetInlineAsm_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_33(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_type_34(_swig_i_4), C._Bool(_swig_i_5), C._Bool(_swig_i_6), C.swig_intgo(_swig_i_7), C._Bool(_swig_i_8))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetInlineAsm_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_33(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_type_34(_swig_i_4), C._Bool(_swig_i_5), C._Bool(_swig_i_6), C.swig_intgo(_swig_i_7), C._Bool(_swig_i_8))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -5459,7 +5220,7 @@ func GetModuleContext(arg1 LLVMModuleRef) (_swig_ret LLVMContextRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetModuleContext_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetModuleContext_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0))))
 	var swig_r_1 LLVMContextRef
 	{
 		if swig_r == nil {
@@ -5488,7 +5249,7 @@ func GetTypeByName(arg1 LLVMModuleRef, arg2 string) (_swig_ret LLVMTypeRef) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetTypeByName_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetTypeByName_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -5510,7 +5271,7 @@ func GetFirstNamedMetadata(arg1 LLVMModuleRef) (_swig_ret LLVMNamedMDNodeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetFirstNamedMetadata_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetFirstNamedMetadata_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0))))
 	var swig_r_1 LLVMNamedMDNodeRef
 	{
 		if swig_r == nil {
@@ -5532,7 +5293,7 @@ func GetLastNamedMetadata(arg1 LLVMModuleRef) (_swig_ret LLVMNamedMDNodeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetLastNamedMetadata_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetLastNamedMetadata_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0))))
 	var swig_r_1 LLVMNamedMDNodeRef
 	{
 		if swig_r == nil {
@@ -5554,7 +5315,7 @@ func GetNextNamedMetadata(arg1 LLVMNamedMDNodeRef) (_swig_ret LLVMNamedMDNodeRef
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNextNamedMetadata_llvm_5d1e3feecae2b244(C.LLVMNamedMDNodeRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNextNamedMetadata_llvm_a0e88c3155de3083(C.LLVMNamedMDNodeRef(_swig_i_0))))
 	var swig_r_1 LLVMNamedMDNodeRef
 	{
 		if swig_r == nil {
@@ -5576,7 +5337,7 @@ func GetPreviousNamedMetadata(arg1 LLVMNamedMDNodeRef) (_swig_ret LLVMNamedMDNod
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetPreviousNamedMetadata_llvm_5d1e3feecae2b244(C.LLVMNamedMDNodeRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetPreviousNamedMetadata_llvm_a0e88c3155de3083(C.LLVMNamedMDNodeRef(_swig_i_0))))
 	var swig_r_1 LLVMNamedMDNodeRef
 	{
 		if swig_r == nil {
@@ -5605,7 +5366,7 @@ func GetNamedMetadata(arg1 LLVMModuleRef, arg2 string) (_swig_ret LLVMNamedMDNod
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNamedMetadata_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNamedMetadata_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	var swig_r_1 LLVMNamedMDNodeRef
 	{
 		if swig_r == nil {
@@ -5634,7 +5395,7 @@ func GetOrInsertNamedMetadata(arg1 LLVMModuleRef, arg2 string) (_swig_ret LLVMNa
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetOrInsertNamedMetadata_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetOrInsertNamedMetadata_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	var swig_r_1 LLVMNamedMDNodeRef
 	{
 		if swig_r == nil {
@@ -5657,7 +5418,7 @@ func GetNamedMetadataName(arg1 LLVMNamedMDNodeRef, arg2 *int64) (_swig_ret strin
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (*C.char)(C._wrap_GetNamedMetadataName_llvm_5d1e3feecae2b244(C.LLVMNamedMDNodeRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (*C.char)(C._wrap_GetNamedMetadataName_llvm_a0e88c3155de3083(C.LLVMNamedMDNodeRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -5685,7 +5446,7 @@ func GetNamedMetadataNumOperands(arg1 LLVMModuleRef, arg2 string) (_swig_ret uin
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	swig_r = (uint)(C._wrap_GetNamedMetadataNumOperands_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (uint)(C._wrap_GetNamedMetadataNumOperands_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	return swig_r
 }
 
@@ -5706,7 +5467,7 @@ func GetNamedMetadataOperands(arg1 LLVMModuleRef, arg2 string, arg3 LLVMValueRef
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
 	_swig_i_2 := getSwigcptr(arg3)
-	C._wrap_GetNamedMetadataOperands_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.uintptr_t(_swig_i_2))
+	C._wrap_GetNamedMetadataOperands_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.uintptr_t(_swig_i_2))
 }
 
 func AddNamedMetadataOperand(arg1 LLVMModuleRef, arg2 string, arg3 LLVMValueRef) {
@@ -5733,7 +5494,7 @@ func AddNamedMetadataOperand(arg1 LLVMModuleRef, arg2 string, arg3 LLVMValueRef)
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	C._wrap_AddNamedMetadataOperand_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.LLVMValueRef(_swig_i_2))
+	C._wrap_AddNamedMetadataOperand_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.LLVMValueRef(_swig_i_2))
 }
 
 func GetDebugLocDirectory(arg1 LLVMValueRef, arg2 *uint) (_swig_ret string) {
@@ -5747,7 +5508,7 @@ func GetDebugLocDirectory(arg1 LLVMValueRef, arg2 *uint) (_swig_ret string) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (*C.char)(C._wrap_GetDebugLocDirectory_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (*C.char)(C._wrap_GetDebugLocDirectory_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -5769,7 +5530,7 @@ func GetDebugLocFilename(arg1 LLVMValueRef, arg2 *uint) (_swig_ret string) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (*C.char)(C._wrap_GetDebugLocFilename_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (*C.char)(C._wrap_GetDebugLocFilename_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -5790,7 +5551,7 @@ func GetDebugLocLine(arg1 LLVMValueRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_GetDebugLocLine_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GetDebugLocLine_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -5804,7 +5565,7 @@ func GetDebugLocColumn(arg1 LLVMValueRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_GetDebugLocColumn_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GetDebugLocColumn_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -5833,7 +5594,7 @@ func AddFunction(arg1 LLVMModuleRef, arg2 string, arg3 LLVMTypeRef) (_swig_ret L
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_AddFunction_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.LLVMTypeRef(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_AddFunction_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.LLVMTypeRef(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -5862,7 +5623,7 @@ func GetNamedFunction(arg1 LLVMModuleRef, arg2 string) (_swig_ret LLVMValueRef) 
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNamedFunction_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNamedFunction_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -5884,7 +5645,7 @@ func GetFirstFunction(arg1 LLVMModuleRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetFirstFunction_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetFirstFunction_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -5906,7 +5667,7 @@ func GetLastFunction(arg1 LLVMModuleRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetLastFunction_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetLastFunction_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -5928,7 +5689,7 @@ func GetNextFunction(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNextFunction_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNextFunction_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -5950,7 +5711,7 @@ func GetPreviousFunction(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetPreviousFunction_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetPreviousFunction_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -5978,7 +5739,7 @@ func SetModuleInlineAsm(arg1 LLVMModuleRef, arg2 string) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	C._wrap_SetModuleInlineAsm_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))
+	C._wrap_SetModuleInlineAsm_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))
 }
 
 func GetTypeKind(arg1 LLVMTypeRef) (_swig_ret LLVMTypeKind) {
@@ -5991,7 +5752,7 @@ func GetTypeKind(arg1 LLVMTypeRef) (_swig_ret LLVMTypeKind) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (LLVMTypeKind)(C._wrap_GetTypeKind_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0)))
+	swig_r = (LLVMTypeKind)(C._wrap_GetTypeKind_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -6005,7 +5766,7 @@ func TypeIsSized(arg1 LLVMTypeRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_TypeIsSized_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_TypeIsSized_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -6019,7 +5780,7 @@ func GetTypeContext(arg1 LLVMTypeRef) (_swig_ret LLVMContextRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetTypeContext_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetTypeContext_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0))))
 	var swig_r_1 LLVMContextRef
 	{
 		if swig_r == nil {
@@ -6040,7 +5801,7 @@ func DumpType(arg1 LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_DumpType_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0))
+	C._wrap_DumpType_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0))
 }
 
 func PrintTypeToString(arg1 LLVMTypeRef) (_swig_ret string) {
@@ -6053,7 +5814,7 @@ func PrintTypeToString(arg1 LLVMTypeRef) (_swig_ret string) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (*C.char)(C._wrap_PrintTypeToString_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_PrintTypeToString_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -6074,7 +5835,7 @@ func Int1TypeInContext(arg1 LLVMContextRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int1TypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int1TypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6096,7 +5857,7 @@ func Int8TypeInContext(arg1 LLVMContextRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int8TypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int8TypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6118,7 +5879,7 @@ func Int16TypeInContext(arg1 LLVMContextRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int16TypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int16TypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6140,7 +5901,7 @@ func Int32TypeInContext(arg1 LLVMContextRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int32TypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int32TypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6162,7 +5923,7 @@ func Int64TypeInContext(arg1 LLVMContextRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int64TypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int64TypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6184,7 +5945,7 @@ func Int128TypeInContext(arg1 LLVMContextRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int128TypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int128TypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6207,7 +5968,7 @@ func IntTypeInContext(arg1 LLVMContextRef, arg2 uint) (_swig_ret LLVMTypeRef) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IntTypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IntTypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6221,7 +5982,7 @@ func IntTypeInContext(arg1 LLVMContextRef, arg2 uint) (_swig_ret LLVMTypeRef) {
 
 func Int1Type() (_swig_ret LLVMTypeRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int1Type_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int1Type_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6235,7 +5996,7 @@ func Int1Type() (_swig_ret LLVMTypeRef) {
 
 func Int8Type() (_swig_ret LLVMTypeRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int8Type_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int8Type_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6249,7 +6010,7 @@ func Int8Type() (_swig_ret LLVMTypeRef) {
 
 func Int16Type() (_swig_ret LLVMTypeRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int16Type_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int16Type_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6263,7 +6024,7 @@ func Int16Type() (_swig_ret LLVMTypeRef) {
 
 func Int32Type() (_swig_ret LLVMTypeRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int32Type_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int32Type_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6277,7 +6038,7 @@ func Int32Type() (_swig_ret LLVMTypeRef) {
 
 func Int64Type() (_swig_ret LLVMTypeRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int64Type_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int64Type_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6291,7 +6052,7 @@ func Int64Type() (_swig_ret LLVMTypeRef) {
 
 func Int128Type() (_swig_ret LLVMTypeRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int128Type_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_Int128Type_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6306,7 +6067,7 @@ func Int128Type() (_swig_ret LLVMTypeRef) {
 func IntType(arg1 uint) (_swig_ret LLVMTypeRef) {
 	var swig_r unsafe.Pointer
 	_swig_i_0 := arg1
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IntType_llvm_5d1e3feecae2b244(C.swig_intgo(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IntType_llvm_a0e88c3155de3083(C.swig_intgo(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6328,7 +6089,7 @@ func GetIntTypeWidth(arg1 LLVMTypeRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_GetIntTypeWidth_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GetIntTypeWidth_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -6342,7 +6103,7 @@ func HalfTypeInContext(arg1 LLVMContextRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_HalfTypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_HalfTypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6364,7 +6125,7 @@ func BFloatTypeInContext(arg1 LLVMContextRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BFloatTypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BFloatTypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6386,7 +6147,7 @@ func FloatTypeInContext(arg1 LLVMContextRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_FloatTypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_FloatTypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6408,7 +6169,7 @@ func DoubleTypeInContext(arg1 LLVMContextRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DoubleTypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DoubleTypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6430,7 +6191,7 @@ func X86FP80TypeInContext(arg1 LLVMContextRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_X86FP80TypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_X86FP80TypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6452,7 +6213,7 @@ func FP128TypeInContext(arg1 LLVMContextRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_FP128TypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_FP128TypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6474,7 +6235,7 @@ func PPCFP128TypeInContext(arg1 LLVMContextRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_PPCFP128TypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_PPCFP128TypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6488,7 +6249,7 @@ func PPCFP128TypeInContext(arg1 LLVMContextRef) (_swig_ret LLVMTypeRef) {
 
 func HalfType() (_swig_ret LLVMTypeRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_HalfType_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_HalfType_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6502,7 +6263,7 @@ func HalfType() (_swig_ret LLVMTypeRef) {
 
 func BFloatType() (_swig_ret LLVMTypeRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BFloatType_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BFloatType_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6516,7 +6277,7 @@ func BFloatType() (_swig_ret LLVMTypeRef) {
 
 func FloatType() (_swig_ret LLVMTypeRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_FloatType_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_FloatType_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6530,7 +6291,7 @@ func FloatType() (_swig_ret LLVMTypeRef) {
 
 func DoubleType() (_swig_ret LLVMTypeRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DoubleType_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DoubleType_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6544,7 +6305,7 @@ func DoubleType() (_swig_ret LLVMTypeRef) {
 
 func X86FP80Type() (_swig_ret LLVMTypeRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_X86FP80Type_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_X86FP80Type_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6558,7 +6319,7 @@ func X86FP80Type() (_swig_ret LLVMTypeRef) {
 
 func FP128Type() (_swig_ret LLVMTypeRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_FP128Type_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_FP128Type_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6572,7 +6333,7 @@ func FP128Type() (_swig_ret LLVMTypeRef) {
 
 func PPCFP128Type() (_swig_ret LLVMTypeRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_PPCFP128Type_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_PPCFP128Type_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6607,7 +6368,7 @@ func FunctionType(arg1 LLVMTypeRef, arg2 []LLVMTypeRef, arg3 bool) (_swig_ret LL
 		}
 	}
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_FunctionType_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1), C._Bool(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_FunctionType_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1), C._Bool(_swig_i_2))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6629,7 +6390,7 @@ func IsFunctionVarArg(arg1 LLVMTypeRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_IsFunctionVarArg_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IsFunctionVarArg_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -6643,7 +6404,7 @@ func GetReturnType(arg1 LLVMTypeRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetReturnType_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetReturnType_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6665,7 +6426,7 @@ func CountParamTypes(arg1 LLVMTypeRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_CountParamTypes_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_CountParamTypes_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -6679,7 +6440,7 @@ func GetParamTypes(arg1 LLVMTypeRef, arg2 LLVMTypeRef) {
 		}
 	}
 	_swig_i_1 := getSwigcptr(arg2)
-	C._wrap_GetParamTypes_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.uintptr_t(_swig_i_1))
+	C._wrap_GetParamTypes_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.uintptr_t(_swig_i_1))
 }
 
 func StructTypeInContext(arg1 LLVMContextRef, arg2 []LLVMTypeRef, arg3 bool) (_swig_ret LLVMTypeRef) {
@@ -6705,7 +6466,7 @@ func StructTypeInContext(arg1 LLVMContextRef, arg2 []LLVMTypeRef, arg3 bool) (_s
 		}
 	}
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_StructTypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1), C._Bool(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_StructTypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1), C._Bool(_swig_i_2))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6732,7 +6493,7 @@ func StructType(arg1 []LLVMTypeRef, arg2 bool) (_swig_ret LLVMTypeRef) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_StructType_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0), C._Bool(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_StructType_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0), C._Bool(_swig_i_1))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6761,7 +6522,7 @@ func StructCreateNamed(arg1 LLVMContextRef, arg2 string) (_swig_ret LLVMTypeRef)
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_StructCreateNamed_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_StructCreateNamed_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6783,7 +6544,7 @@ func GetStructName(arg1 LLVMTypeRef) (_swig_ret string) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (*C.char)(C._wrap_GetStructName_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_GetStructName_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -6816,7 +6577,7 @@ func StructSetBody(arg1 LLVMTypeRef, arg2 []LLVMTypeRef, arg3 bool) {
 		}
 	}
 	_swig_i_2 := arg3
-	C._wrap_StructSetBody_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1), C._Bool(_swig_i_2))
+	C._wrap_StructSetBody_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1), C._Bool(_swig_i_2))
 }
 
 func CountStructElementTypes(arg1 LLVMTypeRef) (_swig_ret uint) {
@@ -6829,7 +6590,7 @@ func CountStructElementTypes(arg1 LLVMTypeRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_CountStructElementTypes_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_CountStructElementTypes_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -6843,7 +6604,7 @@ func GetStructElementTypes(arg1 LLVMTypeRef, arg2 LLVMTypeRef) {
 		}
 	}
 	_swig_i_1 := getSwigcptr(arg2)
-	C._wrap_GetStructElementTypes_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.uintptr_t(_swig_i_1))
+	C._wrap_GetStructElementTypes_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.uintptr_t(_swig_i_1))
 }
 
 func StructGetTypeAtIndex(arg1 LLVMTypeRef, arg2 uint) (_swig_ret LLVMTypeRef) {
@@ -6857,7 +6618,7 @@ func StructGetTypeAtIndex(arg1 LLVMTypeRef, arg2 uint) (_swig_ret LLVMTypeRef) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_StructGetTypeAtIndex_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_StructGetTypeAtIndex_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6879,7 +6640,7 @@ func IsPackedStruct(arg1 LLVMTypeRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_IsPackedStruct_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IsPackedStruct_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -6893,7 +6654,7 @@ func IsOpaqueStruct(arg1 LLVMTypeRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_IsOpaqueStruct_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IsOpaqueStruct_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -6907,7 +6668,7 @@ func IsLiteralStruct(arg1 LLVMTypeRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_IsLiteralStruct_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IsLiteralStruct_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -6921,7 +6682,7 @@ func GetElementType(arg1 LLVMTypeRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetElementType_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetElementType_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6943,7 +6704,7 @@ func GetSubtypes(arg1 LLVMTypeRef, arg2 LLVMTypeRef) {
 		}
 	}
 	_swig_i_1 := getSwigcptr(arg2)
-	C._wrap_GetSubtypes_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.uintptr_t(_swig_i_1))
+	C._wrap_GetSubtypes_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.uintptr_t(_swig_i_1))
 }
 
 func GetNumContainedTypes(arg1 LLVMTypeRef) (_swig_ret uint) {
@@ -6956,7 +6717,7 @@ func GetNumContainedTypes(arg1 LLVMTypeRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_GetNumContainedTypes_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GetNumContainedTypes_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -6971,7 +6732,7 @@ func ArrayType(arg1 LLVMTypeRef, arg2 uint) (_swig_ret LLVMTypeRef) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ArrayType_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ArrayType_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -6994,7 +6755,7 @@ func ArrayType2(arg1 LLVMTypeRef, arg2 uint64) (_swig_ret LLVMTypeRef) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ArrayType2_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.swig_type_35(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ArrayType2_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.swig_type_35(_swig_i_1))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -7016,7 +6777,7 @@ func GetArrayLength(arg1 LLVMTypeRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_GetArrayLength_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GetArrayLength_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -7030,7 +6791,7 @@ func GetArrayLength2(arg1 LLVMTypeRef) (_swig_ret uint64) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint64)(C._wrap_GetArrayLength2_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0)))
+	swig_r = (uint64)(C._wrap_GetArrayLength2_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -7045,7 +6806,7 @@ func PointerType(arg1 LLVMTypeRef, arg2 uint) (_swig_ret LLVMTypeRef) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_PointerType_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_PointerType_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -7067,7 +6828,7 @@ func PointerTypeIsOpaque(arg1 LLVMTypeRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_PointerTypeIsOpaque_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_PointerTypeIsOpaque_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -7082,7 +6843,7 @@ func PointerTypeInContext(arg1 LLVMContextRef, arg2 uint) (_swig_ret LLVMTypeRef
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_PointerTypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_PointerTypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -7104,7 +6865,7 @@ func GetPointerAddressSpace(arg1 LLVMTypeRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_GetPointerAddressSpace_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GetPointerAddressSpace_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -7119,7 +6880,7 @@ func VectorType(arg1 LLVMTypeRef, arg2 uint) (_swig_ret LLVMTypeRef) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_VectorType_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_VectorType_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -7142,7 +6903,7 @@ func ScalableVectorType(arg1 LLVMTypeRef, arg2 uint) (_swig_ret LLVMTypeRef) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ScalableVectorType_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ScalableVectorType_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -7164,7 +6925,7 @@ func GetVectorSize(arg1 LLVMTypeRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_GetVectorSize_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GetVectorSize_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -7178,7 +6939,7 @@ func VoidTypeInContext(arg1 LLVMContextRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_VoidTypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_VoidTypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -7200,7 +6961,7 @@ func LabelTypeInContext(arg1 LLVMContextRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_LabelTypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_LabelTypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -7222,7 +6983,7 @@ func X86MMXTypeInContext(arg1 LLVMContextRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_X86MMXTypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_X86MMXTypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -7244,7 +7005,7 @@ func X86AMXTypeInContext(arg1 LLVMContextRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_X86AMXTypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_X86AMXTypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -7266,7 +7027,7 @@ func TokenTypeInContext(arg1 LLVMContextRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_TokenTypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_TokenTypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -7288,7 +7049,7 @@ func MetadataTypeInContext(arg1 LLVMContextRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_MetadataTypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_MetadataTypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -7302,7 +7063,7 @@ func MetadataTypeInContext(arg1 LLVMContextRef) (_swig_ret LLVMTypeRef) {
 
 func VoidType() (_swig_ret LLVMTypeRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_VoidType_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_VoidType_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -7316,7 +7077,7 @@ func VoidType() (_swig_ret LLVMTypeRef) {
 
 func LabelType() (_swig_ret LLVMTypeRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_LabelType_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_LabelType_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -7330,7 +7091,7 @@ func LabelType() (_swig_ret LLVMTypeRef) {
 
 func X86MMXType() (_swig_ret LLVMTypeRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_X86MMXType_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_X86MMXType_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -7344,7 +7105,7 @@ func X86MMXType() (_swig_ret LLVMTypeRef) {
 
 func X86AMXType() (_swig_ret LLVMTypeRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_X86AMXType_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_X86AMXType_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -7389,7 +7150,7 @@ func TargetExtTypeInContext(arg1 LLVMContextRef, arg2 string, arg3 []LLVMTypeRef
 	{
 		_swig_i_3 = arg4
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_TargetExtTypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2), *(*C.swig_type_37)(unsafe.Pointer(&_swig_i_3)))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_TargetExtTypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2), *(*C.swig_type_37)(unsafe.Pointer(&_swig_i_3)))))
 	if Swig_escape_always_false {
 		Swig_escape_val = _swig_i_3
 	}
@@ -7414,7 +7175,7 @@ func TypeOf(arg1 LLVMValueRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_TypeOf_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_TypeOf_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -7436,7 +7197,7 @@ func GetValueKind(arg1 LLVMValueRef) (_swig_ret LLVMValueKind) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (LLVMValueKind)(C._wrap_GetValueKind_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (LLVMValueKind)(C._wrap_GetValueKind_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -7451,7 +7212,7 @@ func GetValueName2(arg1 LLVMValueRef, arg2 *int64) (_swig_ret string) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (*C.char)(C._wrap_GetValueName2_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (*C.char)(C._wrap_GetValueName2_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -7478,7 +7239,7 @@ func SetValueName2(arg1 LLVMValueRef, arg2 string) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	C._wrap_SetValueName2_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1))
+	C._wrap_SetValueName2_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1))
 }
 
 func DumpValue(arg1 LLVMValueRef) {
@@ -7490,7 +7251,7 @@ func DumpValue(arg1 LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_DumpValue_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))
+	C._wrap_DumpValue_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))
 }
 
 func PrintValueToString(arg1 LLVMValueRef) (_swig_ret string) {
@@ -7503,7 +7264,7 @@ func PrintValueToString(arg1 LLVMValueRef) (_swig_ret string) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (*C.char)(C._wrap_PrintValueToString_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_PrintValueToString_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -7531,7 +7292,7 @@ func ReplaceAllUsesWith(arg1 LLVMValueRef, arg2 LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_ReplaceAllUsesWith_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
+	C._wrap_ReplaceAllUsesWith_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
 }
 
 func IsConstant(arg1 LLVMValueRef) (_swig_ret bool) {
@@ -7544,7 +7305,7 @@ func IsConstant(arg1 LLVMValueRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_IsConstant_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IsConstant_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -7558,7 +7319,7 @@ func IsUndef(arg1 LLVMValueRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_IsUndef_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IsUndef_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -7572,7 +7333,7 @@ func IsPoison(arg1 LLVMValueRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_IsPoison_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IsPoison_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -7586,7 +7347,7 @@ func IsAArgument(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAArgument_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAArgument_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -7608,7 +7369,7 @@ func IsABasicBlock(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsABasicBlock_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsABasicBlock_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -7630,7 +7391,7 @@ func IsAInlineAsm(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAInlineAsm_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAInlineAsm_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -7652,7 +7413,7 @@ func IsAUser(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAUser_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAUser_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -7674,7 +7435,7 @@ func IsAConstant(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstant_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstant_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -7696,7 +7457,7 @@ func IsABlockAddress(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsABlockAddress_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsABlockAddress_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -7718,7 +7479,7 @@ func IsAConstantAggregateZero(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantAggregateZero_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantAggregateZero_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -7740,7 +7501,7 @@ func IsAConstantArray(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantArray_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantArray_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -7762,7 +7523,7 @@ func IsAConstantDataSequential(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantDataSequential_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantDataSequential_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -7784,7 +7545,7 @@ func IsAConstantDataArray(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantDataArray_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantDataArray_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -7806,7 +7567,7 @@ func IsAConstantDataVector(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantDataVector_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantDataVector_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -7828,7 +7589,7 @@ func IsAConstantExpr(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantExpr_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantExpr_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -7850,7 +7611,7 @@ func IsAConstantFP(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantFP_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantFP_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -7872,7 +7633,7 @@ func IsAConstantInt(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantInt_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantInt_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -7894,7 +7655,7 @@ func IsAConstantPointerNull(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantPointerNull_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantPointerNull_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -7916,7 +7677,7 @@ func IsAConstantStruct(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantStruct_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantStruct_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -7938,7 +7699,7 @@ func IsAConstantTokenNone(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantTokenNone_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantTokenNone_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -7960,7 +7721,7 @@ func IsAConstantVector(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantVector_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAConstantVector_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -7982,7 +7743,7 @@ func IsAGlobalValue(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAGlobalValue_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAGlobalValue_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8004,7 +7765,7 @@ func IsAGlobalAlias(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAGlobalAlias_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAGlobalAlias_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8026,7 +7787,7 @@ func IsAGlobalObject(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAGlobalObject_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAGlobalObject_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8048,7 +7809,7 @@ func IsAFunction(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAFunction_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAFunction_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8070,7 +7831,7 @@ func IsAGlobalVariable(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAGlobalVariable_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAGlobalVariable_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8092,7 +7853,7 @@ func IsAGlobalIFunc(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAGlobalIFunc_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAGlobalIFunc_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8114,7 +7875,7 @@ func IsAUndefValue(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAUndefValue_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAUndefValue_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8136,7 +7897,7 @@ func IsAPoisonValue(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAPoisonValue_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAPoisonValue_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8158,7 +7919,7 @@ func IsAInstruction(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAInstruction_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAInstruction_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8180,7 +7941,7 @@ func IsAUnaryOperator(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAUnaryOperator_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAUnaryOperator_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8202,7 +7963,7 @@ func IsABinaryOperator(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsABinaryOperator_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsABinaryOperator_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8224,7 +7985,7 @@ func IsACallInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsACallInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsACallInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8246,7 +8007,7 @@ func IsAIntrinsicInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAIntrinsicInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAIntrinsicInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8268,7 +8029,7 @@ func IsADbgInfoIntrinsic(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsADbgInfoIntrinsic_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsADbgInfoIntrinsic_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8290,7 +8051,7 @@ func IsADbgVariableIntrinsic(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsADbgVariableIntrinsic_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsADbgVariableIntrinsic_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8312,7 +8073,7 @@ func IsADbgDeclareInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsADbgDeclareInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsADbgDeclareInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8334,7 +8095,7 @@ func IsADbgLabelInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsADbgLabelInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsADbgLabelInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8356,7 +8117,7 @@ func IsAMemIntrinsic(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAMemIntrinsic_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAMemIntrinsic_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8378,7 +8139,7 @@ func IsAMemCpyInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAMemCpyInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAMemCpyInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8400,7 +8161,7 @@ func IsAMemMoveInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAMemMoveInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAMemMoveInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8422,7 +8183,7 @@ func IsAMemSetInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAMemSetInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAMemSetInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8444,7 +8205,7 @@ func IsACmpInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsACmpInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsACmpInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8466,7 +8227,7 @@ func IsAFCmpInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAFCmpInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAFCmpInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8488,7 +8249,7 @@ func IsAICmpInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAICmpInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAICmpInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8510,7 +8271,7 @@ func IsAExtractElementInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAExtractElementInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAExtractElementInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8532,7 +8293,7 @@ func IsAGetElementPtrInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAGetElementPtrInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAGetElementPtrInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8554,7 +8315,7 @@ func IsAInsertElementInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAInsertElementInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAInsertElementInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8576,7 +8337,7 @@ func IsAInsertValueInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAInsertValueInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAInsertValueInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8598,7 +8359,7 @@ func IsALandingPadInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsALandingPadInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsALandingPadInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8620,7 +8381,7 @@ func IsAPHINode(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAPHINode_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAPHINode_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8642,7 +8403,7 @@ func IsASelectInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsASelectInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsASelectInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8664,7 +8425,7 @@ func IsAShuffleVectorInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAShuffleVectorInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAShuffleVectorInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8686,7 +8447,7 @@ func IsAStoreInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAStoreInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAStoreInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8708,7 +8469,7 @@ func IsABranchInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsABranchInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsABranchInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8730,7 +8491,7 @@ func IsAIndirectBrInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAIndirectBrInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAIndirectBrInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8752,7 +8513,7 @@ func IsAInvokeInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAInvokeInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAInvokeInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8774,7 +8535,7 @@ func IsAReturnInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAReturnInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAReturnInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8796,7 +8557,7 @@ func IsASwitchInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsASwitchInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsASwitchInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8818,7 +8579,7 @@ func IsAUnreachableInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAUnreachableInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAUnreachableInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8840,7 +8601,7 @@ func IsAResumeInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAResumeInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAResumeInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8862,7 +8623,7 @@ func IsACleanupReturnInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsACleanupReturnInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsACleanupReturnInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8884,7 +8645,7 @@ func IsACatchReturnInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsACatchReturnInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsACatchReturnInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8906,7 +8667,7 @@ func IsACatchSwitchInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsACatchSwitchInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsACatchSwitchInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8928,7 +8689,7 @@ func IsACallBrInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsACallBrInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsACallBrInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8950,7 +8711,7 @@ func IsAFuncletPadInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAFuncletPadInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAFuncletPadInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8972,7 +8733,7 @@ func IsACatchPadInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsACatchPadInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsACatchPadInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -8994,7 +8755,7 @@ func IsACleanupPadInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsACleanupPadInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsACleanupPadInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9016,7 +8777,7 @@ func IsAUnaryInstruction(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAUnaryInstruction_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAUnaryInstruction_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9038,7 +8799,7 @@ func IsAAllocaInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAAllocaInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAAllocaInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9060,7 +8821,7 @@ func IsACastInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsACastInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsACastInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9082,7 +8843,7 @@ func IsAAddrSpaceCastInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAAddrSpaceCastInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAAddrSpaceCastInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9104,7 +8865,7 @@ func IsABitCastInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsABitCastInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsABitCastInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9126,7 +8887,7 @@ func IsAFPExtInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAFPExtInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAFPExtInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9148,7 +8909,7 @@ func IsAFPToSIInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAFPToSIInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAFPToSIInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9170,7 +8931,7 @@ func IsAFPToUIInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAFPToUIInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAFPToUIInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9192,7 +8953,7 @@ func IsAFPTruncInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAFPTruncInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAFPTruncInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9214,7 +8975,7 @@ func IsAIntToPtrInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAIntToPtrInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAIntToPtrInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9236,7 +8997,7 @@ func IsAPtrToIntInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAPtrToIntInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAPtrToIntInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9258,7 +9019,7 @@ func IsASExtInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsASExtInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsASExtInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9280,7 +9041,7 @@ func IsASIToFPInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsASIToFPInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsASIToFPInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9302,7 +9063,7 @@ func IsATruncInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsATruncInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsATruncInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9324,7 +9085,7 @@ func IsAUIToFPInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAUIToFPInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAUIToFPInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9346,7 +9107,7 @@ func IsAZExtInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAZExtInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAZExtInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9368,7 +9129,7 @@ func IsAExtractValueInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAExtractValueInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAExtractValueInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9390,7 +9151,7 @@ func IsALoadInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsALoadInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsALoadInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9412,7 +9173,7 @@ func IsAVAArgInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAVAArgInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAVAArgInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9434,7 +9195,7 @@ func IsAFreezeInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAFreezeInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAFreezeInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9456,7 +9217,7 @@ func IsAAtomicCmpXchgInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAAtomicCmpXchgInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAAtomicCmpXchgInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9478,7 +9239,7 @@ func IsAAtomicRMWInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAAtomicRMWInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAAtomicRMWInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9500,7 +9261,7 @@ func IsAFenceInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAFenceInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAFenceInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9522,7 +9283,7 @@ func IsAMDNode(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAMDNode_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAMDNode_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9544,7 +9305,7 @@ func IsAValueAsMetadata(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAValueAsMetadata_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAValueAsMetadata_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9566,7 +9327,7 @@ func IsAMDString(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAMDString_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsAMDString_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9588,7 +9349,7 @@ func GetValueName(arg1 LLVMValueRef) (_swig_ret string) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (*C.char)(C._wrap_GetValueName_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_GetValueName_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -9615,7 +9376,7 @@ func SetValueName(arg1 LLVMValueRef, arg2 string) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	C._wrap_SetValueName_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1))
+	C._wrap_SetValueName_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1))
 }
 
 func GetFirstUse(arg1 LLVMValueRef) (_swig_ret LLVMUseRef) {
@@ -9628,7 +9389,7 @@ func GetFirstUse(arg1 LLVMValueRef) (_swig_ret LLVMUseRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetFirstUse_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetFirstUse_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMUseRef
 	{
 		if swig_r == nil {
@@ -9650,7 +9411,7 @@ func GetNextUse(arg1 LLVMUseRef) (_swig_ret LLVMUseRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNextUse_llvm_5d1e3feecae2b244(C.LLVMUseRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNextUse_llvm_a0e88c3155de3083(C.LLVMUseRef(_swig_i_0))))
 	var swig_r_1 LLVMUseRef
 	{
 		if swig_r == nil {
@@ -9672,7 +9433,7 @@ func GetUser(arg1 LLVMUseRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetUser_llvm_5d1e3feecae2b244(C.LLVMUseRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetUser_llvm_a0e88c3155de3083(C.LLVMUseRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9694,7 +9455,7 @@ func GetUsedValue(arg1 LLVMUseRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetUsedValue_llvm_5d1e3feecae2b244(C.LLVMUseRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetUsedValue_llvm_a0e88c3155de3083(C.LLVMUseRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9717,7 +9478,7 @@ func GetOperand(arg1 LLVMValueRef, arg2 uint) (_swig_ret LLVMValueRef) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetOperand_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetOperand_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9740,7 +9501,7 @@ func GetOperandUse(arg1 LLVMValueRef, arg2 uint) (_swig_ret LLVMUseRef) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetOperandUse_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetOperandUse_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMUseRef
 	{
 		if swig_r == nil {
@@ -9770,7 +9531,7 @@ func SetOperand(arg1 LLVMValueRef, arg2 uint, arg3 LLVMValueRef) {
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	C._wrap_SetOperand_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMValueRef(_swig_i_2))
+	C._wrap_SetOperand_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMValueRef(_swig_i_2))
 }
 
 func GetNumOperands(arg1 LLVMValueRef) (_swig_ret int) {
@@ -9783,7 +9544,7 @@ func GetNumOperands(arg1 LLVMValueRef) (_swig_ret int) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (int)(C._wrap_GetNumOperands_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (int)(C._wrap_GetNumOperands_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -9797,7 +9558,7 @@ func ConstNull(arg1 LLVMTypeRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNull_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNull_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9819,7 +9580,7 @@ func ConstAllOnes(arg1 LLVMTypeRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstAllOnes_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstAllOnes_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9841,7 +9602,7 @@ func GetUndef(arg1 LLVMTypeRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetUndef_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetUndef_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9863,7 +9624,7 @@ func GetPoison(arg1 LLVMTypeRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetPoison_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetPoison_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9885,7 +9646,7 @@ func IsNull(arg1 LLVMValueRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_IsNull_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IsNull_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -9899,7 +9660,7 @@ func ConstPointerNull(arg1 LLVMTypeRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstPointerNull_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstPointerNull_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9923,7 +9684,7 @@ func ConstInt(arg1 LLVMTypeRef, arg2 uint64, arg3 bool) (_swig_ret LLVMValueRef)
 	}
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstInt_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.swig_type_38(_swig_i_1), C._Bool(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstInt_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.swig_type_38(_swig_i_1), C._Bool(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9947,7 +9708,7 @@ func ConstIntOfArbitraryPrecision(arg1 LLVMTypeRef, arg2 uint, arg3 *uint64) (_s
 	}
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstIntOfArbitraryPrecision_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstIntOfArbitraryPrecision_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -9977,7 +9738,7 @@ func ConstIntOfString(arg1 LLVMTypeRef, arg2 string, arg3 byte) (_swig_ret LLVMV
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstIntOfString_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.char(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstIntOfString_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.char(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10008,7 +9769,7 @@ func ConstIntOfStringAndSize(arg1 LLVMTypeRef, arg2 string, arg3 uint, arg4 byte
 	}
 	_swig_i_2 := arg3
 	_swig_i_3 := arg4
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstIntOfStringAndSize_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_intgo(_swig_i_2), C.char(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstIntOfStringAndSize_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_intgo(_swig_i_2), C.char(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10031,7 +9792,7 @@ func ConstReal(arg1 LLVMTypeRef, arg2 float64) (_swig_ret LLVMValueRef) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstReal_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.double(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstReal_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.double(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10060,7 +9821,7 @@ func ConstRealOfString(arg1 LLVMTypeRef, arg2 string) (_swig_ret LLVMValueRef) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstRealOfString_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstRealOfString_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10090,7 +9851,7 @@ func ConstRealOfStringAndSize(arg1 LLVMTypeRef, arg2 string, arg3 uint) (_swig_r
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstRealOfStringAndSize_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_intgo(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstRealOfStringAndSize_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_intgo(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10112,7 +9873,7 @@ func ConstIntGetZExtValue(arg1 LLVMValueRef) (_swig_ret uint64) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint64)(C._wrap_ConstIntGetZExtValue_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (uint64)(C._wrap_ConstIntGetZExtValue_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -10126,7 +9887,7 @@ func ConstIntGetSExtValue(arg1 LLVMValueRef) (_swig_ret int64) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (int64)(C._wrap_ConstIntGetSExtValue_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (int64)(C._wrap_ConstIntGetSExtValue_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -10141,7 +9902,7 @@ func ConstRealGetDouble(arg1 LLVMValueRef, arg2 *bool) (_swig_ret float64) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (float64)(C._wrap_ConstRealGetDouble_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (float64)(C._wrap_ConstRealGetDouble_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	return swig_r
 }
 
@@ -10164,7 +9925,7 @@ func ConstStringInContext(arg1 LLVMContextRef, arg2 string, arg3 uint, arg4 bool
 	}
 	_swig_i_2 := arg3
 	_swig_i_3 := arg4
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstStringInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_intgo(_swig_i_2), C._Bool(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstStringInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_intgo(_swig_i_2), C._Bool(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10187,7 +9948,7 @@ func ConstString(arg1 string, arg2 uint, arg3 bool) (_swig_ret LLVMValueRef) {
 	}
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstString_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0), C.swig_intgo(_swig_i_1), C._Bool(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstString_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0), C.swig_intgo(_swig_i_1), C._Bool(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10209,7 +9970,7 @@ func IsConstantString(arg1 LLVMValueRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_IsConstantString_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IsConstantString_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -10224,7 +9985,7 @@ func GetAsString(arg1 LLVMValueRef, arg2 *int64) (_swig_ret string) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (*C.char)(C._wrap_GetAsString_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (*C.char)(C._wrap_GetAsString_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -10258,7 +10019,7 @@ func ConstStructInContext(arg1 LLVMContextRef, arg2 []LLVMValueRef, arg3 bool) (
 		}
 	}
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstStructInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1), C._Bool(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstStructInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1), C._Bool(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10285,7 +10046,7 @@ func ConstStruct(arg1 []LLVMValueRef, arg2 bool) (_swig_ret LLVMValueRef) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstStruct_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0), C._Bool(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstStruct_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0), C._Bool(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10319,7 +10080,7 @@ func ConstArray(arg1 LLVMTypeRef, arg2 []LLVMValueRef) (_swig_ret LLVMValueRef) 
 			*(*C.LLVMValueRef)(unsafe.Pointer(uintptr(unsafe.Pointer(_swig_i_1)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMValueRef)(unsafe.Pointer(val.Swigcptr()))
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstArray_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstArray_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10353,7 +10114,7 @@ func ConstArray2(arg1 LLVMTypeRef, arg2 []LLVMValueRef) (_swig_ret LLVMValueRef)
 			*(*C.LLVMValueRef)(unsafe.Pointer(uintptr(unsafe.Pointer(_swig_i_1)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMValueRef)(unsafe.Pointer(val.Swigcptr()))
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstArray2_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstArray2_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10387,7 +10148,7 @@ func ConstNamedStruct(arg1 LLVMTypeRef, arg2 []LLVMValueRef) (_swig_ret LLVMValu
 			*(*C.LLVMValueRef)(unsafe.Pointer(uintptr(unsafe.Pointer(_swig_i_1)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMValueRef)(unsafe.Pointer(val.Swigcptr()))
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNamedStruct_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNamedStruct_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10410,7 +10171,7 @@ func GetAggregateElement(arg1 LLVMValueRef, arg2 uint) (_swig_ret LLVMValueRef) 
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetAggregateElement_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetAggregateElement_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10433,7 +10194,7 @@ func GetElementAsConstant(arg1 LLVMValueRef, arg2 uint) (_swig_ret LLVMValueRef)
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetElementAsConstant_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetElementAsConstant_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10459,7 +10220,7 @@ func ConstVector(arg1 []LLVMValueRef) (_swig_ret LLVMValueRef) {
 			*(*C.LLVMValueRef)(unsafe.Pointer(uintptr(unsafe.Pointer(_swig_i_0)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMValueRef)(unsafe.Pointer(val.Swigcptr()))
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstVector_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstVector_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10481,7 +10242,7 @@ func GetConstOpcode(arg1 LLVMValueRef) (_swig_ret LLVMOpcode) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (LLVMOpcode)(C._wrap_GetConstOpcode_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (LLVMOpcode)(C._wrap_GetConstOpcode_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -10495,7 +10256,7 @@ func AlignOf(arg1 LLVMTypeRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_AlignOf_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_AlignOf_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10517,7 +10278,7 @@ func SizeOf(arg1 LLVMTypeRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_SizeOf_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_SizeOf_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10539,7 +10300,7 @@ func ConstNeg(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNeg_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNeg_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10561,7 +10322,7 @@ func ConstNSWNeg(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNSWNeg_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNSWNeg_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10583,7 +10344,7 @@ func ConstNUWNeg(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNUWNeg_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNUWNeg_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10605,7 +10366,7 @@ func ConstNot(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNot_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNot_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10635,7 +10396,7 @@ func ConstAdd(arg1 LLVMValueRef, arg2 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstAdd_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstAdd_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10665,7 +10426,7 @@ func ConstNSWAdd(arg1 LLVMValueRef, arg2 LLVMValueRef) (_swig_ret LLVMValueRef) 
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNSWAdd_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNSWAdd_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10695,7 +10456,7 @@ func ConstNUWAdd(arg1 LLVMValueRef, arg2 LLVMValueRef) (_swig_ret LLVMValueRef) 
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNUWAdd_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNUWAdd_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10725,7 +10486,7 @@ func ConstSub(arg1 LLVMValueRef, arg2 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstSub_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstSub_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10755,7 +10516,7 @@ func ConstNSWSub(arg1 LLVMValueRef, arg2 LLVMValueRef) (_swig_ret LLVMValueRef) 
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNSWSub_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNSWSub_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10785,7 +10546,7 @@ func ConstNUWSub(arg1 LLVMValueRef, arg2 LLVMValueRef) (_swig_ret LLVMValueRef) 
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNUWSub_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNUWSub_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10815,7 +10576,7 @@ func ConstMul(arg1 LLVMValueRef, arg2 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstMul_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstMul_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10845,7 +10606,7 @@ func ConstNSWMul(arg1 LLVMValueRef, arg2 LLVMValueRef) (_swig_ret LLVMValueRef) 
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNSWMul_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNSWMul_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10875,7 +10636,7 @@ func ConstNUWMul(arg1 LLVMValueRef, arg2 LLVMValueRef) (_swig_ret LLVMValueRef) 
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNUWMul_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstNUWMul_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10905,7 +10666,7 @@ func ConstAnd(arg1 LLVMValueRef, arg2 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstAnd_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstAnd_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10935,7 +10696,7 @@ func ConstOr(arg1 LLVMValueRef, arg2 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstOr_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstOr_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10965,7 +10726,7 @@ func ConstXor(arg1 LLVMValueRef, arg2 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstXor_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstXor_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -10996,7 +10757,7 @@ func ConstICmp(arg1 LLVMIntPredicate, arg2 LLVMValueRef, arg3 LLVMValueRef) (_sw
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstICmp_llvm_5d1e3feecae2b244(C.swig_intgo(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstICmp_llvm_a0e88c3155de3083(C.swig_intgo(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11027,7 +10788,7 @@ func ConstFCmp(arg1 LLVMRealPredicate, arg2 LLVMValueRef, arg3 LLVMValueRef) (_s
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstFCmp_llvm_5d1e3feecae2b244(C.swig_intgo(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstFCmp_llvm_a0e88c3155de3083(C.swig_intgo(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11057,7 +10818,7 @@ func ConstShl(arg1 LLVMValueRef, arg2 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstShl_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstShl_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11087,7 +10848,7 @@ func ConstLShr(arg1 LLVMValueRef, arg2 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstLShr_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstLShr_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11117,7 +10878,7 @@ func ConstAShr(arg1 LLVMValueRef, arg2 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstAShr_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstAShr_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11159,7 +10920,7 @@ func ConstGEP2(arg1 LLVMTypeRef, arg2 LLVMValueRef, arg3 []LLVMValueRef) (_swig_
 			*(*C.LLVMValueRef)(unsafe.Pointer(uintptr(unsafe.Pointer(_swig_i_2)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMValueRef)(unsafe.Pointer(val.Swigcptr()))
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstGEP2_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstGEP2_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11201,7 +10962,7 @@ func ConstInBoundsGEP2(arg1 LLVMTypeRef, arg2 LLVMValueRef, arg3 []LLVMValueRef)
 			*(*C.LLVMValueRef)(unsafe.Pointer(uintptr(unsafe.Pointer(_swig_i_2)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMValueRef)(unsafe.Pointer(val.Swigcptr()))
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstInBoundsGEP2_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstInBoundsGEP2_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11231,7 +10992,7 @@ func ConstTrunc(arg1 LLVMValueRef, arg2 LLVMTypeRef) (_swig_ret LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstTrunc_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstTrunc_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11261,7 +11022,7 @@ func ConstSExt(arg1 LLVMValueRef, arg2 LLVMTypeRef) (_swig_ret LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstSExt_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstSExt_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11291,7 +11052,7 @@ func ConstZExt(arg1 LLVMValueRef, arg2 LLVMTypeRef) (_swig_ret LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstZExt_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstZExt_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11321,7 +11082,7 @@ func ConstFPTrunc(arg1 LLVMValueRef, arg2 LLVMTypeRef) (_swig_ret LLVMValueRef) 
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstFPTrunc_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstFPTrunc_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11351,7 +11112,7 @@ func ConstFPExt(arg1 LLVMValueRef, arg2 LLVMTypeRef) (_swig_ret LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstFPExt_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstFPExt_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11381,7 +11142,7 @@ func ConstUIToFP(arg1 LLVMValueRef, arg2 LLVMTypeRef) (_swig_ret LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstUIToFP_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstUIToFP_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11411,7 +11172,7 @@ func ConstSIToFP(arg1 LLVMValueRef, arg2 LLVMTypeRef) (_swig_ret LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstSIToFP_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstSIToFP_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11441,7 +11202,7 @@ func ConstFPToUI(arg1 LLVMValueRef, arg2 LLVMTypeRef) (_swig_ret LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstFPToUI_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstFPToUI_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11471,7 +11232,7 @@ func ConstFPToSI(arg1 LLVMValueRef, arg2 LLVMTypeRef) (_swig_ret LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstFPToSI_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstFPToSI_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11501,7 +11262,7 @@ func ConstPtrToInt(arg1 LLVMValueRef, arg2 LLVMTypeRef) (_swig_ret LLVMValueRef)
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstPtrToInt_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstPtrToInt_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11531,7 +11292,7 @@ func ConstIntToPtr(arg1 LLVMValueRef, arg2 LLVMTypeRef) (_swig_ret LLVMValueRef)
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstIntToPtr_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstIntToPtr_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11561,7 +11322,7 @@ func ConstBitCast(arg1 LLVMValueRef, arg2 LLVMTypeRef) (_swig_ret LLVMValueRef) 
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstBitCast_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstBitCast_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11591,7 +11352,7 @@ func ConstAddrSpaceCast(arg1 LLVMValueRef, arg2 LLVMTypeRef) (_swig_ret LLVMValu
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstAddrSpaceCast_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstAddrSpaceCast_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11621,7 +11382,7 @@ func ConstZExtOrBitCast(arg1 LLVMValueRef, arg2 LLVMTypeRef) (_swig_ret LLVMValu
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstZExtOrBitCast_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstZExtOrBitCast_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11651,7 +11412,7 @@ func ConstSExtOrBitCast(arg1 LLVMValueRef, arg2 LLVMTypeRef) (_swig_ret LLVMValu
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstSExtOrBitCast_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstSExtOrBitCast_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11681,7 +11442,7 @@ func ConstTruncOrBitCast(arg1 LLVMValueRef, arg2 LLVMTypeRef) (_swig_ret LLVMVal
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstTruncOrBitCast_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstTruncOrBitCast_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11711,7 +11472,7 @@ func ConstPointerCast(arg1 LLVMValueRef, arg2 LLVMTypeRef) (_swig_ret LLVMValueR
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstPointerCast_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstPointerCast_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11742,7 +11503,7 @@ func ConstIntCast(arg1 LLVMValueRef, arg2 LLVMTypeRef, arg3 bool) (_swig_ret LLV
 		}
 	}
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstIntCast_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C._Bool(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstIntCast_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C._Bool(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11772,7 +11533,7 @@ func ConstFPCast(arg1 LLVMValueRef, arg2 LLVMTypeRef) (_swig_ret LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstFPCast_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstFPCast_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11802,7 +11563,7 @@ func ConstExtractElement(arg1 LLVMValueRef, arg2 LLVMValueRef) (_swig_ret LLVMVa
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstExtractElement_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstExtractElement_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11840,7 +11601,7 @@ func ConstInsertElement(arg1 LLVMValueRef, arg2 LLVMValueRef, arg3 LLVMValueRef)
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstInsertElement_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstInsertElement_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11878,7 +11639,7 @@ func ConstShuffleVector(arg1 LLVMValueRef, arg2 LLVMValueRef, arg3 LLVMValueRef)
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstShuffleVector_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstShuffleVector_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11908,7 +11669,7 @@ func BlockAddress(arg1 LLVMValueRef, arg2 LLVMBasicBlockRef) (_swig_ret LLVMValu
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BlockAddress_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BlockAddress_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11946,7 +11707,7 @@ func ConstInlineAsm(arg1 LLVMTypeRef, arg2 string, arg3 string, arg4 bool, arg5 
 	}
 	_swig_i_3 := arg4
 	_swig_i_4 := arg5
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstInlineAsm_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2), C._Bool(_swig_i_3), C._Bool(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ConstInlineAsm_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2), C._Bool(_swig_i_3), C._Bool(_swig_i_4))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -11968,7 +11729,7 @@ func GetGlobalParent(arg1 LLVMValueRef) (_swig_ret LLVMModuleRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetGlobalParent_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetGlobalParent_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMModuleRef
 	{
 		if swig_r == nil {
@@ -11990,7 +11751,7 @@ func IsDeclaration(arg1 LLVMValueRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_IsDeclaration_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IsDeclaration_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -12004,7 +11765,7 @@ func GetLinkage(arg1 LLVMValueRef) (_swig_ret LLVMLinkage) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (LLVMLinkage)(C._wrap_GetLinkage_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (LLVMLinkage)(C._wrap_GetLinkage_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -12018,7 +11779,7 @@ func SetLinkage(arg1 LLVMValueRef, arg2 LLVMLinkage) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetLinkage_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
+	C._wrap_SetLinkage_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
 }
 
 func GetSection(arg1 LLVMValueRef) (_swig_ret string) {
@@ -12031,7 +11792,7 @@ func GetSection(arg1 LLVMValueRef) (_swig_ret string) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (*C.char)(C._wrap_GetSection_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_GetSection_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -12058,7 +11819,7 @@ func SetSection(arg1 LLVMValueRef, arg2 string) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	C._wrap_SetSection_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1))
+	C._wrap_SetSection_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1))
 }
 
 func GetVisibility(arg1 LLVMValueRef) (_swig_ret LLVMVisibility) {
@@ -12071,7 +11832,7 @@ func GetVisibility(arg1 LLVMValueRef) (_swig_ret LLVMVisibility) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (LLVMVisibility)(C._wrap_GetVisibility_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (LLVMVisibility)(C._wrap_GetVisibility_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -12085,7 +11846,7 @@ func SetVisibility(arg1 LLVMValueRef, arg2 LLVMVisibility) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetVisibility_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
+	C._wrap_SetVisibility_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
 }
 
 func GetDLLStorageClass(arg1 LLVMValueRef) (_swig_ret LLVMDLLStorageClass) {
@@ -12098,7 +11859,7 @@ func GetDLLStorageClass(arg1 LLVMValueRef) (_swig_ret LLVMDLLStorageClass) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (LLVMDLLStorageClass)(C._wrap_GetDLLStorageClass_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (LLVMDLLStorageClass)(C._wrap_GetDLLStorageClass_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -12112,7 +11873,7 @@ func SetDLLStorageClass(arg1 LLVMValueRef, arg2 LLVMDLLStorageClass) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetDLLStorageClass_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
+	C._wrap_SetDLLStorageClass_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
 }
 
 func GetUnnamedAddress(arg1 LLVMValueRef) (_swig_ret LLVMUnnamedAddr) {
@@ -12125,7 +11886,7 @@ func GetUnnamedAddress(arg1 LLVMValueRef) (_swig_ret LLVMUnnamedAddr) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (LLVMUnnamedAddr)(C._wrap_GetUnnamedAddress_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (LLVMUnnamedAddr)(C._wrap_GetUnnamedAddress_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -12139,7 +11900,7 @@ func SetUnnamedAddress(arg1 LLVMValueRef, arg2 LLVMUnnamedAddr) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetUnnamedAddress_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
+	C._wrap_SetUnnamedAddress_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
 }
 
 func GlobalGetValueType(arg1 LLVMValueRef) (_swig_ret LLVMTypeRef) {
@@ -12152,7 +11913,7 @@ func GlobalGetValueType(arg1 LLVMValueRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GlobalGetValueType_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GlobalGetValueType_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -12174,7 +11935,7 @@ func HasUnnamedAddr(arg1 LLVMValueRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_HasUnnamedAddr_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_HasUnnamedAddr_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -12188,7 +11949,7 @@ func SetUnnamedAddr(arg1 LLVMValueRef, arg2 bool) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetUnnamedAddr_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1))
+	C._wrap_SetUnnamedAddr_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1))
 }
 
 func GetAlignment(arg1 LLVMValueRef) (_swig_ret uint) {
@@ -12201,7 +11962,7 @@ func GetAlignment(arg1 LLVMValueRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_GetAlignment_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GetAlignment_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -12215,7 +11976,7 @@ func SetAlignment(arg1 LLVMValueRef, arg2 uint) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetAlignment_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
+	C._wrap_SetAlignment_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
 }
 
 func GlobalSetMetadata(arg1 LLVMValueRef, arg2 uint, arg3 LLVMMetadataRef) {
@@ -12236,7 +11997,7 @@ func GlobalSetMetadata(arg1 LLVMValueRef, arg2 uint, arg3 LLVMMetadataRef) {
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	C._wrap_GlobalSetMetadata_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMMetadataRef(_swig_i_2))
+	C._wrap_GlobalSetMetadata_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMMetadataRef(_swig_i_2))
 }
 
 func GlobalEraseMetadata(arg1 LLVMValueRef, arg2 uint) {
@@ -12249,7 +12010,7 @@ func GlobalEraseMetadata(arg1 LLVMValueRef, arg2 uint) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_GlobalEraseMetadata_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
+	C._wrap_GlobalEraseMetadata_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
 }
 
 func GlobalClearMetadata(arg1 LLVMValueRef) {
@@ -12261,7 +12022,7 @@ func GlobalClearMetadata(arg1 LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_GlobalClearMetadata_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))
+	C._wrap_GlobalClearMetadata_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))
 }
 
 func GlobalCopyAllMetadata(arg1 LLVMValueRef, arg2 *int64) (_swig_ret LLVMValueMetadataEntry) {
@@ -12275,20 +12036,20 @@ func GlobalCopyAllMetadata(arg1 LLVMValueRef, arg2 *int64) (_swig_ret LLVMValueM
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (LLVMValueMetadataEntry)(SwigcptrLLVMValueMetadataEntry(C._wrap_GlobalCopyAllMetadata_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (LLVMValueMetadataEntry)(SwigcptrLLVMValueMetadataEntry(C._wrap_GlobalCopyAllMetadata_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	return swig_r
 }
 
 func DisposeValueMetadataEntries(arg1 LLVMValueMetadataEntry) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_DisposeValueMetadataEntries_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_DisposeValueMetadataEntries_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 func ValueMetadataEntriesGetKind(arg1 LLVMValueMetadataEntry, arg2 uint) (_swig_ret uint) {
 	var swig_r uint
 	_swig_i_0 := getSwigcptr(arg1)
 	_swig_i_1 := arg2
-	swig_r = (uint)(C._wrap_ValueMetadataEntriesGetKind_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1)))
+	swig_r = (uint)(C._wrap_ValueMetadataEntriesGetKind_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1)))
 	return swig_r
 }
 
@@ -12296,7 +12057,7 @@ func ValueMetadataEntriesGetMetadata(arg1 LLVMValueMetadataEntry, arg2 uint) (_s
 	var swig_r unsafe.Pointer
 	_swig_i_0 := getSwigcptr(arg1)
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ValueMetadataEntriesGetMetadata_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ValueMetadataEntriesGetMetadata_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -12333,7 +12094,7 @@ func AddGlobal(arg1 LLVMModuleRef, arg2 LLVMTypeRef, arg3 string) (_swig_ret LLV
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_AddGlobal_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_AddGlobal_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -12371,7 +12132,7 @@ func AddGlobalInAddressSpace(arg1 LLVMModuleRef, arg2 LLVMTypeRef, arg3 string, 
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
 	_swig_i_3 := arg4
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_AddGlobalInAddressSpace_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_intgo(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_AddGlobalInAddressSpace_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_intgo(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -12400,7 +12161,7 @@ func GetNamedGlobal(arg1 LLVMModuleRef, arg2 string) (_swig_ret LLVMValueRef) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNamedGlobal_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNamedGlobal_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -12422,7 +12183,7 @@ func GetFirstGlobal(arg1 LLVMModuleRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetFirstGlobal_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetFirstGlobal_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -12444,7 +12205,7 @@ func GetLastGlobal(arg1 LLVMModuleRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetLastGlobal_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetLastGlobal_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -12466,7 +12227,7 @@ func GetNextGlobal(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNextGlobal_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNextGlobal_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -12488,7 +12249,7 @@ func GetPreviousGlobal(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetPreviousGlobal_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetPreviousGlobal_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -12509,7 +12270,7 @@ func DeleteGlobal(arg1 LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_DeleteGlobal_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))
+	C._wrap_DeleteGlobal_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))
 }
 
 func GetInitializer(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
@@ -12522,7 +12283,7 @@ func GetInitializer(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetInitializer_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetInitializer_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -12551,7 +12312,7 @@ func SetInitializer(arg1 LLVMValueRef, arg2 LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_SetInitializer_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
+	C._wrap_SetInitializer_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
 }
 
 func IsThreadLocal(arg1 LLVMValueRef) (_swig_ret bool) {
@@ -12564,7 +12325,7 @@ func IsThreadLocal(arg1 LLVMValueRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_IsThreadLocal_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IsThreadLocal_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -12578,7 +12339,7 @@ func SetThreadLocal(arg1 LLVMValueRef, arg2 bool) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetThreadLocal_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1))
+	C._wrap_SetThreadLocal_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1))
 }
 
 func IsGlobalConstant(arg1 LLVMValueRef) (_swig_ret bool) {
@@ -12591,7 +12352,7 @@ func IsGlobalConstant(arg1 LLVMValueRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_IsGlobalConstant_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IsGlobalConstant_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -12605,7 +12366,7 @@ func SetGlobalConstant(arg1 LLVMValueRef, arg2 bool) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetGlobalConstant_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1))
+	C._wrap_SetGlobalConstant_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1))
 }
 
 func GetThreadLocalMode(arg1 LLVMValueRef) (_swig_ret LLVMThreadLocalMode) {
@@ -12618,7 +12379,7 @@ func GetThreadLocalMode(arg1 LLVMValueRef) (_swig_ret LLVMThreadLocalMode) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (LLVMThreadLocalMode)(C._wrap_GetThreadLocalMode_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (LLVMThreadLocalMode)(C._wrap_GetThreadLocalMode_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -12632,7 +12393,7 @@ func SetThreadLocalMode(arg1 LLVMValueRef, arg2 LLVMThreadLocalMode) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetThreadLocalMode_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
+	C._wrap_SetThreadLocalMode_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
 }
 
 func IsExternallyInitialized(arg1 LLVMValueRef) (_swig_ret bool) {
@@ -12645,7 +12406,7 @@ func IsExternallyInitialized(arg1 LLVMValueRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_IsExternallyInitialized_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IsExternallyInitialized_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -12659,7 +12420,7 @@ func SetExternallyInitialized(arg1 LLVMValueRef, arg2 bool) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetExternallyInitialized_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1))
+	C._wrap_SetExternallyInitialized_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1))
 }
 
 func AddAlias2(arg1 LLVMModuleRef, arg2 LLVMTypeRef, arg3 uint, arg4 LLVMValueRef, arg5 string) (_swig_ret LLVMValueRef) {
@@ -12696,7 +12457,7 @@ func AddAlias2(arg1 LLVMModuleRef, arg2 LLVMTypeRef, arg3 uint, arg4 LLVMValueRe
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_4))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_AddAlias2_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.swig_intgo(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_AddAlias2_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.swig_intgo(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -12725,7 +12486,7 @@ func GetNamedGlobalAlias(arg1 LLVMModuleRef, arg2 string) (_swig_ret LLVMValueRe
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNamedGlobalAlias_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNamedGlobalAlias_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -12747,7 +12508,7 @@ func GetFirstGlobalAlias(arg1 LLVMModuleRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetFirstGlobalAlias_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetFirstGlobalAlias_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -12769,7 +12530,7 @@ func GetLastGlobalAlias(arg1 LLVMModuleRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetLastGlobalAlias_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetLastGlobalAlias_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -12791,7 +12552,7 @@ func GetNextGlobalAlias(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNextGlobalAlias_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNextGlobalAlias_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -12813,7 +12574,7 @@ func GetPreviousGlobalAlias(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetPreviousGlobalAlias_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetPreviousGlobalAlias_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -12835,7 +12596,7 @@ func AliasGetAliasee(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_AliasGetAliasee_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_AliasGetAliasee_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -12864,7 +12625,7 @@ func AliasSetAliasee(arg1 LLVMValueRef, arg2 LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_AliasSetAliasee_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
+	C._wrap_AliasSetAliasee_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
 }
 
 func DeleteFunction(arg1 LLVMValueRef) {
@@ -12876,7 +12637,7 @@ func DeleteFunction(arg1 LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_DeleteFunction_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))
+	C._wrap_DeleteFunction_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))
 }
 
 func HasPersonalityFn(arg1 LLVMValueRef) (_swig_ret bool) {
@@ -12889,7 +12650,7 @@ func HasPersonalityFn(arg1 LLVMValueRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_HasPersonalityFn_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_HasPersonalityFn_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -12903,7 +12664,7 @@ func GetPersonalityFn(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetPersonalityFn_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetPersonalityFn_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -12932,7 +12693,7 @@ func SetPersonalityFn(arg1 LLVMValueRef, arg2 LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_SetPersonalityFn_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
+	C._wrap_SetPersonalityFn_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
 }
 
 func LookupIntrinsicID(arg1 string) (_swig_ret uint) {
@@ -12944,7 +12705,7 @@ func LookupIntrinsicID(arg1 string) (_swig_ret uint) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_0))
 	}
-	swig_r = (uint)(C._wrap_LookupIntrinsicID_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0)))
+	swig_r = (uint)(C._wrap_LookupIntrinsicID_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0)))
 	return swig_r
 }
 
@@ -12958,7 +12719,7 @@ func GetIntrinsicID(arg1 LLVMValueRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_GetIntrinsicID_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GetIntrinsicID_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -12975,7 +12736,7 @@ func GetIntrinsicDeclaration(arg1 LLVMModuleRef, arg2 uint, arg3 LLVMTypeRef, ar
 	_swig_i_1 := arg2
 	_swig_i_2 := getSwigcptr(arg3)
 	_swig_i_3 := arg4
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetIntrinsicDeclaration_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.uintptr_t(_swig_i_2), C.swig_type_41(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetIntrinsicDeclaration_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.uintptr_t(_swig_i_2), C.swig_type_41(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -13000,7 +12761,7 @@ func IntrinsicGetType(arg1 LLVMContextRef, arg2 uint, arg3 LLVMTypeRef, arg4 int
 	_swig_i_1 := arg2
 	_swig_i_2 := getSwigcptr(arg3)
 	_swig_i_3 := arg4
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IntrinsicGetType_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.uintptr_t(_swig_i_2), C.swig_type_42(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IntrinsicGetType_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.uintptr_t(_swig_i_2), C.swig_type_42(_swig_i_3))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -13016,7 +12777,7 @@ func IntrinsicGetName(arg1 uint, arg2 *int64) (_swig_ret string) {
 	var swig_r *C.char
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	swig_r = (*C.char)(C._wrap_IntrinsicGetName_llvm_5d1e3feecae2b244(C.swig_intgo(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (*C.char)(C._wrap_IntrinsicGetName_llvm_a0e88c3155de3083(C.swig_intgo(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -13033,7 +12794,7 @@ func IntrinsicCopyOverloadedName(arg1 uint, arg2 LLVMTypeRef, arg3 int64, arg4 *
 	_swig_i_1 := getSwigcptr(arg2)
 	_swig_i_2 := arg3
 	_swig_i_3 := arg4
-	swig_r = (*C.char)(C._wrap_IntrinsicCopyOverloadedName_llvm_5d1e3feecae2b244(C.swig_intgo(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_type_43(_swig_i_2), C.swig_voidp(_swig_i_3)))
+	swig_r = (*C.char)(C._wrap_IntrinsicCopyOverloadedName_llvm_a0e88c3155de3083(C.swig_intgo(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_type_43(_swig_i_2), C.swig_voidp(_swig_i_3)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -13058,7 +12819,7 @@ func IntrinsicCopyOverloadedName2(arg1 LLVMModuleRef, arg2 uint, arg3 LLVMTypeRe
 	_swig_i_2 := getSwigcptr(arg3)
 	_swig_i_3 := arg4
 	_swig_i_4 := arg5
-	swig_r = (*C.char)(C._wrap_IntrinsicCopyOverloadedName2_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.uintptr_t(_swig_i_2), C.swig_type_44(_swig_i_3), C.swig_voidp(_swig_i_4)))
+	swig_r = (*C.char)(C._wrap_IntrinsicCopyOverloadedName2_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.uintptr_t(_swig_i_2), C.swig_type_44(_swig_i_3), C.swig_voidp(_swig_i_4)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -13072,7 +12833,7 @@ func IntrinsicCopyOverloadedName2(arg1 LLVMModuleRef, arg2 uint, arg3 LLVMTypeRe
 func IntrinsicIsOverloaded(arg1 uint) (_swig_ret bool) {
 	var swig_r bool
 	_swig_i_0 := arg1
-	swig_r = (bool)(C._wrap_IntrinsicIsOverloaded_llvm_5d1e3feecae2b244(C.swig_intgo(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IntrinsicIsOverloaded_llvm_a0e88c3155de3083(C.swig_intgo(_swig_i_0)))
 	return swig_r
 }
 
@@ -13086,7 +12847,7 @@ func GetFunctionCallConv(arg1 LLVMValueRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_GetFunctionCallConv_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GetFunctionCallConv_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -13100,7 +12861,7 @@ func SetFunctionCallConv(arg1 LLVMValueRef, arg2 uint) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetFunctionCallConv_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
+	C._wrap_SetFunctionCallConv_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
 }
 
 func GetGC(arg1 LLVMValueRef) (_swig_ret string) {
@@ -13113,7 +12874,7 @@ func GetGC(arg1 LLVMValueRef) (_swig_ret string) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (*C.char)(C._wrap_GetGC_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_GetGC_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -13140,7 +12901,7 @@ func SetGC(arg1 LLVMValueRef, arg2 string) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	C._wrap_SetGC_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1))
+	C._wrap_SetGC_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1))
 }
 
 func AddAttributeAtIndex(arg1 LLVMValueRef, arg2 uint, arg3 LLVMAttributeRef) {
@@ -13161,7 +12922,7 @@ func AddAttributeAtIndex(arg1 LLVMValueRef, arg2 uint, arg3 LLVMAttributeRef) {
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	C._wrap_AddAttributeAtIndex_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMAttributeRef(_swig_i_2))
+	C._wrap_AddAttributeAtIndex_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMAttributeRef(_swig_i_2))
 }
 
 func GetAttributeCountAtIndex(arg1 LLVMValueRef, arg2 uint) (_swig_ret uint) {
@@ -13175,7 +12936,7 @@ func GetAttributeCountAtIndex(arg1 LLVMValueRef, arg2 uint) (_swig_ret uint) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (uint)(C._wrap_GetAttributeCountAtIndex_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1)))
+	swig_r = (uint)(C._wrap_GetAttributeCountAtIndex_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1)))
 	return swig_r
 }
 
@@ -13190,7 +12951,7 @@ func GetAttributesAtIndex(arg1 LLVMValueRef, arg2 uint, arg3 LLVMAttributeRef) {
 	}
 	_swig_i_1 := arg2
 	_swig_i_2 := getSwigcptr(arg3)
-	C._wrap_GetAttributesAtIndex_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.uintptr_t(_swig_i_2))
+	C._wrap_GetAttributesAtIndex_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.uintptr_t(_swig_i_2))
 }
 
 func GetEnumAttributeAtIndex(arg1 LLVMValueRef, arg2 uint, arg3 uint) (_swig_ret LLVMAttributeRef) {
@@ -13205,7 +12966,7 @@ func GetEnumAttributeAtIndex(arg1 LLVMValueRef, arg2 uint, arg3 uint) (_swig_ret
 	}
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetEnumAttributeAtIndex_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_intgo(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetEnumAttributeAtIndex_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_intgo(_swig_i_2))))
 	var swig_r_1 LLVMAttributeRef
 	{
 		if swig_r == nil {
@@ -13236,7 +12997,7 @@ func GetStringAttributeAtIndex(arg1 LLVMValueRef, arg2 uint, arg3 string, arg4 u
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
 	_swig_i_3 := arg4
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetStringAttributeAtIndex_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_intgo(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetStringAttributeAtIndex_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_intgo(_swig_i_3))))
 	var swig_r_1 LLVMAttributeRef
 	{
 		if swig_r == nil {
@@ -13259,7 +13020,7 @@ func RemoveEnumAttributeAtIndex(arg1 LLVMValueRef, arg2 uint, arg3 uint) {
 	}
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	C._wrap_RemoveEnumAttributeAtIndex_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_intgo(_swig_i_2))
+	C._wrap_RemoveEnumAttributeAtIndex_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_intgo(_swig_i_2))
 }
 
 func RemoveStringAttributeAtIndex(arg1 LLVMValueRef, arg2 uint, arg3 string, arg4 uint) {
@@ -13280,7 +13041,7 @@ func RemoveStringAttributeAtIndex(arg1 LLVMValueRef, arg2 uint, arg3 string, arg
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
 	_swig_i_3 := arg4
-	C._wrap_RemoveStringAttributeAtIndex_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_intgo(_swig_i_3))
+	C._wrap_RemoveStringAttributeAtIndex_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_intgo(_swig_i_3))
 }
 
 func AddTargetDependentFunctionAttr(arg1 LLVMValueRef, arg2 string, arg3 string) {
@@ -13306,7 +13067,7 @@ func AddTargetDependentFunctionAttr(arg1 LLVMValueRef, arg2 string, arg3 string)
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
-	C._wrap_AddTargetDependentFunctionAttr_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2))
+	C._wrap_AddTargetDependentFunctionAttr_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2))
 }
 
 func CountParams(arg1 LLVMValueRef) (_swig_ret uint) {
@@ -13319,7 +13080,7 @@ func CountParams(arg1 LLVMValueRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_CountParams_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_CountParams_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -13333,7 +13094,7 @@ func GetParams(arg1 LLVMValueRef, arg2 LLVMValueRef) {
 		}
 	}
 	_swig_i_1 := getSwigcptr(arg2)
-	C._wrap_GetParams_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.uintptr_t(_swig_i_1))
+	C._wrap_GetParams_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.uintptr_t(_swig_i_1))
 }
 
 func GetParam(arg1 LLVMValueRef, arg2 uint) (_swig_ret LLVMValueRef) {
@@ -13347,7 +13108,7 @@ func GetParam(arg1 LLVMValueRef, arg2 uint) (_swig_ret LLVMValueRef) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetParam_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetParam_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -13369,7 +13130,7 @@ func GetParamParent(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetParamParent_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetParamParent_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -13391,7 +13152,7 @@ func GetFirstParam(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetFirstParam_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetFirstParam_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -13413,7 +13174,7 @@ func GetLastParam(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetLastParam_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetLastParam_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -13435,7 +13196,7 @@ func GetNextParam(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNextParam_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNextParam_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -13457,7 +13218,7 @@ func GetPreviousParam(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetPreviousParam_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetPreviousParam_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -13479,7 +13240,7 @@ func SetParamAlignment(arg1 LLVMValueRef, arg2 uint) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetParamAlignment_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
+	C._wrap_SetParamAlignment_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
 }
 
 func AddGlobalIFunc(arg1 LLVMModuleRef, arg2 string, arg3 LLVMTypeRef, arg4 uint, arg5 LLVMValueRef) (_swig_ret LLVMValueRef) {
@@ -13516,7 +13277,7 @@ func AddGlobalIFunc(arg1 LLVMModuleRef, arg2 string, arg3 LLVMTypeRef, arg4 uint
 			_swig_i_4 = unsafe.Pointer(arg5.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_AddGlobalIFunc_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_intgo(_swig_i_3), C.LLVMValueRef(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_AddGlobalIFunc_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_intgo(_swig_i_3), C.LLVMValueRef(_swig_i_4))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -13545,7 +13306,7 @@ func GetNamedGlobalIFunc(arg1 LLVMModuleRef, arg2 string) (_swig_ret LLVMValueRe
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNamedGlobalIFunc_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNamedGlobalIFunc_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -13567,7 +13328,7 @@ func GetFirstGlobalIFunc(arg1 LLVMModuleRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetFirstGlobalIFunc_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetFirstGlobalIFunc_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -13589,7 +13350,7 @@ func GetLastGlobalIFunc(arg1 LLVMModuleRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetLastGlobalIFunc_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetLastGlobalIFunc_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -13611,7 +13372,7 @@ func GetNextGlobalIFunc(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNextGlobalIFunc_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNextGlobalIFunc_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -13633,7 +13394,7 @@ func GetPreviousGlobalIFunc(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetPreviousGlobalIFunc_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetPreviousGlobalIFunc_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -13655,7 +13416,7 @@ func GetGlobalIFuncResolver(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetGlobalIFuncResolver_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetGlobalIFuncResolver_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -13684,7 +13445,7 @@ func SetGlobalIFuncResolver(arg1 LLVMValueRef, arg2 LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_SetGlobalIFuncResolver_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
+	C._wrap_SetGlobalIFuncResolver_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
 }
 
 func EraseGlobalIFunc(arg1 LLVMValueRef) {
@@ -13696,7 +13457,7 @@ func EraseGlobalIFunc(arg1 LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_EraseGlobalIFunc_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))
+	C._wrap_EraseGlobalIFunc_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))
 }
 
 func RemoveGlobalIFunc(arg1 LLVMValueRef) {
@@ -13708,7 +13469,7 @@ func RemoveGlobalIFunc(arg1 LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_RemoveGlobalIFunc_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))
+	C._wrap_RemoveGlobalIFunc_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))
 }
 
 func MDStringInContext2(arg1 LLVMContextRef, arg2 string, arg3 int64) (_swig_ret LLVMMetadataRef) {
@@ -13729,7 +13490,7 @@ func MDStringInContext2(arg1 LLVMContextRef, arg2 string, arg3 int64) (_swig_ret
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_MDStringInContext2_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_45(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_MDStringInContext2_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_45(_swig_i_2))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -13753,7 +13514,7 @@ func MDNodeInContext2(arg1 LLVMContextRef, arg2 LLVMMetadataRef, arg3 int64) (_s
 	}
 	_swig_i_1 := getSwigcptr(arg2)
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_MDNodeInContext2_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_type_46(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_MDNodeInContext2_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_type_46(_swig_i_2))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -13783,7 +13544,7 @@ func MetadataAsValue(arg1 LLVMContextRef, arg2 LLVMMetadataRef) (_swig_ret LLVMV
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_MetadataAsValue_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_MetadataAsValue_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -13805,7 +13566,7 @@ func ValueAsMetadata(arg1 LLVMValueRef) (_swig_ret LLVMMetadataRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ValueAsMetadata_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ValueAsMetadata_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -13828,7 +13589,7 @@ func GetMDString(arg1 LLVMValueRef, arg2 *uint) (_swig_ret string) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (*C.char)(C._wrap_GetMDString_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (*C.char)(C._wrap_GetMDString_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -13849,7 +13610,7 @@ func GetMDNodeNumOperands(arg1 LLVMValueRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_GetMDNodeNumOperands_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GetMDNodeNumOperands_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -13863,7 +13624,7 @@ func GetMDNodeOperands(arg1 LLVMValueRef, arg2 LLVMValueRef) {
 		}
 	}
 	_swig_i_1 := getSwigcptr(arg2)
-	C._wrap_GetMDNodeOperands_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.uintptr_t(_swig_i_1))
+	C._wrap_GetMDNodeOperands_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.uintptr_t(_swig_i_1))
 }
 
 func ReplaceMDNodeOperandWith(arg1 LLVMValueRef, arg2 uint, arg3 LLVMMetadataRef) {
@@ -13884,7 +13645,7 @@ func ReplaceMDNodeOperandWith(arg1 LLVMValueRef, arg2 uint, arg3 LLVMMetadataRef
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	C._wrap_ReplaceMDNodeOperandWith_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMMetadataRef(_swig_i_2))
+	C._wrap_ReplaceMDNodeOperandWith_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMMetadataRef(_swig_i_2))
 }
 
 func MDStringInContext(arg1 LLVMContextRef, arg2 string, arg3 uint) (_swig_ret LLVMValueRef) {
@@ -13905,7 +13666,7 @@ func MDStringInContext(arg1 LLVMContextRef, arg2 string, arg3 uint) (_swig_ret L
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_MDStringInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_intgo(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_MDStringInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_intgo(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -13927,7 +13688,7 @@ func MDString(arg1 string, arg2 uint) (_swig_ret LLVMValueRef) {
 		//defer C.free(unsafe.Pointer(_swig_i_0))
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_MDString_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_MDString_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -13961,7 +13722,7 @@ func MDNodeInContext(arg1 LLVMContextRef, arg2 []LLVMValueRef) (_swig_ret LLVMVa
 			*(*C.LLVMValueRef)(unsafe.Pointer(uintptr(unsafe.Pointer(_swig_i_1)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMValueRef)(unsafe.Pointer(val.Swigcptr()))
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_MDNodeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_MDNodeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -13987,7 +13748,7 @@ func MDNode(arg1 []LLVMValueRef) (_swig_ret LLVMValueRef) {
 			*(*C.LLVMValueRef)(unsafe.Pointer(uintptr(unsafe.Pointer(_swig_i_0)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMValueRef)(unsafe.Pointer(val.Swigcptr()))
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_MDNode_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_MDNode_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -14009,7 +13770,7 @@ func BasicBlockAsValue(arg1 LLVMBasicBlockRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BasicBlockAsValue_llvm_5d1e3feecae2b244(C.LLVMBasicBlockRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BasicBlockAsValue_llvm_a0e88c3155de3083(C.LLVMBasicBlockRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -14031,7 +13792,7 @@ func ValueIsBasicBlock(arg1 LLVMValueRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_ValueIsBasicBlock_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_ValueIsBasicBlock_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -14045,7 +13806,7 @@ func ValueAsBasicBlock(arg1 LLVMValueRef) (_swig_ret LLVMBasicBlockRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ValueAsBasicBlock_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_ValueAsBasicBlock_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMBasicBlockRef
 	{
 		if swig_r == nil {
@@ -14067,7 +13828,7 @@ func GetBasicBlockName(arg1 LLVMBasicBlockRef) (_swig_ret string) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (*C.char)(C._wrap_GetBasicBlockName_llvm_5d1e3feecae2b244(C.LLVMBasicBlockRef(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_GetBasicBlockName_llvm_a0e88c3155de3083(C.LLVMBasicBlockRef(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -14088,7 +13849,7 @@ func GetBasicBlockParent(arg1 LLVMBasicBlockRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetBasicBlockParent_llvm_5d1e3feecae2b244(C.LLVMBasicBlockRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetBasicBlockParent_llvm_a0e88c3155de3083(C.LLVMBasicBlockRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -14110,7 +13871,7 @@ func GetBasicBlockTerminator(arg1 LLVMBasicBlockRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetBasicBlockTerminator_llvm_5d1e3feecae2b244(C.LLVMBasicBlockRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetBasicBlockTerminator_llvm_a0e88c3155de3083(C.LLVMBasicBlockRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -14132,7 +13893,7 @@ func CountBasicBlocks(arg1 LLVMValueRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_CountBasicBlocks_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_CountBasicBlocks_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -14146,7 +13907,7 @@ func GetBasicBlocks(arg1 LLVMValueRef, arg2 LLVMBasicBlockRef) {
 		}
 	}
 	_swig_i_1 := getSwigcptr(arg2)
-	C._wrap_GetBasicBlocks_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.uintptr_t(_swig_i_1))
+	C._wrap_GetBasicBlocks_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.uintptr_t(_swig_i_1))
 }
 
 func GetFirstBasicBlock(arg1 LLVMValueRef) (_swig_ret LLVMBasicBlockRef) {
@@ -14159,7 +13920,7 @@ func GetFirstBasicBlock(arg1 LLVMValueRef) (_swig_ret LLVMBasicBlockRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetFirstBasicBlock_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetFirstBasicBlock_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMBasicBlockRef
 	{
 		if swig_r == nil {
@@ -14181,7 +13942,7 @@ func GetLastBasicBlock(arg1 LLVMValueRef) (_swig_ret LLVMBasicBlockRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetLastBasicBlock_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetLastBasicBlock_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMBasicBlockRef
 	{
 		if swig_r == nil {
@@ -14203,7 +13964,7 @@ func GetNextBasicBlock(arg1 LLVMBasicBlockRef) (_swig_ret LLVMBasicBlockRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNextBasicBlock_llvm_5d1e3feecae2b244(C.LLVMBasicBlockRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNextBasicBlock_llvm_a0e88c3155de3083(C.LLVMBasicBlockRef(_swig_i_0))))
 	var swig_r_1 LLVMBasicBlockRef
 	{
 		if swig_r == nil {
@@ -14225,7 +13986,7 @@ func GetPreviousBasicBlock(arg1 LLVMBasicBlockRef) (_swig_ret LLVMBasicBlockRef)
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetPreviousBasicBlock_llvm_5d1e3feecae2b244(C.LLVMBasicBlockRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetPreviousBasicBlock_llvm_a0e88c3155de3083(C.LLVMBasicBlockRef(_swig_i_0))))
 	var swig_r_1 LLVMBasicBlockRef
 	{
 		if swig_r == nil {
@@ -14247,7 +14008,7 @@ func GetEntryBasicBlock(arg1 LLVMValueRef) (_swig_ret LLVMBasicBlockRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetEntryBasicBlock_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetEntryBasicBlock_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMBasicBlockRef
 	{
 		if swig_r == nil {
@@ -14276,7 +14037,7 @@ func InsertExistingBasicBlockAfterInsertBlock(arg1 LLVMBuilderRef, arg2 LLVMBasi
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_InsertExistingBasicBlockAfterInsertBlock_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))
+	C._wrap_InsertExistingBasicBlockAfterInsertBlock_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))
 }
 
 func AppendExistingBasicBlock(arg1 LLVMValueRef, arg2 LLVMBasicBlockRef) {
@@ -14296,7 +14057,7 @@ func AppendExistingBasicBlock(arg1 LLVMValueRef, arg2 LLVMBasicBlockRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_AppendExistingBasicBlock_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))
+	C._wrap_AppendExistingBasicBlock_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))
 }
 
 func CreateBasicBlockInContext(arg1 LLVMContextRef, arg2 string) (_swig_ret LLVMBasicBlockRef) {
@@ -14316,7 +14077,7 @@ func CreateBasicBlockInContext(arg1 LLVMContextRef, arg2 string) (_swig_ret LLVM
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateBasicBlockInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateBasicBlockInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	var swig_r_1 LLVMBasicBlockRef
 	{
 		if swig_r == nil {
@@ -14353,7 +14114,7 @@ func AppendBasicBlockInContext(arg1 LLVMContextRef, arg2 LLVMValueRef, arg3 stri
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_AppendBasicBlockInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_AppendBasicBlockInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMBasicBlockRef
 	{
 		if swig_r == nil {
@@ -14382,7 +14143,7 @@ func AppendBasicBlock(arg1 LLVMValueRef, arg2 string) (_swig_ret LLVMBasicBlockR
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_AppendBasicBlock_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_AppendBasicBlock_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	var swig_r_1 LLVMBasicBlockRef
 	{
 		if swig_r == nil {
@@ -14419,7 +14180,7 @@ func InsertBasicBlockInContext(arg1 LLVMContextRef, arg2 LLVMBasicBlockRef, arg3
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_InsertBasicBlockInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_InsertBasicBlockInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMBasicBlockRef
 	{
 		if swig_r == nil {
@@ -14448,7 +14209,7 @@ func InsertBasicBlock(arg1 LLVMBasicBlockRef, arg2 string) (_swig_ret LLVMBasicB
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_InsertBasicBlock_llvm_5d1e3feecae2b244(C.LLVMBasicBlockRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_InsertBasicBlock_llvm_a0e88c3155de3083(C.LLVMBasicBlockRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	var swig_r_1 LLVMBasicBlockRef
 	{
 		if swig_r == nil {
@@ -14469,7 +14230,7 @@ func DeleteBasicBlock(arg1 LLVMBasicBlockRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_DeleteBasicBlock_llvm_5d1e3feecae2b244(C.LLVMBasicBlockRef(_swig_i_0))
+	C._wrap_DeleteBasicBlock_llvm_a0e88c3155de3083(C.LLVMBasicBlockRef(_swig_i_0))
 }
 
 func RemoveBasicBlockFromParent(arg1 LLVMBasicBlockRef) {
@@ -14481,7 +14242,7 @@ func RemoveBasicBlockFromParent(arg1 LLVMBasicBlockRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_RemoveBasicBlockFromParent_llvm_5d1e3feecae2b244(C.LLVMBasicBlockRef(_swig_i_0))
+	C._wrap_RemoveBasicBlockFromParent_llvm_a0e88c3155de3083(C.LLVMBasicBlockRef(_swig_i_0))
 }
 
 func MoveBasicBlockBefore(arg1 LLVMBasicBlockRef, arg2 LLVMBasicBlockRef) {
@@ -14501,7 +14262,7 @@ func MoveBasicBlockBefore(arg1 LLVMBasicBlockRef, arg2 LLVMBasicBlockRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_MoveBasicBlockBefore_llvm_5d1e3feecae2b244(C.LLVMBasicBlockRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))
+	C._wrap_MoveBasicBlockBefore_llvm_a0e88c3155de3083(C.LLVMBasicBlockRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))
 }
 
 func MoveBasicBlockAfter(arg1 LLVMBasicBlockRef, arg2 LLVMBasicBlockRef) {
@@ -14521,7 +14282,7 @@ func MoveBasicBlockAfter(arg1 LLVMBasicBlockRef, arg2 LLVMBasicBlockRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_MoveBasicBlockAfter_llvm_5d1e3feecae2b244(C.LLVMBasicBlockRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))
+	C._wrap_MoveBasicBlockAfter_llvm_a0e88c3155de3083(C.LLVMBasicBlockRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))
 }
 
 func GetFirstInstruction(arg1 LLVMBasicBlockRef) (_swig_ret LLVMValueRef) {
@@ -14534,7 +14295,7 @@ func GetFirstInstruction(arg1 LLVMBasicBlockRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetFirstInstruction_llvm_5d1e3feecae2b244(C.LLVMBasicBlockRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetFirstInstruction_llvm_a0e88c3155de3083(C.LLVMBasicBlockRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -14556,7 +14317,7 @@ func GetLastInstruction(arg1 LLVMBasicBlockRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetLastInstruction_llvm_5d1e3feecae2b244(C.LLVMBasicBlockRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetLastInstruction_llvm_a0e88c3155de3083(C.LLVMBasicBlockRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -14578,7 +14339,7 @@ func HasMetadata(arg1 LLVMValueRef) (_swig_ret int) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (int)(C._wrap_HasMetadata_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (int)(C._wrap_HasMetadata_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -14593,7 +14354,7 @@ func GetMetadata(arg1 LLVMValueRef, arg2 uint) (_swig_ret LLVMValueRef) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetMetadata_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetMetadata_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -14623,7 +14384,7 @@ func SetMetadata(arg1 LLVMValueRef, arg2 uint, arg3 LLVMValueRef) {
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	C._wrap_SetMetadata_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMValueRef(_swig_i_2))
+	C._wrap_SetMetadata_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMValueRef(_swig_i_2))
 }
 
 func InstructionGetAllMetadataOtherThanDebugLoc(arg1 LLVMValueRef, arg2 *int64) (_swig_ret LLVMValueMetadataEntry) {
@@ -14637,7 +14398,7 @@ func InstructionGetAllMetadataOtherThanDebugLoc(arg1 LLVMValueRef, arg2 *int64) 
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (LLVMValueMetadataEntry)(SwigcptrLLVMValueMetadataEntry(C._wrap_InstructionGetAllMetadataOtherThanDebugLoc_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (LLVMValueMetadataEntry)(SwigcptrLLVMValueMetadataEntry(C._wrap_InstructionGetAllMetadataOtherThanDebugLoc_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	return swig_r
 }
 
@@ -14651,7 +14412,7 @@ func GetInstructionParent(arg1 LLVMValueRef) (_swig_ret LLVMBasicBlockRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetInstructionParent_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetInstructionParent_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMBasicBlockRef
 	{
 		if swig_r == nil {
@@ -14673,7 +14434,7 @@ func GetNextInstruction(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNextInstruction_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNextInstruction_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -14695,7 +14456,7 @@ func GetPreviousInstruction(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetPreviousInstruction_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetPreviousInstruction_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -14716,7 +14477,7 @@ func InstructionRemoveFromParent(arg1 LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_InstructionRemoveFromParent_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))
+	C._wrap_InstructionRemoveFromParent_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))
 }
 
 func InstructionEraseFromParent(arg1 LLVMValueRef) {
@@ -14728,7 +14489,7 @@ func InstructionEraseFromParent(arg1 LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_InstructionEraseFromParent_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))
+	C._wrap_InstructionEraseFromParent_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))
 }
 
 func DeleteInstruction(arg1 LLVMValueRef) {
@@ -14740,7 +14501,7 @@ func DeleteInstruction(arg1 LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_DeleteInstruction_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))
+	C._wrap_DeleteInstruction_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))
 }
 
 func GetInstructionOpcode(arg1 LLVMValueRef) (_swig_ret LLVMOpcode) {
@@ -14753,7 +14514,7 @@ func GetInstructionOpcode(arg1 LLVMValueRef) (_swig_ret LLVMOpcode) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (LLVMOpcode)(C._wrap_GetInstructionOpcode_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (LLVMOpcode)(C._wrap_GetInstructionOpcode_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -14767,7 +14528,7 @@ func GetICmpPredicate(arg1 LLVMValueRef) (_swig_ret LLVMIntPredicate) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (LLVMIntPredicate)(C._wrap_GetICmpPredicate_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (LLVMIntPredicate)(C._wrap_GetICmpPredicate_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -14781,7 +14542,7 @@ func GetFCmpPredicate(arg1 LLVMValueRef) (_swig_ret LLVMRealPredicate) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (LLVMRealPredicate)(C._wrap_GetFCmpPredicate_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (LLVMRealPredicate)(C._wrap_GetFCmpPredicate_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -14795,7 +14556,7 @@ func InstructionClone(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_InstructionClone_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_InstructionClone_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -14817,7 +14578,7 @@ func IsATerminatorInst(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsATerminatorInst_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IsATerminatorInst_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -14839,7 +14600,7 @@ func GetNumArgOperands(arg1 LLVMValueRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_GetNumArgOperands_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GetNumArgOperands_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -14853,7 +14614,7 @@ func SetInstructionCallConv(arg1 LLVMValueRef, arg2 uint) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetInstructionCallConv_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
+	C._wrap_SetInstructionCallConv_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
 }
 
 func GetInstructionCallConv(arg1 LLVMValueRef) (_swig_ret uint) {
@@ -14866,7 +14627,7 @@ func GetInstructionCallConv(arg1 LLVMValueRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_GetInstructionCallConv_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GetInstructionCallConv_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -14881,7 +14642,7 @@ func SetInstrParamAlignment(arg1 LLVMValueRef, arg2 uint, arg3 uint) {
 	}
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	C._wrap_SetInstrParamAlignment_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_intgo(_swig_i_2))
+	C._wrap_SetInstrParamAlignment_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_intgo(_swig_i_2))
 }
 
 func AddCallSiteAttribute(arg1 LLVMValueRef, arg2 uint, arg3 LLVMAttributeRef) {
@@ -14902,7 +14663,7 @@ func AddCallSiteAttribute(arg1 LLVMValueRef, arg2 uint, arg3 LLVMAttributeRef) {
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	C._wrap_AddCallSiteAttribute_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMAttributeRef(_swig_i_2))
+	C._wrap_AddCallSiteAttribute_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMAttributeRef(_swig_i_2))
 }
 
 func GetCallSiteAttributeCount(arg1 LLVMValueRef, arg2 uint) (_swig_ret uint) {
@@ -14916,7 +14677,7 @@ func GetCallSiteAttributeCount(arg1 LLVMValueRef, arg2 uint) (_swig_ret uint) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (uint)(C._wrap_GetCallSiteAttributeCount_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1)))
+	swig_r = (uint)(C._wrap_GetCallSiteAttributeCount_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1)))
 	return swig_r
 }
 
@@ -14931,7 +14692,7 @@ func GetCallSiteAttributes(arg1 LLVMValueRef, arg2 uint, arg3 LLVMAttributeRef) 
 	}
 	_swig_i_1 := arg2
 	_swig_i_2 := getSwigcptr(arg3)
-	C._wrap_GetCallSiteAttributes_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.uintptr_t(_swig_i_2))
+	C._wrap_GetCallSiteAttributes_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.uintptr_t(_swig_i_2))
 }
 
 func GetCallSiteEnumAttribute(arg1 LLVMValueRef, arg2 uint, arg3 uint) (_swig_ret LLVMAttributeRef) {
@@ -14946,7 +14707,7 @@ func GetCallSiteEnumAttribute(arg1 LLVMValueRef, arg2 uint, arg3 uint) (_swig_re
 	}
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetCallSiteEnumAttribute_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_intgo(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetCallSiteEnumAttribute_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_intgo(_swig_i_2))))
 	var swig_r_1 LLVMAttributeRef
 	{
 		if swig_r == nil {
@@ -14977,7 +14738,7 @@ func GetCallSiteStringAttribute(arg1 LLVMValueRef, arg2 uint, arg3 string, arg4 
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
 	_swig_i_3 := arg4
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetCallSiteStringAttribute_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_intgo(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetCallSiteStringAttribute_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_intgo(_swig_i_3))))
 	var swig_r_1 LLVMAttributeRef
 	{
 		if swig_r == nil {
@@ -15000,7 +14761,7 @@ func RemoveCallSiteEnumAttribute(arg1 LLVMValueRef, arg2 uint, arg3 uint) {
 	}
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	C._wrap_RemoveCallSiteEnumAttribute_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_intgo(_swig_i_2))
+	C._wrap_RemoveCallSiteEnumAttribute_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_intgo(_swig_i_2))
 }
 
 func RemoveCallSiteStringAttribute(arg1 LLVMValueRef, arg2 uint, arg3 string, arg4 uint) {
@@ -15021,7 +14782,7 @@ func RemoveCallSiteStringAttribute(arg1 LLVMValueRef, arg2 uint, arg3 string, ar
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
 	_swig_i_3 := arg4
-	C._wrap_RemoveCallSiteStringAttribute_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_intgo(_swig_i_3))
+	C._wrap_RemoveCallSiteStringAttribute_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_intgo(_swig_i_3))
 }
 
 func GetCalledFunctionType(arg1 LLVMValueRef) (_swig_ret LLVMTypeRef) {
@@ -15034,7 +14795,7 @@ func GetCalledFunctionType(arg1 LLVMValueRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetCalledFunctionType_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetCalledFunctionType_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -15056,7 +14817,7 @@ func GetCalledValue(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetCalledValue_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetCalledValue_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -15078,7 +14839,7 @@ func IsTailCall(arg1 LLVMValueRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_IsTailCall_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IsTailCall_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -15092,7 +14853,7 @@ func SetTailCall(arg1 LLVMValueRef, arg2 bool) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetTailCall_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1))
+	C._wrap_SetTailCall_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1))
 }
 
 func GetNormalDest(arg1 LLVMValueRef) (_swig_ret LLVMBasicBlockRef) {
@@ -15105,7 +14866,7 @@ func GetNormalDest(arg1 LLVMValueRef) (_swig_ret LLVMBasicBlockRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNormalDest_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNormalDest_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMBasicBlockRef
 	{
 		if swig_r == nil {
@@ -15127,7 +14888,7 @@ func GetUnwindDest(arg1 LLVMValueRef) (_swig_ret LLVMBasicBlockRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetUnwindDest_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetUnwindDest_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMBasicBlockRef
 	{
 		if swig_r == nil {
@@ -15156,7 +14917,7 @@ func SetNormalDest(arg1 LLVMValueRef, arg2 LLVMBasicBlockRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_SetNormalDest_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))
+	C._wrap_SetNormalDest_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))
 }
 
 func SetUnwindDest(arg1 LLVMValueRef, arg2 LLVMBasicBlockRef) {
@@ -15176,7 +14937,7 @@ func SetUnwindDest(arg1 LLVMValueRef, arg2 LLVMBasicBlockRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_SetUnwindDest_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))
+	C._wrap_SetUnwindDest_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))
 }
 
 func GetNumSuccessors(arg1 LLVMValueRef) (_swig_ret uint) {
@@ -15189,7 +14950,7 @@ func GetNumSuccessors(arg1 LLVMValueRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_GetNumSuccessors_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GetNumSuccessors_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -15204,7 +14965,7 @@ func GetSuccessor(arg1 LLVMValueRef, arg2 uint) (_swig_ret LLVMBasicBlockRef) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetSuccessor_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetSuccessor_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMBasicBlockRef
 	{
 		if swig_r == nil {
@@ -15234,7 +14995,7 @@ func SetSuccessor(arg1 LLVMValueRef, arg2 uint, arg3 LLVMBasicBlockRef) {
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	C._wrap_SetSuccessor_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMBasicBlockRef(_swig_i_2))
+	C._wrap_SetSuccessor_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMBasicBlockRef(_swig_i_2))
 }
 
 func IsConditional(arg1 LLVMValueRef) (_swig_ret bool) {
@@ -15247,7 +15008,7 @@ func IsConditional(arg1 LLVMValueRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_IsConditional_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IsConditional_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -15261,7 +15022,7 @@ func GetCondition(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetCondition_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetCondition_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -15290,7 +15051,7 @@ func SetCondition(arg1 LLVMValueRef, arg2 LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_SetCondition_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
+	C._wrap_SetCondition_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
 }
 
 func GetSwitchDefaultDest(arg1 LLVMValueRef) (_swig_ret LLVMBasicBlockRef) {
@@ -15303,7 +15064,7 @@ func GetSwitchDefaultDest(arg1 LLVMValueRef) (_swig_ret LLVMBasicBlockRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetSwitchDefaultDest_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetSwitchDefaultDest_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMBasicBlockRef
 	{
 		if swig_r == nil {
@@ -15325,7 +15086,7 @@ func GetAllocatedType(arg1 LLVMValueRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetAllocatedType_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetAllocatedType_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -15347,7 +15108,7 @@ func IsInBounds(arg1 LLVMValueRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_IsInBounds_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IsInBounds_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -15361,7 +15122,7 @@ func SetIsInBounds(arg1 LLVMValueRef, arg2 bool) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetIsInBounds_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1))
+	C._wrap_SetIsInBounds_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1))
 }
 
 func GetGEPSourceElementType(arg1 LLVMValueRef) (_swig_ret LLVMTypeRef) {
@@ -15374,7 +15135,7 @@ func GetGEPSourceElementType(arg1 LLVMValueRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetGEPSourceElementType_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetGEPSourceElementType_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -15384,21 +15145,6 @@ func GetGEPSourceElementType(arg1 LLVMValueRef) (_swig_ret LLVMTypeRef) {
 		}
 	}
 	return swig_r_1
-}
-
-func AddIncoming(arg1 LLVMValueRef, arg2 LLVMValueRef, arg3 LLVMBasicBlockRef, arg4 uint) {
-	var _swig_i_0 unsafe.Pointer
-	{
-		if arg1 == nil {
-			_swig_i_0 = unsafe.Pointer(uintptr(0))
-		} else {
-			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
-		}
-	}
-	_swig_i_1 := getSwigcptr(arg2)
-	_swig_i_2 := getSwigcptr(arg3)
-	_swig_i_3 := arg4
-	C._wrap_AddIncoming_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.uintptr_t(_swig_i_1), C.uintptr_t(_swig_i_2), C.swig_intgo(_swig_i_3))
 }
 
 func CountIncoming(arg1 LLVMValueRef) (_swig_ret uint) {
@@ -15411,7 +15157,7 @@ func CountIncoming(arg1 LLVMValueRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_CountIncoming_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_CountIncoming_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -15426,7 +15172,7 @@ func GetIncomingValue(arg1 LLVMValueRef, arg2 uint) (_swig_ret LLVMValueRef) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetIncomingValue_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetIncomingValue_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -15449,7 +15195,7 @@ func GetIncomingBlock(arg1 LLVMValueRef, arg2 uint) (_swig_ret LLVMBasicBlockRef
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetIncomingBlock_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetIncomingBlock_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMBasicBlockRef
 	{
 		if swig_r == nil {
@@ -15471,7 +15217,7 @@ func GetNumIndices(arg1 LLVMValueRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_GetNumIndices_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GetNumIndices_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -15485,7 +15231,7 @@ func GetIndices(arg1 LLVMValueRef) (_swig_ret *uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (*uint)(C._wrap_GetIndices_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (*uint)(C._wrap_GetIndices_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -15499,7 +15245,7 @@ func CreateBuilderInContext(arg1 LLVMContextRef) (_swig_ret LLVMBuilderRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateBuilderInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateBuilderInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0))))
 	var swig_r_1 LLVMBuilderRef
 	{
 		if swig_r == nil {
@@ -15513,7 +15259,7 @@ func CreateBuilderInContext(arg1 LLVMContextRef) (_swig_ret LLVMBuilderRef) {
 
 func CreateBuilder() (_swig_ret LLVMBuilderRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateBuilder_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateBuilder_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMBuilderRef
 	{
 		if swig_r == nil {
@@ -15550,7 +15296,7 @@ func PositionBuilder(arg1 LLVMBuilderRef, arg2 LLVMBasicBlockRef, arg3 LLVMValue
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	C._wrap_PositionBuilder_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1), C.LLVMValueRef(_swig_i_2))
+	C._wrap_PositionBuilder_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1), C.LLVMValueRef(_swig_i_2))
 }
 
 func PositionBuilderBefore(arg1 LLVMBuilderRef, arg2 LLVMValueRef) {
@@ -15570,7 +15316,7 @@ func PositionBuilderBefore(arg1 LLVMBuilderRef, arg2 LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_PositionBuilderBefore_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
+	C._wrap_PositionBuilderBefore_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
 }
 
 func PositionBuilderAtEnd(arg1 LLVMBuilderRef, arg2 LLVMBasicBlockRef) {
@@ -15590,7 +15336,7 @@ func PositionBuilderAtEnd(arg1 LLVMBuilderRef, arg2 LLVMBasicBlockRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_PositionBuilderAtEnd_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))
+	C._wrap_PositionBuilderAtEnd_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))
 }
 
 func GetInsertBlock(arg1 LLVMBuilderRef) (_swig_ret LLVMBasicBlockRef) {
@@ -15603,7 +15349,7 @@ func GetInsertBlock(arg1 LLVMBuilderRef) (_swig_ret LLVMBasicBlockRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetInsertBlock_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetInsertBlock_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0))))
 	var swig_r_1 LLVMBasicBlockRef
 	{
 		if swig_r == nil {
@@ -15624,7 +15370,7 @@ func ClearInsertionPosition(arg1 LLVMBuilderRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_ClearInsertionPosition_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0))
+	C._wrap_ClearInsertionPosition_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0))
 }
 
 func InsertIntoBuilder(arg1 LLVMBuilderRef, arg2 LLVMValueRef) {
@@ -15644,7 +15390,7 @@ func InsertIntoBuilder(arg1 LLVMBuilderRef, arg2 LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_InsertIntoBuilder_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
+	C._wrap_InsertIntoBuilder_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
 }
 
 func InsertIntoBuilderWithName(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 string) {
@@ -15671,7 +15417,7 @@ func InsertIntoBuilderWithName(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 stri
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
-	C._wrap_InsertIntoBuilderWithName_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))
+	C._wrap_InsertIntoBuilderWithName_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))
 }
 
 func DisposeBuilder(arg1 LLVMBuilderRef) {
@@ -15683,7 +15429,7 @@ func DisposeBuilder(arg1 LLVMBuilderRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_DisposeBuilder_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0))
+	C._wrap_DisposeBuilder_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0))
 }
 
 func GetCurrentDebugLocation2(arg1 LLVMBuilderRef) (_swig_ret LLVMMetadataRef) {
@@ -15696,7 +15442,7 @@ func GetCurrentDebugLocation2(arg1 LLVMBuilderRef) (_swig_ret LLVMMetadataRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetCurrentDebugLocation2_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetCurrentDebugLocation2_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -15725,7 +15471,7 @@ func SetCurrentDebugLocation2(arg1 LLVMBuilderRef, arg2 LLVMMetadataRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_SetCurrentDebugLocation2_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1))
+	C._wrap_SetCurrentDebugLocation2_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1))
 }
 
 func SetInstDebugLocation(arg1 LLVMBuilderRef, arg2 LLVMValueRef) {
@@ -15745,7 +15491,7 @@ func SetInstDebugLocation(arg1 LLVMBuilderRef, arg2 LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_SetInstDebugLocation_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
+	C._wrap_SetInstDebugLocation_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
 }
 
 func AddMetadataToInst(arg1 LLVMBuilderRef, arg2 LLVMValueRef) {
@@ -15765,7 +15511,7 @@ func AddMetadataToInst(arg1 LLVMBuilderRef, arg2 LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_AddMetadataToInst_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
+	C._wrap_AddMetadataToInst_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
 }
 
 func BuilderGetDefaultFPMathTag(arg1 LLVMBuilderRef) (_swig_ret LLVMMetadataRef) {
@@ -15778,7 +15524,7 @@ func BuilderGetDefaultFPMathTag(arg1 LLVMBuilderRef) (_swig_ret LLVMMetadataRef)
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuilderGetDefaultFPMathTag_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuilderGetDefaultFPMathTag_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -15807,7 +15553,7 @@ func BuilderSetDefaultFPMathTag(arg1 LLVMBuilderRef, arg2 LLVMMetadataRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_BuilderSetDefaultFPMathTag_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1))
+	C._wrap_BuilderSetDefaultFPMathTag_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1))
 }
 
 func SetCurrentDebugLocation(arg1 LLVMBuilderRef, arg2 LLVMValueRef) {
@@ -15827,7 +15573,7 @@ func SetCurrentDebugLocation(arg1 LLVMBuilderRef, arg2 LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_SetCurrentDebugLocation_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
+	C._wrap_SetCurrentDebugLocation_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
 }
 
 func GetCurrentDebugLocation(arg1 LLVMBuilderRef) (_swig_ret LLVMValueRef) {
@@ -15840,7 +15586,7 @@ func GetCurrentDebugLocation(arg1 LLVMBuilderRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetCurrentDebugLocation_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetCurrentDebugLocation_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -15862,7 +15608,7 @@ func BuildRetVoid(arg1 LLVMBuilderRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildRetVoid_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildRetVoid_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -15892,7 +15638,7 @@ func BuildRet(arg1 LLVMBuilderRef, arg2 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildRet_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildRet_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -15926,7 +15672,7 @@ func BuildAggregateRet(arg1 LLVMBuilderRef, arg2 []LLVMValueRef) (_swig_ret LLVM
 			*(*C.LLVMValueRef)(unsafe.Pointer(uintptr(unsafe.Pointer(_swig_i_1)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMValueRef)(unsafe.Pointer(val.Swigcptr()))
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildAggregateRet_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildAggregateRet_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -15956,7 +15702,7 @@ func BuildBr(arg1 LLVMBuilderRef, arg2 LLVMBasicBlockRef) (_swig_ret LLVMValueRe
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildBr_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildBr_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -16002,7 +15748,7 @@ func BuildCondBr(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMBasicBlockRef,
 			_swig_i_3 = unsafe.Pointer(arg4.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildCondBr_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMBasicBlockRef(_swig_i_2), C.LLVMBasicBlockRef(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildCondBr_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMBasicBlockRef(_swig_i_2), C.LLVMBasicBlockRef(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -16041,7 +15787,7 @@ func BuildSwitch(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMBasicBlockRef,
 		}
 	}
 	_swig_i_3 := arg4
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildSwitch_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMBasicBlockRef(_swig_i_2), C.swig_intgo(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildSwitch_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMBasicBlockRef(_swig_i_2), C.swig_intgo(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -16072,7 +15818,7 @@ func BuildIndirectBr(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 uint) (_swig_r
 		}
 	}
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildIndirectBr_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_intgo(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildIndirectBr_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_intgo(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -16145,7 +15891,7 @@ func BuildInvoke2(arg1 LLVMBuilderRef, arg2 LLVMTypeRef, arg3 LLVMValueRef, arg4
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_6))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildInvoke2_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3), C.LLVMBasicBlockRef(_swig_i_4), C.LLVMBasicBlockRef(_swig_i_5), C.swig_voidp(_swig_i_6))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildInvoke2_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3), C.LLVMBasicBlockRef(_swig_i_4), C.LLVMBasicBlockRef(_swig_i_5), C.swig_voidp(_swig_i_6))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -16167,7 +15913,7 @@ func BuildUnreachable(arg1 LLVMBuilderRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildUnreachable_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildUnreachable_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -16197,7 +15943,7 @@ func BuildResume(arg1 LLVMBuilderRef, arg2 LLVMValueRef) (_swig_ret LLVMValueRef
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildResume_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildResume_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -16243,7 +15989,7 @@ func BuildLandingPad(arg1 LLVMBuilderRef, arg2 LLVMTypeRef, arg3 LLVMValueRef, a
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_4))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildLandingPad_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildLandingPad_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -16281,7 +16027,7 @@ func BuildCleanupRet(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMBasicBlock
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildCleanupRet_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMBasicBlockRef(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildCleanupRet_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMBasicBlockRef(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -16319,7 +16065,7 @@ func BuildCatchRet(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMBasicBlockRe
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildCatchRet_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMBasicBlockRef(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildCatchRet_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMBasicBlockRef(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -16368,7 +16114,7 @@ func BuildCatchPad(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 []LLVMValueRef, 
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildCatchPad_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildCatchPad_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -16417,7 +16163,7 @@ func BuildCleanupPad(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 []LLVMValueRef
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildCleanupPad_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildCleanupPad_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -16463,7 +16209,7 @@ func BuildCatchSwitch(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMBasicBloc
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_4))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildCatchSwitch_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMBasicBlockRef(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildCatchSwitch_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMBasicBlockRef(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -16500,7 +16246,7 @@ func AddCase(arg1 LLVMValueRef, arg2 LLVMValueRef, arg3 LLVMBasicBlockRef) {
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	C._wrap_AddCase_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMBasicBlockRef(_swig_i_2))
+	C._wrap_AddCase_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMBasicBlockRef(_swig_i_2))
 }
 
 func AddDestination(arg1 LLVMValueRef, arg2 LLVMBasicBlockRef) {
@@ -16520,7 +16266,7 @@ func AddDestination(arg1 LLVMValueRef, arg2 LLVMBasicBlockRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_AddDestination_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))
+	C._wrap_AddDestination_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))
 }
 
 func GetNumClauses(arg1 LLVMValueRef) (_swig_ret uint) {
@@ -16533,7 +16279,7 @@ func GetNumClauses(arg1 LLVMValueRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_GetNumClauses_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GetNumClauses_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -16548,7 +16294,7 @@ func GetClause(arg1 LLVMValueRef, arg2 uint) (_swig_ret LLVMValueRef) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetClause_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetClause_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -16577,7 +16323,7 @@ func AddClause(arg1 LLVMValueRef, arg2 LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_AddClause_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
+	C._wrap_AddClause_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
 }
 
 func IsCleanup(arg1 LLVMValueRef) (_swig_ret bool) {
@@ -16590,7 +16336,7 @@ func IsCleanup(arg1 LLVMValueRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_IsCleanup_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IsCleanup_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -16604,7 +16350,7 @@ func SetCleanup(arg1 LLVMValueRef, arg2 bool) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetCleanup_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1))
+	C._wrap_SetCleanup_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1))
 }
 
 func AddHandler(arg1 LLVMValueRef, arg2 LLVMBasicBlockRef) {
@@ -16624,7 +16370,7 @@ func AddHandler(arg1 LLVMValueRef, arg2 LLVMBasicBlockRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_AddHandler_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))
+	C._wrap_AddHandler_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMBasicBlockRef(_swig_i_1))
 }
 
 func GetNumHandlers(arg1 LLVMValueRef) (_swig_ret uint) {
@@ -16637,7 +16383,7 @@ func GetNumHandlers(arg1 LLVMValueRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_GetNumHandlers_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GetNumHandlers_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -16651,7 +16397,7 @@ func GetHandlers(arg1 LLVMValueRef, arg2 LLVMBasicBlockRef) {
 		}
 	}
 	_swig_i_1 := getSwigcptr(arg2)
-	C._wrap_GetHandlers_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.uintptr_t(_swig_i_1))
+	C._wrap_GetHandlers_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.uintptr_t(_swig_i_1))
 }
 
 func GetArgOperand(arg1 LLVMValueRef, arg2 uint) (_swig_ret LLVMValueRef) {
@@ -16665,7 +16411,7 @@ func GetArgOperand(arg1 LLVMValueRef, arg2 uint) (_swig_ret LLVMValueRef) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetArgOperand_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetArgOperand_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -16695,7 +16441,7 @@ func SetArgOperand(arg1 LLVMValueRef, arg2 uint, arg3 LLVMValueRef) {
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	C._wrap_SetArgOperand_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMValueRef(_swig_i_2))
+	C._wrap_SetArgOperand_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMValueRef(_swig_i_2))
 }
 
 func GetParentCatchSwitch(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
@@ -16708,7 +16454,7 @@ func GetParentCatchSwitch(arg1 LLVMValueRef) (_swig_ret LLVMValueRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetParentCatchSwitch_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetParentCatchSwitch_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -16737,7 +16483,7 @@ func SetParentCatchSwitch(arg1 LLVMValueRef, arg2 LLVMValueRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_SetParentCatchSwitch_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
+	C._wrap_SetParentCatchSwitch_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))
 }
 
 func BuildAdd(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4 string) (_swig_ret LLVMValueRef) {
@@ -16773,7 +16519,7 @@ func BuildAdd(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4 st
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildAdd_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildAdd_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -16818,7 +16564,7 @@ func BuildNSWAdd(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildNSWAdd_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildNSWAdd_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -16863,7 +16609,7 @@ func BuildNUWAdd(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildNUWAdd_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildNUWAdd_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -16908,7 +16654,7 @@ func BuildFAdd(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4 s
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFAdd_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFAdd_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -16953,7 +16699,7 @@ func BuildSub(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4 st
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildSub_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildSub_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -16998,7 +16744,7 @@ func BuildNSWSub(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildNSWSub_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildNSWSub_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17043,7 +16789,7 @@ func BuildNUWSub(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildNUWSub_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildNUWSub_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17088,7 +16834,7 @@ func BuildFSub(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4 s
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFSub_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFSub_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17133,7 +16879,7 @@ func BuildMul(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4 st
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildMul_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildMul_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17178,7 +16924,7 @@ func BuildNSWMul(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildNSWMul_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildNSWMul_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17223,7 +16969,7 @@ func BuildNUWMul(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildNUWMul_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildNUWMul_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17268,7 +17014,7 @@ func BuildFMul(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4 s
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFMul_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFMul_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17313,7 +17059,7 @@ func BuildUDiv(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4 s
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildUDiv_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildUDiv_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17358,7 +17104,7 @@ func BuildExactUDiv(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, a
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildExactUDiv_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildExactUDiv_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17403,7 +17149,7 @@ func BuildSDiv(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4 s
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildSDiv_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildSDiv_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17448,7 +17194,7 @@ func BuildExactSDiv(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, a
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildExactSDiv_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildExactSDiv_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17493,7 +17239,7 @@ func BuildFDiv(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4 s
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFDiv_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFDiv_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17538,7 +17284,7 @@ func BuildURem(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4 s
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildURem_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildURem_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17583,7 +17329,7 @@ func BuildSRem(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4 s
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildSRem_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildSRem_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17628,7 +17374,7 @@ func BuildFRem(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4 s
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFRem_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFRem_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17673,7 +17419,7 @@ func BuildShl(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4 st
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildShl_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildShl_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17718,7 +17464,7 @@ func BuildLShr(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4 s
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildLShr_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildLShr_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17763,7 +17509,7 @@ func BuildAShr(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4 s
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildAShr_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildAShr_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17808,7 +17554,7 @@ func BuildAnd(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4 st
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildAnd_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildAnd_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17853,7 +17599,7 @@ func BuildOr(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4 str
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildOr_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildOr_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17898,7 +17644,7 @@ func BuildXor(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4 st
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildXor_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildXor_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17944,7 +17690,7 @@ func BuildBinOp(arg1 LLVMBuilderRef, arg2 LLVMOpcode, arg3 LLVMValueRef, arg4 LL
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_4))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildBinOp_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildBinOp_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -17981,7 +17727,7 @@ func BuildNeg(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 string) (_swig_ret LL
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildNeg_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildNeg_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -18018,7 +17764,7 @@ func BuildNSWNeg(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 string) (_swig_ret
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildNSWNeg_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildNSWNeg_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -18055,7 +17801,7 @@ func BuildNUWNeg(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 string) (_swig_ret
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildNUWNeg_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildNUWNeg_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -18092,7 +17838,7 @@ func BuildFNeg(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 string) (_swig_ret L
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFNeg_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFNeg_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -18129,7 +17875,7 @@ func BuildNot(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 string) (_swig_ret LL
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildNot_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildNot_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -18166,7 +17912,7 @@ func BuildMalloc(arg1 LLVMBuilderRef, arg2 LLVMTypeRef, arg3 string) (_swig_ret 
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildMalloc_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildMalloc_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -18211,7 +17957,7 @@ func BuildArrayMalloc(arg1 LLVMBuilderRef, arg2 LLVMTypeRef, arg3 LLVMValueRef, 
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildArrayMalloc_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildArrayMalloc_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -18258,7 +18004,7 @@ func BuildMemSet(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4
 		}
 	}
 	_swig_i_4 := arg5
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildMemSet_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_intgo(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildMemSet_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_intgo(_swig_i_4))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -18306,7 +18052,7 @@ func BuildMemCpy(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 uint, arg4 LLVMVal
 			_swig_i_5 = unsafe.Pointer(arg6.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildMemCpy_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_intgo(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.LLVMValueRef(_swig_i_5))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildMemCpy_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_intgo(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.LLVMValueRef(_swig_i_5))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -18354,7 +18100,7 @@ func BuildMemMove(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 uint, arg4 LLVMVa
 			_swig_i_5 = unsafe.Pointer(arg6.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildMemMove_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_intgo(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.LLVMValueRef(_swig_i_5))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildMemMove_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_intgo(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.LLVMValueRef(_swig_i_5))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -18391,7 +18137,7 @@ func BuildAlloca(arg1 LLVMBuilderRef, arg2 LLVMTypeRef, arg3 string) (_swig_ret 
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildAlloca_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildAlloca_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -18436,7 +18182,7 @@ func BuildArrayAlloca(arg1 LLVMBuilderRef, arg2 LLVMTypeRef, arg3 LLVMValueRef, 
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildArrayAlloca_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildArrayAlloca_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -18466,7 +18212,7 @@ func BuildFree(arg1 LLVMBuilderRef, arg2 LLVMValueRef) (_swig_ret LLVMValueRef) 
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFree_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFree_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -18511,7 +18257,7 @@ func BuildLoad2(arg1 LLVMBuilderRef, arg2 LLVMTypeRef, arg3 LLVMValueRef, arg4 s
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildLoad2_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildLoad2_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -18549,7 +18295,7 @@ func BuildStore(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef) (_swi
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildStore_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildStore_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -18606,7 +18352,7 @@ func BuildGEP2(arg1 LLVMBuilderRef, arg2 LLVMTypeRef, arg3 LLVMValueRef, arg4 []
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_4))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildGEP2_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_voidp(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildGEP2_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_voidp(_swig_i_4))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -18663,7 +18409,7 @@ func BuildInBoundsGEP2(arg1 LLVMBuilderRef, arg2 LLVMTypeRef, arg3 LLVMValueRef,
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_4))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildInBoundsGEP2_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_voidp(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildInBoundsGEP2_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_voidp(_swig_i_4))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -18709,7 +18455,7 @@ func BuildStructGEP2(arg1 LLVMBuilderRef, arg2 LLVMTypeRef, arg3 LLVMValueRef, a
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_4))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildStructGEP2_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildStructGEP2_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -18745,7 +18491,7 @@ func BuildGlobalString(arg1 LLVMBuilderRef, arg2 string, arg3 string) (_swig_ret
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildGlobalString_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildGlobalString_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -18781,7 +18527,7 @@ func BuildGlobalStringPtr(arg1 LLVMBuilderRef, arg2 string, arg3 string) (_swig_
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildGlobalStringPtr_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildGlobalStringPtr_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -18803,7 +18549,7 @@ func GetVolatile(arg1 LLVMValueRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_GetVolatile_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_GetVolatile_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -18817,7 +18563,7 @@ func SetVolatile(arg1 LLVMValueRef, arg2 bool) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetVolatile_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1))
+	C._wrap_SetVolatile_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1))
 }
 
 func GetWeak(arg1 LLVMValueRef) (_swig_ret bool) {
@@ -18830,7 +18576,7 @@ func GetWeak(arg1 LLVMValueRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_GetWeak_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_GetWeak_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -18844,7 +18590,7 @@ func SetWeak(arg1 LLVMValueRef, arg2 bool) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetWeak_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1))
+	C._wrap_SetWeak_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1))
 }
 
 func GetOrdering(arg1 LLVMValueRef) (_swig_ret LLVMAtomicOrdering) {
@@ -18857,7 +18603,7 @@ func GetOrdering(arg1 LLVMValueRef) (_swig_ret LLVMAtomicOrdering) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (LLVMAtomicOrdering)(C._wrap_GetOrdering_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (LLVMAtomicOrdering)(C._wrap_GetOrdering_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -18871,7 +18617,7 @@ func SetOrdering(arg1 LLVMValueRef, arg2 LLVMAtomicOrdering) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetOrdering_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
+	C._wrap_SetOrdering_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
 }
 
 func GetAtomicRMWBinOp(arg1 LLVMValueRef) (_swig_ret LLVMAtomicRMWBinOp) {
@@ -18884,7 +18630,7 @@ func GetAtomicRMWBinOp(arg1 LLVMValueRef) (_swig_ret LLVMAtomicRMWBinOp) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (LLVMAtomicRMWBinOp)(C._wrap_GetAtomicRMWBinOp_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (LLVMAtomicRMWBinOp)(C._wrap_GetAtomicRMWBinOp_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -18898,7 +18644,7 @@ func SetAtomicRMWBinOp(arg1 LLVMValueRef, arg2 LLVMAtomicRMWBinOp) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetAtomicRMWBinOp_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
+	C._wrap_SetAtomicRMWBinOp_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
 }
 
 func BuildTrunc(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRef, arg4 string) (_swig_ret LLVMValueRef) {
@@ -18934,7 +18680,7 @@ func BuildTrunc(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRef, arg4 s
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildTrunc_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildTrunc_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -18979,7 +18725,7 @@ func BuildZExt(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRef, arg4 st
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildZExt_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildZExt_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19024,7 +18770,7 @@ func BuildSExt(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRef, arg4 st
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildSExt_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildSExt_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19069,7 +18815,7 @@ func BuildFPToUI(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRef, arg4 
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFPToUI_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFPToUI_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19114,7 +18860,7 @@ func BuildFPToSI(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRef, arg4 
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFPToSI_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFPToSI_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19159,7 +18905,7 @@ func BuildUIToFP(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRef, arg4 
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildUIToFP_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildUIToFP_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19204,7 +18950,7 @@ func BuildSIToFP(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRef, arg4 
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildSIToFP_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildSIToFP_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19249,7 +18995,7 @@ func BuildFPTrunc(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRef, arg4
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFPTrunc_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFPTrunc_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19294,7 +19040,7 @@ func BuildFPExt(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRef, arg4 s
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFPExt_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFPExt_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19339,7 +19085,7 @@ func BuildPtrToInt(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRef, arg
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildPtrToInt_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildPtrToInt_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19384,7 +19130,7 @@ func BuildIntToPtr(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRef, arg
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildIntToPtr_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildIntToPtr_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19429,7 +19175,7 @@ func BuildBitCast(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRef, arg4
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildBitCast_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildBitCast_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19474,7 +19220,7 @@ func BuildAddrSpaceCast(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRef
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildAddrSpaceCast_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildAddrSpaceCast_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19519,7 +19265,7 @@ func BuildZExtOrBitCast(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRef
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildZExtOrBitCast_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildZExtOrBitCast_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19564,7 +19310,7 @@ func BuildSExtOrBitCast(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRef
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildSExtOrBitCast_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildSExtOrBitCast_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19609,7 +19355,7 @@ func BuildTruncOrBitCast(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRe
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildTruncOrBitCast_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildTruncOrBitCast_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19655,7 +19401,7 @@ func BuildCast(arg1 LLVMBuilderRef, arg2 LLVMOpcode, arg3 LLVMValueRef, arg4 LLV
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_4))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildCast_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMTypeRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildCast_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMTypeRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19700,7 +19446,7 @@ func BuildPointerCast(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRef, 
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildPointerCast_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildPointerCast_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19746,7 +19492,7 @@ func BuildIntCast2(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRef, arg
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_4))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildIntCast2_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C._Bool(_swig_i_3), C.swig_voidp(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildIntCast2_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C._Bool(_swig_i_3), C.swig_voidp(_swig_i_4))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19791,7 +19537,7 @@ func BuildFPCast(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRef, arg4 
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFPCast_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFPCast_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19836,7 +19582,7 @@ func BuildIntCast(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRef, arg4
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildIntCast_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildIntCast_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19868,7 +19614,7 @@ func GetCastOpcode(arg1 LLVMValueRef, arg2 bool, arg3 LLVMTypeRef, arg4 bool) (_
 		}
 	}
 	_swig_i_3 := arg4
-	swig_r = (LLVMOpcode)(C._wrap_GetCastOpcode_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C._Bool(_swig_i_3)))
+	swig_r = (LLVMOpcode)(C._wrap_GetCastOpcode_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C._Bool(_swig_i_3)))
 	return swig_r
 }
 
@@ -19906,7 +19652,7 @@ func BuildICmp(arg1 LLVMBuilderRef, arg2 LLVMIntPredicate, arg3 LLVMValueRef, ar
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_4))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildICmp_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildICmp_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19952,7 +19698,7 @@ func BuildFCmp(arg1 LLVMBuilderRef, arg2 LLVMRealPredicate, arg3 LLVMValueRef, a
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_4))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFCmp_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFCmp_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -19989,7 +19735,7 @@ func BuildPhi(arg1 LLVMBuilderRef, arg2 LLVMTypeRef, arg3 string) (_swig_ret LLV
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildPhi_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildPhi_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -20046,7 +19792,7 @@ func BuildCall2(arg1 LLVMBuilderRef, arg2 LLVMTypeRef, arg3 LLVMValueRef, arg4 [
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_4))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildCall2_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_voidp(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildCall2_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_voidp(_swig_i_4))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -20099,7 +19845,7 @@ func BuildSelect(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef, arg4
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_4))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildSelect_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildSelect_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -20144,7 +19890,7 @@ func BuildVAArg(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMTypeRef, arg4 s
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildVAArg_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildVAArg_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMTypeRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -20189,7 +19935,7 @@ func BuildExtractElement(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueR
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildExtractElement_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildExtractElement_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -20242,7 +19988,7 @@ func BuildInsertElement(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRe
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_4))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildInsertElement_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildInsertElement_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -20295,7 +20041,7 @@ func BuildShuffleVector(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRe
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_4))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildShuffleVector_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildShuffleVector_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -20333,7 +20079,7 @@ func BuildExtractValue(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 uint, arg4 s
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildExtractValue_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildExtractValue_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -20379,7 +20125,7 @@ func BuildInsertValue(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRef,
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_4))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildInsertValue_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildInsertValue_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -20416,7 +20162,7 @@ func BuildFreeze(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 string) (_swig_ret
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFreeze_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFreeze_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -20453,7 +20199,7 @@ func BuildIsNull(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 string) (_swig_ret
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildIsNull_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildIsNull_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -20490,7 +20236,7 @@ func BuildIsNotNull(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 string) (_swig_
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildIsNotNull_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildIsNotNull_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -20543,7 +20289,7 @@ func BuildPtrDiff2(arg1 LLVMBuilderRef, arg2 LLVMTypeRef, arg3 LLVMValueRef, arg
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_4))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildPtrDiff2_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildPtrDiff2_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -20574,7 +20320,7 @@ func BuildFence(arg1 LLVMBuilderRef, arg2 LLVMAtomicOrdering, arg3 bool, arg4 st
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_3))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFence_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C._Bool(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildFence_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C._Bool(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -20615,7 +20361,7 @@ func BuildAtomicRMW(arg1 LLVMBuilderRef, arg2 LLVMAtomicRMWBinOp, arg3 LLVMValue
 	}
 	_swig_i_4 := arg5
 	_swig_i_5 := arg6
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildAtomicRMW_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_intgo(_swig_i_4), C._Bool(_swig_i_5))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildAtomicRMW_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_intgo(_swig_i_4), C._Bool(_swig_i_5))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -20664,7 +20410,7 @@ func BuildAtomicCmpXchg(arg1 LLVMBuilderRef, arg2 LLVMValueRef, arg3 LLVMValueRe
 	_swig_i_4 := arg5
 	_swig_i_5 := arg6
 	_swig_i_6 := arg7
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildAtomicCmpXchg_llvm_5d1e3feecae2b244(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_intgo(_swig_i_5), C._Bool(_swig_i_6))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BuildAtomicCmpXchg_llvm_a0e88c3155de3083(C.LLVMBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMValueRef(_swig_i_2), C.LLVMValueRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_intgo(_swig_i_5), C._Bool(_swig_i_6))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -20686,13 +20432,13 @@ func GetNumMaskElements(arg1 LLVMValueRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_GetNumMaskElements_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GetNumMaskElements_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
 func GetUndefMaskElem() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_GetUndefMaskElem_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_GetUndefMaskElem_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -20707,7 +20453,7 @@ func GetMaskValue(arg1 LLVMValueRef, arg2 uint) (_swig_ret int) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (int)(C._wrap_GetMaskValue_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1)))
+	swig_r = (int)(C._wrap_GetMaskValue_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1)))
 	return swig_r
 }
 
@@ -20721,7 +20467,7 @@ func IsAtomicSingleThread(arg1 LLVMValueRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_IsAtomicSingleThread_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_IsAtomicSingleThread_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -20735,7 +20481,7 @@ func SetAtomicSingleThread(arg1 LLVMValueRef, arg2 bool) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetAtomicSingleThread_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1))
+	C._wrap_SetAtomicSingleThread_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C._Bool(_swig_i_1))
 }
 
 func GetCmpXchgSuccessOrdering(arg1 LLVMValueRef) (_swig_ret LLVMAtomicOrdering) {
@@ -20748,7 +20494,7 @@ func GetCmpXchgSuccessOrdering(arg1 LLVMValueRef) (_swig_ret LLVMAtomicOrdering)
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (LLVMAtomicOrdering)(C._wrap_GetCmpXchgSuccessOrdering_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (LLVMAtomicOrdering)(C._wrap_GetCmpXchgSuccessOrdering_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -20762,7 +20508,7 @@ func SetCmpXchgSuccessOrdering(arg1 LLVMValueRef, arg2 LLVMAtomicOrdering) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetCmpXchgSuccessOrdering_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
+	C._wrap_SetCmpXchgSuccessOrdering_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
 }
 
 func GetCmpXchgFailureOrdering(arg1 LLVMValueRef) (_swig_ret LLVMAtomicOrdering) {
@@ -20775,7 +20521,7 @@ func GetCmpXchgFailureOrdering(arg1 LLVMValueRef) (_swig_ret LLVMAtomicOrdering)
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (LLVMAtomicOrdering)(C._wrap_GetCmpXchgFailureOrdering_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0)))
+	swig_r = (LLVMAtomicOrdering)(C._wrap_GetCmpXchgFailureOrdering_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -20789,7 +20535,7 @@ func SetCmpXchgFailureOrdering(arg1 LLVMValueRef, arg2 LLVMAtomicOrdering) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetCmpXchgFailureOrdering_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
+	C._wrap_SetCmpXchgFailureOrdering_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.swig_intgo(_swig_i_1))
 }
 
 func CreateModuleProviderForExistingModule(arg1 LLVMModuleRef) (_swig_ret LLVMModuleProviderRef) {
@@ -20802,7 +20548,7 @@ func CreateModuleProviderForExistingModule(arg1 LLVMModuleRef) (_swig_ret LLVMMo
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateModuleProviderForExistingModule_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateModuleProviderForExistingModule_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0))))
 	var swig_r_1 LLVMModuleProviderRef
 	{
 		if swig_r == nil {
@@ -20823,7 +20569,7 @@ func DisposeModuleProvider(arg1 LLVMModuleProviderRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_DisposeModuleProvider_llvm_5d1e3feecae2b244(C.LLVMModuleProviderRef(_swig_i_0))
+	C._wrap_DisposeModuleProvider_llvm_a0e88c3155de3083(C.LLVMModuleProviderRef(_swig_i_0))
 }
 
 func CreateMemoryBufferWithContentsOfFile(arg1 string, arg2 LLVMMemoryBufferRef, arg3 *string) (_swig_ret bool) {
@@ -20837,7 +20583,7 @@ func CreateMemoryBufferWithContentsOfFile(arg1 string, arg2 LLVMMemoryBufferRef,
 	}
 	_swig_i_1 := getSwigcptr(arg2)
 	_swig_i_2 := arg3
-	swig_r = (bool)(C._wrap_CreateMemoryBufferWithContentsOfFile_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_voidp(_swig_i_2)))
+	swig_r = (bool)(C._wrap_CreateMemoryBufferWithContentsOfFile_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_voidp(_swig_i_2)))
 	return swig_r
 }
 
@@ -20845,7 +20591,7 @@ func CreateMemoryBufferWithSTDIN(arg1 LLVMMemoryBufferRef, arg2 *string) (_swig_
 	var swig_r bool
 	_swig_i_0 := getSwigcptr(arg1)
 	_swig_i_1 := arg2
-	swig_r = (bool)(C._wrap_CreateMemoryBufferWithSTDIN_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (bool)(C._wrap_CreateMemoryBufferWithSTDIN_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	return swig_r
 }
 
@@ -20867,7 +20613,7 @@ func CreateMemoryBufferWithMemoryRange(arg1 string, arg2 int64, arg3 string, arg
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
 	_swig_i_3 := arg4
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateMemoryBufferWithMemoryRange_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0), C.swig_type_47(_swig_i_1), C.swig_voidp(_swig_i_2), C._Bool(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateMemoryBufferWithMemoryRange_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0), C.swig_type_47(_swig_i_1), C.swig_voidp(_swig_i_2), C._Bool(_swig_i_3))))
 	var swig_r_1 LLVMMemoryBufferRef
 	{
 		if swig_r == nil {
@@ -20896,7 +20642,7 @@ func CreateMemoryBufferWithMemoryRangeCopy(arg1 string, arg2 int64, arg3 string)
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateMemoryBufferWithMemoryRangeCopy_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0), C.swig_type_48(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateMemoryBufferWithMemoryRangeCopy_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0), C.swig_type_48(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMMemoryBufferRef
 	{
 		if swig_r == nil {
@@ -20918,7 +20664,7 @@ func GetBufferStart(arg1 LLVMMemoryBufferRef) (_swig_ret string) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (*C.char)(C._wrap_GetBufferStart_llvm_5d1e3feecae2b244(C.LLVMMemoryBufferRef(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_GetBufferStart_llvm_a0e88c3155de3083(C.LLVMMemoryBufferRef(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -20939,7 +20685,7 @@ func GetBufferSize(arg1 LLVMMemoryBufferRef) (_swig_ret int64) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (int64)(C._wrap_GetBufferSize_llvm_5d1e3feecae2b244(C.LLVMMemoryBufferRef(_swig_i_0)))
+	swig_r = (int64)(C._wrap_GetBufferSize_llvm_a0e88c3155de3083(C.LLVMMemoryBufferRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -20952,12 +20698,12 @@ func DisposeMemoryBuffer(arg1 LLVMMemoryBufferRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_DisposeMemoryBuffer_llvm_5d1e3feecae2b244(C.LLVMMemoryBufferRef(_swig_i_0))
+	C._wrap_DisposeMemoryBuffer_llvm_a0e88c3155de3083(C.LLVMMemoryBufferRef(_swig_i_0))
 }
 
 func GetGlobalPassRegistry() (_swig_ret LLVMPassRegistryRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetGlobalPassRegistry_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetGlobalPassRegistry_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMPassRegistryRef
 	{
 		if swig_r == nil {
@@ -20971,7 +20717,7 @@ func GetGlobalPassRegistry() (_swig_ret LLVMPassRegistryRef) {
 
 func CreatePassManager() (_swig_ret LLVMPassManagerRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreatePassManager_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreatePassManager_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMPassManagerRef
 	{
 		if swig_r == nil {
@@ -20993,7 +20739,7 @@ func CreateFunctionPassManagerForModule(arg1 LLVMModuleRef) (_swig_ret LLVMPassM
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateFunctionPassManagerForModule_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateFunctionPassManagerForModule_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0))))
 	var swig_r_1 LLVMPassManagerRef
 	{
 		if swig_r == nil {
@@ -21015,7 +20761,7 @@ func CreateFunctionPassManager(arg1 LLVMModuleProviderRef) (_swig_ret LLVMPassMa
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateFunctionPassManager_llvm_5d1e3feecae2b244(C.LLVMModuleProviderRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateFunctionPassManager_llvm_a0e88c3155de3083(C.LLVMModuleProviderRef(_swig_i_0))))
 	var swig_r_1 LLVMPassManagerRef
 	{
 		if swig_r == nil {
@@ -21045,7 +20791,7 @@ func RunPassManager(arg1 LLVMPassManagerRef, arg2 LLVMModuleRef) (_swig_ret bool
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_RunPassManager_llvm_5d1e3feecae2b244(C.LLVMPassManagerRef(_swig_i_0), C.LLVMModuleRef(_swig_i_1)))
+	swig_r = (bool)(C._wrap_RunPassManager_llvm_a0e88c3155de3083(C.LLVMPassManagerRef(_swig_i_0), C.LLVMModuleRef(_swig_i_1)))
 	return swig_r
 }
 
@@ -21059,7 +20805,7 @@ func InitializeFunctionPassManager(arg1 LLVMPassManagerRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_InitializeFunctionPassManager_llvm_5d1e3feecae2b244(C.LLVMPassManagerRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_InitializeFunctionPassManager_llvm_a0e88c3155de3083(C.LLVMPassManagerRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -21081,7 +20827,7 @@ func RunFunctionPassManager(arg1 LLVMPassManagerRef, arg2 LLVMValueRef) (_swig_r
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_RunFunctionPassManager_llvm_5d1e3feecae2b244(C.LLVMPassManagerRef(_swig_i_0), C.LLVMValueRef(_swig_i_1)))
+	swig_r = (bool)(C._wrap_RunFunctionPassManager_llvm_a0e88c3155de3083(C.LLVMPassManagerRef(_swig_i_0), C.LLVMValueRef(_swig_i_1)))
 	return swig_r
 }
 
@@ -21095,7 +20841,7 @@ func FinalizeFunctionPassManager(arg1 LLVMPassManagerRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_FinalizeFunctionPassManager_llvm_5d1e3feecae2b244(C.LLVMPassManagerRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_FinalizeFunctionPassManager_llvm_a0e88c3155de3083(C.LLVMPassManagerRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -21108,22 +20854,22 @@ func DisposePassManager(arg1 LLVMPassManagerRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_DisposePassManager_llvm_5d1e3feecae2b244(C.LLVMPassManagerRef(_swig_i_0))
+	C._wrap_DisposePassManager_llvm_a0e88c3155de3083(C.LLVMPassManagerRef(_swig_i_0))
 }
 
 func StartMultithreaded() (_swig_ret bool) {
 	var swig_r bool
-	swig_r = (bool)(C._wrap_StartMultithreaded_llvm_5d1e3feecae2b244())
+	swig_r = (bool)(C._wrap_StartMultithreaded_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
 func StopMultithreaded() {
-	C._wrap_StopMultithreaded_llvm_5d1e3feecae2b244()
+	C._wrap_StopMultithreaded_llvm_a0e88c3155de3083()
 }
 
 func IsMultithreaded() (_swig_ret bool) {
 	var swig_r bool
-	swig_r = (bool)(C._wrap_IsMultithreaded_llvm_5d1e3feecae2b244())
+	swig_r = (bool)(C._wrap_IsMultithreaded_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21131,7 +20877,7 @@ type LLVMDIFlags int
 
 func _swig_getDIFlagZero() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagZero_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagZero_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21139,7 +20885,7 @@ var DIFlagZero int = _swig_getDIFlagZero()
 
 func _swig_getDIFlagPrivate() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagPrivate_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagPrivate_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21147,7 +20893,7 @@ var DIFlagPrivate int = _swig_getDIFlagPrivate()
 
 func _swig_getDIFlagProtected() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagProtected_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagProtected_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21155,7 +20901,7 @@ var DIFlagProtected int = _swig_getDIFlagProtected()
 
 func _swig_getDIFlagPublic() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagPublic_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagPublic_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21163,7 +20909,7 @@ var DIFlagPublic int = _swig_getDIFlagPublic()
 
 func _swig_getDIFlagFwdDecl() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagFwdDecl_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagFwdDecl_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21171,7 +20917,7 @@ var DIFlagFwdDecl int = _swig_getDIFlagFwdDecl()
 
 func _swig_getDIFlagAppleBlock() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagAppleBlock_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagAppleBlock_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21179,7 +20925,7 @@ var DIFlagAppleBlock int = _swig_getDIFlagAppleBlock()
 
 func _swig_getDIFlagReservedBit4() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagReservedBit4_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagReservedBit4_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21187,7 +20933,7 @@ var DIFlagReservedBit4 int = _swig_getDIFlagReservedBit4()
 
 func _swig_getDIFlagVirtual() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagVirtual_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagVirtual_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21195,7 +20941,7 @@ var DIFlagVirtual int = _swig_getDIFlagVirtual()
 
 func _swig_getDIFlagArtificial() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagArtificial_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagArtificial_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21203,7 +20949,7 @@ var DIFlagArtificial int = _swig_getDIFlagArtificial()
 
 func _swig_getDIFlagExplicit() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagExplicit_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagExplicit_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21211,7 +20957,7 @@ var DIFlagExplicit int = _swig_getDIFlagExplicit()
 
 func _swig_getDIFlagPrototyped() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagPrototyped_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagPrototyped_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21219,7 +20965,7 @@ var DIFlagPrototyped int = _swig_getDIFlagPrototyped()
 
 func _swig_getDIFlagObjcClassComplete() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagObjcClassComplete_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagObjcClassComplete_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21227,7 +20973,7 @@ var DIFlagObjcClassComplete int = _swig_getDIFlagObjcClassComplete()
 
 func _swig_getDIFlagObjectPointer() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagObjectPointer_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagObjectPointer_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21235,7 +20981,7 @@ var DIFlagObjectPointer int = _swig_getDIFlagObjectPointer()
 
 func _swig_getDIFlagVector() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagVector_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagVector_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21243,7 +20989,7 @@ var DIFlagVector int = _swig_getDIFlagVector()
 
 func _swig_getDIFlagStaticMember() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagStaticMember_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagStaticMember_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21251,7 +20997,7 @@ var DIFlagStaticMember int = _swig_getDIFlagStaticMember()
 
 func _swig_getDIFlagLValueReference() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagLValueReference_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagLValueReference_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21259,7 +21005,7 @@ var DIFlagLValueReference int = _swig_getDIFlagLValueReference()
 
 func _swig_getDIFlagRValueReference() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagRValueReference_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagRValueReference_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21267,7 +21013,7 @@ var DIFlagRValueReference int = _swig_getDIFlagRValueReference()
 
 func _swig_getDIFlagReserved() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagReserved_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagReserved_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21275,7 +21021,7 @@ var DIFlagReserved int = _swig_getDIFlagReserved()
 
 func _swig_getDIFlagSingleInheritance() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagSingleInheritance_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagSingleInheritance_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21283,7 +21029,7 @@ var DIFlagSingleInheritance int = _swig_getDIFlagSingleInheritance()
 
 func _swig_getDIFlagMultipleInheritance() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagMultipleInheritance_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagMultipleInheritance_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21291,7 +21037,7 @@ var DIFlagMultipleInheritance int = _swig_getDIFlagMultipleInheritance()
 
 func _swig_getDIFlagVirtualInheritance() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagVirtualInheritance_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagVirtualInheritance_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21299,7 +21045,7 @@ var DIFlagVirtualInheritance int = _swig_getDIFlagVirtualInheritance()
 
 func _swig_getDIFlagIntroducedVirtual() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagIntroducedVirtual_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagIntroducedVirtual_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21307,7 +21053,7 @@ var DIFlagIntroducedVirtual int = _swig_getDIFlagIntroducedVirtual()
 
 func _swig_getDIFlagBitField() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagBitField_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagBitField_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21315,7 +21061,7 @@ var DIFlagBitField int = _swig_getDIFlagBitField()
 
 func _swig_getDIFlagNoReturn() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagNoReturn_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagNoReturn_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21323,7 +21069,7 @@ var DIFlagNoReturn int = _swig_getDIFlagNoReturn()
 
 func _swig_getDIFlagTypePassByValue() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagTypePassByValue_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagTypePassByValue_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21331,7 +21077,7 @@ var DIFlagTypePassByValue int = _swig_getDIFlagTypePassByValue()
 
 func _swig_getDIFlagTypePassByReference() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagTypePassByReference_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagTypePassByReference_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21339,7 +21085,7 @@ var DIFlagTypePassByReference int = _swig_getDIFlagTypePassByReference()
 
 func _swig_getDIFlagEnumClass() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagEnumClass_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagEnumClass_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21347,7 +21093,7 @@ var DIFlagEnumClass int = _swig_getDIFlagEnumClass()
 
 func _swig_getDIFlagFixedEnum() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagFixedEnum_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagFixedEnum_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21355,7 +21101,7 @@ var DIFlagFixedEnum int = _swig_getDIFlagFixedEnum()
 
 func _swig_getDIFlagThunk() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagThunk_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagThunk_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21363,7 +21109,7 @@ var DIFlagThunk int = _swig_getDIFlagThunk()
 
 func _swig_getDIFlagNonTrivial() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagNonTrivial_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagNonTrivial_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21371,7 +21117,7 @@ var DIFlagNonTrivial int = _swig_getDIFlagNonTrivial()
 
 func _swig_getDIFlagBigEndian() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagBigEndian_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagBigEndian_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21379,7 +21125,7 @@ var DIFlagBigEndian int = _swig_getDIFlagBigEndian()
 
 func _swig_getDIFlagLittleEndian() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagLittleEndian_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagLittleEndian_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21387,7 +21133,7 @@ var DIFlagLittleEndian int = _swig_getDIFlagLittleEndian()
 
 func _swig_getDIFlagIndirectVirtualBase() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagIndirectVirtualBase_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagIndirectVirtualBase_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21395,7 +21141,7 @@ var DIFlagIndirectVirtualBase int = _swig_getDIFlagIndirectVirtualBase()
 
 func _swig_getDIFlagAccessibility() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagAccessibility_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagAccessibility_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21403,7 +21149,7 @@ var DIFlagAccessibility int = _swig_getDIFlagAccessibility()
 
 func _swig_getDIFlagPtrToMemberRep() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFlagPtrToMemberRep_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFlagPtrToMemberRep_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21413,7 +21159,7 @@ type LLVMDWARFSourceLanguage int
 
 func _swig_getDWARFSourceLanguageC89() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageC89_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageC89_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21421,7 +21167,7 @@ var DWARFSourceLanguageC89 int = _swig_getDWARFSourceLanguageC89()
 
 func _swig_getDWARFSourceLanguageC() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageC_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageC_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21429,7 +21175,7 @@ var DWARFSourceLanguageC int = _swig_getDWARFSourceLanguageC()
 
 func _swig_getDWARFSourceLanguageAda83() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageAda83_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageAda83_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21437,7 +21183,7 @@ var DWARFSourceLanguageAda83 int = _swig_getDWARFSourceLanguageAda83()
 
 func _swig_getDWARFSourceLanguageC_plus_plus() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageC_plus_plus_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageC_plus_plus_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21445,7 +21191,7 @@ var DWARFSourceLanguageC_plus_plus int = _swig_getDWARFSourceLanguageC_plus_plus
 
 func _swig_getDWARFSourceLanguageCobol74() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageCobol74_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageCobol74_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21453,7 +21199,7 @@ var DWARFSourceLanguageCobol74 int = _swig_getDWARFSourceLanguageCobol74()
 
 func _swig_getDWARFSourceLanguageCobol85() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageCobol85_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageCobol85_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21461,7 +21207,7 @@ var DWARFSourceLanguageCobol85 int = _swig_getDWARFSourceLanguageCobol85()
 
 func _swig_getDWARFSourceLanguageFortran77() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageFortran77_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageFortran77_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21469,7 +21215,7 @@ var DWARFSourceLanguageFortran77 int = _swig_getDWARFSourceLanguageFortran77()
 
 func _swig_getDWARFSourceLanguageFortran90() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageFortran90_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageFortran90_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21477,7 +21223,7 @@ var DWARFSourceLanguageFortran90 int = _swig_getDWARFSourceLanguageFortran90()
 
 func _swig_getDWARFSourceLanguagePascal83() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguagePascal83_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguagePascal83_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21485,7 +21231,7 @@ var DWARFSourceLanguagePascal83 int = _swig_getDWARFSourceLanguagePascal83()
 
 func _swig_getDWARFSourceLanguageModula2() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageModula2_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageModula2_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21493,7 +21239,7 @@ var DWARFSourceLanguageModula2 int = _swig_getDWARFSourceLanguageModula2()
 
 func _swig_getDWARFSourceLanguageJava() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageJava_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageJava_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21501,7 +21247,7 @@ var DWARFSourceLanguageJava int = _swig_getDWARFSourceLanguageJava()
 
 func _swig_getDWARFSourceLanguageC99() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageC99_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageC99_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21509,7 +21255,7 @@ var DWARFSourceLanguageC99 int = _swig_getDWARFSourceLanguageC99()
 
 func _swig_getDWARFSourceLanguageAda95() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageAda95_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageAda95_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21517,7 +21263,7 @@ var DWARFSourceLanguageAda95 int = _swig_getDWARFSourceLanguageAda95()
 
 func _swig_getDWARFSourceLanguageFortran95() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageFortran95_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageFortran95_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21525,7 +21271,7 @@ var DWARFSourceLanguageFortran95 int = _swig_getDWARFSourceLanguageFortran95()
 
 func _swig_getDWARFSourceLanguagePLI() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguagePLI_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguagePLI_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21533,7 +21279,7 @@ var DWARFSourceLanguagePLI int = _swig_getDWARFSourceLanguagePLI()
 
 func _swig_getDWARFSourceLanguageObjC() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageObjC_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageObjC_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21541,7 +21287,7 @@ var DWARFSourceLanguageObjC int = _swig_getDWARFSourceLanguageObjC()
 
 func _swig_getDWARFSourceLanguageObjC_plus_plus() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageObjC_plus_plus_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageObjC_plus_plus_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21549,7 +21295,7 @@ var DWARFSourceLanguageObjC_plus_plus int = _swig_getDWARFSourceLanguageObjC_plu
 
 func _swig_getDWARFSourceLanguageUPC() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageUPC_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageUPC_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21557,7 +21303,7 @@ var DWARFSourceLanguageUPC int = _swig_getDWARFSourceLanguageUPC()
 
 func _swig_getDWARFSourceLanguageD() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageD_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageD_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21565,7 +21311,7 @@ var DWARFSourceLanguageD int = _swig_getDWARFSourceLanguageD()
 
 func _swig_getDWARFSourceLanguagePython() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguagePython_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguagePython_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21573,7 +21319,7 @@ var DWARFSourceLanguagePython int = _swig_getDWARFSourceLanguagePython()
 
 func _swig_getDWARFSourceLanguageOpenCL() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageOpenCL_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageOpenCL_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21581,7 +21327,7 @@ var DWARFSourceLanguageOpenCL int = _swig_getDWARFSourceLanguageOpenCL()
 
 func _swig_getDWARFSourceLanguageGo() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageGo_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageGo_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21589,7 +21335,7 @@ var DWARFSourceLanguageGo int = _swig_getDWARFSourceLanguageGo()
 
 func _swig_getDWARFSourceLanguageModula3() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageModula3_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageModula3_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21597,7 +21343,7 @@ var DWARFSourceLanguageModula3 int = _swig_getDWARFSourceLanguageModula3()
 
 func _swig_getDWARFSourceLanguageHaskell() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageHaskell_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageHaskell_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21605,7 +21351,7 @@ var DWARFSourceLanguageHaskell int = _swig_getDWARFSourceLanguageHaskell()
 
 func _swig_getDWARFSourceLanguageC_plus_plus_03() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageC_plus_plus_03_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageC_plus_plus_03_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21613,7 +21359,7 @@ var DWARFSourceLanguageC_plus_plus_03 int = _swig_getDWARFSourceLanguageC_plus_p
 
 func _swig_getDWARFSourceLanguageC_plus_plus_11() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageC_plus_plus_11_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageC_plus_plus_11_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21621,7 +21367,7 @@ var DWARFSourceLanguageC_plus_plus_11 int = _swig_getDWARFSourceLanguageC_plus_p
 
 func _swig_getDWARFSourceLanguageOCaml() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageOCaml_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageOCaml_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21629,7 +21375,7 @@ var DWARFSourceLanguageOCaml int = _swig_getDWARFSourceLanguageOCaml()
 
 func _swig_getDWARFSourceLanguageRust() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageRust_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageRust_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21637,7 +21383,7 @@ var DWARFSourceLanguageRust int = _swig_getDWARFSourceLanguageRust()
 
 func _swig_getDWARFSourceLanguageC11() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageC11_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageC11_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21645,7 +21391,7 @@ var DWARFSourceLanguageC11 int = _swig_getDWARFSourceLanguageC11()
 
 func _swig_getDWARFSourceLanguageSwift() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageSwift_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageSwift_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21653,7 +21399,7 @@ var DWARFSourceLanguageSwift int = _swig_getDWARFSourceLanguageSwift()
 
 func _swig_getDWARFSourceLanguageJulia() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageJulia_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageJulia_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21661,7 +21407,7 @@ var DWARFSourceLanguageJulia int = _swig_getDWARFSourceLanguageJulia()
 
 func _swig_getDWARFSourceLanguageDylan() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageDylan_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageDylan_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21669,7 +21415,7 @@ var DWARFSourceLanguageDylan int = _swig_getDWARFSourceLanguageDylan()
 
 func _swig_getDWARFSourceLanguageC_plus_plus_14() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageC_plus_plus_14_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageC_plus_plus_14_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21677,7 +21423,7 @@ var DWARFSourceLanguageC_plus_plus_14 int = _swig_getDWARFSourceLanguageC_plus_p
 
 func _swig_getDWARFSourceLanguageFortran03() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageFortran03_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageFortran03_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21685,7 +21431,7 @@ var DWARFSourceLanguageFortran03 int = _swig_getDWARFSourceLanguageFortran03()
 
 func _swig_getDWARFSourceLanguageFortran08() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageFortran08_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageFortran08_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21693,7 +21439,7 @@ var DWARFSourceLanguageFortran08 int = _swig_getDWARFSourceLanguageFortran08()
 
 func _swig_getDWARFSourceLanguageRenderScript() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageRenderScript_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageRenderScript_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21701,7 +21447,7 @@ var DWARFSourceLanguageRenderScript int = _swig_getDWARFSourceLanguageRenderScri
 
 func _swig_getDWARFSourceLanguageBLISS() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageBLISS_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageBLISS_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21709,7 +21455,7 @@ var DWARFSourceLanguageBLISS int = _swig_getDWARFSourceLanguageBLISS()
 
 func _swig_getDWARFSourceLanguageKotlin() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageKotlin_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageKotlin_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21717,7 +21463,7 @@ var DWARFSourceLanguageKotlin int = _swig_getDWARFSourceLanguageKotlin()
 
 func _swig_getDWARFSourceLanguageZig() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageZig_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageZig_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21725,7 +21471,7 @@ var DWARFSourceLanguageZig int = _swig_getDWARFSourceLanguageZig()
 
 func _swig_getDWARFSourceLanguageCrystal() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageCrystal_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageCrystal_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21733,7 +21479,7 @@ var DWARFSourceLanguageCrystal int = _swig_getDWARFSourceLanguageCrystal()
 
 func _swig_getDWARFSourceLanguageC_plus_plus_17() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageC_plus_plus_17_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageC_plus_plus_17_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21741,7 +21487,7 @@ var DWARFSourceLanguageC_plus_plus_17 int = _swig_getDWARFSourceLanguageC_plus_p
 
 func _swig_getDWARFSourceLanguageC_plus_plus_20() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageC_plus_plus_20_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageC_plus_plus_20_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21749,7 +21495,7 @@ var DWARFSourceLanguageC_plus_plus_20 int = _swig_getDWARFSourceLanguageC_plus_p
 
 func _swig_getDWARFSourceLanguageC17() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageC17_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageC17_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21757,7 +21503,7 @@ var DWARFSourceLanguageC17 int = _swig_getDWARFSourceLanguageC17()
 
 func _swig_getDWARFSourceLanguageFortran18() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageFortran18_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageFortran18_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21765,7 +21511,7 @@ var DWARFSourceLanguageFortran18 int = _swig_getDWARFSourceLanguageFortran18()
 
 func _swig_getDWARFSourceLanguageAda2005() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageAda2005_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageAda2005_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21773,7 +21519,7 @@ var DWARFSourceLanguageAda2005 int = _swig_getDWARFSourceLanguageAda2005()
 
 func _swig_getDWARFSourceLanguageAda2012() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageAda2012_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageAda2012_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21781,7 +21527,7 @@ var DWARFSourceLanguageAda2012 int = _swig_getDWARFSourceLanguageAda2012()
 
 func _swig_getDWARFSourceLanguageMips_Assembler() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageMips_Assembler_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageMips_Assembler_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21789,7 +21535,7 @@ var DWARFSourceLanguageMips_Assembler int = _swig_getDWARFSourceLanguageMips_Ass
 
 func _swig_getDWARFSourceLanguageGOOGLE_RenderScript() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageGOOGLE_RenderScript_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageGOOGLE_RenderScript_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21797,7 +21543,7 @@ var DWARFSourceLanguageGOOGLE_RenderScript int = _swig_getDWARFSourceLanguageGOO
 
 func _swig_getDWARFSourceLanguageBORLAND_Delphi() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFSourceLanguageBORLAND_Delphi_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFSourceLanguageBORLAND_Delphi_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21807,7 +21553,7 @@ type LLVMDWARFEmissionKind int
 
 func _swig_getDWARFEmissionNone() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFEmissionNone_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFEmissionNone_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21815,7 +21561,7 @@ var DWARFEmissionNone int = _swig_getDWARFEmissionNone()
 
 func _swig_getDWARFEmissionFull() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFEmissionFull_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFEmissionFull_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21823,7 +21569,7 @@ var DWARFEmissionFull int = _swig_getDWARFEmissionFull()
 
 func _swig_getDWARFEmissionLineTablesOnly() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFEmissionLineTablesOnly_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFEmissionLineTablesOnly_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21831,7 +21577,7 @@ var DWARFEmissionLineTablesOnly int = _swig_getDWARFEmissionLineTablesOnly()
 
 func _swig_getMDStringMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_MDStringMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_MDStringMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21839,7 +21585,7 @@ var MDStringMetadataKind int = _swig_getMDStringMetadataKind()
 
 func _swig_getConstantAsMetadataMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ConstantAsMetadataMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ConstantAsMetadataMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21847,7 +21593,7 @@ var ConstantAsMetadataMetadataKind int = _swig_getConstantAsMetadataMetadataKind
 
 func _swig_getLocalAsMetadataMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_LocalAsMetadataMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_LocalAsMetadataMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21855,7 +21601,7 @@ var LocalAsMetadataMetadataKind int = _swig_getLocalAsMetadataMetadataKind()
 
 func _swig_getDistinctMDOperandPlaceholderMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DistinctMDOperandPlaceholderMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DistinctMDOperandPlaceholderMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21863,7 +21609,7 @@ var DistinctMDOperandPlaceholderMetadataKind int = _swig_getDistinctMDOperandPla
 
 func _swig_getMDTupleMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_MDTupleMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_MDTupleMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21871,7 +21617,7 @@ var MDTupleMetadataKind int = _swig_getMDTupleMetadataKind()
 
 func _swig_getDILocationMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DILocationMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DILocationMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21879,7 +21625,7 @@ var DILocationMetadataKind int = _swig_getDILocationMetadataKind()
 
 func _swig_getDIExpressionMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIExpressionMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIExpressionMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21887,7 +21633,7 @@ var DIExpressionMetadataKind int = _swig_getDIExpressionMetadataKind()
 
 func _swig_getDIGlobalVariableExpressionMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIGlobalVariableExpressionMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIGlobalVariableExpressionMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21895,7 +21641,7 @@ var DIGlobalVariableExpressionMetadataKind int = _swig_getDIGlobalVariableExpres
 
 func _swig_getGenericDINodeMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_GenericDINodeMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_GenericDINodeMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21903,7 +21649,7 @@ var GenericDINodeMetadataKind int = _swig_getGenericDINodeMetadataKind()
 
 func _swig_getDISubrangeMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DISubrangeMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DISubrangeMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21911,7 +21657,7 @@ var DISubrangeMetadataKind int = _swig_getDISubrangeMetadataKind()
 
 func _swig_getDIEnumeratorMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIEnumeratorMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIEnumeratorMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21919,7 +21665,7 @@ var DIEnumeratorMetadataKind int = _swig_getDIEnumeratorMetadataKind()
 
 func _swig_getDIBasicTypeMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIBasicTypeMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIBasicTypeMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21927,7 +21673,7 @@ var DIBasicTypeMetadataKind int = _swig_getDIBasicTypeMetadataKind()
 
 func _swig_getDIDerivedTypeMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIDerivedTypeMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIDerivedTypeMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21935,7 +21681,7 @@ var DIDerivedTypeMetadataKind int = _swig_getDIDerivedTypeMetadataKind()
 
 func _swig_getDICompositeTypeMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DICompositeTypeMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DICompositeTypeMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21943,7 +21689,7 @@ var DICompositeTypeMetadataKind int = _swig_getDICompositeTypeMetadataKind()
 
 func _swig_getDISubroutineTypeMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DISubroutineTypeMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DISubroutineTypeMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21951,7 +21697,7 @@ var DISubroutineTypeMetadataKind int = _swig_getDISubroutineTypeMetadataKind()
 
 func _swig_getDIFileMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIFileMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIFileMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21959,7 +21705,7 @@ var DIFileMetadataKind int = _swig_getDIFileMetadataKind()
 
 func _swig_getDICompileUnitMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DICompileUnitMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DICompileUnitMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21967,7 +21713,7 @@ var DICompileUnitMetadataKind int = _swig_getDICompileUnitMetadataKind()
 
 func _swig_getDISubprogramMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DISubprogramMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DISubprogramMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21975,7 +21721,7 @@ var DISubprogramMetadataKind int = _swig_getDISubprogramMetadataKind()
 
 func _swig_getDILexicalBlockMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DILexicalBlockMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DILexicalBlockMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21983,7 +21729,7 @@ var DILexicalBlockMetadataKind int = _swig_getDILexicalBlockMetadataKind()
 
 func _swig_getDILexicalBlockFileMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DILexicalBlockFileMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DILexicalBlockFileMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21991,7 +21737,7 @@ var DILexicalBlockFileMetadataKind int = _swig_getDILexicalBlockFileMetadataKind
 
 func _swig_getDINamespaceMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DINamespaceMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DINamespaceMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -21999,7 +21745,7 @@ var DINamespaceMetadataKind int = _swig_getDINamespaceMetadataKind()
 
 func _swig_getDIModuleMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIModuleMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIModuleMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -22007,7 +21753,7 @@ var DIModuleMetadataKind int = _swig_getDIModuleMetadataKind()
 
 func _swig_getDITemplateTypeParameterMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DITemplateTypeParameterMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DITemplateTypeParameterMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -22015,7 +21761,7 @@ var DITemplateTypeParameterMetadataKind int = _swig_getDITemplateTypeParameterMe
 
 func _swig_getDITemplateValueParameterMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DITemplateValueParameterMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DITemplateValueParameterMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -22023,7 +21769,7 @@ var DITemplateValueParameterMetadataKind int = _swig_getDITemplateValueParameter
 
 func _swig_getDIGlobalVariableMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIGlobalVariableMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIGlobalVariableMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -22031,7 +21777,7 @@ var DIGlobalVariableMetadataKind int = _swig_getDIGlobalVariableMetadataKind()
 
 func _swig_getDILocalVariableMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DILocalVariableMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DILocalVariableMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -22039,7 +21785,7 @@ var DILocalVariableMetadataKind int = _swig_getDILocalVariableMetadataKind()
 
 func _swig_getDILabelMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DILabelMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DILabelMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -22047,7 +21793,7 @@ var DILabelMetadataKind int = _swig_getDILabelMetadataKind()
 
 func _swig_getDIObjCPropertyMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIObjCPropertyMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIObjCPropertyMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -22055,7 +21801,7 @@ var DIObjCPropertyMetadataKind int = _swig_getDIObjCPropertyMetadataKind()
 
 func _swig_getDIImportedEntityMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIImportedEntityMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIImportedEntityMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -22063,7 +21809,7 @@ var DIImportedEntityMetadataKind int = _swig_getDIImportedEntityMetadataKind()
 
 func _swig_getDIMacroMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIMacroMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIMacroMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -22071,7 +21817,7 @@ var DIMacroMetadataKind int = _swig_getDIMacroMetadataKind()
 
 func _swig_getDIMacroFileMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIMacroFileMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIMacroFileMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -22079,7 +21825,7 @@ var DIMacroFileMetadataKind int = _swig_getDIMacroFileMetadataKind()
 
 func _swig_getDICommonBlockMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DICommonBlockMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DICommonBlockMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -22087,7 +21833,7 @@ var DICommonBlockMetadataKind int = _swig_getDICommonBlockMetadataKind()
 
 func _swig_getDIStringTypeMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIStringTypeMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIStringTypeMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -22095,7 +21841,7 @@ var DIStringTypeMetadataKind int = _swig_getDIStringTypeMetadataKind()
 
 func _swig_getDIGenericSubrangeMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIGenericSubrangeMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIGenericSubrangeMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -22103,7 +21849,7 @@ var DIGenericSubrangeMetadataKind int = _swig_getDIGenericSubrangeMetadataKind()
 
 func _swig_getDIArgListMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIArgListMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIArgListMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -22111,7 +21857,7 @@ var DIArgListMetadataKind int = _swig_getDIArgListMetadataKind()
 
 func _swig_getDIAssignIDMetadataKind() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DIAssignIDMetadataKind_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DIAssignIDMetadataKind_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -22121,7 +21867,7 @@ type LLVMDWARFMacinfoRecordType int
 
 func _swig_getDWARFMacinfoRecordTypeDefine() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFMacinfoRecordTypeDefine_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFMacinfoRecordTypeDefine_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -22129,7 +21875,7 @@ var DWARFMacinfoRecordTypeDefine int = _swig_getDWARFMacinfoRecordTypeDefine()
 
 func _swig_getDWARFMacinfoRecordTypeMacro() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFMacinfoRecordTypeMacro_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFMacinfoRecordTypeMacro_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -22137,7 +21883,7 @@ var DWARFMacinfoRecordTypeMacro int = _swig_getDWARFMacinfoRecordTypeMacro()
 
 func _swig_getDWARFMacinfoRecordTypeStartFile() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFMacinfoRecordTypeStartFile_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFMacinfoRecordTypeStartFile_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -22145,7 +21891,7 @@ var DWARFMacinfoRecordTypeStartFile int = _swig_getDWARFMacinfoRecordTypeStartFi
 
 func _swig_getDWARFMacinfoRecordTypeEndFile() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFMacinfoRecordTypeEndFile_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFMacinfoRecordTypeEndFile_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -22153,7 +21899,7 @@ var DWARFMacinfoRecordTypeEndFile int = _swig_getDWARFMacinfoRecordTypeEndFile()
 
 func _swig_getDWARFMacinfoRecordTypeVendorExt() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_DWARFMacinfoRecordTypeVendorExt_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_DWARFMacinfoRecordTypeVendorExt_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -22161,7 +21907,7 @@ var DWARFMacinfoRecordTypeVendorExt int = _swig_getDWARFMacinfoRecordTypeVendorE
 
 func DebugMetadataVersion() (_swig_ret uint) {
 	var swig_r uint
-	swig_r = (uint)(C._wrap_DebugMetadataVersion_llvm_5d1e3feecae2b244())
+	swig_r = (uint)(C._wrap_DebugMetadataVersion_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -22175,7 +21921,7 @@ func GetModuleDebugMetadataVersion(arg1 LLVMModuleRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_GetModuleDebugMetadataVersion_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GetModuleDebugMetadataVersion_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -22189,7 +21935,7 @@ func StripModuleDebugInfo(arg1 LLVMModuleRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_StripModuleDebugInfo_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_StripModuleDebugInfo_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -22203,7 +21949,7 @@ func CreateDIBuilderDisallowUnresolved(arg1 LLVMModuleRef) (_swig_ret LLVMDIBuil
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateDIBuilderDisallowUnresolved_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateDIBuilderDisallowUnresolved_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0))))
 	var swig_r_1 LLVMDIBuilderRef
 	{
 		if swig_r == nil {
@@ -22225,7 +21971,7 @@ func CreateDIBuilder(arg1 LLVMModuleRef) (_swig_ret LLVMDIBuilderRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateDIBuilder_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateDIBuilder_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0))))
 	var swig_r_1 LLVMDIBuilderRef
 	{
 		if swig_r == nil {
@@ -22246,7 +21992,7 @@ func DisposeDIBuilder(arg1 LLVMDIBuilderRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_DisposeDIBuilder_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0))
+	C._wrap_DisposeDIBuilder_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0))
 }
 
 func DIBuilderFinalize(arg1 LLVMDIBuilderRef) {
@@ -22258,7 +22004,7 @@ func DIBuilderFinalize(arg1 LLVMDIBuilderRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_DIBuilderFinalize_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0))
+	C._wrap_DIBuilderFinalize_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0))
 }
 
 func DIBuilderFinalizeSubprogram(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef) {
@@ -22278,7 +22024,7 @@ func DIBuilderFinalizeSubprogram(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_DIBuilderFinalizeSubprogram_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1))
+	C._wrap_DIBuilderFinalizeSubprogram_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1))
 }
 
 func DIBuilderCreateCompileUnit(arg1 LLVMDIBuilderRef, arg2 LLVMDWARFSourceLanguage, arg3 LLVMMetadataRef, arg4 string, arg5 int64, arg6 bool, arg7 string, arg8 int64, arg9 uint, arg10 string, arg11 int64, arg12 LLVMDWARFEmissionKind, arg13 uint, arg14 bool, arg15 bool, arg16 string, arg17 int64, arg18 string, arg19 int64) (_swig_ret LLVMMetadataRef) {
@@ -22346,7 +22092,7 @@ func DIBuilderCreateCompileUnit(arg1 LLVMDIBuilderRef, arg2 LLVMDWARFSourceLangu
 		//defer C.free(unsafe.Pointer(_swig_i_17))
 	}
 	_swig_i_18 := arg19
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateCompileUnit_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_type_50(_swig_i_4), C._Bool(_swig_i_5), C.swig_voidp(_swig_i_6), C.swig_type_51(_swig_i_7), C.swig_intgo(_swig_i_8), C.swig_voidp(_swig_i_9), C.swig_type_52(_swig_i_10), C.swig_intgo(_swig_i_11), C.swig_intgo(_swig_i_12), C._Bool(_swig_i_13), C._Bool(_swig_i_14), C.swig_voidp(_swig_i_15), C.swig_type_53(_swig_i_16), C.swig_voidp(_swig_i_17), C.swig_type_54(_swig_i_18))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateCompileUnit_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_type_50(_swig_i_4), C._Bool(_swig_i_5), C.swig_voidp(_swig_i_6), C.swig_type_51(_swig_i_7), C.swig_intgo(_swig_i_8), C.swig_voidp(_swig_i_9), C.swig_type_52(_swig_i_10), C.swig_intgo(_swig_i_11), C.swig_intgo(_swig_i_12), C._Bool(_swig_i_13), C._Bool(_swig_i_14), C.swig_voidp(_swig_i_15), C.swig_type_53(_swig_i_16), C.swig_voidp(_swig_i_17), C.swig_type_54(_swig_i_18))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -22382,7 +22128,7 @@ func DIBuilderCreateFile(arg1 LLVMDIBuilderRef, arg2 string, arg3 string) (_swig
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateFile_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateFile_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -22443,7 +22189,7 @@ func DIBuilderCreateModule(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef, arg3 str
 		//defer C.free(unsafe.Pointer(_swig_i_7))
 	}
 	_swig_i_8 := arg9
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateModule_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_type_55(_swig_i_4), C.swig_voidp(_swig_i_5), C.swig_type_56(_swig_i_6), C.swig_voidp(_swig_i_7), C.swig_type_57(_swig_i_8))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateModule_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_type_55(_swig_i_4), C.swig_voidp(_swig_i_5), C.swig_type_56(_swig_i_6), C.swig_voidp(_swig_i_7), C.swig_type_57(_swig_i_8))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -22481,7 +22227,7 @@ func DIBuilderCreateNameSpace(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef, arg3 
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
 	_swig_i_3 := arg4
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateNameSpace_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C._Bool(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateNameSpace_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C._Bool(_swig_i_3))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -22547,7 +22293,7 @@ func DIBuilderCreateFunction(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef, arg3 s
 	_swig_i_9 := arg10
 	_swig_i_10 := arg11
 	_swig_i_11 := arg12
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateFunction_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_voidp(_swig_i_3), C.LLVMMetadataRef(_swig_i_4), C.swig_intgo(_swig_i_5), C.LLVMMetadataRef(_swig_i_6), C._Bool(_swig_i_7), C._Bool(_swig_i_8), C.swig_intgo(_swig_i_9), C.swig_intgo(_swig_i_10), C._Bool(_swig_i_11))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateFunction_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_voidp(_swig_i_3), C.LLVMMetadataRef(_swig_i_4), C.swig_intgo(_swig_i_5), C.LLVMMetadataRef(_swig_i_6), C._Bool(_swig_i_7), C._Bool(_swig_i_8), C.swig_intgo(_swig_i_9), C.swig_intgo(_swig_i_10), C._Bool(_swig_i_11))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -22587,7 +22333,7 @@ func DIBuilderCreateLexicalBlock(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef, ar
 	}
 	_swig_i_3 := arg4
 	_swig_i_4 := arg5
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateLexicalBlock_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_intgo(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateLexicalBlock_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_intgo(_swig_i_4))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -22626,7 +22372,7 @@ func DIBuilderCreateLexicalBlockFile(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef
 		}
 	}
 	_swig_i_3 := arg4
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateLexicalBlockFile_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.swig_intgo(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateLexicalBlockFile_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.swig_intgo(_swig_i_3))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -22673,7 +22419,7 @@ func DIBuilderCreateImportedModuleFromNamespace(arg1 LLVMDIBuilderRef, arg2 LLVM
 		}
 	}
 	_swig_i_4 := arg5
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateImportedModuleFromNamespace_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateImportedModuleFromNamespace_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -22732,7 +22478,7 @@ func DIBuilderCreateImportedModuleFromAlias(arg1 LLVMDIBuilderRef, arg2 LLVMMeta
 			*(*C.LLVMMetadataRef)(unsafe.Pointer(uintptr(unsafe.Pointer(_swig_i_5)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMMetadataRef)(unsafe.Pointer(val.Swigcptr()))
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateImportedModuleFromAlias_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_voidp(_swig_i_5))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateImportedModuleFromAlias_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_voidp(_swig_i_5))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -22791,7 +22537,7 @@ func DIBuilderCreateImportedModuleFromModule(arg1 LLVMDIBuilderRef, arg2 LLVMMet
 			*(*C.LLVMMetadataRef)(unsafe.Pointer(uintptr(unsafe.Pointer(_swig_i_5)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMMetadataRef)(unsafe.Pointer(val.Swigcptr()))
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateImportedModuleFromModule_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_voidp(_swig_i_5))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateImportedModuleFromModule_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_voidp(_swig_i_5))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -22857,7 +22603,7 @@ func DIBuilderCreateImportedDeclaration(arg1 LLVMDIBuilderRef, arg2 LLVMMetadata
 			*(*C.LLVMMetadataRef)(unsafe.Pointer(uintptr(unsafe.Pointer(_swig_i_6)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMMetadataRef)(unsafe.Pointer(val.Swigcptr()))
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateImportedDeclaration_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_voidp(_swig_i_5), C.swig_voidp(_swig_i_6))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateImportedDeclaration_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_voidp(_swig_i_5), C.swig_voidp(_swig_i_6))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -22897,7 +22643,7 @@ func DIBuilderCreateDebugLocation(arg1 LLVMContextRef, arg2 uint, arg3 uint, arg
 			_swig_i_4 = unsafe.Pointer(arg5.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateDebugLocation_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_intgo(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.LLVMMetadataRef(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateDebugLocation_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_intgo(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.LLVMMetadataRef(_swig_i_4))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -22919,7 +22665,7 @@ func DILocationGetLine(arg1 LLVMMetadataRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_DILocationGetLine_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_DILocationGetLine_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -22933,7 +22679,7 @@ func DILocationGetColumn(arg1 LLVMMetadataRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_DILocationGetColumn_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_DILocationGetColumn_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -22947,7 +22693,7 @@ func DILocationGetScope(arg1 LLVMMetadataRef) (_swig_ret LLVMMetadataRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DILocationGetScope_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DILocationGetScope_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -22969,7 +22715,7 @@ func DILocationGetInlinedAt(arg1 LLVMMetadataRef) (_swig_ret LLVMMetadataRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DILocationGetInlinedAt_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DILocationGetInlinedAt_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -22991,7 +22737,7 @@ func DIScopeGetFile(arg1 LLVMMetadataRef) (_swig_ret LLVMMetadataRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIScopeGetFile_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIScopeGetFile_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -23014,7 +22760,7 @@ func DIFileGetDirectory(arg1 LLVMMetadataRef, arg2 *uint) (_swig_ret string) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (*C.char)(C._wrap_DIFileGetDirectory_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (*C.char)(C._wrap_DIFileGetDirectory_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -23036,7 +22782,7 @@ func DIFileGetFilename(arg1 LLVMMetadataRef, arg2 *uint) (_swig_ret string) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (*C.char)(C._wrap_DIFileGetFilename_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (*C.char)(C._wrap_DIFileGetFilename_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -23058,7 +22804,7 @@ func DIFileGetSource(arg1 LLVMMetadataRef, arg2 *uint) (_swig_ret string) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (*C.char)(C._wrap_DIFileGetSource_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (*C.char)(C._wrap_DIFileGetSource_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -23081,7 +22827,7 @@ func DIBuilderGetOrCreateTypeArray(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef, 
 	}
 	_swig_i_1 := getSwigcptr(arg2)
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderGetOrCreateTypeArray_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_type_58(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderGetOrCreateTypeArray_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_type_58(_swig_i_2))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -23124,7 +22870,7 @@ func DIBuilderCreateSubroutineType(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef, 
 		}
 	}
 	_swig_i_3 := arg4
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateSubroutineType_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_intgo(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateSubroutineType_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_intgo(_swig_i_3))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -23171,7 +22917,7 @@ func DIBuilderCreateMacro(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef, arg3 uint
 		//defer C.free(unsafe.Pointer(_swig_i_5))
 	}
 	_swig_i_6 := arg7
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateMacro_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4), C.swig_voidp(_swig_i_5), C.swig_type_59(_swig_i_6))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateMacro_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4), C.swig_voidp(_swig_i_5), C.swig_type_59(_swig_i_6))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -23210,7 +22956,7 @@ func DIBuilderCreateTempMacroFile(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef, a
 			_swig_i_3 = unsafe.Pointer(arg4.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateTempMacroFile_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_intgo(_swig_i_2), C.LLVMMetadataRef(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateTempMacroFile_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_intgo(_swig_i_2), C.LLVMMetadataRef(_swig_i_3))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -23241,7 +22987,7 @@ func DIBuilderCreateEnumerator(arg1 LLVMDIBuilderRef, arg2 string, arg3 int64, a
 	}
 	_swig_i_2 := arg3
 	_swig_i_3 := arg4
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateEnumerator_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_60(_swig_i_2), C._Bool(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateEnumerator_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_60(_swig_i_2), C._Bool(_swig_i_3))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -23309,7 +23055,7 @@ func DIBuilderCreateEnumerationType(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef,
 			_swig_i_8 = unsafe.Pointer(arg9.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateEnumerationType_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_type_61(_swig_i_5), C.swig_intgo(_swig_i_6), C.swig_voidp(_swig_i_7), C.LLVMMetadataRef(_swig_i_8))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateEnumerationType_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_type_61(_swig_i_5), C.swig_intgo(_swig_i_6), C.swig_voidp(_swig_i_7), C.LLVMMetadataRef(_swig_i_8))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -23378,7 +23124,7 @@ func DIBuilderCreateUnionType(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef, arg3 
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_10))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateUnionType_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_type_62(_swig_i_5), C.swig_intgo(_swig_i_6), C.swig_intgo(_swig_i_7), C.swig_voidp(_swig_i_8), C.swig_intgo(_swig_i_9), C.swig_voidp(_swig_i_10))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateUnionType_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_type_62(_swig_i_5), C.swig_intgo(_swig_i_6), C.swig_intgo(_swig_i_7), C.swig_voidp(_swig_i_8), C.swig_intgo(_swig_i_9), C.swig_voidp(_swig_i_10))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -23422,7 +23168,7 @@ func DIBuilderCreateArrayType(arg1 LLVMDIBuilderRef, arg2 uint64, arg3 uint, arg
 			*(*C.LLVMMetadataRef)(unsafe.Pointer(uintptr(unsafe.Pointer(_swig_i_4)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMMetadataRef)(unsafe.Pointer(val.Swigcptr()))
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateArrayType_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.swig_type_63(_swig_i_1), C.swig_intgo(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateArrayType_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.swig_type_63(_swig_i_1), C.swig_intgo(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -23466,7 +23212,7 @@ func DIBuilderCreateVectorType(arg1 LLVMDIBuilderRef, arg2 uint64, arg3 uint, ar
 			*(*C.LLVMMetadataRef)(unsafe.Pointer(uintptr(unsafe.Pointer(_swig_i_4)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMMetadataRef)(unsafe.Pointer(val.Swigcptr()))
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateVectorType_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.swig_type_64(_swig_i_1), C.swig_intgo(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateVectorType_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.swig_type_64(_swig_i_1), C.swig_intgo(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_voidp(_swig_i_4))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -23495,7 +23241,7 @@ func DIBuilderCreateUnspecifiedType(arg1 LLVMDIBuilderRef, arg2 string) (_swig_r
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateUnspecifiedType_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateUnspecifiedType_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.swig_voidp(_swig_i_1))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -23527,7 +23273,7 @@ func DIBuilderCreateBasicType(arg1 LLVMDIBuilderRef, arg2 string, arg3 uint64, a
 	_swig_i_2 := arg3
 	_swig_i_3 := arg4
 	_swig_i_4 := arg5
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateBasicType_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_65(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_intgo(_swig_i_4))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateBasicType_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_65(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_intgo(_swig_i_4))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -23567,7 +23313,7 @@ func DIBuilderCreatePointerType(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef, arg
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_5))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreatePointerType_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_type_66(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_voidp(_swig_i_5))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreatePointerType_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_type_66(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_voidp(_swig_i_5))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -23652,7 +23398,7 @@ func DIBuilderCreateStructType(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef, arg3
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_12))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateStructType_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_type_67(_swig_i_5), C.swig_intgo(_swig_i_6), C.swig_intgo(_swig_i_7), C.LLVMMetadataRef(_swig_i_8), C.swig_voidp(_swig_i_9), C.swig_intgo(_swig_i_10), C.LLVMMetadataRef(_swig_i_11), C.swig_voidp(_swig_i_12))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateStructType_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_type_67(_swig_i_5), C.swig_intgo(_swig_i_6), C.swig_intgo(_swig_i_7), C.LLVMMetadataRef(_swig_i_8), C.swig_voidp(_swig_i_9), C.swig_intgo(_swig_i_10), C.LLVMMetadataRef(_swig_i_11), C.swig_voidp(_swig_i_12))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -23710,7 +23456,7 @@ func DIBuilderCreateMemberType(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef, arg3
 			_swig_i_9 = unsafe.Pointer(arg10.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateMemberType_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_type_68(_swig_i_5), C.swig_intgo(_swig_i_6), C.swig_type_69(_swig_i_7), C.swig_intgo(_swig_i_8), C.LLVMMetadataRef(_swig_i_9))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateMemberType_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_type_68(_swig_i_5), C.swig_intgo(_swig_i_6), C.swig_type_69(_swig_i_7), C.swig_intgo(_swig_i_8), C.LLVMMetadataRef(_swig_i_9))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -23774,7 +23520,7 @@ func DIBuilderCreateStaticMemberType(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef
 		}
 	}
 	_swig_i_8 := arg9
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateStaticMemberType_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.LLVMMetadataRef(_swig_i_5), C.swig_intgo(_swig_i_6), C.LLVMValueRef(_swig_i_7), C.swig_intgo(_swig_i_8))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateStaticMemberType_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.LLVMMetadataRef(_swig_i_5), C.swig_intgo(_swig_i_6), C.LLVMValueRef(_swig_i_7), C.swig_intgo(_swig_i_8))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -23815,7 +23561,7 @@ func DIBuilderCreateMemberPointerType(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRe
 	_swig_i_3 := arg4
 	_swig_i_4 := arg5
 	_swig_i_5 := arg6
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateMemberPointerType_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.swig_type_70(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_intgo(_swig_i_5))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateMemberPointerType_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.swig_type_70(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_intgo(_swig_i_5))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -23873,7 +23619,7 @@ func DIBuilderCreateObjCIVar(arg1 LLVMDIBuilderRef, arg2 string, arg3 LLVMMetada
 			_swig_i_9 = unsafe.Pointer(arg10.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateObjCIVar_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_type_71(_swig_i_4), C.swig_intgo(_swig_i_5), C.swig_type_72(_swig_i_6), C.swig_intgo(_swig_i_7), C.LLVMMetadataRef(_swig_i_8), C.LLVMMetadataRef(_swig_i_9))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateObjCIVar_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_type_71(_swig_i_4), C.swig_intgo(_swig_i_5), C.swig_type_72(_swig_i_6), C.swig_intgo(_swig_i_7), C.LLVMMetadataRef(_swig_i_8), C.LLVMMetadataRef(_swig_i_9))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -23936,7 +23682,7 @@ func DIBuilderCreateObjCProperty(arg1 LLVMDIBuilderRef, arg2 string, arg3 LLVMMe
 			_swig_i_9 = unsafe.Pointer(arg10.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateObjCProperty_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4), C.swig_type_73(_swig_i_5), C.swig_voidp(_swig_i_6), C.swig_type_74(_swig_i_7), C.swig_intgo(_swig_i_8), C.LLVMMetadataRef(_swig_i_9))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateObjCProperty_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4), C.swig_type_73(_swig_i_5), C.swig_voidp(_swig_i_6), C.swig_type_74(_swig_i_7), C.swig_intgo(_swig_i_8), C.LLVMMetadataRef(_swig_i_9))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -23966,7 +23712,7 @@ func DIBuilderCreateObjectPointerType(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRe
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateObjectPointerType_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateObjectPointerType_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -23997,7 +23743,7 @@ func DIBuilderCreateQualifiedType(arg1 LLVMDIBuilderRef, arg2 uint, arg3 LLVMMet
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateQualifiedType_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMMetadataRef(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateQualifiedType_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMMetadataRef(_swig_i_2))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -24028,7 +23774,7 @@ func DIBuilderCreateReferenceType(arg1 LLVMDIBuilderRef, arg2 uint, arg3 LLVMMet
 			_swig_i_2 = unsafe.Pointer(arg3.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateReferenceType_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMMetadataRef(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateReferenceType_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.LLVMMetadataRef(_swig_i_2))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -24050,7 +23796,7 @@ func DIBuilderCreateNullPtrType(arg1 LLVMDIBuilderRef) (_swig_ret LLVMMetadataRe
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateNullPtrType_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateNullPtrType_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -24105,7 +23851,7 @@ func DIBuilderCreateTypedef(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef, arg3 st
 		}
 	}
 	_swig_i_6 := arg7
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateTypedef_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.LLVMMetadataRef(_swig_i_5), C.swig_intgo(_swig_i_6))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateTypedef_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.LLVMMetadataRef(_swig_i_5), C.swig_intgo(_swig_i_6))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -24146,7 +23892,7 @@ func DIBuilderCreateInheritance(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef, arg
 	_swig_i_3 := arg4
 	_swig_i_4 := arg5
 	_swig_i_5 := arg6
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateInheritance_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.swig_type_75(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_intgo(_swig_i_5))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateInheritance_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.swig_type_75(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_intgo(_swig_i_5))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -24204,7 +23950,7 @@ func DIBuilderCreateForwardDecl(arg1 LLVMDIBuilderRef, arg2 uint, arg3 string, a
 		//defer C.free(unsafe.Pointer(_swig_i_9))
 	}
 	_swig_i_10 := arg11
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateForwardDecl_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.LLVMMetadataRef(_swig_i_4), C.swig_intgo(_swig_i_5), C.swig_intgo(_swig_i_6), C.swig_type_76(_swig_i_7), C.swig_intgo(_swig_i_8), C.swig_voidp(_swig_i_9), C.swig_type_77(_swig_i_10))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateForwardDecl_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.LLVMMetadataRef(_swig_i_4), C.swig_intgo(_swig_i_5), C.swig_intgo(_swig_i_6), C.swig_type_76(_swig_i_7), C.swig_intgo(_swig_i_8), C.swig_voidp(_swig_i_9), C.swig_type_77(_swig_i_10))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -24263,7 +24009,7 @@ func DIBuilderCreateReplaceableCompositeType(arg1 LLVMDIBuilderRef, arg2 uint, a
 		//defer C.free(unsafe.Pointer(_swig_i_10))
 	}
 	_swig_i_11 := arg12
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateReplaceableCompositeType_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.LLVMMetadataRef(_swig_i_4), C.swig_intgo(_swig_i_5), C.swig_intgo(_swig_i_6), C.swig_type_78(_swig_i_7), C.swig_intgo(_swig_i_8), C.swig_intgo(_swig_i_9), C.swig_voidp(_swig_i_10), C.swig_type_79(_swig_i_11))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateReplaceableCompositeType_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.LLVMMetadataRef(_swig_i_4), C.swig_intgo(_swig_i_5), C.swig_intgo(_swig_i_6), C.swig_type_78(_swig_i_7), C.swig_intgo(_swig_i_8), C.swig_intgo(_swig_i_9), C.swig_voidp(_swig_i_10), C.swig_type_79(_swig_i_11))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -24321,7 +24067,7 @@ func DIBuilderCreateBitFieldMemberType(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataR
 			_swig_i_9 = unsafe.Pointer(arg10.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateBitFieldMemberType_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_type_80(_swig_i_5), C.swig_type_81(_swig_i_6), C.swig_type_82(_swig_i_7), C.swig_intgo(_swig_i_8), C.LLVMMetadataRef(_swig_i_9))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateBitFieldMemberType_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_type_80(_swig_i_5), C.swig_type_81(_swig_i_6), C.swig_type_82(_swig_i_7), C.swig_intgo(_swig_i_8), C.LLVMMetadataRef(_swig_i_9))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -24415,7 +24161,7 @@ func DIBuilderCreateClassType(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef, arg3 
 		//defer C.free(unsafe.Pointer(_swig_i_13))
 	}
 	_swig_i_14 := arg15
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateClassType_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_type_83(_swig_i_5), C.swig_intgo(_swig_i_6), C.swig_type_84(_swig_i_7), C.swig_intgo(_swig_i_8), C.LLVMMetadataRef(_swig_i_9), C.swig_voidp(_swig_i_10), C.LLVMMetadataRef(_swig_i_11), C.LLVMMetadataRef(_swig_i_12), C.swig_voidp(_swig_i_13), C.swig_type_85(_swig_i_14))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateClassType_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_type_83(_swig_i_5), C.swig_intgo(_swig_i_6), C.swig_type_84(_swig_i_7), C.swig_intgo(_swig_i_8), C.LLVMMetadataRef(_swig_i_9), C.swig_voidp(_swig_i_10), C.LLVMMetadataRef(_swig_i_11), C.LLVMMetadataRef(_swig_i_12), C.swig_voidp(_swig_i_13), C.swig_type_85(_swig_i_14))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -24445,7 +24191,7 @@ func DIBuilderCreateArtificialType(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef) 
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateArtificialType_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateArtificialType_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -24468,7 +24214,7 @@ func DITypeGetName(arg1 LLVMMetadataRef, arg2 *int64) (_swig_ret string) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (*C.char)(C._wrap_DITypeGetName_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (*C.char)(C._wrap_DITypeGetName_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -24489,7 +24235,7 @@ func DITypeGetSizeInBits(arg1 LLVMMetadataRef) (_swig_ret uint64) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint64)(C._wrap_DITypeGetSizeInBits_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0)))
+	swig_r = (uint64)(C._wrap_DITypeGetSizeInBits_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -24503,7 +24249,7 @@ func DITypeGetOffsetInBits(arg1 LLVMMetadataRef) (_swig_ret uint64) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint64)(C._wrap_DITypeGetOffsetInBits_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0)))
+	swig_r = (uint64)(C._wrap_DITypeGetOffsetInBits_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -24517,7 +24263,7 @@ func DITypeGetAlignInBits(arg1 LLVMMetadataRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_DITypeGetAlignInBits_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_DITypeGetAlignInBits_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -24531,7 +24277,7 @@ func DITypeGetLine(arg1 LLVMMetadataRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_DITypeGetLine_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_DITypeGetLine_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -24545,7 +24291,7 @@ func DITypeGetFlags(arg1 LLVMMetadataRef) (_swig_ret LLVMDIFlags) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (LLVMDIFlags)(C._wrap_DITypeGetFlags_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0)))
+	swig_r = (LLVMDIFlags)(C._wrap_DITypeGetFlags_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -24561,7 +24307,7 @@ func DIBuilderGetOrCreateSubrange(arg1 LLVMDIBuilderRef, arg2 int64, arg3 int64)
 	}
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderGetOrCreateSubrange_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.swig_type_88(_swig_i_1), C.swig_type_89(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderGetOrCreateSubrange_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.swig_type_88(_swig_i_1), C.swig_type_89(_swig_i_2))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -24585,7 +24331,7 @@ func DIBuilderGetOrCreateArray(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef, arg3
 	}
 	_swig_i_1 := getSwigcptr(arg2)
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderGetOrCreateArray_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_type_90(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderGetOrCreateArray_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_type_90(_swig_i_2))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -24611,7 +24357,7 @@ func DIBuilderCreateExpression(arg1 LLVMDIBuilderRef, arg2 []uint64) (_swig_ret 
 	{
 		_swig_i_1 = arg2
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateExpression_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), *(*C.swig_type_91)(unsafe.Pointer(&_swig_i_1)))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateExpression_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), *(*C.swig_type_91)(unsafe.Pointer(&_swig_i_1)))))
 	if Swig_escape_always_false {
 		Swig_escape_val = _swig_i_1
 	}
@@ -24637,7 +24383,7 @@ func DIBuilderCreateConstantValueExpression(arg1 LLVMDIBuilderRef, arg2 uint64) 
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateConstantValueExpression_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.swig_type_92(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateConstantValueExpression_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.swig_type_92(_swig_i_1))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -24717,7 +24463,7 @@ func DIBuilderCreateGlobalVariableExpression(arg1 LLVMDIBuilderRef, arg2 LLVMMet
 		}
 	}
 	_swig_i_11 := arg12
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateGlobalVariableExpression_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_type_93(_swig_i_4), C.LLVMMetadataRef(_swig_i_5), C.swig_intgo(_swig_i_6), C.LLVMMetadataRef(_swig_i_7), C._Bool(_swig_i_8), C.LLVMMetadataRef(_swig_i_9), C.LLVMMetadataRef(_swig_i_10), C.swig_intgo(_swig_i_11))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateGlobalVariableExpression_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_type_93(_swig_i_4), C.LLVMMetadataRef(_swig_i_5), C.swig_intgo(_swig_i_6), C.LLVMMetadataRef(_swig_i_7), C._Bool(_swig_i_8), C.LLVMMetadataRef(_swig_i_9), C.LLVMMetadataRef(_swig_i_10), C.swig_intgo(_swig_i_11))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -24739,7 +24485,7 @@ func GetDINodeTag(arg1 LLVMMetadataRef) (_swig_ret uint16) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint16)(C._wrap_GetDINodeTag_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0)))
+	swig_r = (uint16)(C._wrap_GetDINodeTag_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -24753,7 +24499,7 @@ func DIGlobalVariableExpressionGetVariable(arg1 LLVMMetadataRef) (_swig_ret LLVM
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIGlobalVariableExpressionGetVariable_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIGlobalVariableExpressionGetVariable_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -24775,7 +24521,7 @@ func DIGlobalVariableExpressionGetExpression(arg1 LLVMMetadataRef) (_swig_ret LL
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIGlobalVariableExpressionGetExpression_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIGlobalVariableExpressionGetExpression_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -24797,7 +24543,7 @@ func DIVariableGetFile(arg1 LLVMMetadataRef) (_swig_ret LLVMMetadataRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIVariableGetFile_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIVariableGetFile_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -24819,7 +24565,7 @@ func DIVariableGetScope(arg1 LLVMMetadataRef) (_swig_ret LLVMMetadataRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIVariableGetScope_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIVariableGetScope_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -24841,7 +24587,7 @@ func DIVariableGetLine(arg1 LLVMMetadataRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_DIVariableGetLine_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_DIVariableGetLine_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -24857,7 +24603,7 @@ func TemporaryMDNode(arg1 LLVMContextRef, arg2 LLVMMetadataRef, arg3 int64) (_sw
 	}
 	_swig_i_1 := getSwigcptr(arg2)
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_TemporaryMDNode_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_type_94(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_TemporaryMDNode_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_type_94(_swig_i_2))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -24878,7 +24624,7 @@ func DisposeTemporaryMDNode(arg1 LLVMMetadataRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_DisposeTemporaryMDNode_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0))
+	C._wrap_DisposeTemporaryMDNode_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0))
 }
 
 func MetadataReplaceAllUsesWith(arg1 LLVMMetadataRef, arg2 LLVMMetadataRef) {
@@ -24898,7 +24644,7 @@ func MetadataReplaceAllUsesWith(arg1 LLVMMetadataRef, arg2 LLVMMetadataRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_MetadataReplaceAllUsesWith_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1))
+	C._wrap_MetadataReplaceAllUsesWith_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1))
 }
 
 func DIBuilderCreateTempGlobalVariableFwdDecl(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef, arg3 string, arg4 string, arg5 int64, arg6 LLVMMetadataRef, arg7 uint, arg8 LLVMMetadataRef, arg9 bool, arg10 LLVMMetadataRef, arg11 uint) (_swig_ret LLVMMetadataRef) {
@@ -24961,7 +24707,7 @@ func DIBuilderCreateTempGlobalVariableFwdDecl(arg1 LLVMDIBuilderRef, arg2 LLVMMe
 		}
 	}
 	_swig_i_10 := arg11
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateTempGlobalVariableFwdDecl_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_type_95(_swig_i_4), C.LLVMMetadataRef(_swig_i_5), C.swig_intgo(_swig_i_6), C.LLVMMetadataRef(_swig_i_7), C._Bool(_swig_i_8), C.LLVMMetadataRef(_swig_i_9), C.swig_intgo(_swig_i_10))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateTempGlobalVariableFwdDecl_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_type_95(_swig_i_4), C.LLVMMetadataRef(_swig_i_5), C.swig_intgo(_swig_i_6), C.LLVMMetadataRef(_swig_i_7), C._Bool(_swig_i_8), C.LLVMMetadataRef(_swig_i_9), C.swig_intgo(_swig_i_10))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -25023,7 +24769,7 @@ func DIBuilderInsertDeclareBefore(arg1 LLVMDIBuilderRef, arg2 LLVMValueRef, arg3
 			_swig_i_5 = unsafe.Pointer(arg6.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderInsertDeclareBefore_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.LLVMMetadataRef(_swig_i_4), C.LLVMValueRef(_swig_i_5))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderInsertDeclareBefore_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.LLVMMetadataRef(_swig_i_4), C.LLVMValueRef(_swig_i_5))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -25085,7 +24831,7 @@ func DIBuilderInsertDeclareAtEnd(arg1 LLVMDIBuilderRef, arg2 LLVMValueRef, arg3 
 			_swig_i_5 = unsafe.Pointer(arg6.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderInsertDeclareAtEnd_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.LLVMMetadataRef(_swig_i_4), C.LLVMBasicBlockRef(_swig_i_5))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderInsertDeclareAtEnd_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.LLVMMetadataRef(_swig_i_4), C.LLVMBasicBlockRef(_swig_i_5))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -25147,7 +24893,7 @@ func DIBuilderInsertDbgValueBefore(arg1 LLVMDIBuilderRef, arg2 LLVMValueRef, arg
 			_swig_i_5 = unsafe.Pointer(arg6.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderInsertDbgValueBefore_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.LLVMMetadataRef(_swig_i_4), C.LLVMValueRef(_swig_i_5))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderInsertDbgValueBefore_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.LLVMMetadataRef(_swig_i_4), C.LLVMValueRef(_swig_i_5))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -25209,7 +24955,7 @@ func DIBuilderInsertDbgValueAtEnd(arg1 LLVMDIBuilderRef, arg2 LLVMValueRef, arg3
 			_swig_i_5 = unsafe.Pointer(arg6.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderInsertDbgValueAtEnd_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.LLVMMetadataRef(_swig_i_4), C.LLVMBasicBlockRef(_swig_i_5))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderInsertDbgValueAtEnd_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.LLVMMetadataRef(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.LLVMMetadataRef(_swig_i_4), C.LLVMBasicBlockRef(_swig_i_5))))
 	var swig_r_1 LLVMValueRef
 	{
 		if swig_r == nil {
@@ -25266,7 +25012,7 @@ func DIBuilderCreateAutoVariable(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRef, ar
 	_swig_i_6 := arg7
 	_swig_i_7 := arg8
 	_swig_i_8 := arg9
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateAutoVariable_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.LLVMMetadataRef(_swig_i_5), C._Bool(_swig_i_6), C.swig_intgo(_swig_i_7), C.swig_intgo(_swig_i_8))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateAutoVariable_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.LLVMMetadataRef(_swig_i_3), C.swig_intgo(_swig_i_4), C.LLVMMetadataRef(_swig_i_5), C._Bool(_swig_i_6), C.swig_intgo(_swig_i_7), C.swig_intgo(_swig_i_8))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -25323,7 +25069,7 @@ func DIBuilderCreateParameterVariable(arg1 LLVMDIBuilderRef, arg2 LLVMMetadataRe
 	}
 	_swig_i_7 := arg8
 	_swig_i_8 := arg9
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateParameterVariable_llvm_5d1e3feecae2b244(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_intgo(_swig_i_3), C.LLVMMetadataRef(_swig_i_4), C.swig_intgo(_swig_i_5), C.LLVMMetadataRef(_swig_i_6), C._Bool(_swig_i_7), C.swig_intgo(_swig_i_8))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_DIBuilderCreateParameterVariable_llvm_a0e88c3155de3083(C.LLVMDIBuilderRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_intgo(_swig_i_3), C.LLVMMetadataRef(_swig_i_4), C.swig_intgo(_swig_i_5), C.LLVMMetadataRef(_swig_i_6), C._Bool(_swig_i_7), C.swig_intgo(_swig_i_8))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -25345,7 +25091,7 @@ func GetSubprogram(arg1 LLVMValueRef) (_swig_ret LLVMMetadataRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetSubprogram_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetSubprogram_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -25374,7 +25120,7 @@ func SetSubprogram(arg1 LLVMValueRef, arg2 LLVMMetadataRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_SetSubprogram_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1))
+	C._wrap_SetSubprogram_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1))
 }
 
 func DISubprogramGetLine(arg1 LLVMMetadataRef) (_swig_ret uint) {
@@ -25387,7 +25133,7 @@ func DISubprogramGetLine(arg1 LLVMMetadataRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_DISubprogramGetLine_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_DISubprogramGetLine_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -25401,7 +25147,7 @@ func InstructionGetDebugLoc(arg1 LLVMValueRef) (_swig_ret LLVMMetadataRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_InstructionGetDebugLoc_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_InstructionGetDebugLoc_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0))))
 	var swig_r_1 LLVMMetadataRef
 	{
 		if swig_r == nil {
@@ -25430,7 +25176,7 @@ func InstructionSetDebugLoc(arg1 LLVMValueRef, arg2 LLVMMetadataRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_InstructionSetDebugLoc_llvm_5d1e3feecae2b244(C.LLVMValueRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1))
+	C._wrap_InstructionSetDebugLoc_llvm_a0e88c3155de3083(C.LLVMValueRef(_swig_i_0), C.LLVMMetadataRef(_swig_i_1))
 }
 
 func GetMetadataKind(arg1 LLVMMetadataRef) (_swig_ret uint) {
@@ -25443,7 +25189,7 @@ func GetMetadataKind(arg1 LLVMMetadataRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_GetMetadataKind_llvm_5d1e3feecae2b244(C.LLVMMetadataRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GetMetadataKind_llvm_a0e88c3155de3083(C.LLVMMetadataRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -25460,7 +25206,7 @@ func CreateDisasm(arg1 string, arg2 uintptr, arg3 int, arg4 _swig_fnptr, arg5 _s
 	_swig_i_2 := arg3
 	_swig_i_3 := arg4
 	_swig_i_4 := arg5
-	swig_r = (uintptr)(C._wrap_CreateDisasm_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_type_96(_swig_i_3), C.swig_type_97(_swig_i_4)))
+	swig_r = (uintptr)(C._wrap_CreateDisasm_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0), C.uintptr_t(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_type_96(_swig_i_3), C.swig_type_97(_swig_i_4)))
 	return swig_r
 }
 
@@ -25484,7 +25230,7 @@ func CreateDisasmCPU(arg1 string, arg2 string, arg3 uintptr, arg4 int, arg5 _swi
 	_swig_i_3 := arg4
 	_swig_i_4 := arg5
 	_swig_i_5 := arg6
-	swig_r = (uintptr)(C._wrap_CreateDisasmCPU_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0), C.swig_voidp(_swig_i_1), C.uintptr_t(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_type_98(_swig_i_4), C.swig_type_99(_swig_i_5)))
+	swig_r = (uintptr)(C._wrap_CreateDisasmCPU_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0), C.swig_voidp(_swig_i_1), C.uintptr_t(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_type_98(_swig_i_4), C.swig_type_99(_swig_i_5)))
 	return swig_r
 }
 
@@ -25515,7 +25261,7 @@ func CreateDisasmCPUFeatures(arg1 string, arg2 string, arg3 string, arg4 uintptr
 	_swig_i_4 := arg5
 	_swig_i_5 := arg6
 	_swig_i_6 := arg7
-	swig_r = (uintptr)(C._wrap_CreateDisasmCPUFeatures_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2), C.uintptr_t(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_type_100(_swig_i_5), C.swig_type_101(_swig_i_6)))
+	swig_r = (uintptr)(C._wrap_CreateDisasmCPUFeatures_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2), C.uintptr_t(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_type_100(_swig_i_5), C.swig_type_101(_swig_i_6)))
 	return swig_r
 }
 
@@ -25523,7 +25269,7 @@ func SetDisasmOptions(arg1 uintptr, arg2 uint64) (_swig_ret int) {
 	var swig_r int
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	swig_r = (int)(C._wrap_SetDisasmOptions_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_type_102(_swig_i_1)))
+	swig_r = (int)(C._wrap_SetDisasmOptions_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_type_102(_swig_i_1)))
 	return swig_r
 }
 
@@ -25535,7 +25281,7 @@ const Disassembler_Option_PrintLatency int = 16
 
 func DisasmDispose(arg1 uintptr) {
 	_swig_i_0 := arg1
-	C._wrap_DisasmDispose_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_DisasmDispose_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 func DisasmInstruction(arg1 uintptr, arg2 *byte, arg3 uint64, arg4 uint64, arg5 string, arg6 int64) (_swig_ret int64) {
@@ -25552,7 +25298,7 @@ func DisasmInstruction(arg1 uintptr, arg2 *byte, arg3 uint64, arg4 uint64, arg5 
 		//defer C.free(unsafe.Pointer(_swig_i_4))
 	}
 	_swig_i_5 := arg6
-	swig_r = (int64)(C._wrap_DisasmInstruction_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_104(_swig_i_2), C.swig_type_105(_swig_i_3), C.swig_voidp(_swig_i_4), C.swig_type_106(_swig_i_5)))
+	swig_r = (int64)(C._wrap_DisasmInstruction_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_104(_swig_i_2), C.swig_type_105(_swig_i_3), C.swig_voidp(_swig_i_4), C.swig_type_106(_swig_i_5)))
 	return swig_r
 }
 
@@ -25568,13 +25314,13 @@ func (p SwigcptrOpInfoSymbol1) SwigIsOpInfoSymbol1() {
 func (arg1 SwigcptrOpInfoSymbol1) SetPresent(arg2 uint64) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_OpInfoSymbol1_Present_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_type_107(_swig_i_1))
+	C._wrap_OpInfoSymbol1_Present_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_type_107(_swig_i_1))
 }
 
 func (arg1 SwigcptrOpInfoSymbol1) GetPresent() (_swig_ret uint64) {
 	var swig_r uint64
 	_swig_i_0 := arg1
-	swig_r = (uint64)(C._wrap_OpInfoSymbol1_Present_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (uint64)(C._wrap_OpInfoSymbol1_Present_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
@@ -25587,13 +25333,13 @@ func (arg1 SwigcptrOpInfoSymbol1) SetName(arg2 string) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	C._wrap_OpInfoSymbol1_Name_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1))
+	C._wrap_OpInfoSymbol1_Name_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1))
 }
 
 func (arg1 SwigcptrOpInfoSymbol1) GetName() (_swig_ret string) {
 	var swig_r *C.char
 	_swig_i_0 := arg1
-	swig_r = (*C.char)(C._wrap_OpInfoSymbol1_Name_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_OpInfoSymbol1_Name_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -25607,25 +25353,25 @@ func (arg1 SwigcptrOpInfoSymbol1) GetName() (_swig_ret string) {
 func (arg1 SwigcptrOpInfoSymbol1) SetValue(arg2 uint64) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_OpInfoSymbol1_Value_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_type_109(_swig_i_1))
+	C._wrap_OpInfoSymbol1_Value_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_type_109(_swig_i_1))
 }
 
 func (arg1 SwigcptrOpInfoSymbol1) GetValue() (_swig_ret uint64) {
 	var swig_r uint64
 	_swig_i_0 := arg1
-	swig_r = (uint64)(C._wrap_OpInfoSymbol1_Value_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (uint64)(C._wrap_OpInfoSymbol1_Value_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func NewOpInfoSymbol1() (_swig_ret OpInfoSymbol1) {
 	var swig_r OpInfoSymbol1
-	swig_r = (OpInfoSymbol1)(SwigcptrOpInfoSymbol1(C._wrap_new_OpInfoSymbol1_llvm_5d1e3feecae2b244()))
+	swig_r = (OpInfoSymbol1)(SwigcptrOpInfoSymbol1(C._wrap_new_OpInfoSymbol1_llvm_a0e88c3155de3083()))
 	return swig_r
 }
 
 func DeleteOpInfoSymbol1(arg1 OpInfoSymbol1) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_delete_OpInfoSymbol1_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_delete_OpInfoSymbol1_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 type OpInfoSymbol1 interface {
@@ -25651,64 +25397,64 @@ func (p SwigcptrOpInfo1) SwigIsOpInfo1() {
 func (arg1 SwigcptrOpInfo1) SetAddSymbol(arg2 OpInfoSymbol1) {
 	_swig_i_0 := arg1
 	_swig_i_1 := getSwigcptr(arg2)
-	C._wrap_OpInfo1_AddSymbol_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1))
+	C._wrap_OpInfo1_AddSymbol_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1))
 }
 
 func (arg1 SwigcptrOpInfo1) GetAddSymbol() (_swig_ret OpInfoSymbol1) {
 	var swig_r OpInfoSymbol1
 	_swig_i_0 := arg1
-	swig_r = (OpInfoSymbol1)(SwigcptrOpInfoSymbol1(C._wrap_OpInfo1_AddSymbol_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))))
+	swig_r = (OpInfoSymbol1)(SwigcptrOpInfoSymbol1(C._wrap_OpInfo1_AddSymbol_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))))
 	return swig_r
 }
 
 func (arg1 SwigcptrOpInfo1) SetSubtractSymbol(arg2 OpInfoSymbol1) {
 	_swig_i_0 := arg1
 	_swig_i_1 := getSwigcptr(arg2)
-	C._wrap_OpInfo1_SubtractSymbol_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1))
+	C._wrap_OpInfo1_SubtractSymbol_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1))
 }
 
 func (arg1 SwigcptrOpInfo1) GetSubtractSymbol() (_swig_ret OpInfoSymbol1) {
 	var swig_r OpInfoSymbol1
 	_swig_i_0 := arg1
-	swig_r = (OpInfoSymbol1)(SwigcptrOpInfoSymbol1(C._wrap_OpInfo1_SubtractSymbol_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))))
+	swig_r = (OpInfoSymbol1)(SwigcptrOpInfoSymbol1(C._wrap_OpInfo1_SubtractSymbol_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))))
 	return swig_r
 }
 
 func (arg1 SwigcptrOpInfo1) SetValue(arg2 uint64) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_OpInfo1_Value_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_type_111(_swig_i_1))
+	C._wrap_OpInfo1_Value_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_type_111(_swig_i_1))
 }
 
 func (arg1 SwigcptrOpInfo1) GetValue() (_swig_ret uint64) {
 	var swig_r uint64
 	_swig_i_0 := arg1
-	swig_r = (uint64)(C._wrap_OpInfo1_Value_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (uint64)(C._wrap_OpInfo1_Value_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func (arg1 SwigcptrOpInfo1) SetVariantKind(arg2 uint64) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_OpInfo1_VariantKind_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_type_113(_swig_i_1))
+	C._wrap_OpInfo1_VariantKind_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_type_113(_swig_i_1))
 }
 
 func (arg1 SwigcptrOpInfo1) GetVariantKind() (_swig_ret uint64) {
 	var swig_r uint64
 	_swig_i_0 := arg1
-	swig_r = (uint64)(C._wrap_OpInfo1_VariantKind_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (uint64)(C._wrap_OpInfo1_VariantKind_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func NewOpInfo1() (_swig_ret OpInfo1) {
 	var swig_r OpInfo1
-	swig_r = (OpInfo1)(SwigcptrOpInfo1(C._wrap_new_OpInfo1_llvm_5d1e3feecae2b244()))
+	swig_r = (OpInfo1)(SwigcptrOpInfo1(C._wrap_new_OpInfo1_llvm_a0e88c3155de3083()))
 	return swig_r
 }
 
 func DeleteOpInfo1(arg1 OpInfo1) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_delete_OpInfo1_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_delete_OpInfo1_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 type OpInfo1 interface {
@@ -25755,19 +25501,19 @@ const ErrorSuccess int = 0
 func GetErrorTypeId(arg1 Struct_SS_LLVMOpaqueError) (_swig_ret uintptr) {
 	var swig_r uintptr
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (uintptr)(C._wrap_GetErrorTypeId_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (uintptr)(C._wrap_GetErrorTypeId_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func ConsumeError(arg1 Struct_SS_LLVMOpaqueError) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_ConsumeError_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_ConsumeError_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 func GetErrorMessage(arg1 Struct_SS_LLVMOpaqueError) (_swig_ret string) {
 	var swig_r *C.char
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (*C.char)(C._wrap_GetErrorMessage_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_GetErrorMessage_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -25786,12 +25532,12 @@ func DisposeErrorMessage(arg1 string) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_0))
 	}
-	C._wrap_DisposeErrorMessage_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0))
+	C._wrap_DisposeErrorMessage_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0))
 }
 
 func GetStringErrorTypeId() (_swig_ret uintptr) {
 	var swig_r uintptr
-	swig_r = (uintptr)(C._wrap_GetStringErrorTypeId_llvm_5d1e3feecae2b244())
+	swig_r = (uintptr)(C._wrap_GetStringErrorTypeId_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -25804,16 +25550,16 @@ func CreateStringError(arg1 string) (_swig_ret Struct_SS_LLVMOpaqueError) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_0))
 	}
-	swig_r = (Struct_SS_LLVMOpaqueError)(SwigcptrStruct_SS_LLVMOpaqueError(C._wrap_CreateStringError_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0))))
+	swig_r = (Struct_SS_LLVMOpaqueError)(SwigcptrStruct_SS_LLVMOpaqueError(C._wrap_CreateStringError_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0))))
 	return swig_r
 }
 
 func LinkInMCJIT() {
-	C._wrap_LinkInMCJIT_llvm_5d1e3feecae2b244()
+	C._wrap_LinkInMCJIT_llvm_a0e88c3155de3083()
 }
 
 func LinkInInterpreter() {
-	C._wrap_LinkInInterpreter_llvm_5d1e3feecae2b244()
+	C._wrap_LinkInInterpreter_llvm_a0e88c3155de3083()
 }
 
 type SwigcptrMCJITCompilerOptions uintptr
@@ -25828,77 +25574,77 @@ func (p SwigcptrMCJITCompilerOptions) SwigIsMCJITCompilerOptions() {
 func (arg1 SwigcptrMCJITCompilerOptions) SetOptLevel(arg2 uint) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_MCJITCompilerOptions_OptLevel_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1))
+	C._wrap_MCJITCompilerOptions_OptLevel_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1))
 }
 
 func (arg1 SwigcptrMCJITCompilerOptions) GetOptLevel() (_swig_ret uint) {
 	var swig_r uint
 	_swig_i_0 := arg1
-	swig_r = (uint)(C._wrap_MCJITCompilerOptions_OptLevel_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (uint)(C._wrap_MCJITCompilerOptions_OptLevel_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func (arg1 SwigcptrMCJITCompilerOptions) SetCodeModel(arg2 LLVMCodeModel) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_MCJITCompilerOptions_CodeModel_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1))
+	C._wrap_MCJITCompilerOptions_CodeModel_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1))
 }
 
 func (arg1 SwigcptrMCJITCompilerOptions) GetCodeModel() (_swig_ret LLVMCodeModel) {
 	var swig_r LLVMCodeModel
 	_swig_i_0 := arg1
-	swig_r = (LLVMCodeModel)(C._wrap_MCJITCompilerOptions_CodeModel_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (LLVMCodeModel)(C._wrap_MCJITCompilerOptions_CodeModel_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func (arg1 SwigcptrMCJITCompilerOptions) SetNoFramePointerElim(arg2 bool) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_MCJITCompilerOptions_NoFramePointerElim_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C._Bool(_swig_i_1))
+	C._wrap_MCJITCompilerOptions_NoFramePointerElim_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C._Bool(_swig_i_1))
 }
 
 func (arg1 SwigcptrMCJITCompilerOptions) GetNoFramePointerElim() (_swig_ret bool) {
 	var swig_r bool
 	_swig_i_0 := arg1
-	swig_r = (bool)(C._wrap_MCJITCompilerOptions_NoFramePointerElim_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (bool)(C._wrap_MCJITCompilerOptions_NoFramePointerElim_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func (arg1 SwigcptrMCJITCompilerOptions) SetEnableFastISel(arg2 bool) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_MCJITCompilerOptions_EnableFastISel_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C._Bool(_swig_i_1))
+	C._wrap_MCJITCompilerOptions_EnableFastISel_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C._Bool(_swig_i_1))
 }
 
 func (arg1 SwigcptrMCJITCompilerOptions) GetEnableFastISel() (_swig_ret bool) {
 	var swig_r bool
 	_swig_i_0 := arg1
-	swig_r = (bool)(C._wrap_MCJITCompilerOptions_EnableFastISel_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (bool)(C._wrap_MCJITCompilerOptions_EnableFastISel_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func (arg1 SwigcptrMCJITCompilerOptions) SetMCJMM(arg2 Struct_SS_LLVMOpaqueMCJITMemoryManager) {
 	_swig_i_0 := arg1
 	_swig_i_1 := getSwigcptr(arg2)
-	C._wrap_MCJITCompilerOptions_MCJMM_set_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1))
+	C._wrap_MCJITCompilerOptions_MCJMM_set_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1))
 }
 
 func (arg1 SwigcptrMCJITCompilerOptions) GetMCJMM() (_swig_ret Struct_SS_LLVMOpaqueMCJITMemoryManager) {
 	var swig_r Struct_SS_LLVMOpaqueMCJITMemoryManager
 	_swig_i_0 := arg1
-	swig_r = (Struct_SS_LLVMOpaqueMCJITMemoryManager)(SwigcptrStruct_SS_LLVMOpaqueMCJITMemoryManager(C._wrap_MCJITCompilerOptions_MCJMM_get_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))))
+	swig_r = (Struct_SS_LLVMOpaqueMCJITMemoryManager)(SwigcptrStruct_SS_LLVMOpaqueMCJITMemoryManager(C._wrap_MCJITCompilerOptions_MCJMM_get_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))))
 	return swig_r
 }
 
 func NewMCJITCompilerOptions() (_swig_ret MCJITCompilerOptions) {
 	var swig_r MCJITCompilerOptions
-	swig_r = (MCJITCompilerOptions)(SwigcptrMCJITCompilerOptions(C._wrap_new_MCJITCompilerOptions_llvm_5d1e3feecae2b244()))
+	swig_r = (MCJITCompilerOptions)(SwigcptrMCJITCompilerOptions(C._wrap_new_MCJITCompilerOptions_llvm_a0e88c3155de3083()))
 	return swig_r
 }
 
 func DeleteMCJITCompilerOptions(arg1 MCJITCompilerOptions) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_delete_MCJITCompilerOptions_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_delete_MCJITCompilerOptions_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 type MCJITCompilerOptions interface {
@@ -25928,14 +25674,14 @@ func CreateGenericValueOfInt(arg1 LLVMTypeRef, arg2 uint64, arg3 bool) (_swig_re
 	}
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	swig_r = (Struct_SS_LLVMOpaqueGenericValue)(SwigcptrStruct_SS_LLVMOpaqueGenericValue(C._wrap_CreateGenericValueOfInt_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.swig_type_115(_swig_i_1), C._Bool(_swig_i_2))))
+	swig_r = (Struct_SS_LLVMOpaqueGenericValue)(SwigcptrStruct_SS_LLVMOpaqueGenericValue(C._wrap_CreateGenericValueOfInt_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.swig_type_115(_swig_i_1), C._Bool(_swig_i_2))))
 	return swig_r
 }
 
 func CreateGenericValueOfPointer(arg1 uintptr) (_swig_ret Struct_SS_LLVMOpaqueGenericValue) {
 	var swig_r Struct_SS_LLVMOpaqueGenericValue
 	_swig_i_0 := arg1
-	swig_r = (Struct_SS_LLVMOpaqueGenericValue)(SwigcptrStruct_SS_LLVMOpaqueGenericValue(C._wrap_CreateGenericValueOfPointer_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))))
+	swig_r = (Struct_SS_LLVMOpaqueGenericValue)(SwigcptrStruct_SS_LLVMOpaqueGenericValue(C._wrap_CreateGenericValueOfPointer_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))))
 	return swig_r
 }
 
@@ -25950,14 +25696,14 @@ func CreateGenericValueOfFloat(arg1 LLVMTypeRef, arg2 float64) (_swig_ret Struct
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (Struct_SS_LLVMOpaqueGenericValue)(SwigcptrStruct_SS_LLVMOpaqueGenericValue(C._wrap_CreateGenericValueOfFloat_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.double(_swig_i_1))))
+	swig_r = (Struct_SS_LLVMOpaqueGenericValue)(SwigcptrStruct_SS_LLVMOpaqueGenericValue(C._wrap_CreateGenericValueOfFloat_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.double(_swig_i_1))))
 	return swig_r
 }
 
 func GenericValueIntWidth(arg1 Struct_SS_LLVMOpaqueGenericValue) (_swig_ret uint) {
 	var swig_r uint
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (uint)(C._wrap_GenericValueIntWidth_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (uint)(C._wrap_GenericValueIntWidth_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
@@ -25965,14 +25711,14 @@ func GenericValueToInt(arg1 Struct_SS_LLVMOpaqueGenericValue, arg2 bool) (_swig_
 	var swig_r uint64
 	_swig_i_0 := getSwigcptr(arg1)
 	_swig_i_1 := arg2
-	swig_r = (uint64)(C._wrap_GenericValueToInt_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C._Bool(_swig_i_1)))
+	swig_r = (uint64)(C._wrap_GenericValueToInt_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C._Bool(_swig_i_1)))
 	return swig_r
 }
 
 func GenericValueToPointer(arg1 Struct_SS_LLVMOpaqueGenericValue) (_swig_ret uintptr) {
 	var swig_r uintptr
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (uintptr)(C._wrap_GenericValueToPointer_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (uintptr)(C._wrap_GenericValueToPointer_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
@@ -25987,13 +25733,13 @@ func GenericValueToFloat(arg1 LLVMTypeRef, arg2 Struct_SS_LLVMOpaqueGenericValue
 		}
 	}
 	_swig_i_1 := getSwigcptr(arg2)
-	swig_r = (float64)(C._wrap_GenericValueToFloat_llvm_5d1e3feecae2b244(C.LLVMTypeRef(_swig_i_0), C.uintptr_t(_swig_i_1)))
+	swig_r = (float64)(C._wrap_GenericValueToFloat_llvm_a0e88c3155de3083(C.LLVMTypeRef(_swig_i_0), C.uintptr_t(_swig_i_1)))
 	return swig_r
 }
 
 func DisposeGenericValue(arg1 Struct_SS_LLVMOpaqueGenericValue) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_DisposeGenericValue_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_DisposeGenericValue_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 func CreateExecutionEngineForModule(arg1 Struct_SS_LLVMOpaqueExecutionEngine, arg2 LLVMModuleRef, arg3 *string) (_swig_ret bool) {
@@ -26008,7 +25754,7 @@ func CreateExecutionEngineForModule(arg1 Struct_SS_LLVMOpaqueExecutionEngine, ar
 		}
 	}
 	_swig_i_2 := arg3
-	swig_r = (bool)(C._wrap_CreateExecutionEngineForModule_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.LLVMModuleRef(_swig_i_1), C.swig_voidp(_swig_i_2)))
+	swig_r = (bool)(C._wrap_CreateExecutionEngineForModule_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.LLVMModuleRef(_swig_i_1), C.swig_voidp(_swig_i_2)))
 	return swig_r
 }
 
@@ -26024,7 +25770,7 @@ func CreateInterpreterForModule(arg1 Struct_SS_LLVMOpaqueExecutionEngine, arg2 L
 		}
 	}
 	_swig_i_2 := arg3
-	swig_r = (bool)(C._wrap_CreateInterpreterForModule_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.LLVMModuleRef(_swig_i_1), C.swig_voidp(_swig_i_2)))
+	swig_r = (bool)(C._wrap_CreateInterpreterForModule_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.LLVMModuleRef(_swig_i_1), C.swig_voidp(_swig_i_2)))
 	return swig_r
 }
 
@@ -26041,14 +25787,14 @@ func CreateJITCompilerForModule(arg1 Struct_SS_LLVMOpaqueExecutionEngine, arg2 L
 	}
 	_swig_i_2 := arg3
 	_swig_i_3 := arg4
-	swig_r = (bool)(C._wrap_CreateJITCompilerForModule_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.LLVMModuleRef(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_voidp(_swig_i_3)))
+	swig_r = (bool)(C._wrap_CreateJITCompilerForModule_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.LLVMModuleRef(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_voidp(_swig_i_3)))
 	return swig_r
 }
 
 func InitializeMCJITCompilerOptions(arg1 MCJITCompilerOptions, arg2 int64) {
 	_swig_i_0 := getSwigcptr(arg1)
 	_swig_i_1 := arg2
-	C._wrap_InitializeMCJITCompilerOptions_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_type_117(_swig_i_1))
+	C._wrap_InitializeMCJITCompilerOptions_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_type_117(_swig_i_1))
 }
 
 func CreateMCJITCompilerForModule(arg1 Struct_SS_LLVMOpaqueExecutionEngine, arg2 LLVMModuleRef, arg3 MCJITCompilerOptions, arg4 int64, arg5 *string) (_swig_ret bool) {
@@ -26065,23 +25811,23 @@ func CreateMCJITCompilerForModule(arg1 Struct_SS_LLVMOpaqueExecutionEngine, arg2
 	_swig_i_2 := getSwigcptr(arg3)
 	_swig_i_3 := arg4
 	_swig_i_4 := arg5
-	swig_r = (bool)(C._wrap_CreateMCJITCompilerForModule_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.LLVMModuleRef(_swig_i_1), C.uintptr_t(_swig_i_2), C.swig_type_118(_swig_i_3), C.swig_voidp(_swig_i_4)))
+	swig_r = (bool)(C._wrap_CreateMCJITCompilerForModule_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.LLVMModuleRef(_swig_i_1), C.uintptr_t(_swig_i_2), C.swig_type_118(_swig_i_3), C.swig_voidp(_swig_i_4)))
 	return swig_r
 }
 
 func DisposeExecutionEngine(arg1 Struct_SS_LLVMOpaqueExecutionEngine) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_DisposeExecutionEngine_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_DisposeExecutionEngine_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 func RunStaticConstructors(arg1 Struct_SS_LLVMOpaqueExecutionEngine) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_RunStaticConstructors_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_RunStaticConstructors_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 func RunStaticDestructors(arg1 Struct_SS_LLVMOpaqueExecutionEngine) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_RunStaticDestructors_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_RunStaticDestructors_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 func RunFunctionAsMain(arg1 Struct_SS_LLVMOpaqueExecutionEngine, arg2 LLVMValueRef, arg3 uint, arg4 *string, arg5 *string) (_swig_ret int) {
@@ -26098,7 +25844,7 @@ func RunFunctionAsMain(arg1 Struct_SS_LLVMOpaqueExecutionEngine, arg2 LLVMValueR
 	_swig_i_2 := arg3
 	_swig_i_3 := arg4
 	_swig_i_4 := arg5
-	swig_r = (int)(C._wrap_RunFunctionAsMain_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_voidp(_swig_i_4)))
+	swig_r = (int)(C._wrap_RunFunctionAsMain_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_voidp(_swig_i_4)))
 	return swig_r
 }
 
@@ -26115,7 +25861,7 @@ func RunFunction(arg1 Struct_SS_LLVMOpaqueExecutionEngine, arg2 LLVMValueRef, ar
 	}
 	_swig_i_2 := arg3
 	_swig_i_3 := getSwigcptr(arg4)
-	swig_r = (Struct_SS_LLVMOpaqueGenericValue)(SwigcptrStruct_SS_LLVMOpaqueGenericValue(C._wrap_RunFunction_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_intgo(_swig_i_2), C.uintptr_t(_swig_i_3))))
+	swig_r = (Struct_SS_LLVMOpaqueGenericValue)(SwigcptrStruct_SS_LLVMOpaqueGenericValue(C._wrap_RunFunction_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.swig_intgo(_swig_i_2), C.uintptr_t(_swig_i_3))))
 	return swig_r
 }
 
@@ -26129,7 +25875,7 @@ func FreeMachineCodeForFunction(arg1 Struct_SS_LLVMOpaqueExecutionEngine, arg2 L
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_FreeMachineCodeForFunction_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.LLVMValueRef(_swig_i_1))
+	C._wrap_FreeMachineCodeForFunction_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.LLVMValueRef(_swig_i_1))
 }
 
 func AddModule(arg1 Struct_SS_LLVMOpaqueExecutionEngine, arg2 LLVMModuleRef) {
@@ -26142,7 +25888,7 @@ func AddModule(arg1 Struct_SS_LLVMOpaqueExecutionEngine, arg2 LLVMModuleRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_AddModule_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.LLVMModuleRef(_swig_i_1))
+	C._wrap_AddModule_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.LLVMModuleRef(_swig_i_1))
 }
 
 func RemoveModule(arg1 Struct_SS_LLVMOpaqueExecutionEngine, arg2 LLVMModuleRef, arg3 LLVMModuleRef, arg4 *string) (_swig_ret bool) {
@@ -26158,7 +25904,7 @@ func RemoveModule(arg1 Struct_SS_LLVMOpaqueExecutionEngine, arg2 LLVMModuleRef, 
 	}
 	_swig_i_2 := getSwigcptr(arg3)
 	_swig_i_3 := arg4
-	swig_r = (bool)(C._wrap_RemoveModule_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.LLVMModuleRef(_swig_i_1), C.uintptr_t(_swig_i_2), C.swig_voidp(_swig_i_3)))
+	swig_r = (bool)(C._wrap_RemoveModule_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.LLVMModuleRef(_swig_i_1), C.uintptr_t(_swig_i_2), C.swig_voidp(_swig_i_3)))
 	return swig_r
 }
 
@@ -26173,7 +25919,7 @@ func FindFunction(arg1 Struct_SS_LLVMOpaqueExecutionEngine, arg2 string, arg3 LL
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
 	_swig_i_2 := getSwigcptr(arg3)
-	swig_r = (bool)(C._wrap_FindFunction_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1), C.uintptr_t(_swig_i_2)))
+	swig_r = (bool)(C._wrap_FindFunction_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1), C.uintptr_t(_swig_i_2)))
 	return swig_r
 }
 
@@ -26188,14 +25934,14 @@ func RecompileAndRelinkFunction(arg1 Struct_SS_LLVMOpaqueExecutionEngine, arg2 L
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (uintptr)(C._wrap_RecompileAndRelinkFunction_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.LLVMValueRef(_swig_i_1)))
+	swig_r = (uintptr)(C._wrap_RecompileAndRelinkFunction_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.LLVMValueRef(_swig_i_1)))
 	return swig_r
 }
 
 func GetExecutionEngineTargetData(arg1 Struct_SS_LLVMOpaqueExecutionEngine) (_swig_ret LLVMTargetDataRef) {
 	var swig_r unsafe.Pointer
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetExecutionEngineTargetData_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetExecutionEngineTargetData_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))))
 	var swig_r_1 LLVMTargetDataRef
 	{
 		if swig_r == nil {
@@ -26210,7 +25956,7 @@ func GetExecutionEngineTargetData(arg1 Struct_SS_LLVMOpaqueExecutionEngine) (_sw
 func GetExecutionEngineTargetMachine(arg1 Struct_SS_LLVMOpaqueExecutionEngine) (_swig_ret LLVMTargetMachineRef) {
 	var swig_r unsafe.Pointer
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetExecutionEngineTargetMachine_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetExecutionEngineTargetMachine_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))))
 	var swig_r_1 LLVMTargetMachineRef
 	{
 		if swig_r == nil {
@@ -26233,7 +25979,7 @@ func AddGlobalMapping(arg1 Struct_SS_LLVMOpaqueExecutionEngine, arg2 LLVMValueRe
 		}
 	}
 	_swig_i_2 := arg3
-	C._wrap_AddGlobalMapping_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.uintptr_t(_swig_i_2))
+	C._wrap_AddGlobalMapping_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.LLVMValueRef(_swig_i_1), C.uintptr_t(_swig_i_2))
 }
 
 func GetPointerToGlobal(arg1 Struct_SS_LLVMOpaqueExecutionEngine, arg2 LLVMValueRef) (_swig_ret uintptr) {
@@ -26247,7 +25993,7 @@ func GetPointerToGlobal(arg1 Struct_SS_LLVMOpaqueExecutionEngine, arg2 LLVMValue
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (uintptr)(C._wrap_GetPointerToGlobal_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.LLVMValueRef(_swig_i_1)))
+	swig_r = (uintptr)(C._wrap_GetPointerToGlobal_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.LLVMValueRef(_swig_i_1)))
 	return swig_r
 }
 
@@ -26261,7 +26007,7 @@ func GetGlobalValueAddress(arg1 Struct_SS_LLVMOpaqueExecutionEngine, arg2 string
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	swig_r = (uint64)(C._wrap_GetGlobalValueAddress_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (uint64)(C._wrap_GetGlobalValueAddress_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	return swig_r
 }
 
@@ -26275,7 +26021,7 @@ func GetFunctionAddress(arg1 Struct_SS_LLVMOpaqueExecutionEngine, arg2 string) (
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_1))
 	}
-	swig_r = (uint64)(C._wrap_GetFunctionAddress_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (uint64)(C._wrap_GetFunctionAddress_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	return swig_r
 }
 
@@ -26283,7 +26029,7 @@ func ExecutionEngineGetErrMsg(arg1 Struct_SS_LLVMOpaqueExecutionEngine, arg2 *st
 	var swig_r bool
 	_swig_i_0 := getSwigcptr(arg1)
 	_swig_i_1 := arg2
-	swig_r = (bool)(C._wrap_ExecutionEngineGetErrMsg_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1)))
+	swig_r = (bool)(C._wrap_ExecutionEngineGetErrMsg_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1)))
 	return swig_r
 }
 
@@ -26294,18 +26040,18 @@ func CreateSimpleMCJITMemoryManager(arg1 uintptr, arg2 _swig_fnptr, arg3 _swig_f
 	_swig_i_2 := arg3
 	_swig_i_3 := arg4
 	_swig_i_4 := arg5
-	swig_r = (Struct_SS_LLVMOpaqueMCJITMemoryManager)(SwigcptrStruct_SS_LLVMOpaqueMCJITMemoryManager(C._wrap_CreateSimpleMCJITMemoryManager_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.swig_type_121(_swig_i_1), C.swig_type_122(_swig_i_2), C.swig_type_123(_swig_i_3), C.swig_type_124(_swig_i_4))))
+	swig_r = (Struct_SS_LLVMOpaqueMCJITMemoryManager)(SwigcptrStruct_SS_LLVMOpaqueMCJITMemoryManager(C._wrap_CreateSimpleMCJITMemoryManager_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.swig_type_121(_swig_i_1), C.swig_type_122(_swig_i_2), C.swig_type_123(_swig_i_3), C.swig_type_124(_swig_i_4))))
 	return swig_r
 }
 
 func DisposeMCJITMemoryManager(arg1 Struct_SS_LLVMOpaqueMCJITMemoryManager) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_DisposeMCJITMemoryManager_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_DisposeMCJITMemoryManager_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 func CreateGDBRegistrationListener() (_swig_ret LLVMJITEventListenerRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateGDBRegistrationListener_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateGDBRegistrationListener_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMJITEventListenerRef
 	{
 		if swig_r == nil {
@@ -26319,7 +26065,7 @@ func CreateGDBRegistrationListener() (_swig_ret LLVMJITEventListenerRef) {
 
 func CreateIntelJITEventListener() (_swig_ret LLVMJITEventListenerRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateIntelJITEventListener_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateIntelJITEventListener_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMJITEventListenerRef
 	{
 		if swig_r == nil {
@@ -26333,7 +26079,7 @@ func CreateIntelJITEventListener() (_swig_ret LLVMJITEventListenerRef) {
 
 func CreateOProfileJITEventListener() (_swig_ret LLVMJITEventListenerRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateOProfileJITEventListener_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateOProfileJITEventListener_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMJITEventListenerRef
 	{
 		if swig_r == nil {
@@ -26347,7 +26093,7 @@ func CreateOProfileJITEventListener() (_swig_ret LLVMJITEventListenerRef) {
 
 func CreatePerfJITEventListener() (_swig_ret LLVMJITEventListenerRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreatePerfJITEventListener_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreatePerfJITEventListener_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMJITEventListenerRef
 	{
 		if swig_r == nil {
@@ -26368,7 +26114,7 @@ func InitializeTransformUtils(arg1 LLVMPassRegistryRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_InitializeTransformUtils_llvm_5d1e3feecae2b244(C.LLVMPassRegistryRef(_swig_i_0))
+	C._wrap_InitializeTransformUtils_llvm_a0e88c3155de3083(C.LLVMPassRegistryRef(_swig_i_0))
 }
 
 func InitializeScalarOpts(arg1 LLVMPassRegistryRef) {
@@ -26380,7 +26126,7 @@ func InitializeScalarOpts(arg1 LLVMPassRegistryRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_InitializeScalarOpts_llvm_5d1e3feecae2b244(C.LLVMPassRegistryRef(_swig_i_0))
+	C._wrap_InitializeScalarOpts_llvm_a0e88c3155de3083(C.LLVMPassRegistryRef(_swig_i_0))
 }
 
 func InitializeVectorization(arg1 LLVMPassRegistryRef) {
@@ -26392,7 +26138,7 @@ func InitializeVectorization(arg1 LLVMPassRegistryRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_InitializeVectorization_llvm_5d1e3feecae2b244(C.LLVMPassRegistryRef(_swig_i_0))
+	C._wrap_InitializeVectorization_llvm_a0e88c3155de3083(C.LLVMPassRegistryRef(_swig_i_0))
 }
 
 func InitializeInstCombine(arg1 LLVMPassRegistryRef) {
@@ -26404,7 +26150,7 @@ func InitializeInstCombine(arg1 LLVMPassRegistryRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_InitializeInstCombine_llvm_5d1e3feecae2b244(C.LLVMPassRegistryRef(_swig_i_0))
+	C._wrap_InitializeInstCombine_llvm_a0e88c3155de3083(C.LLVMPassRegistryRef(_swig_i_0))
 }
 
 func InitializeIPO(arg1 LLVMPassRegistryRef) {
@@ -26416,7 +26162,7 @@ func InitializeIPO(arg1 LLVMPassRegistryRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_InitializeIPO_llvm_5d1e3feecae2b244(C.LLVMPassRegistryRef(_swig_i_0))
+	C._wrap_InitializeIPO_llvm_a0e88c3155de3083(C.LLVMPassRegistryRef(_swig_i_0))
 }
 
 func InitializeAnalysis(arg1 LLVMPassRegistryRef) {
@@ -26428,7 +26174,7 @@ func InitializeAnalysis(arg1 LLVMPassRegistryRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_InitializeAnalysis_llvm_5d1e3feecae2b244(C.LLVMPassRegistryRef(_swig_i_0))
+	C._wrap_InitializeAnalysis_llvm_a0e88c3155de3083(C.LLVMPassRegistryRef(_swig_i_0))
 }
 
 func InitializeIPA(arg1 LLVMPassRegistryRef) {
@@ -26440,7 +26186,7 @@ func InitializeIPA(arg1 LLVMPassRegistryRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_InitializeIPA_llvm_5d1e3feecae2b244(C.LLVMPassRegistryRef(_swig_i_0))
+	C._wrap_InitializeIPA_llvm_a0e88c3155de3083(C.LLVMPassRegistryRef(_swig_i_0))
 }
 
 func InitializeCodeGen(arg1 LLVMPassRegistryRef) {
@@ -26452,7 +26198,7 @@ func InitializeCodeGen(arg1 LLVMPassRegistryRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_InitializeCodeGen_llvm_5d1e3feecae2b244(C.LLVMPassRegistryRef(_swig_i_0))
+	C._wrap_InitializeCodeGen_llvm_a0e88c3155de3083(C.LLVMPassRegistryRef(_swig_i_0))
 }
 
 func InitializeTarget(arg1 LLVMPassRegistryRef) {
@@ -26464,7 +26210,7 @@ func InitializeTarget(arg1 LLVMPassRegistryRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_InitializeTarget_llvm_5d1e3feecae2b244(C.LLVMPassRegistryRef(_swig_i_0))
+	C._wrap_InitializeTarget_llvm_a0e88c3155de3083(C.LLVMPassRegistryRef(_swig_i_0))
 }
 
 func ParseIRInContext(arg1 LLVMContextRef, arg2 LLVMMemoryBufferRef, arg3 LLVMModuleRef, arg4 *string) (_swig_ret bool) {
@@ -26487,7 +26233,7 @@ func ParseIRInContext(arg1 LLVMContextRef, arg2 LLVMMemoryBufferRef, arg3 LLVMMo
 	}
 	_swig_i_2 := getSwigcptr(arg3)
 	_swig_i_3 := arg4
-	swig_r = (bool)(C._wrap_ParseIRInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.LLVMMemoryBufferRef(_swig_i_1), C.uintptr_t(_swig_i_2), C.swig_voidp(_swig_i_3)))
+	swig_r = (bool)(C._wrap_ParseIRInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.LLVMMemoryBufferRef(_swig_i_1), C.uintptr_t(_swig_i_2), C.swig_voidp(_swig_i_3)))
 	return swig_r
 }
 
@@ -26495,7 +26241,7 @@ type LLVMLinkerMode int
 
 func _swig_getLinkerDestroySource() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_LinkerDestroySource_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_LinkerDestroySource_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -26503,7 +26249,7 @@ var LinkerDestroySource int = _swig_getLinkerDestroySource()
 
 func _swig_getLinkerPreserveSource_Removed() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_LinkerPreserveSource_Removed_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_LinkerPreserveSource_Removed_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -26527,7 +26273,7 @@ func LinkModules2(arg1 LLVMModuleRef, arg2 LLVMModuleRef) (_swig_ret bool) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_LinkModules2_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.LLVMModuleRef(_swig_i_1)))
+	swig_r = (bool)(C._wrap_LinkModules2_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.LLVMModuleRef(_swig_i_1)))
 	return swig_r
 }
 
@@ -26535,7 +26281,7 @@ type LLVMBinaryType int
 
 func _swig_getBinaryTypeArchive() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_BinaryTypeArchive_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_BinaryTypeArchive_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -26543,7 +26289,7 @@ var BinaryTypeArchive int = _swig_getBinaryTypeArchive()
 
 func _swig_getBinaryTypeMachOUniversalBinary() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_BinaryTypeMachOUniversalBinary_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_BinaryTypeMachOUniversalBinary_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -26551,7 +26297,7 @@ var BinaryTypeMachOUniversalBinary int = _swig_getBinaryTypeMachOUniversalBinary
 
 func _swig_getBinaryTypeCOFFImportFile() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_BinaryTypeCOFFImportFile_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_BinaryTypeCOFFImportFile_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -26559,7 +26305,7 @@ var BinaryTypeCOFFImportFile int = _swig_getBinaryTypeCOFFImportFile()
 
 func _swig_getBinaryTypeIR() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_BinaryTypeIR_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_BinaryTypeIR_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -26567,7 +26313,7 @@ var BinaryTypeIR int = _swig_getBinaryTypeIR()
 
 func _swig_getBinaryTypeWinRes() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_BinaryTypeWinRes_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_BinaryTypeWinRes_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -26575,7 +26321,7 @@ var BinaryTypeWinRes int = _swig_getBinaryTypeWinRes()
 
 func _swig_getBinaryTypeCOFF() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_BinaryTypeCOFF_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_BinaryTypeCOFF_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -26583,7 +26329,7 @@ var BinaryTypeCOFF int = _swig_getBinaryTypeCOFF()
 
 func _swig_getBinaryTypeELF32L() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_BinaryTypeELF32L_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_BinaryTypeELF32L_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -26591,7 +26337,7 @@ var BinaryTypeELF32L int = _swig_getBinaryTypeELF32L()
 
 func _swig_getBinaryTypeELF32B() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_BinaryTypeELF32B_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_BinaryTypeELF32B_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -26599,7 +26345,7 @@ var BinaryTypeELF32B int = _swig_getBinaryTypeELF32B()
 
 func _swig_getBinaryTypeELF64L() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_BinaryTypeELF64L_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_BinaryTypeELF64L_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -26607,7 +26353,7 @@ var BinaryTypeELF64L int = _swig_getBinaryTypeELF64L()
 
 func _swig_getBinaryTypeELF64B() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_BinaryTypeELF64B_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_BinaryTypeELF64B_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -26615,7 +26361,7 @@ var BinaryTypeELF64B int = _swig_getBinaryTypeELF64B()
 
 func _swig_getBinaryTypeMachO32L() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_BinaryTypeMachO32L_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_BinaryTypeMachO32L_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -26623,7 +26369,7 @@ var BinaryTypeMachO32L int = _swig_getBinaryTypeMachO32L()
 
 func _swig_getBinaryTypeMachO32B() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_BinaryTypeMachO32B_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_BinaryTypeMachO32B_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -26631,7 +26377,7 @@ var BinaryTypeMachO32B int = _swig_getBinaryTypeMachO32B()
 
 func _swig_getBinaryTypeMachO64L() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_BinaryTypeMachO64L_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_BinaryTypeMachO64L_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -26639,7 +26385,7 @@ var BinaryTypeMachO64L int = _swig_getBinaryTypeMachO64L()
 
 func _swig_getBinaryTypeMachO64B() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_BinaryTypeMachO64B_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_BinaryTypeMachO64B_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -26647,7 +26393,7 @@ var BinaryTypeMachO64B int = _swig_getBinaryTypeMachO64B()
 
 func _swig_getBinaryTypeWasm() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_BinaryTypeWasm_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_BinaryTypeWasm_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -26655,7 +26401,7 @@ var BinaryTypeWasm int = _swig_getBinaryTypeWasm()
 
 func _swig_getBinaryTypeOffload() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_BinaryTypeOffload_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_BinaryTypeOffload_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -26680,7 +26426,7 @@ func CreateBinary(arg1 LLVMMemoryBufferRef, arg2 LLVMContextRef, arg3 *string) (
 		}
 	}
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateBinary_llvm_5d1e3feecae2b244(C.LLVMMemoryBufferRef(_swig_i_0), C.LLVMContextRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateBinary_llvm_a0e88c3155de3083(C.LLVMMemoryBufferRef(_swig_i_0), C.LLVMContextRef(_swig_i_1), C.swig_voidp(_swig_i_2))))
 	var swig_r_1 LLVMBinaryRef
 	{
 		if swig_r == nil {
@@ -26701,7 +26447,7 @@ func DisposeBinary(arg1 LLVMBinaryRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_DisposeBinary_llvm_5d1e3feecae2b244(C.LLVMBinaryRef(_swig_i_0))
+	C._wrap_DisposeBinary_llvm_a0e88c3155de3083(C.LLVMBinaryRef(_swig_i_0))
 }
 
 func BinaryCopyMemoryBuffer(arg1 LLVMBinaryRef) (_swig_ret LLVMMemoryBufferRef) {
@@ -26714,7 +26460,7 @@ func BinaryCopyMemoryBuffer(arg1 LLVMBinaryRef) (_swig_ret LLVMMemoryBufferRef) 
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BinaryCopyMemoryBuffer_llvm_5d1e3feecae2b244(C.LLVMBinaryRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_BinaryCopyMemoryBuffer_llvm_a0e88c3155de3083(C.LLVMBinaryRef(_swig_i_0))))
 	var swig_r_1 LLVMMemoryBufferRef
 	{
 		if swig_r == nil {
@@ -26736,7 +26482,7 @@ func BinaryGetType(arg1 LLVMBinaryRef) (_swig_ret LLVMBinaryType) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (LLVMBinaryType)(C._wrap_BinaryGetType_llvm_5d1e3feecae2b244(C.LLVMBinaryRef(_swig_i_0)))
+	swig_r = (LLVMBinaryType)(C._wrap_BinaryGetType_llvm_a0e88c3155de3083(C.LLVMBinaryRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -26759,7 +26505,7 @@ func MachOUniversalBinaryCopyObjectForArch(arg1 LLVMBinaryRef, arg2 string, arg3
 	}
 	_swig_i_2 := arg3
 	_swig_i_3 := arg4
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_MachOUniversalBinaryCopyObjectForArch_llvm_5d1e3feecae2b244(C.LLVMBinaryRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_125(_swig_i_2), C.swig_voidp(_swig_i_3))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_MachOUniversalBinaryCopyObjectForArch_llvm_a0e88c3155de3083(C.LLVMBinaryRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_type_125(_swig_i_2), C.swig_voidp(_swig_i_3))))
 	var swig_r_1 LLVMBinaryRef
 	{
 		if swig_r == nil {
@@ -26781,7 +26527,7 @@ func ObjectFileCopySectionIterator(arg1 LLVMBinaryRef) (_swig_ret Struct_SS_LLVM
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (Struct_SS_LLVMOpaqueSectionIterator)(SwigcptrStruct_SS_LLVMOpaqueSectionIterator(C._wrap_ObjectFileCopySectionIterator_llvm_5d1e3feecae2b244(C.LLVMBinaryRef(_swig_i_0))))
+	swig_r = (Struct_SS_LLVMOpaqueSectionIterator)(SwigcptrStruct_SS_LLVMOpaqueSectionIterator(C._wrap_ObjectFileCopySectionIterator_llvm_a0e88c3155de3083(C.LLVMBinaryRef(_swig_i_0))))
 	return swig_r
 }
 
@@ -26796,7 +26542,7 @@ func ObjectFileIsSectionIteratorAtEnd(arg1 LLVMBinaryRef, arg2 Struct_SS_LLVMOpa
 		}
 	}
 	_swig_i_1 := getSwigcptr(arg2)
-	swig_r = (bool)(C._wrap_ObjectFileIsSectionIteratorAtEnd_llvm_5d1e3feecae2b244(C.LLVMBinaryRef(_swig_i_0), C.uintptr_t(_swig_i_1)))
+	swig_r = (bool)(C._wrap_ObjectFileIsSectionIteratorAtEnd_llvm_a0e88c3155de3083(C.LLVMBinaryRef(_swig_i_0), C.uintptr_t(_swig_i_1)))
 	return swig_r
 }
 
@@ -26810,7 +26556,7 @@ func ObjectFileCopySymbolIterator(arg1 LLVMBinaryRef) (_swig_ret Struct_SS_LLVMO
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (Struct_SS_LLVMOpaqueSymbolIterator)(SwigcptrStruct_SS_LLVMOpaqueSymbolIterator(C._wrap_ObjectFileCopySymbolIterator_llvm_5d1e3feecae2b244(C.LLVMBinaryRef(_swig_i_0))))
+	swig_r = (Struct_SS_LLVMOpaqueSymbolIterator)(SwigcptrStruct_SS_LLVMOpaqueSymbolIterator(C._wrap_ObjectFileCopySymbolIterator_llvm_a0e88c3155de3083(C.LLVMBinaryRef(_swig_i_0))))
 	return swig_r
 }
 
@@ -26825,40 +26571,40 @@ func ObjectFileIsSymbolIteratorAtEnd(arg1 LLVMBinaryRef, arg2 Struct_SS_LLVMOpaq
 		}
 	}
 	_swig_i_1 := getSwigcptr(arg2)
-	swig_r = (bool)(C._wrap_ObjectFileIsSymbolIteratorAtEnd_llvm_5d1e3feecae2b244(C.LLVMBinaryRef(_swig_i_0), C.uintptr_t(_swig_i_1)))
+	swig_r = (bool)(C._wrap_ObjectFileIsSymbolIteratorAtEnd_llvm_a0e88c3155de3083(C.LLVMBinaryRef(_swig_i_0), C.uintptr_t(_swig_i_1)))
 	return swig_r
 }
 
 func DisposeSectionIterator(arg1 Struct_SS_LLVMOpaqueSectionIterator) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_DisposeSectionIterator_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_DisposeSectionIterator_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 func MoveToNextSection(arg1 Struct_SS_LLVMOpaqueSectionIterator) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_MoveToNextSection_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_MoveToNextSection_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 func MoveToContainingSection(arg1 Struct_SS_LLVMOpaqueSectionIterator, arg2 Struct_SS_LLVMOpaqueSymbolIterator) {
 	_swig_i_0 := getSwigcptr(arg1)
 	_swig_i_1 := getSwigcptr(arg2)
-	C._wrap_MoveToContainingSection_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1))
+	C._wrap_MoveToContainingSection_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1))
 }
 
 func DisposeSymbolIterator(arg1 Struct_SS_LLVMOpaqueSymbolIterator) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_DisposeSymbolIterator_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_DisposeSymbolIterator_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 func MoveToNextSymbol(arg1 Struct_SS_LLVMOpaqueSymbolIterator) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_MoveToNextSymbol_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_MoveToNextSymbol_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 func GetSectionName(arg1 Struct_SS_LLVMOpaqueSectionIterator) (_swig_ret string) {
 	var swig_r *C.char
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (*C.char)(C._wrap_GetSectionName_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_GetSectionName_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -26872,14 +26618,14 @@ func GetSectionName(arg1 Struct_SS_LLVMOpaqueSectionIterator) (_swig_ret string)
 func GetSectionSize(arg1 Struct_SS_LLVMOpaqueSectionIterator) (_swig_ret uint64) {
 	var swig_r uint64
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (uint64)(C._wrap_GetSectionSize_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (uint64)(C._wrap_GetSectionSize_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func GetSectionContents(arg1 Struct_SS_LLVMOpaqueSectionIterator) (_swig_ret string) {
 	var swig_r *C.char
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (*C.char)(C._wrap_GetSectionContents_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_GetSectionContents_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -26893,7 +26639,7 @@ func GetSectionContents(arg1 Struct_SS_LLVMOpaqueSectionIterator) (_swig_ret str
 func GetSectionAddress(arg1 Struct_SS_LLVMOpaqueSectionIterator) (_swig_ret uint64) {
 	var swig_r uint64
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (uint64)(C._wrap_GetSectionAddress_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (uint64)(C._wrap_GetSectionAddress_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
@@ -26901,39 +26647,39 @@ func GetSectionContainsSymbol(arg1 Struct_SS_LLVMOpaqueSectionIterator, arg2 Str
 	var swig_r bool
 	_swig_i_0 := getSwigcptr(arg1)
 	_swig_i_1 := getSwigcptr(arg2)
-	swig_r = (bool)(C._wrap_GetSectionContainsSymbol_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1)))
+	swig_r = (bool)(C._wrap_GetSectionContainsSymbol_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1)))
 	return swig_r
 }
 
 func GetRelocations(arg1 Struct_SS_LLVMOpaqueSectionIterator) (_swig_ret Struct_SS_LLVMOpaqueRelocationIterator) {
 	var swig_r Struct_SS_LLVMOpaqueRelocationIterator
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (Struct_SS_LLVMOpaqueRelocationIterator)(SwigcptrStruct_SS_LLVMOpaqueRelocationIterator(C._wrap_GetRelocations_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))))
+	swig_r = (Struct_SS_LLVMOpaqueRelocationIterator)(SwigcptrStruct_SS_LLVMOpaqueRelocationIterator(C._wrap_GetRelocations_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))))
 	return swig_r
 }
 
 func DisposeRelocationIterator(arg1 Struct_SS_LLVMOpaqueRelocationIterator) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_DisposeRelocationIterator_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_DisposeRelocationIterator_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 func IsRelocationIteratorAtEnd(arg1 Struct_SS_LLVMOpaqueSectionIterator, arg2 Struct_SS_LLVMOpaqueRelocationIterator) (_swig_ret bool) {
 	var swig_r bool
 	_swig_i_0 := getSwigcptr(arg1)
 	_swig_i_1 := getSwigcptr(arg2)
-	swig_r = (bool)(C._wrap_IsRelocationIteratorAtEnd_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1)))
+	swig_r = (bool)(C._wrap_IsRelocationIteratorAtEnd_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1)))
 	return swig_r
 }
 
 func MoveToNextRelocation(arg1 Struct_SS_LLVMOpaqueRelocationIterator) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_MoveToNextRelocation_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_MoveToNextRelocation_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 func GetSymbolName(arg1 Struct_SS_LLVMOpaqueSymbolIterator) (_swig_ret string) {
 	var swig_r *C.char
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (*C.char)(C._wrap_GetSymbolName_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_GetSymbolName_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -26947,42 +26693,42 @@ func GetSymbolName(arg1 Struct_SS_LLVMOpaqueSymbolIterator) (_swig_ret string) {
 func GetSymbolAddress(arg1 Struct_SS_LLVMOpaqueSymbolIterator) (_swig_ret uint64) {
 	var swig_r uint64
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (uint64)(C._wrap_GetSymbolAddress_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (uint64)(C._wrap_GetSymbolAddress_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func GetSymbolSize(arg1 Struct_SS_LLVMOpaqueSymbolIterator) (_swig_ret uint64) {
 	var swig_r uint64
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (uint64)(C._wrap_GetSymbolSize_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (uint64)(C._wrap_GetSymbolSize_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func GetRelocationOffset(arg1 Struct_SS_LLVMOpaqueRelocationIterator) (_swig_ret uint64) {
 	var swig_r uint64
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (uint64)(C._wrap_GetRelocationOffset_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (uint64)(C._wrap_GetRelocationOffset_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func GetRelocationSymbol(arg1 Struct_SS_LLVMOpaqueRelocationIterator) (_swig_ret Struct_SS_LLVMOpaqueSymbolIterator) {
 	var swig_r Struct_SS_LLVMOpaqueSymbolIterator
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (Struct_SS_LLVMOpaqueSymbolIterator)(SwigcptrStruct_SS_LLVMOpaqueSymbolIterator(C._wrap_GetRelocationSymbol_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))))
+	swig_r = (Struct_SS_LLVMOpaqueSymbolIterator)(SwigcptrStruct_SS_LLVMOpaqueSymbolIterator(C._wrap_GetRelocationSymbol_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))))
 	return swig_r
 }
 
 func GetRelocationType(arg1 Struct_SS_LLVMOpaqueRelocationIterator) (_swig_ret uint64) {
 	var swig_r uint64
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (uint64)(C._wrap_GetRelocationType_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (uint64)(C._wrap_GetRelocationType_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func GetRelocationTypeName(arg1 Struct_SS_LLVMOpaqueRelocationIterator) (_swig_ret string) {
 	var swig_r *C.char
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (*C.char)(C._wrap_GetRelocationTypeName_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_GetRelocationTypeName_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -26996,7 +26742,7 @@ func GetRelocationTypeName(arg1 Struct_SS_LLVMOpaqueRelocationIterator) (_swig_r
 func GetRelocationValueString(arg1 Struct_SS_LLVMOpaqueRelocationIterator) (_swig_ret string) {
 	var swig_r *C.char
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (*C.char)(C._wrap_GetRelocationValueString_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_GetRelocationValueString_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -27017,19 +26763,19 @@ func CreateObjectFile(arg1 LLVMMemoryBufferRef) (_swig_ret Struct_SS_LLVMOpaqueO
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (Struct_SS_LLVMOpaqueObjectFile)(SwigcptrStruct_SS_LLVMOpaqueObjectFile(C._wrap_CreateObjectFile_llvm_5d1e3feecae2b244(C.LLVMMemoryBufferRef(_swig_i_0))))
+	swig_r = (Struct_SS_LLVMOpaqueObjectFile)(SwigcptrStruct_SS_LLVMOpaqueObjectFile(C._wrap_CreateObjectFile_llvm_a0e88c3155de3083(C.LLVMMemoryBufferRef(_swig_i_0))))
 	return swig_r
 }
 
 func DisposeObjectFile(arg1 Struct_SS_LLVMOpaqueObjectFile) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_DisposeObjectFile_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))
+	C._wrap_DisposeObjectFile_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))
 }
 
 func GetSections(arg1 Struct_SS_LLVMOpaqueObjectFile) (_swig_ret Struct_SS_LLVMOpaqueSectionIterator) {
 	var swig_r Struct_SS_LLVMOpaqueSectionIterator
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (Struct_SS_LLVMOpaqueSectionIterator)(SwigcptrStruct_SS_LLVMOpaqueSectionIterator(C._wrap_GetSections_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))))
+	swig_r = (Struct_SS_LLVMOpaqueSectionIterator)(SwigcptrStruct_SS_LLVMOpaqueSectionIterator(C._wrap_GetSections_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))))
 	return swig_r
 }
 
@@ -27037,14 +26783,14 @@ func IsSectionIteratorAtEnd(arg1 Struct_SS_LLVMOpaqueObjectFile, arg2 Struct_SS_
 	var swig_r bool
 	_swig_i_0 := getSwigcptr(arg1)
 	_swig_i_1 := getSwigcptr(arg2)
-	swig_r = (bool)(C._wrap_IsSectionIteratorAtEnd_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1)))
+	swig_r = (bool)(C._wrap_IsSectionIteratorAtEnd_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1)))
 	return swig_r
 }
 
 func GetSymbols(arg1 Struct_SS_LLVMOpaqueObjectFile) (_swig_ret Struct_SS_LLVMOpaqueSymbolIterator) {
 	var swig_r Struct_SS_LLVMOpaqueSymbolIterator
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (Struct_SS_LLVMOpaqueSymbolIterator)(SwigcptrStruct_SS_LLVMOpaqueSymbolIterator(C._wrap_GetSymbols_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0))))
+	swig_r = (Struct_SS_LLVMOpaqueSymbolIterator)(SwigcptrStruct_SS_LLVMOpaqueSymbolIterator(C._wrap_GetSymbols_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0))))
 	return swig_r
 }
 
@@ -27052,7 +26798,7 @@ func IsSymbolIteratorAtEnd(arg1 Struct_SS_LLVMOpaqueObjectFile, arg2 Struct_SS_L
 	var swig_r bool
 	_swig_i_0 := getSwigcptr(arg1)
 	_swig_i_1 := getSwigcptr(arg2)
-	swig_r = (bool)(C._wrap_IsSymbolIteratorAtEnd_llvm_5d1e3feecae2b244(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1)))
+	swig_r = (bool)(C._wrap_IsSymbolIteratorAtEnd_llvm_a0e88c3155de3083(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1)))
 	return swig_r
 }
 
@@ -27065,7 +26811,7 @@ func LoadLibraryPermanently(arg1 string) (_swig_ret bool) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_0))
 	}
-	swig_r = (bool)(C._wrap_LoadLibraryPermanently_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0)))
+	swig_r = (bool)(C._wrap_LoadLibraryPermanently_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0)))
 	return swig_r
 }
 
@@ -27079,7 +26825,7 @@ func ParseCommandLineOptions(arg1 int, arg2 *string, arg3 string) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_2))
 	}
-	C._wrap_ParseCommandLineOptions_llvm_5d1e3feecae2b244(C.swig_intgo(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2))
+	C._wrap_ParseCommandLineOptions_llvm_a0e88c3155de3083(C.swig_intgo(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2))
 }
 
 func SearchForAddressOfSymbol(arg1 string) (_swig_ret uintptr) {
@@ -27091,7 +26837,7 @@ func SearchForAddressOfSymbol(arg1 string) (_swig_ret uintptr) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_0))
 	}
-	swig_r = (uintptr)(C._wrap_SearchForAddressOfSymbol_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0)))
+	swig_r = (uintptr)(C._wrap_SearchForAddressOfSymbol_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0)))
 	return swig_r
 }
 
@@ -27104,14 +26850,14 @@ func AddSymbol(arg1 string, arg2 uintptr) {
 		//defer C.free(unsafe.Pointer(_swig_i_0))
 	}
 	_swig_i_1 := arg2
-	C._wrap_AddSymbol_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0), C.uintptr_t(_swig_i_1))
+	C._wrap_AddSymbol_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0), C.uintptr_t(_swig_i_1))
 }
 
 type Enum_SS_LLVMByteOrdering int
 
 func _swig_getBigEndian() (_swig_ret Enum_SS_LLVMByteOrdering) {
 	var swig_r Enum_SS_LLVMByteOrdering
-	swig_r = (Enum_SS_LLVMByteOrdering)(C._wrap_BigEndian_llvm_5d1e3feecae2b244())
+	swig_r = (Enum_SS_LLVMByteOrdering)(C._wrap_BigEndian_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27119,57 +26865,57 @@ var BigEndian Enum_SS_LLVMByteOrdering = _swig_getBigEndian()
 
 func _swig_getLittleEndian() (_swig_ret Enum_SS_LLVMByteOrdering) {
 	var swig_r Enum_SS_LLVMByteOrdering
-	swig_r = (Enum_SS_LLVMByteOrdering)(C._wrap_LittleEndian_llvm_5d1e3feecae2b244())
+	swig_r = (Enum_SS_LLVMByteOrdering)(C._wrap_LittleEndian_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
 var LittleEndian Enum_SS_LLVMByteOrdering = _swig_getLittleEndian()
 
 func InitializeAllTargetInfos() {
-	C._wrap_InitializeAllTargetInfos_llvm_5d1e3feecae2b244()
+	C._wrap_InitializeAllTargetInfos_llvm_a0e88c3155de3083()
 }
 
 func InitializeAllTargets() {
-	C._wrap_InitializeAllTargets_llvm_5d1e3feecae2b244()
+	C._wrap_InitializeAllTargets_llvm_a0e88c3155de3083()
 }
 
 func InitializeAllTargetMCs() {
-	C._wrap_InitializeAllTargetMCs_llvm_5d1e3feecae2b244()
+	C._wrap_InitializeAllTargetMCs_llvm_a0e88c3155de3083()
 }
 
 func InitializeAllAsmPrinters() {
-	C._wrap_InitializeAllAsmPrinters_llvm_5d1e3feecae2b244()
+	C._wrap_InitializeAllAsmPrinters_llvm_a0e88c3155de3083()
 }
 
 func InitializeAllAsmParsers() {
-	C._wrap_InitializeAllAsmParsers_llvm_5d1e3feecae2b244()
+	C._wrap_InitializeAllAsmParsers_llvm_a0e88c3155de3083()
 }
 
 func InitializeAllDisassemblers() {
-	C._wrap_InitializeAllDisassemblers_llvm_5d1e3feecae2b244()
+	C._wrap_InitializeAllDisassemblers_llvm_a0e88c3155de3083()
 }
 
 func InitializeNativeTarget() (_swig_ret bool) {
 	var swig_r bool
-	swig_r = (bool)(C._wrap_InitializeNativeTarget_llvm_5d1e3feecae2b244())
+	swig_r = (bool)(C._wrap_InitializeNativeTarget_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
 func InitializeNativeAsmParser() (_swig_ret bool) {
 	var swig_r bool
-	swig_r = (bool)(C._wrap_InitializeNativeAsmParser_llvm_5d1e3feecae2b244())
+	swig_r = (bool)(C._wrap_InitializeNativeAsmParser_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
 func InitializeNativeAsmPrinter() (_swig_ret bool) {
 	var swig_r bool
-	swig_r = (bool)(C._wrap_InitializeNativeAsmPrinter_llvm_5d1e3feecae2b244())
+	swig_r = (bool)(C._wrap_InitializeNativeAsmPrinter_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
 func InitializeNativeDisassembler() (_swig_ret bool) {
 	var swig_r bool
-	swig_r = (bool)(C._wrap_InitializeNativeDisassembler_llvm_5d1e3feecae2b244())
+	swig_r = (bool)(C._wrap_InitializeNativeDisassembler_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27183,7 +26929,7 @@ func GetModuleDataLayout(arg1 LLVMModuleRef) (_swig_ret LLVMTargetDataRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetModuleDataLayout_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetModuleDataLayout_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0))))
 	var swig_r_1 LLVMTargetDataRef
 	{
 		if swig_r == nil {
@@ -27212,7 +26958,7 @@ func SetModuleDataLayout(arg1 LLVMModuleRef, arg2 LLVMTargetDataRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_SetModuleDataLayout_llvm_5d1e3feecae2b244(C.LLVMModuleRef(_swig_i_0), C.LLVMTargetDataRef(_swig_i_1))
+	C._wrap_SetModuleDataLayout_llvm_a0e88c3155de3083(C.LLVMModuleRef(_swig_i_0), C.LLVMTargetDataRef(_swig_i_1))
 }
 
 func CreateTargetData(arg1 string) (_swig_ret LLVMTargetDataRef) {
@@ -27224,7 +26970,7 @@ func CreateTargetData(arg1 string) (_swig_ret LLVMTargetDataRef) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_0))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateTargetData_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateTargetData_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0))))
 	var swig_r_1 LLVMTargetDataRef
 	{
 		if swig_r == nil {
@@ -27245,7 +26991,7 @@ func DisposeTargetData(arg1 LLVMTargetDataRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_DisposeTargetData_llvm_5d1e3feecae2b244(C.LLVMTargetDataRef(_swig_i_0))
+	C._wrap_DisposeTargetData_llvm_a0e88c3155de3083(C.LLVMTargetDataRef(_swig_i_0))
 }
 
 func AddTargetLibraryInfo(arg1 LLVMTargetLibraryInfoRef, arg2 LLVMPassManagerRef) {
@@ -27265,7 +27011,7 @@ func AddTargetLibraryInfo(arg1 LLVMTargetLibraryInfoRef, arg2 LLVMPassManagerRef
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_AddTargetLibraryInfo_llvm_5d1e3feecae2b244(C.LLVMTargetLibraryInfoRef(_swig_i_0), C.LLVMPassManagerRef(_swig_i_1))
+	C._wrap_AddTargetLibraryInfo_llvm_a0e88c3155de3083(C.LLVMTargetLibraryInfoRef(_swig_i_0), C.LLVMPassManagerRef(_swig_i_1))
 }
 
 func CopyStringRepOfTargetData(arg1 LLVMTargetDataRef) (_swig_ret string) {
@@ -27278,7 +27024,7 @@ func CopyStringRepOfTargetData(arg1 LLVMTargetDataRef) (_swig_ret string) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (*C.char)(C._wrap_CopyStringRepOfTargetData_llvm_5d1e3feecae2b244(C.LLVMTargetDataRef(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_CopyStringRepOfTargetData_llvm_a0e88c3155de3083(C.LLVMTargetDataRef(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -27299,7 +27045,7 @@ func ByteOrder(arg1 LLVMTargetDataRef) (_swig_ret Enum_SS_LLVMByteOrdering) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (Enum_SS_LLVMByteOrdering)(C._wrap_ByteOrder_llvm_5d1e3feecae2b244(C.LLVMTargetDataRef(_swig_i_0)))
+	swig_r = (Enum_SS_LLVMByteOrdering)(C._wrap_ByteOrder_llvm_a0e88c3155de3083(C.LLVMTargetDataRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -27313,7 +27059,7 @@ func PointerSize(arg1 LLVMTargetDataRef) (_swig_ret uint) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_PointerSize_llvm_5d1e3feecae2b244(C.LLVMTargetDataRef(_swig_i_0)))
+	swig_r = (uint)(C._wrap_PointerSize_llvm_a0e88c3155de3083(C.LLVMTargetDataRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -27328,7 +27074,7 @@ func PointerSizeForAS(arg1 LLVMTargetDataRef, arg2 uint) (_swig_ret uint) {
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (uint)(C._wrap_PointerSizeForAS_llvm_5d1e3feecae2b244(C.LLVMTargetDataRef(_swig_i_0), C.swig_intgo(_swig_i_1)))
+	swig_r = (uint)(C._wrap_PointerSizeForAS_llvm_a0e88c3155de3083(C.LLVMTargetDataRef(_swig_i_0), C.swig_intgo(_swig_i_1)))
 	return swig_r
 }
 
@@ -27342,7 +27088,7 @@ func IntPtrType(arg1 LLVMTargetDataRef) (_swig_ret LLVMTypeRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IntPtrType_llvm_5d1e3feecae2b244(C.LLVMTargetDataRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IntPtrType_llvm_a0e88c3155de3083(C.LLVMTargetDataRef(_swig_i_0))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -27365,7 +27111,7 @@ func IntPtrTypeForAS(arg1 LLVMTargetDataRef, arg2 uint) (_swig_ret LLVMTypeRef) 
 		}
 	}
 	_swig_i_1 := arg2
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IntPtrTypeForAS_llvm_5d1e3feecae2b244(C.LLVMTargetDataRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IntPtrTypeForAS_llvm_a0e88c3155de3083(C.LLVMTargetDataRef(_swig_i_0), C.swig_intgo(_swig_i_1))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -27395,7 +27141,7 @@ func IntPtrTypeInContext(arg1 LLVMContextRef, arg2 LLVMTargetDataRef) (_swig_ret
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IntPtrTypeInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.LLVMTargetDataRef(_swig_i_1))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IntPtrTypeInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.LLVMTargetDataRef(_swig_i_1))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -27426,7 +27172,7 @@ func IntPtrTypeForASInContext(arg1 LLVMContextRef, arg2 LLVMTargetDataRef, arg3 
 		}
 	}
 	_swig_i_2 := arg3
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IntPtrTypeForASInContext_llvm_5d1e3feecae2b244(C.LLVMContextRef(_swig_i_0), C.LLVMTargetDataRef(_swig_i_1), C.swig_intgo(_swig_i_2))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_IntPtrTypeForASInContext_llvm_a0e88c3155de3083(C.LLVMContextRef(_swig_i_0), C.LLVMTargetDataRef(_swig_i_1), C.swig_intgo(_swig_i_2))))
 	var swig_r_1 LLVMTypeRef
 	{
 		if swig_r == nil {
@@ -27456,7 +27202,7 @@ func SizeOfTypeInBits(arg1 LLVMTargetDataRef, arg2 LLVMTypeRef) (_swig_ret uint6
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (uint64)(C._wrap_SizeOfTypeInBits_llvm_5d1e3feecae2b244(C.LLVMTargetDataRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1)))
+	swig_r = (uint64)(C._wrap_SizeOfTypeInBits_llvm_a0e88c3155de3083(C.LLVMTargetDataRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1)))
 	return swig_r
 }
 
@@ -27478,7 +27224,7 @@ func StoreSizeOfType(arg1 LLVMTargetDataRef, arg2 LLVMTypeRef) (_swig_ret uint64
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (uint64)(C._wrap_StoreSizeOfType_llvm_5d1e3feecae2b244(C.LLVMTargetDataRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1)))
+	swig_r = (uint64)(C._wrap_StoreSizeOfType_llvm_a0e88c3155de3083(C.LLVMTargetDataRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1)))
 	return swig_r
 }
 
@@ -27500,7 +27246,7 @@ func ABISizeOfType(arg1 LLVMTargetDataRef, arg2 LLVMTypeRef) (_swig_ret uint64) 
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (uint64)(C._wrap_ABISizeOfType_llvm_5d1e3feecae2b244(C.LLVMTargetDataRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1)))
+	swig_r = (uint64)(C._wrap_ABISizeOfType_llvm_a0e88c3155de3083(C.LLVMTargetDataRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1)))
 	return swig_r
 }
 
@@ -27522,7 +27268,7 @@ func ABIAlignmentOfType(arg1 LLVMTargetDataRef, arg2 LLVMTypeRef) (_swig_ret uin
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_ABIAlignmentOfType_llvm_5d1e3feecae2b244(C.LLVMTargetDataRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1)))
+	swig_r = (uint)(C._wrap_ABIAlignmentOfType_llvm_a0e88c3155de3083(C.LLVMTargetDataRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1)))
 	return swig_r
 }
 
@@ -27544,7 +27290,7 @@ func CallFrameAlignmentOfType(arg1 LLVMTargetDataRef, arg2 LLVMTypeRef) (_swig_r
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_CallFrameAlignmentOfType_llvm_5d1e3feecae2b244(C.LLVMTargetDataRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1)))
+	swig_r = (uint)(C._wrap_CallFrameAlignmentOfType_llvm_a0e88c3155de3083(C.LLVMTargetDataRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1)))
 	return swig_r
 }
 
@@ -27566,7 +27312,7 @@ func PreferredAlignmentOfType(arg1 LLVMTargetDataRef, arg2 LLVMTypeRef) (_swig_r
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_PreferredAlignmentOfType_llvm_5d1e3feecae2b244(C.LLVMTargetDataRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1)))
+	swig_r = (uint)(C._wrap_PreferredAlignmentOfType_llvm_a0e88c3155de3083(C.LLVMTargetDataRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1)))
 	return swig_r
 }
 
@@ -27588,7 +27334,7 @@ func PreferredAlignmentOfGlobal(arg1 LLVMTargetDataRef, arg2 LLVMValueRef) (_swi
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	swig_r = (uint)(C._wrap_PreferredAlignmentOfGlobal_llvm_5d1e3feecae2b244(C.LLVMTargetDataRef(_swig_i_0), C.LLVMValueRef(_swig_i_1)))
+	swig_r = (uint)(C._wrap_PreferredAlignmentOfGlobal_llvm_a0e88c3155de3083(C.LLVMTargetDataRef(_swig_i_0), C.LLVMValueRef(_swig_i_1)))
 	return swig_r
 }
 
@@ -27611,7 +27357,7 @@ func ElementAtOffset(arg1 LLVMTargetDataRef, arg2 LLVMTypeRef, arg3 uint64) (_sw
 		}
 	}
 	_swig_i_2 := arg3
-	swig_r = (uint)(C._wrap_ElementAtOffset_llvm_5d1e3feecae2b244(C.LLVMTargetDataRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.swig_type_135(_swig_i_2)))
+	swig_r = (uint)(C._wrap_ElementAtOffset_llvm_a0e88c3155de3083(C.LLVMTargetDataRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.swig_type_135(_swig_i_2)))
 	return swig_r
 }
 
@@ -27634,7 +27380,7 @@ func OffsetOfElement(arg1 LLVMTargetDataRef, arg2 LLVMTypeRef, arg3 uint) (_swig
 		}
 	}
 	_swig_i_2 := arg3
-	swig_r = (uint64)(C._wrap_OffsetOfElement_llvm_5d1e3feecae2b244(C.LLVMTargetDataRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.swig_intgo(_swig_i_2)))
+	swig_r = (uint64)(C._wrap_OffsetOfElement_llvm_a0e88c3155de3083(C.LLVMTargetDataRef(_swig_i_0), C.LLVMTypeRef(_swig_i_1), C.swig_intgo(_swig_i_2)))
 	return swig_r
 }
 
@@ -27642,7 +27388,7 @@ type LLVMCodeGenOptLevel int
 
 func _swig_getCodeGenLevelNone() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_CodeGenLevelNone_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_CodeGenLevelNone_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27650,7 +27396,7 @@ var CodeGenLevelNone int = _swig_getCodeGenLevelNone()
 
 func _swig_getCodeGenLevelLess() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_CodeGenLevelLess_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_CodeGenLevelLess_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27658,7 +27404,7 @@ var CodeGenLevelLess int = _swig_getCodeGenLevelLess()
 
 func _swig_getCodeGenLevelDefault() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_CodeGenLevelDefault_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_CodeGenLevelDefault_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27666,7 +27412,7 @@ var CodeGenLevelDefault int = _swig_getCodeGenLevelDefault()
 
 func _swig_getCodeGenLevelAggressive() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_CodeGenLevelAggressive_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_CodeGenLevelAggressive_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27676,7 +27422,7 @@ type LLVMRelocMode int
 
 func _swig_getRelocDefault() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_RelocDefault_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_RelocDefault_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27684,7 +27430,7 @@ var RelocDefault int = _swig_getRelocDefault()
 
 func _swig_getRelocStatic() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_RelocStatic_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_RelocStatic_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27692,7 +27438,7 @@ var RelocStatic int = _swig_getRelocStatic()
 
 func _swig_getRelocPIC() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_RelocPIC_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_RelocPIC_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27700,7 +27446,7 @@ var RelocPIC int = _swig_getRelocPIC()
 
 func _swig_getRelocDynamicNoPic() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_RelocDynamicNoPic_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_RelocDynamicNoPic_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27708,7 +27454,7 @@ var RelocDynamicNoPic int = _swig_getRelocDynamicNoPic()
 
 func _swig_getRelocROPI() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_RelocROPI_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_RelocROPI_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27716,7 +27462,7 @@ var RelocROPI int = _swig_getRelocROPI()
 
 func _swig_getRelocRWPI() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_RelocRWPI_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_RelocRWPI_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27724,7 +27470,7 @@ var RelocRWPI int = _swig_getRelocRWPI()
 
 func _swig_getRelocROPI_RWPI() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_RelocROPI_RWPI_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_RelocROPI_RWPI_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27734,7 +27480,7 @@ type LLVMCodeModel int
 
 func _swig_getCodeModelDefault() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_CodeModelDefault_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_CodeModelDefault_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27742,7 +27488,7 @@ var CodeModelDefault int = _swig_getCodeModelDefault()
 
 func _swig_getCodeModelJITDefault() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_CodeModelJITDefault_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_CodeModelJITDefault_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27750,7 +27496,7 @@ var CodeModelJITDefault int = _swig_getCodeModelJITDefault()
 
 func _swig_getCodeModelTiny() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_CodeModelTiny_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_CodeModelTiny_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27758,7 +27504,7 @@ var CodeModelTiny int = _swig_getCodeModelTiny()
 
 func _swig_getCodeModelSmall() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_CodeModelSmall_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_CodeModelSmall_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27766,7 +27512,7 @@ var CodeModelSmall int = _swig_getCodeModelSmall()
 
 func _swig_getCodeModelKernel() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_CodeModelKernel_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_CodeModelKernel_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27774,7 +27520,7 @@ var CodeModelKernel int = _swig_getCodeModelKernel()
 
 func _swig_getCodeModelMedium() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_CodeModelMedium_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_CodeModelMedium_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27782,7 +27528,7 @@ var CodeModelMedium int = _swig_getCodeModelMedium()
 
 func _swig_getCodeModelLarge() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_CodeModelLarge_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_CodeModelLarge_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27792,7 +27538,7 @@ type LLVMCodeGenFileType int
 
 func _swig_getAssemblyFile() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_AssemblyFile_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_AssemblyFile_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27800,7 +27546,7 @@ var AssemblyFile int = _swig_getAssemblyFile()
 
 func _swig_getObjectFile() (_swig_ret int) {
 	var swig_r int
-	swig_r = (int)(C._wrap_ObjectFile_llvm_5d1e3feecae2b244())
+	swig_r = (int)(C._wrap_ObjectFile_llvm_a0e88c3155de3083())
 	return swig_r
 }
 
@@ -27808,7 +27554,7 @@ var ObjectFile int = _swig_getObjectFile()
 
 func GetFirstTarget() (_swig_ret LLVMTargetRef) {
 	var swig_r unsafe.Pointer
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetFirstTarget_llvm_5d1e3feecae2b244()))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetFirstTarget_llvm_a0e88c3155de3083()))
 	var swig_r_1 LLVMTargetRef
 	{
 		if swig_r == nil {
@@ -27830,7 +27576,7 @@ func GetNextTarget(arg1 LLVMTargetRef) (_swig_ret LLVMTargetRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNextTarget_llvm_5d1e3feecae2b244(C.LLVMTargetRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetNextTarget_llvm_a0e88c3155de3083(C.LLVMTargetRef(_swig_i_0))))
 	var swig_r_1 LLVMTargetRef
 	{
 		if swig_r == nil {
@@ -27851,7 +27597,7 @@ func GetTargetFromName(arg1 string) (_swig_ret LLVMTargetRef) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_0))
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetTargetFromName_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetTargetFromName_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0))))
 	var swig_r_1 LLVMTargetRef
 	{
 		if swig_r == nil {
@@ -27873,7 +27619,7 @@ func GetTargetName(arg1 LLVMTargetRef) (_swig_ret string) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (*C.char)(C._wrap_GetTargetName_llvm_5d1e3feecae2b244(C.LLVMTargetRef(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_GetTargetName_llvm_a0e88c3155de3083(C.LLVMTargetRef(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -27894,7 +27640,7 @@ func GetTargetDescription(arg1 LLVMTargetRef) (_swig_ret string) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (*C.char)(C._wrap_GetTargetDescription_llvm_5d1e3feecae2b244(C.LLVMTargetRef(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_GetTargetDescription_llvm_a0e88c3155de3083(C.LLVMTargetRef(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -27915,7 +27661,7 @@ func TargetHasJIT(arg1 LLVMTargetRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_TargetHasJIT_llvm_5d1e3feecae2b244(C.LLVMTargetRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_TargetHasJIT_llvm_a0e88c3155de3083(C.LLVMTargetRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -27929,7 +27675,7 @@ func TargetHasTargetMachine(arg1 LLVMTargetRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_TargetHasTargetMachine_llvm_5d1e3feecae2b244(C.LLVMTargetRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_TargetHasTargetMachine_llvm_a0e88c3155de3083(C.LLVMTargetRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -27943,7 +27689,7 @@ func TargetHasAsmBackend(arg1 LLVMTargetRef) (_swig_ret bool) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (bool)(C._wrap_TargetHasAsmBackend_llvm_5d1e3feecae2b244(C.LLVMTargetRef(_swig_i_0)))
+	swig_r = (bool)(C._wrap_TargetHasAsmBackend_llvm_a0e88c3155de3083(C.LLVMTargetRef(_swig_i_0)))
 	return swig_r
 }
 
@@ -27981,7 +27727,7 @@ func CreateTargetMachine(arg1 LLVMTargetRef, arg2 string, arg3 string, arg4 stri
 	_swig_i_4 := arg5
 	_swig_i_5 := arg6
 	_swig_i_6 := arg7
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateTargetMachine_llvm_5d1e3feecae2b244(C.LLVMTargetRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_intgo(_swig_i_5), C.swig_intgo(_swig_i_6))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateTargetMachine_llvm_a0e88c3155de3083(C.LLVMTargetRef(_swig_i_0), C.swig_voidp(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_voidp(_swig_i_3), C.swig_intgo(_swig_i_4), C.swig_intgo(_swig_i_5), C.swig_intgo(_swig_i_6))))
 	var swig_r_1 LLVMTargetMachineRef
 	{
 		if swig_r == nil {
@@ -28002,7 +27748,7 @@ func DisposeTargetMachine(arg1 LLVMTargetMachineRef) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	C._wrap_DisposeTargetMachine_llvm_5d1e3feecae2b244(C.LLVMTargetMachineRef(_swig_i_0))
+	C._wrap_DisposeTargetMachine_llvm_a0e88c3155de3083(C.LLVMTargetMachineRef(_swig_i_0))
 }
 
 func GetTargetMachineTarget(arg1 LLVMTargetMachineRef) (_swig_ret LLVMTargetRef) {
@@ -28015,7 +27761,7 @@ func GetTargetMachineTarget(arg1 LLVMTargetMachineRef) (_swig_ret LLVMTargetRef)
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetTargetMachineTarget_llvm_5d1e3feecae2b244(C.LLVMTargetMachineRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_GetTargetMachineTarget_llvm_a0e88c3155de3083(C.LLVMTargetMachineRef(_swig_i_0))))
 	var swig_r_1 LLVMTargetRef
 	{
 		if swig_r == nil {
@@ -28037,7 +27783,7 @@ func GetTargetMachineTriple(arg1 LLVMTargetMachineRef) (_swig_ret string) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (*C.char)(C._wrap_GetTargetMachineTriple_llvm_5d1e3feecae2b244(C.LLVMTargetMachineRef(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_GetTargetMachineTriple_llvm_a0e88c3155de3083(C.LLVMTargetMachineRef(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -28058,7 +27804,7 @@ func GetTargetMachineCPU(arg1 LLVMTargetMachineRef) (_swig_ret string) {
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (*C.char)(C._wrap_GetTargetMachineCPU_llvm_5d1e3feecae2b244(C.LLVMTargetMachineRef(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_GetTargetMachineCPU_llvm_a0e88c3155de3083(C.LLVMTargetMachineRef(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -28079,7 +27825,7 @@ func GetTargetMachineFeatureString(arg1 LLVMTargetMachineRef) (_swig_ret string)
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (*C.char)(C._wrap_GetTargetMachineFeatureString_llvm_5d1e3feecae2b244(C.LLVMTargetMachineRef(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_GetTargetMachineFeatureString_llvm_a0e88c3155de3083(C.LLVMTargetMachineRef(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -28100,7 +27846,7 @@ func CreateTargetDataLayout(arg1 LLVMTargetMachineRef) (_swig_ret LLVMTargetData
 			_swig_i_0 = unsafe.Pointer(arg1.Swigcptr())
 		}
 	}
-	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateTargetDataLayout_llvm_5d1e3feecae2b244(C.LLVMTargetMachineRef(_swig_i_0))))
+	swig_r = (unsafe.Pointer)(unsafe.Pointer(C._wrap_CreateTargetDataLayout_llvm_a0e88c3155de3083(C.LLVMTargetMachineRef(_swig_i_0))))
 	var swig_r_1 LLVMTargetDataRef
 	{
 		if swig_r == nil {
@@ -28122,7 +27868,7 @@ func SetTargetMachineAsmVerbosity(arg1 LLVMTargetMachineRef, arg2 bool) {
 		}
 	}
 	_swig_i_1 := arg2
-	C._wrap_SetTargetMachineAsmVerbosity_llvm_5d1e3feecae2b244(C.LLVMTargetMachineRef(_swig_i_0), C._Bool(_swig_i_1))
+	C._wrap_SetTargetMachineAsmVerbosity_llvm_a0e88c3155de3083(C.LLVMTargetMachineRef(_swig_i_0), C._Bool(_swig_i_1))
 }
 
 func TargetMachineEmitToFile(arg1 LLVMTargetMachineRef, arg2 LLVMModuleRef, arg3 string, arg4 LLVMCodeGenFileType, arg5 *string) (_swig_ret bool) {
@@ -28152,7 +27898,7 @@ func TargetMachineEmitToFile(arg1 LLVMTargetMachineRef, arg2 LLVMModuleRef, arg3
 	}
 	_swig_i_3 := arg4
 	_swig_i_4 := arg5
-	swig_r = (bool)(C._wrap_TargetMachineEmitToFile_llvm_5d1e3feecae2b244(C.LLVMTargetMachineRef(_swig_i_0), C.LLVMModuleRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4)))
+	swig_r = (bool)(C._wrap_TargetMachineEmitToFile_llvm_a0e88c3155de3083(C.LLVMTargetMachineRef(_swig_i_0), C.LLVMModuleRef(_swig_i_1), C.swig_voidp(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4)))
 	return swig_r
 }
 
@@ -28177,13 +27923,13 @@ func TargetMachineEmitToMemoryBuffer(arg1 LLVMTargetMachineRef, arg2 LLVMModuleR
 	_swig_i_2 := arg3
 	_swig_i_3 := arg4
 	_swig_i_4 := getSwigcptr(arg5)
-	swig_r = (bool)(C._wrap_TargetMachineEmitToMemoryBuffer_llvm_5d1e3feecae2b244(C.LLVMTargetMachineRef(_swig_i_0), C.LLVMModuleRef(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_voidp(_swig_i_3), C.uintptr_t(_swig_i_4)))
+	swig_r = (bool)(C._wrap_TargetMachineEmitToMemoryBuffer_llvm_a0e88c3155de3083(C.LLVMTargetMachineRef(_swig_i_0), C.LLVMModuleRef(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_voidp(_swig_i_3), C.uintptr_t(_swig_i_4)))
 	return swig_r
 }
 
 func GetDefaultTargetTriple() (_swig_ret string) {
 	var swig_r *C.char
-	swig_r = (*C.char)(C._wrap_GetDefaultTargetTriple_llvm_5d1e3feecae2b244())
+	swig_r = (*C.char)(C._wrap_GetDefaultTargetTriple_llvm_a0e88c3155de3083())
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -28203,7 +27949,7 @@ func NormalizeTargetTriple(arg1 string) (_swig_ret string) {
 		// NOTE: This crashes for some reason
 		//defer C.free(unsafe.Pointer(_swig_i_0))
 	}
-	swig_r = (*C.char)(C._wrap_NormalizeTargetTriple_llvm_5d1e3feecae2b244(C.swig_voidp(_swig_i_0)))
+	swig_r = (*C.char)(C._wrap_NormalizeTargetTriple_llvm_a0e88c3155de3083(C.swig_voidp(_swig_i_0)))
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -28216,7 +27962,7 @@ func NormalizeTargetTriple(arg1 string) (_swig_ret string) {
 
 func GetHostCPUName() (_swig_ret string) {
 	var swig_r *C.char
-	swig_r = (*C.char)(C._wrap_GetHostCPUName_llvm_5d1e3feecae2b244())
+	swig_r = (*C.char)(C._wrap_GetHostCPUName_llvm_a0e88c3155de3083())
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -28229,7 +27975,7 @@ func GetHostCPUName() (_swig_ret string) {
 
 func GetHostCPUFeatures() (_swig_ret string) {
 	var swig_r *C.char
-	swig_r = (*C.char)(C._wrap_GetHostCPUFeatures_llvm_5d1e3feecae2b244())
+	swig_r = (*C.char)(C._wrap_GetHostCPUFeatures_llvm_a0e88c3155de3083())
 	var swig_r_1 string
 	{
 		swig_r_1 = C.GoString(swig_r)
@@ -28257,7 +28003,7 @@ func AddAnalysisPasses(arg1 LLVMTargetMachineRef, arg2 LLVMPassManagerRef) {
 			_swig_i_1 = unsafe.Pointer(arg2.Swigcptr())
 		}
 	}
-	C._wrap_AddAnalysisPasses_llvm_5d1e3feecae2b244(C.LLVMTargetMachineRef(_swig_i_0), C.LLVMPassManagerRef(_swig_i_1))
+	C._wrap_AddAnalysisPasses_llvm_a0e88c3155de3083(C.LLVMTargetMachineRef(_swig_i_0), C.LLVMPassManagerRef(_swig_i_1))
 }
 
 type SwigcptrStruct_SS_LLVMOpaqueGenericValue uintptr
