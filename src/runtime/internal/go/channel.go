@@ -1,4 +1,4 @@
-package types
+package _go
 
 type channelDescriptor struct {
 	// TODO

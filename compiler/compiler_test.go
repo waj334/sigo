@@ -43,10 +43,14 @@ func TestNoReturn(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	cc := NewCompiler(target)
+	cc := NewCompiler(Options{
+		Target:            target,
+		LinkNames:         map[string]string{},
+		GenerateDebugInfo: false,
+	})
 
 	// Don't generate debug info for the test
-	cc.GenerateDebugInfo = true
+	cc.options.GenerateDebugInfo = true
 
 	// Compile the test input
 	for _, pkg := range prog.AllPackages() {

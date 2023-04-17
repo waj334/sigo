@@ -20,9 +20,15 @@ func Environment() Env {
 		panic(err)
 	}
 
+	cwd, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+
 	// Return the environment
 	return map[string]string{
 		"SIGOROOT": getenv("SIGOROOT", defaultRoot),
+		"SIGOPATH": getenv("SIGOPATH", getenv("GOPATH", cwd)),
 	}
 }
 

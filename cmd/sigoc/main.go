@@ -86,19 +86,21 @@ func build(args []string) {
 		os.Exit(-1)
 	}
 
+	// Get the current working directory
+	cwd, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+
 	var packages []string
 	if len(flags.Args()) == 0 {
-		if cwd, err := os.Getwd(); err == nil {
-			// Build the current directory by default
-			packages = append(packages, cwd)
-		} else {
-			panic(err)
-		}
+		// Build the current directory by default
+		packages = append(packages, cwd)
 	} else {
-		// Convert the paths to absolute paths
+		// Convert the paths to relative paths
 		for _, arg := range flags.Args() {
-			if filepath.IsLocal(arg) {
-				path, _ := filepath.Abs(arg)
+			if filepath.IsAbs(arg) {
+				path, _ := filepath.Rel(cwd, arg)
 				packages = append(packages, path)
 			} else {
 				packages = append(packages, arg)

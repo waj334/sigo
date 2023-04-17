@@ -3,10 +3,8 @@ package builder
 import (
 	"context"
 	"errors"
-	"go/ast"
 	"go/token"
 	"go/types"
-	"golang.org/x/tools/go/ssa"
 	"omibyte.io/sigo/compiler"
 	"omibyte.io/sigo/llvm"
 	"os"
@@ -39,26 +37,16 @@ func BuildPackages(packageDirectories []string, output string) error {
 
 func Build(packageDirectory, output string, env Env) error {
 	fset := token.NewFileSet()
-	importer := Importer{
-		env:         env,
-		imported:    map[string]*types.Package{},
-		fset:        fset,
-		files:       map[*types.Package][]*ast.File{},
-		info:        map[*types.Package]*types.Info{},
-		buildPkgDir: packageDirectory,
-	}
-
-	config := types.Config{
-		Importer: &importer,
-	}
+	config := types.Config{}
 
 	// Create a new program
 	prog := Program{
-		config:     &config,
+		config:     config,
 		fset:       fset,
 		path:       packageDirectory,
-		pkgs:       map[string]*ssa.Package{},
 		targetInfo: map[string]string{},
+		linkNames:  map[string]string{},
+		env:        env,
 	}
 
 	// Parse the program
@@ -66,42 +54,15 @@ func Build(packageDirectory, output string, env Env) error {
 		return err
 	}
 
-	// Parse the required runtime packages
-	typesPkg, err := importer.Import("runtime/internal/types")
-	if err != nil {
-		return err
-	}
-
-	// Main packages need have imported a runtime.
-	// NOTE: All main packages implicitly import runtime/internal/types
-	appendPackage(typesPkg, &prog)
-
-	/*
-		// Find the main function. This package will be searched for the comments
-		// containing target information.
-		for _, pkg := range prog.pkgs {
-			for _, m := range pkg.Members {
-				if fn, ok := m.(*ssa.Function); ok {
-					if fn.Name() == "main" {
-						// Get the directory of the source containing the main
-						// function. This is assumed to be the location of the main
-						// package.
-						pkgDir := path.Dir(fset.File(fn.Pos()).Name())
-					}
-				}
-			}
-		}
-	*/
-
 	// Create the SSA
-	err = prog.buildPackages()
+	allPackages, err := prog.buildPackages()
 	if err != nil {
 		return err
 	}
 
 	// Compute build order
 	graph := NewGraph()
-	for _, pkg := range prog.pkgs {
+	for _, pkg := range allPackages {
 		// Skip some packages as they are not real
 		if pkg.Pkg.Path() == "unsafe" {
 			continue
@@ -112,7 +73,7 @@ func Build(packageDirectory, output string, env Env) error {
 			if imported.Path() == "unsafe" {
 				continue
 			}
-			graph.AddEdge(pkg, prog.pkgs[imported.Path()])
+			graph.AddEdge(pkg, prog.ssaProg.Package(imported))
 		}
 	}
 
@@ -134,7 +95,11 @@ func Build(packageDirectory, output string, env Env) error {
 	}
 
 	// Create a compiler
-	cc := compiler.NewCompiler(target)
+	cc := compiler.NewCompiler(compiler.Options{
+		Target:    target,
+		LinkNames: prog.linkNames,
+		Verbosity: compiler.Debug, // TODO: Create commandline option for this setting
+	})
 
 	// Compile the packages
 	for _, bucket := range buckets {
@@ -184,17 +149,4 @@ func dumpModule(module llvm.LLVMModuleRef, fname string) error {
 	// Finally, dump the module
 	llvm.PrintModuleToFile(module, fname, nil)
 	return nil
-}
-
-func appendPackage(pkg *types.Package, program *Program) {
-	pkgs := program.mainPkg.Imports()
-	pkgs = append(pkgs, pkg)
-	program.mainPkg.SetImports(pkgs)
-}
-
-func getPackage(m map[string]*ast.Package) (pkg *ast.Package) {
-	for _, pkg = range m {
-		break
-	}
-	return
 }

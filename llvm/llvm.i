@@ -18,7 +18,7 @@
 #include "llvm-c/DisassemblerTypes.h"
 #include "llvm-c/Error.h"
 #include "llvm-c/ErrorHandling.h"
-#include "llvm-c/ExecutionEngine.h"
+//#include "llvm-c/ExecutionEngine.h"
 #include "llvm-c/ExternC.h"
 #include "llvm-c/Initialization.h"
 #include "llvm-c/IRReader.h"
@@ -130,9 +130,6 @@
                     (const char *LinkageName, size_t LinkageNameLen)
 {
     $result = C.CString($1)
-
-    // NOTE: This crashes for some reason
-    //defer C.free(unsafe.Pointer($result))
 }
 
 %typemap(goout)     (const char *Name, size_t NameLen),
@@ -142,9 +139,6 @@
                     (const char *LinkageName, size_t LinkageNameLen)
 {
     $result = C.GoString($1)
-
-    // NOTE: This crashes for some reason
-    //defer C.free(unsafe.Pointer($1))
 }
 
 
@@ -176,60 +170,25 @@
                     const char *
 {
     $result = C.CString($input)
-
-    // NOTE: This crashes for some reason
-    //defer C.free(unsafe.Pointer($result))
 }
 
 %typemap(goout)     char *,
                     const char *
 {
     $result = C.GoString($input)
-
-    // NOTE: This crashes for some reason
-    //defer C.free(unsafe.Pointer($input))
 }
 
-// *********** LLVMTypeRef
+// Handle C array <--> Go slice
 %typemap(gotype) (LLVMTypeRef *ParamTypes, unsigned ParamCount),
                  (LLVMTypeRef *ElementTypes, unsigned ElementCount),
-                 (LLVMTypeRef *TypeParams, unsigned TypeParamCount) "[]LLVMTypeRef";
+                 (LLVMTypeRef *TypeParams, unsigned TypeParamCount)
+                 "[]LLVMTypeRef";
 
 %typemap(imtype) (LLVMTypeRef *ParamTypes, unsigned ParamCount),
                  (LLVMTypeRef *ElementTypes, unsigned ElementCount),
-                 (LLVMTypeRef *TypeParams, unsigned TypeParamCount) "*C.LLVMTypeRef"
+                 (LLVMTypeRef *TypeParams, unsigned TypeParamCount)
+                 "[]C.LLVMTypeRef";
 
-%typemap(goin) (LLVMTypeRef *ParamTypes, unsigned ParamCount),
-               (LLVMTypeRef *ElementTypes, unsigned ElementCount),
-               (LLVMTypeRef *TypeParams, unsigned TypeParamCount),
-               (LLVMTypeRef *TypeParams, unsigned TypeParamCount){
-   $result = (*C.LLVMTypeRef)(C.malloc(C.size_t(len($input)) * C.size_t(unsafe.Sizeof(uintptr(0)))))
-   defer C.free(unsafe.Pointer($result))
-   if $result == nil {
-       panic("Failed to allocate memory for C array.")
-   }
-
-   for i, val := range $input {
-       *(*C.LLVMTypeRef)(unsafe.Pointer(uintptr(unsafe.Pointer($result)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMTypeRef)(unsafe.Pointer(val.Swigcptr()))
-   }
-}
-
-%typemap(in) (LLVMTypeRef *ParamTypes, unsigned ParamCount),
-             (LLVMTypeRef *ElementTypes, unsigned ElementCount),
-             (LLVMTypeRef *TypeParams, unsigned TypeParamCount){}
-
-%typemap(arginit) (LLVMTypeRef *ParamTypes, unsigned ParamCount),
-                  (LLVMTypeRef *ElementTypes, unsigned ElementCount),
-                  (LLVMTypeRef *TypeParams, unsigned TypeParamCount) %{
-  $1 = NULL;
-  $2 = 0;
-%}
-
-%typemap(freearg) (LLVMTypeRef *ParamTypes, unsigned ParamCount),
-                  (LLVMTypeRef *ElementTypes, unsigned ElementCount),
-                  (LLVMTypeRef *TypeParams, unsigned TypeParamCount){}
-
-// *********** LLVMValueRef
 %typemap(gotype) (LLVMValueRef *ConstantVals, unsigned Count),
                  (LLVMValueRef *ConstantVals, unsigned Length),
                  (LLVMValueRef *ConstantVals, uint64_t Length),
@@ -240,7 +199,8 @@
                  (LLVMValueRef *RetVals, unsigned N),
                  (LLVMValueRef *Args, unsigned NumArgs),
                  (LLVMValueRef *Indices, unsigned NumIndices),
-                 (LLVMValueRef *ScalarConstantVals, unsigned Size) "[]LLVMValueRef";
+                 (LLVMValueRef *ScalarConstantVals, unsigned Size)
+                 "[]LLVMValueRef";
 
 %typemap(imtype) (LLVMValueRef *ConstantVals, unsigned Count),
                  (LLVMValueRef *ConstantVals, unsigned Length),
@@ -252,113 +212,72 @@
                  (LLVMValueRef *RetVals, unsigned N),
                  (LLVMValueRef *Args, unsigned NumArgs),
                  (LLVMValueRef *Indices, unsigned NumIndices),
-                 (LLVMValueRef *ScalarConstantVals, unsigned Size) "*C.LLVMValueRef"
+                 (LLVMValueRef *ScalarConstantVals, unsigned Size)
+                 "[]C.LLVMValueRef";
 
-%typemap(goin) (LLVMValueRef *ConstantVals, unsigned Count),
-               (LLVMValueRef *ConstantVals, unsigned Length),
-               (LLVMValueRef *ConstantVals, uint64_t Length),
-               (LLVMValueRef *ScalarConstantVals, unsigned Size),
-               (LLVMValueRef *ConstantIndices, unsigned NumIndices),
-               (LLVMValueRef *Vals, unsigned Count),
-               (LLVMValueRef *IncomingValues, unsigned Count),
-               (LLVMValueRef *RetVals, unsigned N),
-               (LLVMValueRef *Args, unsigned NumArgs),
-               (LLVMValueRef *Indices, unsigned NumIndices),
-               (LLVMValueRef *ScalarConstantVals, unsigned Size){
-   $result = (*C.LLVMValueRef)(C.malloc(C.size_t(len($input)) * C.size_t(unsafe.Sizeof(uintptr(0)))))
-   defer C.free(unsafe.Pointer($result))
-   if $result == nil {
-       panic("Failed to allocate memory for C array.")
-   }
-
-   for i, val := range $input {
-       *(*C.LLVMValueRef)(unsafe.Pointer(uintptr(unsafe.Pointer($result)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMValueRef)(unsafe.Pointer(val.Swigcptr()))
-   }
-}
-
-%typemap(in) (LLVMValueRef *ConstantVals, unsigned Count),
-             (LLVMValueRef *ConstantVals, unsigned Length),
-             (LLVMValueRef *ConstantVals, uint64_t Length),
-             (LLVMValueRef *ScalarConstantVals, unsigned Size),
-             (LLVMValueRef *ConstantIndices, unsigned NumIndices),
-             (LLVMValueRef *Vals, unsigned Count),
-             (LLVMValueRef *IncomingValues, unsigned Count),
-             (LLVMValueRef *RetVals, unsigned N),
-             (LLVMValueRef *Args, unsigned NumArgs),
-             (LLVMValueRef *Indices, unsigned NumIndices),
-             (LLVMValueRef *ScalarConstantVals, unsigned Size){}
-
-%typemap(arginit) (LLVMValueRef *ConstantVals, unsigned Count),
-                  (LLVMValueRef *ConstantVals, unsigned Length),
-                  (LLVMValueRef *ConstantVals, uint64_t Length),
-                  (LLVMValueRef *ScalarConstantVals, unsigned Size),
-                  (LLVMValueRef *ConstantIndices, unsigned NumIndices),
-                  (LLVMValueRef *Vals, unsigned Count),
-                  (LLVMValueRef *IncomingValues, unsigned Count),
-                  (LLVMValueRef *RetVals, unsigned N),
-                  (LLVMValueRef *Args, unsigned NumArgs),
-                  (LLVMValueRef *Indices, unsigned NumIndices),
-                  (LLVMValueRef *ScalarConstantVals, unsigned Size) %{
-  $1 = NULL;
-  $2 = 0;
-%}
-
-%typemap(freearg) (LLVMValueRef *ConstantVals, unsigned Count),
-                  (LLVMValueRef *ConstantVals, unsigned Length),
-                  (LLVMValueRef *ConstantVals, uint64_t Length),
-                  (LLVMValueRef *ScalarConstantVals, unsigned Size),
-                  (LLVMValueRef *ConstantIndices, unsigned NumIndices),
-                  (LLVMValueRef *Vals, unsigned Count),
-                  (LLVMValueRef *IncomingValues, unsigned Count),
-                  (LLVMValueRef *RetVals, unsigned N),
-                  (LLVMValueRef *Args, unsigned NumArgs),
-                  (LLVMValueRef *Indices, unsigned NumIndices),
-                  (LLVMValueRef *ScalarConstantVals, unsigned Size){}
-
-// *********** LLVMMetadataRef
 %typemap(gotype) (LLVMMetadataRef *ParameterTypes, unsigned NumParameterTypes),
                  (LLVMMetadataRef *Elements, unsigned NumElements),
                  (LLVMMetadataRef *Data, unsigned NumElements),
-                 (LLVMMetadataRef *Subscripts, unsigned NumSubscripts) "[]LLVMMetadataRef";
+                 (LLVMMetadataRef *Subscripts, unsigned NumSubscripts)
+                 "[]LLVMMetadataRef";
 
 %typemap(imtype) (LLVMMetadataRef *ParameterTypes, unsigned NumParameterTypes),
                  (LLVMMetadataRef *Elements, unsigned NumElements),
                  (LLVMMetadataRef *Data, unsigned NumElements),
-                 (LLVMMetadataRef *Subscripts, unsigned NumSubscripts) "*C.LLVMMetadataRef"
+                 (LLVMMetadataRef *Subscripts, unsigned NumSubscripts)
+                 "[]C.LLVMMetadataRef"
 
-%typemap(goin) (LLVMMetadataRef *ParameterTypes, unsigned NumParameterTypes),
-               (LLVMMetadataRef *Elements, unsigned NumElements),
-               (LLVMMetadataRef *Data, unsigned NumElements),
-               (LLVMMetadataRef *Subscripts, unsigned NumSubscripts) {
-   $result = (*C.LLVMMetadataRef)(C.malloc(C.size_t(len($input)) * C.size_t(unsafe.Sizeof(uintptr(0)))))
-   defer C.free(unsafe.Pointer($result))
-   if $result == nil {
-       panic("Failed to allocate memory for C array.")
-   }
-
-   for i, val := range $input {
-       *(*C.LLVMMetadataRef)(unsafe.Pointer(uintptr(unsafe.Pointer($result)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMMetadataRef)(unsafe.Pointer(val.Swigcptr()))
+%typemap(goin)  (LLVMTypeRef *ParamTypes, unsigned ParamCount),
+                (LLVMTypeRef *ElementTypes, unsigned ElementCount),
+                (LLVMTypeRef *TypeParams, unsigned TypeParamCount),
+                (LLVMValueRef *ConstantVals, unsigned Count),
+                (LLVMValueRef *ConstantVals, unsigned Length),
+                (LLVMValueRef *ConstantVals, uint64_t Length),
+                (LLVMValueRef *ScalarConstantVals, unsigned Size),
+                (LLVMValueRef *ConstantIndices, unsigned NumIndices),
+                (LLVMValueRef *Vals, unsigned Count),
+                (LLVMValueRef *IncomingValues, unsigned Count),
+                (LLVMValueRef *RetVals, unsigned N),
+                (LLVMValueRef *Args, unsigned NumArgs),
+                (LLVMValueRef *Indices, unsigned NumIndices),
+                (LLVMValueRef *ScalarConstantVals, unsigned Size),
+                (LLVMMetadataRef *ParameterTypes, unsigned NumParameterTypes),
+                (LLVMMetadataRef *Elements, unsigned NumElements),
+                (LLVMMetadataRef *Data, unsigned NumElements),
+                (LLVMMetadataRef *Subscripts, unsigned NumSubscripts)
+{
+   $result = make([]C.$*1_type, 0, len($input))
+   for _, val := range $input {
+        if val != nil {
+            $result = append($result, (C.$*1_type)(unsafe.Pointer(val.Swigcptr())))
+       } else {
+            $result = append($result, (C.$*1_type)(unsafe.Pointer(nil)))
+       }
    }
 }
 
-%typemap(in) (LLVMMetadataRef *ParameterTypes, unsigned NumParameterTypes),
-             (LLVMMetadataRef *Elements, unsigned NumElements),
-             (LLVMMetadataRef *Data, unsigned NumElements),
-             (LLVMMetadataRef *Subscripts, unsigned NumSubscripts) {}
-
-%typemap(arginit) (LLVMMetadataRef *ParameterTypes, unsigned NumParameterTypes),
-                  (LLVMMetadataRef *Elements, unsigned NumElements),
-                  (LLVMMetadataRef *Data, unsigned NumElements),
-                  (LLVMMetadataRef *Subscripts, unsigned NumSubscripts) %{
-  $1 = NULL;
-  $2 = 0;
-%}
-
-%typemap(freearg) (LLVMMetadataRef *ParameterTypes, unsigned NumParameterTypes),
-                  (LLVMMetadataRef *Elements, unsigned NumElements),
-                  (LLVMMetadataRef *Data, unsigned NumElements),
-                  (LLVMMetadataRef *Subscripts, unsigned NumSubscripts) {}
-
+%typemap(in)    (LLVMTypeRef *ParamTypes, unsigned ParamCount),
+                (LLVMTypeRef *ElementTypes, unsigned ElementCount),
+                (LLVMTypeRef *TypeParams, unsigned TypeParamCount),
+                (LLVMValueRef *ConstantVals, unsigned Count),
+                (LLVMValueRef *ConstantVals, unsigned Length),
+                (LLVMValueRef *ConstantVals, uint64_t Length),
+                (LLVMValueRef *ScalarConstantVals, unsigned Size),
+                (LLVMValueRef *ConstantIndices, unsigned NumIndices),
+                (LLVMValueRef *Vals, unsigned Count),
+                (LLVMValueRef *IncomingValues, unsigned Count),
+                (LLVMValueRef *RetVals, unsigned N),
+                (LLVMValueRef *Args, unsigned NumArgs),
+                (LLVMValueRef *Indices, unsigned NumIndices),
+                (LLVMValueRef *ScalarConstantVals, unsigned Size),
+                (LLVMMetadataRef *ParameterTypes, unsigned NumParameterTypes),
+                (LLVMMetadataRef *Elements, unsigned NumElements),
+                (LLVMMetadataRef *Data, unsigned NumElements),
+                (LLVMMetadataRef *Subscripts, unsigned NumSubscripts)
+{
+    $1 = ($*1_type*)$input.array;
+    $2 = ($2_type)$input.len;
+}
 
 // Handle passing normal ref types
 %typemap(imtype)
@@ -384,7 +303,7 @@
               LLVMTargetMachineRef,
               LLVMTargetRef,
               LLVMTargetDataRef,
-              LLVMTargetLibraryInfoRef "unsafe.Pointer"
+              LLVMTargetLibraryInfoRef "C.$type"
 
 %typemap(goin)
             LLVMMemoryBufferRef,
@@ -412,193 +331,42 @@
             LLVMTargetLibraryInfoRef
 {
     if $input == nil {
-        $result = unsafe.Pointer(uintptr(0))
+        $result = C.$type(unsafe.Pointer(uintptr(0)))
     } else {
-        $result = unsafe.Pointer($input.Swigcptr())
+        $result = C.$type(unsafe.Pointer($input.Swigcptr()))
     }
 }
 
-%typemap(goout, match="out") LLVMMemoryBufferRef {
+// Handle return from C wrapper to Go
+%typemap(goout, match="out")
+            LLVMMemoryBufferRef,
+            LLVMContextRef,
+            LLVMModuleRef,
+            LLVMTypeRef,
+            LLVMValueRef,
+            LLVMBasicBlockRef,
+            LLVMMetadataRef,
+            LLVMNamedMDNodeRef,
+            LLVMBuilderRef,
+            LLVMDIBuilderRef,
+            LLVMModuleProviderRef,
+            LLVMPassManagerRef,
+            LLVMPassRegistryRef,
+            LLVMUseRef,
+            LLVMAttributeRef,
+            LLVMDiagnosticInfoRef,
+            LLVMComdatRef,
+            LLVMJITEventListenerRef,
+            LLVMBinaryRef,
+            LLVMTargetMachineRef,
+            LLVMTargetRef,
+            LLVMTargetDataRef,
+            LLVMTargetLibraryInfoRef
+{
     if $1 == nil {
         $result = nil
     } else {
-        $result = SwigcptrLLVMMemoryBufferRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMContextRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMContextRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMModuleRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMModuleRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMTypeRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMTypeRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMValueRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMValueRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMBasicBlockRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMBasicBlockRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMMetadataRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMMetadataRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMNamedMDNodeRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMNamedMDNodeRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMBuilderRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMBuilderRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMDIBuilderRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMDIBuilderRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMModuleProviderRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMModuleProviderRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMPassManagerRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMPassManagerRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMPassRegistryRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMPassRegistryRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMUseRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMUseRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMAttributeRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMAttributeRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMDiagnosticInfoRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMDiagnosticInfoRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMComdatRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMComdatRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMJITEventListenerRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMJITEventListenerRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMBinaryRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMBinaryRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMTargetMachineRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMTargetMachineRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMTargetRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMTargetRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMTargetDataRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMTargetDataRef($1)
-    }
-}
-
-%typemap(goout, match="out") LLVMTargetLibraryInfoRef {
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = SwigcptrLLVMTargetLibraryInfoRef($1)
+        $result = Swigcptr$1_type(unsafe.Pointer($1))
     }
 }
 
@@ -662,6 +430,8 @@
 
 %ignore LLVMGetTargetFromTriple;
 %ignore LLVMAddIncoming;
+%ignore LLVMGetParamTypes;
+%ignore LLVMGetStructElementTypes;
 
 // Strip redundant "LLVM" from function calls
 %{
@@ -713,7 +483,7 @@ typedef struct LLVMOpaqueTargetLibraryInfotData *LLVMTargetLibraryInfoRef;
 %include "llvm-c/Disassembler.h"
 %include "llvm-c/DisassemblerTypes.h"
 %include "llvm-c/Error.h"
-%include "llvm-c/ExecutionEngine.h"
+//%include "llvm-c/ExecutionEngine.h"
 %include "llvm-c/Initialization.h"
 %include "llvm-c/IRReader.h"
 %include "llvm-c/Linker.h"

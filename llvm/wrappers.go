@@ -99,15 +99,41 @@ func AddIncoming(phi LLVMValueRef, edges []LLVMValueRef, blocks []LLVMBasicBlock
 		panic("there must be as many edges as blocks")
 	}
 
-	edgesArr := (*C.LLVMTypeRef)(C.malloc(C.size_t(len(edges)) * C.size_t(unsafe.Sizeof(uintptr(0)))))
-	blocksArr := (*C.LLVMTypeRef)(C.malloc(C.size_t(len(edges)) * C.size_t(unsafe.Sizeof(uintptr(0)))))
+	edgesArr := (*C.LLVMValueRef)(C.malloc(C.size_t(len(edges)) * C.size_t(unsafe.Sizeof(uintptr(0)))))
+	blocksArr := (*C.LLVMBasicBlockRef)(C.malloc(C.size_t(len(edges)) * C.size_t(unsafe.Sizeof(uintptr(0)))))
 	defer C.free(unsafe.Pointer(edgesArr))
 	defer C.free(unsafe.Pointer(blocksArr))
 
 	for i, edge := range edges {
-		*(*C.LLVMTypeRef)(unsafe.Pointer(uintptr(unsafe.Pointer(edgesArr)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMValueRef)(unsafe.Pointer(edge.Swigcptr()))
-		*(*C.LLVMTypeRef)(unsafe.Pointer(uintptr(unsafe.Pointer(blocksArr)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMBasicBlockRef)(unsafe.Pointer(blocks[i].Swigcptr()))
+		*(*C.LLVMValueRef)(unsafe.Pointer(uintptr(unsafe.Pointer(edgesArr)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMValueRef)(unsafe.Pointer(edge.Swigcptr()))
+		*(*C.LLVMBasicBlockRef)(unsafe.Pointer(uintptr(unsafe.Pointer(blocksArr)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMBasicBlockRef)(unsafe.Pointer(blocks[i].Swigcptr()))
 	}
 
-	C.LLVMAddIncoming(C.LLVMValueRef(unsafe.Pointer(phi.Swigcptr())), edgesArr, blocksArr, len(edges))
+	C.LLVMAddIncoming(C.LLVMValueRef(unsafe.Pointer(phi.Swigcptr())), edgesArr, blocksArr, C.uint(len(edges)))
+}
+
+func GetParamTypes(FunctionTy LLVMTypeRef) (result []LLVMTypeRef) {
+	count := int(CountParamTypes(FunctionTy))
+	output := make([]C.LLVMTypeRef, count)
+	C.LLVMGetParamTypes(C.LLVMTypeRef(unsafe.Pointer(FunctionTy.Swigcptr())), (*C.LLVMTypeRef)(unsafe.Pointer(&output[0])))
+	result = make([]LLVMTypeRef, 0, count)
+	for _, value := range output {
+		result = append(result, SwigcptrLLVMTypeRef(unsafe.Pointer(value)))
+	}
+	return
+}
+
+func GetStructElementTypes(StructTy LLVMTypeRef) (result []LLVMTypeRef) {
+	count := int(CountStructElementTypes(StructTy))
+	output := make([]C.LLVMTypeRef, count)
+	C.LLVMGetStructElementTypes(C.LLVMTypeRef(unsafe.Pointer(StructTy.Swigcptr())), (*C.LLVMTypeRef)(unsafe.Pointer(&output[0])))
+	result = make([]LLVMTypeRef, 0, count)
+	for _, value := range output {
+		result = append(result, SwigcptrLLVMTypeRef(unsafe.Pointer(value)))
+	}
+	return
+}
+
+func TypeIsEqual(a, b LLVMTypeRef) bool {
+	return a.Swigcptr() == b.Swigcptr()
 }

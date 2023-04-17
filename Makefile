@@ -6,8 +6,14 @@ ifeq ($(OS),Windows_NT)
 endif
 C_FOR_GO_EXECUTABLE=c-for-go${EXECUTABLE_POSTFIX}
 LLVM_CONFIG_EXECUTABLE=${ROOT_DIR}/build/llvm-build/bin/llvm-config${EXECUTABLE_POSTFIX}
+LLVM_COMPONENTS := ARM AVR RISCV
 
-CGO_LDFLAGS += -O2 -g $(shell ${LLVM_CONFIG_EXECUTABLE} --ldflags) $(shell ${LLVM_CONFIG_EXECUTABLE} --libs)
+# Build a semicolon separated list that CMake can accept
+CMAKE_LLVM_COMPONENTS :=
+$(foreach item, $(LLVM_COMPONENTS),$(if $(CMAKE_LLVM_COMPONENTS),$(eval CMAKE_LLVM_COMPONENTS := $(CMAKE_LLVM_COMPONENTS);))$(eval CMAKE_LLVM_COMPONENTS := $(CMAKE_LLVM_COMPONENTS)$(strip $(item))))
+
+# Determine build flags required by LLVM
+CGO_LDFLAGS += -O2 -g $(shell ${LLVM_CONFIG_EXECUTABLE} --ldflags) $(shell ${LLVM_CONFIG_EXECUTABLE} --libs ${LLVM_COMPONENTS})
 CGO_CFLAGS += -O2 -g -fPIC $(shell ${LLVM_CONFIG_EXECUTABLE} --cflags)
 
 SIGO_EXECUTABLE=sigoc${EXECUTABLE_POSTFIX}
@@ -23,14 +29,14 @@ all: sigo
 clean: clean-sigo clean-llvm-bindings
 
 sigo: ./llvm/llvm.go
-	CGO_CFLAGS="${CGO_CFLAGS}" CGO_LDFLAGS="${CGO_LDFLAGS} -lstdc++" go build -o ${ROOT_DIR}/bin/${SIGO_EXECUTABLE} -gcflags "all=-N -l" ${ROOT_DIR}/cmd/sigoc
+	CGO_CFLAGS="${CGO_CFLAGS}" CGO_LDFLAGS="${CGO_LDFLAGS} -lstdc++" go build -o ${ROOT_DIR}/bin/${SIGO_EXECUTABLE} -gcflags "all=-N -l" -ldflags="-linkmode external -extldflags=-Wl,--allow-multiple-definition" ${ROOT_DIR}/cmd/sigoc
 
 debug: sigo
 	dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec ${ROOT_DIR}/bin/${SIGO_EXECUTABLE} -- ${args}
 
 build-test:
 	@rm -f ./bin/test${EXECUTABLE_POSTFIX}
-	CGO_CFLAGS="${CGO_CFLAGS}" CGO_LDFLAGS="${CGO_LDFLAGS} -lstdc++" go test -gcflags "all=-N -l" -c -o ./bin/test${EXECUTABLE_POSTFIX} ${package}
+	CGO_CFLAGS="${CGO_CFLAGS}" CGO_LDFLAGS="${CGO_LDFLAGS} -lstdc++" go test -gcflags "all=-N -l" -ldflags="-linkmode external -extldflags=-Wl,--allow-multiple-definition" -c -o ./bin/test${EXECUTABLE_POSTFIX} ${package}
 
 test: build-test
 	./bin/test${EXECUTABLE_POSTFIX}
@@ -47,10 +53,13 @@ configure-llvm:
 	@mkdir -p ${LLVM_BUILD_DIR}
 	cmake -G "Ninja" -B ${LLVM_BUILD_DIR} ${ROOT_DIR}/thirdparty/llvm-project/llvm \
 		-DCMAKE_BUILD_TYPE=Release \
-		-DLLVM_ENABLE_ASSERTIONS=ON
+		-DLLVM_ENABLE_ASSERTIONS=ON \
+		-DLLVM_ENABLE_EXPENSIVE_CHECKS=ON \
+		-DLLVM_ENABLE_BACKTRACES=ON \
+		-DLLVM_TARGETS_TO_BUILD="${CMAKE_LLVM_COMPONENTS}"
 
 build-llvm: configure-llvm
-	cmake --build ${LLVM_BUILD_DIR}
+	cmake --build ${LLVM_BUILD_DIR} -j 24
 	make preprocess-llvm-headers
 
 preprocess-llvm-headers:

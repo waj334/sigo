@@ -1,4 +1,4 @@
-package types
+package _go
 
 import "unsafe"
 
@@ -7,6 +7,7 @@ type stringDescriptor struct {
 	len   int
 }
 
+//go:linkname runtime.stringLen
 func stringLen(descriptor stringDescriptor) int {
 	return 0
 }

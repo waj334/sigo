@@ -10,14 +10,27 @@ import (
 func (c *Compiler) createType(ctx context.Context, typ types.Type) Type {
 	// Check if this type was already created
 	if result, ok := c.types[typ]; ok {
+		c.printf(Debug, "Returning type from cache: %s\n", typ.String())
 		return result
 	}
+
+	typename := typ.String()
+	c.printf(Debug, "Creating type: %s\n", typename)
+
+	// Keep a copy of the original type since typ will be reassigned if it is a
+	// named type.
+	keyType := typ
 
 	// Is this a named type?
 	name := ""
 	if named, ok := typ.(*types.Named); ok {
 		// Extract the name
 		name = named.Obj().Name()
+
+		if pkg := named.Obj().Pkg(); pkg != nil {
+			// Prepend the package path
+			name = pkg.Path() + "." + name
+		}
 
 		// Create the underlying type
 		typ = named.Underlying()
@@ -31,56 +44,56 @@ func (c *Compiler) createType(ctx context.Context, typ types.Type) Type {
 		switch typ.Kind() {
 		case types.Uint8:
 			result.valueType = llvm.Int8TypeInContext(c.currentContext(ctx))
-			if c.GenerateDebugInfo {
+			if c.options.GenerateDebugInfo {
 				result.debugType = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 1, DW_ATE_unsigned, 0)
 			}
 		case types.Int8:
 			result.valueType = llvm.Int8TypeInContext(c.currentContext(ctx))
-			if c.GenerateDebugInfo {
+			if c.options.GenerateDebugInfo {
 				result.debugType = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 1, DW_ATE_signed, 0)
 			}
 		case types.Uint16:
 			result.valueType = llvm.Int16TypeInContext(c.currentContext(ctx))
-			if c.GenerateDebugInfo {
+			if c.options.GenerateDebugInfo {
 				result.debugType = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 2, DW_ATE_unsigned, 0)
 			}
 		case types.Int16:
 			result.valueType = llvm.Int16TypeInContext(c.currentContext(ctx))
-			if c.GenerateDebugInfo {
+			if c.options.GenerateDebugInfo {
 				result.debugType = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 2, DW_ATE_signed, 0)
 			}
 		case types.Int, types.Int32:
 			result.valueType = llvm.Int32TypeInContext(c.currentContext(ctx))
-			if c.GenerateDebugInfo {
+			if c.options.GenerateDebugInfo {
 				result.debugType = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 4, DW_ATE_unsigned, 0)
 			}
 		case types.Uint, types.Uint32:
 			result.valueType = llvm.Int32TypeInContext(c.currentContext(ctx))
-			if c.GenerateDebugInfo {
+			if c.options.GenerateDebugInfo {
 				result.debugType = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 4, DW_ATE_signed, 0)
 			}
 		case types.Uint64:
 			result.valueType = llvm.Int64TypeInContext(c.currentContext(ctx))
-			if c.GenerateDebugInfo {
+			if c.options.GenerateDebugInfo {
 				result.debugType = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 8, DW_ATE_unsigned, 0)
 			}
 		case types.Int64:
 			result.valueType = llvm.Int64TypeInContext(c.currentContext(ctx))
-			if c.GenerateDebugInfo {
+			if c.options.GenerateDebugInfo {
 				result.debugType = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 8, DW_ATE_signed, 0)
 			}
 		case types.Uintptr:
 			return c.uintptrType
 		case types.UnsafePointer:
-			result = c.uintptrType
+			result = c.ptrType
 		case types.Float32:
 			result.valueType = llvm.FloatTypeInContext(c.currentContext(ctx))
-			if c.GenerateDebugInfo {
+			if c.options.GenerateDebugInfo {
 				result.debugType = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 4, DW_ATE_float, 0)
 			}
 		case types.Float64:
 			result.valueType = llvm.DoubleTypeInContext(c.currentContext(ctx))
-			if c.GenerateDebugInfo {
+			if c.options.GenerateDebugInfo {
 				result.debugType = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 8, DW_ATE_float, 0)
 			}
 		case types.Complex64:
@@ -88,51 +101,22 @@ func (c *Compiler) createType(ctx context.Context, typ types.Type) Type {
 		case types.Complex128:
 			panic("Not implemented")
 		case types.String:
-			result.valueType = llvm.StructCreateNamed(c.currentContext(ctx), "string")
-			structMembers := []llvm.LLVMTypeRef{
-				c.uintptrType.valueType,                        // Ptr
-				llvm.Int32TypeInContext(c.currentContext(ctx)), // Len
+			runtimeType, ok := c.findRuntimeType(ctx, "runtime/internal/go.stringDescriptor")
+			if ok {
+				result = runtimeType
+			} else {
+				panic("runtime type does not exist")
 			}
-			llvm.StructSetBody(result.valueType, structMembers, false)
-
-			if c.GenerateDebugInfo {
-				// Create the debug information for the underlying struct
-				result.debugType = llvm.DIBuilderCreateStructType(
-					c.dibuilder,
-					c.currentScope(ctx),
-					"string",
-					nil,
-					0,
-					4, // Alignment - TODO: Get this information from the target information
-					0, 0, nil, nil, 0, nil, "")
-				llvm.DIBuilderCreateMemberType(
-					c.dibuilder,
-					result.debugType,
-					"array",
-					nil,
-					0,
-					4,
-					4, // Alignment - TODO: Get this information from the target information
-					0, // Offset
-					0, // Flags
-					c.uintptrType.debugType)
-				llvm.DIBuilderCreateMemberType(
-					c.dibuilder,
-					result.debugType,
-					"len",
-					nil,
-					0,
-					4,
-					4,  // Alignment - TODO: Get this information from the target information
-					32, // Offset - TODO: Use the value above to calculate the offset within the struct
-					0,  // Flags
-					llvm.DIBuilderCreateBasicType(c.dibuilder, "int", 4, DW_ATE_unsigned, 0))
+		case types.Bool:
+			result.valueType = llvm.Int1Type()
+			if c.options.GenerateDebugInfo {
+				result.debugType = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 1, DW_ATE_boolean, 0)
 			}
 		default:
 			panic("encountered unknown basic type")
 		}
 	case *types.Struct:
-		if c.GenerateDebugInfo {
+		if c.options.GenerateDebugInfo {
 			result.debugType = llvm.DIBuilderCreateStructType(
 				c.dibuilder,
 				c.currentScope(ctx),
@@ -150,7 +134,7 @@ func (c *Compiler) createType(ctx context.Context, typ types.Type) Type {
 			fieldType := c.createType(ctx, field.Type())
 			structMembers = append(structMembers, fieldType.valueType)
 
-			if c.GenerateDebugInfo {
+			if c.options.GenerateDebugInfo {
 				llvm.DIBuilderCreateMemberType(
 					c.dibuilder,
 					result.debugType,
@@ -158,75 +142,33 @@ func (c *Compiler) createType(ctx context.Context, typ types.Type) Type {
 					nil,
 					0,
 					4,
-					4,      // Alignment - TODO: Get this information from the target information
-					offset, // Offset
-					0,      // Flags
+					4,        // Alignment - TODO: Get this information from the target information
+					offset*8, // Offset
+					0,        // Flags
 					fieldType.debugType)
 
-				offset += llvm.DITypeGetSizeInBits(fieldType.debugType)
+				offset += llvm.StoreSizeOfType(c.options.Target.dataLayout, fieldType.valueType)
 			}
 		}
-		result.valueType = llvm.StructCreateNamed(c.currentContext(ctx), name)
-		llvm.StructSetBody(result.valueType, structMembers, false)
+		result.valueType = llvm.StructTypeInContext(c.currentContext(ctx), structMembers, false)
 	case *types.Map:
-		panic("Not implemented")
-	case *types.Slice:
-		structMembers := []llvm.LLVMTypeRef{
-			c.uintptrType.valueType,                        // Ptr
-			llvm.Int32TypeInContext(c.currentContext(ctx)), // Len
-			llvm.Int32TypeInContext(c.currentContext(ctx)), // Cap
+		runtimeType, ok := c.findRuntimeType(ctx, "runtime/internal/go.mapDescriptor")
+		if ok {
+			result = runtimeType
+		} else {
+			panic("runtime type does not exist")
 		}
-		result.valueType = llvm.StructCreateNamed(c.currentContext(ctx), name)
-		llvm.StructSetBody(result.valueType, structMembers, false)
-
-		if c.GenerateDebugInfo {
-			// Create the debug information for the underlying struct
-			result.debugType = llvm.DIBuilderCreateStructType(
-				c.dibuilder,
-				c.currentScope(ctx),
-				name,
-				nil,
-				0,
-				4, // Alignment - TODO: Get this information from the target information
-				0, 0, nil, nil, 0, nil, "")
-			llvm.DIBuilderCreateMemberType(
-				c.dibuilder,
-				result.debugType,
-				"array",
-				nil,
-				0,
-				4,
-				4, // Alignment - TODO: Get this information from the target information
-				0, // Offset
-				0, // Flags
-				c.uintptrType.debugType)
-			llvm.DIBuilderCreateMemberType(
-				c.dibuilder,
-				result.debugType,
-				"len",
-				nil,
-				0,
-				4,
-				4,  // Alignment - TODO: Get this information from the target information
-				32, // Offset - TODO: Use the value above to calculate the offset within the struct
-				0,  // Flags
-				llvm.DIBuilderCreateBasicType(c.dibuilder, "int", 4, DW_ATE_unsigned, 0))
-			llvm.DIBuilderCreateMemberType(
-				c.dibuilder,
-				result.debugType,
-				"cap",
-				nil,
-				0,
-				4,
-				4,  // Alignment - TODO: Get this information from the target information
-				64, // Offset - TODO: Use the value above to calculate the offset within the struct
-				0,  // Flags
-				llvm.DIBuilderCreateBasicType(c.dibuilder, "int", 4, DW_ATE_unsigned, 0))
+	case *types.Slice:
+		runtimeType, ok := c.findRuntimeType(ctx, "runtime/internal/go.sliceDescriptor")
+		if ok {
+			result = runtimeType
+		} else {
+			panic("runtime type does not exist")
 		}
 	case *types.Array:
 		elementType := c.createType(ctx, typ.Elem())
 		result.valueType = llvm.ArrayType2(elementType.valueType, uint64(typ.Len()))
-		if c.GenerateDebugInfo {
+		if c.options.GenerateDebugInfo {
 			result.debugType = llvm.DIBuilderCreateArrayType(
 				c.dibuilder,
 				uint64(typ.Len()),
@@ -235,53 +177,27 @@ func (c *Compiler) createType(ctx context.Context, typ types.Type) Type {
 				nil)
 		}
 	case *types.Interface:
-		structMembers := []llvm.LLVMTypeRef{
-			c.uintptrType.valueType, // Ptr
-			c.uintptrType.valueType, // Vtable
-		}
-		result.valueType = llvm.StructCreateNamed(c.currentContext(ctx), name)
-		llvm.StructSetBody(result.valueType, structMembers, false)
+		runtimeType, ok := c.findRuntimeType(ctx, "runtime/internal/go.interfaceDescriptor")
+		if ok {
+			result.valueType = runtimeType.valueType
 
-		if c.GenerateDebugInfo {
-			// Create the debug information for the underlying struct
-			result.debugType = llvm.DIBuilderCreateStructType(
-				c.dibuilder,
-				c.currentScope(ctx),
-				name,
-				nil,
-				0,
-				4, // Alignment - TODO: Get this information from the target information
-				0, 0, nil, nil, 0, nil, "")
-
-			llvm.DIBuilderCreateMemberType(
-				c.dibuilder,
-				result.debugType,
-				"ptr",
-				nil,
-				0,
-				4,
-				4,  // Alignment - TODO: Get this information from the target information
-				64, // Offset - TODO: Use the value above to calculate the offset within the struct
-				0,  // Flags
-				c.uintptrType.debugType)
-
-			llvm.DIBuilderCreateMemberType(
-				c.dibuilder,
-				result.debugType,
-				"vtable",
-				nil,
-				0,
-				4,
-				4,  // Alignment - TODO: Get this information from the target information
-				64, // Offset - TODO: Use the value above to calculate the offset within the struct
-				0,  // Flags
-				c.uintptrType.debugType)
+		} else {
+			panic("runtime type does not exist")
 		}
 	case *types.Pointer:
 		elementType := c.createType(ctx, typ.Elem())
+		// NOTE: This pointer is opaque!!!
 		result.valueType = llvm.PointerType(elementType.valueType, 0)
-		if c.GenerateDebugInfo {
+
+		if c.options.GenerateDebugInfo {
 			result.debugType = llvm.DIBuilderCreateObjectPointerType(c.dibuilder, elementType.debugType)
+		}
+	case *types.Chan:
+		runtimeType, ok := c.findRuntimeType(ctx, "runtime/internal/go.channelDescriptor")
+		if ok {
+			result = runtimeType
+		} else {
+			panic("runtime type does not exist")
 		}
 	default:
 		panic("encountered unknown type")
@@ -292,9 +208,32 @@ func (c *Compiler) createType(ctx context.Context, typ types.Type) Type {
 		panic("no type was created")
 	}
 
+	// Store the type's name
+	result.name = name
+
+	// Store the go type
+	result.spec = typ
+
+	// Create the type descriptor
+	//result.descriptor = c.createTypeDescriptor(ctx, result)
+
 	// Cache the type for faster lookup later
-	c.types[typ] = result
+	c.types[keyType] = result
 
 	// Return the type
 	return result
+}
+
+func (c *Compiler) findRuntimeType(ctx context.Context, typename string) (Type, bool) {
+	// Search for the type by name
+	if len(typename) > 0 {
+		for _, t := range c.types {
+			if t.name == typename {
+				return t, true
+			}
+		}
+	}
+
+	// Type not found
+	return Type{}, false
 }

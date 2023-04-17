@@ -1,0 +1,109 @@
+@startuml
+title "Slice Expression"
+left to right direction
+
+package "s[:3]" as case0 {
+    map "s []int" as slice0 {
+        0 => 0
+        1 => 1
+        2 => 2
+        3 => 3
+        CAP => 4
+    }
+
+    map "[]int" as slice1 {
+        0 => 0
+        1 => 1
+        2 => 2
+        CAP => 3
+    }
+
+
+    object "Low" as low0 {
+        nil
+    }
+
+    object "High" as high0 {
+        3
+    }
+
+    object "Max" as max0 {
+        nil
+    }
+
+    high0 --> slice0::2
+
+    slice0::0 --> slice1::0 : LOW=0
+    slice0::2 --> slice1::CAP : HIGH=3
+}
+
+package "s[2:]" as case1 {
+    map "s []int" as slice2 {
+        0 => 0
+        1 => 1
+        2 => 2
+        3 => 3
+        CAP => 4
+    }
+
+    map "[]int" as slice3 {
+        0 => 2
+        1 => 3
+        CAP => 2
+    }
+
+
+    object "Low" as low1 {
+        2
+    }
+
+    object "High" as high1 {
+        nil
+    }
+
+    object "Max" as max1 {
+        nil
+    }
+
+    low1 --> slice2::2
+
+    slice2::2 --> slice3::2 : LOW=2
+    slice2::3 --> slice3::CAP : HIGH=4
+}
+
+package "s[0:2]" as case2 {
+    map "s []int" as slice4 {
+        0 => 0
+        1 => 1
+        2 => 2
+        3 => 3
+        CAP => 4
+    }
+
+    map "[]int" as slice5 {
+        0 => 0
+        1 => 1
+        CAP => 2
+    }
+
+
+    object "Low" as low2 {
+        0
+    }
+
+    object "High" as high2 {
+        2
+    }
+
+    object "Max" as max2 {
+        nil
+    }
+
+    low2 --> slice4::0
+    high2 --> slice4::2
+
+    slice4::0 --> slice5::0 : LOW=0
+    slice4::2 --> slice5::CAP : HIGH=2
+}
+
+@enduml
