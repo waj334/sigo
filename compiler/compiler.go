@@ -3,7 +3,6 @@ package compiler
 import (
 	"context"
 	"fmt"
-	"go/constant"
 	"go/token"
 	"go/types"
 	"golang.org/x/tools/go/ssa"
@@ -23,11 +22,14 @@ type (
 )
 
 type Function struct {
-	value    llvm.LLVMValueRef
-	llvmType llvm.LLVMTypeRef
-	def      *ssa.Function
-	diFile   llvm.LLVMMetadataRef
-	compiled bool
+	value      llvm.LLVMValueRef
+	llvmType   llvm.LLVMTypeRef
+	def        *ssa.Function
+	diFile     llvm.LLVMMetadataRef
+	subprogram llvm.LLVMMetadataRef
+	compiled   bool
+	hasDefer   bool
+	name       string
 }
 
 type Variable struct {
@@ -38,7 +40,6 @@ type Variable struct {
 type Type struct {
 	valueType  llvm.LLVMTypeRef
 	debugType  llvm.LLVMMetadataRef
-	name       string
 	spec       types.Type
 	descriptor llvm.LLVMValueRef
 }
@@ -59,8 +60,9 @@ type Compiler struct {
 	module      llvm.LLVMModuleRef
 	builder     llvm.LLVMBuilderRef
 	dibuilder   llvm.LLVMDIBuilderRef
+	compileUnit llvm.LLVMMetadataRef
 	functions   map[*types.Signature]*Function
-	types       map[types.Type]Type
+	types       map[types.Type]*Type
 	descriptors map[types.Type]llvm.LLVMValueRef
 	values      map[ssa.Value]llvm.LLVMValueRef
 	variables   map[llvm.LLVMValueRef]*Variable
@@ -71,7 +73,7 @@ type Compiler struct {
 	ptrType     Type
 }
 
-func NewCompiler(options Options) *Compiler {
+func NewCompiler(options Options) (*Compiler, llvm.LLVMContextRef) {
 	// Create the LLVM context
 	ctx := llvm.ContextCreate()
 
@@ -87,22 +89,47 @@ func NewCompiler(options Options) *Compiler {
 	// Create the DIBuilder
 	dibuilder := llvm.CreateDIBuilder(module)
 
+	// Create a compile unit
+	cu := llvm.DIBuilderCreateCompileUnit(
+		dibuilder,
+		llvm.LLVMDWARFSourceLanguage(llvm.DWARFSourceLanguageGo),
+		llvm.DIBuilderCreateFile(dibuilder, "<unknown>", ""),
+		"SiGo Alpha 0.0.0", // TODO: Use a constant for this
+		false,
+		"",
+		0,
+		"",
+		llvm.LLVMDWARFEmissionKind(llvm.DWARFEmissionFull),
+		0,
+		false,
+		false,
+		"",
+		"",
+	)
+
 	// Create the uintptr type based on the machine's pointer width
+	size := llvm.SizeOfTypeInBits(options.Target.dataLayout,
+		llvm.IntPtrTypeInContext(ctx, options.Target.dataLayout))
+
 	uintptrType := Type{
 		valueType: llvm.IntPtrTypeInContext(ctx, options.Target.dataLayout),
+		debugType: llvm.DIBuilderCreateBasicType(dibuilder, "uint", size, DW_ATE_unsigned, 0),
 	}
+
 	ptrType := Type{
 		valueType: llvm.PointerType(uintptrType.valueType, 0),
+		debugType: llvm.DIBuilderCreateBasicType(dibuilder, "void*", size, DW_ATE_address, 0),
 	}
 
 	// Create and return the compiler
-	return &Compiler{
+	cc := Compiler{
 		options:     options,
 		module:      module,
 		builder:     builder,
 		dibuilder:   dibuilder,
+		compileUnit: cu,
 		functions:   map[*types.Signature]*Function{},
-		types:       map[types.Type]Type{},
+		types:       map[types.Type]*Type{},
 		descriptors: map[types.Type]llvm.LLVMValueRef{},
 		values:      map[ssa.Value]llvm.LLVMValueRef{},
 		variables:   map[llvm.LLVMValueRef]*Variable{},
@@ -111,10 +138,21 @@ func NewCompiler(options Options) *Compiler {
 		uintptrType: uintptrType,
 		ptrType:     ptrType,
 	}
+
+	// Initialize the type system
+	cc.createPrimitiveTypes(ctx)
+	cc.createTypeInfoTypes(ctx)
+
+	return &cc, ctx
 }
 
 func (c *Compiler) Module() llvm.LLVMModuleRef {
 	return c.module
+}
+
+func (c *Compiler) Finalize() {
+	// Resolve all debug metadata nodes
+	llvm.DIBuilderFinalize(c.dibuilder)
 }
 
 func (c *Compiler) Dispose() {
@@ -169,27 +207,12 @@ func (c *Compiler) currentLocation(ctx context.Context) Location {
 	return ctx.Value(currentLocationKey{}).(Location)
 }
 
-func (c *Compiler) offset(index int) int {
-	// Calculate the offset using the word size of the target machine
-	return 0 //llvm.SizeOf(c.ptrType)
-}
-
-func (c *Compiler) CompilePackage(ctx context.Context, pkg *ssa.Package) error {
+func (c *Compiler) CompilePackage(ctx context.Context, llvmCtx llvm.LLVMContextRef, pkg *ssa.Package) error {
 	// Set the LLVM context to the compiler context
-	ctx = context.WithValue(ctx, llvmContextKey{}, llvm.GetGlobalContext())
+	ctx = context.WithValue(ctx, llvmContextKey{}, llvmCtx)
 
 	// Set the current package in the context
 	ctx = context.WithValue(ctx, currentPackageKey{}, pkg)
-
-	if c.options.GenerateDebugInfo {
-		size := llvm.StoreSizeOfType(c.options.Target.dataLayout, c.uintptrType.valueType) * 8
-
-		// Create the debug info for the pointer type
-		c.uintptrType.debugType = llvm.DIBuilderCreateBasicType(
-			c.dibuilder, "uintptr", uint64(size), DW_ATE_unsigned, 0)
-
-		c.ptrType.debugType = llvm.DIBuilderCreateBasicType(c.dibuilder, "unsafe.Pointer", size, DW_ATE_address, 0)
-	}
 
 	// Create any named types first
 	for _, member := range pkg.Members {
@@ -243,24 +266,59 @@ func (c *Compiler) CompilePackage(ctx context.Context, pkg *ssa.Package) error {
 func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) (*Function, error) {
 	var returnValueTypes []llvm.LLVMTypeRef
 	var argValueTypes []llvm.LLVMTypeRef
-	var argDiTypes []llvm.LLVMMetadataRef
 	var returnType llvm.LLVMTypeRef
 
+	isExported := false
+	isExternal := false
+
 	// Determine the function name. //go:linkname can override this
-	name := fmt.Sprint(fn.Pkg.Pkg.Path(), ".", fn.Name())
-	if linkName, ok := c.options.LinkNames[name]; ok {
+	name := types.Id(c.currentPackage(ctx).Pkg, fn.Name())
+
+	// Process any pragmas
+	if info, ok := c.options.Symbols[name]; ok {
+		if len(info.LinkName) > 0 {
+			// Override the generated name
+			name = info.LinkName
+		}
+
 		// Attempt to find the existing function with the same linkname
-		if fnValue := llvm.GetNamedFunction(c.module, linkName); fnValue != nil {
+		if fnValue := llvm.GetNamedFunction(c.module, name); fnValue != nil {
 			// Find the function struct with the matching value
 			for _, existingFn := range c.functions {
 				if existingFn.value == fnValue {
+					// Assume that this function will actually provide the implementation if it has blocks and the
+					// existing doesn't. Panic if both have blocks
+					if len(fn.Blocks) > 0 {
+						if len(existingFn.def.Blocks) == 0 {
+							// Override
+							existingFn.def = fn
+
+							// TODO: Should override debug information to reflect
+							//       this incoming function instead of the
+							//       predeclared one.
+						} else {
+							// TODO: Throw a nice compiler error instead of a panic
+							panic("another function has provided the implementation")
+						}
+					}
+
 					// Return this function directly so that they are "linked".
 					return existingFn, nil
 				}
 			}
 		}
-		// Override the generated name
-		name = linkName
+
+		isExported = info.Exported
+		isExternal = info.ExternalLinkage
+	}
+
+	// Cannot be both exported and external
+	if isExported && isExternal {
+		panic("function cannot be both external and exported")
+	}
+
+	if _, ok := c.functions[fn.Signature]; ok {
+		panic("function already compiled")
 	}
 
 	if numArgs := fn.Signature.Results().Len(); numArgs == 0 {
@@ -280,7 +338,6 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) (*Funct
 	for _, arg := range fn.Params {
 		typ := c.createType(ctx, arg.Type())
 		argValueTypes = append(argValueTypes, typ.valueType)
-		argDiTypes = append(argDiTypes, typ.debugType)
 	}
 
 	// Create the function type
@@ -289,50 +346,20 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) (*Funct
 	// Add the function to the current module
 	fnValue := llvm.AddFunction(c.module, name, fnType)
 
+	if !isExported {
+		// Set export status
+		llvm.SetVisibility(fnValue, llvm.LLVMVisibility(llvm.HiddenVisibility))
+	}
+
+	if !isExternal {
+		llvm.SetLinkage(fnValue, llvm.LLVMLinkage(llvm.ExternalLinkage))
+	}
+
 	result := Function{
 		value:    fnValue,
 		llvmType: fnType,
 		def:      fn,
-	}
-
-	// Create the file information for this function
-	if c.options.GenerateDebugInfo {
-		file := fn.Prog.Fset.File(fn.Pos())
-		filename := fn.Pkg.Pkg.Name()
-		line := uint(0)
-
-		// Some functions, like package initializers, do not have position information
-		if file != nil {
-			// Extract the file info
-			filename = file.Name()
-			line = uint(file.Line(fn.Pos()))
-		}
-
-		result.diFile = llvm.DIBuilderCreateFile(
-			c.dibuilder,
-			filepath.Base(filename),
-			filepath.Dir(filename))
-
-		// Create the debug information for this function
-		subType := llvm.DIBuilderCreateSubroutineType(
-			c.dibuilder,
-			result.diFile,
-			argDiTypes,
-			0)
-
-		subprogram := llvm.DIBuilderCreateFunction(
-			c.dibuilder,
-			nil,
-			fn.Name(),
-			fn.Name(), // This should probably be the fully qualified package naming
-			result.diFile,
-			line,
-			subType,
-			true,
-			true, 0, 0, false)
-
-		// Apply this metadata to the function
-		llvm.SetSubprogram(fnValue, subprogram)
+		name:     name,
 	}
 
 	return &result, nil
@@ -350,17 +377,49 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 	// Set the current function type in the context
 	ctx = context.WithValue(ctx, currentFnTypeKey{}, fn)
 
-	var file *token.File
-	var scope llvm.LLVMMetadataRef
+	// Get the file information for this function
+	file := fn.def.Prog.Fset.File(fn.def.Pos())
 
-	if c.options.GenerateDebugInfo {
-		// Get the file information for this function
-		file = fn.def.Prog.Fset.File(fn.def.Pos())
+	// Some functions, like package initializers, do not have position information
+	if file != nil {
+		// Extract the file info
+		filename := c.options.MapPath(file.Name())
+		line := uint(file.Line(fn.def.Pos()))
 
-		// Create the scope debug information for this function
-		scope = llvm.GetSubprogram(fn.value)
-		ctx = context.WithValue(ctx, currentScopeKey{}, scope)
+		// Create the debug information for this function
+		var argDiTypes []llvm.LLVMMetadataRef
+		for _, arg := range fn.def.Params {
+			argDiTypes = append(argDiTypes, c.createDebugType(ctx, arg.Type()))
+		}
+
+		fn.diFile = llvm.DIBuilderCreateFile(
+			c.dibuilder,
+			filepath.Base(filename),
+			filepath.Dir(filename))
+
+		subType := llvm.DIBuilderCreateSubroutineType(
+			c.dibuilder,
+			fn.diFile,
+			argDiTypes,
+			0)
+
+		fn.subprogram = llvm.DIBuilderCreateFunction(
+			c.dibuilder,
+			fn.diFile,
+			fn.name,
+			fn.name,
+			fn.diFile,
+			line,
+			subType,
+			true,
+			true, 0, llvm.LLVMDIFlags(llvm.DIFlagPrototyped), false)
+
+		// Apply this metadata to the function
+		llvm.SetSubprogram(fn.value, fn.subprogram)
 	}
+
+	//scope := llvm.GetSubprogram(fn.value)
+	ctx = context.WithValue(ctx, currentScopeKey{}, fn.diFile)
 
 	// Create all blocks first so that branches can be made during instruction
 	// creation.
@@ -390,11 +449,12 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 		ctx = context.WithValue(ctx, currentBlockKey{}, insertionBlock)
 
 		// Create each instruction in the block
-		for _, instr := range block.Instrs {
-			if c.options.GenerateDebugInfo {
-				// Get the location information for this instruction
-				locationInfo := file.Position(instr.Pos())
+		for ii, instr := range block.Instrs {
+			c.printf(Debug, "Begin instruction #%d\n", ii)
+			// Get the location information for this instruction
+			locationInfo := file.Position(instr.Pos())
 
+			if fn.subprogram != nil {
 				// Create the file debug information
 				location := Location{
 					file: fn.diFile,
@@ -402,7 +462,7 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 						c.currentContext(ctx),
 						uint(locationInfo.Line),
 						uint(locationInfo.Column),
-						scope,
+						fn.subprogram,
 						nil,
 					),
 					position: locationInfo,
@@ -410,12 +470,14 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 
 				// Set the current location in the context
 				ctx = context.WithValue(ctx, currentLocationKey{}, location)
+				llvm.SetCurrentDebugLocation2(c.builder, location.line)
 			}
 
 			// Create the instruction
 			if _, err := c.createInstruction(ctx, instr); err != nil {
 				return err
 			}
+			c.printf(Debug, "End instruction #%d\n", ii)
 		}
 
 		c.println(Debug, "Done processing block", i)
@@ -423,6 +485,11 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 
 	// Mark this function as compiled
 	fn.compiled = true
+
+	if fn.subprogram != nil {
+		// Subprograms must be finalized in order to pass verify check
+		llvm.DIBuilderFinalizeSubprogram(c.dibuilder, fn.subprogram)
+	}
 
 	return nil
 }
@@ -447,7 +514,7 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 
 		result = llvm.BuildCondBr(c.builder, condValue, b0, b1)
 	case *ssa.Jump:
-		if block, ok := c.blocks[instr.Block()]; ok {
+		if block, ok := c.blocks[instr.Block().Succs[0]]; ok {
 			result = llvm.BuildBr(c.builder, block)
 		} else {
 			panic("block not created")
@@ -491,7 +558,18 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 			result = llvm.BuildRetVoid(c.builder)
 		}
 	case *ssa.RunDefers:
-		panic("not implemented")
+		fn, ok := c.functions[instr.Parent().Signature]
+		if !ok {
+			panic("function does not exist")
+		}
+
+		// The RunDefers instruction is always at the end of a function.
+		// Therefore, we can track if a defer statement was created earlier in
+		// order to determine if there is a defer stack that needs to be
+		// processed. This primarily for when *ssa.NaiveForm is enabled.
+		if fn.hasDefer {
+			panic("not implemented")
+		}
 	case *ssa.Select:
 		panic("not implemented")
 	case *ssa.Send:
@@ -504,6 +582,13 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 			return nil, err
 		}
 
+		if addr := llvm.IsAAllocaInst(addr); addr != nil {
+			if llvm.TypeIsEqual(llvm.GetAllocatedType(addr), c.ptrType.valueType) {
+				// Load the ptr from the alloca
+				addr = llvm.BuildLoad2(c.builder, c.ptrType.valueType, addr, "")
+			}
+		}
+
 		value, err = c.createExpression(ctx, instr.Val)
 		if err != nil {
 			return nil, err
@@ -511,7 +596,7 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 
 		result = llvm.BuildStore(c.builder, value, addr)
 
-		if variable, ok := c.variables[addr]; ok && c.options.GenerateDebugInfo {
+		if variable, ok := c.variables[addr]; ok {
 			// Attach debug information
 			llvm.DIBuilderInsertDbgValueAtEnd(
 				c.dibuilder,
@@ -537,410 +622,6 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 	}
 
 	return
-}
-
-func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value llvm.LLVMValueRef, err error) {
-	c.printf(Debug, "Processing expression %T: %s\n", expr, expr.String())
-
-	// Check if this value was cached
-	if value, ok := c.values[expr]; ok {
-		// This value might be a variable. Get the value from the variable's (alloca) address
-		//if _, ok := c.variables[value]; ok {
-		//	// Ignore *ssa.Alloc since these should be pointers directly
-		//	if _, ok := expr.(*ssa.Alloc); !ok {
-		//		value = c.getVariableValue(value)
-		//		c.println(Debug, "Loading value from variable")
-		//		return value, nil
-		//	}
-		//}
-
-		// Return the cached value
-		c.println(Debug, "returning cached value")
-		return value, nil
-	}
-
-	// Evaluate the expression
-	switch expr := expr.(type) {
-	case *ssa.Alloc:
-		// Get the type of which memory will be allocated for
-		typ := c.createType(ctx, expr.Type().Underlying().(*types.Pointer).Elem())
-
-		// NOTE: Some stack allocations will be moved to the heap later if they
-		//       are too big for the stack.
-		// Get the size of the type
-		size := llvm.StoreSizeOfType(c.options.Target.dataLayout, typ.valueType)
-
-		if expr.Heap {
-			// Heap allocations will store the address of the runtime allocation in
-			// the alloca. Allocate space for this pointer on the stack.
-			//typ = c.createType(ctx, expr.Type().Underlying())
-
-			// Create the alloca to hold the address on the stack
-			value = llvm.BuildAlloca(c.builder, c.ptrType.valueType, expr.Comment)
-
-			// Create the runtime call to allocate some memory on the heap
-			addr, err := c.createRuntimeCall(ctx, "alloc", []llvm.LLVMValueRef{llvm.ConstInt(c.uintptrType.valueType, size, false)})
-			if err != nil {
-				return nil, err
-			}
-
-			// Store the address at the alloc
-			llvm.BuildStore(c.builder, addr, value)
-		} else {
-			// Create an alloca to hold the value on the stack
-			value = llvm.BuildAlloca(c.builder, typ.valueType, expr.Comment)
-
-			// Zero-initialize the stack variable
-			if size > 0 {
-				llvm.BuildStore(c.builder, llvm.ConstNull(typ.valueType), value)
-			}
-		}
-
-		// Finally create a variable to hold debug information about this alloca
-		//value = c.createVariable(ctx, expr.Name(), value, typ)
-	case *ssa.BinOp:
-		value, err = c.createBinOp(ctx, expr)
-	case *ssa.Call:
-		switch callExpr := expr.Common().Value.(type) {
-		case *ssa.Builtin:
-			value, err = c.createBuiltinCall(ctx, callExpr, expr.Call.Args)
-		case *ssa.Function:
-			value, err = c.createFunctionCall(ctx, callExpr, expr.Call.Args)
-		case *ssa.MakeClosure:
-			// a *MakeClosure, indicating an immediately applied function
-			// literal with free variables.
-			panic("not implemented")
-		default:
-			// any other value, indicating a dynamically dispatched function
-			// call.
-			panic("not implemented")
-		}
-	case *ssa.Const:
-		constType := c.createType(ctx, expr.Type())
-		if expr.Value == nil {
-			value = llvm.ConstNull(constType.valueType)
-		} else {
-			switch expr.Value.Kind() {
-			case constant.Bool:
-				if constant.BoolVal(expr.Value) {
-					value = llvm.ConstInt(constType.valueType, 1, false)
-				} else {
-					value = llvm.ConstInt(constType.valueType, 0, false)
-				}
-			case constant.String:
-				strValue := constant.StringVal(expr.Value)
-				/*
-					// Create the constant string value as a global
-					elementType := llvm.Int8TypeInContext(c.currentContext(ctx))
-					strConstGlobal := llvm.AddGlobal(c.module, llvm.ArrayType2(elementType, uint64(len(strValue))), "const_string")
-					strConstValue := llvm.ConstStringInContext(c.currentContext(ctx), strValue, uint(len(strValue)), false)
-					llvm.SetInitializer(strConstGlobal, strConstValue)
-					llvm.SetUnnamedAddr(strConstGlobal, llvm.GlobalUnnamedAddr != 0)
-
-					// Create the constant struct value representing strings
-					typ := c.createType(ctx, expr.Type())
-					value = llvm.ConstNamedStruct(typ.valueType, []llvm.LLVMValueRef{
-						llvm.ConstBitCast(strConstGlobal, c.uintptrType.valueType),
-						llvm.ConstInt(llvm.Int32Type(), uint64(len(strValue)), false),
-					})*/
-				value = c.createGlobalString(ctx, strValue)
-			case constant.Int:
-				constVal, _ := constant.Int64Val(expr.Value)
-				value = llvm.ConstInt(constType.valueType, uint64(constVal), false)
-			case constant.Float:
-				constVal, _ := constant.Float64Val(expr.Value)
-				value = llvm.ConstReal(constType.valueType, constVal)
-			case constant.Complex:
-				panic("not implemented")
-			default:
-				panic("unknown default value")
-			}
-		}
-	case *ssa.Parameter:
-		if fn, ok := c.functions[expr.Parent().Signature]; ok {
-			// Locate the parameter in the function
-			for i, param := range expr.Parent().Params {
-				if param == expr {
-					value = llvm.GetParam(fn.value, uint(i))
-				}
-			}
-		} else {
-			panic("function does not exist")
-		}
-
-		// All parameters should be allocated on the stack.
-		/*value = llvm.BuildAlloca(c.builder, typ.valueType, expr.Name())
-
-		// Finally create a variable to hold debug information about this alloca
-		//value = c.createVariable(ctx, expr.Name(), alloca, typ)*/
-	case *ssa.ChangeInterface:
-		panic("not implemented")
-	case *ssa.ChangeType:
-		panic("not implemented")
-	case *ssa.Extract:
-		// Get the return struct (tuple)
-		structValue, err := c.createExpression(ctx, expr.Tuple)
-		if err != nil {
-			return nil, err
-		}
-
-		// Get the address of the field within the return struct (tuple)
-		fieldType, addr := c.structFieldAddress(structValue, expr.Index)
-
-		// Load the value at the address
-		value = llvm.BuildLoad2(c.builder, fieldType, addr, "")
-	case *ssa.Field:
-		structValue, err := c.createExpression(ctx, expr.X)
-		if err != nil {
-			return nil, err
-		}
-
-		// Get the address of the field within the struct
-		fieldType, addr := c.structFieldAddress(structValue, expr.Field)
-
-		// Load the value at the address
-		value = llvm.BuildLoad2(c.builder, fieldType, addr, "")
-	case *ssa.FieldAddr:
-		structValue, err := c.createExpression(ctx, expr.X)
-		if err != nil {
-			return nil, err
-		}
-
-		//Return the address
-		_, value = c.structFieldAddress(structValue, expr.Field)
-	case *ssa.Global:
-		// Create a global value
-		globalType := c.createType(ctx, expr.Type())
-		value = llvm.AddGlobal(c.module, globalType.valueType, fmt.Sprintf("%s.%s", expr.Pkg.Pkg.Path(), expr.Name()))
-		// NOTE: This global receives its value later from the package's Init() function. The partial evaluator should
-		//       actually be what gives this global its final value instead.
-	case *ssa.Index:
-		arrayValue, err := c.createExpression(ctx, expr.X)
-		if err != nil {
-			return nil, err
-		}
-
-		indexValue, err := c.createExpression(ctx, expr.Index)
-		if err != nil {
-			return nil, err
-		}
-
-		elementType := llvm.GetElementType(llvm.TypeOf(arrayValue))
-
-		// Get the address of the element at the index within the array
-		addr := c.arrayElementAddress(arrayValue, elementType, indexValue)
-
-		// Load the value at the address
-		value = llvm.BuildLoad2(c.builder, elementType, addr, "")
-	case *ssa.IndexAddr:
-		arrayValue, err := c.createExpression(ctx, expr.X)
-		if err != nil {
-			return nil, err
-		}
-
-		indexValue, err := c.createExpression(ctx, expr.Index)
-		if err != nil {
-			return nil, err
-		}
-
-		// The container can be a slice or an array
-		if sliceType, ok := expr.X.Type().Underlying().(*types.Slice); ok {
-			// Get the element type of the slice
-			elementType := c.createType(ctx, sliceType.Elem())
-
-			// Get the element size of the slice
-			elementSize := llvm.StoreSizeOfType(c.options.Target.dataLayout, elementType.valueType)
-
-			// Create a runtime call to retrieve the address of the element at index I
-			value, err = c.createRuntimeCall(ctx, "sliceIndex", []llvm.LLVMValueRef{
-				arrayValue,
-				indexValue,
-				llvm.ConstInt(llvm.Int64Type(), elementSize, false),
-			})
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			var arrayType llvm.LLVMTypeRef
-			if ptrType, ok := expr.X.Type().Underlying().(*types.Pointer); ok {
-				// Get the expected array type, so we can cast the pointer
-				// value from below to this type.
-				arrayType = c.createType(ctx, ptrType.Elem()).valueType
-
-				println("ptr->ptr:", llvm.PrintTypeToString(arrayType))
-
-				// Load the base address of the array from the alloca
-				arrayValue = llvm.BuildLoad2(c.builder, c.ptrType.valueType, arrayValue, "")
-
-				// Bitcast the resulting value to a pointer of the array type
-				arrayValue = llvm.BuildBitCast(c.builder, arrayValue, llvm.PointerType(arrayType, 0), "")
-			} else {
-				arrayType = llvm.TypeOf(arrayValue)
-				println("ptr?:", llvm.PrintTypeToString(arrayType))
-			}
-
-			// Get the address of the element at the index within the array
-			value = c.arrayElementAddress(arrayValue, llvm.GetElementType(arrayType), indexValue)
-		}
-	case *ssa.Lookup:
-		panic("not implemented")
-	case *ssa.MakeChan:
-		panic("not implemented")
-	case *ssa.MakeClosure:
-		panic("not implemented")
-	case *ssa.MakeInterface:
-		value, err = c.makeInterface(ctx, expr.X)
-		if err != nil {
-			return nil, err
-		}
-	case *ssa.MakeSlice:
-		panic("not implemented")
-	case *ssa.MultiConvert:
-		panic("not implemented")
-	case *ssa.Next:
-		panic("not implemented")
-	case *ssa.Phi:
-		phiType := c.createType(ctx, expr.Type())
-
-		// Build the Phi node operator
-		value = llvm.BuildPhi(c.builder, phiType.valueType, "")
-
-		// Create a variable for this Phi node
-		//value = c.createVariable(ctx, expr.Comment, phiValue, phiType)
-
-		// Cache the PHI value now to prevent a stack overflow in the call to createValues below
-		if _, ok := c.values[expr]; ok {
-			panic("PHI node value already generated")
-		}
-		c.values[expr] = value
-
-		// Create values for each of the Phi node's edges
-		edgeValues, err := c.createValues(ctx, expr.Edges)
-		if err != nil {
-			return nil, err
-		}
-
-		// Get the blocks each edge value belongs to
-		// NOTE: Edges[i] is value for Block().Preds[i]
-		var blocks []llvm.LLVMBasicBlockRef
-		for i, _ := range expr.Edges {
-			block := c.blocks[expr.Block().Preds[i]]
-			blocks = append(blocks, block)
-		}
-
-		// Add the edges
-		llvm.AddIncoming(value, edgeValues, blocks)
-	case *ssa.Slice:
-		var array, low, high, max llvm.LLVMValueRef
-		if expr.Low != nil {
-			low, err = c.createExpression(ctx, expr.Low)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		if expr.High != nil {
-			high, err = c.createExpression(ctx, expr.High)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		if expr.Max != nil {
-			max, err = c.createExpression(ctx, expr.Max)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		array, err = c.createExpression(ctx, expr.X)
-		if err != nil {
-			return nil, err
-		}
-
-		var elementType llvm.LLVMTypeRef
-		numElements := uint64(0)
-
-		switch t := expr.X.Type().Underlying().(type) {
-		case *types.Slice:
-			elementType = c.createType(ctx, t.Elem()).valueType
-		case *types.Basic:
-			elementType = llvm.Int8Type()
-		case *types.Pointer:
-			if tt, ok := t.Elem().Underlying().(*types.Array); ok {
-				elementType = c.createType(ctx, tt.Elem()).valueType
-				numElements = uint64(tt.Len())
-			} else {
-				panic("invalid pointer type")
-			}
-		}
-
-		value = c.createSlice(ctx, array, elementType, numElements, low, high, max)
-	case *ssa.SliceToArrayPointer:
-		panic("not implemented")
-	case *ssa.TypeAssert:
-		x, err := c.createExpression(ctx, expr.X)
-		if err != nil {
-			return nil, err
-		}
-
-		newType := c.createType(ctx, expr.AssertedType)
-
-		// The value needs to be passed by address. Create an alloca for it and store the value
-		xAlloca := llvm.BuildAlloca(c.builder, llvm.TypeOf(x), "")
-		llvm.BuildStore(c.builder, x, xAlloca)
-
-		// create the runtime call
-		result, err := c.createRuntimeCall(ctx, "typeAssert", []llvm.LLVMValueRef{
-			xAlloca,
-			c.createTypeDescriptor(ctx, c.createType(ctx, expr.X.Type())),
-			c.createTypeDescriptor(ctx, newType),
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		// Extract values from return
-		// Create a pointer to the struct
-		alloca := llvm.BuildAlloca(c.builder, llvm.TypeOf(result), "")
-		llvm.BuildStore(c.builder, result, alloca)
-		_, newObj := c.structFieldAddress(alloca, 0)
-		_, isOk := c.structFieldAddress(alloca, 1)
-
-		// TODO: There definitely more involved than this. Gonna try to
-		//       implement the semantics in Go code rather than hardcode it
-		//       here. I should be able to load the resulting object from
-		//       the address obtained from the runtime call.
-		obj := llvm.BuildLoad2(c.builder, newType.valueType, newObj, "")
-
-		if expr.CommaOk {
-			// Return the obj and the status
-			value = llvm.ConstStruct([]llvm.LLVMValueRef{
-				llvm.GetUndef(newType.valueType),
-				llvm.GetUndef(llvm.Int1Type()),
-			}, false)
-			value = llvm.BuildInsertValue(c.builder, value, obj, uint(0), "")
-			value = llvm.BuildInsertValue(c.builder, value, isOk, uint(1), "")
-		} else {
-
-			value = obj
-		}
-	case *ssa.UnOp:
-		value, err = c.createUpOp(ctx, expr)
-	}
-
-	if value == nil {
-		panic("nil value")
-	}
-
-	// Cache the value
-	// NOTE: PHIs need to cache their value earlier to prevent a stack overflow
-	if _, ok := expr.(*ssa.Phi); !ok {
-		c.values[expr] = value
-	}
-
-	return value, nil
-	//return c.getVariableValue(value), nil
 }
 
 func (c *Compiler) createFunctionCall(ctx context.Context, callee *ssa.Function, args []ssa.Value) (llvm.LLVMValueRef, error) {
@@ -987,6 +668,7 @@ func (c *Compiler) createRuntimeCall(ctx context.Context, name string, args []ll
 	for i, t := range llvm.GetParamTypes(fnType) {
 		argType := llvm.TypeOf(args[i])
 		if !llvm.TypeIsEqual(argType, t) {
+			println(llvm.PrintTypeToString(argType))
 			panic("argument type does not match")
 		}
 	}
@@ -1010,7 +692,9 @@ func (c *Compiler) createValues(ctx context.Context, input []ssa.Value) ([]llvm.
 	return output, nil
 }
 
-func (c *Compiler) createVariable(ctx context.Context, name string, value llvm.LLVMValueRef, valueType Type) llvm.LLVMValueRef {
+func (c *Compiler) createVariable(ctx context.Context, name string, value llvm.LLVMValueRef, valueType types.Type) llvm.LLVMValueRef {
+	c.printf(Debug, "Creating variable for %s (%s)\n", name, valueType.String())
+	defer c.printf(Debug, "Done creating variable for %s (%s)\n", name, valueType.String())
 	// Check the value type. All variables should have an alloca associated with it. If the type is not an alloca then
 	// create one in the entry block and store the value into it.
 	var alloca llvm.LLVMValueRef
@@ -1026,25 +710,29 @@ func (c *Compiler) createVariable(ctx context.Context, name string, value llvm.L
 		value: alloca,
 	}
 
-	if c.options.GenerateDebugInfo {
-		// Create the debug information about the variable
-		variable.dbg = llvm.DIBuilderCreateAutoVariable(c.dibuilder,
-			c.currentScope(ctx),
-			name,
-			c.currentLocation(ctx).file,
-			uint(c.currentLocation(ctx).position.Line),
-			valueType.debugType,
-			true, 0, 0)
+	fn := c.currentFunction(ctx)
+	dbgType := c.createDebugType(ctx, valueType)
 
-		// Add debug info about the declaration
-		llvm.DIBuilderInsertDeclareAtEnd(
-			c.dibuilder,
-			variable.value,
-			variable.dbg,
-			llvm.DIBuilderCreateExpression(c.dibuilder, nil),
-			c.currentLocation(ctx).line,
-			c.currentBlock(ctx))
-	}
+	// Create the debug information about the variable
+	variable.dbg = llvm.DIBuilderCreateAutoVariable(
+		c.dibuilder,
+		fn.subprogram,
+		name,
+		fn.diFile,
+		uint(c.currentLocation(ctx).position.Line),
+		dbgType,
+		true,
+		0,
+		0)
+
+	// Add debug info about the declaration
+	llvm.DIBuilderInsertDeclareAtEnd(
+		c.dibuilder,
+		variable.value,
+		variable.dbg,
+		llvm.DIBuilderCreateExpression(c.dibuilder, nil),
+		c.currentLocation(ctx).line,
+		c.currentBlock(ctx))
 
 	// Store the variable
 	c.variables[alloca] = &variable
@@ -1053,7 +741,7 @@ func (c *Compiler) createVariable(ctx context.Context, name string, value llvm.L
 	return alloca
 }
 
-func (c *Compiler) structFieldAddress(value llvm.LLVMValueRef, index int) (llvm.LLVMTypeRef, llvm.LLVMValueRef) {
+func (c *Compiler) structFieldAddress(value llvm.LLVMValueRef, structType llvm.LLVMTypeRef, index int) (llvm.LLVMTypeRef, llvm.LLVMValueRef) {
 	// The value must be a pointer to a struct
 	valueType := llvm.TypeOf(value)
 	kind := llvm.GetTypeKind(valueType)
@@ -1062,20 +750,22 @@ func (c *Compiler) structFieldAddress(value llvm.LLVMValueRef, index int) (llvm.
 			// Get the allocated type
 			valueType = llvm.GetAllocatedType(value)
 			kind = llvm.GetTypeKind(valueType)
-			if kind != llvm.StructTypeKind {
-				panic("attempting to extract field value from non pointer-to-struct value")
+			if kind == llvm.PointerTypeKind {
+				// This probably was a ptr->ptr. Load the value
+				value = llvm.BuildLoad2(c.builder, c.ptrType.valueType, value, "")
+				kind = llvm.GetTypeKind(llvm.TypeOf(value))
 			}
 		}
 	}
 
 	// Get the type of the field
-	fieldType := llvm.StructGetTypeAtIndex(valueType, uint(index))
+	fieldType := llvm.StructGetTypeAtIndex(structType, uint(index))
 
 	// Create a GEP to get the  address of the field in the struct
-	return fieldType, llvm.BuildStructGEP2(c.builder, valueType, value, uint(index), "")
+	return fieldType, llvm.BuildStructGEP2(c.builder, structType, value, uint(index), "")
 }
 
-func (c *Compiler) arrayElementAddress(value llvm.LLVMValueRef, elementType llvm.LLVMTypeRef, index llvm.LLVMValueRef) llvm.LLVMValueRef {
+func (c *Compiler) arrayElementAddress(ctx context.Context, value llvm.LLVMValueRef, elementType llvm.LLVMTypeRef, index llvm.LLVMValueRef) llvm.LLVMValueRef {
 	// Must be a pointer to an array
 	//valueType := llvm.TypeOf(value)
 	//kind := llvm.GetTypeKind(valueType)
@@ -1088,12 +778,10 @@ func (c *Compiler) arrayElementAddress(value llvm.LLVMValueRef, elementType llvm
 	// is the array so 0 is passed first and then the index of the inner
 	// element next.
 	indices := []llvm.LLVMValueRef{
-		//llvm.ConstInt(llvm.Int32Type(), 0, false),
 		index,
 	}
 
 	// Get the address of the value at the index in the array
-	println(llvm.PrintTypeToString(elementType))
 	return llvm.BuildGEP2(c.builder, elementType, value, indices, "")
 }
 

@@ -1,0 +1,32 @@
+@startuml
+title "Compiler Roadmap Overview"
+left to right direction
+
+package Types {
+    component "Numeric Types"
+    component "Bool"
+    component "String"
+    component "Slice"
+    component "Interface"
+    component "Function"
+    component "Map"
+    component "Channel"
+    component "Struct"
+    component "Array"
+    component "Pointer"
+}
+
+"Array" --> "Slice"
+
+"Numeric Types" --> "Interface"
+"Bool" --> "Interface"
+"String" --> "Interface"
+"Slice" --> "Interface"
+"Function" --> "Interface"
+"Map" --> "Interface"
+"Channel" --> "Interface"
+"Struct" --> "Interface"
+"Pointer" --> "Interface"
+
+
+@enduml

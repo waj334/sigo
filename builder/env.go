@@ -27,8 +27,15 @@ func Environment() Env {
 
 	// Return the environment
 	return map[string]string{
-		"SIGOROOT": getenv("SIGOROOT", defaultRoot),
-		"SIGOPATH": getenv("SIGOPATH", getenv("GOPATH", cwd)),
+		"SIGOROOT":  getenv("SIGOROOT", defaultRoot),
+		"SIGOPATH":  getenv("SIGOPATH", getenv("GOPATH", cwd)),
+		"SIGOCACHE": getenv("SIGOCACHE", getenv("GOCACHE", "C:\\Users\\waj33\\AppData\\Local\\go-build")),
+
+		"GOROOT":   getenv("GOROOT", defaultRoot),
+		"GOPATH":   getenv("SIGOPATH", getenv("GOPATH", cwd)),
+		"GOCACHE":  getenv("SIGOCACHE", getenv("GOCACHE", "C:\\Users\\waj33\\AppData\\Local\\go-build")),
+		"GOTMPDIR": getenv("SIGOTMPDIR", filepath.Join(os.TempDir(), "/sigo")),
+		//"PATH":     os.Getenv("PATH"),
 	}
 }
 
@@ -43,6 +50,14 @@ func (e Env) Value(key string) string {
 		return v
 	}
 	return ""
+}
+
+func (e Env) List() []string {
+	var result []string
+	for key, value := range e {
+		result = append(result, fmt.Sprintf("%s=%s", key, value))
+	}
+	return result
 }
 
 func getenv(key, _default string) (value string) {

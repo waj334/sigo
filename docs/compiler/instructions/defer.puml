@@ -1,0 +1,26 @@
+@startuml
+title "Slice Expression"
+left to right direction
+
+map defer0 {
+    fn => func fn0
+    args => (1,2,3)
+    next => nil
+}
+
+map defer1 {
+    fn => func fn0
+    args => (1,2,3)
+    next => defer0
+}
+
+map defer2 {
+    fn => func fn0
+    args => (1,2,3)
+    next => defer1
+}
+
+defer1::next --> defer0
+defer2::next --> defer1
+
+@enduml

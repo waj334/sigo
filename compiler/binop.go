@@ -20,6 +20,10 @@ func (c *Compiler) createBinOp(ctx context.Context, expr *ssa.BinOp) (value llvm
 		return nil, err
 	}
 
+	if !llvm.TypeIsEqual(llvm.TypeOf(x), llvm.TypeOf(y)) {
+		panic("operand types do not match")
+	}
+
 	var typeInfo types.BasicInfo
 	if basic, ok := expr.X.Type().(*types.Basic); ok {
 		typeInfo = basic.Info()
@@ -33,17 +37,11 @@ func (c *Compiler) createBinOp(ctx context.Context, expr *ssa.BinOp) (value llvm
 			value = llvm.BuildAdd(c.builder, x, y, "")
 		}
 	case token.SUB:
-		// TODO: The SSA might already emit a float-negation operation to
-		// do the equivalent of the commented code below:
-		/*
-			if typeInfo&types.IsFloat != 0 {
-				negY := llvm.BuildFNeg(c.builder, y, "")
-				value = llvm.BuildFAdd(c.builder, x, negY, "")
-			} else {
-				value = llvm.BuildSub(c.builder, x, y, "")
-			}
-		*/
-		value = llvm.BuildSub(c.builder, x, y, "")
+		if typeInfo&types.IsFloat != 0 {
+			value = llvm.BuildFSub(c.builder, x, y, "")
+		} else {
+			value = llvm.BuildSub(c.builder, x, y, "")
+		}
 	case token.MUL:
 		if typeInfo&types.IsFloat != 0 {
 			value = llvm.BuildFMul(c.builder, x, y, "")
@@ -90,13 +88,42 @@ func (c *Compiler) createBinOp(ctx context.Context, expr *ssa.BinOp) (value llvm
 		negY := llvm.BuildNeg(c.builder, y, "and_not_neg_y")
 		value = llvm.BuildAnd(c.builder, x, negY, "")
 	case token.EQL:
-		if typeInfo&types.IsFloat != 0 {
+		if types.IsInterface(expr.X.Type()) || types.IsInterface(expr.Y.Type()) {
+			if types.IsInterface(expr.X.Type()) && types.IsInterface(expr.X.Type()) {
+				// runtime call for interface equality
+				value, err = c.createRuntimeCall(ctx, "interfaceCompare", []llvm.LLVMValueRef{c.addressOf(x), c.addressOf(y)})
+				if err != nil {
+					return nil, err
+				}
+			} else {
+				// Comparing an interface against anything a non-interface. EQL = false in this scenario
+				value = llvm.ConstInt(llvm.Int1TypeInContext(c.currentContext(ctx)), 0, false)
+			}
+		} else if typeInfo&types.IsString != 0 {
+			value, err = c.createRuntimeCall(ctx, "stringCompare", []llvm.LLVMValueRef{c.addressOf(x), c.addressOf(y)})
+			if err != nil {
+				return nil, err
+			}
+		} else if typeInfo&types.IsFloat != 0 {
 			value = llvm.BuildFCmp(c.builder, llvm.LLVMRealOEQ, x, y, "")
 		} else {
 			value = llvm.BuildICmp(c.builder, llvm.LLVMIntEQ, x, y, "")
 		}
 	case token.NEQ:
-		if typeInfo&types.IsFloat != 0 {
+		if types.IsInterface(expr.X.Type()) || types.IsInterface(expr.Y.Type()) {
+			if types.IsInterface(expr.X.Type()) && types.IsInterface(expr.X.Type()) {
+				// runtime call for interface equality
+				value, err = c.createRuntimeCall(ctx, "interfaceCompare", []llvm.LLVMValueRef{c.addressOf(x), c.addressOf(y)})
+				if err != nil {
+					return nil, err
+				}
+				// Invert the result
+				value = llvm.BuildNot(c.builder, value, "")
+			} else {
+				// Comparing an interface against anything a non-interface. NEQ = true in this scenario
+				value = llvm.ConstInt(llvm.Int1TypeInContext(c.currentContext(ctx)), 1, false)
+			}
+		} else if typeInfo&types.IsFloat != 0 {
 			value = llvm.BuildFCmp(c.builder, llvm.LLVMRealONE, x, y, "")
 		} else {
 			value = llvm.BuildICmp(c.builder, llvm.LLVMIntNE, x, y, "")

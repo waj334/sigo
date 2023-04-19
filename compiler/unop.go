@@ -15,7 +15,7 @@ func (c *Compiler) createUpOp(ctx context.Context, expr *ssa.UnOp) (value llvm.L
 	}
 
 	// Get the type of X
-	xType := llvm.TypeOf(x)
+	xType := c.createType(ctx, expr.Type())
 
 	// Create the respective LLVM operator
 	switch expr.Op {
@@ -24,7 +24,7 @@ func (c *Compiler) createUpOp(ctx context.Context, expr *ssa.UnOp) (value llvm.L
 		panic("Not implemented")
 	case token.MUL:
 		// Pointer indirection. Create a load operator.
-		value = llvm.BuildLoad2(c.builder, xType, x, "")
+		value = llvm.BuildLoad2(c.builder, xType.valueType, x, "")
 	case token.NOT:
 		// Logical negation
 		value = llvm.BuildNot(c.builder, x, "")
@@ -33,7 +33,7 @@ func (c *Compiler) createUpOp(ctx context.Context, expr *ssa.UnOp) (value llvm.L
 		value = llvm.BuildNeg(c.builder, x, "")
 	case token.XOR:
 		// Bitwise complement
-		value = llvm.BuildXor(c.builder, x, llvm.ConstAllOnes(xType), "")
+		value = llvm.BuildXor(c.builder, x, llvm.ConstAllOnes(xType.valueType), "")
 	}
 	return
 }

@@ -1,12 +1,15 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"flag"
 	"fmt"
 	"omibyte.io/sigo/builder"
+	"omibyte.io/sigo/compiler"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var (
@@ -75,6 +78,9 @@ func build(args []string) {
 
 	// Add build args
 	output := flags.String("o", ".", "output file")
+	verbose := flags.String("verbose", "", "verbosity level")
+	debug := flags.Bool("g", false, "generate debug information")
+	dumpOnVerError := flags.Bool("dumpVerify", false, "dump IR upon verification error")
 	//procs := flags.Int("p", runtime.NumCPU(), "number of concurrent builds")
 
 	// TODO: Implement dependency files for smarter make builds
@@ -92,24 +98,48 @@ func build(args []string) {
 		panic(err)
 	}
 
-	var packages []string
+	builderOptions := builder.Options{
+		Output:            *output,
+		DumpOnVerifyError: *dumpOnVerError,
+		Environment:       builder.Environment(),
+		CompilerVerbosity: compiler.Debug,
+		GenerateDebugInfo: *debug,
+	}
+
 	if len(flags.Args()) == 0 {
 		// Build the current directory by default
-		packages = append(packages, cwd)
+		builderOptions.Packages = append(builderOptions.Packages, cwd)
 	} else {
 		// Convert the paths to relative paths
 		for _, arg := range flags.Args() {
 			if filepath.IsAbs(arg) {
 				path, _ := filepath.Rel(cwd, arg)
-				packages = append(packages, path)
+				builderOptions.Packages = append(builderOptions.Packages, path)
 			} else {
-				packages = append(packages, arg)
+				builderOptions.Packages = append(builderOptions.Packages, arg)
 			}
 		}
 	}
 
+	// Determine output verbosity
+	switch strings.ToLower(*verbose) {
+	case "", "verbose":
+		builderOptions.CompilerVerbosity = compiler.Verbose
+	case "quiet":
+		builderOptions.CompilerVerbosity = compiler.Quiet
+	case "info":
+		builderOptions.CompilerVerbosity = compiler.Info
+	case "warning":
+		builderOptions.CompilerVerbosity = compiler.Warning
+	case "debug":
+		builderOptions.CompilerVerbosity = compiler.Debug
+	default:
+		println("Unknown output verbosity mode. Defaulting to \"quiet\"")
+		builderOptions.CompilerVerbosity = compiler.Quiet
+	}
+
 	// Begin building the packages
-	if err := builder.BuildPackages(packages, *output); err != nil {
+	if err = builder.BuildPackages(context.Background(), builderOptions); err != nil {
 		if errors.Is(err, builder.ErrParserError) {
 			fmt.Println("Build error:", err)
 		} else {

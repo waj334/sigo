@@ -3,6 +3,7 @@ package testutil
 import (
 	"fmt"
 	"go/ast"
+	"go/importer"
 	"go/parser"
 	"go/token"
 	"go/types"
@@ -87,4 +88,46 @@ func Filter[T ssa.Instruction](prog *ssa.Program, fn string) []T {
 	}
 
 	return out
+}
+
+func ProgramString(str string) *ssa.Package {
+	// Wrap the statement in a function
+	src := fmt.Sprintf("package main\n\n%s", str)
+
+	// Parse the source code
+	fset := token.NewFileSet()
+	f, _ := parser.ParseFile(fset, "main.go", src, parser.AllErrors)
+	//if err != nil {
+	//	return nil, err
+	//}
+
+	info := types.Info{
+		Types:      map[ast.Expr]types.TypeAndValue{},
+		Instances:  map[*ast.Ident]types.Instance{},
+		Defs:       map[*ast.Ident]types.Object{},
+		Uses:       map[*ast.Ident]types.Object{},
+		Implicits:  map[ast.Node]types.Object{},
+		Selections: map[*ast.SelectorExpr]*types.Selection{},
+		Scopes:     map[ast.Node]*types.Scope{},
+		InitOrder:  []*types.Initializer{},
+	}
+
+	// Type check the parsed code
+	conf := types.Config{Importer: importer.Default()}
+	pkg := types.NewPackage("main", "")
+	conf.Check("main", fset, []*ast.File{f}, &info)
+	//if err != nil {
+	//	return nil, err
+	//}
+
+	// Create the SSA program and package
+
+	mode := ssa.SanityCheckFunctions | ssa.BareInits | ssa.GlobalDebug | ssa.InstantiateGenerics | ssa.NaiveForm
+	prog := ssa.NewProgram(fset, mode)
+	ssaPkg := prog.CreatePackage(pkg, []*ast.File{f}, &info, false)
+
+	// Build the SSA package
+	ssaPkg.Build()
+
+	return ssaPkg
 }

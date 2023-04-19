@@ -1,4 +1,4 @@
-package _go
+package runtime
 
 import "unsafe"
 
@@ -10,7 +10,7 @@ func mapMake() unsafe.Pointer {
 	return nil
 }
 
-//go:linkname runtime.mapLen
+//go:export runtime.mapLen
 func mapLen(m unsafe.Pointer) int {
 	return 0
 }
