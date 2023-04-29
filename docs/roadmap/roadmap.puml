@@ -1,0 +1,16 @@
+@startuml
+title "Roadmap Overview"
+left to right direction
+
+component "Build Infrastructure"
+component "LLVM Bindings"
+component "Clang Bindings"
+component "Compiler"
+component "Custom SSA"
+
+"Custom SSA" .> "Build Infrastructure"
+"Build Infrastructure" --> "Compiler"
+"LLVM Bindings" --> "Compiler"
+"Clang Bindings" ..> "Compiler"
+
+@enduml

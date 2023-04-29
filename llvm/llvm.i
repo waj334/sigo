@@ -50,6 +50,7 @@
 %ignore LLVMIntPredicate;
 %ignore LLVMRealPredicate;
 
+/*
 // Typemaps for Go bool
 %typemap(in) bool {
   $input = $1 ? 1 : 0;
@@ -57,6 +58,7 @@
 %typemap(out) bool {
   $result = $1 != 0;
 }
+*/
 
 // Apply bool typemaps to LLVMBool
 %apply bool { LLVMBool };
@@ -87,7 +89,18 @@
                     (const char *Filename, size_t FilenameLen),
                     (const char *Directory, size_t DirectoryLen),
                     (const char *UniqueId, size_t UniqueIdLen),
-                    (const char *LinkageName, size_t LinkageNameLen)
+                    (const char *LinkageName, size_t LinkageNameLen),
+                    (const char *Flags, size_t FlagsLen),
+                    (const char *Producer, size_t ProducerLen),
+                    (const char *SplitName, size_t SplitNameLen),
+                    (const char *SysRoot, size_t SysRootLen),
+                    (const char *SDK, size_t SDKLen),
+                    (const char *Str, unsigned Length),
+                    (const char *UniqueIdentifier, size_t UniqueIdentifierLen),
+                    (const char *Str, unsigned SLen),
+                    (const char *Str, size_t SLen),
+                    (const char *Name, unsigned SLen)
+
 {
     $1 = $input;
     $2 = strlen($input);
@@ -97,7 +110,17 @@
                     (const char *Filename, size_t FilenameLen),
                     (const char *Directory, size_t DirectoryLen),
                     (const char *UniqueId, size_t UniqueIdLen),
-                    (const char *LinkageName, size_t LinkageNameLen)
+                    (const char *LinkageName, size_t LinkageNameLen),
+                    (const char *Flags, size_t FlagsLen),
+                    (const char *Producer, size_t ProducerLen),
+                    (const char *SplitName, size_t SplitNameLen),
+                    (const char *SysRoot, size_t SysRootLen),
+                    (const char *SDK, size_t SDKLen),
+                    (const char *Str, unsigned Length),
+                    (const char *UniqueIdentifier, size_t UniqueIdentifierLen),
+                    (const char *Str, unsigned SLen),
+                    (const char *Str, size_t SLen),
+                    (const char *Name, unsigned SLen)
 {
     $result = $1;
 }
@@ -106,7 +129,17 @@
                     (const char *Filename, size_t FilenameLen),
                     (const char *Directory, size_t DirectoryLen),
                     (const char *UniqueId, size_t UniqueIdLen),
-                    (const char *LinkageName, size_t LinkageNameLen)
+                    (const char *LinkageName, size_t LinkageNameLen),
+                    (const char *Flags, size_t FlagsLen),
+                    (const char *Producer, size_t ProducerLen),
+                    (const char *SplitName, size_t SplitNameLen),
+                    (const char *SysRoot, size_t SysRootLen),
+                    (const char *SDK, size_t SDKLen),
+                    (const char *Str, unsigned Length),
+                    (const char *UniqueIdentifier, size_t UniqueIdentifierLen),
+                    (const char *Str, unsigned SLen),
+                    (const char *Str, size_t SLen),
+                    (const char *Name, unsigned SLen)
 {
     free($input);
 }
@@ -115,19 +148,51 @@
                     (const char *Filename, size_t FilenameLen),
                     (const char *Directory, size_t DirectoryLen),
                     (const char *UniqueId, size_t UniqueIdLen),
-                    (const char *LinkageName, size_t LinkageNameLen)"*C.char"
+                    (const char *LinkageName, size_t LinkageNameLen),
+                    (const char *Flags, size_t FlagsLen),
+                    (const char *Producer, size_t ProducerLen),
+                    (const char *SplitName, size_t SplitNameLen),
+                    (const char *SysRoot, size_t SysRootLen),
+                    (const char *SDK, size_t SDKLen),
+                    (const char *Str, unsigned Length),
+                    (const char *UniqueIdentifier, size_t UniqueIdentifierLen),
+                    (const char *Str, unsigned SLen),
+                    (const char *Str, size_t SLen),
+                    (const char *Name, unsigned SLen)
+                    "*C.char";
 
 %typemap(gotype)    (const char *Name, size_t NameLen),
                     (const char *Filename, size_t FilenameLen),
                     (const char *Directory, size_t DirectoryLen),
                     (const char *UniqueId, size_t UniqueIdLen),
-                    (const char *LinkageName, size_t LinkageNameLen) "string"
+                    (const char *LinkageName, size_t LinkageNameLen),
+                    (const char *Flags, size_t FlagsLen),
+                    (const char *Producer, size_t ProducerLen)
+                    (const char *SplitName, size_t SplitNameLen),
+                    (const char *SysRoot, size_t SysRootLen),
+                    (const char *SDK, size_t SDKLen),
+                    (const char *Str, unsigned Length),
+                    (const char *UniqueIdentifier, size_t UniqueIdentifierLen),
+                    (const char *Str, unsigned SLen),
+                    (const char *Str, size_t SLen),
+                    (const char *Name, unsigned SLen)
+                    "string";
 
 %typemap(goin)      (const char *Name, size_t NameLen),
                     (const char *Filename, size_t FilenameLen),
                     (const char *Directory, size_t DirectoryLen),
                     (const char *UniqueId, size_t UniqueIdLen),
-                    (const char *LinkageName, size_t LinkageNameLen)
+                    (const char *LinkageName, size_t LinkageNameLen),
+                    (const char *Flags, size_t FlagsLen),
+                    (const char *Producer, size_t ProducerLen),
+                    (const char *SplitName, size_t SplitNameLen),
+                    (const char *SysRoot, size_t SysRootLen),
+                    (const char *SDK, size_t SDKLen),
+                    (const char *Str, unsigned Length),
+                    (const char *UniqueIdentifier, size_t UniqueIdentifierLen),
+                    (const char *Str, unsigned SLen),
+                    (const char *Str, size_t SLen),
+                    (const char *Name, unsigned SLen)
 {
     $result = C.CString($1)
 }
@@ -136,7 +201,17 @@
                     (const char *Filename, size_t FilenameLen),
                     (const char *Directory, size_t DirectoryLen),
                     (const char *UniqueId, size_t UniqueIdLen),
-                    (const char *LinkageName, size_t LinkageNameLen)
+                    (const char *LinkageName, size_t LinkageNameLen),
+                    (const char *Flags, size_t FlagsLen),
+                    (const char *Producer, size_t ProducerLen),
+                    (const char *SplitName, size_t SplitNameLen),
+                    (const char *SysRoot, size_t SysRootLen),
+                    (const char *SDK, size_t SDKLen),
+                    (const char *Str, unsigned Length),
+                    (const char *UniqueIdentifier, size_t UniqueIdentifierLen),
+                    (const char *Str, unsigned SLen),
+                    (const char *Str, size_t SLen),
+                    (const char *Name, unsigned SLen)
 {
     $result = C.GoString($1)
 }
@@ -218,14 +293,18 @@
 %typemap(gotype) (LLVMMetadataRef *ParameterTypes, unsigned NumParameterTypes),
                  (LLVMMetadataRef *Elements, unsigned NumElements),
                  (LLVMMetadataRef *Data, unsigned NumElements),
-                 (LLVMMetadataRef *Subscripts, unsigned NumSubscripts)
+                 (LLVMMetadataRef *Subscripts, unsigned NumSubscripts),
+                 (LLVMMetadataRef *Data, size_t NumElements),
+                 (LLVMMetadataRef *MDs, size_t Count)
                  "[]LLVMMetadataRef";
 
 %typemap(imtype) (LLVMMetadataRef *ParameterTypes, unsigned NumParameterTypes),
                  (LLVMMetadataRef *Elements, unsigned NumElements),
                  (LLVMMetadataRef *Data, unsigned NumElements),
-                 (LLVMMetadataRef *Subscripts, unsigned NumSubscripts)
-                 "[]C.LLVMMetadataRef"
+                 (LLVMMetadataRef *Subscripts, unsigned NumSubscripts),
+                 (LLVMMetadataRef *Data, size_t NumElements),
+                 (LLVMMetadataRef *MDs, size_t Count)
+                 "[]C.LLVMMetadataRef";
 
 %typemap(goin)  (LLVMTypeRef *ParamTypes, unsigned ParamCount),
                 (LLVMTypeRef *ElementTypes, unsigned ElementCount),
@@ -244,7 +323,9 @@
                 (LLVMMetadataRef *ParameterTypes, unsigned NumParameterTypes),
                 (LLVMMetadataRef *Elements, unsigned NumElements),
                 (LLVMMetadataRef *Data, unsigned NumElements),
-                (LLVMMetadataRef *Subscripts, unsigned NumSubscripts)
+                (LLVMMetadataRef *Subscripts, unsigned NumSubscripts),
+                (LLVMMetadataRef *Data, size_t NumElements),
+                (LLVMMetadataRef *MDs, size_t Count)
 {
    $result = make([]C.$*1_type, 0, len($input))
    for _, val := range $input {
@@ -273,7 +354,9 @@
                 (LLVMMetadataRef *ParameterTypes, unsigned NumParameterTypes),
                 (LLVMMetadataRef *Elements, unsigned NumElements),
                 (LLVMMetadataRef *Data, unsigned NumElements),
-                (LLVMMetadataRef *Subscripts, unsigned NumSubscripts)
+                (LLVMMetadataRef *Subscripts, unsigned NumSubscripts),
+                (LLVMMetadataRef *Data, size_t NumElements),
+                (LLVMMetadataRef *MDs, size_t Count)
 {
     $1 = ($*1_type*)$input.array;
     $2 = ($2_type)$input.len;
@@ -466,8 +549,6 @@ typedef struct LLVMOpaqueTargetLibraryInfotData *LLVMTargetLibraryInfoRef;
 %}
 
 %rename("%(strip:[LLVM])s") "";
-
-%include argnames.i
 
 %include "llvm-c/ExternC.h"
 //%include "llvm-c/Types.h" // Excluded to correct the resulting type names

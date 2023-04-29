@@ -1,4 +1,8 @@
 [submodule "thirdparty/llvm-project"]
 	path = thirdparty/llvm-project
 	url = https://github.com/llvm/llvm-project.git
-	branch = 08d094a0e457360ad8b94b017d2dc277e697ca76
+	branch = cd89023f797900e4492da58b7bed36f702120011
+[submodule "thirdparty/picolibc"]
+	path = thirdparty/picolibc
+	url = https://github.com/picolibc/picolibc.git
+	branch = 93b5d5f2ad44867b60267417cd6d6250dbf68983

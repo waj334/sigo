@@ -36,12 +36,12 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 		case *types.Basic:
 			switch t.Kind() {
 			case types.String:
-				value, err = c.createRuntimeCall(ctx, "stringLen", argValues)
+				value, err = c.createRuntimeCall(ctx, "stringLen", []llvm.LLVMValueRef{c.addressOf(argValues[0])})
 			default:
 				panic("len called with value of invalid kind")
 			}
 		case *types.Slice:
-			value, err = c.createRuntimeCall(ctx, "sliceLen", argValues)
+			value, err = c.createRuntimeCall(ctx, "sliceLen", []llvm.LLVMValueRef{c.addressOf(argValues[0])})
 		default:
 			panic("len called with value of non-basic type as argument")
 		}
@@ -53,9 +53,9 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 		panic("not implemented")
 	case "print", "println":
 		// Create an array of interfaces to pass to the print runtime calls
-		argType, ok := c.findRuntimeType(ctx, "runtime/internal/go.interfaceDescriptor")
-		if !ok {
-			panic("runtime is missing \"interfaceDescriptor\" type")
+		argType := llvm.GetTypeByName2(c.currentContext(ctx), "interface")
+		if argType == nil {
+			panic("missing \"interface\" type")
 		}
 
 		// Convert each argument into an interface
@@ -68,17 +68,17 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 			elements = append(elements, argValue)
 		}
 
-		arg := llvm.BuildArrayAlloca(c.builder, argType.valueType, llvm.ConstInt(llvm.Int32Type(), uint64(len(elements)), false), "")
+		arg := llvm.BuildArrayAlloca(c.builder, argType, llvm.ConstInt(llvm.Int32TypeInContext(c.currentContext(ctx)), uint64(len(elements)), false), "")
 		for i, _ := range args {
-			index := llvm.ConstInt(llvm.Int32Type(), uint64(i), false)
-			addr := llvm.BuildGEP2(c.builder, argType.valueType, arg, []llvm.LLVMValueRef{index}, "")
+			index := llvm.ConstInt(llvm.Int32TypeInContext(c.currentContext(ctx)), uint64(i), false)
+			addr := llvm.BuildGEP2(c.builder, argType, arg, []llvm.LLVMValueRef{index}, "")
 			llvm.BuildStore(c.builder, elements[i], addr)
 		}
 
 		// Slice the array
-		arg = c.createSlice(ctx, arg, argType.valueType, uint64(len(args)),
-			llvm.ConstInt(llvm.Int32Type(), 0, false),
-			llvm.ConstInt(llvm.Int32Type(), uint64(len(elements)), false),
+		arg = c.createSlice(ctx, arg, argType, uint64(len(args)),
+			llvm.ConstInt(llvm.Int32TypeInContext(c.currentContext(ctx)), 0, false),
+			llvm.ConstInt(llvm.Int32TypeInContext(c.currentContext(ctx)), uint64(len(elements)), false),
 			nil,
 		)
 
@@ -90,7 +90,7 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 		panic("not implemented")
 	case "Add":
 		// Add to pointer values
-		value = llvm.BuildGEP2(c.builder, c.ptrType.valueType, argValues[0], []llvm.LLVMValueRef{argValues[1]}, "")
+		value = llvm.BuildGEP2(c.builder, llvm.Int8TypeInContext(c.currentContext(ctx)), argValues[0], []llvm.LLVMValueRef{argValues[1]}, "")
 	default:
 		panic("encountered unknown builtin function")
 	}

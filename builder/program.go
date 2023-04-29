@@ -1,15 +1,15 @@
 package builder
 
 import (
-	"fmt"
+	"context"
+	"errors"
 	"go/ast"
-	"go/build"
-	"go/parser"
 	"go/token"
 	"go/types"
-	"golang.org/x/tools/go/loader"
+	"golang.org/x/tools/go/packages"
 	"golang.org/x/tools/go/ssa"
-	"os"
+	"io/fs"
+	"omibyte.io/sigo/compiler"
 	"path/filepath"
 	"strings"
 )
@@ -21,89 +21,125 @@ type Program struct {
 	path   string
 	env    Env
 
-	prog       *loader.Program
+	pkgs []*packages.Package
+
 	ssaProg    *ssa.Program
 	targetInfo map[string]string
-	linkNames  map[string]string
+
+	options *compiler.Options
+
+	targetLinkerFile      string
+	targetLinkerSetByMain bool
+	assemblyFiles         []string
 }
 
 func (p *Program) parse() (err error) {
-	/*// Parse the package at the directory
-	packages, err := parser.ParseDir(p.fset, p.path, nil, parser.ParseComments)
-	if err != nil {
-		return err
-	}*/
-
-	// Create a context to load packages under
-	ctx := build.Context{
-		GOARCH:        "amd64",
-		GOOS:          "linux",
-		GOROOT:        p.env.Value("SIGOROOT"),
-		GOPATH:        p.env.Value("SIGOPATH"),
-		Dir:           "",
-		CgoEnabled:    true,
-		UseAllFiles:   false,
-		Compiler:      "gc",
-		BuildTags:     nil,
-		ToolTags:      nil,
-		ReleaseTags:   nil,
-		InstallSuffix: "",
-		JoinPath:      nil,
-		SplitPathList: nil,
-		IsAbsPath:     nil,
-		IsDir:         nil,
-		HasSubdir:     nil,
-		ReadDir:       nil,
-		OpenFile:      nil,
+	// Parse the package at the directory
+	config := packages.Config{
+		Mode:       packages.NeedName | packages.NeedFiles | packages.NeedImports | packages.NeedDeps | packages.NeedTypes | packages.NeedSyntax | packages.NeedTypesInfo | packages.NeedTypesSizes | packages.NeedModule | packages.NeedEmbedFiles | packages.NeedEmbedPatterns,
+		Context:    context.Background(),
+		Logf:       nil,
+		Dir:        "",
+		Env:        p.env.List(),
+		BuildFlags: nil,
+		Fset:       p.fset,
+		ParseFile:  nil,
+		Tests:      false,
 	}
 
-	conf := loader.Config{
-		Fset:                p.fset,
-		ParserMode:          parser.ParseComments,
-		TypeChecker:         p.config,
-		TypeCheckFuncBodies: nil,
-		Build:               nil,
-		Cwd:                 "",
-		DisplayPath:         nil,
-		AllowErrors:         false,
-		CreatePkgs:          nil,
-		ImportPkgs: map[string]bool{
-			"runtime/internal/go": true,
-		},
-		FindPackage: func(ctxt *build.Context, importPath, fromDir string, mode build.ImportMode) (*build.Package, error) {
-			return ctx.Import(importPath, fromDir, mode)
-		},
-		AfterTypeCheck: nil,
-	}
-
-	// Import the required runtime packages first
-	//conf.Import("runtime/internal/types")
-
-	// Import the main program package
-	conf.Import(p.path)
-
-	// Load all the packages and their dependencies
-	p.prog, err = conf.Load()
+	pkgs, err := packages.Load(&config, "runtime", p.path)
 	if err != nil {
 		return err
 	}
 
-	for _, pkg := range p.prog.AllPackages {
-		// Get this package's imports so required packages can be appended to it
-		imports := pkg.Pkg.Imports()
+	allPackages := map[string]*packages.Package{}
 
-		if strings.Index(pkg.Pkg.Path(), "runtime/internal/") != 0 {
-			// Append the runtime package to the imports
-			imports = append(imports, p.prog.Package("runtime/internal/go").Pkg)
+	// Collect up all the packages
+	for _, pkg := range pkgs {
+		allPackages = gatherPackages(pkg, allPackages)
+	}
+
+	for _, pkg := range allPackages {
+		// Check the syntax
+		for _, syntaxError := range pkg.TypeErrors {
+			err = errors.Join(err, syntaxError)
 		}
 
-		// Replace the package's imports with the new list
-		pkg.Pkg.SetImports(imports)
+		for _, syntaxError := range pkg.Errors {
+			err = errors.Join(err, syntaxError)
+		}
 
-		// Gather files from packages and information from any special comments
+		if err != nil {
+			continue
+		}
+
+		p.pkgs = append(p.pkgs, pkg)
+
+		// Look in the packages for "target.ld". Prefer target.ld in the main
+		// package. Otherwise, throw an error if more than one "target.ld" is
+		// found. Also collect additional sources like assembly files TODO: C files too?
+		if len(pkg.GoFiles) > 0 {
+			pkgDir := filepath.Dir(pkg.GoFiles[0])
+			filepath.Walk(pkgDir, func(path string, info fs.FileInfo, err error) error {
+				if info.IsDir() && path != pkgDir {
+					// Walk any subdirectories
+					return filepath.SkipDir
+				}
+
+				ext := strings.ToLower(filepath.Ext(info.Name()))
+
+				if info.Name() == "target.ld" && !p.targetLinkerSetByMain {
+					if len(p.targetLinkerFile) == 0 || pkg.Name == "main" {
+						p.targetLinkerFile = path
+						if pkg.Name == "main" {
+							// Main takes precedence. Stop considering other linker files
+							p.targetLinkerSetByMain = true
+						}
+					} else {
+						panic("multiple target linker files found")
+					}
+				} else if ext == ".s" || ext == ".asm" {
+					p.assemblyFiles = append(p.assemblyFiles, path)
+				}
+
+				return nil
+			})
+		}
+
+		// Gather files from packages and information from any pragma comments
 		// found in each source.
-		for _, file := range pkg.Files {
+		for _, file := range pkg.Syntax {
 			p.files = append(p.files, file)
+			// Process exported functions and globals
+			for _, decl := range file.Decls {
+				if fn, ok := decl.(*ast.FuncDecl); ok {
+					symbolName := types.Id(pkg.Types, fn.Name.Name)
+					info := p.options.GetSymbolInfo(symbolName)
+					info.Exported = fn.Name.IsExported()
+
+					// The main function should be exported as "main.main"
+					if fn.Name.Name == "main" {
+						info.LinkName = "main.main"
+					}
+				} else if global, ok := decl.(*ast.GenDecl); ok {
+					for _, spec := range global.Specs {
+						switch spec := spec.(type) {
+						case *ast.ValueSpec:
+							for _, name := range spec.Names {
+								symbolName := types.Id(pkg.Types, name.Name)
+								info := p.options.GetSymbolInfo(symbolName)
+								info.Exported = name.IsExported()
+							}
+						case *ast.TypeSpec:
+							symbolName := types.Id(pkg.Types, spec.Name.Name)
+							info := p.options.GetSymbolInfo(symbolName)
+							info.Exported = spec.Name.IsExported()
+						}
+					}
+				}
+			}
+
+			// Process pragma comments
 			for _, commentGroup := range file.Comments {
 				for _, comment := range commentGroup.List {
 					// Split the comment on the space character
@@ -133,18 +169,33 @@ func (p *Program) parse() (err error) {
 							} else {
 								// TODO: Return syntax error
 							}
+						case "//sigo:extern":
+							if count == 3 {
+								symbolName := types.Id(pkg.Types, parts[1])
+								info := p.options.GetSymbolInfo(symbolName)
+								info.LinkName = parts[2]
+								info.ExternalLinkage = true
+							} else {
+								// TODO: Return syntax error
+							}
 						//***********************************************
 						case "//go:linkname":
-							if count == 2 {
-								// Which function does this comment affect?
-								funcDecl := p.nearestFuncBelowComment(comment, file)
-								if funcDecl != nil {
-									name := fmt.Sprint(pkg.Pkg.Path(), ".", funcDecl.Name.Name)
+							if count == 3 {
+								symbolName := types.Id(pkg.Types, parts[1])
+								info := p.options.GetSymbolInfo(symbolName)
 
-									// NOTE: Allow multiple functions to use the same linkname. The compiler will assert
-									//       that there is only one definition of it
-									p.linkNames[name] = parts[1]
-								}
+								// NOTE: Allow multiple functions to use the same linkname. The compiler will assert
+								//       that there is only one definition of it
+								info.LinkName = parts[2]
+							} else {
+								// TODO: Return syntax error
+							}
+						case "//go:export":
+							if count == 3 {
+								funcName := types.Id(pkg.Types, parts[1])
+								info := p.options.GetSymbolInfo(funcName)
+								info.LinkName = parts[2]
+								info.Exported = true
 							} else {
 								// TODO: Return syntax error
 							}
@@ -155,45 +206,17 @@ func (p *Program) parse() (err error) {
 		}
 	}
 
-	return nil
-}
-
-func (p *Program) importPackage(path string, srcDir string, mode build.ImportMode) (*build.Package, error) {
-	searchPaths := []string{
-		filepath.Clean(fmt.Sprintf("%s/%s", p.path, path)),
-		filepath.Clean(fmt.Sprintf("%s/src/%s", p.env.Value("SIGOROOT"), path)),
-		// TODO: Resolve package directories in GOMODPATH
-	}
-
-	var lookupPath string
-	for _, searchPath := range searchPaths {
-		// Attempt to stat the directory
-		info, err := os.Stat(searchPath)
-		if os.IsNotExist(err) || !info.IsDir() {
-			continue
-		}
-		lookupPath = searchPath
-		break
-	}
-
-	if len(lookupPath) == 0 {
-		return nil, os.ErrNotExist
-	}
-
-	pkg := build.Package{
-		ImportPath: path,
-	}
-
-	return &pkg, nil
+	return
 }
 
 func (p *Program) buildPackages() ([]*ssa.Package, error) {
-	mode := ssa.SanityCheckFunctions | ssa.BareInits | ssa.GlobalDebug | ssa.InstantiateGenerics
+	mode := ssa.SanityCheckFunctions | ssa.BareInits | ssa.GlobalDebug | ssa.InstantiateGenerics | ssa.NaiveForm
 	p.ssaProg = ssa.NewProgram(p.fset, mode)
 
 	// Create all the package
-	for _, pkg := range p.prog.AllPackages {
-		p.ssaProg.CreatePackage(pkg.Pkg, pkg.Files, &pkg.Info, true)
+	for _, pkg := range p.pkgs {
+		// Import the package
+		p.ssaProg.CreatePackage(pkg.Types, pkg.Syntax, pkg.TypesInfo, true)
 	}
 
 	// Build the SSA
@@ -221,4 +244,13 @@ func (p *Program) nearestFuncBelowComment(comment *ast.Comment, file *ast.File) 
 	})
 
 	return
+}
+
+func gatherPackages(pkg *packages.Package, in map[string]*packages.Package) map[string]*packages.Package {
+	for _, imported := range pkg.Imports {
+		in = gatherPackages(imported, in)
+		in[imported.PkgPath] = imported
+	}
+	in[pkg.PkgPath] = pkg
+	return in
 }

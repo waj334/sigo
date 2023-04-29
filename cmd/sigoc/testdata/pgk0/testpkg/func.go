@@ -1,0 +1,5 @@
+package testpkg
+
+func TestFunc() {
+	
+}

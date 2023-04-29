@@ -90,3 +90,15 @@ func (t *Target) featuresString() string {
 	}
 	return strings.TrimSpace(output)
 }
+
+func (t *Target) Ref() llvm.LLVMTargetRef {
+	return t.targetRef
+}
+
+func (t *Target) Machine() llvm.LLVMTargetMachineRef {
+	return t.machineRef
+}
+
+func (t *Target) Triple() string {
+	return t.triple
+}
