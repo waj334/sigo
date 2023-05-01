@@ -20,7 +20,7 @@ func (c *Compiler) createTypeInfoTypes(ctx llvm.LLVMContextRef) {
 	// Type struct body
 	llvm.StructSetBody(typeType, []llvm.LLVMTypeRef{
 		llvm.PointerType(llvm.GetTypeByName2(ctx, "string"), 0),
-		llvm.Int64TypeInContext(ctx),
+		c.uintptrType.valueType,
 		llvm.Int32TypeInContext(ctx),
 		llvm.PointerType(typeTable, 0),
 		llvm.PointerType(typeTable, 0),
@@ -104,7 +104,7 @@ func (c *Compiler) createTypeDescriptor(ctx context.Context, typ *Type) (descrip
 
 		// Store the size of this type in bytes
 		descriptorValues[1] = llvm.ConstInt(
-			llvm.Int64TypeInContext(c.currentContext(ctx)),
+			c.uintptrType.valueType,
 			llvm.StoreSizeOfType(c.options.Target.dataLayout, typ.valueType), false)
 
 		switch goType := goType.Underlying().(type) {

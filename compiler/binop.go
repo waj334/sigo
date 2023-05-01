@@ -33,6 +33,18 @@ func (c *Compiler) createBinOp(ctx context.Context, expr *ssa.BinOp) (value llvm
 	case token.ADD:
 		if typeInfo&types.IsFloat != 0 {
 			value = llvm.BuildFAdd(c.builder, x, y, "")
+		} else if typeInfo&types.IsString != 0 {
+			// Concatenate the strings using the respective runtime call
+			value, err = c.createRuntimeCall(ctx, "stringConcat", []llvm.LLVMValueRef{
+				c.addressOf(x),
+				c.addressOf(y),
+			})
+			if err != nil {
+				return nil, err
+			}
+
+			// Load the resulting string values
+			value = llvm.BuildLoad2(c.builder, llvm.GetTypeByName2(c.currentContext(ctx), "string"), value, "")
 		} else {
 			value = llvm.BuildAdd(c.builder, x, y, "")
 		}

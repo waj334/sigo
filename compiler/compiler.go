@@ -32,11 +32,6 @@ type Function struct {
 	name       string
 }
 
-type Variable struct {
-	value llvm.LLVMValueRef
-	dbg   llvm.LLVMMetadataRef
-}
-
 type Type struct {
 	valueType  llvm.LLVMTypeRef
 	debugType  llvm.LLVMMetadataRef
@@ -64,14 +59,17 @@ type Compiler struct {
 	functions   map[*types.Signature]*Function
 	types       map[types.Type]*Type
 	descriptors map[types.Type]llvm.LLVMValueRef
-	values      map[ssa.Value]llvm.LLVMValueRef
-	variables   map[llvm.LLVMValueRef]*Variable
+	values      map[ssa.Value]Value
 	phis        map[*ssa.Phi]Phi
 	blocks      map[*ssa.BasicBlock]llvm.LLVMBasicBlockRef
 
 	uintptrType Type
 	ptrType     Type
 }
+
+var (
+	invalidValue Value = Value{}
+)
 
 func NewCompiler(options Options) (*Compiler, llvm.LLVMContextRef) {
 	// Create the LLVM context
@@ -131,8 +129,7 @@ func NewCompiler(options Options) (*Compiler, llvm.LLVMContextRef) {
 		functions:   map[*types.Signature]*Function{},
 		types:       map[types.Type]*Type{},
 		descriptors: map[types.Type]llvm.LLVMValueRef{},
-		values:      map[ssa.Value]llvm.LLVMValueRef{},
-		variables:   map[llvm.LLVMValueRef]*Variable{},
+		values:      map[ssa.Value]Value{},
 		blocks:      map[*ssa.BasicBlock]llvm.LLVMBasicBlockRef{},
 		phis:        map[*ssa.Phi]Phi{},
 		uintptrType: uintptrType,
@@ -474,7 +471,7 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 			}
 
 			// Create the instruction
-			if _, err := c.createInstruction(ctx, instr); err != nil {
+			if err := c.createInstruction(ctx, instr); err != nil {
 				return err
 			}
 			c.printf(Debug, "End instruction #%d\n", ii)
@@ -494,7 +491,7 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 	return nil
 }
 
-func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction) (result llvm.LLVMValueRef, err error) {
+func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction) (err error) {
 	c.printf(Debug, "Processing instruction %T: %s\n", instr, instr.String())
 
 	// Create the specific instruction
@@ -506,16 +503,16 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 	case *ssa.If:
 		condValue, err := c.createExpression(ctx, instr.Cond)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		b0 := c.blocks[instr.Block().Succs[0]]
 		b1 := c.blocks[instr.Block().Succs[1]]
 
-		result = llvm.BuildCondBr(c.builder, condValue, b0, b1)
+		llvm.BuildCondBr(c.builder, condValue, b0, b1)
 	case *ssa.Jump:
 		if block, ok := c.blocks[instr.Block().Succs[0]]; ok {
-			result = llvm.BuildBr(c.builder, block)
+			llvm.BuildBr(c.builder, block)
 		} else {
 			panic("block not created")
 		}
@@ -536,7 +533,7 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 			// Get the return values
 			returnValues, err := c.createValues(ctx, instr.Results)
 			if err != nil {
-				return nil, err
+				return err
 			}
 
 			// Return a tuple if there should be more than one return value.
@@ -552,10 +549,10 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 			}
 
 			// Create the return
-			result = llvm.BuildRet(c.builder, returnValue)
+			llvm.BuildRet(c.builder, returnValue)
 		} else {
 			// Return nothing
-			result = llvm.BuildRetVoid(c.builder)
+			llvm.BuildRetVoid(c.builder)
 		}
 	case *ssa.RunDefers:
 		fn, ok := c.functions[instr.Parent().Signature]
@@ -576,32 +573,29 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 		panic("not implemented")
 	case *ssa.Store:
 		var err error
-		var addr, value llvm.LLVMValueRef
+		var addr, value Value
 		addr, err = c.createExpression(ctx, instr.Addr)
 		if err != nil {
-			return nil, err
-		}
-
-		if addr := llvm.IsAAllocaInst(addr); addr != nil {
-			if llvm.TypeIsEqual(llvm.GetAllocatedType(addr), c.ptrType.valueType) {
-				// Load the ptr from the alloca
-				addr = llvm.BuildLoad2(c.builder, c.ptrType.valueType, addr, "")
-			}
+			return err
 		}
 
 		value, err = c.createExpression(ctx, instr.Val)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
-		result = llvm.BuildStore(c.builder, value, addr)
+		llvm.BuildStore(c.builder, value.UnderlyingValue(), addr.UnderlyingValue())
 
-		if variable, ok := c.variables[addr]; ok {
+		// NOTE: The value does not change if the address is on the heap since
+		//       the value would be a pointer to a pointer. Instead, the
+		//       value at the address of pointed-to pointer is change meaning
+		//       no value change should be indicated below.
+		if addr.dbg != nil && !addr.heap {
 			// Attach debug information
 			llvm.DIBuilderInsertDbgValueAtEnd(
 				c.dibuilder,
-				variable.value,
-				variable.dbg,
+				addr,
+				addr.dbg,
 				llvm.DIBuilderCreateExpression(c.dibuilder, nil),
 				c.currentLocation(ctx).line,
 				c.currentBlock(ctx))
@@ -612,9 +606,9 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 	default:
 		if value, ok := instr.(ssa.Value); ok {
 			// The instruction is an expression. Create the respective instruction.
-			result, err = c.createExpression(ctx, value)
+			_, err = c.createExpression(ctx, value)
 			if err != nil {
-				return nil, err
+				return err
 			}
 		} else {
 			panic("encountered unknown instruction")
@@ -638,7 +632,7 @@ func (c *Compiler) createFunctionCall(ctx context.Context, callee *ssa.Function,
 	}
 
 	// Create and return the value of the call
-	return llvm.BuildCall2(c.builder, fn.llvmType, fn.value, values, ""), nil
+	return llvm.BuildCall2(c.builder, fn.llvmType, fn.value, values.Ref(), ""), nil
 }
 
 func (c *Compiler) createRuntimeCall(ctx context.Context, name string, args []llvm.LLVMValueRef) (llvm.LLVMValueRef, error) {
@@ -675,128 +669,4 @@ func (c *Compiler) createRuntimeCall(ctx context.Context, name string, args []ll
 
 	// Create and return the value of the call
 	return llvm.BuildCall2(c.builder, fnType, fn, args, ""), nil
-}
-
-func (c *Compiler) createValues(ctx context.Context, input []ssa.Value) ([]llvm.LLVMValueRef, error) {
-	var output []llvm.LLVMValueRef
-	for _, in := range input {
-		// Evaluate the argument
-		value, err := c.createExpression(ctx, in)
-		if err != nil {
-			return nil, err
-		}
-
-		// Append to the args list that will be passed to the function
-		output = append(output, value)
-	}
-	return output, nil
-}
-
-func (c *Compiler) createVariable(ctx context.Context, name string, value llvm.LLVMValueRef, valueType types.Type) llvm.LLVMValueRef {
-	c.printf(Debug, "Creating variable for %s (%s)\n", name, valueType.String())
-	defer c.printf(Debug, "Done creating variable for %s (%s)\n", name, valueType.String())
-	// Check the value type. All variables should have an alloca associated with it. If the type is not an alloca then
-	// create one in the entry block and store the value into it.
-	var alloca llvm.LLVMValueRef
-	if alloca = llvm.IsAAllocaInst(value); alloca == nil {
-		alloca = llvm.BuildAlloca(c.builder, llvm.TypeOf(value), name)
-
-		// Store the value into the alloca
-		llvm.BuildStore(c.builder, value, alloca)
-	}
-
-	// Create and associate the variable with the value of the alloca
-	variable := Variable{
-		value: alloca,
-	}
-
-	fn := c.currentFunction(ctx)
-	dbgType := c.createDebugType(ctx, valueType)
-
-	// Create the debug information about the variable
-	variable.dbg = llvm.DIBuilderCreateAutoVariable(
-		c.dibuilder,
-		fn.subprogram,
-		name,
-		fn.diFile,
-		uint(c.currentLocation(ctx).position.Line),
-		dbgType,
-		true,
-		0,
-		0)
-
-	// Add debug info about the declaration
-	llvm.DIBuilderInsertDeclareAtEnd(
-		c.dibuilder,
-		variable.value,
-		variable.dbg,
-		llvm.DIBuilderCreateExpression(c.dibuilder, nil),
-		c.currentLocation(ctx).line,
-		c.currentBlock(ctx))
-
-	// Store the variable
-	c.variables[alloca] = &variable
-
-	// Return the alloca value
-	return alloca
-}
-
-func (c *Compiler) structFieldAddress(value llvm.LLVMValueRef, structType llvm.LLVMTypeRef, index int) (llvm.LLVMTypeRef, llvm.LLVMValueRef) {
-	// The value must be a pointer to a struct
-	valueType := llvm.TypeOf(value)
-	kind := llvm.GetTypeKind(valueType)
-	if kind == llvm.PointerTypeKind {
-		if llvm.IsAAllocaInst(value) != nil {
-			// Get the allocated type
-			valueType = llvm.GetAllocatedType(value)
-			kind = llvm.GetTypeKind(valueType)
-			if kind == llvm.PointerTypeKind {
-				// This probably was a ptr->ptr. Load the value
-				value = llvm.BuildLoad2(c.builder, c.ptrType.valueType, value, "")
-				kind = llvm.GetTypeKind(llvm.TypeOf(value))
-			}
-		}
-	}
-
-	// Get the type of the field
-	fieldType := llvm.StructGetTypeAtIndex(structType, uint(index))
-
-	// Create a GEP to get the  address of the field in the struct
-	return fieldType, llvm.BuildStructGEP2(c.builder, structType, value, uint(index), "")
-}
-
-func (c *Compiler) arrayElementAddress(ctx context.Context, value llvm.LLVMValueRef, elementType llvm.LLVMTypeRef, index llvm.LLVMValueRef) llvm.LLVMValueRef {
-	// Must be a pointer to an array
-	//valueType := llvm.TypeOf(value)
-	//kind := llvm.GetTypeKind(valueType)
-	//if kind != llvm.ArrayTypeKind {
-	//	panic("attempting to extract value from non-array value")
-	//}
-
-	// Create an array of values. The indices in the array are used to access
-	// inner and outer structures. In the case of an array the outer structure
-	// is the array so 0 is passed first and then the index of the inner
-	// element next.
-	indices := []llvm.LLVMValueRef{
-		index,
-	}
-
-	// Get the address of the value at the index in the array
-	return llvm.BuildGEP2(c.builder, elementType, value, indices, "")
-}
-
-func (c *Compiler) getVariableValue(value llvm.LLVMValueRef) llvm.LLVMValueRef {
-	valueType := llvm.TypeOf(value)
-	kind := llvm.GetTypeKind(valueType)
-	if kind == llvm.PointerTypeKind {
-		if llvm.IsAAllocaInst(value) != nil {
-			// Get the allocated type
-			valueType = llvm.GetAllocatedType(value)
-
-			// Load the value
-			value = llvm.BuildLoad2(c.builder, valueType, value, "")
-		}
-	}
-
-	return value
 }

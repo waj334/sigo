@@ -18,15 +18,64 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 	// NOTE: It MUST be defined in the runtime used by this application
 	switch builtin.Name() {
 	case "append":
-		panic("not implemented")
+		// Determine the element type of the slice
+		elementType := c.createType(ctx, args[0].Type().Underlying().(*types.Slice).Elem())
+		elementTypeDesc := c.createTypeDescriptor(ctx, elementType)
+		appendArgs := [3]llvm.LLVMValueRef{c.addressOf(argValues[0]), nil, elementTypeDesc}
+		sliceType := llvm.GetTypeByName2(c.currentContext(ctx), "slice")
+		stringType := llvm.GetTypeByName2(c.currentContext(ctx), "string")
+		if llvm.TypeIsEqual(llvm.TypeOf(argValues[1]), sliceType) {
+			// Pass the slice directly to the runtime call
+			appendArgs[1] = c.addressOf(argValues[1])
+		} else if llvm.TypeIsEqual(stringType, llvm.TypeOf(argValues[1])) {
+			// Convert the string to a slice
+			appendArgs[1] = c.createSliceFromStringValue(ctx, argValues[1])
+		} else {
+			// Create a slice from the remaining arguments and pass that to the
+			// runtime call.
+			appendArgs[1] = c.addressOf(c.createSliceFromValues(ctx, argValues[1:].Ref()))
+		}
+
+		// Create the runtime call
+		value, err = c.createRuntimeCall(ctx, "append", appendArgs[:])
+		if err != nil {
+			return nil, err
+		}
+
+		// Load the resulting slice
+		value = llvm.BuildLoad2(c.builder, sliceType, value, "")
 	case "cap":
-		panic("not implemented")
+		switch args[0].Type().Underlying().(type) {
+		case *types.Slice:
+			value, err = c.createRuntimeCall(ctx, "sliceCap", []llvm.LLVMValueRef{c.addressOf(argValues[0])})
+		case *types.Chan:
+			panic("not implemented")
+		default:
+			panic("cap called with invalid value type")
+		}
 	case "close":
 		panic("not implemented")
 	case "complex":
 		panic("not implemented")
 	case "copy":
-		panic("not implemented")
+		elementType := c.createType(ctx, args[0].Type().Underlying().(*types.Slice).Elem())
+		elementTypeDesc := c.createTypeDescriptor(ctx, elementType)
+		copyArgs := [3]llvm.LLVMValueRef{c.addressOf(argValues[0]), nil, elementTypeDesc}
+		stringType := llvm.GetTypeByName2(c.currentContext(ctx), "string")
+
+		// If the second argument is a string, convert it to a byte slice
+		if llvm.TypeIsEqual(stringType, llvm.TypeOf(argValues[1])) {
+			copyArgs[1] = c.createSliceFromStringValue(ctx, argValues[1])
+		} else {
+			// Pass the slice directly
+			copyArgs[1] = c.addressOf(argValues[1])
+		}
+
+		// Create the runtime call
+		value, err = c.createRuntimeCall(ctx, "sliceCopy", copyArgs[:])
+		if err != nil {
+			return nil, err
+		}
 	case "delete":
 		panic("not implemented")
 	case "imag":
@@ -38,17 +87,19 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 			case types.String:
 				value, err = c.createRuntimeCall(ctx, "stringLen", []llvm.LLVMValueRef{c.addressOf(argValues[0])})
 			default:
-				panic("len called with value of invalid kind")
+				panic("len called with invalid value type")
 			}
 		case *types.Slice:
 			value, err = c.createRuntimeCall(ctx, "sliceLen", []llvm.LLVMValueRef{c.addressOf(argValues[0])})
+		case *types.Chan:
+			panic("not implemented")
 		default:
-			panic("len called with value of non-basic type as argument")
+			panic("len called with invalid value type")
 		}
 	case "make":
-		panic("not implemented")
+		panic("unreachable")
 	case "new":
-		panic("not implemented")
+		panic("unreachable")
 	case "panic":
 		panic("not implemented")
 	case "print", "println":

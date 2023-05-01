@@ -44,7 +44,7 @@ const (
 
 type typeDescriptor struct {
 	name     *string
-	size     int64
+	size     uintptr
 	kind     BasicKind
 	methods  *methodTable
 	fields   *fieldTable
