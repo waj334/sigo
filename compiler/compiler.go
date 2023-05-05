@@ -201,7 +201,10 @@ func (c *Compiler) currentScope(ctx context.Context) llvm.LLVMMetadataRef {
 }
 
 func (c *Compiler) currentLocation(ctx context.Context) Location {
-	return ctx.Value(currentLocationKey{}).(Location)
+	if value, ok := ctx.Value(currentLocationKey{}).(Location); ok {
+		return value
+	}
+	return Location{}
 }
 
 func (c *Compiler) CompilePackage(ctx context.Context, llvmCtx llvm.LLVMContextRef, pkg *ssa.Package) error {
@@ -226,9 +229,31 @@ func (c *Compiler) CompilePackage(ctx context.Context, llvmCtx llvm.LLVMContextR
 				return err
 			}
 		case *ssa.Global:
-			if _, err := c.createExpression(ctx, member); err != nil {
+			value, err := c.createExpression(ctx, member)
+			if err != nil {
 				return err
 			}
+
+			value.global = true
+
+			// Create the debug info for the global var (
+			value.dbg = llvm.DIBuilderCreateGlobalVariableExpression(
+				c.dibuilder,
+				c.compileUnit,
+				member.Name(),
+				member.Object().Id(),
+				value.DebugFile(),
+				uint(value.Pos().Line),
+				c.createDebugType(ctx, member.Type().Underlying().(*types.Pointer).Elem()),
+				true,
+				llvm.DIBuilderCreateExpression(c.dibuilder, nil),
+				nil,
+				0)
+
+			llvm.GlobalSetMetadata(value, llvm.GetMDKindID("dbg"), value.dbg)
+
+			// Cache the global
+			c.values[member] = value
 		}
 	}
 
@@ -413,10 +438,17 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 
 		// Apply this metadata to the function
 		llvm.SetSubprogram(fn.value, fn.subprogram)
+		scope := llvm.DIBuilderCreateLexicalBlock(
+			c.dibuilder,
+			fn.subprogram,
+			fn.diFile,
+			line,
+			0,
+		)
+		ctx = context.WithValue(ctx, currentScopeKey{}, scope)
+	} else {
+		// TODO: create fake location information for synthetic functions (initializers, etc...)
 	}
-
-	//scope := llvm.GetSubprogram(fn.value)
-	ctx = context.WithValue(ctx, currentScopeKey{}, fn.diFile)
 
 	// Create all blocks first so that branches can be made during instruction
 	// creation.
@@ -448,10 +480,10 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 		// Create each instruction in the block
 		for ii, instr := range block.Instrs {
 			c.printf(Debug, "Begin instruction #%d\n", ii)
-			// Get the location information for this instruction
-			locationInfo := file.Position(instr.Pos())
-
 			if fn.subprogram != nil {
+				// Get the location information for this instruction
+				locationInfo := file.Position(instr.Pos())
+
 				// Create the file debug information
 				location := Location{
 					file: fn.diFile,
@@ -476,7 +508,6 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 			}
 			c.printf(Debug, "End instruction #%d\n", ii)
 		}
-
 		c.println(Debug, "Done processing block", i)
 	}
 
@@ -509,7 +540,7 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 		b0 := c.blocks[instr.Block().Succs[0]]
 		b1 := c.blocks[instr.Block().Succs[1]]
 
-		llvm.BuildCondBr(c.builder, condValue, b0, b1)
+		llvm.BuildCondBr(c.builder, condValue.UnderlyingValue(ctx), b0, b1)
 	case *ssa.Jump:
 		if block, ok := c.blocks[instr.Block().Succs[0]]; ok {
 			llvm.BuildBr(c.builder, block)
@@ -519,7 +550,17 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 	case *ssa.MapUpdate:
 		panic("not implemented")
 	case *ssa.Panic:
-		panic("not implemented")
+		arg, err := c.createExpression(ctx, instr.X)
+		if err != nil {
+			return err
+		}
+		_, err = c.createRuntimeCall(ctx, "panic", []llvm.LLVMValueRef{arg.UnderlyingValue(ctx)})
+		if err != nil {
+			return err
+		}
+
+		// Create an unreachable terminator following the panic
+		llvm.BuildUnreachable(c.builder)
 	case *ssa.Range:
 		panic("not implemented")
 	case *ssa.Return:
@@ -584,17 +625,17 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 			return err
 		}
 
-		llvm.BuildStore(c.builder, value.UnderlyingValue(), addr.UnderlyingValue())
+		llvm.BuildStore(c.builder, value.UnderlyingValue(ctx), addr.UnderlyingValue(ctx))
 
 		// NOTE: The value does not change if the address is on the heap since
 		//       the value would be a pointer to a pointer. Instead, the
 		//       value at the address of pointed-to pointer is change meaning
 		//       no value change should be indicated below.
-		if addr.dbg != nil && !addr.heap {
+		if addr.dbg != nil && !addr.heap && !addr.global {
 			// Attach debug information
 			llvm.DIBuilderInsertDbgValueAtEnd(
 				c.dibuilder,
-				addr,
+				addr.UnderlyingValue(ctx),
 				addr.dbg,
 				llvm.DIBuilderCreateExpression(c.dibuilder, nil),
 				c.currentLocation(ctx).line,
@@ -625,6 +666,8 @@ func (c *Compiler) createFunctionCall(ctx context.Context, callee *ssa.Function,
 		panic("call to function that does not exist")
 	}
 
+	// TODO: If this is a struct method call or an interface call, nil check the receiver.
+
 	// Create the argument values
 	values, err := c.createValues(ctx, args)
 	if err != nil {
@@ -632,7 +675,7 @@ func (c *Compiler) createFunctionCall(ctx context.Context, callee *ssa.Function,
 	}
 
 	// Create and return the value of the call
-	return llvm.BuildCall2(c.builder, fn.llvmType, fn.value, values.Ref(), ""), nil
+	return llvm.BuildCall2(c.builder, fn.llvmType, fn.value, values.Ref(ctx), ""), nil
 }
 
 func (c *Compiler) createRuntimeCall(ctx context.Context, name string, args []llvm.LLVMValueRef) (llvm.LLVMValueRef, error) {
@@ -669,4 +712,13 @@ func (c *Compiler) createRuntimeCall(ctx context.Context, name string, args []ll
 
 	// Create and return the value of the call
 	return llvm.BuildCall2(c.builder, fnType, fn, args, ""), nil
+}
+
+func (c *Compiler) positionAtEntryBlock(ctx context.Context) {
+	entryBlock := c.currentEntryBlock(ctx)
+	if blockFirst := llvm.GetFirstInstruction(entryBlock); blockFirst != nil {
+		llvm.PositionBuilderBefore(c.builder, blockFirst)
+	} else {
+		llvm.PositionBuilderAtEnd(c.builder, entryBlock)
+	}
 }

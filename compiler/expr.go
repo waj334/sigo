@@ -20,6 +20,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 
 	// initialize the value
 	value.cc = c
+	value.spec = expr
 
 	// Evaluate the expression
 	switch expr := expr.(type) {
@@ -34,25 +35,32 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 
 		if expr.Heap {
 			// Create the alloca to hold the address on the stack
-			value.LLVMValueRef = llvm.BuildAlloca(c.builder, c.ptrType.valueType, expr.Comment)
-			c.createVariable(ctx, expr.Comment, value, expr.Type().Underlying())
+			value.LLVMValueRef = c.createAlloca(ctx, c.ptrType.valueType, expr.Comment)
 
 			// Mark this value as one that is on the heap
 			value.heap = true
 
+			// Next, create the debug info. This heap allocation will be treated differently
+			value = c.createVariable(ctx, expr.Comment, value, expr.Type().Underlying())
+
 			// Create the runtime call to allocate some memory on the heap
-			addr, err := c.createRuntimeCall(ctx, "alloc",
+			obj, err := c.createRuntimeCall(ctx, "alloc",
 				[]llvm.LLVMValueRef{llvm.ConstInt(c.uintptrType.valueType, size, false)})
 			if err != nil {
 				return invalidValue, err
 			}
 
+			// Load the addr from the heap obj
+			//addr := llvm.BuildLoad2(c.builder, c.ptrType.valueType, obj, "")
+
 			// Store the address at the alloc
-			llvm.BuildStore(c.builder, addr, value.LLVMValueRef)
+			llvm.BuildStore(c.builder, obj, value.LLVMValueRef)
 		} else {
 			// Create an alloca to hold the value on the stack
-			value.LLVMValueRef = llvm.BuildAlloca(c.builder, elementType.valueType, expr.Comment)
-			c.createVariable(ctx, expr.Comment, value, elementType.spec)
+			value.LLVMValueRef = c.createAlloca(ctx, elementType.valueType, expr.Comment)
+			value = c.createVariable(ctx, expr.Comment, value, elementType.spec)
+
+			value.heap = false
 
 			// Zero-initialize the stack variable
 			if size > 0 {
@@ -140,46 +148,46 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 				switch typeX.Kind() {
 				case types.UnsafePointer:
 					if otherType.Kind() == types.Uintptr {
-						value.LLVMValueRef = llvm.BuildPtrToInt(c.builder, fromValue, typeTo.valueType, "")
+						value.LLVMValueRef = llvm.BuildPtrToInt(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
 					} else {
-						value.LLVMValueRef = llvm.BuildPointerCast(c.builder, fromValue, typeTo.valueType, "")
+						value.LLVMValueRef = llvm.BuildPointerCast(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
 					}
 				case types.Uintptr:
 					if otherType.Kind() == types.UnsafePointer {
-						value.LLVMValueRef = llvm.BuildIntToPtr(c.builder, fromValue, typeTo.valueType, "")
+						value.LLVMValueRef = llvm.BuildIntToPtr(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
 						break
 					}
 					fallthrough
 				default:
 					if fromIsInteger && toIsInteger {
 						if fromSize > toSize {
-							value.LLVMValueRef = llvm.BuildTrunc(c.builder, fromValue, typeTo.valueType, "")
+							value.LLVMValueRef = llvm.BuildTrunc(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
 						} else if fromIsUnsigned && toIsUnsigned {
-							value.LLVMValueRef = llvm.BuildZExt(c.builder, fromValue, typeTo.valueType, "")
+							value.LLVMValueRef = llvm.BuildZExt(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
 						} else if !fromIsUnsigned && !toIsUnsigned {
-							value.LLVMValueRef = llvm.BuildSExt(c.builder, fromValue, typeTo.valueType, "")
+							value.LLVMValueRef = llvm.BuildSExt(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
 						} else {
 							// Signed to Unsigned or vice versa doesn't require an
 							// explicit instruction since the underlying bit format is the same.
-							value.LLVMValueRef = fromValue
+							value.LLVMValueRef = fromValue.UnderlyingValue(ctx)
 						}
 					} else if fromIsFloat && toIsFloat {
 						if fromSize > toSize {
-							value.LLVMValueRef = llvm.BuildFPTrunc(c.builder, fromValue, typeTo.valueType, "")
+							value.LLVMValueRef = llvm.BuildFPTrunc(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
 						} else {
-							value.LLVMValueRef = llvm.BuildFPExt(c.builder, fromValue, typeTo.valueType, "")
+							value.LLVMValueRef = llvm.BuildFPExt(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
 						}
 					} else if fromIsFloat && toIsInteger {
 						if toIsUnsigned {
-							value.LLVMValueRef = llvm.BuildFPToSI(c.builder, fromValue, typeTo.valueType, "")
+							value.LLVMValueRef = llvm.BuildFPToSI(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
 						} else {
-							value.LLVMValueRef = llvm.BuildFPToUI(c.builder, fromValue, typeTo.valueType, "")
+							value.LLVMValueRef = llvm.BuildFPToUI(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
 						}
 					} else if fromIsInteger && toIsFloat {
 						if toIsUnsigned {
-							value.LLVMValueRef = llvm.BuildUIToFP(c.builder, fromValue, typeTo.valueType, "")
+							value.LLVMValueRef = llvm.BuildUIToFP(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
 						} else {
-							value.LLVMValueRef = llvm.BuildSIToFP(c.builder, fromValue, typeTo.valueType, "")
+							value.LLVMValueRef = llvm.BuildSIToFP(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
 						}
 					} else if fromIsComplex && toIsComplex {
 						panic("not implemented")
@@ -200,12 +208,12 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 					}
 				}
 			case *types.Pointer:
-				value.LLVMValueRef = llvm.BuildPointerCast(c.builder, fromValue, typeTo.valueType, "")
+				value.LLVMValueRef = llvm.BuildPointerCast(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
 			}
 		case *types.Pointer:
 			otherType := expr.Type().(*types.Basic)
 			if otherType.Kind() == types.UnsafePointer {
-				value.LLVMValueRef = llvm.BuildPointerCast(c.builder, fromValue, typeTo.valueType, "")
+				value.LLVMValueRef = llvm.BuildPointerCast(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
 			} else {
 				panic("not implemented")
 			}
@@ -240,10 +248,10 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 			return invalidValue, err
 		}
 
-		structType := llvm.TypeOf(structValue)
+		structType := llvm.TypeOf(structValue.UnderlyingValue(ctx))
 
 		// Get the address of the field within the return struct (tuple)
-		fieldType, addr := c.structFieldAddress(structValue, structType, expr.Index)
+		fieldType, addr := c.structFieldAddress(ctx, structValue, structType, expr.Index)
 
 		// Load the value at the address
 		value.LLVMValueRef = llvm.BuildLoad2(c.builder, fieldType, addr, "")
@@ -256,7 +264,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		structType := llvm.TypeOf(structValue)
 
 		// Get the address of the field within the struct
-		fieldType, addr := c.structFieldAddress(structValue, structType, expr.Field)
+		fieldType, addr := c.structFieldAddress(ctx, structValue, structType, expr.Field)
 
 		// Load the value at the address
 		value.LLVMValueRef = llvm.BuildLoad2(c.builder, fieldType, addr, "")
@@ -269,38 +277,51 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		var structType llvm.LLVMTypeRef
 
 		if pointerType, ok := expr.X.Type().Underlying().(*types.Pointer); ok {
+			// Nil check the pointer
+			if _, err = c.createRuntimeCall(ctx, "nilCheck", []llvm.LLVMValueRef{structValue.UnderlyingValue(ctx)}); err != nil {
+				return invalidValue, err
+			}
 			structType = c.createType(ctx, pointerType.Elem()).valueType
 		} else {
-			structType = llvm.TypeOf(structValue)
+			structType = llvm.TypeOf(structValue.UnderlyingValue(ctx))
 		}
 
 		//Return the address
-		_, value.LLVMValueRef = c.structFieldAddress(structValue, structType, expr.Field)
+		_, value.LLVMValueRef = c.structFieldAddress(ctx, structValue, structType, expr.Field)
 	case *ssa.Global:
 		// Create a global value
-		globalType := c.createType(ctx, expr.Type())
+		globalType := c.createType(ctx, expr.Object().Type())
 
-		isExternal := false
-		isExported := false
 		info, ok := c.options.Symbols[expr.Object().Id()]
 		if ok {
-			isExternal = info.ExternalLinkage
-			isExported = info.Exported
+			value.extern = info.ExternalLinkage
+			value.exported = info.Exported
 		}
 
 		// Cannot be both exported and external
-		if isExported && isExternal {
+		if value.exported && value.extern {
 			panic("global cannot be both external and exported")
 		}
 
-		if isExternal {
-			// Create a global with external linkage to some variable with the specified link name.
-			value.LLVMValueRef = llvm.AddGlobal(c.module, globalType.valueType, info.LinkName)
-			llvm.SetLinkage(value.LLVMValueRef, llvm.LLVMLinkage(llvm.ExternalLinkage))
+		if value.extern {
+			// Find an existing global with a matching linkname
+			for _, globalValue := range c.values {
+				if globalValue.linkname == info.LinkName {
+					value = globalValue
+					break
+				}
+			}
+
+			if value.LLVMValueRef == nil {
+				// Create a global with external linkage to some variable with the specified link name.
+				value.LLVMValueRef = llvm.AddGlobal(c.module, globalType.valueType, info.LinkName)
+				value.linkname = info.LinkName
+				llvm.SetLinkage(value, llvm.LLVMLinkage(llvm.ExternalLinkage))
+			}
 		} else {
 			value.LLVMValueRef = c.createGlobalValue(ctx, llvm.ConstNull(globalType.valueType), types.Id(c.currentPackage(ctx).Pkg, expr.Name()))
-			if !isExported {
-				llvm.SetLinkage(value.LLVMValueRef, llvm.LLVMLinkage(llvm.PrivateLinkage))
+			if !value.exported {
+				llvm.SetLinkage(value, llvm.LLVMLinkage(llvm.PrivateLinkage))
 			}
 		}
 	case *ssa.Index:
@@ -326,8 +347,8 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 
 			// Create a runtime call to retrieve the address of the element at index I
 			addr, err = c.createRuntimeCall(ctx, "sliceIndexAddr", []llvm.LLVMValueRef{
-				c.addressOf(arrayValue),
-				indexValue,
+				c.addressOf(ctx, arrayValue.UnderlyingValue(ctx)),
+				indexValue.UnderlyingValue(ctx),
 				c.createTypeDescriptor(ctx, elementType),
 			})
 			if err != nil {
@@ -338,23 +359,27 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 
 			// Create a runtime call to retrieve the address of the element at index I
 			addr, err = c.createRuntimeCall(ctx, "stringIndexAddr", []llvm.LLVMValueRef{
-				c.addressOf(arrayValue),
-				indexValue,
+				c.addressOf(ctx, arrayValue.UnderlyingValue(ctx)),
+				indexValue.UnderlyingValue(ctx),
 			})
 			if err != nil {
 				return invalidValue, err
 			}
 		default:
 			var arrayType llvm.LLVMTypeRef
-			loadElementType = llvm.GetElementType(llvm.TypeOf(arrayValue))
+			loadElementType = llvm.GetElementType(llvm.TypeOf(arrayValue.UnderlyingValue(ctx)))
 			if ptrType, ok := expr.X.Type().Underlying().(*types.Pointer); ok {
+				// nil pointer check the value
+				if _, err = c.createRuntimeCall(ctx, "nilCheck", []llvm.LLVMValueRef{arrayValue.UnderlyingValue(ctx)}); err != nil {
+					return invalidValue, err
+				}
 				arrayType = c.createType(ctx, ptrType.Elem()).valueType
 			} else {
-				arrayType = llvm.TypeOf(arrayValue)
+				arrayType = llvm.TypeOf(arrayValue.UnderlyingValue(ctx))
 			}
 
 			// Get the address of the element at the index within the array
-			addr = llvm.BuildGEP2(c.builder, llvm.GetElementType(arrayType), arrayValue.UnderlyingValue(),
+			addr = llvm.BuildGEP2(c.builder, llvm.GetElementType(arrayType), arrayValue.UnderlyingValue(ctx),
 				[]llvm.LLVMValueRef{indexValue}, "")
 		}
 
@@ -378,8 +403,8 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 
 			// Create a runtime call to retrieve the address of the element at index I
 			value.LLVMValueRef, err = c.createRuntimeCall(ctx, "sliceIndexAddr", []llvm.LLVMValueRef{
-				c.addressOf(arrayValue),
-				indexValue,
+				c.addressOf(ctx, arrayValue.UnderlyingValue(ctx)),
+				indexValue.UnderlyingValue(ctx),
 				c.createTypeDescriptor(ctx, elementType),
 			})
 			if err != nil {
@@ -388,8 +413,8 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		case *types.Basic: // Strings
 			// Create a runtime call to retrieve the address of the element at index I
 			value.LLVMValueRef, err = c.createRuntimeCall(ctx, "stringIndexAddr", []llvm.LLVMValueRef{
-				c.addressOf(arrayValue),
-				indexValue,
+				c.addressOf(ctx, arrayValue.UnderlyingValue(ctx)),
+				indexValue.UnderlyingValue(ctx),
 			})
 			if err != nil {
 				return invalidValue, err
@@ -403,8 +428,8 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 			}
 
 			// Get the address of the element at the index within the array
-			value.LLVMValueRef = llvm.BuildGEP2(c.builder, llvm.GetElementType(arrayType), arrayValue.UnderlyingValue(),
-				[]llvm.LLVMValueRef{indexValue}, "")
+			value.LLVMValueRef = llvm.BuildGEP2(c.builder, llvm.GetElementType(arrayType), arrayValue.UnderlyingValue(ctx),
+				[]llvm.LLVMValueRef{indexValue.UnderlyingValue(ctx)}, "")
 		}
 	case *ssa.Lookup:
 		panic("not implemented")
@@ -432,7 +457,8 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		elementTypeDesc := c.createTypeDescriptor(ctx, elementType)
 
 		// Create the runtime call
-		value.LLVMValueRef, err = c.createRuntimeCall(ctx, "makeSlice", []llvm.LLVMValueRef{
+		var slice llvm.LLVMValueRef
+		slice, err = c.createRuntimeCall(ctx, "makeSlice", []llvm.LLVMValueRef{
 			elementTypeDesc,
 			lenValue,
 			capValue,
@@ -440,7 +466,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 
 		// Load the slice value
 		sliceType := llvm.GetTypeByName2(c.currentContext(ctx), "slice")
-		value.LLVMValueRef = llvm.BuildLoad2(c.builder, sliceType, value, "")
+		value.LLVMValueRef = llvm.BuildLoad2(c.builder, sliceType, c.addressOf(ctx, slice), "")
 	case *ssa.MultiConvert:
 		panic("not implemented")
 	case *ssa.Next:
@@ -475,9 +501,9 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		}
 
 		// Add the edges
-		llvm.AddIncoming(value.LLVMValueRef, edgeValues.Ref(), blocks)
+		llvm.AddIncoming(value.LLVMValueRef, edgeValues.Ref(ctx), blocks)
 	case *ssa.Slice:
-		var low, high, max llvm.LLVMValueRef
+		var low, high, max Value
 		if expr.Low != nil {
 			low, err = c.createExpression(ctx, expr.Low)
 			if err != nil {
@@ -504,7 +530,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 			return invalidValue, err
 		}
 
-		array := arrayValue.UnderlyingValue()
+		array := arrayValue.UnderlyingValue(ctx)
 
 		var elementType llvm.LLVMTypeRef
 		numElements := uint64(0)
@@ -523,7 +549,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 			}
 		}
 
-		value.LLVMValueRef = c.createSlice(ctx, array, elementType, numElements, low, high, max)
+		value.LLVMValueRef = c.createSlice(ctx, array, elementType, numElements, low.UnderlyingValue(ctx), high.UnderlyingValue(ctx), max.UnderlyingValue(ctx))
 	case *ssa.SliceToArrayPointer:
 		panic("not implemented")
 	case *ssa.TypeAssert:
@@ -535,9 +561,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		newType := c.createType(ctx, expr.AssertedType)
 
 		// The value needs to be passed by address. Create an alloca for it and store the value
-		xAlloca := llvm.BuildAlloca(c.builder, llvm.TypeOf(x), "")
-		llvm.BuildStore(c.builder, x, xAlloca)
-
+		xAlloca := c.addressOf(ctx, x.UnderlyingValue(ctx))
 		xAlloca = llvm.BuildBitCast(c.builder, xAlloca, c.ptrType.valueType, "")
 
 		// create the runtime call
@@ -551,7 +575,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		}
 
 		// Get addresses of return value
-		result = c.addressOf(result)
+		result = c.addressOf(ctx, result)
 		objAddr := llvm.BuildStructGEP2(c.builder, c.ptrType.valueType, result, 0, "")
 		okAddr := llvm.BuildStructGEP2(c.builder, llvm.Int1TypeInContext(c.currentContext(ctx)), result, 1, "")
 
