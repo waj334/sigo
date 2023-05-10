@@ -2,16 +2,23 @@ package compiler
 
 import (
 	"context"
+	"go/token"
 	"go/types"
 	"golang.org/x/tools/go/ssa"
 	"omibyte.io/sigo/llvm"
+	"path/filepath"
 )
 
 type Value struct {
 	llvm.LLVMValueRef
-	dbg  llvm.LLVMMetadataRef
-	heap bool
-	cc   *Compiler
+	dbg      llvm.LLVMMetadataRef
+	heap     bool
+	cc       *Compiler
+	extern   bool
+	exported bool
+	global   bool
+	linkname string
+	spec     ssa.Value
 }
 
 func (v Value) Kind() llvm.LLVMTypeKind {
@@ -22,21 +29,62 @@ func (v Value) Linkage() llvm.LLVMLinkage {
 	return llvm.GetLinkage(v)
 }
 
-func (v Value) UnderlyingValue() llvm.LLVMValueRef {
+func (v Value) UnderlyingValue(ctx context.Context) llvm.LLVMValueRef {
 	ref := v.LLVMValueRef
 	if llvm.IsAAllocaInst(ref) != nil && v.heap {
-		// Load the ptr from the alloca
-		ref = llvm.BuildLoad2(v.cc.builder, v.cc.ptrType.valueType, ref, "")
+		// Load the object ptr from the alloca
+		ref = llvm.BuildLoad2(v.cc.builder, v.cc.ptrType.valueType, ref, "obj_load")
+
+		typ := v.cc.createType(ctx, v.spec.Type())
+
+		// Load the heap ptr from the object
+		ref = llvm.BuildLoad2(v.cc.builder, typ.valueType, ref, "heap_load")
 	}
 	return ref
 }
 
+func (v Value) File() *token.File {
+	var pkg *ssa.Package
+	switch value := v.spec.(type) {
+	case *ssa.Global:
+		pkg = value.Package()
+	default:
+		pkg = value.Parent().Pkg
+	}
+	return pkg.Prog.Fset.File(v.spec.Pos())
+}
+
+func (v Value) DebugFile() llvm.LLVMMetadataRef {
+	// Extract the file info
+	filename := v.cc.options.MapPath(v.File().Name())
+
+	// Return the file
+	return llvm.DIBuilderCreateFile(
+		v.cc.dibuilder,
+		filepath.Base(filename),
+		filepath.Dir(filename))
+}
+
+func (v Value) Pos() token.Position {
+	return v.File().Position(v.spec.Pos())
+}
+
+func (v Value) DebugPos(ctx context.Context) llvm.LLVMMetadataRef {
+	return llvm.DIBuilderCreateDebugLocation(
+		v.cc.currentContext(ctx),
+		uint(v.Pos().Line),
+		uint(v.Pos().Line),
+		llvm.GetSubprogram(llvm.GetBasicBlockParent(llvm.GetInstructionParent(v))),
+		nil,
+	)
+}
+
 type Values []Value
 
-func (v Values) Ref() []llvm.LLVMValueRef {
+func (v Values) Ref(ctx context.Context) []llvm.LLVMValueRef {
 	refs := make([]llvm.LLVMValueRef, 0, len(v))
 	for _, val := range v {
-		refs = append(refs, val)
+		refs = append(refs, val.UnderlyingValue(ctx))
 	}
 	return refs
 }
@@ -60,30 +108,39 @@ func (c *Compiler) createVariable(ctx context.Context, name string, value Value,
 	c.printf(Debug, "Creating variable for %s (%s)\n", name, valueType.String())
 	defer c.printf(Debug, "Done creating variable for %s (%s)\n", name, valueType.String())
 
-	// Create and associate the variable with the value
-	fn := c.currentFunction(ctx)
 	dbgType := c.createDebugType(ctx, valueType)
 
 	// Create the debug information about the variable
 	value.dbg = llvm.DIBuilderCreateAutoVariable(
 		c.dibuilder,
-		fn.subprogram,
+		c.currentScope(ctx),
 		name,
-		fn.diFile,
-		uint(c.currentLocation(ctx).position.Line),
+		value.DebugFile(),
+		uint(value.Pos().Line),
 		dbgType,
 		true,
 		0,
 		0)
+
+	var expression llvm.LLVMMetadataRef
+	if value.heap {
+		// Have the debugger dereference the object pointer to obtain the underlying object
+		ops := []uint64{
+			uint64(DW_OP_deref),
+		}
+		expression = llvm.DIBuilderCreateExpression(c.dibuilder, ops)
+	} else {
+		expression = llvm.DIBuilderCreateExpression(c.dibuilder, nil)
+	}
 
 	// Add debug info about the declaration
 	llvm.DIBuilderInsertDeclareAtEnd(
 		c.dibuilder,
 		value,
 		value.dbg,
-		llvm.DIBuilderCreateExpression(c.dibuilder, nil),
-		c.currentLocation(ctx).line,
-		c.currentBlock(ctx))
+		expression,
+		value.DebugPos(ctx),
+		c.currentEntryBlock(ctx))
 
 	return value
 }
@@ -136,11 +193,11 @@ func (c *Compiler) createSlice(ctx context.Context, array llvm.LLVMValueRef, ele
 	elementSizeVal = llvm.ConstInt(llvm.Int32TypeInContext(c.currentContext(ctx)), elementSize, false)
 
 	// Create the runtime call
-	value, _ := c.createRuntimeCall(ctx, "sliceAddr", []llvm.LLVMValueRef{
+	sliceValue, _ := c.createRuntimeCall(ctx, "sliceAddr", []llvm.LLVMValueRef{
 		ptrVal, lengthVal, capacityVal, elementSizeVal, low, high, max,
 	})
 
-	value = llvm.BuildLoad2(c.builder, sliceType, value, "")
+	value := llvm.BuildLoad2(c.builder, sliceType, c.addressOf(ctx, sliceValue), "")
 
 	// Return a new string if the input was a string
 	if isString {
@@ -148,7 +205,7 @@ func (c *Compiler) createSlice(ctx context.Context, array llvm.LLVMValueRef, ele
 		lengthVal = llvm.BuildExtractValue(c.builder, value, 1, "")
 
 		// Create a new string
-		value = llvm.BuildAlloca(c.builder, stringType, "")
+		value = c.createAlloca(ctx, stringType, "")
 		arrayAddr := llvm.BuildStructGEP2(c.builder, stringType, value, 0, "")
 		lenAddr := llvm.BuildStructGEP2(c.builder, stringType, value, 1, "")
 		llvm.BuildStore(c.builder, ptrVal, arrayAddr)
@@ -186,7 +243,7 @@ func (c *Compiler) createSliceFromValues(ctx context.Context, values []llvm.LLVM
 
 	// Create the slice struct
 	sliceType := llvm.GetTypeByName2(c.currentContext(ctx), "slice")
-	result := llvm.BuildAlloca(c.builder, sliceType, "")
+	result := c.createAlloca(ctx, sliceType, "")
 
 	arrayAddr := llvm.BuildStructGEP2(c.builder, sliceType, result, 0, "")
 	lenAddr := llvm.BuildStructGEP2(c.builder, sliceType, result, 1, "")
@@ -209,7 +266,7 @@ func (c *Compiler) createSliceFromStringValue(ctx context.Context, str llvm.LLVM
 	}
 
 	// Create the slice struct
-	slice := llvm.BuildAlloca(c.builder, sliceType, "")
+	slice := c.createAlloca(ctx, sliceType, "")
 
 	arrayAddr := llvm.BuildStructGEP2(c.builder, sliceType, slice, 0, "")
 	lenAddr := llvm.BuildStructGEP2(c.builder, sliceType, slice, 1, "")
@@ -234,25 +291,25 @@ func (c *Compiler) makeInterface(ctx context.Context, value ssa.Value) (result l
 	interfaceType := llvm.GetTypeByName2(c.currentContext(ctx), "interface")
 
 	// Return the value if it is already of interface type
-	if llvm.TypeIsEqual(llvm.TypeOf(x), interfaceType) {
+	if llvm.TypeIsEqual(llvm.TypeOf(x.UnderlyingValue(ctx)), interfaceType) {
 		return x, nil
 	}
 
 	typeinfo := c.createTypeDescriptor(ctx, c.createType(ctx, value.Type().Underlying()))
-	args := []llvm.LLVMValueRef{c.addressOf(x), typeinfo}
+	args := []llvm.LLVMValueRef{c.addressOf(ctx, x.UnderlyingValue(ctx)), typeinfo}
 	result, err = c.createRuntimeCall(ctx, "makeInterface", args)
 	if err != nil {
 		return nil, err
 	}
 
 	// Load the interface value
-	result = llvm.BuildLoad2(c.builder, interfaceType, result, "")
+	result = llvm.BuildLoad2(c.builder, interfaceType, c.addressOf(ctx, result), "")
 
 	return
 }
 
-func (c *Compiler) addressOf(value llvm.LLVMValueRef) llvm.LLVMValueRef {
-	alloca := llvm.BuildAlloca(c.builder, llvm.TypeOf(value), "")
+func (c *Compiler) addressOf(ctx context.Context, value llvm.LLVMValueRef) llvm.LLVMValueRef {
+	alloca := c.createAlloca(ctx, llvm.TypeOf(value), "")
 	llvm.BuildStore(c.builder, value, alloca)
 	return llvm.BuildBitCast(c.builder, alloca, c.ptrType.valueType, "")
 }
@@ -297,15 +354,23 @@ func (c *Compiler) createGlobalValue(ctx context.Context, constVal llvm.LLVMValu
 	llvm.SetUnnamedAddr(value, llvm.GlobalUnnamedAddr != 0)
 
 	// Bit cast the value
-	value = llvm.BuildBitCast(c.builder, value, c.ptrType.valueType, "")
+	//value = llvm.BuildBitCast(c.builder, value, c.ptrType.valueType, "")
 
 	return value
 }
 
-func (c *Compiler) structFieldAddress(value Value, structType llvm.LLVMTypeRef, index int) (llvm.LLVMTypeRef, llvm.LLVMValueRef) {
+func (c *Compiler) structFieldAddress(ctx context.Context, value Value, structType llvm.LLVMTypeRef, index int) (llvm.LLVMTypeRef, llvm.LLVMValueRef) {
 	// Get the type of the field
 	fieldType := llvm.StructGetTypeAtIndex(structType, uint(index))
 
 	// Create a GEP to get the  address of the field in the struct
-	return fieldType, llvm.BuildStructGEP2(c.builder, structType, value.UnderlyingValue(), uint(index), "")
+	return fieldType, llvm.BuildStructGEP2(c.builder, structType, value.UnderlyingValue(ctx), uint(index), "")
+}
+
+func (c *Compiler) createAlloca(ctx context.Context, _type llvm.LLVMTypeRef, name string) (result llvm.LLVMValueRef) {
+	// Create the alloca in the current function's entry block
+	c.positionAtEntryBlock(ctx)
+	result = llvm.BuildAlloca(c.builder, _type, name)
+	llvm.PositionBuilderAtEnd(c.builder, c.currentBlock(ctx))
+	return
 }

@@ -21,33 +21,34 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 		// Determine the element type of the slice
 		elementType := c.createType(ctx, args[0].Type().Underlying().(*types.Slice).Elem())
 		elementTypeDesc := c.createTypeDescriptor(ctx, elementType)
-		appendArgs := [3]llvm.LLVMValueRef{c.addressOf(argValues[0]), nil, elementTypeDesc}
+		appendArgs := [3]llvm.LLVMValueRef{c.addressOf(ctx, argValues[0]), nil, elementTypeDesc}
 		sliceType := llvm.GetTypeByName2(c.currentContext(ctx), "slice")
 		stringType := llvm.GetTypeByName2(c.currentContext(ctx), "string")
 		if llvm.TypeIsEqual(llvm.TypeOf(argValues[1]), sliceType) {
 			// Pass the slice directly to the runtime call
-			appendArgs[1] = c.addressOf(argValues[1])
+			appendArgs[1] = c.addressOf(ctx, argValues[1])
 		} else if llvm.TypeIsEqual(stringType, llvm.TypeOf(argValues[1])) {
 			// Convert the string to a slice
 			appendArgs[1] = c.createSliceFromStringValue(ctx, argValues[1])
 		} else {
 			// Create a slice from the remaining arguments and pass that to the
 			// runtime call.
-			appendArgs[1] = c.addressOf(c.createSliceFromValues(ctx, argValues[1:].Ref()))
+			appendArgs[1] = c.addressOf(ctx, c.createSliceFromValues(ctx, argValues[1:].Ref(ctx)))
 		}
 
 		// Create the runtime call
-		value, err = c.createRuntimeCall(ctx, "append", appendArgs[:])
+		var sliceValue llvm.LLVMValueRef
+		sliceValue, err = c.createRuntimeCall(ctx, "append", appendArgs[:])
 		if err != nil {
 			return nil, err
 		}
 
 		// Load the resulting slice
-		value = llvm.BuildLoad2(c.builder, sliceType, value, "")
+		value = llvm.BuildLoad2(c.builder, sliceType, c.addressOf(ctx, sliceValue), "")
 	case "cap":
 		switch args[0].Type().Underlying().(type) {
 		case *types.Slice:
-			value, err = c.createRuntimeCall(ctx, "sliceCap", []llvm.LLVMValueRef{c.addressOf(argValues[0])})
+			value, err = c.createRuntimeCall(ctx, "sliceCap", []llvm.LLVMValueRef{c.addressOf(ctx, argValues[0])})
 		case *types.Chan:
 			panic("not implemented")
 		default:
@@ -60,7 +61,7 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 	case "copy":
 		elementType := c.createType(ctx, args[0].Type().Underlying().(*types.Slice).Elem())
 		elementTypeDesc := c.createTypeDescriptor(ctx, elementType)
-		copyArgs := [3]llvm.LLVMValueRef{c.addressOf(argValues[0]), nil, elementTypeDesc}
+		copyArgs := [3]llvm.LLVMValueRef{c.addressOf(ctx, argValues[0]), nil, elementTypeDesc}
 		stringType := llvm.GetTypeByName2(c.currentContext(ctx), "string")
 
 		// If the second argument is a string, convert it to a byte slice
@@ -68,7 +69,7 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 			copyArgs[1] = c.createSliceFromStringValue(ctx, argValues[1])
 		} else {
 			// Pass the slice directly
-			copyArgs[1] = c.addressOf(argValues[1])
+			copyArgs[1] = c.addressOf(ctx, argValues[1])
 		}
 
 		// Create the runtime call
@@ -85,12 +86,12 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 		case *types.Basic:
 			switch t.Kind() {
 			case types.String:
-				value, err = c.createRuntimeCall(ctx, "stringLen", []llvm.LLVMValueRef{c.addressOf(argValues[0])})
+				value, err = c.createRuntimeCall(ctx, "stringLen", []llvm.LLVMValueRef{c.addressOf(ctx, argValues[0])})
 			default:
 				panic("len called with invalid value type")
 			}
 		case *types.Slice:
-			value, err = c.createRuntimeCall(ctx, "sliceLen", []llvm.LLVMValueRef{c.addressOf(argValues[0])})
+			value, err = c.createRuntimeCall(ctx, "sliceLen", []llvm.LLVMValueRef{c.addressOf(ctx, argValues[0])})
 		case *types.Chan:
 			panic("not implemented")
 		default:
@@ -100,8 +101,6 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 		panic("unreachable")
 	case "new":
 		panic("unreachable")
-	case "panic":
-		panic("not implemented")
 	case "print", "println":
 		// Create an array of interfaces to pass to the print runtime calls
 		argType := llvm.GetTypeByName2(c.currentContext(ctx), "interface")

@@ -174,3 +174,9 @@ func VerifyModule2(module LLVMModuleRef, failureAction LLVMVerifierFailureAction
 	}
 	return
 }
+
+func GetValueName2(value LLVMValueRef) string {
+	var length C.size_t
+	nameStr := C.LLVMGetValueName2(C.LLVMValueRef(unsafe.Pointer(value.Swigcptr())), (*C.size_t)(&length))
+	return C.GoStringN(nameStr, C.int(length))
+}

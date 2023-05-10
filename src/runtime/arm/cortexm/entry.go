@@ -1,37 +1,42 @@
 package cortexm
 
-import "unsafe"
+import (
+	"unsafe"
+)
 
 //go:linkname main main.main
 func main()
 
-//sigo:extern _start_bss _start_bss
-var _start_bss unsafe.Pointer
+//go:linkname abort _abort
+func abort()
 
-//sigo:extern _end_bss _end_bss
-var _end_bss unsafe.Pointer
+//sigo:extern __start_bss __start_bss
+var __start_bss unsafe.Pointer
 
-//sigo:extern _start_data _start_data
-var _start_data unsafe.Pointer
+//sigo:extern __end_bss __end_bss
+var __end_bss unsafe.Pointer
 
-//sigo:extern _end_data _end_data
-var _end_data unsafe.Pointer
+//sigo:extern __start_data __start_data
+var __start_data unsafe.Pointer
 
-//sigo:extern _data_base_addr _data_base_addr
-var _data_base_addr unsafe.Pointer
+//sigo:extern __end_data __end_data
+var __end_data unsafe.Pointer
+
+//sigo:extern __data_base_addr __data_base_addr
+var __data_base_addr unsafe.Pointer
 
 func initMemory() {
 	// Zero init globals
-	sbss := unsafe.Pointer(&_start_bss)
-	ebss := unsafe.Pointer(&_end_bss)
+	sbss := unsafe.Pointer(&__start_bss)
+	ebss := unsafe.Pointer(&__end_bss)
 	for ptr := sbss; ptr != ebss; ptr = unsafe.Add(ptr, 4) {
 		*(*uint32)(ptr) = 0
 	}
 
 	// Initialize data from flash
-	dst := unsafe.Pointer(&_start_data)
-	src := unsafe.Pointer(&_data_base_addr)
-	edata := unsafe.Pointer(&_end_data)
+	dst := unsafe.Pointer(&__start_data)
+	src := unsafe.Pointer(&__data_base_addr)
+	edata := unsafe.Pointer(&__end_data)
 	for dst != edata {
 		*(*uint32)(dst) = *(*uint32)(src)
 		dst = unsafe.Add(dst, 4)
@@ -46,4 +51,7 @@ func _entry() {
 
 	// Run the main program
 	main()
+
+	// Loop forever
+	abort()
 }

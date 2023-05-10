@@ -2,8 +2,6 @@ package runtime
 
 import (
 	"unsafe"
-
-	"runtime/internal/allocator"
 )
 
 type sliceDescriptor struct {
@@ -13,11 +11,10 @@ type sliceDescriptor struct {
 }
 
 //go:export sliceMake runtime.makeSlice
-func sliceMake(t unsafe.Pointer, n int, m int) unsafe.Pointer {
+func sliceMake(t unsafe.Pointer, n int, m int) sliceDescriptor {
 	// The length MUST not be greater than the capacity of the slice!
 	if n > m {
-		// TODO: panic!
-		return nil
+		panic("runtime error: makeslice: cap out of range")
 	}
 
 	elementTypeDesc := (*typeDescriptor)(t)
@@ -27,14 +24,14 @@ func sliceMake(t unsafe.Pointer, n int, m int) unsafe.Pointer {
 	}
 
 	// Allocate the underlying array
-	result.array = allocator.GCAlloc(uintptr(result.cap) * elementTypeDesc.size)
+	result.array = *(*unsafe.Pointer)(alloc(uintptr(result.cap) * elementTypeDesc.size))
 
 	// Finally, return the new slice
-	return unsafe.Pointer(&result.array)
+	return result
 }
 
 //go:export sliceAppend runtime.append
-func sliceAppend(base unsafe.Pointer, elems unsafe.Pointer, elementType unsafe.Pointer) unsafe.Pointer {
+func sliceAppend(base unsafe.Pointer, elems unsafe.Pointer, elementType unsafe.Pointer) sliceDescriptor {
 	baseSlice := (*sliceDescriptor)(base)
 	baseLength := uintptr(baseSlice.len)
 
@@ -51,23 +48,23 @@ func sliceAppend(base unsafe.Pointer, elems unsafe.Pointer, elementType unsafe.P
 	result.len = baseSlice.len + elementsSlice.len
 	if result.len > baseSlice.cap {
 		// Allocate a new underlying array
-		result.array = allocator.GCAlloc(uintptr(result.len) * elementTypeDesc.size)
+		result.array = *(*unsafe.Pointer)(alloc(uintptr(result.len) * elementTypeDesc.size))
 
 		// Copy the contents of the old array into the new array
-		allocator.Memcpy(result.array, baseSlice.array, baseLength*elementTypeDesc.size)
+		memcpy(result.array, baseSlice.array, baseLength*elementTypeDesc.size)
 
 		// Set the capacity to that of the new length
 		result.cap = result.len
 	}
 
 	// Copy the contents of the elements slice onto the end of the base slice
-	allocator.Memcpy(
+	memcpy(
 		unsafe.Add(result.array, baseLength*elementTypeDesc.size),
 		elementsSlice.array,
 		elementsLength*elementTypeDesc.size)
 
 	// Return the new slice
-	return unsafe.Pointer(&result.array)
+	return result
 }
 
 //go:export sliceLen runtime.sliceLen
@@ -96,7 +93,7 @@ func sliceCopy(src, dst, elementType unsafe.Pointer) int {
 	}
 
 	// Copy N elements from the src into dst
-	allocator.Memcpy(dstSlice.array, srcSlice.array, uintptr(n)*elementTypeDesc.size)
+	memcpy(dstSlice.array, srcSlice.array, uintptr(n)*elementTypeDesc.size)
 
 	// Return the number elements copied
 	return n
@@ -108,16 +105,14 @@ func sliceIndexAddr(s unsafe.Pointer, index int, elementType unsafe.Pointer) uns
 	elementTypeDesc := (*typeDescriptor)(elementType)
 	// Index MUST not be greater than the length of the slice
 	if index >= slice.len {
-		// TODO: Panic
-		return nil
+		panic("runtime: index out of range")
 	}
 	// Return the address of the element at the specified index
 	return unsafe.Add(slice.array, uintptr(index)*elementTypeDesc.size)
 }
 
 //go:export sliceAddr runtime.sliceAddr
-func sliceAddr(ptr unsafe.Pointer, length, capacity, elementSize, low, high, max int) unsafe.Pointer {
-	arr := ptr
+func sliceAddr(ptr unsafe.Pointer, length, capacity, elementSize, low, high, max int) sliceDescriptor {
 	newLow := 0
 	newHigh := length
 	newMax := capacity
@@ -135,14 +130,12 @@ func sliceAddr(ptr unsafe.Pointer, length, capacity, elementSize, low, high, max
 	}
 
 	if newLow < 0 || newHigh < newLow || newMax < newHigh || newHigh > length || newMax > capacity {
-		// TODO: Panic
-		return nil
+		panic("runtime error: slice bounds out of range [TODO:TODO:TODO]")
 	}
 
-	slice := sliceDescriptor{
-		array: unsafe.Add(arr, newLow*elementSize),
+	return sliceDescriptor{
+		array: unsafe.Add(ptr, newLow*elementSize),
 		len:   newHigh - newLow,
 		cap:   newMax - newLow,
 	}
-	return unsafe.Pointer(&slice.array)
 }

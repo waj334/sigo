@@ -8,12 +8,11 @@ type interfaceDescriptor struct {
 }
 
 //go:export interfaceMake runtime.makeInterface
-func interfaceMake(value unsafe.Pointer, valueType unsafe.Pointer) unsafe.Pointer {
-	i := interfaceDescriptor{
+func interfaceMake(value unsafe.Pointer, valueType unsafe.Pointer) interfaceDescriptor {
+	return interfaceDescriptor{
 		typePtr:  (*typeDescriptor)(valueType),
 		valuePtr: value,
 	}
-	return unsafe.Pointer(&i.typePtr)
 }
 
 //go:export interfaceAssert runtime.typeAssert

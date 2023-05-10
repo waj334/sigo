@@ -6,7 +6,7 @@ package main
 
 import (
 	_ "runtime/arm/cortexm/sam/atsame51g19a"
-	_ "runtime/gc/markandsweep"
+	_ "runtime/gc/markandcompact"
 )
 
 func main() {

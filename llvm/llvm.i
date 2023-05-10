@@ -99,7 +99,8 @@
                     (const char *UniqueIdentifier, size_t UniqueIdentifierLen),
                     (const char *Str, unsigned SLen),
                     (const char *Str, size_t SLen),
-                    (const char *Name, unsigned SLen)
+                    (const char *Name, unsigned SLen),
+                    (const char *Linkage, size_t LinkLen)
 
 {
     $1 = $input;
@@ -120,7 +121,8 @@
                     (const char *UniqueIdentifier, size_t UniqueIdentifierLen),
                     (const char *Str, unsigned SLen),
                     (const char *Str, size_t SLen),
-                    (const char *Name, unsigned SLen)
+                    (const char *Name, unsigned SLen),
+                    (const char *Linkage, size_t LinkLen)
 {
     $result = $1;
 }
@@ -139,7 +141,8 @@
                     (const char *UniqueIdentifier, size_t UniqueIdentifierLen),
                     (const char *Str, unsigned SLen),
                     (const char *Str, size_t SLen),
-                    (const char *Name, unsigned SLen)
+                    (const char *Name, unsigned SLen),
+                    (const char *Linkage, size_t LinkLen)
 {
     free($input);
 }
@@ -158,7 +161,8 @@
                     (const char *UniqueIdentifier, size_t UniqueIdentifierLen),
                     (const char *Str, unsigned SLen),
                     (const char *Str, size_t SLen),
-                    (const char *Name, unsigned SLen)
+                    (const char *Name, unsigned SLen),
+                    (const char *Linkage, size_t LinkLen)
                     "*C.char";
 
 %typemap(gotype)    (const char *Name, size_t NameLen),
@@ -175,7 +179,8 @@
                     (const char *UniqueIdentifier, size_t UniqueIdentifierLen),
                     (const char *Str, unsigned SLen),
                     (const char *Str, size_t SLen),
-                    (const char *Name, unsigned SLen)
+                    (const char *Name, unsigned SLen),
+                    (const char *Linkage, size_t LinkLen)
                     "string";
 
 %typemap(goin)      (const char *Name, size_t NameLen),
@@ -192,7 +197,8 @@
                     (const char *UniqueIdentifier, size_t UniqueIdentifierLen),
                     (const char *Str, unsigned SLen),
                     (const char *Str, size_t SLen),
-                    (const char *Name, unsigned SLen)
+                    (const char *Name, unsigned SLen),
+                    (const char *Linkage, size_t LinkLen)
 {
     $result = C.CString($1)
 }
@@ -211,7 +217,8 @@
                     (const char *UniqueIdentifier, size_t UniqueIdentifierLen),
                     (const char *Str, unsigned SLen),
                     (const char *Str, size_t SLen),
-                    (const char *Name, unsigned SLen)
+                    (const char *Name, unsigned SLen),
+                    (const char *Linkage, size_t LinkLen)
 {
     $result = C.GoString($1)
 }
@@ -515,6 +522,7 @@
 %ignore LLVMAddIncoming;
 %ignore LLVMGetParamTypes;
 %ignore LLVMGetStructElementTypes;
+%ignore LLVMGetValueName2;
 
 // Strip redundant "LLVM" from function calls
 %{

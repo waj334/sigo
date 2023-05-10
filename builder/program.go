@@ -36,7 +36,7 @@ type Program struct {
 func (p *Program) parse() (err error) {
 	// Parse the package at the directory
 	config := packages.Config{
-		Mode:       packages.NeedName | packages.NeedFiles | packages.NeedImports | packages.NeedDeps | packages.NeedTypes | packages.NeedSyntax | packages.NeedTypesInfo | packages.NeedTypesSizes | packages.NeedModule | packages.NeedEmbedFiles | packages.NeedEmbedPatterns,
+		Mode:       packages.NeedName | packages.NeedFiles | packages.NeedImports | packages.NeedDeps | packages.NeedTypes | packages.NeedSyntax | packages.NeedTypesInfo | packages.NeedModule | packages.NeedEmbedFiles | packages.NeedEmbedPatterns,
 		Context:    context.Background(),
 		Logf:       nil,
 		Dir:        "",
@@ -223,27 +223,6 @@ func (p *Program) buildPackages() ([]*ssa.Package, error) {
 	p.ssaProg.Build()
 
 	return p.ssaProg.AllPackages(), nil
-}
-
-func (p *Program) nearestFuncBelowComment(comment *ast.Comment, file *ast.File) (fn *ast.FuncDecl) {
-	ast.Inspect(file, func(node ast.Node) bool {
-		switch n := node.(type) {
-		case *ast.FuncDecl:
-			// The comment must be above the function declaration.
-			if comment.Pos() < n.Pos() {
-				// Is this the top-most function declaration relative to below
-				// the comment?
-				if fn == nil || n.Pos() < fn.Pos() {
-					fn = n
-				}
-			}
-		}
-		// TODO: Should probably consider other non-function nodes in between
-		//       the found function and the comment.
-		return true
-	})
-
-	return
 }
 
 func gatherPackages(pkg *packages.Package, in map[string]*packages.Package) map[string]*packages.Package {

@@ -4,7 +4,7 @@ MEMORY
     RAM (xrw)  : ORIGIN = 0x20000000, LENGTH = 192K
 }
 
-_stack_size = 4K;
+__stack_size = 4K;
 
 ENTRY(Reset_Handler)
 
@@ -20,44 +20,42 @@ SECTIONS
         . = ALIGN(4);
     } >FLASH
 
-    _data_base_addr = LOADADDR(.data);
-    .data :
-    {
-        . = ALIGN(4);
-        _start_data = .;
-        *(.data)
-        *(.data.*)
-        . = ALIGN(4);
-        _end_data = .;
-    } >RAM AT>FLASH
-
-    .bss (NOLOAD) :
-    {
-        . = ALIGN(4);
-        _start_bss = .;
-        *(.sbss*)
-        *(.gnu.linkonce.sb.*)
-        *(.bss .bss.*)
-        *(.gnu.linkonce.b.*)
-        *(COMMON)
-        . = ALIGN(4);
-        _end_bss = .;
-    } >RAM
-
     /* Place the stack at the end of RAM so that any stack overflow that occurs
        does not corrupt the heap. */
     .stack (NOLOAD):
     {
-        . = ORIGIN(RAM) + LENGTH(RAM) - _stack_size;
-        _stack_bottom = .;
-        . += _stack_size;
-        _stack_top = .;
+        . = ALIGN(4);
+        __stack_bottom = .;
+        . += __stack_size;
+        . = ALIGN(4);
+        __stack = .;
     } >RAM
-    __stack = _stack_top;
+    __stack_top = __stack;
 
-    /* Make the rest of memory available for heap storage */
-    __heap_start = _end_bss;
-    __heap_end = _stack_bottom;
+    .data :
+    {
+        . = ALIGN(4);
+        __start_data = .;
+        *(.data)
+        *(.data.*)
+        . = ALIGN(4);
+        __end_data = .;
+    } >RAM AT>FLASH
+    __data_base_addr = LOADADDR(.data);
+
+    .bss (NOLOAD) :
+    {
+        . = ALIGN(4);
+        __start_bss = .;
+        *(.bss)
+        *(.bss.*)
+        *(COMMON)
+        . = ALIGN(4);
+        __end_bss = .;
+    } >RAM
+
+    __heap_start = __end_bss;
+    __heap_end = ORIGIN(RAM) + LENGTH(RAM);
     __heap_size = __heap_end - __heap_start;
 
     /* Exception handling is not needed */
@@ -69,6 +67,6 @@ SECTIONS
 }
 
 __arm32_tls_tcb_offset = 4;
-__globals_start = _start_data;
-__globals_end = _end_bss;
-_estack = _stack_top;
+__globals_start = __start_data;
+__globals_end = __end_bss;
+_estack = __stack;

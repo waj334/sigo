@@ -108,6 +108,9 @@ func Build(ctx context.Context, packageDir string) error {
 	// later.
 	compilerOptions.PathMappings[goRootStaging] = options.Environment.Value("SIGOROOT")
 
+	// TODO: Detect the target architecture by some other means
+	options.Environment["GOARCH"] = "arm"
+
 	// Create a new program
 	prog := Program{
 		config:     config,
@@ -171,7 +174,6 @@ func Build(ctx context.Context, packageDir string) error {
 	cc, compilerCtx := compiler.NewCompiler(*compilerOptions)
 
 	runtimePackages := []string{
-		"runtime/internal/allocator",
 		"runtime",
 	}
 
@@ -212,6 +214,9 @@ func Build(ctx context.Context, packageDir string) error {
 			}
 		}
 	}
+
+	// Run optimization passes
+	//cc.GCPass(compilerCtx, cc.Module())
 
 	// Finalize the compiler
 	cc.Finalize()
