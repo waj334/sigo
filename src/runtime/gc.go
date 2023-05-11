@@ -8,6 +8,7 @@ import "unsafe"
 //sigo:extern __heap_size __heap_size
 //sigo:extern __start_data __start_data
 //sigo:extern __end_data __end_data
+//sigo:extern mallinfo mallinfo
 
 var (
 	head       *object
@@ -24,25 +25,33 @@ var (
 )
 
 type object struct {
-	addr    unsafe.Pointer
-	next    *object
-	size    uintptr
-	marked  bool
-	padding [3]byte
+	addr   unsafe.Pointer
+	next   *object
+	size   uintptr
+	marked bool
 }
 
-func _malloc(size uintptr) unsafe.Pointer {
-	ptr := malloc(size)
-	if ptr != nil {
-		heapUsage += align(size)
-	}
-	return ptr
+type strMallinfo struct {
+	arena    uintptr /* Non-mmapped space allocated (bytes) */
+	ordblks  uintptr /* Number of free chunks */
+	smblks   uintptr /* Number of free fastbin blocks */
+	hblks    uintptr /* Number of mmapped regions */
+	hblkhd   uintptr /* Space allocated in mmapped regions (bytes) */
+	usmblks  uintptr /* See below */
+	fsmblks  uintptr /* Space in freed fastbin blocks (bytes) */
+	uordblks uintptr /* Total allocated space (bytes) */
+	fordblks uintptr /* Total free space (bytes) */
+	keepcost uintptr /* Top-most, releasable space (bytes) */
 }
+
+func mallinfo() strMallinfo
 
 func alloc(size uintptr) unsafe.Pointer {
+	heapLimit := __heap_size - 128
+
 	// Check if the GC needs to run
 	allocSz := align(size + unsafe.Sizeof(object{}))
-	if heapUsage+allocSz > __heap_size - 4096 {
+	if heapUsage+allocSz > heapLimit {
 		// Garbage collect
 		GC()
 
@@ -53,12 +62,12 @@ func alloc(size uintptr) unsafe.Pointer {
 	}
 
 	// Allocate memory for the object
-	obj := (*object)(_malloc(unsafe.Sizeof(object{})))
+	obj := (*object)(malloc(unsafe.Sizeof(object{})))
 	if obj == nil {
 		panic("gc error: failed to allocate object")
 	}
 
-	obj.addr = _malloc(size)
+	obj.addr = malloc(size)
 	if obj.addr == nil {
 		panic("gc error: failed to allocate memory")
 	}
@@ -70,6 +79,10 @@ func alloc(size uintptr) unsafe.Pointer {
 	head = obj
 	numAllocas++
 
+	// Update heapUsage
+	info := mallinfo()
+	heapUsage = info.uordblks
+
 	// Return the address of the allocated memory
 	return unsafe.Pointer(obj)
 }
@@ -77,10 +90,11 @@ func alloc(size uintptr) unsafe.Pointer {
 func freeObject(obj *object) {
 	if obj != nil {
 		free(obj.addr)
-		heapUsage -= align(obj.size)
-
 		free(unsafe.Pointer(obj))
-		heapUsage -= align(unsafe.Sizeof(object{}))
+
+		// Update heapUsage
+		info := mallinfo()
+		heapUsage = info.uordblks
 	}
 }
 
@@ -155,7 +169,7 @@ func compact() {
 }
 
 func align(n uintptr) uintptr {
-	return n + (4 - (n % 4))
+	return n + (8 - (n % 8))
 }
 
 func GC() {
