@@ -113,13 +113,15 @@ func Build(ctx context.Context, packageDir string) error {
 
 	// Create a new program
 	prog := Program{
-		config:     config,
-		fset:       fset,
-		path:       packageDir,
-		targetInfo: map[string]string{},
-		pkgs:       []*packages.Package{},
-		env:        options.Environment,
-		options:    compilerOptions,
+		config:        config,
+		fset:          fset,
+		path:          packageDir,
+		targetInfo:    map[string]string{},
+		pkgs:          []*packages.Package{},
+		env:           options.Environment,
+		options:       compilerOptions,
+		assemblyFiles: map[string]struct{}{},
+		linkerFiles:   map[string]struct{}{},
 	}
 
 	// Parse the program
@@ -276,11 +278,18 @@ func Build(ctx context.Context, packageDir string) error {
 		"-L" + libCompilerRTDir,
 		"-W1,-L" + filepath.Join(options.Environment.Value("SIGOROOT"), "runtime"),
 		"-T" + prog.targetLinkerFile,
-		objectOut,
 	}
 
+	// Add all linker files
+	for ld, _ := range prog.linkerFiles {
+		args = append(args, "-L"+filepath.Dir(ld))
+		args = append(args, "-T"+ld)
+	}
+
+	args = append(args, objectOut)
+
 	// Compile all assembly files
-	for _, asm := range prog.assemblyFiles {
+	for asm, _ := range prog.assemblyFiles {
 		// Format object file name
 		objFile := filepath.Join(options.BuildDir, fmt.Sprintf("%s-%d.o", filepath.Base(asm), rand.Int()))
 

@@ -264,6 +264,19 @@ func (c *Compiler) createDebugType(ctx context.Context, typ types.Type) (ditype 
 			llvm.SizeOfTypeInBits(c.options.Target.dataLayout, t.valueType),
 			llvm.ABIAlignmentOfType(c.options.Target.dataLayout, t.valueType)*8,
 			0, nil, nil, 0, nil, "")
+	case *types.Signature:
+		// Create the debug information for this function
+		var argDiTypes []llvm.LLVMMetadataRef
+		for i := 0; i < typ.Params().Len(); i++ {
+			arg := typ.Params().At(i)
+			argDiTypes = append(argDiTypes, c.createDebugType(ctx, arg.Type()))
+		}
+
+		ditype = llvm.DIBuilderCreateSubroutineType(
+			c.dibuilder,
+			nil,
+			argDiTypes,
+			0)
 	case *types.Tuple:
 		panic("cannot create debug information for this type")
 	default:

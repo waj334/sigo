@@ -46,12 +46,10 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 			// Create the runtime call to allocate some memory on the heap
 			obj, err := c.createRuntimeCall(ctx, "alloc",
 				[]llvm.LLVMValueRef{llvm.ConstInt(c.uintptrType.valueType, size, false)})
+
 			if err != nil {
 				return invalidValue, err
 			}
-
-			// Load the addr from the heap obj
-			//addr := llvm.BuildLoad2(c.builder, c.ptrType.valueType, obj, "")
 
 			// Store the address at the alloc
 			llvm.BuildStore(c.builder, obj, value.LLVMValueRef)
@@ -67,9 +65,6 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 				llvm.BuildStore(c.builder, llvm.ConstNull(elementType.valueType), value.LLVMValueRef)
 			}
 		}
-
-		// Finally create a variable to hold debug information about this alloca
-		//value = c.createVariable(ctx, expr.Name(), value, typ)
 	case *ssa.BinOp:
 		value.LLVMValueRef, err = c.createBinOp(ctx, expr)
 	case *ssa.Call:
@@ -79,13 +74,38 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		case *ssa.Function:
 			value.LLVMValueRef, err = c.createFunctionCall(ctx, callExpr, expr.Call.Args)
 		case *ssa.MakeClosure:
-			// a *MakeClosure, indicating an immediately applied function
-			// literal with free variables.
-			panic("not implemented")
+			panic("unreachable?")
 		default:
-			// any other value, indicating a dynamically dispatched function
-			// call.
-			panic("not implemented")
+			fnObj := c.functions[expr.Call.Signature()]
+			fnContext, err := c.createExpression(ctx, callExpr)
+			if err != nil {
+				return invalidValue, err
+			}
+
+			memberTypes := []llvm.LLVMTypeRef{c.ptrType.valueType}
+			for i := len(expr.Call.Args); i < fnObj.signature.Params().Len(); i++ {
+				memberTypes = append(memberTypes, c.createType(ctx, fnObj.signature.Params().At(i).Type()).valueType)
+			}
+
+			// Create a struct to hold the function pointer and the free vars
+			strType := llvm.StructTypeInContext(c.currentContext(ctx), memberTypes, false)
+			println(llvm.PrintTypeToString(strType))
+			addr := llvm.BuildStructGEP2(c.builder, strType, fnContext, 0, "addr_fnptr")
+			fnPtr := llvm.BuildLoad2(c.builder, c.ptrType.valueType, addr, "load_fnptr")
+
+			paramArgs, err := c.createValues(ctx, expr.Call.Args)
+			if err != nil {
+				return invalidValue, err
+			}
+
+			args := paramArgs.Ref(ctx)
+			for i := 1; i < len(memberTypes); i++ {
+				addr = llvm.BuildStructGEP2(c.builder, strType, fnContext, uint(i), "addr_bound")
+				arg := llvm.BuildLoad2(c.builder, llvm.StructGetTypeAtIndex(strType, uint(i)), addr, "load_fnptr")
+				args = append(args, arg)
+			}
+
+			value.LLVMValueRef = llvm.BuildCall2(c.builder, fnObj.llvmType, fnPtr, args, "")
 		}
 	case *ssa.Const:
 		constType := c.createType(ctx, expr.Type())
@@ -103,8 +123,13 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 				strValue := constant.StringVal(expr.Value)
 				value.LLVMValueRef = c.createConstantString(ctx, strValue)
 			case constant.Int:
-				constVal, _ := constant.Int64Val(expr.Value)
-				value.LLVMValueRef = llvm.ConstInt(constType.valueType, uint64(constVal), false)
+				intVal, _ := constant.Int64Val(expr.Value)
+				if llvm.GetTypeKind(constType.valueType) == llvm.PointerTypeKind {
+					constVal := llvm.ConstInt(c.uintptrType.valueType, uint64(intVal), false)
+					value.LLVMValueRef = llvm.BuildIntToPtr(c.builder, constVal, constType.valueType, "")
+				} else {
+					value.LLVMValueRef = llvm.ConstInt(constType.valueType, uint64(intVal), false)
+				}
 			case constant.Float:
 				constVal, _ := constant.Float64Val(expr.Value)
 				value.LLVMValueRef = llvm.ConstReal(constType.valueType, constVal)
@@ -115,8 +140,8 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 			}
 		}
 	case *ssa.Convert:
-		typeFrom := c.createType(ctx, expr.X.Type())
-		typeTo := c.createType(ctx, expr.Type())
+		typeFrom := c.createType(ctx, expr.X.Type().Underlying())
+		typeTo := c.createType(ctx, expr.Type().Underlying())
 
 		fromSize := llvm.StoreSizeOfType(c.options.Target.dataLayout, typeFrom.valueType)
 		toSize := llvm.StoreSizeOfType(c.options.Target.dataLayout, typeTo.valueType)
@@ -128,7 +153,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 
 		switch typeX := expr.X.Type().Underlying().(type) {
 		case *types.Basic:
-			switch otherType := expr.Type().(type) {
+			switch otherType := expr.Type().Underlying().(type) {
 			case *types.Basic:
 				fromIsInteger := typeX.Info()&types.IsInteger != 0
 				toIsInteger := otherType.Info()&types.IsInteger != 0
@@ -231,16 +256,13 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		} else {
 			panic("function does not exist")
 		}
-
-		// All parameters should be allocated on the stack.
-		/*value = llvm.BuildAlloca(c.builder, typ.valueType, expr.Name())
-
-		// Finally create a variable to hold debug information about this alloca
-		//value = c.createVariable(ctx, expr.Name(), alloca, typ)*/
 	case *ssa.ChangeInterface:
 		panic("not implemented")
 	case *ssa.ChangeType:
-		panic("not implemented")
+		value, err = c.createExpression(ctx, expr.X)
+		if err != nil {
+			return invalidValue, err
+		}
 	case *ssa.Extract:
 		// Get the return struct (tuple)
 		structValue, err := c.createExpression(ctx, expr.Tuple)
@@ -288,6 +310,24 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 
 		//Return the address
 		_, value.LLVMValueRef = c.structFieldAddress(ctx, structValue, structType, expr.Field)
+	case *ssa.FreeVar:
+		// The free-var is passed via parameters to the function
+		fnObj := c.functions[expr.Parent().Signature]
+		for i, fv := range expr.Parent().FreeVars {
+			if fv.Name() == expr.Name() {
+				value.LLVMValueRef = llvm.GetParam(fnObj.value, uint(len(expr.Parent().Params)+i))
+				break
+			}
+		}
+	case *ssa.Function:
+		// Check the function cache first
+		fn, ok := c.functions[expr.Signature]
+		if !ok {
+			panic("function does not exist")
+		}
+
+		// Return a pointer to the function
+		value.LLVMValueRef = fn.value
 	case *ssa.Global:
 		// Create a global value
 		globalType := c.createType(ctx, expr.Object().Type())
@@ -436,7 +476,36 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 	case *ssa.MakeChan:
 		panic("not implemented")
 	case *ssa.MakeClosure:
-		panic("not implemented")
+		// NOTE: Closures are created during initial function generation
+		// Get the function
+		fnValue, err := c.createExpression(ctx, expr.Fn)
+		if err != nil {
+			return invalidValue, err
+		}
+
+		memberTypes := []llvm.LLVMTypeRef{llvm.TypeOf(fnValue)}
+		for _, bound := range expr.Bindings {
+			memberTypes = append(memberTypes, c.createType(ctx, bound.Type()).valueType)
+		}
+
+		// Create a struct to hold the function pointer and the free vars
+		strType := llvm.StructTypeInContext(c.currentContext(ctx), memberTypes, false)
+
+		// Create an alloca to hold all the values
+		value.LLVMValueRef = llvm.BuildAlloca(c.builder, strType, "fn_context")
+
+		// Store each of the values
+		addr := llvm.BuildStructGEP2(c.builder, strType, value.LLVMValueRef, 0, "fnPtr")
+		llvm.BuildStore(c.builder, fnValue, addr)
+
+		for i, bound := range expr.Bindings {
+			boundValue, err := c.createExpression(ctx, bound)
+			if err != nil {
+				return invalidValue, err
+			}
+			addr = llvm.BuildStructGEP2(c.builder, strType, value.LLVMValueRef, uint(i+1), "bound_"+bound.Name())
+			llvm.BuildStore(c.builder, boundValue, addr)
+		}
 	case *ssa.MakeInterface:
 		value.LLVMValueRef, err = c.makeInterface(ctx, expr.X)
 		if err != nil {
@@ -476,9 +545,6 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 
 		// Build the Phi node operator
 		value.LLVMValueRef = llvm.BuildPhi(c.builder, phiType.valueType, "")
-
-		// Create a variable for this Phi node
-		//value = c.createVariable(ctx, expr.Comment, phiValue, phiType)
 
 		// Cache the PHI value now to prevent a stack overflow in the call to createValues below
 		if _, ok := c.values[expr]; ok {
@@ -601,6 +667,8 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		}
 	case *ssa.UnOp:
 		value.LLVMValueRef, err = c.createUpOp(ctx, expr)
+	default:
+		panic("unimplemented expression type: " + expr.String())
 	}
 
 	if value.LLVMValueRef == nil {

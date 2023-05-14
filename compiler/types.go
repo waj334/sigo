@@ -65,10 +65,6 @@ func (c *Compiler) createType(ctx context.Context, typ types.Type) *Type {
 			structMembers = append(structMembers, fieldType.valueType)
 		}
 		result.valueType = llvm.StructTypeInContext(c.currentContext(ctx), structMembers, false)
-
-		// Note: Need to cache structs right away to prevent a stack overflow
-		// with a member type is or contains this struct type for any reason.
-		//c.types[keyType] = result
 	case *types.Map:
 		result.valueType = llvm.GetTypeByName2(c.currentContext(ctx), "map")
 	case *types.Slice:
@@ -117,8 +113,42 @@ func (c *Compiler) createType(ctx context.Context, typ types.Type) *Type {
 		elementType := c.createType(ctx, typ.Elem())
 		// NOTE: This pointer is opaque!!!
 		result.valueType = llvm.PointerType(elementType.valueType, 0)
+
+		// Track the element type of this pointer
+		c.elementTypes[result.valueType] = elementType.valueType
 	case *types.Chan:
 		result.valueType = llvm.GetTypeByName2(c.currentContext(ctx), "channel")
+	case *types.Signature:
+		var returnValueTypes []llvm.LLVMTypeRef
+		var argValueTypes []llvm.LLVMTypeRef
+		var returnType llvm.LLVMTypeRef
+
+		if numArgs := typ.Results().Len(); numArgs == 0 {
+			returnType = llvm.VoidTypeInContext(c.currentContext(ctx))
+		} else if numArgs == 1 {
+			returnType = c.createType(ctx, typ.Results().At(0).Type()).valueType
+		} else {
+			// Create a struct type to store the return values into
+			for i := 0; i < numArgs; i++ {
+				resultType := typ.Results().At(i).Type()
+				returnValueTypes = append(returnValueTypes, c.createType(ctx, resultType).valueType)
+			}
+			returnType = llvm.StructTypeInContext(c.currentContext(ctx), returnValueTypes, false)
+		}
+
+		// Create types for the arguments
+		for i := 0; i < typ.Params().Len(); i++ {
+			arg := typ.Params().At(i)
+			argType := c.createType(ctx, arg.Type())
+			argValueTypes = append(argValueTypes, argType.valueType)
+		}
+
+		// Create the function type
+		fnType := llvm.FunctionType(returnType, argValueTypes, typ.Variadic())
+		result.valueType = llvm.PointerType(fnType, 0)
+
+		// Track the element type of this pointer
+		c.elementTypes[result.valueType] = fnType
 	case *types.Tuple:
 		var memberTypes []llvm.LLVMTypeRef
 		if typ != nil {
@@ -138,9 +168,6 @@ func (c *Compiler) createType(ctx context.Context, typ types.Type) *Type {
 
 	// Store the go type
 	result.spec = typ
-
-	// Create the type descriptor
-	//result.descriptor = c.createTypeDescriptor(ctx, result)
 
 	// Cache the type for faster lookup later
 	c.types[typ] = result

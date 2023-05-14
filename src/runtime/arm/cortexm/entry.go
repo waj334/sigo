@@ -10,6 +10,9 @@ func main()
 //go:linkname abort _abort
 func abort()
 
+//go:linkname initPackages runtime.initPackages
+func initPackages()
+
 //sigo:extern __start_bss __start_bss
 var __start_bss unsafe.Pointer
 
@@ -48,6 +51,9 @@ func initMemory() {
 func _entry() {
 	// Initialize the global variables
 	initMemory()
+
+	// Call all the package inits
+	initPackages()
 
 	// Run the main program
 	main()

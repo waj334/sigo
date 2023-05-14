@@ -97,10 +97,6 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 		default:
 			panic("len called with invalid value type")
 		}
-	case "make":
-		panic("unreachable")
-	case "new":
-		panic("unreachable")
 	case "print", "println":
 		// Create an array of interfaces to pass to the print runtime calls
 		argType := llvm.GetTypeByName2(c.currentContext(ctx), "interface")

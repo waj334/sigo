@@ -47,7 +47,7 @@ type strMallinfo struct {
 func mallinfo() strMallinfo
 
 func alloc(size uintptr) unsafe.Pointer {
-	heapLimit := __heap_size - 128
+	heapLimit := (__heap_size / 100) * 70
 
 	// Check if the GC needs to run
 	allocSz := align(size + unsafe.Sizeof(object{}))

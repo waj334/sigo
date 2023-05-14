@@ -109,6 +109,14 @@ func (c *Compiler) createVariable(ctx context.Context, name string, value Value,
 	defer c.printf(Debug, "Done creating variable for %s (%s)\n", name, valueType.String())
 
 	dbgType := c.createDebugType(ctx, valueType)
+	if _, ok := valueType.(*types.Signature); ok {
+		dbgType = llvm.DIBuilderCreatePointerType(
+			c.dibuilder,
+			dbgType,
+			llvm.StoreSizeOfType(c.options.Target.dataLayout, c.ptrType.valueType)*8,
+			llvm.ABIAlignmentOfType(c.options.Target.dataLayout, c.ptrType.valueType)*8,
+			0, "")
+	}
 
 	// Create the debug information about the variable
 	value.dbg = llvm.DIBuilderCreateAutoVariable(
@@ -352,9 +360,6 @@ func (c *Compiler) createGlobalValue(ctx context.Context, constVal llvm.LLVMValu
 	// Set the global variable's value
 	llvm.SetInitializer(value, constVal)
 	llvm.SetUnnamedAddr(value, llvm.GlobalUnnamedAddr != 0)
-
-	// Bit cast the value
-	//value = llvm.BuildBitCast(c.builder, value, c.ptrType.valueType, "")
 
 	return value
 }
