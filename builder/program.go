@@ -30,7 +30,8 @@ type Program struct {
 
 	targetLinkerFile      string
 	targetLinkerSetByMain bool
-	assemblyFiles         []string
+	assemblyFiles         map[string]struct{}
+	linkerFiles           map[string]struct{}
 }
 
 func (p *Program) parse() (err error) {
@@ -77,7 +78,8 @@ func (p *Program) parse() (err error) {
 
 		// Look in the packages for "target.ld". Prefer target.ld in the main
 		// package. Otherwise, throw an error if more than one "target.ld" is
-		// found. Also collect additional sources like assembly files TODO: C files too?
+		// found. Also collect additional linker files and assembly files.
+		// TODO: C files too?
 		if len(pkg.GoFiles) > 0 {
 			pkgDir := filepath.Dir(pkg.GoFiles[0])
 			filepath.Walk(pkgDir, func(path string, info fs.FileInfo, err error) error {
@@ -98,8 +100,10 @@ func (p *Program) parse() (err error) {
 					} else {
 						panic("multiple target linker files found")
 					}
+				} else if ext == ".ld" || ext == ".linker" {
+					p.linkerFiles[path] = struct{}{}
 				} else if ext == ".s" || ext == ".asm" {
-					p.assemblyFiles = append(p.assemblyFiles, path)
+					p.assemblyFiles[path] = struct{}{}
 				}
 
 				return nil

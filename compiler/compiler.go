@@ -25,6 +25,7 @@ type Function struct {
 	value      llvm.LLVMValueRef
 	llvmType   llvm.LLVMTypeRef
 	def        *ssa.Function
+	signature  *types.Signature
 	diFile     llvm.LLVMMetadataRef
 	subprogram llvm.LLVMMetadataRef
 	compiled   bool
@@ -51,17 +52,19 @@ type Location struct {
 }
 
 type Compiler struct {
-	options     Options
-	module      llvm.LLVMModuleRef
-	builder     llvm.LLVMBuilderRef
-	dibuilder   llvm.LLVMDIBuilderRef
-	compileUnit llvm.LLVMMetadataRef
-	functions   map[*types.Signature]*Function
-	types       map[types.Type]*Type
-	descriptors map[types.Type]llvm.LLVMValueRef
-	values      map[ssa.Value]Value
-	phis        map[*ssa.Phi]Phi
-	blocks      map[*ssa.BasicBlock]llvm.LLVMBasicBlockRef
+	options          Options
+	module           llvm.LLVMModuleRef
+	builder          llvm.LLVMBuilderRef
+	dibuilder        llvm.LLVMDIBuilderRef
+	compileUnit      llvm.LLVMMetadataRef
+	packageInitBlock llvm.LLVMValueRef
+	functions        map[*types.Signature]*Function
+	types            map[types.Type]*Type
+	descriptors      map[types.Type]llvm.LLVMValueRef
+	values           map[ssa.Value]Value
+	phis             map[*ssa.Phi]Phi
+	blocks           map[*ssa.BasicBlock]llvm.LLVMBasicBlockRef
+	elementTypes     map[llvm.LLVMTypeRef]llvm.LLVMTypeRef
 
 	uintptrType Type
 	ptrType     Type
@@ -121,24 +124,44 @@ func NewCompiler(options Options) (*Compiler, llvm.LLVMContextRef) {
 
 	// Create and return the compiler
 	cc := Compiler{
-		options:     options,
-		module:      module,
-		builder:     builder,
-		dibuilder:   dibuilder,
-		compileUnit: cu,
-		functions:   map[*types.Signature]*Function{},
-		types:       map[types.Type]*Type{},
-		descriptors: map[types.Type]llvm.LLVMValueRef{},
-		values:      map[ssa.Value]Value{},
-		blocks:      map[*ssa.BasicBlock]llvm.LLVMBasicBlockRef{},
-		phis:        map[*ssa.Phi]Phi{},
-		uintptrType: uintptrType,
-		ptrType:     ptrType,
+		options:      options,
+		module:       module,
+		builder:      builder,
+		dibuilder:    dibuilder,
+		compileUnit:  cu,
+		functions:    map[*types.Signature]*Function{},
+		types:        map[types.Type]*Type{},
+		descriptors:  map[types.Type]llvm.LLVMValueRef{},
+		values:       map[ssa.Value]Value{},
+		blocks:       map[*ssa.BasicBlock]llvm.LLVMBasicBlockRef{},
+		phis:         map[*ssa.Phi]Phi{},
+		elementTypes: map[llvm.LLVMTypeRef]llvm.LLVMTypeRef{},
+		uintptrType:  uintptrType,
+		ptrType:      ptrType,
 	}
 
 	// Initialize the type system
 	cc.createPrimitiveTypes(ctx)
 	cc.createTypeInfoTypes(ctx)
+
+	// Create package initializer function
+	pkgInitFnType := llvm.FunctionType(llvm.VoidTypeInContext(ctx), []llvm.LLVMTypeRef{}, false)
+	pkgInitFn := llvm.AddFunction(module, "runtime.initPackages", pkgInitFnType)
+	cc.packageInitBlock = llvm.AppendBasicBlockInContext(ctx, pkgInitFn, "pkg_init_entry")
+	llvm.PositionBuilderAtEnd(builder, cc.packageInitBlock)
+	llvm.BuildRetVoid(builder)
+
+	cc.functions[types.NewSignatureType(nil, nil, nil, nil, nil, false)] = &Function{
+		value:      pkgInitFn,
+		llvmType:   pkgInitFnType,
+		def:        nil,
+		signature:  nil,
+		diFile:     nil,
+		subprogram: nil,
+		compiled:   true,
+		hasDefer:   false,
+		name:       "runtime.initPackages",
+	}
 
 	return &cc, ctx
 }
@@ -208,6 +231,8 @@ func (c *Compiler) currentLocation(ctx context.Context) Location {
 }
 
 func (c *Compiler) CompilePackage(ctx context.Context, llvmCtx llvm.LLVMContextRef, pkg *ssa.Package) error {
+	var uncompiledFunctions []*Function
+
 	// Set the LLVM context to the compiler context
 	ctx = context.WithValue(ctx, llvmContextKey{}, llvmCtx)
 
@@ -218,6 +243,19 @@ func (c *Compiler) CompilePackage(ctx context.Context, llvmCtx llvm.LLVMContextR
 	for _, member := range pkg.Members {
 		if ssaType, ok := member.(*ssa.Type); ok {
 			c.createType(ctx, ssaType.Type())
+
+			// Create any methods for this named type
+			if namedType, ok := ssaType.Type().(*types.Named); ok {
+				for i := 0; i < namedType.NumMethods(); i++ {
+					method := namedType.Method(i)
+					fn, err := c.createFunction(ctx, pkg.Prog.FuncValue(method))
+					if err != nil {
+						return err
+					}
+					c.functions[fn.def.Signature] = fn
+					uncompiledFunctions = append(uncompiledFunctions, fn)
+				}
+			}
 		}
 	}
 
@@ -257,8 +295,6 @@ func (c *Compiler) CompilePackage(ctx context.Context, llvmCtx llvm.LLVMContextR
 		}
 	}
 
-	var uncompiledFunctions []*Function
-
 	// Create the type for each function first so that they are available when it's time to create the blocks.
 	for _, member := range pkg.Members {
 		if ssaFn, ok := member.(*ssa.Function); ok {
@@ -268,6 +304,22 @@ func (c *Compiler) CompilePackage(ctx context.Context, llvmCtx llvm.LLVMContextR
 			}
 			c.functions[ssaFn.Signature] = fn
 			uncompiledFunctions = append(uncompiledFunctions, fn)
+
+			// Create anonymous functions
+			for _, anonFn := range ssaFn.AnonFuncs {
+				fn, err := c.createFunction(ctx, anonFn)
+				if err != nil {
+					return err
+				}
+				c.functions[anonFn.Signature] = fn
+				uncompiledFunctions = append(uncompiledFunctions, fn)
+			}
+
+			if ssaFn.Name() == "init" {
+				// Create a call to this package initializer
+				llvm.PositionBuilderBefore(c.builder, llvm.GetLastInstruction(c.packageInitBlock))
+				llvm.BuildCall2(c.builder, fn.llvmType, fn.value, []llvm.LLVMValueRef{}, "")
+			}
 		}
 	}
 
@@ -275,7 +327,7 @@ func (c *Compiler) CompilePackage(ctx context.Context, llvmCtx llvm.LLVMContextR
 	for _, fn := range uncompiledFunctions {
 		// Only attempt to compile functions that have blocks. This will allow
 		// the compiler to support forward declarations of functions.
-		if len(fn.def.Blocks) > 0 {
+		if fn.def != nil && len(fn.def.Blocks) > 0 {
 			if err := c.createFunctionBlocks(ctx, fn); err != nil {
 				return err
 			}
@@ -286,15 +338,33 @@ func (c *Compiler) CompilePackage(ctx context.Context, llvmCtx llvm.LLVMContextR
 }
 
 func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) (*Function, error) {
-	var returnValueTypes []llvm.LLVMTypeRef
-	var argValueTypes []llvm.LLVMTypeRef
-	var returnType llvm.LLVMTypeRef
-
 	isExported := false
 	isExternal := false
+	isMethod := false
+
+	receiver := fn.Signature.Recv()
 
 	// Determine the function name. //go:linkname can override this
-	name := types.Id(c.currentPackage(ctx).Pkg, fn.Name())
+	name := ""
+	if receiver != nil {
+		typename := ""
+		switch t := receiver.Type().(type) {
+		case *types.Pointer:
+			typename = t.Elem().(*types.Named).Obj().Name()
+		case *types.Named:
+			typename = t.Obj().Name()
+		default:
+			panic("unimplemented named type")
+		}
+		name = types.Id(c.currentPackage(ctx).Pkg, typename+"."+fn.Name())
+		isMethod = true
+	} else {
+		name = types.Id(c.currentPackage(ctx).Pkg, fn.Name())
+	}
+
+	if len(name) == 0 {
+		panic("function with no name")
+	}
 
 	// Process any pragmas
 	if info, ok := c.options.Symbols[name]; ok {
@@ -303,29 +373,32 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) (*Funct
 			name = info.LinkName
 		}
 
-		// Attempt to find the existing function with the same linkname
-		if fnValue := llvm.GetNamedFunction(c.module, name); fnValue != nil {
-			// Find the function struct with the matching value
-			for _, existingFn := range c.functions {
-				if existingFn.value == fnValue {
-					// Assume that this function will actually provide the implementation if it has blocks and the
-					// existing doesn't. Panic if both have blocks
-					if len(fn.Blocks) > 0 {
-						if len(existingFn.def.Blocks) == 0 {
-							// Override
-							existingFn.def = fn
+		// Overriding type methods is not permitted
+		if !isMethod {
+			// Attempt to find the existing function with the same linkname
+			if fnValue := llvm.GetNamedFunction(c.module, name); fnValue != nil {
+				// Find the function struct with the matching value
+				for _, existingFn := range c.functions {
+					if existingFn.value == fnValue {
+						// Assume that this function will actually provide the implementation if it has blocks and the
+						// existing doesn't. Panic if both have blocks
+						if len(fn.Blocks) > 0 {
+							if len(existingFn.def.Blocks) == 0 {
+								// Override
+								existingFn.def = fn
 
-							// TODO: Should override debug information to reflect
-							//       this incoming function instead of the
-							//       predeclared one.
-						} else {
-							// TODO: Throw a nice compiler error instead of a panic
-							panic("another function has provided the implementation")
+								// TODO: Should override debug information to reflect
+								//       this incoming function instead of the
+								//       predeclared one.
+							} else {
+								// TODO: Throw a nice compiler error instead of a panic
+								panic("another function has provided the implementation")
+							}
 						}
-					}
 
-					// Return this function directly so that they are "linked".
-					return existingFn, nil
+						// Return this function directly so that they are "linked".
+						return existingFn, nil
+					}
 				}
 			}
 		}
@@ -343,27 +416,42 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) (*Funct
 		panic("function already compiled")
 	}
 
-	if numArgs := fn.Signature.Results().Len(); numArgs == 0 {
-		returnType = llvm.VoidTypeInContext(c.currentContext(ctx))
-	} else if numArgs == 1 {
-		returnType = c.createType(ctx, fn.Signature.Results().At(0).Type()).valueType
-	} else {
-		// Create a struct type to store the return values into
-		for i := 0; i < numArgs; i++ {
-			typ := fn.Signature.Results().At(i).Type()
-			returnValueTypes = append(returnValueTypes, c.createType(ctx, typ).valueType)
-		}
-		returnType = llvm.StructTypeInContext(c.currentContext(ctx), returnValueTypes, false)
+	// Create a new signature prepending the receiver and appending the free vars to the end of the of parameters
+	var paramVars []*types.Var
+	if fn.Signature.Recv() != nil {
+		paramVars = append(paramVars, fn.Signature.Recv())
 	}
 
-	// Create types for the arguments
-	for _, arg := range fn.Params {
-		typ := c.createType(ctx, arg.Type())
-		argValueTypes = append(argValueTypes, typ.valueType)
+	for i := 0; i < fn.Signature.Params().Len(); i++ {
+		paramVars = append(paramVars, fn.Signature.Params().At(i))
 	}
+
+	for _, fv := range fn.FreeVars {
+		paramVars = append(paramVars, types.NewVar(token.NoPos, fn.Pkg.Pkg, fv.Name(), fv.Type()))
+	}
+
+	var recvTypeParams []*types.TypeParam
+	var typeParams []*types.TypeParam
+
+	for i := 0; i < fn.Signature.RecvTypeParams().Len(); i++ {
+		recvTypeParams = append(recvTypeParams, fn.Signature.RecvTypeParams().At(i))
+	}
+
+	for i := 0; i < fn.Signature.TypeParams().Len(); i++ {
+		typeParams = append(typeParams, fn.Signature.TypeParams().At(i))
+	}
+
+	signature := types.NewSignatureType(
+		fn.Signature.Recv(),
+		recvTypeParams,
+		typeParams,
+		types.NewTuple(paramVars...),
+		fn.Signature.Results(),
+		fn.Signature.Variadic())
 
 	// Create the function type
-	fnType := llvm.FunctionType(returnType, argValueTypes, fn.Signature.Variadic())
+	// NOTE: A pointer type will be returned. Get the function signature type from the ptr->element map.
+	fnType := c.elementTypes[c.createType(ctx, signature).valueType]
 
 	// Add the function to the current module
 	fnValue := llvm.AddFunction(c.module, name, fnType)
@@ -378,10 +466,11 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) (*Funct
 	}
 
 	result := Function{
-		value:    fnValue,
-		llvmType: fnType,
-		def:      fn,
-		name:     name,
+		value:     fnValue,
+		llvmType:  fnType,
+		def:       fn,
+		signature: signature,
+		name:      name,
 	}
 
 	return &result, nil
@@ -393,8 +482,8 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 		panic(fmt.Sprintf("multiple definitions of function \"%s\" exist", fn.def.Object().Id()))
 	}
 
-	c.println(Debug, "Compiling", fn.def.Name())
-	defer c.println(Debug, "Done compiling", fn.def.Name())
+	c.println(Debug, "Compiling", fn.name)
+	defer c.println(Debug, "Done compiling", fn.name)
 
 	// Set the current function type in the context
 	ctx = context.WithValue(ctx, currentFnTypeKey{}, fn)
@@ -407,23 +496,12 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 		// Extract the file info
 		filename := c.options.MapPath(file.Name())
 		line := uint(file.Line(fn.def.Pos()))
-
-		// Create the debug information for this function
-		var argDiTypes []llvm.LLVMMetadataRef
-		for _, arg := range fn.def.Params {
-			argDiTypes = append(argDiTypes, c.createDebugType(ctx, arg.Type()))
-		}
+		fnType := c.createDebugType(ctx, fn.signature)
 
 		fn.diFile = llvm.DIBuilderCreateFile(
 			c.dibuilder,
 			filepath.Base(filename),
 			filepath.Dir(filename))
-
-		subType := llvm.DIBuilderCreateSubroutineType(
-			c.dibuilder,
-			fn.diFile,
-			argDiTypes,
-			0)
 
 		fn.subprogram = llvm.DIBuilderCreateFunction(
 			c.dibuilder,
@@ -432,7 +510,7 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 			fn.name,
 			fn.diFile,
 			line,
-			subType,
+			fnType,
 			true,
 			true, 0, llvm.LLVMDIFlags(llvm.DIFlagPrototyped), false)
 

@@ -6,3 +6,6 @@
 	path = thirdparty/picolibc
 	url = https://github.com/picolibc/picolibc.git
 	branch = 93b5d5f2ad44867b60267417cd6d6250dbf68983
+[submodule "thirdparty/cmsis-svd"]
+	path = thirdparty/cmsis-svd
+	url = https://github.com/posborne/cmsis-svd.git
