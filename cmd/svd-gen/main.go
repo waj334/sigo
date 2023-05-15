@@ -55,7 +55,7 @@ func main() {
 	fmt.Printf("Revision:\t%s\n", device.CPU.Revision)
 	fmt.Printf("Endian:\t\t%s\n", device.CPU.Endian)
 	fmt.Printf("Architecture:\t%v-bit\n", device.BitWidth)
-	fmt.Printf("Word Size:\t%v-bit\n", device.WordSize)
+	fmt.Printf("Addressable Width:\t%v-bit\n", device.AddressableWidth)
 	fmt.Printf("FPU:\t\t%v\n", device.CPU.FPUPresent)
 
 	var gen generator.Generator

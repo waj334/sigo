@@ -5,20 +5,20 @@ type Addressable interface {
 }
 
 type DeviceElement struct {
-	Name          string             `xml:"name"`
-	Description   string             `xml:"description"`
-	Series        string             `xml:"series"`
-	Version       string             `xml:"version"`
-	Vendor        string             `xml:"vendor"`
-	VendorId      string             `xml:"vendorId"`
-	CPU           CPUElement         `xml:"cpu"`
-	WordSize      Integer            `xml:"addressUnitBits"`
-	BitWidth      Integer            `xml:"width"`
-	RegisterSize  Integer            `xml:"size"`
-	DefaultAccess string             `xml:"access"`
-	ResetValue    Integer            `xml:"resetValue"`
-	ResetMask     Integer            `xml:"resetMask"`
-	Peripherals   PeripheralsElement `xml:"peripherals"`
+	Name             string             `xml:"name"`
+	Description      string             `xml:"description"`
+	Series           string             `xml:"series"`
+	Version          string             `xml:"version"`
+	Vendor           string             `xml:"vendor"`
+	VendorId         string             `xml:"vendorId"`
+	CPU              CPUElement         `xml:"cpu"`
+	AddressableWidth Integer            `xml:"addressUnitBits"`
+	BitWidth         Integer            `xml:"width"`
+	RegisterSize     Integer            `xml:"size"`
+	DefaultAccess    string             `xml:"access"`
+	ResetValue       Integer            `xml:"resetValue"`
+	ResetMask        Integer            `xml:"resetMask"`
+	Peripherals      PeripheralsElement `xml:"peripherals"`
 }
 
 type CPUElement struct {
@@ -54,7 +54,7 @@ type AddressBlockElement struct {
 type InterruptElement struct {
 	Name        string  `xml:"name"`
 	Description string  `xml:"description"`
-	Value       Integer `xml:"interrupt"`
+	Value       Integer `xml:"value"`
 }
 
 type RegistersElement struct {
@@ -65,7 +65,7 @@ type RegistersElement struct {
 type ClusterElement struct {
 	Name          string            `xml:"name"`
 	Description   string            `xml:"description"`
-	Count         uint              `xml:"dim"`
+	Count         Integer           `xml:"dim"`
 	Increment     Integer           `xml:"dimIncrement"`
 	AddressOffset Integer           `xml:"addressOffset"`
 	Registers     []RegisterElement `xml:"register"`

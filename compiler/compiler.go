@@ -12,13 +12,12 @@ import (
 )
 
 type (
-	llvmContextKey     struct{}
-	currentPackageKey  struct{}
-	entryBlockKey      struct{}
-	currentBlockKey    struct{}
-	currentFnTypeKey   struct{}
-	currentScopeKey    struct{}
-	currentLocationKey struct{}
+	llvmContextKey    struct{}
+	currentPackageKey struct{}
+	entryBlockKey     struct{}
+	currentBlockKey   struct{}
+	currentFnTypeKey  struct{}
+	currentScopeKey   struct{}
 )
 
 type Function struct {
@@ -45,10 +44,9 @@ type Phi struct {
 	edges []ssa.Value
 }
 
-type Location struct {
-	file     llvm.LLVMMetadataRef
-	line     llvm.LLVMMetadataRef
-	position token.Position
+type instruction interface {
+	Parent() *ssa.Function
+	Pos() token.Pos
 }
 
 type Compiler struct {
@@ -59,15 +57,15 @@ type Compiler struct {
 	compileUnit      llvm.LLVMMetadataRef
 	packageInitBlock llvm.LLVMValueRef
 	functions        map[*types.Signature]*Function
+	closures         map[*types.Signature]*Function
+	signatures       map[*types.Signature]llvm.LLVMTypeRef
 	types            map[types.Type]*Type
 	descriptors      map[types.Type]llvm.LLVMValueRef
 	values           map[ssa.Value]Value
 	phis             map[*ssa.Phi]Phi
 	blocks           map[*ssa.BasicBlock]llvm.LLVMBasicBlockRef
-	elementTypes     map[llvm.LLVMTypeRef]llvm.LLVMTypeRef
-
-	uintptrType Type
-	ptrType     Type
+	uintptrType      Type
+	ptrType          Type
 }
 
 var (
@@ -124,20 +122,21 @@ func NewCompiler(options Options) (*Compiler, llvm.LLVMContextRef) {
 
 	// Create and return the compiler
 	cc := Compiler{
-		options:      options,
-		module:       module,
-		builder:      builder,
-		dibuilder:    dibuilder,
-		compileUnit:  cu,
-		functions:    map[*types.Signature]*Function{},
-		types:        map[types.Type]*Type{},
-		descriptors:  map[types.Type]llvm.LLVMValueRef{},
-		values:       map[ssa.Value]Value{},
-		blocks:       map[*ssa.BasicBlock]llvm.LLVMBasicBlockRef{},
-		phis:         map[*ssa.Phi]Phi{},
-		elementTypes: map[llvm.LLVMTypeRef]llvm.LLVMTypeRef{},
-		uintptrType:  uintptrType,
-		ptrType:      ptrType,
+		options:     options,
+		module:      module,
+		builder:     builder,
+		dibuilder:   dibuilder,
+		compileUnit: cu,
+		functions:   map[*types.Signature]*Function{},
+		closures:    map[*types.Signature]*Function{},
+		signatures:  map[*types.Signature]llvm.LLVMTypeRef{},
+		types:       map[types.Type]*Type{},
+		descriptors: map[types.Type]llvm.LLVMValueRef{},
+		values:      map[ssa.Value]Value{},
+		blocks:      map[*ssa.BasicBlock]llvm.LLVMBasicBlockRef{},
+		phis:        map[*ssa.Phi]Phi{},
+		uintptrType: uintptrType,
+		ptrType:     ptrType,
 	}
 
 	// Initialize the type system
@@ -223,13 +222,6 @@ func (c *Compiler) currentScope(ctx context.Context) llvm.LLVMMetadataRef {
 	return nil
 }
 
-func (c *Compiler) currentLocation(ctx context.Context) Location {
-	if value, ok := ctx.Value(currentLocationKey{}).(Location); ok {
-		return value
-	}
-	return Location{}
-}
-
 func (c *Compiler) CompilePackage(ctx context.Context, llvmCtx llvm.LLVMContextRef, pkg *ssa.Package) error {
 	var uncompiledFunctions []*Function
 
@@ -312,6 +304,10 @@ func (c *Compiler) CompilePackage(ctx context.Context, llvmCtx llvm.LLVMContextR
 					return err
 				}
 				c.functions[anonFn.Signature] = fn
+				if len(anonFn.FreeVars) > 0 {
+					// This function is a closure
+					c.closures[anonFn.Signature] = fn
+				}
 				uncompiledFunctions = append(uncompiledFunctions, fn)
 			}
 
@@ -337,11 +333,16 @@ func (c *Compiler) CompilePackage(ctx context.Context, llvmCtx llvm.LLVMContextR
 	return nil
 }
 
-func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) (*Function, error) {
-	isExported := false
-	isExternal := false
-	isMethod := false
+func (c *Compiler) addFunction(ctx context.Context, fn *ssa.Function) (*Function, error) {
+	return nil, nil
+}
 
+func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) (*Function, error) {
+	if fn, ok := c.functions[fn.Signature]; ok {
+		return fn, nil
+	}
+
+	isMethod := false
 	receiver := fn.Signature.Recv()
 
 	// Determine the function name. //go:linkname can override this
@@ -367,53 +368,45 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) (*Funct
 	}
 
 	// Process any pragmas
-	if info, ok := c.options.Symbols[name]; ok {
-		if len(info.LinkName) > 0 {
-			// Override the generated name
-			name = info.LinkName
-		}
+	info := c.options.GetSymbolInfo(name)
+	if len(info.LinkName) > 0 {
+		// Override the generated name
+		name = info.LinkName
+	}
 
-		// Overriding type methods is not permitted
-		if !isMethod {
-			// Attempt to find the existing function with the same linkname
-			if fnValue := llvm.GetNamedFunction(c.module, name); fnValue != nil {
-				// Find the function struct with the matching value
-				for _, existingFn := range c.functions {
-					if existingFn.value == fnValue {
-						// Assume that this function will actually provide the implementation if it has blocks and the
-						// existing doesn't. Panic if both have blocks
-						if len(fn.Blocks) > 0 {
-							if len(existingFn.def.Blocks) == 0 {
-								// Override
-								existingFn.def = fn
+	// Overriding type methods is not permitted
+	if !isMethod {
+		// Attempt to find the existing function with the same linkname
+		if fnValue := llvm.GetNamedFunction(c.module, name); fnValue != nil {
+			// Find the function struct with the matching value
+			for _, existingFn := range c.functions {
+				if existingFn.value == fnValue {
+					// Assume that this function will actually provide the implementation if it has blocks and the
+					// existing doesn't. Panic if both have blocks
+					if len(fn.Blocks) > 0 {
+						if len(existingFn.def.Blocks) == 0 {
+							// Override
+							existingFn.def = fn
 
-								// TODO: Should override debug information to reflect
-								//       this incoming function instead of the
-								//       predeclared one.
-							} else {
-								// TODO: Throw a nice compiler error instead of a panic
-								panic("another function has provided the implementation")
-							}
+							// TODO: Should override debug information to reflect
+							//       this incoming function instead of the
+							//       predeclared one.
+						} else {
+							// TODO: Throw a nice compiler error instead of a panic
+							panic("another function has provided the implementation")
 						}
-
-						// Return this function directly so that they are "linked".
-						return existingFn, nil
 					}
+
+					// Return this function directly so that they are "linked".
+					return existingFn, nil
 				}
 			}
 		}
-
-		isExported = info.Exported
-		isExternal = info.ExternalLinkage
 	}
 
 	// Cannot be both exported and external
-	if isExported && isExternal {
+	if info.Exported && info.ExternalLinkage {
 		panic("function cannot be both external and exported")
-	}
-
-	if _, ok := c.functions[fn.Signature]; ok {
-		panic("function already compiled")
 	}
 
 	// Create a new signature prepending the receiver and appending the free vars to the end of the of parameters
@@ -450,19 +443,28 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) (*Funct
 		fn.Signature.Variadic())
 
 	// Create the function type
-	// NOTE: A pointer type will be returned. Get the function signature type from the ptr->element map.
-	fnType := c.elementTypes[c.createType(ctx, signature).valueType]
+	// NOTE: A pointer type will be returned.
+	c.createType(ctx, signature)
+
+	// Get the function signature type from the signatures map
+	fnType := c.signatures[signature]
 
 	// Add the function to the current module
 	fnValue := llvm.AddFunction(c.module, name, fnType)
 
-	if !isExported {
+	if !info.Exported {
 		// Set export status
 		llvm.SetVisibility(fnValue, llvm.LLVMVisibility(llvm.HiddenVisibility))
 	}
 
-	if !isExternal {
+	if !info.ExternalLinkage {
 		llvm.SetLinkage(fnValue, llvm.LLVMLinkage(llvm.ExternalLinkage))
+	}
+
+	// Apply attributes
+	if info.IsInterrupt {
+		llvm.AddAttributeAtIndex(fnValue, uint(llvm.AttributeFunctionIndex), c.getAttribute(ctx, "noinline"))
+		llvm.AddAttributeAtIndex(fnValue, uint(llvm.AttributeFunctionIndex), c.getAttribute(ctx, "noimplicitfloat"))
 	}
 
 	result := Function{
@@ -516,14 +518,6 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 
 		// Apply this metadata to the function
 		llvm.SetSubprogram(fn.value, fn.subprogram)
-		scope := llvm.DIBuilderCreateLexicalBlock(
-			c.dibuilder,
-			fn.subprogram,
-			fn.diFile,
-			line,
-			0,
-		)
-		ctx = context.WithValue(ctx, currentScopeKey{}, scope)
 	} else {
 		// TODO: create fake location information for synthetic functions (initializers, etc...)
 	}
@@ -558,27 +552,6 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 		// Create each instruction in the block
 		for ii, instr := range block.Instrs {
 			c.printf(Debug, "Begin instruction #%d\n", ii)
-			if fn.subprogram != nil {
-				// Get the location information for this instruction
-				locationInfo := file.Position(instr.Pos())
-
-				// Create the file debug information
-				location := Location{
-					file: fn.diFile,
-					line: llvm.DIBuilderCreateDebugLocation(
-						c.currentContext(ctx),
-						uint(locationInfo.Line),
-						uint(locationInfo.Column),
-						fn.subprogram,
-						nil,
-					),
-					position: locationInfo,
-				}
-
-				// Set the current location in the context
-				ctx = context.WithValue(ctx, currentLocationKey{}, location)
-				llvm.SetCurrentDebugLocation2(c.builder, location.line)
-			}
 
 			// Create the instruction
 			if err := c.createInstruction(ctx, instr); err != nil {
@@ -603,6 +576,26 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction) (err error) {
 	c.printf(Debug, "Processing instruction %T: %s\n", instr, instr.String())
 
+	// Get the file information for this function
+	file := instr.Parent().Prog.Fset.File(instr.Pos())
+
+	// Some functions, like package initializers, do not have position information
+	if file != nil {
+		if scope := c.instructionScope(instr); scope != nil {
+			locationInfo := file.Position(instr.Pos())
+			dgbLoc := llvm.DIBuilderCreateDebugLocation(
+				c.currentContext(ctx),
+				uint(locationInfo.Line),
+				uint(locationInfo.Column),
+				c.instructionScope(instr),
+				nil,
+			)
+			llvm.SetCurrentDebugLocation2(c.builder, dgbLoc)
+		}
+	}
+
+	var instrValue llvm.LLVMValueRef
+
 	// Create the specific instruction
 	switch instr := instr.(type) {
 	case *ssa.Defer:
@@ -618,10 +611,10 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 		b0 := c.blocks[instr.Block().Succs[0]]
 		b1 := c.blocks[instr.Block().Succs[1]]
 
-		llvm.BuildCondBr(c.builder, condValue.UnderlyingValue(ctx), b0, b1)
+		instrValue = llvm.BuildCondBr(c.builder, condValue.UnderlyingValue(ctx), b0, b1)
 	case *ssa.Jump:
 		if block, ok := c.blocks[instr.Block().Succs[0]]; ok {
-			llvm.BuildBr(c.builder, block)
+			instrValue = llvm.BuildBr(c.builder, block)
 		} else {
 			panic("block not created")
 		}
@@ -632,7 +625,7 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 		if err != nil {
 			return err
 		}
-		_, err = c.createRuntimeCall(ctx, "panic", []llvm.LLVMValueRef{arg.UnderlyingValue(ctx)})
+		instrValue, err = c.createRuntimeCall(ctx, "panic", []llvm.LLVMValueRef{arg.UnderlyingValue(ctx)})
 		if err != nil {
 			return err
 		}
@@ -668,10 +661,10 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 			}
 
 			// Create the return
-			llvm.BuildRet(c.builder, returnValue)
+			instrValue = llvm.BuildRet(c.builder, returnValue)
 		} else {
 			// Return nothing
-			llvm.BuildRetVoid(c.builder)
+			instrValue = llvm.BuildRetVoid(c.builder)
 		}
 	case *ssa.RunDefers:
 		fn, ok := c.functions[instr.Parent().Signature]
@@ -703,20 +696,20 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 			return err
 		}
 
-		llvm.BuildStore(c.builder, value.UnderlyingValue(ctx), addr.UnderlyingValue(ctx))
+		instrValue = llvm.BuildStore(c.builder, value.UnderlyingValue(ctx), addr.UnderlyingValue(ctx))
 
 		// NOTE: The value does not change if the address is on the heap since
 		//       the value would be a pointer to a pointer. Instead, the
 		//       value at the address of pointed-to pointer is change meaning
 		//       no value change should be indicated below.
-		if addr.dbg != nil && !addr.heap && !addr.global {
+		if addr.dbg != nil && !addr.heap && !addr.global && instr.Pos().IsValid() {
 			// Attach debug information
 			llvm.DIBuilderInsertDbgValueAtEnd(
 				c.dibuilder,
 				addr.UnderlyingValue(ctx),
 				addr.dbg,
 				llvm.DIBuilderCreateExpression(c.dibuilder, nil),
-				c.currentLocation(ctx).line,
+				addr.DebugPos(ctx),
 				c.currentBlock(ctx))
 		}
 	case *ssa.DebugRef:
@@ -731,6 +724,28 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 			}
 		} else {
 			panic("encountered unknown instruction")
+		}
+	}
+
+	// Get the file information for this function
+	if instrValue != nil {
+		if instr.Parent() != nil && llvm.IsAInstruction(instrValue) != nil {
+			file := instr.Parent().Prog.Fset.File(instr.Pos())
+
+			// Some functions, like package initializers, do not have position information
+			if file != nil {
+				if scope := c.instructionScope(instr); scope != nil {
+					locationInfo := file.Position(instr.Pos())
+					dgbLoc := llvm.DIBuilderCreateDebugLocation(
+						c.currentContext(ctx),
+						uint(locationInfo.Line),
+						uint(locationInfo.Column),
+						scope,
+						nil,
+					)
+					llvm.InstructionSetDebugLoc(instrValue, dgbLoc)
+				}
+			}
 		}
 	}
 
@@ -799,4 +814,41 @@ func (c *Compiler) positionAtEntryBlock(ctx context.Context) {
 	} else {
 		llvm.PositionBuilderAtEnd(c.builder, entryBlock)
 	}
+}
+
+func (c *Compiler) instructionScope(instr instruction) llvm.LLVMMetadataRef {
+	scope := instr.Parent().Pkg.Pkg.Scope().Innermost(instr.Pos())
+	if scope == nil {
+		panic("instruction has nil scope")
+	}
+
+	file := instr.Parent().Prog.Fset.File(instr.Pos())
+	if file != nil {
+		filename := c.options.MapPath(file.Name())
+		diFile := llvm.DIBuilderCreateFile(
+			c.dibuilder,
+			filepath.Base(filename),
+			filepath.Dir(filename))
+
+		pos := file.Position(scope.Pos())
+		fn := c.functions[instr.Parent().Signature]
+
+		if fn.subprogram != nil {
+			// Create a lexical block for the scope
+			block := llvm.DIBuilderCreateLexicalBlock(
+				c.dibuilder,
+				fn.subprogram,
+				diFile,
+				uint(pos.Line),
+				uint(pos.Column))
+
+			return block
+		}
+	}
+	return nil
+}
+
+func (c *Compiler) getAttribute(ctx context.Context, attr string) llvm.LLVMAttributeRef {
+	return llvm.CreateEnumAttribute(c.currentContext(ctx), llvm.GetEnumAttributeKindForName(attr), 0)
+
 }

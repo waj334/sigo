@@ -121,7 +121,7 @@ func (c *Compiler) createVariable(ctx context.Context, name string, value Value,
 	// Create the debug information about the variable
 	value.dbg = llvm.DIBuilderCreateAutoVariable(
 		c.dibuilder,
-		c.currentScope(ctx),
+		c.instructionScope(value.spec),
 		name,
 		value.DebugFile(),
 		uint(value.Pos().Line),

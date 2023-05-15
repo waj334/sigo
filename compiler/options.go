@@ -16,6 +16,7 @@ type SymbolInfo struct {
 	LinkName        string
 	Exported        bool
 	ExternalLinkage bool
+	IsInterrupt     bool
 }
 
 type Options struct {

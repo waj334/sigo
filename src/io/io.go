@@ -8,7 +8,11 @@ type Writer interface {
 	Write(p []byte) (n int, err error)
 }
 
-type ReaderWriter interface {
+type ReadWriter interface {
 	Reader
 	Writer
+}
+
+type StringWriter interface {
+	WriteString(s string) (n int, err error)
 }

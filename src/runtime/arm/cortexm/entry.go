@@ -52,6 +52,9 @@ func _entry() {
 	// Initialize the global variables
 	initMemory()
 
+	// Enable interrupts
+	EnableInterrupts()
+
 	// Call all the package inits
 	initPackages()
 
