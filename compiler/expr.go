@@ -76,36 +76,45 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		case *ssa.MakeClosure:
 			panic("unreachable?")
 		default:
-			fnObj := c.functions[expr.Call.Signature()]
-			fnContext, err := c.createExpression(ctx, callExpr)
+			fnValue, err := c.createExpression(ctx, callExpr)
 			if err != nil {
 				return invalidValue, err
 			}
 
-			memberTypes := []llvm.LLVMTypeRef{c.ptrType.valueType}
-			for i := len(expr.Call.Args); i < fnObj.signature.Params().Len(); i++ {
-				memberTypes = append(memberTypes, c.createType(ctx, fnObj.signature.Params().At(i).Type()).valueType)
-			}
-
-			// Create a struct to hold the function pointer and the free vars
-			strType := llvm.StructTypeInContext(c.currentContext(ctx), memberTypes, false)
-			println(llvm.PrintTypeToString(strType))
-			addr := llvm.BuildStructGEP2(c.builder, strType, fnContext, 0, "addr_fnptr")
-			fnPtr := llvm.BuildLoad2(c.builder, c.ptrType.valueType, addr, "load_fnptr")
-
-			paramArgs, err := c.createValues(ctx, expr.Call.Args)
+			args, err := c.createValues(ctx, expr.Call.Args)
 			if err != nil {
 				return invalidValue, err
 			}
 
-			args := paramArgs.Ref(ctx)
-			for i := 1; i < len(memberTypes); i++ {
-				addr = llvm.BuildStructGEP2(c.builder, strType, fnContext, uint(i), "addr_bound")
-				arg := llvm.BuildLoad2(c.builder, llvm.StructGetTypeAtIndex(strType, uint(i)), addr, "load_fnptr")
-				args = append(args, arg)
-			}
+			if closure, ok := c.closures[expr.Call.Signature()]; ok {
+				memberTypes := []llvm.LLVMTypeRef{c.ptrType.valueType}
+				for i := len(expr.Call.Args); i < closure.signature.Params().Len(); i++ {
+					memberTypes = append(memberTypes, c.createType(ctx, closure.signature.Params().At(i).Type()).valueType)
+				}
 
-			value.LLVMValueRef = llvm.BuildCall2(c.builder, fnObj.llvmType, fnPtr, args, "")
+				// Create the struct type holding the function pointer and the free vars
+				// TODO: This should probably be saved in some way initially
+				strType := llvm.StructTypeInContext(c.currentContext(ctx), memberTypes, false)
+				addr := llvm.BuildStructGEP2(c.builder, strType, fnValue, 0, "addr_fnptr")
+				fnPtr := llvm.BuildLoad2(c.builder, c.ptrType.valueType, addr, "load_fnptr")
+
+				// Create free vars
+				args := args.Ref(ctx)
+				for i := 1; i < len(memberTypes); i++ {
+					addr = llvm.BuildStructGEP2(c.builder, strType, fnValue, uint(i), "addr_bound")
+					arg := llvm.BuildLoad2(c.builder, llvm.StructGetTypeAtIndex(strType, uint(i)), addr, "load_fnptr")
+					args = append(args, arg)
+				}
+
+				// Create call to closure
+				value.LLVMValueRef = llvm.BuildCall2(c.builder, closure.llvmType, fnPtr, args, "")
+			} else {
+				// Get the underlying function type
+				fnType := c.signatures[expr.Call.Signature()]
+
+				// Create call to anonymous function
+				value.LLVMValueRef = llvm.BuildCall2(c.builder, fnType, fnValue, args.Ref(ctx), "")
+			}
 		}
 	case *ssa.Const:
 		constType := c.createType(ctx, expr.Type())
@@ -673,6 +682,26 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 
 	if value.LLVMValueRef == nil {
 		panic("nil value")
+	}
+
+	// Get the file information for this function
+	if expr.Parent() != nil && llvm.IsAInstruction(value) != nil {
+		file := expr.Parent().Prog.Fset.File(expr.Pos())
+
+		// Some functions, like package initializers, do not have position information
+		if file != nil {
+			if scope := c.instructionScope(expr); scope != nil {
+				locationInfo := file.Position(expr.Pos())
+				dgbLoc := llvm.DIBuilderCreateDebugLocation(
+					c.currentContext(ctx),
+					uint(locationInfo.Line),
+					uint(locationInfo.Column),
+					scope,
+					nil,
+				)
+				llvm.InstructionSetDebugLoc(value, dgbLoc)
+			}
+		}
 	}
 
 	// Cache the value

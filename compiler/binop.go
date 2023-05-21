@@ -21,7 +21,17 @@ func (c *Compiler) createBinOp(ctx context.Context, expr *ssa.BinOp) (value llvm
 		return nil, err
 	}
 
-	if !llvm.TypeIsEqual(llvm.TypeOf(x.UnderlyingValue(ctx)), llvm.TypeOf(y.UnderlyingValue(ctx))) {
+	if basicType, ok := expr.Y.Type().Underlying().(*types.Basic); ok {
+		//if basicType.Info()&types.IsUntyped != 0 && basicType.Info()&types.IsInteger != 0 {
+		if basicType.Info()&types.IsInteger != 0 {
+			// Cast the untyped integer to that of the lhs
+			y.LLVMValueRef = llvm.BuildIntCast2(c.builder, y.UnderlyingValue(ctx), llvm.TypeOf(x), basicType.Info()&types.IsUnsigned == 0, "untyped_int_cast")
+		}
+	}
+
+	if llvm.IsAFunction(x.UnderlyingValue(ctx)) != nil && llvm.IsAFunction(y.UnderlyingValue(ctx)) == nil {
+		panic("mismatched function types")
+	} else if !llvm.TypeIsEqual(llvm.TypeOf(x.UnderlyingValue(ctx)), llvm.TypeOf(y.UnderlyingValue(ctx))) {
 		panic(fmt.Sprintf("operand types do not match: %s != %s",
 			llvm.PrintTypeToString(llvm.TypeOf(x.UnderlyingValue(ctx))),
 			llvm.PrintTypeToString(llvm.TypeOf(y.UnderlyingValue(ctx)))),

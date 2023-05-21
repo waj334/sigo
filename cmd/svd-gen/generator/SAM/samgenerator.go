@@ -174,22 +174,57 @@ __isr_vector:
     // _stack_top and Reset_Handler.
     .long __stack
     .long Reset_Handler
+	.long NMI_Handler
+    .long HardFault_Handler
+    .long MemoryManagement_Handler
+    .long BusFault_Handler
+    .long UsageFault_Handler
+    .long 0
+    .long 0
+    .long 0
+    .long 0
+    .long SVC_Handler
+    .long DebugMon_Handler
+    .long 0
+    .long PendSV_Handler
+    .long SysTick_Handler
+
+	IRQ NMI_Handler
+    IRQ HardFault_Handler
+    IRQ MemoryManagement_Handler
+    IRQ BusFault_Handler
+    IRQ UsageFault_Handler
+    IRQ SVC_Handler
+    IRQ DebugMon_Handler
+    IRQ PendSV_Handler
+    IRQ SysTick_Handler
+
 `)
 
 	// Collect all the interrupts
-	var interrupts []svd.InterruptElement
+	interrupts := map[svd.Integer]svd.InterruptElement{}
+	irqMaxValue := svd.Integer(0)
 	for _, periph := range s.device.Peripherals.Elements {
 		for _, irq := range periph.Interrupts {
-			interrupts = append(interrupts, irq)
+			interrupts[irq.Value] = irq
+			if irq.Value > irqMaxValue {
+				irqMaxValue = irq.Value
+			}
 		}
 	}
 
-	// Sort the interrupts by value
-	slices.SortStableFunc(interrupts, func(a, b svd.InterruptElement) bool {
-		return a.Value < b.Value
-	})
-
 	// Fill the remainder of the vector table with the peripheral interrupt handlers
+	for i := svd.Integer(0); i < irqMaxValue; i++ {
+		if irq, ok := interrupts[i]; ok {
+			fmt.Fprintf(&w, "\t.long %s_Handler\n", irq.Name)
+		} else {
+			fmt.Fprintf(&w, "\t.long 0\n")
+		}
+	}
+
+	fmt.Fprintln(&w, "\n")
+
+	// Create the implementations next
 	for _, irq := range interrupts {
 		comment := ""
 		if len(irq.Description) > 0 {
@@ -236,37 +271,38 @@ func (s *samgen) generatePeripheral(periph svd.PeripheralElement, out string) (e
 		}
 	}
 
+	// Clean the name after determining the derived peripherals
+	peripheralName = cleanIdentifier(periph.Name)
+
 	// Create the variable for this peripheral
 	var registerImpls []string
 	var clusterImpls []string
 	if len(derived) > 0 {
 		// Prepend this peripheral to the slice of derived to complete the set
 		derived = append([]svd.PeripheralElement{periph}, derived...)
-
-		peripheralName = periph.Name[:len(peripheralName)-1]
 		strImpl, rimpls, cimpls, hasPointers := s.generatePeripheralStruct(periph)
 		registerImpls = append(registerImpls, rimpls...)
 		clusterImpls = append(clusterImpls, cimpls...)
 		if hasPointers {
-			fmt.Fprintf(&w, "type S%s %s\n", periph.Group, strImpl)
+			fmt.Fprintf(&w, "type Peripheral%s %s\n", periph.Group, strImpl)
 			fmt.Fprintln(&w, "var (")
-			fmt.Fprintf(&w, "%s = [%d]S%s{\n", periph.Group, len(derived), periph.Group)
+			fmt.Fprintf(&w, "%s = [%d]Peripheral%s{\n", periph.Group, len(derived), periph.Group)
 			for _, p := range derived {
-				fmt.Fprintf(&w, "S%s{\n", periph.Group)
+				fmt.Fprintf(&w, "{\n")
 				for _, cluster := range periph.Registers.ClusterElements {
 					clusterName := strings.ReplaceAll(cluster.Name, "[%s]", "")
-					fmt.Fprintf(&w, "%s: S%s(unsafe.Pointer(uintptr(%#x))),\n", clusterName, periph.Group+clusterName, p.BaseAddress+cluster.AddressOffset)
+					fmt.Fprintf(&w, "%s: %s(unsafe.Pointer(uintptr(%#x))),\n", clusterName, periph.Group+clusterName, p.BaseAddress+cluster.AddressOffset)
 				}
 				fmt.Fprintf(&w, "},\n")
 			}
 			fmt.Fprintln(&w, "}")
 			fmt.Fprintln(&w, ")")
 		} else {
-			fmt.Fprintf(&w, "type S%s %s\n", periph.Group, strImpl)
+			fmt.Fprintf(&w, "type Peripheral%s %s\n", periph.Group, strImpl)
 			fmt.Fprintln(&w, "var (")
-			fmt.Fprintf(&w, "%s = [%d]*S%s{\n", periph.Group, len(derived), periph.Group)
+			fmt.Fprintf(&w, "%s = [%d]*Peripheral%s{\n", periph.Group, len(derived), periph.Group)
 			for _, p := range derived {
-				fmt.Fprintf(&w, "(*S%s)(unsafe.Pointer(uintptr(%#x))),\n", peripheralName, p.BaseAddress)
+				fmt.Fprintf(&w, "(*Peripheral%s)(unsafe.Pointer(uintptr(%#x))),\n", periph.Group, p.BaseAddress)
 			}
 			fmt.Fprintln(&w, "}")
 			fmt.Fprintln(&w, ")")
@@ -277,16 +313,17 @@ func (s *samgen) generatePeripheral(periph svd.PeripheralElement, out string) (e
 		clusterImpls = append(clusterImpls, cimpls...)
 
 		if hasPointers {
-			fmt.Fprintf(&w, "type S%s %s\n", periph.Group, strImpl)
+			fmt.Fprintf(&w, "type Peripheral%s %s\n", periph.Group, strImpl)
 			fmt.Fprintln(&w, "var (")
-			fmt.Fprintf(&w, "%s = S%s{\n", periph.Group, periph.Group)
+			fmt.Fprintf(&w, "%s = Peripheral%s{\n", periph.Group, periph.Group)
 			for _, cluster := range periph.Registers.ClusterElements {
-				fmt.Fprintf(&w, "%s: (S%s)(unsafe.Pointer(uintptr(%#x))),\n", cluster.Name, peripheralName+cluster.Name, periph.BaseAddress+cluster.AddressOffset)
+				fmt.Fprintf(&w, "%s: (%s)(unsafe.Pointer(uintptr(%#x))),\n", cluster.Name, peripheralName+cluster.Name, periph.BaseAddress+cluster.AddressOffset)
 			}
 			fmt.Fprintln(&w, "}")
 			fmt.Fprintln(&w, ")")
 		} else {
 			fmt.Fprintln(&w, "var (")
+			fmt.Fprintln(&w, "// ", peripheralName, periph.Description)
 			fmt.Fprintf(&w, "%s = (*%s)(unsafe.Pointer(uintptr(%#x)))\n", peripheralName, strImpl, periph.BaseAddress)
 			fmt.Fprintln(&w, ")")
 		}
@@ -302,11 +339,11 @@ func (s *samgen) generatePeripheral(periph svd.PeripheralElement, out string) (e
 	}
 
 	for _, register := range periph.Registers.RegisterElements {
-		_, impl := s.generateRegisterType(peripheralName, register)
+		_, impl := s.generateRegisterType(periph.Group, register)
 		fmt.Fprintln(&w, impl)
 	}
 
-	fname := strings.ToLower(peripheralName + ".go")
+	fname := strings.ToLower(periph.Group + ".go")
 
 	// Format the final output
 	var buf []byte
@@ -344,13 +381,7 @@ func (s *samgen) generatePeripheralStruct(periph svd.PeripheralElement) (string,
 	hasPointers := false
 
 	// Format the peripheral name
-	peripheralName := periph.Name
-	for _, p := range s.device.Peripherals.Elements {
-		if p.DerivedFrom == periph.Name {
-			peripheralName = periph.Name[:len(peripheralName)-1]
-			break
-		}
-	}
+	//peripheralName := cleanIdentifier(periph.Name)
 
 	fmt.Fprintln(&buf, "struct {")
 	offset := svd.Integer(0)
@@ -360,7 +391,7 @@ func (s *samgen) generatePeripheralStruct(periph svd.PeripheralElement) (string,
 		return a.AddressOffset < b.AddressOffset
 	})
 
-	// Collect registers and cluster into the same list so they can be sorted by address offset
+	// Collect registers and cluster into the same list, so they can be sorted by address offset
 	var objs []svd.Addressable
 	for _, cluster := range periph.Registers.ClusterElements {
 		objs = append(objs, cluster)
@@ -376,23 +407,21 @@ func (s *samgen) generatePeripheralStruct(periph svd.PeripheralElement) (string,
 	})
 
 	for _, obj := range objs {
+		if obj.GetAddressOffset() > offset {
+			// Insert padding bytes
+			padding := obj.GetAddressOffset() - offset
+			fmt.Fprintf(&buf, "_ [%d]byte\n", padding)
+			offset += padding
+		}
+
 		switch obj := obj.(type) {
 		case svd.ClusterElement:
 			var clusterBuf strings.Builder
-			clusterName := strings.ReplaceAll(obj.Name, "[%s]", "")
+			clusterName := cleanIdentifier(obj.Name)
 
-			offset += obj.Increment / s.device.WordSize
-
-			if obj.AddressOffset >= offset {
-				padding := obj.AddressOffset - offset
-				if padding > periph.AddressBlock.Size {
-					panic("padding exceeded the size of the peripheral")
-				}
-
-				// Insert padding bytes first
-				if padding > 0 {
-					fmt.Fprintf(&buf, "_ [%d]byte\n", padding)
-				}
+			count := svd.Integer(1)
+			if obj.Count > 0 {
+				count = obj.Count
 			}
 
 			// Count all clusters with the same address offset as this one
@@ -412,44 +441,68 @@ func (s *samgen) generatePeripheralStruct(periph svd.PeripheralElement) (string,
 
 			// Create the cluster struct
 			if shouldBePointer {
-				fmt.Fprintf(&clusterBuf, "type S%s%s *struct{\n", peripheralName, clusterName)
+				fmt.Fprintf(&clusterBuf, "type %s%s *struct{\n", periph.Group, clusterName)
 			} else {
-				fmt.Fprintf(&clusterBuf, "type S%s%s struct{\n", peripheralName, clusterName)
+				fmt.Fprintf(&clusterBuf, "type %s%s struct{\n", periph.Group, clusterName)
 			}
 
+			nestedOffset := svd.Integer(0)
 			for _, register := range obj.Registers {
-				registerName := strings.ReplaceAll(register.Name, "[%s]", "")
-				registerTypename, registerImpl := s.generateRegisterType(peripheralName+clusterName, register)
-				fmt.Fprintf(&clusterBuf, "%s %s\n", registerName, registerTypename)
+				registerName := cleanIdentifier(register.Name)
+				registerTypename, registerImpl := s.generateRegisterType(periph.Group+clusterName, register)
+
+				if register.AddressOffset > nestedOffset {
+					// insert padding bytes
+					padding := register.AddressOffset - nestedOffset
+					fmt.Fprintf(&clusterBuf, "_ [%d]byte\n", padding)
+					nestedOffset += padding
+				}
+
+				if register.Count > 0 {
+					fmt.Fprintf(&clusterBuf, "%s [%d]%s\n", registerName, register.Count, registerTypename)
+					nestedOffset += (register.Size / s.device.AddressableWidth) * register.Count
+				} else {
+					fmt.Fprintf(&clusterBuf, "%s %s\n", registerName, registerTypename)
+					nestedOffset += register.Size / s.device.AddressableWidth
+				}
 				registerImpls = append(registerImpls, registerImpl)
-				offset = obj.AddressOffset + (register.Size / s.device.WordSize)
 			}
+			// NOTE: The padding value is added below since it is not accounted for in nestedOffset
+			offset += nestedOffset * count
+
+			if count > 1 {
+				// The padding should go in between elements in the resulting array
+				padding := obj.Increment - nestedOffset
+				fmt.Fprintf(&clusterBuf, "_ [%d]byte\n", obj.Increment-nestedOffset)
+				offset += padding * count
+			}
+
 			fmt.Fprintln(&clusterBuf, "}\n")
 
 			// Create the peripheral struct member
-			fmt.Fprintf(&buf, "%s S%s%s\n", clusterName, peripheralName, clusterName)
+			if count > 1 {
+				fmt.Fprintf(&buf, "%s [%d]%s%s\n", clusterName, obj.Count, periph.Group, clusterName)
+			} else {
+				fmt.Fprintf(&buf, "%s %s%s\n", clusterName, periph.Group, clusterName)
+			}
+
 			clusterImpls = append(clusterImpls, clusterBuf.String())
 		case svd.RegisterElement:
-			typename, _ := s.generateRegisterType(peripheralName, obj)
-
-			if obj.AddressOffset >= offset {
-				padding := obj.AddressOffset - offset
-				if padding > periph.AddressBlock.Size {
-					panic("padding exceeded the size of the peripheral")
-				}
-
-				// Insert padding bytes first
-				if padding > 0 {
-					fmt.Fprintf(&buf, "_ [%d]byte\n", padding)
-				}
-			}
-
+			registerName := cleanIdentifier(obj.Name)
+			count := svd.Integer(1)
 			if obj.Count > 0 {
-				fmt.Fprintf(&buf, "%s [%d]%s\n", strings.ReplaceAll(obj.Name, "[%s]", ""), obj.Count, typename)
-			} else {
-				fmt.Fprintf(&buf, "%s %s\n", obj.Name, typename)
+				count = obj.Count
 			}
-			offset = obj.AddressOffset + (obj.Size / s.device.WordSize)
+
+			typename, _ := s.generateRegisterType(periph.Group, obj)
+
+			if count > 1 {
+				fmt.Fprintf(&buf, "%s [%d]%s\n", registerName, obj.Count, typename)
+			} else {
+				fmt.Fprintf(&buf, "%s %s\n", registerName, typename)
+			}
+
+			offset += (obj.Size / s.device.AddressableWidth) * count
 		}
 	}
 	fmt.Fprint(&buf, "}")
@@ -459,20 +512,21 @@ func (s *samgen) generatePeripheralStruct(periph svd.PeripheralElement) (string,
 
 func (s *samgen) generateRegisterType(prefix string, register svd.RegisterElement) (string, string) {
 	var buf strings.Builder
-	typename := prefix + strings.ReplaceAll(register.Name, "[%s]", "")
+	typename := prefix + cleanIdentifier(register.Name)
 	receiver := strings.ToLower(typename[0:1])
 
 	// Declare the type
-	fmt.Fprintf(&buf, "type %s %s\n\n", typename, typeForSize(register.Size))
+	fmt.Fprintf(&buf, "type %s %s\n\n", typename, s.typeForSize(register.Size))
 
 	// Create enumerated types
 	evMap := map[string]string{}
 	for _, field := range register.Fields.Elements {
+		fieldName := cleanIdentifier(field.Name)
 		if len(field.EnumeratedValues.Elements) > 0 {
 			evTypename, evImpl := s.generateEnumeratedValuesType(typename, field.EnumeratedValues)
 
 			// Map the field name to the enumerated type's typename
-			evMap[field.Name] = evTypename
+			evMap[fieldName] = evTypename
 
 			// Write the implementation
 			fmt.Fprintln(&buf, evImpl)
@@ -481,6 +535,8 @@ func (s *samgen) generateRegisterType(prefix string, register svd.RegisterElemen
 
 	// Create a setter/getter method for each field
 	for _, field := range register.Fields.Elements {
+		fieldName := cleanIdentifier(field.Name)
+
 		access := register.Access
 		if len(field.Access) > 0 {
 			// Override the access level of the register if explicitly set on the field
@@ -493,15 +549,15 @@ func (s *samgen) generateRegisterType(prefix string, register svd.RegisterElemen
 		// Create methods
 		if access == "read-only" || access == "read-write" || access == "read-writeOnce" {
 			// Write the getter
-			enumeratedType, hasEv := evMap[field.Name]
+			enumeratedType, hasEv := evMap[fieldName]
 			if hasEv {
-				fmt.Fprintf(&buf, "func (%s *%s) Get%s() %s {\n", receiver, typename, field.Name, enumeratedType)
+				fmt.Fprintf(&buf, "func (%s *%s) Get%s() %s {\n", receiver, typename, fieldName, enumeratedType)
 			} else {
-				returnType := typeForSize(register.Size)
+				returnType := s.typeForSize(register.Size)
 				if field.BitWidth == 1 {
 					returnType = "bool"
 				}
-				fmt.Fprintf(&buf, "func (%s *%s) Get%s() %s {\n", receiver, typename, field.Name, returnType)
+				fmt.Fprintf(&buf, "func (%s *%s) Get%s() %s {\n", receiver, typename, fieldName, returnType)
 			}
 
 			if hasEv {
@@ -511,29 +567,33 @@ func (s *samgen) generateRegisterType(prefix string, register svd.RegisterElemen
 				if field.BitWidth == 1 {
 					exprPostfix = " != 0"
 				}
-				fmt.Fprintf(&buf, "return %s(*%s&(1<<%d))%s\n", typeForSize(register.Size), receiver, field.BitOffset, exprPostfix)
+
+				if field.BitOffset == 0 {
+					fmt.Fprintf(&buf, "return %s(*%s)%s\n", s.typeForSize(register.Size), receiver, exprPostfix)
+				} else {
+					fmt.Fprintf(&buf, "return %s(*%s&(1<<%d))%s\n", s.typeForSize(register.Size), receiver, field.BitOffset, exprPostfix)
+				}
 			}
 			fmt.Fprintf(&buf, "}\n\n")
 		}
 
 		if access == "write-only" || access == "read-write" || access == "writeOnce" {
-			enumeratedType, hasEv := evMap[field.Name]
+			enumeratedType, hasEv := evMap[fieldName]
 			paramType := typeForBitWidth(field.BitWidth)
 			if hasEv {
 				paramType = enumeratedType
 			}
 
 			// Write the setter method
-			fmt.Fprintf(&buf, "func (%s *%s) Set%s(value %s) {\n", receiver, typename, field.Name, paramType)
+			fmt.Fprintf(&buf, "func (%s *%s) Set%s(value %s) {\n", receiver, typename, fieldName, paramType)
 			if field.BitWidth == 1 && !hasEv {
 				fmt.Fprintln(&buf, "if value {")
-				fmt.Fprintf(&buf, "*%s = *%s|(1 << %d)\n", receiver, receiver, field.BitOffset)
+				fmt.Fprintf(&buf, "*%s |= 1 << %d\n", receiver, field.BitOffset)
 				fmt.Fprintln(&buf, "} else {")
-				fmt.Fprintf(&buf, "*%s = *%s& ^%s(1 << %d)\n", receiver, receiver, typename, field.BitOffset)
+				fmt.Fprintf(&buf, "*%s &= ^%s(1 << %d)\n", receiver, typename, field.BitOffset)
 				fmt.Fprintln(&buf, "}")
 			} else {
-				fmt.Fprintf(&buf, "*%s = *%s& ^%s(%s << %d)\n", receiver, receiver, typename, allSet(field.BitWidth), field.BitOffset)
-				fmt.Fprintf(&buf, "*%s = *%s|%s(value << %d)\n", receiver, receiver, typename, field.BitOffset)
+				fmt.Fprintf(&buf, "*%s = (*%s & ^%s(%s << %d)) | %s(value) << %d \n", receiver, receiver, typename, allSet(field.BitWidth), field.BitOffset, typename, field.BitOffset)
 			}
 
 			fmt.Fprintf(&buf, "}\n\n")
@@ -544,24 +604,25 @@ func (s *samgen) generateRegisterType(prefix string, register svd.RegisterElemen
 
 func (s *samgen) generateEnumeratedValuesType(prefix string, ev svd.EnumeratedValuesElement) (string, string) {
 	var buf strings.Builder
-	typename := prefix + ev.Name
+	typename := prefix + cleanIdentifier(ev.Name)
 
 	// Declare the type
 	fmt.Fprintf(&buf, "type %s uint32\n\n", typename)
 	fmt.Fprintln(&buf, "const (")
 	// Create the constant values
 	for _, value := range ev.Elements {
+		valueName := cleanIdentifier(value.Name)
 		if len(value.Description) > 0 {
-			fmt.Fprintf(&buf, "// %s %s\n", typename+value.Name, value.Description)
+			fmt.Fprintf(&buf, "// %s %s\n", typename+valueName, value.Description)
 		}
-		fmt.Fprintf(&buf, "%s %s = %#x\n\n", typename+value.Name, typename, value.Value)
+		fmt.Fprintf(&buf, "%s %s = %#x\n\n", typename+valueName, typename, value.Value)
 	}
 	fmt.Fprintln(&buf, ")")
 
 	return typename, buf.String()
 }
 
-func typeForSize(size svd.Integer) string {
+func (s *samgen) typeForSize(size svd.Integer) string {
 	switch size {
 	case 8:
 		return "uint8"
@@ -570,7 +631,7 @@ func typeForSize(size svd.Integer) string {
 	case 32:
 		return "uint32"
 	default:
-		panic(fmt.Sprintf("unexpected size %d", size))
+		return s.typeForSize(s.device.RegisterSize)
 	}
 }
 
@@ -588,11 +649,22 @@ func maxForSize(size svd.Integer) string {
 }
 
 func typeForBitWidth(width svd.Integer) string {
-	switch width {
+	/*switch width {
 	case 1:
 		return "bool"
 	default:
+
 		return "uint32"
+	}*/
+
+	if width > 16 {
+		return "uint32"
+	} else if width > 8 {
+		return "uint16"
+	} else if width > 1 {
+		return "uint8"
+	} else {
+		return "bool"
 	}
 }
 
@@ -602,4 +674,10 @@ func allSet(bits svd.Integer) (result string) {
 	}
 	result = "0b" + result
 	return
+}
+
+func cleanIdentifier(ident string) string {
+	re := regexp.MustCompile(`([a-zA-Z0-9]$|[a-zA-Z0-9][_a-zA-Z0-9]*[a-zA-Z0-9])`)
+	cleanStr := re.FindStringSubmatch(ident)
+	return cleanStr[0]
 }

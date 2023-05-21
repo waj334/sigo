@@ -100,6 +100,7 @@
                     (const char *Str, unsigned SLen),
                     (const char *Str, size_t SLen),
                     (const char *Name, unsigned SLen),
+                    (const char *Name, size_t SLen),
                     (const char *Linkage, size_t LinkLen)
 
 {
@@ -122,6 +123,7 @@
                     (const char *Str, unsigned SLen),
                     (const char *Str, size_t SLen),
                     (const char *Name, unsigned SLen),
+                    (const char *Name, size_t SLen),
                     (const char *Linkage, size_t LinkLen)
 {
     $result = $1;
@@ -142,6 +144,7 @@
                     (const char *Str, unsigned SLen),
                     (const char *Str, size_t SLen),
                     (const char *Name, unsigned SLen),
+                    (const char *Name, size_t SLen),
                     (const char *Linkage, size_t LinkLen)
 {
     free($input);
@@ -162,6 +165,7 @@
                     (const char *Str, unsigned SLen),
                     (const char *Str, size_t SLen),
                     (const char *Name, unsigned SLen),
+                    (const char *Name, size_t SLen),
                     (const char *Linkage, size_t LinkLen)
                     "*C.char";
 
@@ -180,6 +184,7 @@
                     (const char *Str, unsigned SLen),
                     (const char *Str, size_t SLen),
                     (const char *Name, unsigned SLen),
+                    (const char *Name, size_t SLen),
                     (const char *Linkage, size_t LinkLen)
                     "string";
 
@@ -198,6 +203,7 @@
                     (const char *Str, unsigned SLen),
                     (const char *Str, size_t SLen),
                     (const char *Name, unsigned SLen),
+                    (const char *Name, size_t SLen),
                     (const char *Linkage, size_t LinkLen)
 {
     $result = C.CString($1)
@@ -218,6 +224,7 @@
                     (const char *Str, unsigned SLen),
                     (const char *Str, size_t SLen),
                     (const char *Name, unsigned SLen),
+                    (const char *Name, size_t SLen),
                     (const char *Linkage, size_t LinkLen)
 {
     $result = C.GoString($1)

@@ -113,9 +113,6 @@ func (c *Compiler) createType(ctx context.Context, typ types.Type) *Type {
 		elementType := c.createType(ctx, typ.Elem())
 		// NOTE: This pointer is opaque!!!
 		result.valueType = llvm.PointerType(elementType.valueType, 0)
-
-		// Track the element type of this pointer
-		c.elementTypes[result.valueType] = elementType.valueType
 	case *types.Chan:
 		result.valueType = llvm.GetTypeByName2(c.currentContext(ctx), "channel")
 	case *types.Signature:
@@ -148,7 +145,7 @@ func (c *Compiler) createType(ctx context.Context, typ types.Type) *Type {
 		result.valueType = llvm.PointerType(fnType, 0)
 
 		// Track the element type of this pointer
-		c.elementTypes[result.valueType] = fnType
+		c.signatures[typ] = fnType
 	case *types.Tuple:
 		var memberTypes []llvm.LLVMTypeRef
 		if typ != nil {

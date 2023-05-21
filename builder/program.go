@@ -90,20 +90,25 @@ func (p *Program) parse() (err error) {
 
 				ext := strings.ToLower(filepath.Ext(info.Name()))
 
+				// Resolve the symlink
+				realPath, _ := filepath.EvalSymlinks(path)
+
 				if info.Name() == "target.ld" && !p.targetLinkerSetByMain {
 					if len(p.targetLinkerFile) == 0 || pkg.Name == "main" {
-						p.targetLinkerFile = path
+						p.targetLinkerFile = realPath
 						if pkg.Name == "main" {
 							// Main takes precedence. Stop considering other linker files
 							p.targetLinkerSetByMain = true
 						}
 					} else {
-						panic("multiple target linker files found")
+						if realPath != p.targetLinkerFile {
+							panic("multiple target linker files found")
+						}
 					}
 				} else if ext == ".ld" || ext == ".linker" {
-					p.linkerFiles[path] = struct{}{}
+					p.linkerFiles[realPath] = struct{}{}
 				} else if ext == ".s" || ext == ".asm" {
-					p.assemblyFiles[path] = struct{}{}
+					p.assemblyFiles[realPath] = struct{}{}
 				}
 
 				return nil
@@ -179,6 +184,16 @@ func (p *Program) parse() (err error) {
 								info := p.options.GetSymbolInfo(symbolName)
 								info.LinkName = parts[2]
 								info.ExternalLinkage = true
+							} else {
+								// TODO: Return syntax error
+							}
+						case "//sigo:interrupt":
+							if count == 3 {
+								funcName := types.Id(pkg.Types, parts[1])
+								info := p.options.GetSymbolInfo(funcName)
+								info.LinkName = parts[2]
+								info.IsInterrupt = true
+								info.Exported = true
 							} else {
 								// TODO: Return syntax error
 							}

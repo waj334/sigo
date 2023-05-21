@@ -273,6 +273,7 @@ func Build(ctx context.Context, packageDir string) error {
 		"-v",
 		targetTriple,
 		"-fuse-ld=lld",
+		"-W1,--gc-sections",
 		"-o", elfOut,
 		"-L" + libCDir,
 		"-L" + libCompilerRTDir,
@@ -294,7 +295,13 @@ func Build(ctx context.Context, packageDir string) error {
 		objFile := filepath.Join(options.BuildDir, fmt.Sprintf("%s-%d.o", filepath.Base(asm), rand.Int()))
 
 		// Invoke Clang to compile the final binary
-		clangCmd := exec.Command(clangExecutable, targetTriple, "-c", asm, "-o", objFile)
+		clangCmd := exec.Command(clangExecutable,
+			targetTriple,
+			"-c", asm,
+			"-ffunction-sections",
+			"-fdata-sections",
+			"-o", objFile)
+
 		clangCmd.Stdout = os.Stdout
 		clangCmd.Stderr = os.Stderr
 		if err = clangCmd.Run(); err != nil {
