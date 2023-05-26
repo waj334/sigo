@@ -35,12 +35,43 @@ func (s *samgen) Generate(out string) error {
 		return err
 	}
 
+	var w strings.Builder
+
+	// Write the preamble to the file
+	if err := s.writePreamble(&w, filepath.Base(out)); err != nil {
+		return err
+	}
+
+	// Write required imports
+	fmt.Fprintln(&w, "import (")
+	fmt.Fprintln(&w, `_ "runtime/arm/cortexm"`)
+	fmt.Fprintln(&w, `"unsafe"`)
+	fmt.Fprintln(&w, ")\n")
+
 	// Generate all peripherals
 	for _, periph := range s.device.Peripherals.Elements {
-		if err := s.generatePeripheral(periph, outputDir); err != nil {
+		if err := s.generatePeripheral(periph, &w); err != nil {
 			return err
 		}
 	}
+
+	fname := strings.ToLower(strings.ToLower(s.device.Name) + ".go")
+
+	// Format the final output
+	var buf []byte
+	src := w.String()
+	buf, err := format.Source([]byte(src))
+	if err != nil {
+		return fmt.Errorf("error formatting %s: %v", fname, err)
+	}
+
+	// Write the contents to the file
+	f, err := os.Create(filepath.Join(out, fname))
+	if err != nil {
+		return err
+	}
+	f.Write(buf)
+	f.Close()
 
 	// Generate IRQ handlers
 	if err := s.generateISR(outputDir); err != nil {
@@ -57,8 +88,7 @@ func (s *samgen) Generate(out string) error {
 
 func (s *samgen) generateInit(out string) (err error) {
 	var w strings.Builder
-
-	s.writePreamble(&w)
+	s.writePreamble(&w, filepath.Base(out))
 
 	// Write required imports
 	fmt.Fprintln(&w, "import (")
@@ -244,68 +274,70 @@ __isr_vector:
 	return nil
 }
 
-func (s *samgen) generatePeripheral(periph svd.PeripheralElement, out string) (err error) {
-	var w strings.Builder
-
+func (s *samgen) generatePeripheral(periph svd.PeripheralElement, w *strings.Builder) (err error) {
 	// Don't create an implementation for derived peripherals
 	if len(periph.DerivedFrom) > 0 {
 		return nil
 	}
 
-	// Write the preamble to the file
-	if err = s.writePreamble(&w); err != nil {
-		return err
-	}
-
-	// Write package imports
-	fmt.Fprintln(&w, "import (")
-	fmt.Fprintln(&w, `"unsafe"`)
-	fmt.Fprintln(&w, ")\n")
-
 	// Count the number of derived peripherals
 	peripheralName := periph.Name
-	var derived []svd.PeripheralElement
+	var periphSeries []svd.PeripheralElement
 	for _, p := range s.device.Peripherals.Elements {
 		if p.DerivedFrom == periph.Name {
-			derived = append(derived, p)
+			periphSeries = append(periphSeries, p)
 		}
 	}
 
-	// Clean the name after determining the derived peripherals
-	peripheralName = cleanIdentifier(periph.Name)
+	if len(periphSeries) > 0 {
+		// Prepend this peripheral to the slice of derived to complete the set
+		periphSeries = append([]svd.PeripheralElement{periph}, periphSeries...)
+
+		// Clean the name after determining the derived peripherals
+		peripheralName = cleanIdentifier(periph.Name)
+	} else {
+		// Parse the name of the current peripheral to see if it is part of some series.
+		re := regexp.MustCompile(`^([a-zA-Z]+)[0-9]+$`)
+		matches := re.FindStringSubmatch(peripheralName)
+		if len(matches) != 0 {
+			// This peripheral is part of some truncated set for this chip within its product series
+			periphSeries = append([]svd.PeripheralElement{periph}, periphSeries...)
+
+			// Take the base name of this peripheral series
+			peripheralName = matches[1]
+		}
+	}
 
 	// Create the variable for this peripheral
 	var registerImpls []string
 	var clusterImpls []string
-	if len(derived) > 0 {
-		// Prepend this peripheral to the slice of derived to complete the set
-		derived = append([]svd.PeripheralElement{periph}, derived...)
+	if len(periphSeries) > 0 {
 		strImpl, rimpls, cimpls, hasPointers := s.generatePeripheralStruct(periph)
 		registerImpls = append(registerImpls, rimpls...)
 		clusterImpls = append(clusterImpls, cimpls...)
 		if hasPointers {
-			fmt.Fprintf(&w, "type Peripheral%s %s\n", periph.Group, strImpl)
-			fmt.Fprintln(&w, "var (")
-			fmt.Fprintf(&w, "%s = [%d]Peripheral%s{\n", periph.Group, len(derived), periph.Group)
-			for _, p := range derived {
-				fmt.Fprintf(&w, "{\n")
+			fmt.Fprintf(w, "type Peripheral%s %s\n", periph.Group, strImpl)
+			fmt.Fprintln(w, "var (")
+			fmt.Fprintf(w, "%s = [%d]Peripheral%s{\n", periph.Group, len(periphSeries), periph.Group)
+			for _, p := range periphSeries {
+				fmt.Fprintf(w, "{\n")
 				for _, cluster := range periph.Registers.ClusterElements {
 					clusterName := strings.ReplaceAll(cluster.Name, "[%s]", "")
-					fmt.Fprintf(&w, "%s: %s(unsafe.Pointer(uintptr(%#x))),\n", clusterName, periph.Group+clusterName, p.BaseAddress+cluster.AddressOffset)
+					fmt.Fprintf(w, "%s: %s(unsafe.Pointer(uintptr(%#x))),\n", clusterName, periph.Group+clusterName, p.BaseAddress+cluster.AddressOffset)
 				}
-				fmt.Fprintf(&w, "},\n")
+				fmt.Fprintf(w, "},\n")
 			}
-			fmt.Fprintln(&w, "}")
-			fmt.Fprintln(&w, ")")
+			fmt.Fprintln(w, "}")
+			fmt.Fprintln(w, ")")
 		} else {
-			fmt.Fprintf(&w, "type Peripheral%s %s\n", periph.Group, strImpl)
-			fmt.Fprintln(&w, "var (")
-			fmt.Fprintf(&w, "%s = [%d]*Peripheral%s{\n", periph.Group, len(derived), periph.Group)
-			for _, p := range derived {
-				fmt.Fprintf(&w, "(*Peripheral%s)(unsafe.Pointer(uintptr(%#x))),\n", periph.Group, p.BaseAddress)
+			fmt.Fprintf(w, "type Peripheral%s %s\n", periph.Group, strImpl)
+			fmt.Fprintln(w, "var (")
+			fmt.Fprintf(w, "%s = [%d]*Peripheral%s{\n", periph.Group, len(periphSeries), periph.Group)
+			for _, p := range periphSeries {
+				fmt.Fprintf(w, "(*Peripheral%s)(unsafe.Pointer(uintptr(%#x))),\n", periph.Group, p.BaseAddress)
 			}
-			fmt.Fprintln(&w, "}")
-			fmt.Fprintln(&w, ")")
+			fmt.Fprintln(w, "}")
+			fmt.Fprintln(w, ")")
 		}
 	} else {
 		strImpl, rimpls, cimpls, hasPointers := s.generatePeripheralStruct(periph)
@@ -313,63 +345,47 @@ func (s *samgen) generatePeripheral(periph svd.PeripheralElement, out string) (e
 		clusterImpls = append(clusterImpls, cimpls...)
 
 		if hasPointers {
-			fmt.Fprintf(&w, "type Peripheral%s %s\n", periph.Group, strImpl)
-			fmt.Fprintln(&w, "var (")
-			fmt.Fprintf(&w, "%s = Peripheral%s{\n", periph.Group, periph.Group)
+			fmt.Fprintf(w, "type Peripheral%s %s\n", periph.Group, strImpl)
+			fmt.Fprintln(w, "var (")
+			fmt.Fprintf(w, "%s = Peripheral%s{\n", periph.Group, periph.Group)
 			for _, cluster := range periph.Registers.ClusterElements {
-				fmt.Fprintf(&w, "%s: (%s)(unsafe.Pointer(uintptr(%#x))),\n", cluster.Name, peripheralName+cluster.Name, periph.BaseAddress+cluster.AddressOffset)
+				fmt.Fprintf(w, "%s: (%s)(unsafe.Pointer(uintptr(%#x))),\n", cluster.Name, peripheralName+cluster.Name, periph.BaseAddress+cluster.AddressOffset)
 			}
-			fmt.Fprintln(&w, "}")
-			fmt.Fprintln(&w, ")")
+			fmt.Fprintln(w, "}")
+			fmt.Fprintln(w, ")")
 		} else {
-			fmt.Fprintln(&w, "var (")
-			fmt.Fprintln(&w, "// ", peripheralName, periph.Description)
-			fmt.Fprintf(&w, "%s = (*%s)(unsafe.Pointer(uintptr(%#x)))\n", peripheralName, strImpl, periph.BaseAddress)
-			fmt.Fprintln(&w, ")")
+			fmt.Fprintln(w, "var (")
+			fmt.Fprintln(w, "// ", peripheralName, periph.Description)
+			fmt.Fprintf(w, "%s = (*%s)(unsafe.Pointer(uintptr(%#x)))\n", peripheralName, strImpl, periph.BaseAddress)
+			fmt.Fprintln(w, ")")
 		}
 	}
 
 	// Write each register implementation
 	for _, impl := range clusterImpls {
-		fmt.Fprintf(&w, "%s\n", impl)
+		fmt.Fprintf(w, "%s\n", impl)
 	}
 
 	for _, impl := range registerImpls {
-		fmt.Fprintf(&w, "%s\n", impl)
+		fmt.Fprintf(w, "%s\n", impl)
 	}
 
 	for _, register := range periph.Registers.RegisterElements {
 		_, impl := s.generateRegisterType(periph.Group, register)
-		fmt.Fprintln(&w, impl)
+		fmt.Fprintln(w, impl)
 	}
-
-	fname := strings.ToLower(periph.Group + ".go")
-
-	// Format the final output
-	var buf []byte
-	src := w.String()
-	if buf, err = format.Source([]byte(src)); err != nil {
-		return fmt.Errorf("error formatting %s: %v", fname, err)
-	}
-
-	// Write the contents to the file
-	f, err := os.Create(filepath.Join(out, fname))
-	if err != nil {
-		return err
-	}
-	f.Write(buf)
-	f.Close()
 
 	return nil
 }
 
-func (s *samgen) writePreamble(w io.Writer) error {
+func (s *samgen) writePreamble(w io.Writer, pkg string) error {
 	// TODO: Write the license text
 
+	// Write build tag
+	fmt.Fprintf(w, "//go:build %s\n\n", strings.ToLower(s.device.Name))
+
 	// Write the package
-	if _, err := fmt.Fprintf(w, "package %s\n\n", strings.ToLower(s.device.Name)); err != nil {
-		return err
-	}
+	fmt.Fprintln(w, "package ", pkg)
 
 	return nil
 }

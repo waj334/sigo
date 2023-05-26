@@ -10,4 +10,5 @@ type Options struct {
 	Environment       Env
 	CompilerVerbosity compiler.Verbosity
 	GenerateDebugInfo bool
+	BuildTags         []string
 }

@@ -121,26 +121,25 @@ func init() {
 	}
 }
 
-func testFn(byte) {
-	// TODO
-}
-
-func testFn3(b []byte) {
-	println(b)
-}
-
 func main() {
-	c := uint8(52)
-	testFn2 := func(b byte) byte {
-		return b + c
-	}
+	pin := mcu.PB11
+	pin.SetDirection(1)
+	pin.Set(true)
 
-	i := 0
+	button := mcu.PB22
+	button.SetDirection(0)
+	button.SetInterrupt(2, func(pin mcu.Pin) {
+		mcu.PB11.Toggle()
+	})
+
+	go func() {
+		for {
+			for i := 0; i < 4000000; i++ {
+			}
+			pin.Toggle()
+		}
+	}()
+
 	for {
-		arr := make([]byte, (i%8)+1)
-		i++
-		testFn(arr[0])
-		testFn2(arr[0])
-		testFn3(arr)
 	}
 }

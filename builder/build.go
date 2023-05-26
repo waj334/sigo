@@ -125,7 +125,7 @@ func Build(ctx context.Context, packageDir string) error {
 	}
 
 	// Parse the program
-	if err := prog.parse(); err != nil {
+	if err := prog.parse(ctx); err != nil {
 		return err
 	}
 
@@ -278,13 +278,13 @@ func Build(ctx context.Context, packageDir string) error {
 		"-L" + libCDir,
 		"-L" + libCompilerRTDir,
 		"-W1,-L" + filepath.Join(options.Environment.Value("SIGOROOT"), "runtime"),
+		"-L" + filepath.Dir(prog.targetLinkerFile),
 		"-T" + prog.targetLinkerFile,
 	}
 
 	// Add all linker files
 	for ld, _ := range prog.linkerFiles {
 		args = append(args, "-L"+filepath.Dir(ld))
-		args = append(args, "-T"+ld)
 	}
 
 	args = append(args, objectOut)
@@ -294,13 +294,25 @@ func Build(ctx context.Context, packageDir string) error {
 		// Format object file name
 		objFile := filepath.Join(options.BuildDir, fmt.Sprintf("%s-%d.o", filepath.Base(asm), rand.Int()))
 
-		// Invoke Clang to compile the final binary
-		clangCmd := exec.Command(clangExecutable,
-			targetTriple,
+		assemblerArgs := []string{targetTriple,
 			"-c", asm,
 			"-ffunction-sections",
 			"-fdata-sections",
-			"-o", objFile)
+			"-o", objFile}
+
+		// Append defines to the assembler arguments
+		for def, val := range prog.defines {
+			if len(val) == 0 {
+				assemblerArgs = append(assemblerArgs,
+					"-D"+def)
+			} else {
+				assemblerArgs = append(assemblerArgs,
+					fmt.Sprintf("-D%s=%s", def, val))
+			}
+		}
+
+		// Invoke Clang to compile the assembly sources
+		clangCmd := exec.Command(clangExecutable, assemblerArgs...)
 
 		clangCmd.Stdout = os.Stdout
 		clangCmd.Stderr = os.Stderr

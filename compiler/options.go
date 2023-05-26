@@ -20,17 +20,19 @@ type SymbolInfo struct {
 }
 
 type Options struct {
-	Target            *Target
-	Symbols           map[string]*SymbolInfo
-	GenerateDebugInfo bool
-	Verbosity         Verbosity
-	PathMappings      map[string]string
+	Target             *Target
+	Symbols            map[string]*SymbolInfo
+	GenerateDebugInfo  bool
+	Verbosity          Verbosity
+	PathMappings       map[string]string
+	GoroutineStackSize uint64
 }
 
 func NewOptions() *Options {
 	return &Options{
-		Symbols:      map[string]*SymbolInfo{},
-		PathMappings: map[string]string{},
+		Symbols:            map[string]*SymbolInfo{},
+		PathMappings:       map[string]string{},
+		GoroutineStackSize: 2000,
 	}
 }
 

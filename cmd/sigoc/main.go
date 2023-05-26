@@ -73,21 +73,22 @@ func main() {
 }
 
 func build(args []string) {
-	flags := flag.NewFlagSet("build", flag.ExitOnError)
-	flags.Usage = buildUsage
+	buildFlags := flag.NewFlagSet("build", flag.ExitOnError)
+	buildFlags.Usage = buildUsage
 
 	// Add build args
-	output := flags.String("o", ".", "output file")
-	verbose := flags.String("verbose", "", "verbosity level")
-	debug := flags.Bool("g", false, "generate debug information")
-	dumpOnVerError := flags.Bool("dumpVerify", false, "dump IR upon verification error")
+	output := buildFlags.String("o", ".", "output file")
+	verbose := buildFlags.String("verbose", "", "verbosity level")
+	debug := buildFlags.Bool("g", false, "generate debug information")
+	dumpOnVerError := buildFlags.Bool("dumpVerify", false, "dump IR upon verification error")
+	tags := buildFlags.String("tags", "", "Build tags")
 	//procs := flags.Int("p", runtime.NumCPU(), "number of concurrent builds")
 
 	// TODO: Implement dependency files for smarter make builds
 	//createDependencyFiles := flags.Bool("MD", false, "create dependency files for Make")
 
 	// Parse
-	if err := flags.Parse(args); err != nil {
+	if err := buildFlags.Parse(args); err != nil {
 		println("Run 'sigo help build' for details")
 		os.Exit(-1)
 	}
@@ -104,14 +105,15 @@ func build(args []string) {
 		Environment:       builder.Environment(),
 		CompilerVerbosity: compiler.Debug,
 		GenerateDebugInfo: *debug,
+		BuildTags:         strings.Split(*tags, ","),
 	}
 
-	if len(flags.Args()) == 0 {
+	if len(buildFlags.Args()) == 0 {
 		// Build the current directory by default
 		builderOptions.Packages = append(builderOptions.Packages, cwd)
 	} else {
 		// Convert the paths to relative paths
-		for _, arg := range flags.Args() {
+		for _, arg := range buildFlags.Args() {
 			if filepath.IsAbs(arg) {
 				path, _ := filepath.Rel(cwd, arg)
 				builderOptions.Packages = append(builderOptions.Packages, path)

@@ -12,12 +12,12 @@ import (
 )
 
 type (
-	llvmContextKey    struct{}
-	currentPackageKey struct{}
-	entryBlockKey     struct{}
-	currentBlockKey   struct{}
-	currentFnTypeKey  struct{}
-	currentScopeKey   struct{}
+	llvmContextKey        struct{}
+	currentPackageKey     struct{}
+	entryBlockKey         struct{}
+	currentBlockKey       struct{}
+	currentFnTypeKey      struct{}
+	currentDbgLocationKey struct{}
 )
 
 type Function struct {
@@ -162,6 +162,13 @@ func NewCompiler(options Options) (*Compiler, llvm.LLVMContextRef) {
 		name:       "runtime.initPackages",
 	}
 
+	// Create goroutine stack size constant
+	constGoroutineStackSize := llvm.ConstInt(uintptrType.valueType, options.GoroutineStackSize, false)
+	globalGoroutineStackSize := llvm.AddGlobal(module, llvm.TypeOf(constGoroutineStackSize), "runtime._goroutineStackSize")
+	llvm.SetInitializer(globalGoroutineStackSize, constGoroutineStackSize)
+	llvm.SetLinkage(globalGoroutineStackSize, llvm.LLVMLinkage(llvm.ExternalLinkage))
+	llvm.SetGlobalConstant(globalGoroutineStackSize, true)
+
 	return &cc, ctx
 }
 
@@ -215,8 +222,8 @@ func (c *Compiler) currentFunction(ctx context.Context) *Function {
 	return nil
 }
 
-func (c *Compiler) currentScope(ctx context.Context) llvm.LLVMMetadataRef {
-	if v := ctx.Value(currentScopeKey{}); v != nil {
+func (c *Compiler) currentDbgLocation(ctx context.Context) llvm.LLVMMetadataRef {
+	if v := ctx.Value(currentDbgLocationKey{}); v != nil {
 		return v.(llvm.LLVMMetadataRef)
 	}
 	return nil
@@ -295,26 +302,29 @@ func (c *Compiler) CompilePackage(ctx context.Context, llvmCtx llvm.LLVMContextR
 				return err
 			}
 			c.functions[ssaFn.Signature] = fn
-			uncompiledFunctions = append(uncompiledFunctions, fn)
 
-			// Create anonymous functions
-			for _, anonFn := range ssaFn.AnonFuncs {
-				fn, err := c.createFunction(ctx, anonFn)
-				if err != nil {
-					return err
-				}
-				c.functions[anonFn.Signature] = fn
-				if len(anonFn.FreeVars) > 0 {
-					// This function is a closure
-					c.closures[anonFn.Signature] = fn
-				}
+			if len(ssaFn.Blocks) > 0 {
 				uncompiledFunctions = append(uncompiledFunctions, fn)
-			}
 
-			if ssaFn.Name() == "init" {
-				// Create a call to this package initializer
-				llvm.PositionBuilderBefore(c.builder, llvm.GetLastInstruction(c.packageInitBlock))
-				llvm.BuildCall2(c.builder, fn.llvmType, fn.value, []llvm.LLVMValueRef{}, "")
+				// Create anonymous functions
+				for _, anonFn := range ssaFn.AnonFuncs {
+					fn, err := c.createFunction(ctx, anonFn)
+					if err != nil {
+						return err
+					}
+					c.functions[anonFn.Signature] = fn
+					if len(anonFn.FreeVars) > 0 {
+						// This function is a closure
+						c.closures[anonFn.Signature] = fn
+					}
+					uncompiledFunctions = append(uncompiledFunctions, fn)
+				}
+
+				if ssaFn.Name() == "init" {
+					// Create a call to this package initializer
+					llvm.PositionBuilderBefore(c.builder, llvm.GetLastInstruction(c.packageInitBlock))
+					llvm.BuildCall2(c.builder, fn.llvmType, fn.value, []llvm.LLVMValueRef{}, "")
+				}
 			}
 		}
 	}
@@ -331,10 +341,6 @@ func (c *Compiler) CompilePackage(ctx context.Context, llvmCtx llvm.LLVMContextR
 	}
 
 	return nil
-}
-
-func (c *Compiler) addFunction(ctx context.Context, fn *ssa.Function) (*Function, error) {
-	return nil, nil
 }
 
 func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) (*Function, error) {
@@ -576,32 +582,49 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction) (err error) {
 	c.printf(Debug, "Processing instruction %T: %s\n", instr, instr.String())
 
-	// Get the file information for this function
-	file := instr.Parent().Prog.Fset.File(instr.Pos())
+	// Get the current debug location to restore to when this instruction is done
+	currentDbgLoc := c.currentDbgLocation(ctx)
+	defer llvm.SetCurrentDebugLocation2(c.builder, currentDbgLoc)
 
-	// Some functions, like package initializers, do not have position information
-	if file != nil {
-		if scope := c.instructionScope(instr); scope != nil {
-			locationInfo := file.Position(instr.Pos())
-			dgbLoc := llvm.DIBuilderCreateDebugLocation(
-				c.currentContext(ctx),
-				uint(locationInfo.Line),
-				uint(locationInfo.Column),
-				c.instructionScope(instr),
-				nil,
-			)
-			llvm.SetCurrentDebugLocation2(c.builder, dgbLoc)
+	// Change the current debug location to that of the instruction being processed
+	if instr.Parent() != nil {
+		if file := instr.Parent().Prog.Fset.File(instr.Pos()); file != nil {
+			if scope := c.instructionScope(instr); scope != nil {
+				locationInfo := file.Position(instr.Pos())
+				dbgLoc := llvm.DIBuilderCreateDebugLocation(
+					c.currentContext(ctx),
+					uint(locationInfo.Line),
+					uint(locationInfo.Column),
+					c.instructionScope(instr),
+					nil,
+				)
+				ctx = context.WithValue(ctx, currentDbgLocationKey{}, dbgLoc)
+				llvm.SetCurrentDebugLocation2(c.builder, dbgLoc)
+			}
 		}
 	}
-
-	var instrValue llvm.LLVMValueRef
 
 	// Create the specific instruction
 	switch instr := instr.(type) {
 	case *ssa.Defer:
 		panic("not implemented")
 	case *ssa.Go:
-		panic("not implemented")
+		callArgs := instr.Call.Args
+		if closureExpr, ok := instr.Call.Value.(*ssa.MakeClosure); ok {
+			callArgs = append(callArgs, closureExpr.Bindings...)
+		}
+		closure, args := c.createClosure(ctx, instr.Call.Signature(), callArgs)
+		goroutineStructType := llvm.StructType([]llvm.LLVMTypeRef{c.ptrType.valueType, c.ptrType.valueType}, false)
+		goroutineValue := llvm.BuildAlloca(c.builder, goroutineStructType, "goroutine")
+		addr := llvm.BuildStructGEP2(c.builder, goroutineStructType, goroutineValue, 0, "goroutine_fn_ptr")
+		llvm.BuildStore(c.builder, closure, addr)
+		addr = llvm.BuildStructGEP2(c.builder, goroutineStructType, goroutineValue, 1, "goroutine_params_ptr")
+		llvm.BuildStore(c.builder, args, addr)
+
+		goroutineValue = llvm.BuildBitCast(c.builder, goroutineValue, c.ptrType.valueType, "")
+		if _, err = c.createRuntimeCall(ctx, "addTask", []llvm.LLVMValueRef{goroutineValue}); err != nil {
+			return err
+		}
 	case *ssa.If:
 		condValue, err := c.createExpression(ctx, instr.Cond)
 		if err != nil {
@@ -611,10 +634,10 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 		b0 := c.blocks[instr.Block().Succs[0]]
 		b1 := c.blocks[instr.Block().Succs[1]]
 
-		instrValue = llvm.BuildCondBr(c.builder, condValue.UnderlyingValue(ctx), b0, b1)
+		_ = llvm.BuildCondBr(c.builder, condValue.UnderlyingValue(ctx), b0, b1)
 	case *ssa.Jump:
 		if block, ok := c.blocks[instr.Block().Succs[0]]; ok {
-			instrValue = llvm.BuildBr(c.builder, block)
+			_ = llvm.BuildBr(c.builder, block)
 		} else {
 			panic("block not created")
 		}
@@ -625,7 +648,7 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 		if err != nil {
 			return err
 		}
-		instrValue, err = c.createRuntimeCall(ctx, "panic", []llvm.LLVMValueRef{arg.UnderlyingValue(ctx)})
+		_, err = c.createRuntimeCall(ctx, "panic", []llvm.LLVMValueRef{arg.UnderlyingValue(ctx)})
 		if err != nil {
 			return err
 		}
@@ -661,10 +684,10 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 			}
 
 			// Create the return
-			instrValue = llvm.BuildRet(c.builder, returnValue)
+			_ = llvm.BuildRet(c.builder, returnValue)
 		} else {
 			// Return nothing
-			instrValue = llvm.BuildRetVoid(c.builder)
+			_ = llvm.BuildRetVoid(c.builder)
 		}
 	case *ssa.RunDefers:
 		fn, ok := c.functions[instr.Parent().Signature]
@@ -696,7 +719,7 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 			return err
 		}
 
-		instrValue = llvm.BuildStore(c.builder, value.UnderlyingValue(ctx), addr.UnderlyingValue(ctx))
+		_ = llvm.BuildStore(c.builder, value.UnderlyingValue(ctx), addr.UnderlyingValue(ctx))
 
 		// NOTE: The value does not change if the address is on the heap since
 		//       the value would be a pointer to a pointer. Instead, the
@@ -724,28 +747,6 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 			}
 		} else {
 			panic("encountered unknown instruction")
-		}
-	}
-
-	// Get the file information for this function
-	if instrValue != nil {
-		if instr.Parent() != nil && llvm.IsAInstruction(instrValue) != nil {
-			file := instr.Parent().Prog.Fset.File(instr.Pos())
-
-			// Some functions, like package initializers, do not have position information
-			if file != nil {
-				if scope := c.instructionScope(instr); scope != nil {
-					locationInfo := file.Position(instr.Pos())
-					dgbLoc := llvm.DIBuilderCreateDebugLocation(
-						c.currentContext(ctx),
-						uint(locationInfo.Line),
-						uint(locationInfo.Column),
-						scope,
-						nil,
-					)
-					llvm.InstructionSetDebugLoc(instrValue, dgbLoc)
-				}
-			}
 		}
 	}
 

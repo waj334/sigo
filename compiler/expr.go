@@ -18,6 +18,28 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		return value, nil
 	}
 
+	// Get the current debug location to restore to when this instruction is done
+	currentDbgLoc := c.currentDbgLocation(ctx)
+	defer llvm.SetCurrentDebugLocation2(c.builder, currentDbgLoc)
+
+	// Change the current debug location to that of the instruction being processed
+	if expr.Parent() != nil {
+		if file := expr.Parent().Prog.Fset.File(expr.Pos()); file != nil {
+			if scope := c.instructionScope(expr); scope != nil {
+				locationInfo := file.Position(expr.Pos())
+				dbgLoc := llvm.DIBuilderCreateDebugLocation(
+					c.currentContext(ctx),
+					uint(locationInfo.Line),
+					uint(locationInfo.Column),
+					c.instructionScope(expr),
+					nil,
+				)
+				ctx = context.WithValue(ctx, currentDbgLocationKey{}, dbgLoc)
+				llvm.SetCurrentDebugLocation2(c.builder, dbgLoc)
+			}
+		}
+	}
+
 	// initialize the value
 	value.cc = c
 	value.spec = expr
@@ -340,11 +362,15 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 	case *ssa.Global:
 		// Create a global value
 		globalType := c.createType(ctx, expr.Object().Type())
+		value.linkname = types.Id(c.currentPackage(ctx).Pkg, expr.Name())
 
 		info, ok := c.options.Symbols[expr.Object().Id()]
 		if ok {
 			value.extern = info.ExternalLinkage
 			value.exported = info.Exported
+			if len(info.LinkName) > 0 {
+				value.linkname = info.LinkName
+			}
 		}
 
 		// Cannot be both exported and external
@@ -353,22 +379,23 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		}
 
 		if value.extern {
-			// Find an existing global with a matching linkname
-			for _, globalValue := range c.values {
-				if globalValue.linkname == info.LinkName {
-					value = globalValue
-					break
+			// Look for the global value within the module
+			value.LLVMValueRef = llvm.GetNamedGlobal(c.module, value.linkname)
+			if value.LLVMValueRef == nil {
+				// Look for a function with this name
+				value.LLVMValueRef = llvm.GetNamedFunction(c.module, value.linkname)
+				if value.LLVMValueRef != nil {
+					value.LLVMValueRef = llvm.BuildBitCast(c.builder, value, globalType.valueType, "")
+					value.LLVMValueRef = llvm.BuildPointerCast(c.builder, value, globalType.valueType, "")
+				} else {
+					// Create a global with external linkage to some variable with the specified link name.
+					value.LLVMValueRef = llvm.AddGlobal(c.module, globalType.valueType, value.linkname)
+					llvm.SetLinkage(value, llvm.LLVMLinkage(llvm.ExternalLinkage))
+					llvm.SetExternallyInitialized(value, true)
 				}
 			}
-
-			if value.LLVMValueRef == nil {
-				// Create a global with external linkage to some variable with the specified link name.
-				value.LLVMValueRef = llvm.AddGlobal(c.module, globalType.valueType, info.LinkName)
-				value.linkname = info.LinkName
-				llvm.SetLinkage(value, llvm.LLVMLinkage(llvm.ExternalLinkage))
-			}
 		} else {
-			value.LLVMValueRef = c.createGlobalValue(ctx, llvm.ConstNull(globalType.valueType), types.Id(c.currentPackage(ctx).Pkg, expr.Name()))
+			value.LLVMValueRef = c.createGlobalValue(ctx, llvm.ConstNull(globalType.valueType), value.linkname)
 			if !value.exported {
 				llvm.SetLinkage(value, llvm.LLVMLinkage(llvm.PrivateLinkage))
 			}
@@ -682,26 +709,6 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 
 	if value.LLVMValueRef == nil {
 		panic("nil value")
-	}
-
-	// Get the file information for this function
-	if expr.Parent() != nil && llvm.IsAInstruction(value) != nil {
-		file := expr.Parent().Prog.Fset.File(expr.Pos())
-
-		// Some functions, like package initializers, do not have position information
-		if file != nil {
-			if scope := c.instructionScope(expr); scope != nil {
-				locationInfo := file.Position(expr.Pos())
-				dgbLoc := llvm.DIBuilderCreateDebugLocation(
-					c.currentContext(ctx),
-					uint(locationInfo.Line),
-					uint(locationInfo.Column),
-					scope,
-					nil,
-				)
-				llvm.InstructionSetDebugLoc(value, dgbLoc)
-			}
-		}
 	}
 
 	// Cache the value
