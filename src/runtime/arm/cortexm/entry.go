@@ -13,6 +13,9 @@ func abort()
 //go:linkname initPackages runtime.initPackages
 func initPackages()
 
+//go:linkname initSysTick initSysTick
+func initSysTick()
+
 //sigo:extern __start_bss __start_bss
 var __start_bss unsafe.Pointer
 
@@ -52,15 +55,23 @@ func _entry() {
 	// Initialize the global variables
 	initMemory()
 
+	// Call all the package inits before anything else!
+	// NOTE: The package init also sets up the pointer values in the chip support packages
+	initPackages()
+
+	// Start the SysTick counter
+	initSysTick()
+
 	// Enable interrupts
 	EnableInterrupts()
 
-	// Call all the package inits
-	initPackages()
-
 	// Run the main program
-	main()
+	go func() {
+		main()
+		abort()
+	}()
 
 	// Loop forever
-	abort()
+	for {
+	}
 }

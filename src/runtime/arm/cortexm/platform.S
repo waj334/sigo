@@ -1,12 +1,12 @@
 .global _current_stack
-.thumb_func
+.type _current_stack, %function
 _current_stack:
-    mrs r0, msp
+    mrs r0, psp
     bx lr
 .size _current_stack, .-_current_stack
 
 .global _abort
-.thumb_func
+.type _abort, %function
 _abort:
     cpsid i
 halt:
@@ -15,14 +15,14 @@ halt:
 .size _abort, .-_abort
 
 .global _enable_irq
-.thumb_func
+.type _enable_irq, %function
 _enable_irq:
     cpsie i
     bx lr
 .size _enable_irq, .-_enable_irq
 
 .global _disable_irq
-.thumb_func
+.type _disable_irq, %function
 _disable_irq:
     cpsid i
     bx lr

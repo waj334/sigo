@@ -25,6 +25,7 @@ type Program struct {
 
 	ssaProg    *ssa.Program
 	targetInfo map[string]string
+	defines    map[string]string
 
 	options *compiler.Options
 
@@ -34,18 +35,23 @@ type Program struct {
 	linkerFiles           map[string]struct{}
 }
 
-func (p *Program) parse() (err error) {
+func (p *Program) parse(ctx context.Context) (err error) {
+	// Get the current build options
+	builderOpts := ctx.Value(optionsContextKey{}).(Options)
+
 	// Parse the package at the directory
 	config := packages.Config{
-		Mode:       packages.NeedName | packages.NeedFiles | packages.NeedImports | packages.NeedDeps | packages.NeedTypes | packages.NeedSyntax | packages.NeedTypesInfo | packages.NeedModule | packages.NeedEmbedFiles | packages.NeedEmbedPatterns,
-		Context:    context.Background(),
-		Logf:       nil,
-		Dir:        "",
-		Env:        p.env.List(),
-		BuildFlags: nil,
-		Fset:       p.fset,
-		ParseFile:  nil,
-		Tests:      false,
+		Mode:    packages.NeedName | packages.NeedFiles | packages.NeedImports | packages.NeedDeps | packages.NeedTypes | packages.NeedSyntax | packages.NeedTypesInfo | packages.NeedModule | packages.NeedEmbedFiles | packages.NeedEmbedPatterns,
+		Context: context.Background(),
+		Logf:    nil,
+		Dir:     "",
+		Env:     p.env.List(),
+		BuildFlags: []string{
+			"-tags=" + strings.Join(builderOpts.BuildTags, ","),
+		},
+		Fset:      p.fset,
+		ParseFile: nil,
+		Tests:     false,
 	}
 
 	pkgs, err := packages.Load(&config, "runtime", p.path)
@@ -197,8 +203,14 @@ func (p *Program) parse() (err error) {
 							} else {
 								// TODO: Return syntax error
 							}
+						case "//sigo:define":
+							if count == 2 {
+								p.defines[parts[1]] = ""
+							} else {
+								p.defines[parts[1]] = parts[2]
+							}
 						//***********************************************
-						case "//go:linkname":
+						case "//go:linkname", "//sigo:linkname":
 							if count == 3 {
 								symbolName := types.Id(pkg.Types, parts[1])
 								info := p.options.GetSymbolInfo(symbolName)
@@ -209,7 +221,7 @@ func (p *Program) parse() (err error) {
 							} else {
 								// TODO: Return syntax error
 							}
-						case "//go:export":
+						case "//go:export", "//sigo:export":
 							if count == 3 {
 								funcName := types.Id(pkg.Types, parts[1])
 								info := p.options.GetSymbolInfo(funcName)
