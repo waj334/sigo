@@ -10,6 +10,40 @@ type test struct {
 	t *test
 }
 
+func (c *Compiler) mapPrimitiveName(in string) string {
+	if c.options.PrimitivesAsCTypes {
+		switch in {
+		case "uint8":
+			return "unsigned char"
+		case "int8":
+			return "char"
+		case "uint16":
+			return "unsigned short"
+		case "int16":
+			return "short"
+		case "uint32":
+			return "unsigned int"
+		case "int32":
+			return "int"
+		case "uint64":
+			return "unsigned long long int"
+		case "int64":
+			return "long long int"
+		case "float32":
+			return "float"
+		case "float64":
+			return "double"
+		case "unsafe.Pointer":
+			return "void*"
+		case "uintptr":
+			return "unsigned long"
+		default:
+			return in
+		}
+	}
+	return in
+}
+
 func (c *Compiler) createDebugType(ctx context.Context, typ types.Type) (ditype llvm.LLVMMetadataRef) {
 	// Check if this type was already created
 	t := c.createType(ctx, typ)
@@ -19,35 +53,36 @@ func (c *Compiler) createDebugType(ctx context.Context, typ types.Type) (ditype 
 	}
 
 	c.printf(Debug, "Creating debug info for type: %s\n", typ.String())
+	defer c.printf(Debug, "Done creating debug info for type: %s\n", typ.String())
 
 	// Create the equivalent LLVM type
 	switch typ := typ.(type) {
 	case *types.Basic:
 		switch typ.Kind() {
 		case types.Uint8:
-			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 8, DW_ATE_unsigned, 0)
+			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, c.mapPrimitiveName(typ.Name()), 8, DW_ATE_unsigned, 0)
 		case types.Int8:
-			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 8, DW_ATE_signed, 0)
+			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, c.mapPrimitiveName(typ.Name()), 8, DW_ATE_signed, 0)
 		case types.Uint16:
-			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 16, DW_ATE_unsigned, 0)
+			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, c.mapPrimitiveName(typ.Name()), 16, DW_ATE_unsigned, 0)
 		case types.Int16:
-			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 16, DW_ATE_signed, 0)
+			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, c.mapPrimitiveName(typ.Name()), 16, DW_ATE_signed, 0)
 		case types.Int, types.Int32:
-			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 4, DW_ATE_unsigned, 0)
+			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, c.mapPrimitiveName(typ.Name()), 4, DW_ATE_unsigned, 0)
 		case types.Uint, types.Uint32:
-			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 32, DW_ATE_signed, 0)
+			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, c.mapPrimitiveName(typ.Name()), 32, DW_ATE_signed, 0)
 		case types.Uint64:
-			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 32, DW_ATE_unsigned, 0)
+			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, c.mapPrimitiveName(typ.Name()), 64, DW_ATE_unsigned, 0)
 		case types.Int64:
-			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 32, DW_ATE_signed, 0)
+			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, c.mapPrimitiveName(typ.Name()), 64, DW_ATE_signed, 0)
 		case types.Uintptr:
 			ditype = c.uintptrType.debugType
 		case types.UnsafePointer:
 			ditype = c.ptrType.debugType
 		case types.Float32:
-			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 32, DW_ATE_float, 0)
+			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, c.mapPrimitiveName(typ.Name()), 32, DW_ATE_float, 0)
 		case types.Float64:
-			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 64, DW_ATE_float, 0)
+			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, c.mapPrimitiveName(typ.Name()), 64, DW_ATE_float, 0)
 		case types.Complex64:
 			panic("Not implemented")
 		case types.Complex128:
@@ -93,22 +128,9 @@ func (c *Compiler) createDebugType(ctx context.Context, typ types.Type) (ditype 
 		}
 	case *types.Struct:
 		// Forward declare the debug type
-		temp := llvm.DIBuilderCreateReplaceableCompositeType(
-			c.dibuilder,
-			0x13,
-			"",
-			nil,
-			nil,
-			0,
-			0,
-			llvm.SizeOfTypeInBits(c.options.Target.dataLayout, t.valueType),
-			llvm.ABIAlignmentOfType(c.options.Target.dataLayout, t.valueType)*8,
-			llvm.LLVMDIFlags(llvm.DIFlagFwdDecl),
-			"temporary")
-
 		// Note: Need to cache structs right away to prevent a stack overflow
 		// with a member type is or contains this struct type for any reason.
-		t.debugType = temp
+		t.debugType = llvm.TemporaryMDNode(c.currentContext(ctx), []llvm.LLVMMetadataRef{})
 
 		var structDITypes []llvm.LLVMMetadataRef
 		for i := 0; i < typ.NumFields(); i++ {
@@ -138,7 +160,7 @@ func (c *Compiler) createDebugType(ctx context.Context, typ types.Type) (ditype 
 			0, nil, structDITypes, 0, nil, typ.String())
 
 		// Replace all uses of the temp type created earlier
-		llvm.MetadataReplaceAllUsesWith(temp, ditype)
+		llvm.MetadataReplaceAllUsesWith(t.debugType, ditype)
 	case *types.Map:
 		ditype = llvm.DIBuilderCreateStructType(
 			c.dibuilder,
@@ -249,11 +271,21 @@ func (c *Compiler) createDebugType(ctx context.Context, typ types.Type) (ditype 
 					c.ptrType.debugType),
 			}, 0, nil, "")
 	case *types.Pointer:
+		// Create a temporary type for this pointer
+		t.debugType = llvm.TemporaryMDNode(c.currentContext(ctx), []llvm.LLVMMetadataRef{})
+
+		// Create the element debug info
+		elementDbg := c.createDebugType(ctx, typ.Elem())
+
+		// Create the pointer type
 		ditype = llvm.DIBuilderCreatePointerType(
 			c.dibuilder,
-			c.createDebugType(ctx, typ.Elem()),
+			elementDbg,
 			llvm.StoreSizeOfType(c.options.Target.dataLayout, t.valueType)*8,
 			llvm.ABIAlignmentOfType(c.options.Target.dataLayout, t.valueType)*8, 0, "")
+
+		// Replace the temp type
+		llvm.MetadataReplaceAllUsesWith(t.debugType, ditype)
 	case *types.Chan:
 		ditype = llvm.DIBuilderCreateStructType(
 			c.dibuilder,

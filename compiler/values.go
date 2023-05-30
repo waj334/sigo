@@ -118,10 +118,15 @@ func (c *Compiler) createVariable(ctx context.Context, name string, value Value,
 			0, "")
 	}
 
+	scope, _ := c.instructionScope(value.spec)
+	if scope == nil {
+		scope = c.compileUnit
+	}
+
 	// Create the debug information about the variable
 	value.dbg = llvm.DIBuilderCreateAutoVariable(
 		c.dibuilder,
-		c.instructionScope(value.spec),
+		scope,
 		name,
 		value.DebugFile(),
 		uint(value.Pos().Line),
@@ -304,7 +309,10 @@ func (c *Compiler) makeInterface(ctx context.Context, value ssa.Value) (result l
 	}
 
 	typeinfo := c.createTypeDescriptor(ctx, c.createType(ctx, value.Type().Underlying()))
-	args := []llvm.LLVMValueRef{c.addressOf(ctx, x.UnderlyingValue(ctx)), typeinfo}
+	args := []llvm.LLVMValueRef{
+		c.addressOf(ctx, x.UnderlyingValue(ctx)),
+		typeinfo,
+	}
 	result, err = c.createRuntimeCall(ctx, "makeInterface", args)
 	if err != nil {
 		return nil, err
@@ -361,7 +369,7 @@ func (c *Compiler) createGlobalValue(ctx context.Context, constVal llvm.LLVMValu
 	llvm.SetInitializer(value, constVal)
 	llvm.SetUnnamedAddr(value, llvm.GlobalUnnamedAddr != 0)
 
-	return value
+	return llvm.BuildBitCast(c.builder, value, c.ptrType.valueType, "")
 }
 
 func (c *Compiler) structFieldAddress(ctx context.Context, value Value, structType llvm.LLVMTypeRef, index int) (llvm.LLVMTypeRef, llvm.LLVMValueRef) {

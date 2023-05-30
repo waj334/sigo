@@ -47,6 +47,7 @@ type strMallinfo struct {
 func mallinfo() strMallinfo
 
 func alloc(size uintptr) unsafe.Pointer {
+	disableInterrupts()
 	heapLimit := (__heap_size / 100) * 70
 
 	// Check if the GC needs to run
@@ -84,6 +85,7 @@ func alloc(size uintptr) unsafe.Pointer {
 	heapUsage = info.uordblks
 
 	// Return the address of the allocated memory
+	enableInterrupts()
 	return unsafe.Pointer(obj)
 }
 
@@ -100,13 +102,21 @@ func freeObject(obj *object) {
 
 // markAll scans the stack from bottom to top looking for addresses that "look like a heap pointer".
 func markAll() {
-	stackCurrent := currentStack()
-	stackTop := unsafe.Pointer(&__stack_top)
 	dataStart := unsafe.Pointer(&__start_data)
 	dataEnd := unsafe.Pointer(&__end_data)
-
-	scan(stackCurrent, stackTop)
 	scan(dataStart, dataEnd)
+
+	// Scan the goroutine stacks
+	_task := headTask
+	for {
+		if _task != nil {
+			scan(_task.stackTop, _task.stack)
+			_task = _task.next
+			if _task == headTask {
+				break
+			}
+		}
+	}
 }
 
 func scan(start, end unsafe.Pointer) {

@@ -82,6 +82,7 @@ func build(args []string) {
 	debug := buildFlags.Bool("g", false, "generate debug information")
 	dumpOnVerError := buildFlags.Bool("dumpVerify", false, "dump IR upon verification error")
 	tags := buildFlags.String("tags", "", "Build tags")
+	useCTypeNames := buildFlags.Bool("ctypenames", false, "Use C type names for primitives in debug information")
 	//procs := flags.Int("p", runtime.NumCPU(), "number of concurrent builds")
 
 	// TODO: Implement dependency files for smarter make builds
@@ -106,6 +107,7 @@ func build(args []string) {
 		CompilerVerbosity: compiler.Debug,
 		GenerateDebugInfo: *debug,
 		BuildTags:         strings.Split(*tags, ","),
+		CTypeNames:        *useCTypeNames,
 	}
 
 	if len(buildFlags.Args()) == 0 {

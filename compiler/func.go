@@ -11,8 +11,6 @@ func (c *Compiler) createClosure(ctx context.Context, signature *types.Signature
 	// Create a struct type to represent the parameters
 	var paramTypes []llvm.LLVMTypeRef
 	for _, callArg := range callArgs {
-		//param := signature.Params().At(i)
-		//paramTypes = append(paramTypes, c.createType(ctx, param.Type().Underlying()).valueType)
 		callArgType := c.createType(ctx, callArg.Type().Underlying())
 		paramTypes = append(paramTypes, callArgType.valueType)
 	}
@@ -52,9 +50,8 @@ func (c *Compiler) createClosure(ctx context.Context, signature *types.Signature
 
 	// Get the actual function to call
 	actualFn := c.functions[signature]
-	//actualFnType := c.createType(ctx, signature)
-	//actualFnType := c.createType(ctx, signature)
 
+	// Build the call
 	llvm.BuildCall2(c.builder, actualFn.llvmType, actualFn.value, args, "")
 
 	// TODO: Handle return values

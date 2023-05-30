@@ -297,6 +297,11 @@ func (c *Compiler) CompilePackage(ctx context.Context, llvmCtx llvm.LLVMContextR
 	// Create the type for each function first so that they are available when it's time to create the blocks.
 	for _, member := range pkg.Members {
 		if ssaFn, ok := member.(*ssa.Function); ok {
+			if c.isIntrinsic(ssaFn) {
+				// Skip intrinsic functions
+				continue
+			}
+
 			fn, err := c.createFunction(ctx, ssaFn)
 			if err != nil {
 				return err
@@ -500,33 +505,36 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 	file := fn.def.Prog.Fset.File(fn.def.Pos())
 
 	// Some functions, like package initializers, do not have position information
+	line := uint(0)
 	if file != nil {
 		// Extract the file info
 		filename := c.options.MapPath(file.Name())
-		line := uint(file.Line(fn.def.Pos()))
-		fnType := c.createDebugType(ctx, fn.signature)
-
+		line = uint(file.Line(fn.def.Pos()))
 		fn.diFile = llvm.DIBuilderCreateFile(
 			c.dibuilder,
 			filepath.Base(filename),
 			filepath.Dir(filename))
-
-		fn.subprogram = llvm.DIBuilderCreateFunction(
-			c.dibuilder,
-			fn.diFile,
-			fn.name,
-			fn.name,
-			fn.diFile,
-			line,
-			fnType,
-			true,
-			true, 0, llvm.LLVMDIFlags(llvm.DIFlagPrototyped), false)
-
-		// Apply this metadata to the function
-		llvm.SetSubprogram(fn.value, fn.subprogram)
 	} else {
-		// TODO: create fake location information for synthetic functions (initializers, etc...)
+		fn.diFile = llvm.DIBuilderCreateFile(
+			c.dibuilder,
+			"<unknown>",
+			"<unknown>")
 	}
+
+	fnType := c.createDebugType(ctx, fn.signature)
+	fn.subprogram = llvm.DIBuilderCreateFunction(
+		c.dibuilder,
+		fn.diFile,
+		fn.name,
+		fn.name,
+		fn.diFile,
+		line,
+		fnType,
+		true,
+		true, 0, llvm.LLVMDIFlags(llvm.DIFlagPrototyped), false)
+
+	// Apply this metadata to the function
+	llvm.SetSubprogram(fn.value, fn.subprogram)
 
 	// Create all blocks first so that branches can be made during instruction
 	// creation.
@@ -587,22 +595,20 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 	defer llvm.SetCurrentDebugLocation2(c.builder, currentDbgLoc)
 
 	// Change the current debug location to that of the instruction being processed
-	if instr.Parent() != nil {
-		if file := instr.Parent().Prog.Fset.File(instr.Pos()); file != nil {
-			if scope := c.instructionScope(instr); scope != nil {
-				locationInfo := file.Position(instr.Pos())
-				dbgLoc := llvm.DIBuilderCreateDebugLocation(
-					c.currentContext(ctx),
-					uint(locationInfo.Line),
-					uint(locationInfo.Column),
-					c.instructionScope(instr),
-					nil,
-				)
-				ctx = context.WithValue(ctx, currentDbgLocationKey{}, dbgLoc)
-				llvm.SetCurrentDebugLocation2(c.builder, dbgLoc)
-			}
-		}
+	var location token.Position
+	scope, file := c.instructionScope(instr)
+	if file != nil {
+		location = file.Position(instr.Pos())
 	}
+	dbgLoc := llvm.DIBuilderCreateDebugLocation(
+		c.currentContext(ctx),
+		uint(location.Line),
+		uint(location.Column),
+		scope,
+		nil)
+
+	ctx = context.WithValue(ctx, currentDbgLocationKey{}, dbgLoc)
+	llvm.SetCurrentDebugLocation2(c.builder, dbgLoc)
 
 	// Create the specific instruction
 	switch instr := instr.(type) {
@@ -817,39 +823,30 @@ func (c *Compiler) positionAtEntryBlock(ctx context.Context) {
 	}
 }
 
-func (c *Compiler) instructionScope(instr instruction) llvm.LLVMMetadataRef {
-	scope := instr.Parent().Pkg.Pkg.Scope().Innermost(instr.Pos())
-	if scope == nil {
-		panic("instruction has nil scope")
-	}
-
-	file := instr.Parent().Prog.Fset.File(instr.Pos())
-	if file != nil {
-		filename := c.options.MapPath(file.Name())
-		diFile := llvm.DIBuilderCreateFile(
-			c.dibuilder,
-			filepath.Base(filename),
-			filepath.Dir(filename))
-
-		pos := file.Position(scope.Pos())
+func (c *Compiler) instructionScope(instr instruction) (_ llvm.LLVMMetadataRef, file *token.File) {
+	if instr.Parent() != nil {
 		fn := c.functions[instr.Parent().Signature]
-
-		if fn.subprogram != nil {
-			// Create a lexical block for the scope
-			block := llvm.DIBuilderCreateLexicalBlock(
+		if file = instr.Parent().Prog.Fset.File(instr.Pos()); file != nil {
+			scope := instr.Parent().Pkg.Pkg.Scope().Innermost(instr.Pos())
+			location := file.Position(scope.Pos())
+			filename := c.options.MapPath(file.Name())
+			return llvm.DIBuilderCreateLexicalBlock(
 				c.dibuilder,
 				fn.subprogram,
-				diFile,
-				uint(pos.Line),
-				uint(pos.Column))
-
-			return block
+				llvm.DIBuilderCreateFile(
+					c.dibuilder,
+					filepath.Base(filename),
+					filepath.Dir(filename)),
+				uint(location.Line),
+				uint(location.Column)), file
+		} else {
+			return fn.subprogram, nil
 		}
+	} else {
+		return c.compileUnit, nil
 	}
-	return nil
 }
 
 func (c *Compiler) getAttribute(ctx context.Context, attr string) llvm.LLVMAttributeRef {
 	return llvm.CreateEnumAttribute(c.currentContext(ctx), llvm.GetEnumAttributeKindForName(attr), 0)
-
 }

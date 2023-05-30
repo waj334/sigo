@@ -15,6 +15,9 @@ _task_start:
 .global PendSV_Handler
 .type PendSV_Handler, %function
 PendSV_Handler:
+    // Choose the next task
+    bl runtime.runScheduler
+
     // Load the stack pointer of the current task
     ldr r0, =runtime._currentTask   // Load the address of the current task pointer into R0
     ldr r0, [r0]                    // Load the current task into R0

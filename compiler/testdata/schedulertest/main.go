@@ -5,6 +5,8 @@
 package main
 
 import (
+	"time"
+
 	_ "omibyte.io/sigo/src/runtime/arm/cortexm/sam/atsame51g19a"
 	mcu "omibyte.io/sigo/src/runtime/arm/cortexm/sam/atsamx51"
 )
@@ -134,8 +136,7 @@ func main() {
 
 	go func() {
 		for {
-			for i := 0; i < 4000000; i++ {
-			}
+			time.Sleep(time.Second)
 			pin.Toggle()
 		}
 	}()

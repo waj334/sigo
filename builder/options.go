@@ -11,4 +11,5 @@ type Options struct {
 	CompilerVerbosity compiler.Verbosity
 	GenerateDebugInfo bool
 	BuildTags         []string
+	CTypeNames        bool
 }
