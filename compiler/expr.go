@@ -3,6 +3,7 @@ package compiler
 import (
 	"context"
 	"go/constant"
+	"go/token"
 	"go/types"
 	"golang.org/x/tools/go/ssa"
 	"omibyte.io/sigo/llvm"
@@ -23,22 +24,20 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 	defer llvm.SetCurrentDebugLocation2(c.builder, currentDbgLoc)
 
 	// Change the current debug location to that of the instruction being processed
-	if expr.Parent() != nil {
-		if file := expr.Parent().Prog.Fset.File(expr.Pos()); file != nil {
-			if scope := c.instructionScope(expr); scope != nil {
-				locationInfo := file.Position(expr.Pos())
-				dbgLoc := llvm.DIBuilderCreateDebugLocation(
-					c.currentContext(ctx),
-					uint(locationInfo.Line),
-					uint(locationInfo.Column),
-					c.instructionScope(expr),
-					nil,
-				)
-				ctx = context.WithValue(ctx, currentDbgLocationKey{}, dbgLoc)
-				llvm.SetCurrentDebugLocation2(c.builder, dbgLoc)
-			}
-		}
+	var location token.Position
+	scope, file := c.instructionScope(expr)
+	if file != nil {
+		location = file.Position(expr.Pos())
 	}
+	dbgLoc := llvm.DIBuilderCreateDebugLocation(
+		c.currentContext(ctx),
+		uint(location.Line),
+		uint(location.Column),
+		scope,
+		nil)
+
+	ctx = context.WithValue(ctx, currentDbgLocationKey{}, dbgLoc)
+	llvm.SetCurrentDebugLocation2(c.builder, dbgLoc)
 
 	// initialize the value
 	value.cc = c
@@ -90,52 +89,118 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 	case *ssa.BinOp:
 		value.LLVMValueRef, err = c.createBinOp(ctx, expr)
 	case *ssa.Call:
-		switch callExpr := expr.Common().Value.(type) {
-		case *ssa.Builtin:
-			value.LLVMValueRef, err = c.createBuiltinCall(ctx, callExpr, expr.Call.Args)
-		case *ssa.Function:
-			value.LLVMValueRef, err = c.createFunctionCall(ctx, callExpr, expr.Call.Args)
-		case *ssa.MakeClosure:
-			panic("unreachable?")
-		default:
-			fnValue, err := c.createExpression(ctx, callExpr)
+		if c.isIntrinsicCall(expr) {
+			value, err = c.createIntrinsic(ctx, expr)
 			if err != nil {
 				return invalidValue, err
 			}
+		} else if expr.Call.IsInvoke() {
+			// Get the interface value
+			interfaceValue, err := c.createExpression(ctx, expr.Call.Value)
+			if err != nil {
+				return invalidValue, err
+			}
+
+			// Get the type information from the value
+			//typeInfo := llvm.BuildExtractValue(c.builder, interfaceValue, 0, "extract_interface_type_info")
+
+			// Look up the function to be called
+			fnPtr, err := c.createRuntimeCall(ctx, "interfaceLookUp", []llvm.LLVMValueRef{
+				//c.addressOf(ctx, typeInfo),
+				c.addressOf(ctx, interfaceValue),
+				// TODO: Create some unique hash based on the signature
+				c.createConstantString(ctx, expr.Call.Method.Id()),
+			})
 
 			args, err := c.createValues(ctx, expr.Call.Args)
 			if err != nil {
 				return invalidValue, err
 			}
 
-			if closure, ok := c.closures[expr.Call.Signature()]; ok {
-				memberTypes := []llvm.LLVMTypeRef{c.ptrType.valueType}
-				for i := len(expr.Call.Args); i < closure.signature.Params().Len(); i++ {
-					memberTypes = append(memberTypes, c.createType(ctx, closure.signature.Params().At(i).Type()).valueType)
+			// Call the concrete method
+			c.createType(ctx, expr.Call.Signature())
+			value.LLVMValueRef = llvm.BuildCall2(
+				c.builder,
+				c.signatures[expr.Call.Signature()],
+				fnPtr,
+				args.Ref(ctx),
+				"")
+			if err != nil {
+				return invalidValue, err
+			}
+		} else {
+			switch callExpr := expr.Common().Value.(type) {
+			case *ssa.Builtin:
+				value.LLVMValueRef, err = c.createBuiltinCall(ctx, callExpr, expr.Call.Args)
+			case *ssa.Function:
+				if expr.Call.IsInvoke() {
+					// Look up the function to be called
+					fnPtr, err := c.createRuntimeCall(ctx, "interfaceLookUp", []llvm.LLVMValueRef{
+						// TODO: Create some unique hash based on the signature
+						c.createConstantString(ctx, expr.Call.Method.Id()),
+					})
+
+					args, err := c.createValues(ctx, expr.Call.Args)
+					if err != nil {
+						return invalidValue, err
+					}
+
+					// Call the concrete method
+					c.createType(ctx, callExpr.Signature)
+					value.LLVMValueRef = llvm.BuildCall2(
+						c.builder,
+						c.signatures[callExpr.Signature],
+						fnPtr,
+						args.Ref(ctx),
+						"")
+					if err != nil {
+						return invalidValue, err
+					}
+				} else {
+					value.LLVMValueRef, err = c.createFunctionCall(ctx, callExpr, expr.Call.Args)
+				}
+			case *ssa.MakeClosure:
+				panic("unreachable?")
+			default:
+				fnValue, err := c.createExpression(ctx, callExpr)
+				if err != nil {
+					return invalidValue, err
 				}
 
-				// Create the struct type holding the function pointer and the free vars
-				// TODO: This should probably be saved in some way initially
-				strType := llvm.StructTypeInContext(c.currentContext(ctx), memberTypes, false)
-				addr := llvm.BuildStructGEP2(c.builder, strType, fnValue, 0, "addr_fnptr")
-				fnPtr := llvm.BuildLoad2(c.builder, c.ptrType.valueType, addr, "load_fnptr")
-
-				// Create free vars
-				args := args.Ref(ctx)
-				for i := 1; i < len(memberTypes); i++ {
-					addr = llvm.BuildStructGEP2(c.builder, strType, fnValue, uint(i), "addr_bound")
-					arg := llvm.BuildLoad2(c.builder, llvm.StructGetTypeAtIndex(strType, uint(i)), addr, "load_fnptr")
-					args = append(args, arg)
+				args, err := c.createValues(ctx, expr.Call.Args)
+				if err != nil {
+					return invalidValue, err
 				}
 
-				// Create call to closure
-				value.LLVMValueRef = llvm.BuildCall2(c.builder, closure.llvmType, fnPtr, args, "")
-			} else {
-				// Get the underlying function type
-				fnType := c.signatures[expr.Call.Signature()]
+				if closure, ok := c.closures[expr.Call.Signature()]; ok {
+					memberTypes := []llvm.LLVMTypeRef{c.ptrType.valueType}
+					for i := len(expr.Call.Args); i < closure.signature.Params().Len(); i++ {
+						memberTypes = append(memberTypes, c.createType(ctx, closure.signature.Params().At(i).Type()).valueType)
+					}
 
-				// Create call to anonymous function
-				value.LLVMValueRef = llvm.BuildCall2(c.builder, fnType, fnValue, args.Ref(ctx), "")
+					// Create the struct type holding the function pointer and the free vars
+					// TODO: This should probably be saved in some way initially
+					strType := llvm.StructTypeInContext(c.currentContext(ctx), memberTypes, false)
+					addr := llvm.BuildStructGEP2(c.builder, strType, fnValue, 0, "addr_fnptr")
+					fnPtr := llvm.BuildLoad2(c.builder, c.ptrType.valueType, addr, "load_fnptr")
+
+					// Create free vars
+					args := args.Ref(ctx)
+					for i := 1; i < len(memberTypes); i++ {
+						addr = llvm.BuildStructGEP2(c.builder, strType, fnValue, uint(i), "addr_bound")
+						arg := llvm.BuildLoad2(c.builder, llvm.StructGetTypeAtIndex(strType, uint(i)), addr, "load_fnptr")
+						args = append(args, arg)
+					}
+
+					// Create call to closure
+					value.LLVMValueRef = llvm.BuildCall2(c.builder, closure.llvmType, fnPtr, args, "")
+				} else {
+					// Get the underlying function type
+					fnType := c.signatures[expr.Call.Signature()]
+
+					// Create call to anonymous function
+					value.LLVMValueRef = llvm.BuildCall2(c.builder, fnType, fnValue, args.Ref(ctx), "")
+				}
 			}
 		}
 	case *ssa.Const:
@@ -314,10 +379,18 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 			return invalidValue, err
 		}
 
-		structType := llvm.TypeOf(structValue)
+		// Get the struct type to load from
+		structType := c.createType(ctx, expr.X.Type().Underlying())
 
-		// Get the address of the field within the struct
-		fieldType, addr := c.structFieldAddress(ctx, structValue, structType, expr.Field)
+		// Get the type of the field to be loaded
+		fieldType := llvm.StructGetTypeAtIndex(structType.valueType, uint(expr.Field))
+
+		// Create a GEP to get the address of the field within the struct
+		addr := llvm.BuildStructGEP2(
+			c.builder,
+			structType.valueType,
+			c.addressOf(ctx, structValue.UnderlyingValue(ctx)),
+			uint(expr.Field), "")
 
 		// Load the value at the address
 		value.LLVMValueRef = llvm.BuildLoad2(c.builder, fieldType, addr, "")
@@ -339,8 +412,12 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 			structType = llvm.TypeOf(structValue.UnderlyingValue(ctx))
 		}
 
-		//Return the address
-		_, value.LLVMValueRef = c.structFieldAddress(ctx, structValue, structType, expr.Field)
+		// Create a GEP to get the address of the field within the struct
+		value.LLVMValueRef = llvm.BuildStructGEP2(
+			c.builder,
+			structType,
+			structValue.UnderlyingValue(ctx),
+			uint(expr.Field), "")
 	case *ssa.FreeVar:
 		// The free-var is passed via parameters to the function
 		fnObj := c.functions[expr.Parent().Signature]

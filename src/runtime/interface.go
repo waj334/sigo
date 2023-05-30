@@ -70,3 +70,22 @@ func interfaceCompare(X unsafe.Pointer, Y unsafe.Pointer) bool {
 	}
 	return false
 }
+
+func interfaceLookUp(ptr unsafe.Pointer, methodName string) (result unsafe.Pointer) {
+	iface := (*interfaceDescriptor)(ptr)
+	info := iface.typePtr
+
+	// Get the underlying type
+	if info.ptr != nil {
+		ptrInfo := info.ptr
+		info = ptrInfo.elementType
+	}
+
+	for method := 0; method < info.methods.count; method++ {
+		fn := info.methods.index(method)
+		if methodName == *fn.name {
+			return fn.ptr
+		}
+	}
+	panic("no concrete implementation found")
+}

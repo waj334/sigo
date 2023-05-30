@@ -1,13 +1,22 @@
 package time
 
+const (
+	Nanosecond  Duration = 1
+	Microsecond          = 1000 * Nanosecond
+	Millisecond          = 1000 * Microsecond
+	Second               = 1000 * Millisecond
+	Minute               = 60 * Second
+	Hour                 = 60 * Minute
+)
+
 type Duration int64
 
 func Since(t Time) Duration {
-	return 0
+	return Duration(int64(Now().t) - int64(t.t))
 }
 
 func Until(t Time) Duration {
-	return 0
+	return Duration(int64(t.t) - int64(Now().t))
 }
 
 func (d Duration) Abs() Duration {

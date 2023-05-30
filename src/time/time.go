@@ -1,8 +1,29 @@
 package time
 
-type Time struct {
-	t uintptr
+import (
+	"runtime"
+)
+
+var (
+	source runtime.TimeSource = &runtime.SysTickSource{}
+)
+
+func SetSource(src runtime.TimeSource) {
+	source = src
 }
+
+type Time struct {
+	t uint64
+}
+
+var (
+	yearNs   uint64 = 3.154e+16
+	monthNs  uint64 = 2.628e+15
+	dayNs    uint64 = 86399905315173
+	hourNs   uint64 = 3599996054799
+	minuteNs uint64 = 59999934247
+	secondNs uint64 = 999998904
+)
 
 func Now() Time {
 	return Time{
@@ -11,27 +32,50 @@ func Now() Time {
 }
 
 func (t Time) Add(d Duration) Time {
-	return Time{}
+	newNs := int64(t.t) + d.Nanoseconds()
+	if newNs < 0 {
+		// Do not allow underflow of uint64
+		newNs = 0
+	}
+
+	return Time{
+		t: uint64(newNs),
+	}
 }
 
 func (t Time) AddDate(years int, months int, days int) Time {
-	return Time{}
+	return Time{
+		t: t.t + (yearNs * uint64(years)) + (monthNs * uint64(months)) + (dayNs * uint64(days)),
+	}
 }
 
 func (t Time) After(u Time) bool {
-	return false
+	return t.t > u.t
+}
+
+func (t Time) Before(u Time) bool {
+	return t.t < u.t
 }
 
 func (t Time) Clock() (hour, min, sec int) {
-	return 0, 0, 0
+	sec = int(t.t/secondNs) % 60
+	min = int(t.t/minuteNs) % 60
+	hour = int(t.t/hourNs) % 24
+	return
 }
 
 func (t Time) Compare(u Time) int {
+	switch {
+	case t.t < u.t:
+		return -1
+	case t.t > u.t:
+		return +1
+	}
 	return 0
 }
 
 func (t Time) Date() (year int, month Month, day int) {
-	return 0, 0, 0
+	return
 }
 
 func (t Time) Day() int {

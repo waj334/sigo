@@ -57,6 +57,7 @@ func Build(ctx context.Context, packageDir string) error {
 	compilerOptions := compiler.NewOptions()
 	compilerOptions.Verbosity = options.CompilerVerbosity
 	compilerOptions.GenerateDebugInfo = options.GenerateDebugInfo
+	compilerOptions.PrimitivesAsCTypes = options.CTypeNames
 
 	// Create the build directory
 	if len(options.BuildDir) == 0 {

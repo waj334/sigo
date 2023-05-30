@@ -1,12 +1,15 @@
 package runtime
 
-import "unsafe"
+import (
+	"unsafe"
+)
 
 type taskState uint8
 
 const (
 	taskNotStarted taskState = iota
 	taskIdle
+	taskSleep
 	taskRunning
 )
 
@@ -16,17 +19,19 @@ type goroutine struct {
 }
 
 type task struct {
-	stackTop unsafe.Pointer
-	ctx      *goroutine
-	stack    unsafe.Pointer
-	next     *task
-	prev     *task
-	state    taskState
+	stackTop      unsafe.Pointer
+	ctx           *goroutine
+	stack         unsafe.Pointer
+	next          *task
+	prev          *task
+	state         taskState
+	sleepDeadline uint64
 }
 
 var (
-	headTask *task = nil
-	lastTask *task = nil
+	headTask   *task      = nil
+	lastTask   *task      = nil
+	timeSource TimeSource = &SysTickSource{}
 )
 
 func init() {
@@ -45,11 +50,11 @@ func initTask(unsafe.Pointer)
 //go:linkname alignStack runtime.alignStack
 func alignStack(n uintptr) uintptr
 
-//go:linkname enableInterrupts _enable_irq
-func enableInterrupts()
+//go:linkname _currentTick runtime.currentTick
+func _currentTick() uint32
 
-//go:linkname disableInterrupts _disable_irq
-func disableInterrupts()
+//go:linkname triggerPendSV _triggerPendSV
+func triggerPendSV()
 
 //go:export runScheduler runtime.runScheduler
 func runScheduler() (shouldSwitch bool) {
@@ -61,18 +66,39 @@ func runScheduler() (shouldSwitch bool) {
 			currentTask = headTask
 			lastTask = nil
 		} else {
-			// Move the current task to the idle state
-			currentTask.state = taskIdle
+			if currentTask.state == taskRunning {
+				// Move the current task to the idle state
+				currentTask.state = taskIdle
+			}
 
 			// Update this task's stack pointer
 			currentTask.stackTop = currentStack()
 
 			// Switch to the next task
 			lastTask = currentTask
-			currentTask = currentTask.next
+			nextTask := lastTask.next
+
+			for {
+				if nextTask.state == taskSleep {
+					currentTick := timeSource.Now()
+					if currentTick > nextTask.sleepDeadline {
+						nextTask.state = taskIdle
+						nextTask.sleepDeadline = 0
+					} else if nextTask == lastTask && nextTask.state == taskSleep {
+						// All tasks are sleep. panic
+						panic("all goroutines are sleep")
+					} else {
+						// Skip sleeping task
+						nextTask = nextTask.next
+						continue
+					}
+				}
+				currentTask = nextTask
+				break
+			}
 		}
 
-		if currentTask != nil {
+		if currentTask != nil && currentTask != lastTask {
 			switch currentTask.state {
 			case taskNotStarted:
 				// Initialize the stack for this task
@@ -153,4 +179,16 @@ func removeTask(t *task) {
 
 	// Free the task
 	free(unsafe.Pointer(t))
+}
+
+//go:export _sleep runtime.sleep
+func _sleep(d uint64) {
+	if currentTask == nil {
+		panic("sleep called from non-goroutine")
+	}
+	currentTask.sleepDeadline = timeSource.Now() + d
+	currentTask.state = taskSleep
+
+	// TODO: This needs to a less architecture-specific call
+	triggerPendSV()
 }

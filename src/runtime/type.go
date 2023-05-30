@@ -62,7 +62,8 @@ type methodTable struct {
 
 func (m methodTable) index(i int) *functionDescriptor {
 	if i < m.count {
-		return (*functionDescriptor)(unsafe.Pointer(uintptr(m.methods) + (unsafe.Sizeof(unsafe.Pointer(nil)))*uintptr(i)))
+		ptr := unsafe.Add(m.methods, unsafe.Sizeof(uintptr(0))*uintptr(i))
+		return (*functionDescriptor)(unsafe.Pointer(*(*uintptr)(ptr)))
 	}
 	return nil
 }
@@ -74,7 +75,9 @@ type fieldTable struct {
 
 func (f fieldTable) index(i int) *fieldDescriptor {
 	if i < f.count {
-		return (*fieldDescriptor)(unsafe.Pointer(uintptr(f.fields) + (unsafe.Sizeof(unsafe.Pointer(nil)))*uintptr(i)))
+		ptr := unsafe.Add(f.fields, unsafe.Sizeof(uintptr(0))*uintptr(i))
+		return (*fieldDescriptor)(unsafe.Pointer(*(*uintptr)(ptr)))
+		//return (*fieldDescriptor)(unsafe.Pointer(uintptr(f.fields) + (unsafe.Sizeof(unsafe.Pointer(nil)))*uintptr(i)))
 	}
 	return nil
 }
@@ -86,12 +89,14 @@ type typeTable struct {
 
 func (t typeTable) index(i int) *typeDescriptor {
 	if i < t.count {
-		return (*typeDescriptor)(unsafe.Pointer(uintptr(t.types) + (unsafe.Sizeof(unsafe.Pointer(nil)))*uintptr(i)))
+		ptr := unsafe.Add(t.types, unsafe.Sizeof(uintptr(0))*uintptr(i))
+		return (*typeDescriptor)(unsafe.Pointer(*(*uintptr)(ptr)))
 	}
 	return nil
 }
 
 type functionDescriptor struct {
+	ptr     unsafe.Pointer
 	name    *string
 	args    *typeTable
 	returns *typeTable

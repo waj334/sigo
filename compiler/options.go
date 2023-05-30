@@ -26,6 +26,7 @@ type Options struct {
 	Verbosity          Verbosity
 	PathMappings       map[string]string
 	GoroutineStackSize uint64
+	PrimitivesAsCTypes bool
 }
 
 func NewOptions() *Options {

@@ -91,7 +91,7 @@ func (c *Compiler) createType(ctx context.Context, typ types.Type) *Type {
 	case *types.Interface:
 		result.valueType = llvm.GetTypeByName2(c.currentContext(ctx), "interface")
 	case *types.Pointer:
-		if structType, ok := typ.Elem().Underlying().(*types.Struct); ok {
+		/*if structType, ok := typ.Elem().Underlying().(*types.Struct); ok {
 			name := ""
 			if named, ok := typ.Elem().(*types.Named); ok {
 				name = named.Obj().Name()
@@ -102,14 +102,14 @@ func (c *Compiler) createType(ctx context.Context, typ types.Type) *Type {
 
 			// Note: Need to cache structs right away to prevent a stack overflow
 			// with a member type is or contains this struct type for any reason.
-			c.types[typ] = result
+			c.types[structType] = result
 
 			// Create the underlying struct type
 			st := c.createType(ctx, structType)
 
 			// Set the struct body to that of the underlying struct type
 			llvm.StructSetBody(result.valueType, llvm.GetStructElementTypes(st.valueType), false)
-		}
+		}*/
 		elementType := c.createType(ctx, typ.Elem())
 		// NOTE: This pointer is opaque!!!
 		result.valueType = llvm.PointerType(elementType.valueType, 0)
