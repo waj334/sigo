@@ -4,16 +4,19 @@ import (
 	"unsafe"
 )
 
-//go:linkname main main.main
+//sigo:extern main main.main
 func main()
 
-//go:linkname abort _abort
+//sigo:extern gcmain runtime.gcmain
+func gcmain()
+
+//sigo:extern abort _abort
 func abort()
 
-//go:linkname initPackages runtime.initPackages
+//sigo:extern initPackages runtime.initPackages
 func initPackages()
 
-//go:linkname initSysTick initSysTick
+//sigo:extern initSysTick initSysTick
 func initSysTick()
 
 //sigo:extern __start_bss __start_bss
@@ -59,17 +62,20 @@ func _entry() {
 	// NOTE: The package init also sets up the pointer values in the chip support packages
 	initPackages()
 
+	go func() {
+		// Start the garbage collector
+		go gcmain()
+
+		// Run the main program
+		main()
+		abort()
+	}()
+
 	// Start the SysTick counter
 	initSysTick()
 
 	// Enable interrupts
-	EnableInterrupts()
-
-	// Run the main program
-	go func() {
-		main()
-		abort()
-	}()
+	EnableInterrupts(InterruptState())
 
 	// Loop forever
 	for {

@@ -12,7 +12,7 @@ type Alloc struct {
 	Comment string
 }
 
-func (a Alloc) Generate(ctx context.Context) (result Value, err error) {
+func (a Alloc) Generate(ctx context.Context) (result Value) {
 	elementType := a.cc.createType(ctx, a.goType.Underlying().(*types.Pointer).Elem())
 
 	// NOTE: Some stack allocations will be moved to the heap later if they
@@ -31,12 +31,8 @@ func (a Alloc) Generate(ctx context.Context) (result Value, err error) {
 		result = a.cc.createVariable(ctx, a.Comment, result, a.goType.Underlying())
 
 		// Create the runtime call to allocate some memory on the heap
-		obj, err := a.cc.createRuntimeCall(ctx, "alloc",
+		obj := a.cc.createRuntimeCall(ctx, "alloc",
 			[]llvm.LLVMValueRef{llvm.ConstInt(a.cc.uintptrType.valueType, size, false)})
-
-		if err != nil {
-			return invalidValue, err
-		}
 
 		// Store the address at the alloc
 		llvm.BuildStore(a.cc.builder, obj, result.LLVMValueRef)

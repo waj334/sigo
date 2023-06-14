@@ -6,15 +6,24 @@ import (
 	"fmt"
 	"go/token"
 	"go/types"
-	"golang.org/x/tools/go/packages"
+	"gonum.org/v1/gonum/graph/simple"
+	"gonum.org/v1/gonum/graph/topo"
+	"hash/crc32"
 	"math/rand"
-	"omibyte.io/sigo/compiler"
-	"omibyte.io/sigo/llvm"
 	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
 	"runtime"
+	"strconv"
+	"strings"
+	"sync"
+
+	"golang.org/x/tools/go/packages"
+	"golang.org/x/tools/go/ssa"
+
+	"omibyte.io/sigo/compiler"
+	"omibyte.io/sigo/llvm"
 )
 
 type (
@@ -136,122 +145,201 @@ func Build(ctx context.Context, packageDir string) error {
 		return err
 	}
 
-	// Compute build order
-	graph := NewGraph()
-	for _, pkg := range allPackages {
-		// Skip some packages as they are not real
-		if pkg.Pkg.Path() == "unsafe" {
-			continue
-		}
-
-		for _, imported := range pkg.Pkg.Imports() {
-			// Skip some packages as they are not real
-			if imported.Path() == "unsafe" {
-				continue
-			}
-
-			graph.AddEdge(pkg, prog.ssaProg.Package(imported))
-		}
-	}
-
-	// Create the buckets. These buckets represent packages that can be compiled in parallel
-	buckets, err := graph.Buckets()
-	if err != nil {
-		return err
-	}
-
-	// Get the target
-	target, err := compiler.NewTargetFromMap(prog.targetInfo)
-	if err != nil {
-		return err
-	}
-
-	// Initialize the target
-	if err = target.Initialize(); err != nil {
-		return err
-	}
-
-	compilerOptions.Target = target
-
-	// Create a compiler
-	cc, compilerCtx := compiler.NewCompiler(*compilerOptions)
-
-	runtimePackages := []string{
-		"runtime",
-	}
-
-	for _, runtimePackage := range runtimePackages {
-		// Get the runtime package that all packages will have an implicit dependency on
-		runtimePkg := prog.ssaProg.ImportedPackage(runtimePackage)
-		if runtimePkg == nil {
-			panic("missing \"" + runtimePackage + "\" package")
-		}
-
-		// Compile the runtime package first
-		if err = cc.CompilePackage(ctx, compilerCtx, runtimePkg); err != nil {
-			// TODO: Handle compiler errors more elegantly
+	// TODO: Check target triple now to fail early!!!
+	/*
+		// Get the target
+		target, err := compiler.NewTargetFromMap(prog.targetInfo)
+		if err != nil {
 			return err
 		}
+
+		// Initialize the target
+		if err = target.Initialize(); err != nil {
+			return err
+		}
+
+		compilerOptions.Target = target
+	*/
+
+	stopChan := make(chan struct{})
+	errChan := make(chan error)
+	go func() {
+		select {
+		case <-stopChan:
+			return
+		case err := <-errChan:
+			panic(err)
+		}
+	}()
+
+	numJobs := options.NumJobs
+	if numJobs == 0 {
+		numJobs = 1
 	}
 
-	// Compile the packages
-	for _, bucket := range buckets {
-		for _, pkg := range bucket {
-			// Skip previously compiled runtime packages
-			skip := false
-			for _, runtimePackage := range runtimePackages {
-				if pkg.Pkg.Path() == runtimePackage {
-					// Do not build this package more than once
-					skip = true
-					break
+	// This will hold the compiled modules
+	compilers := map[string]*compiler.Compiler{}
+	var mu sync.Mutex
+
+	// Create a bounded worker pool
+	var wg sync.WaitGroup
+	wg.Add(numJobs)
+
+	// Create the channel that packages to be compiled will be signaled on
+	pkgChan := make(chan *ssa.Package, numJobs)
+
+	// Create the compiler pool
+	for i := 0; i < numJobs; i++ {
+		go func() {
+			defer wg.Done()
+			for pkg := range pkgChan {
+				// Get the target
+				target, _ := compiler.NewTargetFromMap(prog.targetInfo)
+
+				// Initialize the target
+				target.Initialize()
+
+				opts := compilerOptions.WithTarget(target)
+
+				// Create a compiler
+				cc, compilerCtx := compiler.NewCompiler(pkg.Pkg.Path(), opts)
+
+				// Compile the package
+				if err = cc.CompilePackage(ctx, compilerCtx, pkg); err != nil {
+					// TODO: Handle compiler errors more elegantly
+					errChan <- err
+					return
+				}
+
+				// Finish up
+				cc.Finalize()
+
+				// Store the module
+				mu.Lock()
+				compilers[pkg.Pkg.Path()] = cc
+				mu.Unlock()
+			}
+		}()
+	}
+
+	// Start signaling packages to be compiled by the pool
+	for _, pkg := range allPackages {
+		pkgChan <- pkg
+	}
+	close(pkgChan)
+
+	// Wait for remaining jobs to complete
+	wg.Wait()
+
+	// Create the init module last
+	{
+		// Create lookup table for packages
+		lookup := map[*types.Package]int64{}
+		for i, pkg := range allPackages {
+			lookup[pkg.Pkg] = int64(i)
+		}
+
+		// Create a directed graph so that the order in which the init functions should be call can be determined.
+		graph := simple.NewDirectedGraph()
+		for _, pkg := range allPackages {
+			from, _ := graph.NodeWithID(lookup[pkg.Pkg])
+			for _, imported := range pkg.Pkg.Imports() {
+				to, _ := graph.NodeWithID(lookup[imported])
+				e := graph.NewEdge(from, to)
+				graph.SetEdge(e)
+			}
+		}
+
+		// Perform a topological sort
+		result, err := topo.Sort(graph)
+		if err != nil {
+			return err
+		}
+
+		var pkgs []*ssa.Package
+		for _, node := range result {
+			// Prepend to get the correct call order
+			pkgs = append([]*ssa.Package{allPackages[node.ID()]}, pkgs...)
+		}
+
+		// Get the target
+		target, err := compiler.NewTargetFromMap(prog.targetInfo)
+		if err != nil {
+			return err
+		}
+
+		// Initialize the target
+		if err = target.Initialize(); err != nil {
+			return err
+		}
+
+		cc, llctx := compiler.NewCompiler("init", compilerOptions.WithTarget(target))
+		cc.CreateInitLib(llctx, pkgs)
+		cc.Finalize()
+		compilers["__init__"] = cc
+	}
+
+	var objFiles []string
+
+	// Process each module
+	moduleChan := make(chan struct {
+		pkgPath string
+		cc      *compiler.Compiler
+	}, numJobs)
+	wg.Add(numJobs)
+
+	for i := 0; i < numJobs; i++ {
+		go func() {
+			defer wg.Done()
+			for job := range moduleChan {
+				dumpOut := options.Output + "." + strings.ReplaceAll(job.pkgPath, "/", "_") + ".dump.ll"
+
+				// Verfiy the IR
+				verifySucceeded, errMsg := llvm.VerifyModule2(job.cc.Module(), llvm.LLVMVerifierFailureAction(llvm.ReturnStatusAction))
+				if (!verifySucceeded && options.DumpOnVerifyError) || options.DumpIR {
+					dumpModule(job.cc.Module(), dumpOut)
+				}
+
+				if !verifySucceeded {
+					errChan <- errors.Join(ErrCodeGeneratorError, errors.New(job.pkgPath+":\n"+errMsg))
+				}
+
+				nameHash := crc32.Checksum([]byte(job.pkgPath), crc32.IEEETable)
+				objectOut := filepath.Join(options.BuildDir, strconv.Itoa(int(nameHash))+".o")
+
+				mu.Lock()
+				objFiles = append(objFiles, objectOut)
+				mu.Unlock()
+
+				// Generate the object file for this program
+				if ok, errMsg := llvm.TargetMachineEmitToFile2(job.cc.Options().Target.Machine(), job.cc.Module(), objectOut, llvm.LLVMCodeGenFileType(llvm.ObjectFile)); !ok {
+					errChan <- errors.Join(ErrCodeGeneratorError, errors.New(job.pkgPath+":\n"+errMsg))
 				}
 			}
-
-			if skip {
-				continue
-			}
-
-			if err = cc.CompilePackage(ctx, compilerCtx, pkg); err != nil {
-				// TODO: Handle compiler errors more elegantly
-				return err
-			}
-		}
+		}()
 	}
 
-	// Run optimization passes
-	//cc.GCPass(compilerCtx, cc.Module())
-
-	// Finalize the compiler
-	cc.Finalize()
-
-	dumpOut := options.Output
-	if filepath.Ext(dumpOut) != ".ll" {
-		dumpOut += ".dump.ll"
+	for pkgPath, cc := range compilers {
+		moduleChan <- struct {
+			pkgPath string
+			cc      *compiler.Compiler
+		}{pkgPath: pkgPath, cc: cc}
 	}
-	dumpModule(cc.Module(), dumpOut)
+	close(moduleChan)
+	wg.Wait()
 
-	// Verfiy the IR
-	if ok, errMsg := llvm.VerifyModule2(cc.Module(), llvm.LLVMVerifierFailureAction(llvm.ReturnStatusAction)); !ok {
-		if options.DumpOnVerifyError {
-			if filepath.Ext(options.Output) != ".ll" {
-				options.Output += ".dump.ll"
-			}
-			dumpModule(cc.Module(), options.Output)
-		}
-		return errors.Join(ErrCodeGeneratorError, errors.New(errMsg))
-	}
+	// Done with error monitor
+	stopChan <- struct{}{}
+	close(stopChan)
+	close(errChan)
 
-	// Generate the object file for this program
-	objectOut := filepath.Join(options.BuildDir, "package.o")
-	if ok, errMsg := llvm.TargetMachineEmitToFile2(target.Machine(), cc.Module(), objectOut, llvm.LLVMCodeGenFileType(llvm.ObjectFile)); !ok {
-		return errors.Join(ErrCodeGeneratorError, errors.New(errMsg))
-	}
+	triple := prog.targetInfo["triple"]
 
 	// TODO: Select the proper build of picolibc
-	libCDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/picolibc", target.Triple(), "lib")
+	libCDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/picolibc", triple, "lib")
 
 	// Select build of runtime-rt
-	libCompilerRTDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/compiler-rt/lib", target.Triple())
+	libCompilerRTDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/compiler-rt/lib", triple)
 
 	// Locate clang
 	executablePostfix := ""
@@ -268,7 +356,7 @@ func Build(ctx context.Context, packageDir string) error {
 	}
 
 	// Other arguments
-	targetTriple := "--target=" + target.Triple()
+	targetTriple := "--target=" + triple
 	elfOut := filepath.Join(options.BuildDir, "package.elf")
 	args := []string{
 		"-v",
@@ -288,7 +376,7 @@ func Build(ctx context.Context, packageDir string) error {
 		args = append(args, "-L"+filepath.Dir(ld))
 	}
 
-	args = append(args, objectOut)
+	args = append(args, objFiles...)
 
 	// Compile all assembly files
 	for asm, _ := range prog.assemblyFiles {
@@ -347,9 +435,6 @@ func Build(ctx context.Context, packageDir string) error {
 			output, _ := clangCmd.Output()
 			return errors.Join(ErrClangFailed, err, errors.New(string(output)))
 		}
-	case ".ll":
-		// Dump the module to the output file
-		dumpModule(cc.Module(), options.Output)
 	default:
 		// Load the ELF into memory
 		elfBytes, err := os.ReadFile(elfOut)
@@ -363,11 +448,10 @@ func Build(ctx context.Context, packageDir string) error {
 		}
 	}
 
-	// Clean up the compiler
-	cc.Dispose()
-
-	// Clean up the target
-	target.Dispose()
+	// Clean up the compilers
+	for _, cc := range compilers {
+		cc.Dispose()
+	}
 
 	return nil
 }
@@ -403,4 +487,14 @@ func stageGoRoot(stageDir string, env Env) error {
 	}
 
 	return nil
+}
+
+func symbolName(pkg *types.Package, name string) string {
+	path := "_"
+	// pkg is nil for objects in Universe scope and possibly types
+	// introduced via Eval (see also comment in object.sameId)
+	if pkg != nil && pkg.Path() != "" {
+		path = pkg.Path()
+	}
+	return path + "." + name
 }

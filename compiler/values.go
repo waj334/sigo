@@ -3,7 +3,6 @@ package compiler
 import (
 	"context"
 	"go/token"
-	"go/types"
 	"golang.org/x/tools/go/ssa"
 	"omibyte.io/sigo/llvm"
 	"path/filepath"
@@ -33,7 +32,7 @@ func (v Value) UnderlyingValue(ctx context.Context) llvm.LLVMValueRef {
 	ref := v.LLVMValueRef
 	if llvm.IsAAllocaInst(ref) != nil && v.heap {
 		// Load the object ptr from the alloca
-		ref = llvm.BuildLoad2(v.cc.builder, v.cc.ptrType.valueType, ref, "obj_load")
+		//ref = llvm.BuildLoad2(v.cc.builder, v.cc.ptrType.valueType, ref, "obj_load")
 
 		typ := v.cc.createType(ctx, v.spec.Type())
 
@@ -55,8 +54,13 @@ func (v Value) File() *token.File {
 }
 
 func (v Value) DebugFile() llvm.LLVMMetadataRef {
-	// Extract the file info
-	filename := v.cc.options.MapPath(v.File().Name())
+	filename := "<unknown>"
+
+	file := v.File()
+	if file != nil {
+		// Extract the file info
+		filename = v.cc.options.MapPath(v.File().Name())
+	}
 
 	// Return the file
 	return llvm.DIBuilderCreateFile(
@@ -89,73 +93,16 @@ func (v Values) Ref(ctx context.Context) []llvm.LLVMValueRef {
 	return refs
 }
 
-func (c *Compiler) createValues(ctx context.Context, input []ssa.Value) (Values, error) {
+func (c *Compiler) createValues(ctx context.Context, input []ssa.Value) Values {
 	var output []Value
 	for _, in := range input {
 		// Evaluate the argument
-		value, err := c.createExpression(ctx, in)
-		if err != nil {
-			return nil, err
-		}
+		value := c.createExpression(ctx, in)
 
 		// Append to the args list that will be passed to the function
 		output = append(output, value)
 	}
-	return output, nil
-}
-
-func (c *Compiler) createVariable(ctx context.Context, name string, value Value, valueType types.Type) Value {
-	c.printf(Debug, "Creating variable for %s (%s)\n", name, valueType.String())
-	defer c.printf(Debug, "Done creating variable for %s (%s)\n", name, valueType.String())
-
-	dbgType := c.createDebugType(ctx, valueType)
-	if _, ok := valueType.(*types.Signature); ok {
-		dbgType = llvm.DIBuilderCreatePointerType(
-			c.dibuilder,
-			dbgType,
-			llvm.StoreSizeOfType(c.options.Target.dataLayout, c.ptrType.valueType)*8,
-			llvm.ABIAlignmentOfType(c.options.Target.dataLayout, c.ptrType.valueType)*8,
-			0, "")
-	}
-
-	scope, _ := c.instructionScope(value.spec)
-	if scope == nil {
-		scope = c.compileUnit
-	}
-
-	// Create the debug information about the variable
-	value.dbg = llvm.DIBuilderCreateAutoVariable(
-		c.dibuilder,
-		scope,
-		name,
-		value.DebugFile(),
-		uint(value.Pos().Line),
-		dbgType,
-		true,
-		0,
-		0)
-
-	var expression llvm.LLVMMetadataRef
-	if value.heap {
-		// Have the debugger dereference the object pointer to obtain the underlying object
-		ops := []uint64{
-			uint64(DW_OP_deref),
-		}
-		expression = llvm.DIBuilderCreateExpression(c.dibuilder, ops)
-	} else {
-		expression = llvm.DIBuilderCreateExpression(c.dibuilder, nil)
-	}
-
-	// Add debug info about the declaration
-	llvm.DIBuilderInsertDeclareAtEnd(
-		c.dibuilder,
-		value,
-		value.dbg,
-		expression,
-		value.DebugPos(ctx),
-		c.currentEntryBlock(ctx))
-
-	return value
+	return output
 }
 
 func (c *Compiler) createSlice(ctx context.Context, array llvm.LLVMValueRef, elementType llvm.LLVMTypeRef, numElements uint64, low, high, max llvm.LLVMValueRef) llvm.LLVMValueRef {
@@ -205,8 +152,15 @@ func (c *Compiler) createSlice(ctx context.Context, array llvm.LLVMValueRef, ele
 	elementSize := llvm.StoreSizeOfType(c.options.Target.dataLayout, elementType)
 	elementSizeVal = llvm.ConstInt(llvm.Int32TypeInContext(c.currentContext(ctx)), elementSize, false)
 
+	// Cast integer types
+	lengthVal = c.castInt(ctx, lengthVal, llvm.Int32TypeInContext(c.currentContext(ctx)))
+	capacityVal = c.castInt(ctx, capacityVal, llvm.Int32TypeInContext(c.currentContext(ctx)))
+	low = c.castInt(ctx, low, llvm.Int32TypeInContext(c.currentContext(ctx)))
+	high = c.castInt(ctx, low, llvm.Int32TypeInContext(c.currentContext(ctx)))
+	max = c.castInt(ctx, low, llvm.Int32TypeInContext(c.currentContext(ctx)))
+
 	// Create the runtime call
-	sliceValue, _ := c.createRuntimeCall(ctx, "sliceAddr", []llvm.LLVMValueRef{
+	sliceValue := c.createRuntimeCall(ctx, "sliceAddr", []llvm.LLVMValueRef{
 		ptrVal, lengthVal, capacityVal, elementSizeVal, low, high, max,
 	})
 
@@ -295,28 +249,22 @@ func (c *Compiler) createSliceFromStringValue(ctx context.Context, str llvm.LLVM
 	return slice
 }
 
-func (c *Compiler) makeInterface(ctx context.Context, value ssa.Value) (result llvm.LLVMValueRef, err error) {
-	x, err := c.createExpression(ctx, value)
-	if err != nil {
-		return nil, err
-	}
+func (c *Compiler) makeInterface(ctx context.Context, value ssa.Value) (result llvm.LLVMValueRef) {
+	x := c.createExpression(ctx, value).UnderlyingValue(ctx)
 
 	interfaceType := llvm.GetTypeByName2(c.currentContext(ctx), "interface")
 
 	// Return the value if it is already of interface type
-	if llvm.TypeIsEqual(llvm.TypeOf(x.UnderlyingValue(ctx)), interfaceType) {
-		return x, nil
+	if llvm.TypeIsEqual(llvm.TypeOf(x), interfaceType) {
+		return x
 	}
 
 	typeinfo := c.createTypeDescriptor(ctx, c.createType(ctx, value.Type().Underlying()))
 	args := []llvm.LLVMValueRef{
-		c.addressOf(ctx, x.UnderlyingValue(ctx)),
+		c.addressOf(ctx, x),
 		typeinfo,
 	}
-	result, err = c.createRuntimeCall(ctx, "makeInterface", args)
-	if err != nil {
-		return nil, err
-	}
+	result = c.createRuntimeCall(ctx, "interfaceMake", args)
 
 	// Load the interface value
 	result = llvm.BuildLoad2(c.builder, interfaceType, c.addressOf(ctx, result), "")
@@ -334,7 +282,7 @@ func (c *Compiler) createConstantString(ctx context.Context, str string) llvm.LL
 	var strArrVal llvm.LLVMValueRef
 	if len(str) > 0 {
 		strArrVal = llvm.ConstStringInContext(c.currentContext(ctx), str, true)
-		strArrVal = c.createGlobalValue(ctx, strArrVal, "global_string_array")
+		strArrVal = c.createGlobalValue(ctx, strArrVal, c.symbolName(c.currentPackage(ctx).Pkg, "cstring"))
 	} else {
 		strArrVal = llvm.ConstNull(
 			llvm.PointerType(llvm.Int8TypeInContext(c.currentContext(ctx)), 0))
@@ -354,7 +302,7 @@ func (c *Compiler) createConstantString(ctx context.Context, str string) llvm.LL
 
 func (c *Compiler) createGlobalString(ctx context.Context, str string) llvm.LLVMValueRef {
 	strVal := c.createConstantString(ctx, str)
-	return c.createGlobalValue(ctx, strVal, "global_string")
+	return c.createGlobalValue(ctx, strVal, c.symbolName(c.currentPackage(ctx).Pkg, "gostring"))
 }
 
 func (c *Compiler) createGlobalValue(ctx context.Context, constVal llvm.LLVMValueRef, name string) llvm.LLVMValueRef {
@@ -368,8 +316,7 @@ func (c *Compiler) createGlobalValue(ctx context.Context, constVal llvm.LLVMValu
 	// Set the global variable's value
 	llvm.SetInitializer(value, constVal)
 	llvm.SetUnnamedAddr(value, llvm.GlobalUnnamedAddr != 0)
-
-	return llvm.BuildBitCast(c.builder, value, c.ptrType.valueType, "")
+	return value
 }
 
 func (c *Compiler) structFieldAddress(ctx context.Context, value Value, structType llvm.LLVMTypeRef, index int) (llvm.LLVMTypeRef, llvm.LLVMValueRef) {
@@ -386,4 +333,30 @@ func (c *Compiler) createAlloca(ctx context.Context, _type llvm.LLVMTypeRef, nam
 	result = llvm.BuildAlloca(c.builder, _type, name)
 	llvm.PositionBuilderAtEnd(c.builder, c.currentBlock(ctx))
 	return
+}
+
+func (c *Compiler) castInt(ctx context.Context, value llvm.LLVMValueRef, to llvm.LLVMTypeRef) llvm.LLVMValueRef {
+	valueType := llvm.TypeOf(value)
+	if llvm.GetTypeKind(valueType) != llvm.IntegerTypeKind {
+		panic("value is not an integer type")
+	}
+
+	if llvm.GetTypeKind(to) != llvm.IntegerTypeKind {
+		panic("cannot cast to non-integer type")
+	}
+
+	if valueType == to {
+		return value
+	}
+
+	isSigned := false
+	switch valueType {
+	case llvm.Int8TypeInContext(c.currentContext(ctx)),
+		llvm.Int16TypeInContext(c.currentContext(ctx)),
+		llvm.Int32TypeInContext(c.currentContext(ctx)),
+		llvm.Int64TypeInContext(c.currentContext(ctx)):
+		isSigned = true
+	}
+
+	return llvm.BuildIntCast2(c.builder, value, to, isSigned, "")
 }

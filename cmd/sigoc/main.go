@@ -5,11 +5,13 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"omibyte.io/sigo/builder"
-	"omibyte.io/sigo/compiler"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
+
+	"omibyte.io/sigo/builder"
+	"omibyte.io/sigo/compiler"
 )
 
 var (
@@ -80,10 +82,11 @@ func build(args []string) {
 	output := buildFlags.String("o", ".", "output file")
 	verbose := buildFlags.String("verbose", "", "verbosity level")
 	debug := buildFlags.Bool("g", false, "generate debug information")
-	dumpOnVerError := buildFlags.Bool("dumpVerify", false, "dump IR upon verification error")
+	dumpOnVerError := buildFlags.Bool("dump-verify", false, "dump IR upon verification error")
+	dumpIR := buildFlags.Bool("dump-ir", false, "dump the IR")
 	tags := buildFlags.String("tags", "", "Build tags")
 	useCTypeNames := buildFlags.Bool("ctypenames", false, "Use C type names for primitives in debug information")
-	//procs := flags.Int("p", runtime.NumCPU(), "number of concurrent builds")
+	numJobs := buildFlags.Int("n", runtime.NumCPU(), "number of concurrent builds")
 
 	// TODO: Implement dependency files for smarter make builds
 	//createDependencyFiles := flags.Bool("MD", false, "create dependency files for Make")
@@ -103,11 +106,13 @@ func build(args []string) {
 	builderOptions := builder.Options{
 		Output:            *output,
 		DumpOnVerifyError: *dumpOnVerError,
+		DumpIR:            *dumpIR,
 		Environment:       builder.Environment(),
 		CompilerVerbosity: compiler.Debug,
 		GenerateDebugInfo: *debug,
 		BuildTags:         strings.Split(*tags, ","),
 		CTypeNames:        *useCTypeNames,
+		NumJobs:           *numJobs,
 	}
 
 	if len(buildFlags.Args()) == 0 {

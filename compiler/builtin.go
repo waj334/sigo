@@ -7,12 +7,9 @@ import (
 	"omibyte.io/sigo/llvm"
 )
 
-func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, args []ssa.Value) (value llvm.LLVMValueRef, err error) {
+func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, args []ssa.Value) (value llvm.LLVMValueRef) {
 	// Get the argument values
-	argValues, err := c.createValues(ctx, args)
-	if err != nil {
-		return nil, err
-	}
+	argValues := c.createValues(ctx, args)
 
 	// Create the proper builtin call based on the method and the type
 	// NOTE: It MUST be defined in the runtime used by this application
@@ -38,17 +35,14 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 
 		// Create the runtime call
 		var sliceValue llvm.LLVMValueRef
-		sliceValue, err = c.createRuntimeCall(ctx, "append", appendArgs[:])
-		if err != nil {
-			return nil, err
-		}
+		sliceValue = c.createRuntimeCall(ctx, "append", appendArgs[:])
 
 		// Load the resulting slice
 		value = llvm.BuildLoad2(c.builder, sliceType, c.addressOf(ctx, sliceValue), "")
 	case "cap":
 		switch args[0].Type().Underlying().(type) {
 		case *types.Slice:
-			value, err = c.createRuntimeCall(ctx, "sliceCap", []llvm.LLVMValueRef{c.addressOf(ctx, argValues[0])})
+			value = c.createRuntimeCall(ctx, "sliceCap", []llvm.LLVMValueRef{c.addressOf(ctx, argValues[0])})
 		case *types.Chan:
 			panic("not implemented")
 		default:
@@ -73,10 +67,7 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 		}
 
 		// Create the runtime call
-		value, err = c.createRuntimeCall(ctx, "sliceCopy", copyArgs[:])
-		if err != nil {
-			return nil, err
-		}
+		value = c.createRuntimeCall(ctx, "sliceCopy", copyArgs[:])
 	case "delete":
 		panic("not implemented")
 	case "imag":
@@ -86,12 +77,12 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 		case *types.Basic:
 			switch t.Kind() {
 			case types.String:
-				value, err = c.createRuntimeCall(ctx, "stringLen", []llvm.LLVMValueRef{c.addressOf(ctx, argValues[0])})
+				value = c.createRuntimeCall(ctx, "stringLen", []llvm.LLVMValueRef{c.addressOf(ctx, argValues[0])})
 			default:
 				panic("len called with invalid value type")
 			}
 		case *types.Slice:
-			value, err = c.createRuntimeCall(ctx, "sliceLen", []llvm.LLVMValueRef{c.addressOf(ctx, argValues[0])})
+			value = c.createRuntimeCall(ctx, "sliceLen", []llvm.LLVMValueRef{c.addressOf(ctx, argValues[0])})
 		case *types.Chan:
 			panic("not implemented")
 		default:
@@ -107,10 +98,7 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 		// Convert each argument into an interface
 		var elements []llvm.LLVMValueRef
 		for _, arg := range args {
-			argValue, err := c.makeInterface(ctx, arg)
-			if err != nil {
-				return nil, err
-			}
+			argValue := c.makeInterface(ctx, arg)
 			elements = append(elements, argValue)
 		}
 
@@ -129,7 +117,7 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 		)
 
 		// Create a runtime call to either print or println
-		value, err = c.createRuntimeCall(ctx, builtin.Name(), []llvm.LLVMValueRef{arg})
+		value = c.createRuntimeCall(ctx, builtin.Name(), []llvm.LLVMValueRef{arg})
 	case "real":
 		panic("not implemented")
 	case "recover":

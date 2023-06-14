@@ -128,8 +128,8 @@ func (p *Program) parse(ctx context.Context) (err error) {
 			// Process exported functions and globals
 			for _, decl := range file.Decls {
 				if fn, ok := decl.(*ast.FuncDecl); ok {
-					symbolName := types.Id(pkg.Types, fn.Name.Name)
-					info := p.options.GetSymbolInfo(symbolName)
+					_symbolName := symbolName(pkg.Types, fn.Name.Name)
+					info := p.options.GetSymbolInfo(_symbolName)
 					info.Exported = fn.Name.IsExported()
 
 					// The main function should be exported as "main.main"
@@ -141,13 +141,13 @@ func (p *Program) parse(ctx context.Context) (err error) {
 						switch spec := spec.(type) {
 						case *ast.ValueSpec:
 							for _, name := range spec.Names {
-								symbolName := types.Id(pkg.Types, name.Name)
-								info := p.options.GetSymbolInfo(symbolName)
+								_symbolName := symbolName(pkg.Types, name.Name)
+								info := p.options.GetSymbolInfo(_symbolName)
 								info.Exported = name.IsExported()
 							}
 						case *ast.TypeSpec:
-							symbolName := types.Id(pkg.Types, spec.Name.Name)
-							info := p.options.GetSymbolInfo(symbolName)
+							_symbolName := symbolName(pkg.Types, spec.Name.Name)
+							info := p.options.GetSymbolInfo(_symbolName)
 							info.Exported = spec.Name.IsExported()
 						}
 					}
@@ -186,8 +186,8 @@ func (p *Program) parse(ctx context.Context) (err error) {
 							}
 						case "//sigo:extern":
 							if count == 3 {
-								symbolName := types.Id(pkg.Types, parts[1])
-								info := p.options.GetSymbolInfo(symbolName)
+								_symbolName := symbolName(pkg.Types, parts[1])
+								info := p.options.GetSymbolInfo(_symbolName)
 								info.LinkName = parts[2]
 								info.ExternalLinkage = true
 							} else {
@@ -195,7 +195,7 @@ func (p *Program) parse(ctx context.Context) (err error) {
 							}
 						case "//sigo:interrupt":
 							if count == 3 {
-								funcName := types.Id(pkg.Types, parts[1])
+								funcName := symbolName(pkg.Types, parts[1])
 								info := p.options.GetSymbolInfo(funcName)
 								info.LinkName = parts[2]
 								info.IsInterrupt = true
@@ -212,8 +212,8 @@ func (p *Program) parse(ctx context.Context) (err error) {
 						//***********************************************
 						case "//go:linkname", "//sigo:linkname":
 							if count == 3 {
-								symbolName := types.Id(pkg.Types, parts[1])
-								info := p.options.GetSymbolInfo(symbolName)
+								_symbolName := symbolName(pkg.Types, parts[1])
+								info := p.options.GetSymbolInfo(_symbolName)
 
 								// NOTE: Allow multiple functions to use the same linkname. The compiler will assert
 								//       that there is only one definition of it
@@ -223,7 +223,7 @@ func (p *Program) parse(ctx context.Context) (err error) {
 							}
 						case "//go:export", "//sigo:export":
 							if count == 3 {
-								funcName := types.Id(pkg.Types, parts[1])
+								funcName := symbolName(pkg.Types, parts[1])
 								info := p.options.GetSymbolInfo(funcName)
 								info.LinkName = parts[2]
 								info.Exported = true

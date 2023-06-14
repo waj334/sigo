@@ -23,6 +23,27 @@ func (g *Graph) AddEdge(src, dest *ssa.Package) {
 	g.adjList[src] = append(g.adjList[src], dest)
 }
 
+func (g *Graph) AddGlobalDependency(dependency *ssa.Package) {
+	for node := range g.nodes {
+		// Do not add a self-loop
+		if node == dependency {
+			continue
+		}
+		// Check if node already has a direct edge to dependency
+		hasEdge := false
+		for _, neighbor := range g.adjList[node] {
+			if neighbor == dependency {
+				hasEdge = true
+				break
+			}
+		}
+		// If not, add the edge
+		if !hasEdge {
+			g.AddEdge(node, dependency)
+		}
+	}
+}
+
 func (g *Graph) dfs(node *ssa.Package, visited, recStack map[*ssa.Package]bool, sortedNodes *[]*ssa.Package, cycleNodes *[]*ssa.Package) bool {
 	visited[node] = true
 	recStack[node] = true

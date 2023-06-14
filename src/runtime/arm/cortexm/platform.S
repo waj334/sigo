@@ -17,6 +17,7 @@ halt:
 .global _enable_irq
 .type _enable_irq, %function
 _enable_irq:
+    msr PRIMASK, r0
     cpsie i
     bx lr
 .size _enable_irq, .-_enable_irq
@@ -24,9 +25,17 @@ _enable_irq:
 .global _disable_irq
 .type _disable_irq, %function
 _disable_irq:
+    mrs r0, PRIMASK
     cpsid i
     bx lr
 .size _disable_irq, .-_disable_irq
+
+.global _irq_state
+.type _irq_state, %function
+_irq_state:
+    mrs r0, PRIMASK
+    bx lr
+.size _irq_state, .-_irq_state
 
 .section .text.HardFault_Handler
 .global HardFault_Handler

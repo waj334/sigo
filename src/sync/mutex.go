@@ -3,16 +3,16 @@ package sync
 import "sync/atomic"
 
 type Mutex struct {
-	state int32
+	state uint32
 }
 
-//go:linkname runScheduler runtime.runScheduler
-func runScheduler() bool
+//sigo:extern schedulerPause runtime.schedulerPause
+func schedulerPause()
 
 func (m *Mutex) Lock() {
-	for !atomic.CompareAndSwapInt32(&m.state, 0, 1) {
-		// Yield
-		runScheduler()
+	for !atomic.CompareAndSwapUint32(&m.state, 0, 1) {
+		// Yield to run a different task
+		schedulerPause()
 	}
 }
 
@@ -21,5 +21,5 @@ func (m *Mutex) TryLock() bool {
 }
 
 func (m *Mutex) Unlock() {
-	atomic.StoreInt32(&m.state, 0)
+	atomic.StoreUint32(&m.state, 0)
 }

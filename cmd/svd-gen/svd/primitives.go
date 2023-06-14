@@ -35,6 +35,17 @@ type PeripheralsElement struct {
 	Elements []PeripheralElement `xml:"peripheral"`
 }
 
+func (p PeripheralsElement) Find(name string) (int, bool) {
+	if len(name) > 0 {
+		for i, pp := range p.Elements {
+			if pp.Name == name {
+				return i, true
+			}
+		}
+	}
+	return -1, false
+}
+
 type PeripheralElement struct {
 	Name         string              `xml:"name"`
 	Description  string              `xml:"description"`
@@ -84,6 +95,7 @@ type RegisterElement struct {
 	Count         Integer       `xml:"dim"`
 	Increment     Integer       `xml:"dimIncrement"`
 	Access        string        `xml:"access"`
+	Alternative   string        `xml:"alternateRegister"`
 }
 
 func (r RegisterElement) GetAddressOffset() Integer {

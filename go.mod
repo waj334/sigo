@@ -8,6 +8,8 @@ require (
 )
 
 require (
+	github.com/ianlancetaylor/cgosymbolizer v0.0.0-20230328201059-365e72989107 // indirect
 	golang.org/x/mod v0.10.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect
+	gonum.org/v1/gonum v0.13.0 // indirect
 )

@@ -1,6 +1,9 @@
 package runtime
 
-import "unsafe"
+import (
+	"sync"
+	"unsafe"
+)
 
 //sigo:extern __stack_top __stack_top
 //sigo:extern __heap_start __heap_start
@@ -22,13 +25,29 @@ var (
 
 	__start_data unsafe.Pointer
 	__end_data   unsafe.Pointer
+	gcMu         sync.Mutex
 )
 
 type object struct {
-	addr   unsafe.Pointer
-	next   *object
-	size   uintptr
-	marked bool
+	addr unsafe.Pointer
+	next *object
+	sz   uintptr
+}
+
+func (o *object) mark() {
+	o.sz |= 1 << 31
+}
+
+func (o *object) unmark() {
+	o.sz &= ^uintptr(1 << 31)
+}
+
+func (o *object) isMarked() bool {
+	return (o.sz >> 31) != 0
+}
+
+func (o *object) size() uintptr {
+	return o.sz & ^uintptr(1<<31)
 }
 
 type strMallinfo struct {
@@ -47,61 +66,58 @@ type strMallinfo struct {
 func mallinfo() strMallinfo
 
 func alloc(size uintptr) unsafe.Pointer {
-	disableInterrupts()
-	heapLimit := (__heap_size / 100) * 70
+	if size == 0 {
+		return nil
+	}
 
-	// Check if the GC needs to run
-	allocSz := align(size + unsafe.Sizeof(object{}))
-	if heapUsage+allocSz > heapLimit {
-		// Garbage collect
-		GC()
+	gcMu.Lock()
+	state := disableInterrupts()
 
-		// Check if there is room now
-		if heapUsage+allocSz > __heap_size {
+	// Attempt to allocate memory for the object ref
+	ptr := malloc(align(unsafe.Sizeof(object{})) + size)
+	if ptr == nil {
+		// Heap is full. Perform a GC now to reclaim any unused memory
+		markAll()
+		sweep()
+
+		// Attempt to allocate again
+		ptr = malloc(size)
+		if ptr == nil {
 			panic("gc error: out of memory")
 		}
 	}
 
-	// Allocate memory for the object
-	obj := (*object)(malloc(unsafe.Sizeof(object{})))
-	if obj == nil {
-		panic("gc error: failed to allocate object")
-	}
-
-	obj.addr = malloc(size)
-	if obj.addr == nil {
-		panic("gc error: failed to allocate memory")
-	}
-
-	obj.size = size
+	// Set up the object ref
+	obj := (*object)(ptr)
+	obj.addr = unsafe.Add(ptr, align(unsafe.Sizeof(object{})))
+	obj.sz = size
 	obj.next = head
 
-	// Set the new object as the head
+	// Set this object reference as the new head
 	head = obj
+
+	// Update metrics
 	numAllocas++
+	heapUsage = mallinfo().uordblks
 
-	// Update heapUsage
-	info := mallinfo()
-	heapUsage = info.uordblks
-
-	// Return the address of the allocated memory
-	enableInterrupts()
-	return unsafe.Pointer(obj)
+	enableInterrupts(state)
+	gcMu.Unlock()
+	//return ptr
+	return obj.addr
 }
 
 func freeObject(obj *object) {
 	if obj != nil {
-		free(obj.addr)
 		free(unsafe.Pointer(obj))
 
-		// Update heapUsage
-		info := mallinfo()
-		heapUsage = info.uordblks
+		// Update metrics
+		heapUsage = mallinfo().uordblks
 	}
 }
 
 // markAll scans the stack from bottom to top looking for addresses that "look like a heap pointer".
 func markAll() {
+	// Scan the globals
 	dataStart := unsafe.Pointer(&__start_data)
 	dataEnd := unsafe.Pointer(&__end_data)
 	scan(dataStart, dataEnd)
@@ -110,12 +126,21 @@ func markAll() {
 	_task := headTask
 	for {
 		if _task != nil {
-			scan(_task.stackTop, _task.stack)
+			stackBottom := unsafe.Add(_task.stack, alignStack(*_goroutineStackSize))
+			scan(currentStack(), stackBottom)
+
 			_task = _task.next
 			if _task == headTask {
 				break
 			}
 		}
+	}
+
+	// Scan current heap objects
+	obj := head
+	for obj != nil {
+		scan(obj.addr, unsafe.Add(obj.addr, obj.size()))
+		obj = obj.next
 	}
 }
 
@@ -129,11 +154,11 @@ func scan(start, end unsafe.Pointer) {
 			obj := head
 			for obj != nil {
 				// Skip objects that are already marked
-				if !obj.marked {
+				if !obj.isMarked() {
 					objAddr := uintptr(obj.addr)
 					if addrVal == objAddr {
 						// Mark this object
-						obj.marked = true
+						obj.mark()
 					}
 				}
 				obj = obj.next
@@ -142,47 +167,62 @@ func scan(start, end unsafe.Pointer) {
 	}
 }
 
-func compact() {
-	numAllocas = 0
-	src := head
+func sweep() {
 	var lastMarked *object
-
-	for src != nil {
-		next := src.next
-
-		if src.marked {
-			src.marked = false
-
-			if lastMarked == nil {
-				head = src
-			} else {
-				lastMarked.next = src
-				if uintptr(lastMarked.addr)+uintptr(lastMarked.size) != uintptr(src.addr) {
-					memmove(unsafe.Pointer(uintptr(lastMarked.addr)+uintptr(lastMarked.size)), src.addr, src.size)
-				}
-				src.addr = unsafe.Pointer(uintptr(lastMarked.addr) + uintptr(lastMarked.size))
-			}
-
-			lastMarked = src
+	it := head
+	for it != nil {
+		next := it.next
+		if it.isMarked() {
+			lastMarked = it
+			it.unmark()
 		} else {
-			freeObject(src)
+			if it == head {
+				// Set the next object as the new head
+				head = next
+			} else {
+				// Remove this object from the linked list
+				lastMarked.next = next
+			}
+			freeObject(it)
 		}
-
-		src = next
+		it = next
 	}
 
+	// Terminate the linked-list at the last object that was marked
 	if lastMarked != nil {
 		lastMarked.next = nil
-	} else {
-		head = nil
 	}
+
+	// Update metrics
+	numAllocas = 0
+	heapUsage = mallinfo().uordblks
 }
 
 func align(n uintptr) uintptr {
-	return n + (8 - (n % 8))
+	return n + (unsafe.Sizeof(uintptr(0)) - (n % unsafe.Sizeof(uintptr(0))))
 }
 
 func GC() {
+	state := disableInterrupts()
+	gcMu.Lock()
 	markAll()
-	compact()
+	sweep()
+	gcMu.Unlock()
+	enableInterrupts(state)
+}
+
+//go:export gcmain runtime.gcmain
+func gcmain() {
+	heapLimit := (__heap_size / 100) * 70
+	for {
+		gcMu.Lock()
+		state := disableInterrupts()
+		if numAllocas > 10 || heapUsage >= heapLimit {
+			markAll()
+			sweep()
+		}
+		enableInterrupts(state)
+		gcMu.Unlock()
+		schedulerPause()
+	}
 }

@@ -14,12 +14,14 @@ import (
 )
 
 type samgen struct {
-	device svd.DeviceElement
+	device  svd.DeviceElement
+	methods map[string][]string
 }
 
 func NewGenerator(device svd.DeviceElement) generator.Generator {
 	return &samgen{
-		device: device,
+		device:  device,
+		methods: map[string][]string{},
 	}
 }
 
@@ -46,6 +48,7 @@ func (s *samgen) Generate(out string) error {
 	fmt.Fprintln(&w, "import (")
 	fmt.Fprintln(&w, `_ "runtime/arm/cortexm"`)
 	fmt.Fprintln(&w, `"unsafe"`)
+	fmt.Fprintln(&w, `"volatile"`)
 	fmt.Fprintln(&w, ")\n")
 
 	// Generate all peripherals
@@ -370,10 +373,10 @@ func (s *samgen) generatePeripheral(periph svd.PeripheralElement, w *strings.Bui
 		fmt.Fprintf(w, "%s\n", impl)
 	}
 
-	for _, register := range periph.Registers.RegisterElements {
-		_, impl := s.generateRegisterType(periph.Group, register)
+	/*for _, register := range periph.Registers.RegisterElements {
+		_, impl := s.generateRegisterType(periph.Group, len(register.Alternative) > 0, register)
 		fmt.Fprintln(w, impl)
-	}
+	}*/
 
 	return nil
 }
@@ -464,24 +467,30 @@ func (s *samgen) generatePeripheralStruct(periph svd.PeripheralElement) (string,
 
 			nestedOffset := svd.Integer(0)
 			for _, register := range obj.Registers {
-				registerName := cleanIdentifier(register.Name)
-				registerTypename, registerImpl := s.generateRegisterType(periph.Group+clusterName, register)
-
-				if register.AddressOffset > nestedOffset {
-					// insert padding bytes
-					padding := register.AddressOffset - nestedOffset
-					fmt.Fprintf(&clusterBuf, "_ [%d]byte\n", padding)
-					nestedOffset += padding
-				}
-
-				if register.Count > 0 {
-					fmt.Fprintf(&clusterBuf, "%s [%d]%s\n", registerName, register.Count, registerTypename)
-					nestedOffset += (register.Size / s.device.AddressableWidth) * register.Count
+				// Append to existing type for alternative registers
+				if len(register.Alternative) > 0 {
+					_, registerImpl := s.generateRegisterType(periph.Group+clusterName, true, register)
+					registerImpls = append(registerImpls, registerImpl)
 				} else {
-					fmt.Fprintf(&clusterBuf, "%s %s\n", registerName, registerTypename)
-					nestedOffset += register.Size / s.device.AddressableWidth
+					registerName := cleanIdentifier(register.Name)
+					registerTypename, registerImpl := s.generateRegisterType(periph.Group+clusterName, false, register)
+
+					if register.AddressOffset > nestedOffset {
+						// insert padding bytes
+						padding := register.AddressOffset - nestedOffset
+						fmt.Fprintf(&clusterBuf, "_ [%d]byte\n", padding)
+						nestedOffset += padding
+					}
+
+					if register.Count > 0 {
+						fmt.Fprintf(&clusterBuf, "%s [%d]%s\n", registerName, register.Count, registerTypename)
+						nestedOffset += (register.Size / s.device.AddressableWidth) * register.Count
+					} else {
+						fmt.Fprintf(&clusterBuf, "%s %s\n", registerName, registerTypename)
+						nestedOffset += register.Size / s.device.AddressableWidth
+					}
+					registerImpls = append(registerImpls, registerImpl)
 				}
-				registerImpls = append(registerImpls, registerImpl)
 			}
 			// NOTE: The padding value is added below since it is not accounted for in nestedOffset
 			offset += nestedOffset * count
@@ -504,21 +513,27 @@ func (s *samgen) generatePeripheralStruct(periph svd.PeripheralElement) (string,
 
 			clusterImpls = append(clusterImpls, clusterBuf.String())
 		case svd.RegisterElement:
-			registerName := cleanIdentifier(obj.Name)
-			count := svd.Integer(1)
-			if obj.Count > 0 {
-				count = obj.Count
-			}
-
-			typename, _ := s.generateRegisterType(periph.Group, obj)
-
-			if count > 1 {
-				fmt.Fprintf(&buf, "%s [%d]%s\n", registerName, obj.Count, typename)
+			if obj.Alternative != "" {
+				_, registerImpl := s.generateRegisterType(periph.Group, true, obj)
+				registerImpls = append(registerImpls, registerImpl)
 			} else {
-				fmt.Fprintf(&buf, "%s %s\n", registerName, typename)
-			}
+				registerName := cleanIdentifier(obj.Name)
+				count := svd.Integer(1)
+				if obj.Count > 0 {
+					count = obj.Count
+				}
 
-			offset += (obj.Size / s.device.AddressableWidth) * count
+				typename, registerImpl := s.generateRegisterType(periph.Group, false, obj)
+				registerImpls = append(registerImpls, registerImpl)
+
+				if count > 1 {
+					fmt.Fprintf(&buf, "%s [%d]%s\n", registerName, obj.Count, typename)
+				} else {
+					fmt.Fprintf(&buf, "%s %s\n", registerName, typename)
+				}
+
+				offset += (obj.Size / s.device.AddressableWidth) * count
+			}
 		}
 	}
 	fmt.Fprint(&buf, "}")
@@ -526,32 +541,42 @@ func (s *samgen) generatePeripheralStruct(periph svd.PeripheralElement) (string,
 	return buf.String(), registerImpls, clusterImpls, hasPointers
 }
 
-func (s *samgen) generateRegisterType(prefix string, register svd.RegisterElement) (string, string) {
+func (s *samgen) generateRegisterType(prefix string, omitType bool, register svd.RegisterElement) (string, string) {
 	var buf strings.Builder
 	typename := prefix + cleanIdentifier(register.Name)
+	if len(register.Alternative) > 0 {
+		typename = prefix + cleanIdentifier(register.Alternative)
+	}
 	receiver := strings.ToLower(typename[0:1])
-
-	// Declare the type
-	fmt.Fprintf(&buf, "type %s %s\n\n", typename, s.typeForSize(register.Size))
-
-	// Create enumerated types
 	evMap := map[string]string{}
-	for _, field := range register.Fields.Elements {
-		fieldName := cleanIdentifier(field.Name)
-		if len(field.EnumeratedValues.Elements) > 0 {
-			evTypename, evImpl := s.generateEnumeratedValuesType(typename, field.EnumeratedValues)
 
-			// Map the field name to the enumerated type's typename
-			evMap[fieldName] = evTypename
+	storeFn := s.storeForSize(register.Size)
+	loadFn := s.loadForSize(register.Size)
+	registerDataType := s.typeForSize(register.Size)
 
-			// Write the implementation
-			fmt.Fprintln(&buf, evImpl)
+	if !omitType {
+		// Declare the type
+		fmt.Fprintf(&buf, "type %s %s\n\n", typename, s.typeForSize(register.Size))
+
+		// Create enumerated types
+		for _, field := range register.Fields.Elements {
+			fieldName := cleanIdentifier(field.Name)
+			if len(field.EnumeratedValues.Elements) > 0 {
+				evTypename, evImpl := s.generateEnumeratedValuesType(typename, field.EnumeratedValues)
+
+				// Map the field name to the enumerated type's typename
+				evMap[fieldName] = evTypename
+
+				// Write the implementation
+				fmt.Fprintln(&buf, evImpl)
+			}
 		}
 	}
 
 	// Create a setter/getter method for each field
 	for _, field := range register.Fields.Elements {
 		fieldName := cleanIdentifier(field.Name)
+		fieldDataType := s.typeForSize(field.BitWidth)
 
 		access := register.Access
 		if len(field.Access) > 0 {
@@ -565,29 +590,39 @@ func (s *samgen) generateRegisterType(prefix string, register svd.RegisterElemen
 		// Create methods
 		if access == "read-only" || access == "read-write" || access == "read-writeOnce" {
 			// Write the getter
+			var returnType string
+			methodName := fmt.Sprintf("Get%s", fieldName)
+
+			// Check for collision (for alternative registers)
+			if s.typeHasMethod(typename, methodName) {
+				// Skip this
+				// TODO: Should probably prefix this method instead just in case the field is different in some way
+				continue
+			} else {
+				s.methods[typename] = append(s.methods[typename], methodName)
+			}
+
+			// Determine what the return type should be
 			enumeratedType, hasEv := evMap[fieldName]
 			if hasEv {
-				fmt.Fprintf(&buf, "func (%s *%s) Get%s() %s {\n", receiver, typename, fieldName, enumeratedType)
+				returnType = enumeratedType
 			} else {
-				returnType := s.typeForSize(register.Size)
+				returnType = fieldDataType
 				if field.BitWidth == 1 {
 					returnType = "bool"
 				}
-				fmt.Fprintf(&buf, "func (%s *%s) Get%s() %s {\n", receiver, typename, fieldName, returnType)
 			}
 
-			if hasEv {
-				fmt.Fprintf(&buf, "return %s(*%s)>>%d", enumeratedType, receiver, field.BitOffset)
-			} else {
-				exprPostfix := ""
-				if field.BitWidth == 1 {
-					exprPostfix = " != 0"
-				}
+			fmt.Fprintf(&buf, "func (%s *%s) %s() %s {\n", receiver, typename, methodName, returnType)
+			fmt.Fprintf(&buf, "v := %s((*%s)(%s))\n", loadFn, registerDataType, receiver)
 
-				if field.BitOffset == 0 {
-					fmt.Fprintf(&buf, "return %s(*%s)%s\n", s.typeForSize(register.Size), receiver, exprPostfix)
+			if hasEv {
+				fmt.Fprintf(&buf, "return %s(v)>>%d", enumeratedType, field.BitOffset)
+			} else {
+				if field.BitWidth == 1 {
+					fmt.Fprintf(&buf, "return %s(v&(1<<%d)) != 0\n", fieldDataType, field.BitOffset)
 				} else {
-					fmt.Fprintf(&buf, "return %s(*%s&(1<<%d))%s\n", s.typeForSize(register.Size), receiver, field.BitOffset, exprPostfix)
+					fmt.Fprintf(&buf, "return %s((v>>%d)&%s)\n", fieldDataType, field.BitOffset, allSet(field.BitWidth))
 				}
 			}
 			fmt.Fprintf(&buf, "}\n\n")
@@ -600,16 +635,27 @@ func (s *samgen) generateRegisterType(prefix string, register svd.RegisterElemen
 				paramType = enumeratedType
 			}
 
+			methodName := fmt.Sprintf("Set%s", fieldName)
+			// Check for collision (for alternative registers)
+			if s.typeHasMethod(typename, methodName) {
+				// Skip this
+				// TODO: Should probably prefix this method instead just in case the field is different in some way
+				continue
+			} else {
+				s.methods[typename] = append(s.methods[typename], methodName)
+			}
+
 			// Write the setter method
-			fmt.Fprintf(&buf, "func (%s *%s) Set%s(value %s) {\n", receiver, typename, fieldName, paramType)
+			fmt.Fprintf(&buf, "func (%s *%s) %s(value %s) {\n", receiver, typename, methodName, paramType)
+			fmt.Fprintf(&buf, "v := %s((*%s)(%s))\n", loadFn, registerDataType, receiver)
 			if field.BitWidth == 1 && !hasEv {
 				fmt.Fprintln(&buf, "if value {")
-				fmt.Fprintf(&buf, "*%s |= 1 << %d\n", receiver, field.BitOffset)
+				fmt.Fprintf(&buf, "%s((*%s)(%s), %s(v | (1 << %d)))\n", storeFn, registerDataType, receiver, registerDataType, field.BitOffset)
 				fmt.Fprintln(&buf, "} else {")
-				fmt.Fprintf(&buf, "*%s &= ^%s(1 << %d)\n", receiver, typename, field.BitOffset)
+				fmt.Fprintf(&buf, "%s((*%s)(%s), %s(%s(v) & (^%s(1 << %d))))\n", storeFn, registerDataType, receiver, registerDataType, typename, typename, field.BitOffset)
 				fmt.Fprintln(&buf, "}")
 			} else {
-				fmt.Fprintf(&buf, "*%s = (*%s & ^%s(%s << %d)) | %s(value) << %d \n", receiver, receiver, typename, allSet(field.BitWidth), field.BitOffset, typename, field.BitOffset)
+				fmt.Fprintf(&buf, "%s((*%s)(%s), %s((%s(v) & ^%s(%s << %d)) | %s(value) << %d))\n", storeFn, registerDataType, receiver, registerDataType, typename, typename, allSet(field.BitWidth), field.BitOffset, typename, field.BitOffset)
 			}
 
 			fmt.Fprintf(&buf, "}\n\n")
@@ -639,16 +685,53 @@ func (s *samgen) generateEnumeratedValuesType(prefix string, ev svd.EnumeratedVa
 }
 
 func (s *samgen) typeForSize(size svd.Integer) string {
-	switch size {
-	case 8:
+	switch {
+	case size <= 8:
 		return "uint8"
-	case 16:
+	case size <= 16:
 		return "uint16"
-	case 32:
+	case size <= 32:
 		return "uint32"
 	default:
 		return s.typeForSize(s.device.RegisterSize)
 	}
+}
+
+func (s *samgen) storeForSize(size svd.Integer) string {
+	switch {
+	case size <= 8:
+		return "volatile.StoreUint8"
+	case size <= 16:
+		return "volatile.StoreUint16"
+	case size <= 32:
+		return "volatile.StoreUint32"
+	default:
+		return s.storeForSize(s.device.RegisterSize)
+	}
+}
+
+func (s *samgen) loadForSize(size svd.Integer) string {
+	switch {
+	case size <= 8:
+		return "volatile.LoadUint8"
+	case size <= 16:
+		return "volatile.LoadUint16"
+	case size <= 32:
+		return "volatile.LoadUint32"
+	default:
+		return s.loadForSize(s.device.RegisterSize)
+	}
+}
+
+func (s *samgen) typeHasMethod(typename, method string) bool {
+	if methods, ok := s.methods[typename]; ok {
+		for _, methodName := range methods {
+			if methodName == method {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func maxForSize(size svd.Integer) string {

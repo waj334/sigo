@@ -1,7 +1,7 @@
 package runtime
 
-//go:linkname enableInterrupts _enable_irq
-func enableInterrupts()
+//sigo:extern enableInterrupts _enable_irq
+func enableInterrupts(state uint32)
 
-//go:linkname disableInterrupts _disable_irq
-func disableInterrupts()
+//sigo:extern disableInterrupts _disable_irq
+func disableInterrupts() uint32

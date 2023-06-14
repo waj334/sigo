@@ -67,3 +67,26 @@ func stringCompare(lhs, rhs unsafe.Pointer) bool {
 	}
 	return true
 }
+
+type stringIterator struct {
+	str   stringDescriptor
+	index int
+}
+
+//go:export stringRange runtime.stringRange
+func stringRange(it *stringIterator) (bool, int, rune) {
+	if it.index >= it.str.len {
+		return false, 0, 0
+	} else {
+		// Get the current position for the iterator. This will be returned.
+		i := it.index
+
+		// Get the rune value at the index in the string's backing array
+		// TODO: Support unicode characters
+		val := *(*rune)(unsafe.Add(it.str.array, i))
+
+		// Advance the position for the next iteration and then return
+		it.index++
+		return true, i, val
+	}
+}

@@ -77,7 +77,6 @@ func (f fieldTable) index(i int) *fieldDescriptor {
 	if i < f.count {
 		ptr := unsafe.Add(f.fields, unsafe.Sizeof(uintptr(0))*uintptr(i))
 		return (*fieldDescriptor)(unsafe.Pointer(*(*uintptr)(ptr)))
-		//return (*fieldDescriptor)(unsafe.Pointer(uintptr(f.fields) + (unsafe.Sizeof(unsafe.Pointer(nil)))*uintptr(i)))
 	}
 	return nil
 }
@@ -97,6 +96,7 @@ func (t typeTable) index(i int) *typeDescriptor {
 
 type functionDescriptor struct {
 	ptr     unsafe.Pointer
+	id      uint32
 	name    *string
 	args    *typeTable
 	returns *typeTable

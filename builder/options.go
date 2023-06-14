@@ -7,9 +7,11 @@ type Options struct {
 	Output            string
 	BuildDir          string
 	DumpOnVerifyError bool
+	DumpIR            bool
 	Environment       Env
 	CompilerVerbosity compiler.Verbosity
 	GenerateDebugInfo bool
 	BuildTags         []string
 	CTypeNames        bool
+	NumJobs           int
 }

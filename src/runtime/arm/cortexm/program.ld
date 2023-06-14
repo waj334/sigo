@@ -10,40 +10,37 @@ SECTIONS
         *(.text.*)
         *(.rodata)
         *(.rodata.*)
-        . = ALIGN(4);
+        . = ALIGN(8);
     } >FLASH
 
     /* Place the stack at the end of RAM so that any stack overflow that occurs
        does not corrupt the heap. */
     .stack (NOLOAD):
     {
-        . = ALIGN(4);
         __stack_bottom = .;
         . += __stack_size;
-        . = ALIGN(4);
+        . = ALIGN(8);
         __stack = .;
     } >RAM
     __stack_top = __stack;
 
     .data :
     {
-        . = ALIGN(4);
         __start_data = .;
         *(.data)
         *(.data.*)
-        . = ALIGN(4);
+        . = ALIGN(8);
         __end_data = .;
     } >RAM AT>FLASH
     __data_base_addr = LOADADDR(.data);
 
     .bss (NOLOAD) :
     {
-        . = ALIGN(4);
         __start_bss = .;
         *(.bss)
         *(.bss.*)
         *(COMMON)
-        . = ALIGN(4);
+        . = ALIGN(8);
         __end_bss = .;
     } >RAM
 
@@ -54,8 +51,10 @@ SECTIONS
     /* Exception handling is not needed */
     /DISCARD/ :
     {
-        *(.ARM.exidx)
-        *(.ARM.exidx.*)
+        *(.note .note.*)
+        *(.eh_frame .eh_frame.*)
+        *(.ARM.extab* .gnu.linkonce.armextab.*)
+        *(.ARM.exidx*)
     }
 }
 

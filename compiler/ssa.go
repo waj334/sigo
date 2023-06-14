@@ -8,7 +8,7 @@ import (
 )
 
 type Instruction interface {
-	Generate(ctx context.Context) (Value, error)
+	Generate(ctx context.Context) Value
 	Pos() token.Pos
 	String() string
 }

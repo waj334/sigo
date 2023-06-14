@@ -28,6 +28,8 @@ type task struct {
 	sleepDeadline uint64
 }
 
+//go:export lastTask runtime._lastTask
+
 var (
 	headTask   *task      = nil
 	lastTask   *task      = nil
@@ -44,21 +46,21 @@ var currentTask *task = nil
 //sigo:extern _goroutineStackSize runtime._goroutineStackSize
 var _goroutineStackSize *uintptr
 
-//go:linkname initTask runtime.initTask
+//sigo:extern initTask runtime.initTask
 func initTask(unsafe.Pointer)
 
-//go:linkname alignStack runtime.alignStack
+//sigo:extern alignStack runtime.alignStack
 func alignStack(n uintptr) uintptr
 
-//go:linkname _currentTick runtime.currentTick
+//sigo:extern _currentTick runtime.currentTick
 func _currentTick() uint32
 
-//go:linkname triggerPendSV _triggerPendSV
-func triggerPendSV()
+//sigo:extern schedulerPause runtime.schedulerPause
+func schedulerPause()
 
 //go:export runScheduler runtime.runScheduler
 func runScheduler() (shouldSwitch bool) {
-	disableInterrupts()
+	state := disableInterrupts()
 
 	if headTask != nil {
 		if currentTask == nil {
@@ -113,17 +115,20 @@ func runScheduler() (shouldSwitch bool) {
 		}
 	}
 
-	enableInterrupts()
+	enableInterrupts(state)
 	return
 }
 
 //go:export addTask runtime.addTask
 func addTask(ptr unsafe.Pointer) {
+	state := disableInterrupts()
 	oldHead := headTask
-	headTask = (*task)(malloc(unsafe.Sizeof(task{})))
+	//headTask = (*task)(malloc(unsafe.Sizeof(task{})))
+	headTask = (*task)(alloc(unsafe.Sizeof(task{})))
 
 	// Allocate stack for this goroutine
-	headTask.stack = malloc(*_goroutineStackSize)
+	//headTask.stack = malloc(*_goroutineStackSize)
+	headTask.stack = alloc(*_goroutineStackSize)
 	headTask.ctx = (*goroutine)(ptr)
 	headTask.stackTop = headTask.stack
 
@@ -139,10 +144,13 @@ func addTask(ptr unsafe.Pointer) {
 		oldHead.prev.next = headTask
 		oldHead.prev = headTask
 	}
+	enableInterrupts(state)
 }
 
 //go:export runtime.removeTask
 func removeTask(t *task) {
+	state := disableInterrupts()
+
 	// Free the stack memory
 	free(t.stack)
 
@@ -179,6 +187,8 @@ func removeTask(t *task) {
 
 	// Free the task
 	free(unsafe.Pointer(t))
+
+	enableInterrupts(state)
 }
 
 //go:export _sleep runtime.sleep
@@ -189,6 +199,6 @@ func _sleep(d uint64) {
 	currentTask.sleepDeadline = timeSource.Now() + d
 	currentTask.state = taskSleep
 
-	// TODO: This needs to a less architecture-specific call
-	triggerPendSV()
+	// Schedule another task to begin running
+	schedulerPause()
 }
