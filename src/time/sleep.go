@@ -1,6 +1,6 @@
 package time
 
-//go:linkname sleep runtime.sleep
+//sigo:extern sleep runtime.sleep
 func sleep(d uint64)
 
 func Sleep(d Duration) {

@@ -1,6 +1,9 @@
 package compiler
 
-import "strings"
+import (
+	"strings"
+	"sync"
+)
 
 type Verbosity int
 
@@ -27,6 +30,7 @@ type Options struct {
 	PathMappings       map[string]string
 	GoroutineStackSize uint64
 	PrimitivesAsCTypes bool
+	mu                 sync.Mutex
 }
 
 func NewOptions() *Options {
@@ -37,7 +41,31 @@ func NewOptions() *Options {
 	}
 }
 
+func (o *Options) WithTarget(target *Target) *Options {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+
+	sym := map[string]*SymbolInfo{}
+	for k, v := range o.Symbols {
+		sym[k] = v
+	}
+
+	return &Options{
+		Target:             target,
+		Symbols:            sym,
+		GenerateDebugInfo:  o.GenerateDebugInfo,
+		Verbosity:          o.Verbosity,
+		PathMappings:       o.PathMappings,
+		GoroutineStackSize: o.GoroutineStackSize,
+		PrimitivesAsCTypes: o.PrimitivesAsCTypes,
+		mu:                 sync.Mutex{},
+	}
+}
+
 func (o *Options) GetSymbolInfo(symbol string) *SymbolInfo {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+
 	info, ok := o.Symbols[symbol]
 	if !ok {
 		info = &SymbolInfo{}

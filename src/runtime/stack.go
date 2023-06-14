@@ -2,5 +2,5 @@ package runtime
 
 import "unsafe"
 
-//go:linkname currentStack _current_stack
+//sigo:extern currentStack _current_stack
 func currentStack() unsafe.Pointer

@@ -7,12 +7,10 @@ import (
 	"omibyte.io/sigo/llvm"
 )
 
-func (c *Compiler) createUpOp(ctx context.Context, expr *ssa.UnOp) (value llvm.LLVMValueRef, err error) {
+func (c *Compiler) createUnOp(ctx context.Context, expr *ssa.UnOp) (value llvm.LLVMValueRef) {
 	// Get the value of X
-	x, err := c.createExpression(ctx, expr.X)
-	if err != nil {
-		return nil, err
-	}
+	x := c.createExpression(ctx, expr.X)
+	xValue := x.UnderlyingValue(ctx)
 
 	// Get the type of X
 	xType := c.createType(ctx, expr.Type())
@@ -33,13 +31,13 @@ func (c *Compiler) createUpOp(ctx context.Context, expr *ssa.UnOp) (value llvm.L
 		value = llvm.BuildLoad2(c.builder, xType.valueType, value, "")
 	case token.NOT:
 		// Logical negation
-		value = llvm.BuildNot(c.builder, x.UnderlyingValue(ctx), "")
+		value = llvm.BuildNot(c.builder, xValue, "")
 	case token.SUB:
 		// Negation
-		value = llvm.BuildNeg(c.builder, x.UnderlyingValue(ctx), "")
+		value = llvm.BuildNeg(c.builder, xValue, "")
 	case token.XOR:
 		// Bitwise complement
-		value = llvm.BuildXor(c.builder, x.UnderlyingValue(ctx), llvm.ConstAllOnes(xType.valueType), "")
+		value = llvm.BuildXor(c.builder, xValue, llvm.ConstAllOnes(xType.valueType), "")
 	}
 	return
 }

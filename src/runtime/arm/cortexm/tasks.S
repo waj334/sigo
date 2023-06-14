@@ -5,7 +5,7 @@ _task_start:
     blx r1                          // Start the goroutine. The parameters are already on R0
     pop {r0}                        // Pop the task pointer into R0 as the parameter to removeTask
     bl runtime.removeTask           // Remove this task from the scheduler
-    bl _triggerPendSV               // Run another task for the remainder of this SysTick
+    bl runtime.schedulerPause       // Run another task for the remainder of this SysTick
 .loop:                              // ---------------------------
     nop                             // Loop until PendSV is eventually serviced
     b .loop                         // ---------------------------
@@ -23,6 +23,11 @@ PendSV_Handler:
     ldr r0, [r0]                    // Load the current task into R0
     ldr r0, [r0]                    // Load the stack pointer into R0
 
+    ldr r1, =runtime._lastTask      // Load the last task pointer into R1
+    ldr r1, [r1]                    // Load the value of the last task pointer into R1
+    cmp r1, #0                      // Check if the value of the poitner to the last task is 0
+    beq _context_switch             // Skip saving the context of the last task if there was no last task
+
     // Save context of old task
     mrs r1, psp;                    // Get the current PSP
     subs r1, r1, #4*9               // Make room for r4-r11
@@ -39,6 +44,7 @@ PendSV_Handler:
     str r11, [r1], #4               // Store r11 on the stack
     str lr, [r1]                    // Store lr on the stack
 #endif
+_context_switch:
     msr psp, r1                     // Update PSP
 
     // Load context of new task

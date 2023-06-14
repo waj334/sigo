@@ -24,7 +24,7 @@ func sliceMake(t unsafe.Pointer, n int, m int) sliceDescriptor {
 	}
 
 	// Allocate the underlying array
-	result.array = *(*unsafe.Pointer)(alloc(uintptr(result.cap) * elementTypeDesc.size))
+	result.array = alloc(uintptr(result.cap) * elementTypeDesc.size)
 
 	// Finally, return the new slice
 	return result
@@ -100,15 +100,15 @@ func sliceCopy(src, dst, elementType unsafe.Pointer) int {
 }
 
 //go:export sliceIndex runtime.sliceIndexAddr
-func sliceIndexAddr(s unsafe.Pointer, index int, elementType unsafe.Pointer) unsafe.Pointer {
-	slice := (*sliceDescriptor)(s)
-	elementTypeDesc := (*typeDescriptor)(elementType)
+func sliceIndexAddr(s *sliceDescriptor, index int, elementType *typeDescriptor) unsafe.Pointer {
+	//slice := (*sliceDescriptor)(s)
+	//elementTypeDesc := (*typeDescriptor)(elementType)
 	// Index MUST not be greater than the length of the slice
-	if index >= slice.len {
+	if index >= s.len {
 		panic("runtime: index out of range")
 	}
 	// Return the address of the element at the specified index
-	return unsafe.Add(slice.array, uintptr(index)*elementTypeDesc.size)
+	return unsafe.Add(s.array, uintptr(index)*elementType.size)
 }
 
 //go:export sliceAddr runtime.sliceAddr
@@ -138,4 +138,16 @@ func sliceAddr(ptr unsafe.Pointer, length, capacity, elementSize, low, high, max
 		len:   newHigh - newLow,
 		cap:   newMax - newLow,
 	}
+}
+
+//go:export sliceString runtime.sliceString
+func sliceString(s string) sliceDescriptor {
+	str := (*stringDescriptor)(unsafe.Pointer(&s))
+	result := sliceDescriptor{
+		array: *(*unsafe.Pointer)(alloc(uintptr(str.len))),
+		len:   str.len,
+		cap:   str.len,
+	}
+	memcpy(result.array, str.array, uintptr(str.len))
+	return result
 }

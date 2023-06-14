@@ -8,13 +8,14 @@ import (
 )
 
 func (c *Compiler) createType(ctx context.Context, typ types.Type) *Type {
+	typename := typ.String()
+
 	// Check if this type was already created
 	if result, ok := c.types[typ]; ok {
-		c.printf(Debug, "Returning type from cache: %s\n", typ.String())
+		c.printf(Debug, "Returning type from cache: %s\n", typename)
 		return result
 	}
 
-	typename := typ.String()
 	c.printf(Debug, "Creating type: %s\n", typename)
 
 	result := &Type{}
@@ -91,61 +92,15 @@ func (c *Compiler) createType(ctx context.Context, typ types.Type) *Type {
 	case *types.Interface:
 		result.valueType = llvm.GetTypeByName2(c.currentContext(ctx), "interface")
 	case *types.Pointer:
-		/*if structType, ok := typ.Elem().Underlying().(*types.Struct); ok {
-			name := ""
-			if named, ok := typ.Elem().(*types.Named); ok {
-				name = named.Obj().Name()
-			}
-
-			// Create a named struct with the same body as the underlying struct type
-			result.valueType = llvm.StructCreateNamed(c.currentContext(ctx), name)
-
-			// Note: Need to cache structs right away to prevent a stack overflow
-			// with a member type is or contains this struct type for any reason.
-			c.types[structType] = result
-
-			// Create the underlying struct type
-			st := c.createType(ctx, structType)
-
-			// Set the struct body to that of the underlying struct type
-			llvm.StructSetBody(result.valueType, llvm.GetStructElementTypes(st.valueType), false)
-		}*/
 		elementType := c.createType(ctx, typ.Elem())
 		// NOTE: This pointer is opaque!!!
 		result.valueType = llvm.PointerType(elementType.valueType, 0)
 	case *types.Chan:
 		result.valueType = llvm.GetTypeByName2(c.currentContext(ctx), "channel")
 	case *types.Signature:
-		var returnValueTypes []llvm.LLVMTypeRef
-		var argValueTypes []llvm.LLVMTypeRef
-		var returnType llvm.LLVMTypeRef
-
-		if numArgs := typ.Results().Len(); numArgs == 0 {
-			returnType = llvm.VoidTypeInContext(c.currentContext(ctx))
-		} else if numArgs == 1 {
-			returnType = c.createType(ctx, typ.Results().At(0).Type()).valueType
-		} else {
-			// Create a struct type to store the return values into
-			for i := 0; i < numArgs; i++ {
-				resultType := typ.Results().At(i).Type()
-				returnValueTypes = append(returnValueTypes, c.createType(ctx, resultType).valueType)
-			}
-			returnType = llvm.StructTypeInContext(c.currentContext(ctx), returnValueTypes, false)
-		}
-
-		// Create types for the arguments
-		for i := 0; i < typ.Params().Len(); i++ {
-			arg := typ.Params().At(i)
-			argType := c.createType(ctx, arg.Type())
-			argValueTypes = append(argValueTypes, argType.valueType)
-		}
-
-		// Create the function type
-		fnType := llvm.FunctionType(returnType, argValueTypes, typ.Variadic())
+		// Create this function type if it does not already exist
+		fnType := c.createFunctionType(ctx, typ, false)
 		result.valueType = llvm.PointerType(fnType, 0)
-
-		// Track the element type of this pointer
-		c.signatures[typ] = fnType
 	case *types.Tuple:
 		var memberTypes []llvm.LLVMTypeRef
 		if typ != nil {

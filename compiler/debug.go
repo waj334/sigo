@@ -13,7 +13,7 @@ type test struct {
 func (c *Compiler) mapPrimitiveName(in string) string {
 	if c.options.PrimitivesAsCTypes {
 		switch in {
-		case "uint8":
+		case "uint8", "byte":
 			return "unsigned char"
 		case "int8":
 			return "char"
@@ -131,6 +131,11 @@ func (c *Compiler) createDebugType(ctx context.Context, typ types.Type) (ditype 
 		// Note: Need to cache structs right away to prevent a stack overflow
 		// with a member type is or contains this struct type for any reason.
 		t.debugType = llvm.TemporaryMDNode(c.currentContext(ctx), []llvm.LLVMMetadataRef{})
+
+		if llvm.GetTypeKind(t.valueType) != llvm.StructTypeKind {
+			println(llvm.PrintTypeToString(t.valueType))
+			panic("value is not a struct")
+		}
 
 		var structDITypes []llvm.LLVMMetadataRef
 		for i := 0; i < typ.NumFields(); i++ {
@@ -319,4 +324,58 @@ func (c *Compiler) createDebugType(ctx context.Context, typ types.Type) (ditype 
 	t.debugType = ditype
 
 	return
+}
+
+func (c *Compiler) createVariable(ctx context.Context, name string, value Value, valueType types.Type) Value {
+	c.printf(Debug, "Creating variable for %s (%s)\n", name, valueType.String())
+	defer c.printf(Debug, "Done creating variable for %s (%s)\n", name, valueType.String())
+
+	dbgType := c.createDebugType(ctx, valueType)
+	if _, ok := valueType.(*types.Signature); ok {
+		dbgType = llvm.DIBuilderCreatePointerType(
+			c.dibuilder,
+			dbgType,
+			llvm.StoreSizeOfType(c.options.Target.dataLayout, c.ptrType.valueType)*8,
+			llvm.ABIAlignmentOfType(c.options.Target.dataLayout, c.ptrType.valueType)*8,
+			0, "")
+	}
+
+	scope, _ := c.instructionScope(value.spec)
+	if scope == nil {
+		scope = c.compileUnit
+	}
+
+	// Create the debug information about the variable
+	value.dbg = llvm.DIBuilderCreateAutoVariable(
+		c.dibuilder,
+		scope,
+		name,
+		value.DebugFile(),
+		uint(value.Pos().Line),
+		dbgType,
+		true,
+		0,
+		0)
+
+	var expression llvm.LLVMMetadataRef
+	if value.heap {
+		// Have the debugger dereference the object pointer to obtain the underlying object
+		ops := []uint64{
+			uint64(DW_OP_deref),
+		}
+		expression = llvm.DIBuilderCreateExpression(c.dibuilder, ops)
+	} else {
+		expression = llvm.DIBuilderCreateExpression(c.dibuilder, nil)
+	}
+
+	// Add debug info about the declaration
+	llvm.DIBuilderInsertDeclareAtEnd(
+		c.dibuilder,
+		value,
+		value.dbg,
+		expression,
+		value.DebugPos(ctx),
+		c.currentEntryBlock(ctx))
+
+	return value
 }

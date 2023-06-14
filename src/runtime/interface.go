@@ -8,9 +8,9 @@ type interfaceDescriptor struct {
 }
 
 //go:export interfaceMake runtime.makeInterface
-func interfaceMake(value unsafe.Pointer, valueType unsafe.Pointer) interfaceDescriptor {
+func interfaceMake(value unsafe.Pointer, valueType *typeDescriptor) interfaceDescriptor {
 	return interfaceDescriptor{
-		typePtr:  (*typeDescriptor)(valueType),
+		typePtr:  valueType,
 		valuePtr: value,
 	}
 }
@@ -24,6 +24,11 @@ func interfaceAssert(X unsafe.Pointer, from unsafe.Pointer, to unsafe.Pointer) (
 func interfaceCompare(X unsafe.Pointer, Y unsafe.Pointer) bool {
 	xi := (*interfaceDescriptor)(X)
 	yi := (*interfaceDescriptor)(Y)
+
+	// Nil comparison
+	if xi.typePtr == yi.typePtr && xi.valuePtr == nil && yi.valuePtr == nil {
+		return true
+	}
 
 	// Interfaces are equal if their types are the same and their values are the same
 	if xi.typePtr == yi.typePtr {
@@ -71,7 +76,7 @@ func interfaceCompare(X unsafe.Pointer, Y unsafe.Pointer) bool {
 	return false
 }
 
-func interfaceLookUp(ptr unsafe.Pointer, methodName string) (result unsafe.Pointer) {
+func interfaceLookUp(ptr unsafe.Pointer, id uint32) (result unsafe.Pointer) {
 	iface := (*interfaceDescriptor)(ptr)
 	info := iface.typePtr
 
@@ -83,7 +88,7 @@ func interfaceLookUp(ptr unsafe.Pointer, methodName string) (result unsafe.Point
 
 	for method := 0; method < info.methods.count; method++ {
 		fn := info.methods.index(method)
-		if methodName == *fn.name {
+		if id == fn.id {
 			return fn.ptr
 		}
 	}
