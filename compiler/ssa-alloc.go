@@ -22,7 +22,7 @@ func (a Alloc) Generate(ctx context.Context) (result Value) {
 
 	if a.Heap {
 		// Create the alloca to hold the address on the stack
-		result.LLVMValueRef = a.cc.createAlloca(ctx, a.cc.ptrType.valueType, a.Comment)
+		result.ref = a.cc.createAlloca(ctx, a.cc.ptrType.valueType, a.Comment)
 
 		// Mark this value as one that is on the heap
 		result.heap = true
@@ -35,17 +35,17 @@ func (a Alloc) Generate(ctx context.Context) (result Value) {
 			[]llvm.LLVMValueRef{llvm.ConstInt(a.cc.uintptrType.valueType, size, false)})
 
 		// Store the address at the alloc
-		llvm.BuildStore(a.cc.builder, obj, result.LLVMValueRef)
+		llvm.BuildStore(a.cc.builder, obj, result.ref)
 	} else {
 		// Create an alloca to hold the value on the stack
-		result.LLVMValueRef = a.cc.createAlloca(ctx, elementType.valueType, a.Comment)
+		result.ref = a.cc.createAlloca(ctx, elementType.valueType, a.Comment)
 		result = a.cc.createVariable(ctx, a.Comment, result, elementType.spec)
 
 		result.heap = false
 
 		// Zero-initialize the stack variable
 		if size > 0 {
-			llvm.BuildStore(a.cc.builder, llvm.ConstNull(elementType.valueType), result.LLVMValueRef)
+			llvm.BuildStore(a.cc.builder, llvm.ConstNull(elementType.valueType), result.ref)
 		}
 	}
 	return

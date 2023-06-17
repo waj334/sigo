@@ -27,7 +27,7 @@ func NewGenerator(device svd.DeviceElement) generator.Generator {
 
 func (s *samgen) Generate(out string) error {
 	// Create the output directory for the chip
-	outputDir := filepath.Join(out, strings.ToLower(s.device.Name))
+	outputDir := filepath.Join(out, "chip", strings.ToLower(s.device.Name))
 	if err := os.MkdirAll(outputDir, 0750); err != nil {
 		return err
 	}
@@ -40,7 +40,7 @@ func (s *samgen) Generate(out string) error {
 	var w strings.Builder
 
 	// Write the preamble to the file
-	if err := s.writePreamble(&w, filepath.Base(out)); err != nil {
+	if err := s.writePreamble(&w, "chip"); err != nil {
 		return err
 	}
 
@@ -69,7 +69,7 @@ func (s *samgen) Generate(out string) error {
 	}
 
 	// Write the contents to the file
-	f, err := os.Create(filepath.Join(out, fname))
+	f, err := os.Create(filepath.Join(out, "chip", fname))
 	if err != nil {
 		return err
 	}

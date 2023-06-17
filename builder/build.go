@@ -72,7 +72,7 @@ func Build(ctx context.Context, packageDir string) error {
 	if len(options.BuildDir) == 0 {
 		// Create a random build directory
 		options.BuildDir = filepath.Join(options.Environment.Value("SIGOCACHE"), fmt.Sprintf("sigo-build-%d", rand.Int()))
-		if err := os.MkdirAll(options.BuildDir, os.ModeDir); err != nil {
+		if err := os.MkdirAll(options.BuildDir, os.ModePerm); err != nil {
 			return err
 		}
 		// Delete the build directory when done
@@ -80,7 +80,7 @@ func Build(ctx context.Context, packageDir string) error {
 	} else {
 		stat, err := os.Stat(options.BuildDir)
 		if os.IsNotExist(err) {
-			if err = os.MkdirAll(options.BuildDir, os.ModeDir); err != nil {
+			if err = os.MkdirAll(options.BuildDir, os.ModePerm); err != nil {
 				return err
 			}
 		} else if !stat.IsDir() {
@@ -90,14 +90,14 @@ func Build(ctx context.Context, packageDir string) error {
 
 	// Create the temporary directory required by the package loader
 	if _, err := os.Stat(options.Environment.Value("GOTMPDIR")); os.IsNotExist(err) {
-		if err = os.MkdirAll(options.Environment.Value("GOTMPDIR"), os.ModeDir); err != nil {
+		if err = os.MkdirAll(options.Environment.Value("GOTMPDIR"), os.ModePerm); err != nil {
 			panic(err)
 		}
 	}
 
 	// Create the staging directory for GOROOT
 	goRootStaging := filepath.Join(options.Environment.Value("GOTMPDIR"), fmt.Sprintf("goroot-%d", rand.Int()))
-	if err := os.MkdirAll(goRootStaging, os.ModeDir); err != nil {
+	if err := os.MkdirAll(goRootStaging, os.ModePerm); err != nil {
 		panic(err)
 	}
 
@@ -200,7 +200,6 @@ func Build(ctx context.Context, packageDir string) error {
 				target.Initialize()
 
 				opts := compilerOptions.WithTarget(target)
-
 				// Create a compiler
 				cc, compilerCtx := compiler.NewCompiler(pkg.Pkg.Path(), opts)
 
@@ -302,18 +301,26 @@ func Build(ctx context.Context, packageDir string) error {
 
 				if !verifySucceeded {
 					errChan <- errors.Join(ErrCodeGeneratorError, errors.New(job.pkgPath+":\n"+errMsg))
+					return
 				}
 
+				// Run optimizations
+				if err := optimize(job.cc.Module(), job.cc.Options().Target.Machine(), 0); err != nil {
+					errChan <- errors.Join(ErrCodeGeneratorError, err)
+					return
+				}
+
+				mu.Lock()
 				nameHash := crc32.Checksum([]byte(job.pkgPath), crc32.IEEETable)
 				objectOut := filepath.Join(options.BuildDir, strconv.Itoa(int(nameHash))+".o")
 
-				mu.Lock()
 				objFiles = append(objFiles, objectOut)
 				mu.Unlock()
 
 				// Generate the object file for this program
 				if ok, errMsg := llvm.TargetMachineEmitToFile2(job.cc.Options().Target.Machine(), job.cc.Module(), objectOut, llvm.LLVMCodeGenFileType(llvm.ObjectFile)); !ok {
 					errChan <- errors.Join(ErrCodeGeneratorError, errors.New(job.pkgPath+":\n"+errMsg))
+					return
 				}
 			}
 		}()
@@ -334,12 +341,22 @@ func Build(ctx context.Context, packageDir string) error {
 	close(errChan)
 
 	triple := prog.targetInfo["triple"]
+	arch := strings.Split(triple, "-")[0]
+	float := "nofp"
+	if mode, ok := prog.targetInfo["float"]; ok {
+		switch mode {
+		case "hard":
+			float = "fp"
+		default:
+			float = "nofp"
+		}
+	}
 
 	// TODO: Select the proper build of picolibc
-	libCDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/picolibc", triple, "lib")
+	libCDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/picolibc", triple, arch+"+"+float, "lib")
 
 	// Select build of runtime-rt
-	libCompilerRTDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/compiler-rt/lib", triple)
+	libCompilerRTDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/compiler-rt", triple, arch+"+"+float, "lib", triple)
 
 	// Locate clang
 	executablePostfix := ""
@@ -364,11 +381,14 @@ func Build(ctx context.Context, packageDir string) error {
 		"-fuse-ld=lld",
 		"-W1,--gc-sections",
 		"-o", elfOut,
+		"-nostdlib",
 		"-L" + libCDir,
 		"-L" + libCompilerRTDir,
 		"-W1,-L" + filepath.Join(options.Environment.Value("SIGOROOT"), "runtime"),
 		"-L" + filepath.Dir(prog.targetLinkerFile),
 		"-T" + prog.targetLinkerFile,
+		"-lc",
+		"-lclang_rt.builtins-" + arch,
 	}
 
 	// Add all linker files
@@ -497,4 +517,54 @@ func symbolName(pkg *types.Package, name string) string {
 		path = pkg.Path()
 	}
 	return path + "." + name
+}
+
+func optimize(module llvm.LLVMModuleRef, machine llvm.LLVMTargetMachineRef, level int) (err error) {
+	opts := llvm.CreatePassBuilderOptions()
+	defer llvm.DisposePassBuilderOptions(opts)
+
+	// Enable verification after each pass
+	llvm.PassBuilderOptionsSetVerifyEach(opts, true)
+
+	var passes []string
+	switch level {
+	default:
+	}
+
+	// Always perform a GDCE pass last
+	passes = append(passes, "globaldce")
+
+	if err := llvm.RunPasses(module, strings.Join(passes, ","), machine, opts); err != nil {
+		if errStr := llvm.GetErrorMessage(err); len(errStr) > 0 {
+			return errors.New(errStr)
+		}
+	}
+
+	/*
+		// Create the pass manager builder
+		passMgrBuilder := llvm.PassManagerBuilderCreate()
+		defer llvm.PassManagerBuilderDispose(passMgrBuilder)
+
+		llvm.PassManagerBuilderSetOptLevel(passMgrBuilder, 0)
+		llvm.PassManagerBuilderSetSizeLevel(passMgrBuilder, 0)
+
+		// Create the pass manager that will be used to optimize the input module
+		passMgr := llvm.CreatePassManager()
+		defer llvm.DisposePassManager(passMgr)
+
+		// Perform Global Dead Code Elimination pass to remove any unused
+		// functions and globals.
+		llvm.AddGlobalDCEPass(passMgr)
+
+		// Run the optimization passes
+		if !llvm.RunPassManager(passMgr, module) {
+			return errors.New("failed to run optimization passes")
+		}
+
+		// Verfiy the IR
+		if ok, errMsg := llvm.VerifyModule2(module, llvm.LLVMVerifierFailureAction(llvm.ReturnStatusAction)); !ok {
+			return errors.New(errMsg)
+		}*/
+
+	return
 }

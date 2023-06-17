@@ -25,16 +25,24 @@ func Environment() Env {
 		panic(err)
 	}
 
+	// Get the user cache directory
+	cacheDir, err := os.UserCacheDir()
+	if err != nil {
+		println("defaulting cache dir to temp")
+		// Attempt to use the tmp dir
+		cacheDir = os.TempDir()
+	}
+
 	// Return the environment
 	return map[string]string{
 		"SIGOROOT":  getenv("SIGOROOT", defaultRoot),
 		"SIGOPATH":  getenv("SIGOPATH", getenv("GOPATH", cwd)),
-		"SIGOCACHE": getenv("SIGOCACHE", getenv("GOCACHE", "C:\\Users\\waj33\\AppData\\Local\\go-build")),
+		"SIGOCACHE": getenv("SIGOCACHE", getenv("GOCACHE", filepath.Join(cacheDir, "go-build"))),
 
-		"GOROOT":   getenv("GOROOT", defaultRoot),
-		"GOPATH":   getenv("SIGOPATH", getenv("GOPATH", cwd)),
-		"GOCACHE":  getenv("SIGOCACHE", getenv("GOCACHE", "C:\\Users\\waj33\\AppData\\Local\\go-build")),
-		"GOTMPDIR": getenv("SIGOTMPDIR", filepath.Join(os.TempDir(), "/sigo")),
+		"GOROOT": getenv("GOROOT", defaultRoot),
+		//"GOPATH":   getenv("SIGOPATH", getenv("GOPATH", cwd)),
+		"GOCACHE":  getenv("SIGOCACHE", getenv("GOCACHE", filepath.Join(cacheDir, "go-build"))),
+		"GOTMPDIR": getenv("SIGOTMPDIR", filepath.Join(cacheDir, "sigo")),
 		//"PATH":     os.Getenv("PATH"),
 	}
 }

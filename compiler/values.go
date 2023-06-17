@@ -9,7 +9,7 @@ import (
 )
 
 type Value struct {
-	llvm.LLVMValueRef
+	ref      llvm.LLVMValueRef
 	dbg      llvm.LLVMMetadataRef
 	heap     bool
 	cc       *Compiler
@@ -21,15 +21,15 @@ type Value struct {
 }
 
 func (v Value) Kind() llvm.LLVMTypeKind {
-	return llvm.GetTypeKind(llvm.TypeOf(v))
+	return llvm.GetTypeKind(llvm.TypeOf(v.ref))
 }
 
 func (v Value) Linkage() llvm.LLVMLinkage {
-	return llvm.GetLinkage(v)
+	return llvm.GetLinkage(v.ref)
 }
 
 func (v Value) UnderlyingValue(ctx context.Context) llvm.LLVMValueRef {
-	ref := v.LLVMValueRef
+	ref := v.ref
 	if llvm.IsAAllocaInst(ref) != nil && v.heap {
 		// Load the object ptr from the alloca
 		//ref = llvm.BuildLoad2(v.cc.builder, v.cc.ptrType.valueType, ref, "obj_load")
@@ -78,7 +78,7 @@ func (v Value) DebugPos(ctx context.Context) llvm.LLVMMetadataRef {
 		v.cc.currentContext(ctx),
 		uint(v.Pos().Line),
 		uint(v.Pos().Line),
-		llvm.GetSubprogram(llvm.GetBasicBlockParent(llvm.GetInstructionParent(v))),
+		llvm.GetSubprogram(llvm.GetBasicBlockParent(llvm.GetInstructionParent(v.ref))),
 		nil,
 	)
 }
@@ -279,25 +279,27 @@ func (c *Compiler) addressOf(ctx context.Context, value llvm.LLVMValueRef) llvm.
 }
 
 func (c *Compiler) createConstantString(ctx context.Context, str string) llvm.LLVMValueRef {
-	var strArrVal llvm.LLVMValueRef
-	if len(str) > 0 {
-		strArrVal = llvm.ConstStringInContext(c.currentContext(ctx), str, true)
-		strArrVal = c.createGlobalValue(ctx, strArrVal, c.symbolName(c.currentPackage(ctx).Pkg, "cstring"))
-	} else {
-		strArrVal = llvm.ConstNull(
-			llvm.PointerType(llvm.Int8TypeInContext(c.currentContext(ctx)), 0))
-	}
-
-	// Create a string struct
+	// Get the string type
 	strType := llvm.GetTypeByName2(c.currentContext(ctx), "string")
 	if strType == nil {
 		panic("missing string type")
 	}
 
-	return llvm.ConstNamedStruct(strType, []llvm.LLVMValueRef{
-		strArrVal,
-		llvm.ConstInt(llvm.Int32TypeInContext(c.currentContext(ctx)), uint64(len(str)), false),
-	})
+	var strArrVal llvm.LLVMValueRef
+	if len(str) > 0 {
+		cstr := llvm.ConstStringInContext(c.currentContext(ctx), str, true)
+		strArrVal = c.createGlobalValue(ctx, cstr, c.symbolName(c.currentPackage(ctx).Pkg, "cstring"))
+	} else {
+		strArrVal = llvm.ConstNull(llvm.StructGetTypeAtIndex(strType, 0))
+	}
+
+	// Return a string struct
+	return llvm.ConstNamedStruct(
+		strType,
+		[]llvm.LLVMValueRef{
+			strArrVal,
+			llvm.ConstInt(llvm.Int32TypeInContext(c.currentContext(ctx)), uint64(len(str)), false),
+		})
 }
 
 func (c *Compiler) createGlobalString(ctx context.Context, str string) llvm.LLVMValueRef {
@@ -316,6 +318,7 @@ func (c *Compiler) createGlobalValue(ctx context.Context, constVal llvm.LLVMValu
 	// Set the global variable's value
 	llvm.SetInitializer(value, constVal)
 	llvm.SetUnnamedAddr(value, llvm.GlobalUnnamedAddr != 0)
+	value = llvm.BuildBitCast(c.builder, value, c.ptrType.valueType, "")
 	return value
 }
 

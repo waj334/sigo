@@ -1,6 +1,8 @@
 //sigo:architecture arm
 //sigo:cpu cortex-m4
 //sigo:triple armv7m-none-eabi
+//sigo:features vfp4,thumb2,fp16
+//sigo:float hard
 
 package main
 
@@ -8,9 +10,9 @@ import (
 	"sync"
 	"time"
 
-	_ "runtime/arm/cortexm/sam/atsame51g19a"
 	mcu "runtime/arm/cortexm/sam/atsamx51"
 	"runtime/arm/cortexm/sam/atsamx51/uart"
+	_ "runtime/arm/cortexm/sam/chip/atsame51g19a"
 )
 
 var (

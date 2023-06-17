@@ -21,4 +21,9 @@
 /.fleet/
 /pkg/
 /lib/
-/src/runtime/arm/cortexm/sam/
+/src/runtime/arm/cortexm/*/chip
+!/llvm/llvm.go
+!/llvm/llvm_wrap.c
+!/llvm/wrappers.go
+!/clang/clang.go
+!/clang/clang_wrap.c

@@ -184,6 +184,20 @@ func (p *Program) parse(ctx context.Context) (err error) {
 							} else {
 								// TODO: Return syntax error
 							}
+						case "//sigo:features":
+							// value must follow
+							if count == 2 {
+								p.targetInfo["features"] = parts[1]
+							} else {
+								// TODO: Return syntax error
+							}
+						case "//sigo:float":
+							// value must follow
+							if count == 2 {
+								p.targetInfo["float"] = parts[1]
+							} else {
+								// TODO: Return syntax error
+							}
 						case "//sigo:extern":
 							if count == 3 {
 								_symbolName := symbolName(pkg.Types, parts[1])

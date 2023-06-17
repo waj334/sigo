@@ -371,7 +371,7 @@ func (c *Compiler) createVariable(ctx context.Context, name string, value Value,
 	// Add debug info about the declaration
 	llvm.DIBuilderInsertDeclareAtEnd(
 		c.dibuilder,
-		value,
+		value.UnderlyingValue(ctx),
 		value.dbg,
 		expression,
 		value.DebugPos(ctx),
