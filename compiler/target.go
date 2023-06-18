@@ -25,6 +25,10 @@ func NewTargetFromMap(info map[string]string) (*Target, error) {
 	target.cpu = info["cpu"]
 	target.triple = info["triple"]
 
+	if features, ok := info["features"]; ok {
+		target.features = strings.Split(features, ",")
+	}
+
 	// architecture, cpu and triple are required values
 	if len(target.architecture) == 0 {
 		return nil, ErrTargetMissingArchitecture
@@ -84,11 +88,11 @@ func (t *Target) Dispose() {
 }
 
 func (t *Target) featuresString() string {
-	output := ""
-	for _, feature := range t.features {
-		output += feature + " "
+	features := make([]string, len(t.features))
+	for i, feature := range t.features {
+		features[i] = "+" + feature
 	}
-	return strings.TrimSpace(output)
+	return strings.Join(features, ",")
 }
 
 func (t *Target) Ref() llvm.LLVMTargetRef {

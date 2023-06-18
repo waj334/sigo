@@ -33,32 +33,66 @@
 #include "llvm-c/Target.h"
 #include "llvm-c/TargetMachine.h"
 #include "llvm-c/Types.h"
+#include "llvm-c/Transforms/InstCombine.h"
+#include "llvm-c/Transforms/IPO.h"
+#include "llvm-c/Transforms/PassBuilder.h"
+#include "llvm-c/Transforms/PassManagerBuilder.h"
+#include "llvm-c/Transforms/Scalar.h"
+#include "llvm-c/Transforms/Utils.h"
+#include "llvm-c/Transforms/Vectorize.h"
 %}
 
 %insert(cgo_comment_typedefs) %{
 #include <stdlib.h>
-#include "llvm-c/Types.h"
+#include "llvm-c/Analysis.h"
+#include "llvm-c/BitReader.h"
+#include "llvm-c/BitWriter.h"
+#include "llvm-c/blake3.h"
+#include "llvm-c/Comdat.h"
+#include "llvm-c/Core.h"
+#include "llvm-c/DataTypes.h"
+#include "llvm-c/DebugInfo.h"
+#include "llvm-c/Deprecated.h"
+#include "llvm-c/Disassembler.h"
+#include "llvm-c/DisassemblerTypes.h"
+#include "llvm-c/Error.h"
+#include "llvm-c/ErrorHandling.h"
+//#include "llvm-c/ExecutionEngine.h"
+#include "llvm-c/ExternC.h"
+#include "llvm-c/Initialization.h"
+#include "llvm-c/IRReader.h"
+#include "llvm-c/Linker.h"
+//#include "llvm-c/LLJIT.h"
+//#include "llvm-c/lto.h"
+#include "llvm-c/Object.h"
+//#include "llvm-c/Orc.h"
+//#include "llvm-c/OrcEE.h"
+//#include "llvm-c/Remarks.h"
+#include "llvm-c/Support.h"
 #include "llvm-c/Target.h"
 #include "llvm-c/TargetMachine.h"
+#include "llvm-c/Types.h"
+#include "llvm-c/Transforms/InstCombine.h"
+#include "llvm-c/Transforms/IPO.h"
+#include "llvm-c/Transforms/PassBuilder.h"
+#include "llvm-c/Transforms/PassManagerBuilder.h"
+#include "llvm-c/Transforms/Scalar.h"
+#include "llvm-c/Transforms/Utils.h"
+#include "llvm-c/Transforms/Vectorize.h"
 %}
 
 %typemap(gotype) LLVMTypeKind "LLVMTypeKind"
 %typemap(gotype) LLVMIntPredicate "LLVMIntPredicate"
 %typemap(gotype) LLVMRealPredicate "LLVMRealPredicate"
 
+%{
+typedef int                                     LLVMBool;
+typedef unsigned                                LLVMDWARFTypeEncoding;
+%}
+
 %ignore LLVMTypeKind;
 %ignore LLVMIntPredicate;
 %ignore LLVMRealPredicate;
-
-/*
-// Typemaps for Go bool
-%typemap(in) bool {
-  $input = $1 ? 1 : 0;
-}
-%typemap(out) bool {
-  $result = $1 != 0;
-}
-*/
 
 // Apply bool typemaps to LLVMBool
 %apply bool { LLVMBool };
@@ -344,7 +378,7 @@
    $result = make([]C.$*1_type, 0, len($input))
    for _, val := range $input {
         if val != nil {
-            $result = append($result, (C.$*1_type)(unsafe.Pointer(val.Swigcptr())))
+            $result = append($result, (C.$*1_type)(unsafe.Pointer(val)))
        } else {
             $result = append($result, (C.$*1_type)(unsafe.Pointer(nil)))
        }
@@ -376,155 +410,58 @@
     $2 = ($2_type)$input.len;
 }
 
-// Handle passing normal ref types
-%typemap(imtype)
-              LLVMMemoryBufferRef,
-              LLVMContextRef,
-              LLVMModuleRef,
-              LLVMTypeRef,
-              LLVMValueRef,
-              LLVMBasicBlockRef,
-              LLVMMetadataRef,
-              LLVMNamedMDNodeRef,
-              LLVMBuilderRef,
-              LLVMDIBuilderRef,
-              LLVMModuleProviderRef,
-              LLVMPassManagerRef,
-              LLVMPassRegistryRef,
-              LLVMUseRef,
-              LLVMAttributeRef,
-              LLVMDiagnosticInfoRef,
-              LLVMComdatRef,
-              LLVMJITEventListenerRef,
-              LLVMBinaryRef,
-              LLVMTargetMachineRef,
-              LLVMTargetRef,
-              LLVMTargetDataRef,
-              LLVMTargetLibraryInfoRef "C.$type"
+%define LLVM_TYPEMAP(OPAQUE, TYPE)
+%typemap(gotype) TYPE "TYPE";
+%typemap(gotype) TYPE * "*TYPE";
+%typemap(imtype) TYPE "C.TYPE"
+%typemap(goin) TYPE "$result = C.$type(unsafe.Pointer($input))"
+%typemap(goout) TYPE "$result = TYPE(unsafe.Pointer($1))"
+%typemap(in) TYPE "$1 = $input;"
+%typemap(out) TYPE "$result = $1;"
+%insert(go_wrapper) %{
+type TYPE C.TYPE
+%}
+%enddef
 
-%typemap(goin)
-            LLVMMemoryBufferRef,
-            LLVMContextRef,
-            LLVMModuleRef,
-            LLVMTypeRef,
-            LLVMValueRef,
-            LLVMBasicBlockRef,
-            LLVMMetadataRef,
-            LLVMNamedMDNodeRef,
-            LLVMBuilderRef,
-            LLVMDIBuilderRef,
-            LLVMModuleProviderRef,
-            LLVMPassManagerRef,
-            LLVMPassRegistryRef,
-            LLVMUseRef,
-            LLVMAttributeRef,
-            LLVMDiagnosticInfoRef,
-            LLVMComdatRef,
-            LLVMJITEventListenerRef,
-            LLVMBinaryRef,
-            LLVMTargetMachineRef,
-            LLVMTargetRef,
-            LLVMTargetDataRef,
-            LLVMTargetLibraryInfoRef
-{
-    if $input == nil {
-        $result = C.$type(unsafe.Pointer(uintptr(0)))
-    } else {
-        $result = C.$type(unsafe.Pointer($input.Swigcptr()))
-    }
-}
-
-// Handle return from C wrapper to Go
-%typemap(goout, match="out")
-            LLVMMemoryBufferRef,
-            LLVMContextRef,
-            LLVMModuleRef,
-            LLVMTypeRef,
-            LLVMValueRef,
-            LLVMBasicBlockRef,
-            LLVMMetadataRef,
-            LLVMNamedMDNodeRef,
-            LLVMBuilderRef,
-            LLVMDIBuilderRef,
-            LLVMModuleProviderRef,
-            LLVMPassManagerRef,
-            LLVMPassRegistryRef,
-            LLVMUseRef,
-            LLVMAttributeRef,
-            LLVMDiagnosticInfoRef,
-            LLVMComdatRef,
-            LLVMJITEventListenerRef,
-            LLVMBinaryRef,
-            LLVMTargetMachineRef,
-            LLVMTargetRef,
-            LLVMTargetDataRef,
-            LLVMTargetLibraryInfoRef
-{
-    if $1 == nil {
-        $result = nil
-    } else {
-        $result = Swigcptr$1_type(unsafe.Pointer($1))
-    }
-}
-
-%typemap(out)
-              LLVMMemoryBufferRef,
-              LLVMContextRef,
-              LLVMModuleRef,
-              LLVMTypeRef,
-              LLVMValueRef,
-              LLVMBasicBlockRef,
-              LLVMMetadataRef,
-              LLVMNamedMDNodeRef,
-              LLVMBuilderRef,
-              LLVMDIBuilderRef,
-              LLVMModuleProviderRef,
-              LLVMPassManagerRef,
-              LLVMPassRegistryRef,
-              LLVMUseRef,
-              LLVMAttributeRef,
-              LLVMDiagnosticInfoRef,
-              LLVMComdatRef,
-              LLVMJITEventListenerRef,
-              LLVMBinaryRef,
-              LLVMTargetMachineRef,
-              LLVMTargetRef,
-              LLVMTargetDataRef,
-              LLVMTargetLibraryInfoRef
-{
-    $result = $1;
-}
-
-%typemap(in)
-              LLVMMemoryBufferRef,
-              LLVMContextRef,
-              LLVMModuleRef,
-              LLVMTypeRef,
-              LLVMValueRef,
-              LLVMBasicBlockRef,
-              LLVMMetadataRef,
-              LLVMNamedMDNodeRef,
-              LLVMBuilderRef,
-              LLVMDIBuilderRef,
-              LLVMModuleProviderRef,
-              LLVMPassManagerRef,
-              LLVMPassRegistryRef,
-              LLVMUseRef,
-              LLVMAttributeRef,
-              LLVMDiagnosticInfoRef,
-              LLVMComdatRef,
-              LLVMJITEventListenerRef,
-              LLVMBinaryRef,
-              LLVMTargetMachineRef,
-              LLVMTargetRef,
-              LLVMTargetDataRef,
-              LLVMTargetLibraryInfoRef
-{
-    $1 = $input;
-}
+LLVM_TYPEMAP(LLVMOpaqueContext, LLVMContextRef)
+LLVM_TYPEMAP(LLVMOpaqueModule, LLVMModuleRef)
+LLVM_TYPEMAP(LLVMOpaqueType, LLVMTypeRef)
+LLVM_TYPEMAP(LLVMOpaqueValue, LLVMValueRef)
+LLVM_TYPEMAP(LLVMOpaqueBasicBlock, LLVMBasicBlockRef)
+LLVM_TYPEMAP(LLVMOpaqueMetadata, LLVMMetadataRef)
+LLVM_TYPEMAP(LLVMOpaqueNamedMDNode, LLVMNamedMDNodeRef)
+LLVM_TYPEMAP(LLVMOpaqueValueMetadataEntry, LLVMValueMetadataEntry)
+LLVM_TYPEMAP(LLVMOpaqueBuilder, LLVMBuilderRef)
+LLVM_TYPEMAP(LLVMOpaqueDIBuilder, LLVMDIBuilderRef)
+LLVM_TYPEMAP(LLVMOpaqueModuleProvide, LLVMModuleProviderRef)
+LLVM_TYPEMAP(LLVMOpaquePassManager, LLVMPassManagerRef)
+LLVM_TYPEMAP(LLVMOpaquePassRegistry, LLVMPassRegistryRef)
+LLVM_TYPEMAP(LLVMOpaqueUse, LLVMUseRef)
+LLVM_TYPEMAP(LLVMOpaqueAttributeRef, LLVMAttributeRef)
+LLVM_TYPEMAP(LLVMOpaqueDiagnosticInfo, LLVMDiagnosticInfoRef)
+LLVM_TYPEMAP(LLVMComdat, LLVMComdatRef)
+LLVM_TYPEMAP(LLVMOpaqueModuleFlagEntry, LLVMModuleFlagEntry)
+LLVM_TYPEMAP(LLVMOpaqueJITEventListener, LLVMJITEventListenerRef)
+LLVM_TYPEMAP(LLVMOpaqueBinary, LLVMBinaryRef)
+LLVM_TYPEMAP(LLVMOpaqueTargetMachine, LLVMTargetMachineRef)
+LLVM_TYPEMAP(LLVMOpaqueTarget, LLVMTargetRef)
+LLVM_TYPEMAP(LLVMOpaqueTargetData, LLVMTargetDataRef)
+LLVM_TYPEMAP(LLVMOpaqueTargetLibraryInfotData, LLVMTargetLibraryInfoRef)
+LLVM_TYPEMAP(LLVMOpaquePassBuilderOptions, LLVMPassBuilderOptionsRef)
+LLVM_TYPEMAP(LLVMOpaquePassManagerBuilder, LLVMPassManagerBuilderRef)
+LLVM_TYPEMAP(LLVMOpaqueSectionIterator, LLVMSectionIteratorRef)
+LLVM_TYPEMAP(LLVMOpaqueSymbolIterator, LLVMSymbolIteratorRef)
+LLVM_TYPEMAP(LLVMOpaqueRelocationIterator, LLVMRelocationIteratorRef)
+LLVM_TYPEMAP(LLVMOpaqueMemoryBuffer, LLVMMemoryBufferRef)
+LLVM_TYPEMAP(LLVMOpaqueObjectFile, LLVMObjectFileRef)
+LLVM_TYPEMAP(LLVMOpaqueError, LLVMErrorRef)
+//%insert(go_wrapper) %{
+//func (l LLVMErrorRef) Error() string {
+//    return GetErrorMessage(l)
+//}
+//%}
 
 // Handle some APIs manually
-
 %ignore LLVMGetTargetFromTriple;
 %ignore LLVMAddIncoming;
 %ignore LLVMGetParamTypes;
@@ -532,41 +469,11 @@
 %ignore LLVMGetValueName2;
 
 // Strip redundant "LLVM" from function calls
-%{
-typedef int                                     LLVMBool;
-typedef unsigned                                LLVMDWARFTypeEncoding;
-typedef struct LLVMOpaqueMemoryBuffer           *LLVMMemoryBufferRef;
-typedef struct LLVMOpaqueContext                *LLVMContextRef;
-typedef struct LLVMOpaqueModule                 *LLVMModuleRef;
-typedef struct LLVMOpaqueType                   *LLVMTypeRef;
-typedef struct LLVMOpaqueValue                  *LLVMValueRef;
-typedef struct LLVMOpaqueBasicBlock             *LLVMBasicBlockRef;
-typedef struct LLVMOpaqueMetadata               *LLVMMetadataRef;
-typedef struct LLVMOpaqueNamedMDNode            *LLVMNamedMDNodeRef;
-typedef struct LLVMOpaqueValueMetadataEntry     LLVMValueMetadataEntry;
-typedef struct LLVMOpaqueBuilder                *LLVMBuilderRef;
-typedef struct LLVMOpaqueDIBuilder              *LLVMDIBuilderRef;
-typedef struct LLVMOpaqueModuleProvider         *LLVMModuleProviderRef;
-typedef struct LLVMOpaquePassManager            *LLVMPassManagerRef;
-typedef struct LLVMOpaquePassRegistry           *LLVMPassRegistryRef;
-typedef struct LLVMOpaqueUse                    *LLVMUseRef;
-typedef struct LLVMOpaqueAttributeRef           *LLVMAttributeRef;
-typedef struct LLVMOpaqueDiagnosticInfo         *LLVMDiagnosticInfoRef;
-typedef struct LLVMComdat                       *LLVMComdatRef;
-typedef struct LLVMOpaqueModuleFlagEntry        LLVMModuleFlagEntry;
-typedef struct LLVMOpaqueJITEventListener       *LLVMJITEventListenerRef;
-typedef struct LLVMOpaqueBinary                 *LLVMBinaryRef;
-
-typedef struct LLVMOpaqueTargetMachine          *LLVMTargetMachineRef;
-typedef struct LLVMTarget                       *LLVMTargetRef;
-typedef struct LLVMOpaqueTargetData             *LLVMTargetDataRef;
-typedef struct LLVMOpaqueTargetLibraryInfotData *LLVMTargetLibraryInfoRef;
-%}
-
 %rename("%(strip:[LLVM])s") "";
 
 %include "llvm-c/ExternC.h"
-//%include "llvm-c/Types.h" // Excluded to correct the resulting type names
+%include "llvm-c/Types.h"
+%include "llvm-c/Error.h"
 %include "llvm-c/ErrorHandling.h"
 %include "llvm-c/Deprecated.h"
 %include "llvm-c/Analysis.h"
@@ -578,17 +485,17 @@ typedef struct LLVMOpaqueTargetLibraryInfotData *LLVMTargetLibraryInfoRef;
 %include "llvm-c/DebugInfo.h"
 %include "llvm-c/Disassembler.h"
 %include "llvm-c/DisassemblerTypes.h"
-%include "llvm-c/Error.h"
-//%include "llvm-c/ExecutionEngine.h"
 %include "llvm-c/Initialization.h"
 %include "llvm-c/IRReader.h"
 %include "llvm-c/Linker.h"
-//%include "llvm-c/LLJIT.h"
-//%include "llvm-c/lto.h"
 %include "llvm-c/Object.h"
-//%include "llvm-c/Orc.h"
-//%include "llvm-c/OrcEE.h"
-//%include "llvm-c/Remarks.h"
 %include "llvm-c/Support.h"
 %include "llvm-c/Target.h"
 %include "llvm-c/TargetMachine.h"
+%include "llvm-c/Transforms/InstCombine.h"
+%include "llvm-c/Transforms/IPO.h"
+%include "llvm-c/Transforms/PassBuilder.h"
+%include "llvm-c/Transforms/PassManagerBuilder.h"
+%include "llvm-c/Transforms/Scalar.h"
+%include "llvm-c/Transforms/Utils.h"
+%include "llvm-c/Transforms/Vectorize.h"

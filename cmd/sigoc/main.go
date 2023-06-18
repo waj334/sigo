@@ -86,7 +86,7 @@ func build(args []string) {
 	dumpIR := buildFlags.Bool("dump-ir", false, "dump the IR")
 	tags := buildFlags.String("tags", "", "Build tags")
 	useCTypeNames := buildFlags.Bool("ctypenames", false, "Use C type names for primitives in debug information")
-	numJobs := buildFlags.Int("n", runtime.NumCPU(), "number of concurrent builds")
+	numJobs := buildFlags.Int("j", runtime.NumCPU(), "number of concurrent builds")
 
 	// TODO: Implement dependency files for smarter make builds
 	//createDependencyFiles := flags.Bool("MD", false, "create dependency files for Make")

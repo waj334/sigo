@@ -70,10 +70,6 @@ type Compiler struct {
 	ptrType         Type
 }
 
-var (
-	invalidValue Value = Value{}
-)
-
 func NewCompiler(name string, options *Options) (*Compiler, llvm.LLVMContextRef) {
 	// Create the LLVM context
 	ctx := llvm.ContextCreate()
@@ -118,7 +114,7 @@ func NewCompiler(name string, options *Options) (*Compiler, llvm.LLVMContextRef)
 	}
 
 	ptrType := Type{
-		valueType: llvm.PointerType(uintptrType.valueType, 0),
+		valueType: llvm.PointerTypeInContext(ctx, 0),
 		debugType: llvm.DIBuilderCreateBasicType(dibuilder, "void*", size, DW_ATE_address, 0),
 	}
 
@@ -615,7 +611,7 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 				returnValue = llvm.BuildLoad2(c.builder, returnType, returnValue, "")
 			} else {
 				// Return the single value
-				returnValue = returnValues[0]
+				returnValue = returnValues[0].UnderlyingValue(ctx)
 			}
 
 			// Create the return

@@ -10,7 +10,7 @@ import (
 	"omibyte.io/sigo/llvm"
 )
 
-func (c *Compiler) createFunctionType(ctx context.Context, signature *types.Signature, hasFreeVars bool) llvm.LLVMValueRef {
+func (c *Compiler) createFunctionType(ctx context.Context, signature *types.Signature, hasFreeVars bool) llvm.LLVMTypeRef {
 	var returnValueTypes []llvm.LLVMTypeRef
 	var argValueTypes []llvm.LLVMTypeRef
 	var returnType llvm.LLVMTypeRef

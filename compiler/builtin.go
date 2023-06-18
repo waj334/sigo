@@ -18,15 +18,15 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 		// Determine the element type of the slice
 		elementType := c.createType(ctx, args[0].Type().Underlying().(*types.Slice).Elem())
 		elementTypeDesc := c.createTypeDescriptor(ctx, elementType)
-		appendArgs := [3]llvm.LLVMValueRef{c.addressOf(ctx, argValues[0]), nil, elementTypeDesc}
+		appendArgs := [3]llvm.LLVMValueRef{c.addressOf(ctx, argValues[0].UnderlyingValue(ctx)), nil, elementTypeDesc}
 		sliceType := llvm.GetTypeByName2(c.currentContext(ctx), "slice")
 		stringType := llvm.GetTypeByName2(c.currentContext(ctx), "string")
-		if llvm.TypeIsEqual(llvm.TypeOf(argValues[1]), sliceType) {
+		if llvm.TypeIsEqual(llvm.TypeOf(argValues[1].UnderlyingValue(ctx)), sliceType) {
 			// Pass the slice directly to the runtime call
-			appendArgs[1] = c.addressOf(ctx, argValues[1])
-		} else if llvm.TypeIsEqual(stringType, llvm.TypeOf(argValues[1])) {
+			appendArgs[1] = c.addressOf(ctx, argValues[1].UnderlyingValue(ctx))
+		} else if llvm.TypeIsEqual(stringType, llvm.TypeOf(argValues[1].UnderlyingValue(ctx))) {
 			// Convert the string to a slice
-			appendArgs[1] = c.createSliceFromStringValue(ctx, argValues[1])
+			appendArgs[1] = c.createSliceFromStringValue(ctx, argValues[1].UnderlyingValue(ctx))
 		} else {
 			// Create a slice from the remaining arguments and pass that to the
 			// runtime call.
@@ -42,7 +42,7 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 	case "cap":
 		switch args[0].Type().Underlying().(type) {
 		case *types.Slice:
-			value = c.createRuntimeCall(ctx, "sliceCap", []llvm.LLVMValueRef{c.addressOf(ctx, argValues[0])})
+			value = c.createRuntimeCall(ctx, "sliceCap", []llvm.LLVMValueRef{c.addressOf(ctx, argValues[0].UnderlyingValue(ctx))})
 		case *types.Chan:
 			panic("not implemented")
 		default:
@@ -55,15 +55,15 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 	case "copy":
 		elementType := c.createType(ctx, args[0].Type().Underlying().(*types.Slice).Elem())
 		elementTypeDesc := c.createTypeDescriptor(ctx, elementType)
-		copyArgs := [3]llvm.LLVMValueRef{c.addressOf(ctx, argValues[0]), nil, elementTypeDesc}
+		copyArgs := [3]llvm.LLVMValueRef{c.addressOf(ctx, argValues[0].UnderlyingValue(ctx)), nil, elementTypeDesc}
 		stringType := llvm.GetTypeByName2(c.currentContext(ctx), "string")
 
 		// If the second argument is a string, convert it to a byte slice
-		if llvm.TypeIsEqual(stringType, llvm.TypeOf(argValues[1])) {
-			copyArgs[1] = c.createSliceFromStringValue(ctx, argValues[1])
+		if llvm.TypeIsEqual(stringType, llvm.TypeOf(argValues[1].UnderlyingValue(ctx))) {
+			copyArgs[1] = c.createSliceFromStringValue(ctx, argValues[1].UnderlyingValue(ctx))
 		} else {
 			// Pass the slice directly
-			copyArgs[1] = c.addressOf(ctx, argValues[1])
+			copyArgs[1] = c.addressOf(ctx, argValues[1].UnderlyingValue(ctx))
 		}
 
 		// Create the runtime call
@@ -77,12 +77,12 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 		case *types.Basic:
 			switch t.Kind() {
 			case types.String:
-				value = c.createRuntimeCall(ctx, "stringLen", []llvm.LLVMValueRef{c.addressOf(ctx, argValues[0])})
+				value = c.createRuntimeCall(ctx, "stringLen", []llvm.LLVMValueRef{c.addressOf(ctx, argValues[0].UnderlyingValue(ctx))})
 			default:
 				panic("len called with invalid value type")
 			}
 		case *types.Slice:
-			value = c.createRuntimeCall(ctx, "sliceLen", []llvm.LLVMValueRef{c.addressOf(ctx, argValues[0])})
+			value = c.createRuntimeCall(ctx, "sliceLen", []llvm.LLVMValueRef{c.addressOf(ctx, argValues[0].UnderlyingValue(ctx))})
 		case *types.Chan:
 			panic("not implemented")
 		default:
@@ -124,7 +124,7 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 		panic("not implemented")
 	case "Add":
 		// Add to pointer values
-		value = llvm.BuildGEP2(c.builder, llvm.Int8TypeInContext(c.currentContext(ctx)), argValues[0], []llvm.LLVMValueRef{argValues[1]}, "")
+		value = llvm.BuildGEP2(c.builder, llvm.Int8TypeInContext(c.currentContext(ctx)), argValues[0].UnderlyingValue(ctx), []llvm.LLVMValueRef{argValues[1].UnderlyingValue(ctx)}, "")
 	default:
 		panic("encountered unknown builtin function")
 	}
