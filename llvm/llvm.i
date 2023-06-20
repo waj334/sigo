@@ -81,18 +81,10 @@
 #include "llvm-c/Transforms/Vectorize.h"
 %}
 
-%typemap(gotype) LLVMTypeKind "LLVMTypeKind"
-%typemap(gotype) LLVMIntPredicate "LLVMIntPredicate"
-%typemap(gotype) LLVMRealPredicate "LLVMRealPredicate"
-
 %{
 typedef int                                     LLVMBool;
 typedef unsigned                                LLVMDWARFTypeEncoding;
 %}
-
-%ignore LLVMTypeKind;
-%ignore LLVMIntPredicate;
-%ignore LLVMRealPredicate;
 
 // Apply bool typemaps to LLVMBool
 %apply bool { LLVMBool };
@@ -124,9 +116,7 @@ typedef unsigned                                LLVMDWARFTypeEncoding;
                     (const char *Directory, size_t DirectoryLen),
                     (const char *UniqueId, size_t UniqueIdLen),
                     (const char *LinkageName, size_t LinkageNameLen),
-                    (const char *Flags, size_t FlagsLen),
                     (const char *Producer, size_t ProducerLen),
-                    (const char *SplitName, size_t SplitNameLen),
                     (const char *SysRoot, size_t SysRootLen),
                     (const char *SDK, size_t SDKLen),
                     (const char *Str, unsigned Length),
@@ -135,7 +125,10 @@ typedef unsigned                                LLVMDWARFTypeEncoding;
                     (const char *Str, size_t SLen),
                     (const char *Name, unsigned SLen),
                     (const char *Name, size_t SLen),
-                    (const char *Linkage, size_t LinkLen)
+                    (const char *Linkage, size_t LinkLen),
+                    (const char *Flags, size_t FlagsLen),
+                    (const char *SplitName, size_t SplitNameLen),
+                    (const char *Key, size_t KeyLen)
 
 {
     $1 = $input;
@@ -147,9 +140,7 @@ typedef unsigned                                LLVMDWARFTypeEncoding;
                     (const char *Directory, size_t DirectoryLen),
                     (const char *UniqueId, size_t UniqueIdLen),
                     (const char *LinkageName, size_t LinkageNameLen),
-                    (const char *Flags, size_t FlagsLen),
                     (const char *Producer, size_t ProducerLen),
-                    (const char *SplitName, size_t SplitNameLen),
                     (const char *SysRoot, size_t SysRootLen),
                     (const char *SDK, size_t SDKLen),
                     (const char *Str, unsigned Length),
@@ -158,7 +149,10 @@ typedef unsigned                                LLVMDWARFTypeEncoding;
                     (const char *Str, size_t SLen),
                     (const char *Name, unsigned SLen),
                     (const char *Name, size_t SLen),
-                    (const char *Linkage, size_t LinkLen)
+                    (const char *Linkage, size_t LinkLen),
+                    (const char *Flags, size_t FlagsLen),
+                    (const char *SplitName, size_t SplitNameLen),
+                    (const char *Key, size_t KeyLen)
 {
     $result = $1;
 }
@@ -168,9 +162,7 @@ typedef unsigned                                LLVMDWARFTypeEncoding;
                     (const char *Directory, size_t DirectoryLen),
                     (const char *UniqueId, size_t UniqueIdLen),
                     (const char *LinkageName, size_t LinkageNameLen),
-                    (const char *Flags, size_t FlagsLen),
                     (const char *Producer, size_t ProducerLen),
-                    (const char *SplitName, size_t SplitNameLen),
                     (const char *SysRoot, size_t SysRootLen),
                     (const char *SDK, size_t SDKLen),
                     (const char *Str, unsigned Length),
@@ -179,7 +171,10 @@ typedef unsigned                                LLVMDWARFTypeEncoding;
                     (const char *Str, size_t SLen),
                     (const char *Name, unsigned SLen),
                     (const char *Name, size_t SLen),
-                    (const char *Linkage, size_t LinkLen)
+                    (const char *Linkage, size_t LinkLen),
+                    (const char *Flags, size_t FlagsLen),
+                    (const char *SplitName, size_t SplitNameLen),
+                    (const char *Key, size_t KeyLen)
 {
     free($input);
 }
@@ -200,7 +195,10 @@ typedef unsigned                                LLVMDWARFTypeEncoding;
                     (const char *Str, size_t SLen),
                     (const char *Name, unsigned SLen),
                     (const char *Name, size_t SLen),
-                    (const char *Linkage, size_t LinkLen)
+                    (const char *Linkage, size_t LinkLen),
+                    (const char *Flags, size_t FlagsLen),
+                    (const char *SplitName, size_t SplitNameLen),
+                    (const char *Key, size_t KeyLen)
                     "*C.char";
 
 %typemap(gotype)    (const char *Name, size_t NameLen),
@@ -208,9 +206,7 @@ typedef unsigned                                LLVMDWARFTypeEncoding;
                     (const char *Directory, size_t DirectoryLen),
                     (const char *UniqueId, size_t UniqueIdLen),
                     (const char *LinkageName, size_t LinkageNameLen),
-                    (const char *Flags, size_t FlagsLen),
                     (const char *Producer, size_t ProducerLen)
-                    (const char *SplitName, size_t SplitNameLen),
                     (const char *SysRoot, size_t SysRootLen),
                     (const char *SDK, size_t SDKLen),
                     (const char *Str, unsigned Length),
@@ -219,7 +215,10 @@ typedef unsigned                                LLVMDWARFTypeEncoding;
                     (const char *Str, size_t SLen),
                     (const char *Name, unsigned SLen),
                     (const char *Name, size_t SLen),
-                    (const char *Linkage, size_t LinkLen)
+                    (const char *Linkage, size_t LinkLen),
+                    (const char *Flags, size_t FlagsLen),
+                    (const char *SplitName, size_t SplitNameLen),
+                    (const char *Key, size_t KeyLen)
                     "string";
 
 %typemap(goin)      (const char *Name, size_t NameLen),
@@ -227,9 +226,7 @@ typedef unsigned                                LLVMDWARFTypeEncoding;
                     (const char *Directory, size_t DirectoryLen),
                     (const char *UniqueId, size_t UniqueIdLen),
                     (const char *LinkageName, size_t LinkageNameLen),
-                    (const char *Flags, size_t FlagsLen),
                     (const char *Producer, size_t ProducerLen),
-                    (const char *SplitName, size_t SplitNameLen),
                     (const char *SysRoot, size_t SysRootLen),
                     (const char *SDK, size_t SDKLen),
                     (const char *Str, unsigned Length),
@@ -238,7 +235,10 @@ typedef unsigned                                LLVMDWARFTypeEncoding;
                     (const char *Str, size_t SLen),
                     (const char *Name, unsigned SLen),
                     (const char *Name, size_t SLen),
-                    (const char *Linkage, size_t LinkLen)
+                    (const char *Linkage, size_t LinkLen),
+                    (const char *Flags, size_t FlagsLen),
+                    (const char *SplitName, size_t SplitNameLen),
+                    (const char *Key, size_t KeyLen)
 {
     $result = C.CString($1)
 }
@@ -248,9 +248,7 @@ typedef unsigned                                LLVMDWARFTypeEncoding;
                     (const char *Directory, size_t DirectoryLen),
                     (const char *UniqueId, size_t UniqueIdLen),
                     (const char *LinkageName, size_t LinkageNameLen),
-                    (const char *Flags, size_t FlagsLen),
                     (const char *Producer, size_t ProducerLen),
-                    (const char *SplitName, size_t SplitNameLen),
                     (const char *SysRoot, size_t SysRootLen),
                     (const char *SDK, size_t SDKLen),
                     (const char *Str, unsigned Length),
@@ -259,7 +257,10 @@ typedef unsigned                                LLVMDWARFTypeEncoding;
                     (const char *Str, size_t SLen),
                     (const char *Name, unsigned SLen),
                     (const char *Name, size_t SLen),
-                    (const char *Linkage, size_t LinkLen)
+                    (const char *Linkage, size_t LinkLen),
+                    (const char *Flags, size_t FlagsLen),
+                    (const char *SplitName, size_t SplitNameLen),
+                    (const char *Key, size_t KeyLen)
 {
     $result = C.GoString($1)
 }
@@ -410,7 +411,7 @@ typedef unsigned                                LLVMDWARFTypeEncoding;
     $2 = ($2_type)$input.len;
 }
 
-%define LLVM_TYPEMAP(OPAQUE, TYPE)
+%define LLVM_TYPEMAP(TYPE)
 %typemap(gotype) TYPE "TYPE";
 %typemap(gotype) TYPE * "*TYPE";
 %typemap(imtype) TYPE "C.TYPE"
@@ -423,43 +424,61 @@ type TYPE C.TYPE
 %}
 %enddef
 
-LLVM_TYPEMAP(LLVMOpaqueContext, LLVMContextRef)
-LLVM_TYPEMAP(LLVMOpaqueModule, LLVMModuleRef)
-LLVM_TYPEMAP(LLVMOpaqueType, LLVMTypeRef)
-LLVM_TYPEMAP(LLVMOpaqueValue, LLVMValueRef)
-LLVM_TYPEMAP(LLVMOpaqueBasicBlock, LLVMBasicBlockRef)
-LLVM_TYPEMAP(LLVMOpaqueMetadata, LLVMMetadataRef)
-LLVM_TYPEMAP(LLVMOpaqueNamedMDNode, LLVMNamedMDNodeRef)
-LLVM_TYPEMAP(LLVMOpaqueValueMetadataEntry, LLVMValueMetadataEntry)
-LLVM_TYPEMAP(LLVMOpaqueBuilder, LLVMBuilderRef)
-LLVM_TYPEMAP(LLVMOpaqueDIBuilder, LLVMDIBuilderRef)
-LLVM_TYPEMAP(LLVMOpaqueModuleProvide, LLVMModuleProviderRef)
-LLVM_TYPEMAP(LLVMOpaquePassManager, LLVMPassManagerRef)
-LLVM_TYPEMAP(LLVMOpaquePassRegistry, LLVMPassRegistryRef)
-LLVM_TYPEMAP(LLVMOpaqueUse, LLVMUseRef)
-LLVM_TYPEMAP(LLVMOpaqueAttributeRef, LLVMAttributeRef)
-LLVM_TYPEMAP(LLVMOpaqueDiagnosticInfo, LLVMDiagnosticInfoRef)
-LLVM_TYPEMAP(LLVMComdat, LLVMComdatRef)
-LLVM_TYPEMAP(LLVMOpaqueModuleFlagEntry, LLVMModuleFlagEntry)
-LLVM_TYPEMAP(LLVMOpaqueJITEventListener, LLVMJITEventListenerRef)
-LLVM_TYPEMAP(LLVMOpaqueBinary, LLVMBinaryRef)
-LLVM_TYPEMAP(LLVMOpaqueTargetMachine, LLVMTargetMachineRef)
-LLVM_TYPEMAP(LLVMOpaqueTarget, LLVMTargetRef)
-LLVM_TYPEMAP(LLVMOpaqueTargetData, LLVMTargetDataRef)
-LLVM_TYPEMAP(LLVMOpaqueTargetLibraryInfotData, LLVMTargetLibraryInfoRef)
-LLVM_TYPEMAP(LLVMOpaquePassBuilderOptions, LLVMPassBuilderOptionsRef)
-LLVM_TYPEMAP(LLVMOpaquePassManagerBuilder, LLVMPassManagerBuilderRef)
-LLVM_TYPEMAP(LLVMOpaqueSectionIterator, LLVMSectionIteratorRef)
-LLVM_TYPEMAP(LLVMOpaqueSymbolIterator, LLVMSymbolIteratorRef)
-LLVM_TYPEMAP(LLVMOpaqueRelocationIterator, LLVMRelocationIteratorRef)
-LLVM_TYPEMAP(LLVMOpaqueMemoryBuffer, LLVMMemoryBufferRef)
-LLVM_TYPEMAP(LLVMOpaqueObjectFile, LLVMObjectFileRef)
-LLVM_TYPEMAP(LLVMOpaqueError, LLVMErrorRef)
-//%insert(go_wrapper) %{
-//func (l LLVMErrorRef) Error() string {
-//    return GetErrorMessage(l)
-//}
-//%}
+LLVM_TYPEMAP(LLVMContextRef)
+LLVM_TYPEMAP(LLVMModuleRef)
+LLVM_TYPEMAP(LLVMTypeRef)
+LLVM_TYPEMAP(LLVMValueRef)
+LLVM_TYPEMAP(LLVMBasicBlockRef)
+LLVM_TYPEMAP(LLVMMetadataRef)
+LLVM_TYPEMAP(LLVMNamedMDNodeRef)
+LLVM_TYPEMAP(LLVMValueMetadataEntry)
+LLVM_TYPEMAP(LLVMBuilderRef)
+LLVM_TYPEMAP(LLVMDIBuilderRef)
+LLVM_TYPEMAP(LLVMModuleProviderRef)
+LLVM_TYPEMAP(LLVMPassManagerRef)
+LLVM_TYPEMAP(LLVMPassRegistryRef)
+LLVM_TYPEMAP(LLVMUseRef)
+LLVM_TYPEMAP(LLVMAttributeRef)
+LLVM_TYPEMAP(LLVMDiagnosticInfoRef)
+LLVM_TYPEMAP(LLVMComdatRef)
+LLVM_TYPEMAP(LLVMModuleFlagEntry)
+LLVM_TYPEMAP(LLVMJITEventListenerRef)
+LLVM_TYPEMAP(LLVMBinaryRef)
+LLVM_TYPEMAP(LLVMTargetMachineRef)
+LLVM_TYPEMAP(LLVMTargetRef)
+LLVM_TYPEMAP(LLVMTargetDataRef)
+LLVM_TYPEMAP(LLVMTargetLibraryInfoRef)
+LLVM_TYPEMAP(LLVMPassBuilderOptionsRef)
+LLVM_TYPEMAP(LLVMPassManagerBuilderRef)
+LLVM_TYPEMAP(LLVMSectionIteratorRef)
+LLVM_TYPEMAP(LLVMSymbolIteratorRef)
+LLVM_TYPEMAP(LLVMRelocationIteratorRef)
+LLVM_TYPEMAP(LLVMMemoryBufferRef)
+LLVM_TYPEMAP(LLVMObjectFileRef)
+LLVM_TYPEMAP(LLVMErrorRef)
+
+%define LLVM_ENUM(NAME)
+%ignore NAME;
+%enddef
+
+LLVM_ENUM(LLVMOpcode)
+LLVM_ENUM(LLVMTypeKind)
+LLVM_ENUM(LLVMLinkage)
+LLVM_ENUM(LLVMVisibility)
+LLVM_ENUM(LLVMUnnamedAddr)
+LLVM_ENUM(LLVMDLLStorageClass)
+LLVM_ENUM(LLVMCallConv)
+LLVM_ENUM(LLVMValueKind)
+LLVM_ENUM(LLVMIntPredicate)
+LLVM_ENUM(LLVMRealPredicate)
+LLVM_ENUM(LLVMCallConv)
+LLVM_ENUM(LLVMLandingPadClauseTy)
+LLVM_ENUM(LLVMThreadLocalMode)
+LLVM_ENUM(LLVMAtomicOrdering)
+LLVM_ENUM(LLVMAtomicRMWBinOp)
+LLVM_ENUM(LLVMDiagnosticSeverity)
+LLVM_ENUM(LLVMInlineAsmDialect)
+LLVM_ENUM(LLVMModuleFlagBehavior)
 
 // Handle some APIs manually
 %ignore LLVMGetTargetFromTriple;

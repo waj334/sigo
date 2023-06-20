@@ -11,12 +11,14 @@ import (
 	"time"
 
 	mcu "runtime/arm/cortexm/sam/atsamx51"
+	"runtime/arm/cortexm/sam/atsamx51/spi"
 	"runtime/arm/cortexm/sam/atsamx51/uart"
 	_ "runtime/arm/cortexm/sam/chip/atsame51g19a"
 )
 
 var (
 	UART = uart.UART5
+	SPI  = spi.SPI0
 )
 
 func initMCU() {
@@ -30,6 +32,22 @@ func initMCU() {
 		NumStopBits:     1,
 		ReceiveEnabled:  true,
 		TransmitEnabled: true,
+	})
+
+	SPI.Configure(spi.Config{
+		DI:             mcu.PA04,
+		DO:             mcu.PA07,
+		SCK:            mcu.PA05,
+		CS:             mcu.PA06,
+		BaudHz:         10_000_000,
+		CharacterSize:  8,
+		DataOrder:      spi.MSB,
+		Form:           spi.Frame,
+		HardwareSelect: true,
+		Mode:           spi.HostMode,
+		Phase:          spi.LeadingEdge,
+		Polarity:       spi.IdleLow,
+		ReceiveEnabled: true,
 	})
 }
 

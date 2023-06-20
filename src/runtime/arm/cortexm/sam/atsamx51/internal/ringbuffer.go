@@ -1,8 +1,8 @@
-package uart
+package internal
 
 import "errors"
 
-type ringBuffer struct {
+type RingBuffer struct {
 	buffer []byte
 	begin  uint8
 	end    uint8
@@ -18,13 +18,13 @@ const (
 	defaultBufferSz = 256
 )
 
-func newBuffer(sz uintptr) ringBuffer {
+func NewRingBuffer(sz uintptr) RingBuffer {
 	if sz == 0 {
 		sz = defaultBufferSz
 	}
 
 	arr := make([]byte, sz)
-	buf := ringBuffer{
+	buf := RingBuffer{
 		buffer: arr,
 		begin:  0,
 		end:    0,
@@ -36,7 +36,7 @@ func newBuffer(sz uintptr) ringBuffer {
 	return buf
 }
 
-func (r *ringBuffer) Read(p []byte) (n int, err error) {
+func (r *RingBuffer) Read(p []byte) (n int, err error) {
 	if r.end > r.begin {
 		// Copy between start and end
 		n = copy(p, r.buffer[r.begin:r.end])
@@ -57,7 +57,7 @@ func (r *ringBuffer) Read(p []byte) (n int, err error) {
 	return
 }
 
-func (r *ringBuffer) Write(p []byte) (n int, err error) {
+func (r *RingBuffer) Write(p []byte) (n int, err error) {
 	for n < len(p) {
 		if r.end > r.begin {
 			n += copy(r.buffer[r.end:], p)
@@ -77,7 +77,7 @@ func (r *ringBuffer) Write(p []byte) (n int, err error) {
 	return
 }
 
-func (r *ringBuffer) WriteString(str string) (n int, err error) {
+func (r *RingBuffer) WriteString(str string) (n int, err error) {
 	for _, b := range str {
 		if err = r.WriteByte(byte(b)); err != nil {
 			return n, err
@@ -87,7 +87,7 @@ func (r *ringBuffer) WriteString(str string) (n int, err error) {
 	return
 }
 
-func (r *ringBuffer) ReadByte() (byte, error) {
+func (r *RingBuffer) ReadByte() (byte, error) {
 	if !r.full && r.end == r.begin {
 		return 0, errBufferIsEmpty
 	}
@@ -105,7 +105,7 @@ func (r *ringBuffer) ReadByte() (byte, error) {
 	return b, nil
 }
 
-func (r *ringBuffer) WriteByte(b byte) error {
+func (r *RingBuffer) WriteByte(b byte) error {
 	if r.full {
 		return errBufferIsFull
 	}
@@ -125,7 +125,7 @@ func (r *ringBuffer) WriteByte(b byte) error {
 	return nil
 }
 
-func (r *ringBuffer) Len() int {
+func (r *RingBuffer) Len() int {
 	if r.full {
 		return len(r.buffer)
 	} else if r.end > r.begin {

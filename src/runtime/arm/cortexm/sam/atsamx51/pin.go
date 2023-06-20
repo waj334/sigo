@@ -182,6 +182,25 @@ const (
 	PD31 Pin = 0x0000_031F | NoPAD | NoALT
 )
 
+type PMUXFunction uint8
+
+const (
+	PMUXFunctionA PMUXFunction = iota
+	PMUXFunctionB
+	PMUXFunctionC
+	PMUXFunctionD
+	PMUXFunctionE
+	PMUXFunctionF
+	PMUXFunctionG
+	PMUXFunctionH
+	PMUXFunctionI
+	PMUXFunctionJ
+	PMUXFunctionK
+	PMUXFunctionL
+	PMUXFunctionM
+	PMUXFunctionN
+)
+
 var (
 	handlerFuncs [16]func(Pin)
 	handlerPins  [16]Pin
@@ -272,15 +291,15 @@ func (p Pin) SetInterrupt(mode int, handler func(Pin)) {
 	irq.EnableIRQ()
 }
 
-func (p Pin) SetPMUX(mode uint8, enabled bool) {
+func (p Pin) SetPMUX(mode PMUXFunction, enabled bool) {
 	// Set up PMUX
 	portgroup := &chip.PORT.GROUP[0xFF&(p>>8)]
 	pmux := int(p&0xFF) / 2
 	if (p&0xFF)%2 == 0 {
 		// Pin is odd numbered
-		portgroup.PMUX[pmux].SetPMUXE(mode)
+		portgroup.PMUX[pmux].SetPMUXE(uint8(mode))
 	} else {
-		portgroup.PMUX[pmux].SetPMUXO(mode)
+		portgroup.PMUX[pmux].SetPMUXO(uint8(mode))
 	}
 	portgroup.PINCFG[p&0xFF].SetPMUXEN(enabled)
 }

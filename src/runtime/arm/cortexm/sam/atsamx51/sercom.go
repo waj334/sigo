@@ -1,5 +1,8 @@
 package atsamx51
 
+import "runtime/arm/cortexm/sam/chip"
+
+type SERCOM int
 type SERCOMHandler func()
 
 var (
@@ -94,6 +97,56 @@ var (
 		},
 	}
 )
+
+func (s SERCOM) SetEnabled(enable bool) {
+	// Enabled the SERCOM in MCLK
+	switch s {
+	case 0:
+		chip.MCLK.APBAMASK.SetSERCOM0(enable)
+	case 1:
+		chip.MCLK.APBAMASK.SetSERCOM1(enable)
+	case 2:
+		chip.MCLK.APBBMASK.SetSERCOM2(enable)
+	case 3:
+		chip.MCLK.APBBMASK.SetSERCOM3(enable)
+	case 4:
+		chip.MCLK.APBDMASK.SetSERCOM4(enable)
+	case 5:
+		chip.MCLK.APBDMASK.SetSERCOM5(enable)
+	case 6:
+		chip.MCLK.APBDMASK.SetSERCOM6(enable)
+	case 7:
+		chip.MCLK.APBDMASK.SetSERCOM7(enable)
+	}
+}
+
+func (s SERCOM) Baud(hz uint) uint8 {
+	return uint8((SERCOM_REF_FREQUENCY / (2 * hz)) - 1)
+}
+
+func (s SERCOM) BaudFP(hz uint) (uint16, uint8) {
+	ratio := (uint64(SERCOM_REF_FREQUENCY) * uint64(1000)) / (uint64(hz) * 16)
+	baud := ratio / 1000
+	fp := ((ratio - (baud * 1000)) * 8) / 1000
+	return uint16(baud), uint8(fp)
+}
+
+func (s SERCOM) Irq0() Interrupt {
+	irqBase := 46 + s*4
+	return Interrupt(irqBase)
+}
+
+func (s SERCOM) Irq1() Interrupt {
+	return s.Irq0() + 1
+}
+
+func (s SERCOM) Irq2() Interrupt {
+	return s.Irq0() + 2
+}
+
+func (s SERCOM) IrqMisc() Interrupt {
+	return s.Irq0() + 3
+}
 
 func (s *SERCOMHandler) Set(fn func()) {
 	*s = fn
