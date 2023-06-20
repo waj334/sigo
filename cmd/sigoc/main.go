@@ -76,7 +76,6 @@ func main() {
 
 func build(args []string) {
 	buildFlags := flag.NewFlagSet("build", flag.ExitOnError)
-	buildFlags.Usage = buildUsage
 
 	// Add build args
 	output := buildFlags.String("o", ".", "output file")
@@ -84,9 +83,10 @@ func build(args []string) {
 	debug := buildFlags.Bool("g", false, "generate debug information")
 	dumpOnVerError := buildFlags.Bool("dump-verify", false, "dump IR upon verification error")
 	dumpIR := buildFlags.Bool("dump-ir", false, "dump the IR")
-	tags := buildFlags.String("tags", "", "Build tags")
-	useCTypeNames := buildFlags.Bool("ctypenames", false, "Use C type names for primitives in debug information")
+	tags := buildFlags.String("tags", "", "build tags")
+	useCTypeNames := buildFlags.Bool("ctypenames", false, "use C type names for primitives in debug information")
 	numJobs := buildFlags.Int("j", runtime.NumCPU(), "number of concurrent builds")
+	optimize := buildFlags.String("O", "0", "optimization level")
 
 	// TODO: Implement dependency files for smarter make builds
 	//createDependencyFiles := flags.Bool("MD", false, "create dependency files for Make")
@@ -113,6 +113,7 @@ func build(args []string) {
 		BuildTags:         strings.Split(*tags, ","),
 		CTypeNames:        *useCTypeNames,
 		NumJobs:           *numJobs,
+		Optimization:      *optimize,
 	}
 
 	if len(buildFlags.Args()) == 0 {

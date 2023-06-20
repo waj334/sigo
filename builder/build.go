@@ -8,14 +8,12 @@ import (
 	"go/types"
 	"gonum.org/v1/gonum/graph/simple"
 	"gonum.org/v1/gonum/graph/topo"
-	"hash/crc32"
 	"math/rand"
 	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
 	"runtime"
-	"strconv"
 	"strings"
 	"sync"
 
@@ -146,20 +144,20 @@ func Build(ctx context.Context, packageDir string) error {
 	}
 
 	// TODO: Check target triple now to fail early!!!
-	/*
-		// Get the target
-		target, err := compiler.NewTargetFromMap(prog.targetInfo)
-		if err != nil {
-			return err
-		}
+	// Get the target
+	target, err := compiler.NewTargetFromMap(prog.targetInfo)
+	if err != nil {
+		return err
+	}
 
-		// Initialize the target
-		if err = target.Initialize(); err != nil {
-			return err
-		}
+	// Initialize the target
+	if err = target.Initialize(); err != nil {
+		return err
+	}
 
-		compilerOptions.Target = target
-	*/
+	compilerOptions.Target = target
+
+	var bitcode []llvm.LLVMMemoryBufferRef
 
 	stopChan := make(chan struct{})
 	errChan := make(chan error)
@@ -178,7 +176,6 @@ func Build(ctx context.Context, packageDir string) error {
 	}
 
 	// This will hold the compiled modules
-	compilers := map[string]*compiler.Compiler{}
 	var mu sync.Mutex
 
 	// Create a bounded worker pool
@@ -194,7 +191,12 @@ func Build(ctx context.Context, packageDir string) error {
 			defer wg.Done()
 			for pkg := range pkgChan {
 				// Get the target
-				target, _ := compiler.NewTargetFromMap(prog.targetInfo)
+				target, err := compiler.NewTargetFromMap(prog.targetInfo)
+				if err != nil {
+					// TODO: Handle compiler errors more elegantly
+					errChan <- err
+					return
+				}
 
 				// Initialize the target
 				target.Initialize()
@@ -213,9 +215,24 @@ func Build(ctx context.Context, packageDir string) error {
 				// Finish up
 				cc.Finalize()
 
-				// Store the module
+				dumpOut := options.Output + "." + strings.ReplaceAll(pkg.Pkg.Path(), "/", "_") + ".dump.ll"
+
+				// Verfiy the IR
+				verifySucceeded, errMsg := llvm.VerifyModule2(cc.Module(), llvm.LLVMVerifierFailureAction(llvm.ReturnStatusAction))
+				if (!verifySucceeded && options.DumpOnVerifyError) || options.DumpIR {
+					dumpModule(cc.Module(), dumpOut)
+				}
+
+				if !verifySucceeded {
+					errChan <- errors.Join(ErrCodeGeneratorError, errors.New(pkg.Pkg.Path()+":\n"+errMsg))
+					return
+				}
+
+				buf := llvm.WriteBitcodeToMemoryBuffer(cc.Module())
+				cc.Dispose()
+
 				mu.Lock()
-				compilers[pkg.Pkg.Path()] = cc
+				bitcode = append(bitcode, buf)
 				mu.Unlock()
 			}
 		}()
@@ -230,115 +247,75 @@ func Build(ctx context.Context, packageDir string) error {
 	// Wait for remaining jobs to complete
 	wg.Wait()
 
+	// Create lookup table for packages
+	lookup := map[*types.Package]int64{}
+	for i, pkg := range allPackages {
+		lookup[pkg.Pkg] = int64(i)
+	}
+
+	// Create a directed graph so that the order in which the init functions should be call can be determined.
+	graph := simple.NewDirectedGraph()
+	for _, pkg := range allPackages {
+		from, _ := graph.NodeWithID(lookup[pkg.Pkg])
+		for _, imported := range pkg.Pkg.Imports() {
+			to, _ := graph.NodeWithID(lookup[imported])
+			e := graph.NewEdge(from, to)
+			graph.SetEdge(e)
+		}
+	}
+
+	// Perform a topological sort
+	result, err := topo.Sort(graph)
+	if err != nil {
+		return err
+	}
+
+	var pkgs []*ssa.Package
+	for _, node := range result {
+		// Prepend to get the correct call order
+		pkgs = append([]*ssa.Package{allPackages[node.ID()]}, pkgs...)
+	}
+
 	// Create the init module last
-	{
-		// Create lookup table for packages
-		lookup := map[*types.Package]int64{}
-		for i, pkg := range allPackages {
-			lookup[pkg.Pkg] = int64(i)
-		}
-
-		// Create a directed graph so that the order in which the init functions should be call can be determined.
-		graph := simple.NewDirectedGraph()
-		for _, pkg := range allPackages {
-			from, _ := graph.NodeWithID(lookup[pkg.Pkg])
-			for _, imported := range pkg.Pkg.Imports() {
-				to, _ := graph.NodeWithID(lookup[imported])
-				e := graph.NewEdge(from, to)
-				graph.SetEdge(e)
-			}
-		}
-
-		// Perform a topological sort
-		result, err := topo.Sort(graph)
-		if err != nil {
-			return err
-		}
-
-		var pkgs []*ssa.Package
-		for _, node := range result {
-			// Prepend to get the correct call order
-			pkgs = append([]*ssa.Package{allPackages[node.ID()]}, pkgs...)
-		}
-
-		// Get the target
-		target, err := compiler.NewTargetFromMap(prog.targetInfo)
-		if err != nil {
-			return err
-		}
-
-		// Initialize the target
-		if err = target.Initialize(); err != nil {
-			return err
-		}
-
-		cc, llctx := compiler.NewCompiler("init", compilerOptions.WithTarget(target))
-		cc.CreateInitLib(llctx, pkgs)
-		cc.Finalize()
-		compilers["__init__"] = cc
-	}
-
-	var objFiles []string
-
-	// Process each module
-	moduleChan := make(chan struct {
-		pkgPath string
-		cc      *compiler.Compiler
-	}, numJobs)
-	wg.Add(numJobs)
-
-	for i := 0; i < numJobs; i++ {
-		go func() {
-			defer wg.Done()
-			for job := range moduleChan {
-				dumpOut := options.Output + "." + strings.ReplaceAll(job.pkgPath, "/", "_") + ".dump.ll"
-
-				// Verfiy the IR
-				verifySucceeded, errMsg := llvm.VerifyModule2(job.cc.Module(), llvm.LLVMVerifierFailureAction(llvm.ReturnStatusAction))
-				if (!verifySucceeded && options.DumpOnVerifyError) || options.DumpIR {
-					dumpModule(job.cc.Module(), dumpOut)
-				}
-
-				if !verifySucceeded {
-					errChan <- errors.Join(ErrCodeGeneratorError, errors.New(job.pkgPath+":\n"+errMsg))
-					return
-				}
-
-				// Run optimizations
-				if err := optimize(job.cc.Module(), job.cc.Options().Target.Machine(), 0); err != nil {
-					errChan <- errors.Join(ErrCodeGeneratorError, err)
-					return
-				}
-
-				mu.Lock()
-				nameHash := crc32.Checksum([]byte(job.pkgPath), crc32.IEEETable)
-				objectOut := filepath.Join(options.BuildDir, strconv.Itoa(int(nameHash))+".o")
-
-				objFiles = append(objFiles, objectOut)
-				mu.Unlock()
-
-				// Generate the object file for this program
-				if ok, errMsg := llvm.TargetMachineEmitToFile2(job.cc.Options().Target.Machine(), job.cc.Module(), objectOut, llvm.LLVMCodeGenFileType(llvm.ObjectFile)); !ok {
-					errChan <- errors.Join(ErrCodeGeneratorError, errors.New(job.pkgPath+":\n"+errMsg))
-					return
-				}
-			}
-		}()
-	}
-
-	for pkgPath, cc := range compilers {
-		moduleChan <- struct {
-			pkgPath string
-			cc      *compiler.Compiler
-		}{pkgPath: pkgPath, cc: cc}
-	}
-	close(moduleChan)
-	wg.Wait()
+	cc, llctx := compiler.NewCompiler("init", compilerOptions.WithTarget(target))
+	cc.CreateInitLib(llctx, pkgs)
+	cc.Finalize()
 
 	// Done with error monitor
 	stopChan <- struct{}{}
 	close(stopChan)
 	close(errChan)
+
+	// Combine modules
+	for _, bitcode := range bitcode {
+		var module llvm.LLVMModuleRef
+		if llvm.ParseBitcodeInContext2(llctx, bitcode, &module) {
+			return errors.Join(ErrCodeGeneratorError, errors.New("could not parse bitcode"))
+		}
+
+		// Combine this module
+		if llvm.LinkModules2(cc.Module(), module) {
+			return errors.Join(ErrCodeGeneratorError, errors.New("could not link module"))
+		}
+
+		// Clean up
+		llvm.DisposeMemoryBuffer(bitcode)
+	}
+
+	if options.DumpIR {
+		dumpModule(cc.Module(), options.Output+".dump.ll")
+	}
+
+	// Optimize modules
+	if err = optimize(cc.Module(), options.Optimization); err != nil {
+		return errors.Join(ErrCodeGeneratorError, err)
+	}
+
+	// Create the object file
+	objectOut := filepath.Join(options.BuildDir, "firmware.o")
+	if ok, errMsg := llvm.TargetMachineEmitToFile2(target.Machine(), cc.Module(), objectOut, llvm.LLVMCodeGenFileType(llvm.ObjectFile)); !ok {
+		return errors.Join(ErrCodeGeneratorError, errors.New(errMsg))
+	}
 
 	triple := prog.targetInfo["triple"]
 	arch := strings.Split(triple, "-")[0]
@@ -363,6 +340,7 @@ func Build(ctx context.Context, packageDir string) error {
 	if runtime.GOOS == "windows" {
 		executablePostfix = ".exe"
 	}
+
 	clangExecutable := filepath.Join(options.Environment.Value("SIGOROOT"), "bin/clang"+executablePostfix)
 	if _, err = os.Stat(clangExecutable); os.IsNotExist(err) {
 		// Try build folder if this is a dev build
@@ -391,12 +369,16 @@ func Build(ctx context.Context, packageDir string) error {
 		"-lclang_rt.builtins-" + arch,
 	}
 
+	if options.GenerateDebugInfo {
+		args = append(args, "-g")
+	}
+
 	// Add all linker files
 	for ld, _ := range prog.linkerFiles {
 		args = append(args, "-L"+filepath.Dir(ld))
 	}
 
-	args = append(args, objFiles...)
+	args = append(args, objectOut)
 
 	// Compile all assembly files
 	for asm, _ := range prog.assemblyFiles {
@@ -468,10 +450,8 @@ func Build(ctx context.Context, packageDir string) error {
 		}
 	}
 
-	// Clean up the compilers
-	for _, cc := range compilers {
-		cc.Dispose()
-	}
+	// Clean up
+	cc.Dispose()
 
 	return nil
 }
@@ -519,52 +499,51 @@ func symbolName(pkg *types.Package, name string) string {
 	return path + "." + name
 }
 
-func optimize(module llvm.LLVMModuleRef, machine llvm.LLVMTargetMachineRef, level int) (err error) {
-	opts := llvm.CreatePassBuilderOptions()
-	defer llvm.DisposePassBuilderOptions(opts)
+func optimize(module llvm.LLVMModuleRef, level string) (err error) {
+	// Create the pass manager builder
+	passMgrBuilder := llvm.PassManagerBuilderCreate()
+	defer llvm.PassManagerBuilderDispose(passMgrBuilder)
 
-	// Enable verification after each pass
-	llvm.PassBuilderOptionsSetVerifyEach(opts, true)
+	llvm.PassManagerBuilderSetOptLevel(passMgrBuilder, 0)
+	llvm.PassManagerBuilderSetSizeLevel(passMgrBuilder, 0)
 
-	var passes []string
-	switch level {
-	default:
-	}
-
-	// Always perform a GDCE pass last
-	passes = append(passes, "globaldce")
-
-	if err := llvm.RunPasses(module, strings.Join(passes, ","), machine, opts); err != nil {
-		if errStr := llvm.GetErrorMessage(err); len(errStr) > 0 {
-			return errors.New(errStr)
+	// Match Clang's optimization settings
+	for i, c := range level {
+		if i >= 2 {
+			break
+		}
+		switch c {
+		case '1':
+			llvm.PassManagerBuilderSetOptLevel(passMgrBuilder, 1)
+		case '2':
+			llvm.PassManagerBuilderSetOptLevel(passMgrBuilder, 2)
+		case '3':
+			llvm.PassManagerBuilderSetOptLevel(passMgrBuilder, 3)
+		case 's':
+			llvm.PassManagerBuilderSetSizeLevel(passMgrBuilder, 1)
+		case 'z':
+			llvm.PassManagerBuilderSetSizeLevel(passMgrBuilder, 2)
 		}
 	}
 
-	/*
-		// Create the pass manager builder
-		passMgrBuilder := llvm.PassManagerBuilderCreate()
-		defer llvm.PassManagerBuilderDispose(passMgrBuilder)
+	// Create the pass manager that will be used to optimize the input module
+	passMgr := llvm.CreatePassManager()
+	defer llvm.DisposePassManager(passMgr)
 
-		llvm.PassManagerBuilderSetOptLevel(passMgrBuilder, 0)
-		llvm.PassManagerBuilderSetSizeLevel(passMgrBuilder, 0)
+	llvm.PassManagerBuilderPopulateModulePassManager(passMgrBuilder, passMgr)
 
-		// Create the pass manager that will be used to optimize the input module
-		passMgr := llvm.CreatePassManager()
-		defer llvm.DisposePassManager(passMgr)
+	// Perform Global Dead Code Elimination pass to remove any unused
+	// functions and globals.
+	llvm.AddGlobalDCEPass(passMgr)
+	llvm.AddAggressiveDCEPass(passMgr)
 
-		// Perform Global Dead Code Elimination pass to remove any unused
-		// functions and globals.
-		llvm.AddGlobalDCEPass(passMgr)
+	// Run the optimization passes
+	llvm.RunPassManager(passMgr, module)
 
-		// Run the optimization passes
-		if !llvm.RunPassManager(passMgr, module) {
-			return errors.New("failed to run optimization passes")
-		}
-
-		// Verfiy the IR
-		if ok, errMsg := llvm.VerifyModule2(module, llvm.LLVMVerifierFailureAction(llvm.ReturnStatusAction)); !ok {
-			return errors.New(errMsg)
-		}*/
+	// Verfiy the IR
+	if ok, errMsg := llvm.VerifyModule2(module, llvm.LLVMVerifierFailureAction(llvm.ReturnStatusAction)); !ok {
+		return errors.New(errMsg)
+	}
 
 	return
 }

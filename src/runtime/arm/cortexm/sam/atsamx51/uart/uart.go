@@ -2,6 +2,7 @@ package uart
 
 import (
 	"runtime/arm/cortexm/sam/atsamx51"
+	"runtime/arm/cortexm/sam/atsamx51/internal"
 	"runtime/arm/cortexm/sam/chip"
 	"sync"
 )
@@ -34,8 +35,8 @@ var (
 
 type UART struct {
 	sercom   int
-	txBuffer ringBuffer
-	rxBuffer ringBuffer
+	txBuffer internal.RingBuffer
+	rxBuffer internal.RingBuffer
 	mutex    sync.Mutex
 }
 
@@ -56,12 +57,12 @@ type Config struct {
 }
 
 func (u *UART) Configure(config Config) {
-	var mode uint8
+	var mode atsamx51.PMUXFunction
 	var rxPad int
 
 	// Determine the SERCOM number from the PAD value of TXD pin
 	if config.TXD.GetPAD() == 0 {
-		mode = 0x2
+		mode = atsamx51.PMUXFunctionC
 		rxPad = config.RXD.GetPAD()
 		// Check the other optional pins
 		if config.TXD.GetSERCOM() != u.sercom ||
@@ -76,7 +77,7 @@ func (u *UART) Configure(config Config) {
 			panic("invalid selection")
 		}
 	} else if config.TXD.GetAltPAD() == 0 {
-		mode = 0x3
+		mode = atsamx51.PMUXFunctionD
 		rxPad = config.RXD.GetAltPAD()
 		// Check the other optional pins
 		if config.TXD.GetAltSERCOM() != u.sercom ||
@@ -198,8 +199,8 @@ func (u *UART) Configure(config Config) {
 		}
 	}
 
-	rx := newBuffer(config.RXBufferSize)
-	tx := newBuffer(config.TXBufferSize)
+	rx := internal.NewRingBuffer(config.RXBufferSize)
+	tx := internal.NewRingBuffer(config.TXBufferSize)
 
 	u.rxBuffer = rx
 	u.txBuffer = tx

@@ -76,6 +76,10 @@ func NewCompiler(name string, options *Options) (*Compiler, llvm.LLVMContextRef)
 
 	// Create the module
 	module := llvm.ModuleCreateWithNameInContext(name, ctx)
+	dwarfVersion := llvm.ConstInt(llvm.Int32TypeInContext(ctx), 4, false)
+	metadataVersion := llvm.ConstInt(llvm.Int32TypeInContext(ctx), uint64(llvm.DebugMetadataVersion()), false)
+	llvm.AddModuleFlag(module, llvm.ModuleFlagBehaviorError, "Dwarf Version", llvm.ValueAsMetadata(dwarfVersion))
+	llvm.AddModuleFlag(module, llvm.ModuleFlagBehaviorError, "Debug Info Version", llvm.ValueAsMetadata(metadataVersion))
 
 	// Set the data layout for this module from the target
 	llvm.SetDataLayout(module, llvm.CopyStringRepOfTargetData(options.Target.dataLayout))
@@ -92,13 +96,13 @@ func NewCompiler(name string, options *Options) (*Compiler, llvm.LLVMContextRef)
 		llvm.LLVMDWARFSourceLanguage(llvm.DWARFSourceLanguageGo),
 		llvm.DIBuilderCreateFile(dibuilder, "<unknown>", ""),
 		"SiGo Alpha 0.0.0", // TODO: Use a constant for this
-		false,
+		true,
 		"",
 		0,
 		"",
 		llvm.LLVMDWARFEmissionKind(llvm.DWARFEmissionFull),
 		0,
-		false,
+		true,
 		false,
 		"",
 		"",
@@ -163,7 +167,6 @@ func (c *Compiler) Dispose() {
 	llvm.DisposeModule(c.module)
 	llvm.DisposeDIBuilder(c.dibuilder)
 	llvm.DisposeBuilder(c.builder)
-	c.options.Target.Dispose()
 }
 
 func (c *Compiler) currentContext(ctx context.Context) llvm.LLVMContextRef {
@@ -308,6 +311,10 @@ func (c *Compiler) CompilePackage(ctx context.Context, llvmCtx llvm.LLVMContextR
 }
 
 func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) *Function {
+	if f, ok := c.functions[fn]; ok {
+		return f
+	}
+
 	isMethod := false
 	receiver := fn.Signature.Recv()
 
@@ -377,9 +384,9 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) *Functi
 	}
 	//isWeak := false
 	if !isExported {
-		llvm.SetVisibility(fnValue, llvm.LLVMVisibility(llvm.HiddenVisibility))
-	} else if !info.ExternalLinkage {
-		llvm.SetLinkage(fnValue, llvm.LLVMLinkage(llvm.ExternalLinkage))
+		llvm.SetVisibility(fnValue, llvm.HiddenVisibility)
+	} else if info.ExternalLinkage {
+		llvm.SetLinkage(fnValue, llvm.ExternalLinkage)
 	}
 
 	// Apply attributes
@@ -391,7 +398,7 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) *Functi
 	var diFile llvm.LLVMMetadataRef
 	var subprogram llvm.LLVMMetadataRef
 
-	if !info.ExternalLinkage && fn.Pkg == c.currentPackage(ctx) {
+	if !info.ExternalLinkage { // && fn.Pkg == c.currentPackage(ctx) {
 		// Get the file information for this function
 		file := fn.Prog.Fset.File(fn.Pos())
 
@@ -420,8 +427,10 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) *Functi
 			diFile,
 			line,
 			c.createDebugType(ctx, fn.Signature),
-			true,
-			true, 0, llvm.LLVMDIFlags(llvm.DIFlagPrototyped), false)
+			fn.Pkg == c.currentPackage(ctx),
+			fn.Pkg == c.currentPackage(ctx),
+			line,
+			llvm.LLVMDIFlags(llvm.DIFlagPrototyped), false)
 
 		// Subprograms must be finalized in order to pass verify check
 		llvm.DIBuilderFinalizeSubprogram(c.dibuilder, subprogram)
@@ -646,11 +655,11 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 		//       the value would be a pointer to a pointer. Instead, the
 		//       value at the address of pointed-to pointer is change meaning
 		//       no value change should be indicated below.
-		if addr.dbg != nil && !addr.heap && !addr.global && instr.Pos().IsValid() {
+		if addr.dbg != nil && instr.Pos().IsValid() && !addr.global { //&& !addr.heap && !addr.global && instr.Pos().IsValid() {
 			// Attach debug information
 			llvm.DIBuilderInsertDbgValueAtEnd(
 				c.dibuilder,
-				addr.UnderlyingValue(ctx),
+				addr.ref,
 				addr.dbg,
 				llvm.DIBuilderCreateExpression(c.dibuilder, nil),
 				addr.DebugPos(ctx),

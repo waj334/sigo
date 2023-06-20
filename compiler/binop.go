@@ -116,9 +116,9 @@ func (c *Compiler) createBinOp(ctx context.Context, expr *ssa.BinOp) (value llvm
 		} else if typeInfo&types.IsString != 0 {
 			value = c.createRuntimeCall(ctx, "stringCompare", []llvm.LLVMValueRef{c.addressOf(ctx, x), c.addressOf(ctx, y)})
 		} else if typeInfo&types.IsFloat != 0 {
-			value = llvm.BuildFCmp(c.builder, llvm.LLVMRealOEQ, x, y, "")
+			value = llvm.BuildFCmp(c.builder, llvm.RealOEQ, x, y, "")
 		} else {
-			value = llvm.BuildICmp(c.builder, llvm.LLVMIntEQ, x, y, "")
+			value = llvm.BuildICmp(c.builder, llvm.IntEQ, x, y, "")
 		}
 	case token.NEQ:
 		if types.IsInterface(expr.X.Type()) || types.IsInterface(expr.Y.Type()) {
@@ -133,41 +133,41 @@ func (c *Compiler) createBinOp(ctx context.Context, expr *ssa.BinOp) (value llvm
 				value = llvm.ConstInt(llvm.Int1TypeInContext(c.currentContext(ctx)), 1, false)
 			}
 		} else if typeInfo&types.IsFloat != 0 {
-			value = llvm.BuildFCmp(c.builder, llvm.LLVMRealONE, x, y, "")
+			value = llvm.BuildFCmp(c.builder, llvm.RealONE, x, y, "")
 		} else {
-			value = llvm.BuildICmp(c.builder, llvm.LLVMIntNE, x, y, "")
+			value = llvm.BuildICmp(c.builder, llvm.IntNE, x, y, "")
 		}
 	case token.LSS:
 		if typeInfo&types.IsFloat != 0 {
-			value = llvm.BuildFCmp(c.builder, llvm.LLVMRealOLT, x, y, "")
+			value = llvm.BuildFCmp(c.builder, llvm.RealOLT, x, y, "")
 		} else if typeInfo&types.IsUnsigned != 0 {
-			value = llvm.BuildICmp(c.builder, llvm.LLVMIntULT, x, y, "")
+			value = llvm.BuildICmp(c.builder, llvm.IntULT, x, y, "")
 		} else {
-			value = llvm.BuildICmp(c.builder, llvm.LLVMIntSLT, x, y, "")
+			value = llvm.BuildICmp(c.builder, llvm.IntSLT, x, y, "")
 		}
 	case token.LEQ:
 		if typeInfo&types.IsFloat != 0 {
-			value = llvm.BuildFCmp(c.builder, llvm.LLVMRealOLE, x, y, "")
+			value = llvm.BuildFCmp(c.builder, llvm.RealOLE, x, y, "")
 		} else if typeInfo&types.IsUnsigned != 0 {
-			value = llvm.BuildICmp(c.builder, llvm.LLVMIntULE, x, y, "")
+			value = llvm.BuildICmp(c.builder, llvm.IntULE, x, y, "")
 		} else {
-			value = llvm.BuildICmp(c.builder, llvm.LLVMIntSLE, x, y, "")
+			value = llvm.BuildICmp(c.builder, llvm.IntSLE, x, y, "")
 		}
 	case token.GTR:
 		if typeInfo&types.IsFloat != 0 {
-			value = llvm.BuildFCmp(c.builder, llvm.LLVMRealOGT, x, y, "")
+			value = llvm.BuildFCmp(c.builder, llvm.RealOGT, x, y, "")
 		} else if typeInfo&types.IsUnsigned != 0 {
-			value = llvm.BuildICmp(c.builder, llvm.LLVMIntUGT, x, y, "")
+			value = llvm.BuildICmp(c.builder, llvm.IntUGT, x, y, "")
 		} else {
-			value = llvm.BuildICmp(c.builder, llvm.LLVMIntSGT, x, y, "")
+			value = llvm.BuildICmp(c.builder, llvm.IntSGT, x, y, "")
 		}
 	case token.GEQ:
 		if typeInfo&types.IsFloat != 0 {
-			value = llvm.BuildFCmp(c.builder, llvm.LLVMRealOGE, x, y, "")
+			value = llvm.BuildFCmp(c.builder, llvm.RealOGE, x, y, "")
 		} else if typeInfo&types.IsUnsigned != 0 {
-			value = llvm.BuildICmp(c.builder, llvm.LLVMIntUGE, x, y, "")
+			value = llvm.BuildICmp(c.builder, llvm.IntUGE, x, y, "")
 		} else {
-			value = llvm.BuildICmp(c.builder, llvm.LLVMIntSGE, x, y, "")
+			value = llvm.BuildICmp(c.builder, llvm.IntSGE, x, y, "")
 		}
 	}
 

@@ -14,4 +14,5 @@ type Options struct {
 	BuildTags         []string
 	CTypeNames        bool
 	NumJobs           int
+	Optimization      string
 }

@@ -52,9 +52,9 @@ func (c *Compiler) createType(ctx context.Context, typ types.Type) *Type {
 			panic("Not implemented")
 		case types.Complex128:
 			panic("Not implemented")
-		case types.String:
+		case types.String, types.UntypedString:
 			result.valueType = llvm.GetTypeByName2(c.currentContext(ctx), "string")
-		case types.Bool:
+		case types.Bool, types.UntypedBool:
 			result.valueType = llvm.Int1TypeInContext(c.currentContext(ctx))
 		default:
 			panic("encountered unknown basic type")
