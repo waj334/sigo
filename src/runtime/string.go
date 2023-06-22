@@ -9,23 +9,20 @@ type stringDescriptor struct {
 	len   int
 }
 
-func stringLen(descriptor unsafe.Pointer) int {
-	str := (*stringDescriptor)(descriptor)
+func stringLen(descriptor *stringDescriptor) int {
+	str := descriptor
 	return str.len
 }
 
 //go:export stringConcat runtime.stringConcat
-func stringConcat(lhs unsafe.Pointer, rhs unsafe.Pointer) stringDescriptor {
-	strLhs := (*stringDescriptor)(lhs)
-	strRhs := (*stringDescriptor)(rhs)
-
+func stringConcat(lhs *stringDescriptor, rhs *stringDescriptor) stringDescriptor {
 	// Allocate storage buffer for the new string
-	newLen := strLhs.len + strRhs.len
-	newArray := *(*unsafe.Pointer)(alloc(uintptr(newLen)))
+	newLen := lhs.len + rhs.len
+	newArray := alloc(uintptr(newLen))
 
 	// Copy the contents of the strings into the new buffer
-	memcpy(newArray, strLhs.array, uintptr(strLhs.len))
-	memcpy(unsafe.Add(newArray, strLhs.len), strRhs.array, uintptr(strRhs.len))
+	memcpy(newArray, lhs.array, uintptr(lhs.len))
+	memcpy(unsafe.Add(newArray, lhs.len), rhs.array, uintptr(rhs.len))
 
 	// Return a new string
 	return stringDescriptor{
@@ -35,8 +32,7 @@ func stringConcat(lhs unsafe.Pointer, rhs unsafe.Pointer) stringDescriptor {
 }
 
 //go:export stringIndexAddr stringIndexAddr
-func stringIndexAddr(s unsafe.Pointer, index int) unsafe.Pointer {
-	str := (*stringDescriptor)(s)
+func stringIndexAddr(str *stringDescriptor, index int) unsafe.Pointer {
 	// Index MUST not be greater than the length of the string
 	if index >= str.len {
 		panic("runtime: index out of range")
@@ -46,21 +42,16 @@ func stringIndexAddr(s unsafe.Pointer, index int) unsafe.Pointer {
 }
 
 //go:export stringCompare runtime.stringCompare
-func stringCompare(lhs, rhs unsafe.Pointer) bool {
-	// TODO: This function can just call strncmp from the standard C library
-	//  when it is able to be called.
-	strLhs := *(*stringDescriptor)(lhs)
-	strRhs := *(*stringDescriptor)(rhs)
-
+func stringCompare(lhs, rhs *stringDescriptor) bool {
 	// Fast path
-	if strLhs.len != strRhs.len {
+	if lhs.len != rhs.len {
 		return false
 	}
 
 	// Compare each byte
-	for i := 0; i < strLhs.len; i++ {
-		charLhs := *(*byte)(unsafe.Pointer(uintptr(strLhs.array) + uintptr(i)))
-		charRhs := *(*byte)(unsafe.Pointer(uintptr(strRhs.array) + uintptr(i)))
+	for i := 0; i < lhs.len; i++ {
+		charLhs := *(*byte)(unsafe.Pointer(uintptr(lhs.array) + uintptr(i)))
+		charRhs := *(*byte)(unsafe.Pointer(uintptr(rhs.array) + uintptr(i)))
 		if charLhs != charRhs {
 			return false
 		}

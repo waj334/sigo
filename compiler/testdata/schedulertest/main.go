@@ -22,6 +22,15 @@ var (
 )
 
 func initMCU() {
+	defer func() {
+		if err := recover(); err != nil {
+			UART.WriteString(err.(string) + "\n")
+			UART.WriteString("Recovered!\n")
+		}
+	}()
+	defer UART.WriteString("MCU initialized 2\n")
+	defer UART.WriteString("MCU initialized 1\n")
+
 	mcu.DefaultClocks()
 	UART.Configure(uart.Config{
 		TXD:             mcu.PB02,
@@ -49,6 +58,8 @@ func initMCU() {
 		Polarity:       spi.IdleLow,
 		ReceiveEnabled: true,
 	})
+
+	panic("testing defers upon panic")
 }
 
 func main() {
@@ -83,6 +94,6 @@ func main() {
 	}(mutex)
 
 	for {
-		UART.WriteString("test\n")
+		//UART.WriteString("test\n")
 	}
 }

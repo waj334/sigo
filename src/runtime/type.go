@@ -6,7 +6,7 @@ import "unsafe"
 type BasicKind int
 
 const (
-	Invalid BasicKind = iota // type is invalid
+	InvalidBasicKind BasicKind = iota // type is invalid
 
 	// predeclared types
 	Bool
@@ -42,17 +42,32 @@ const (
 	Rune = Int32
 )
 
+type ConstructType int
+
+const (
+	InvalidConstructType ConstructType = iota
+	Primitive
+	Pointer
+	Interface
+	Struct
+	Array
+	Slice
+	Map
+	Channel
+)
+
 type typeDescriptor struct {
-	name     *string
-	size     uintptr
-	kind     BasicKind
-	methods  *methodTable
-	fields   *fieldTable
-	array    *arrayDescriptor
-	mapp     *mapTypeDescriptor
-	ptr      *pointerDescriptor
-	channel  *channelTypeDescriptor
-	function *functionDescriptor
+	name      *string
+	size      uintptr
+	construct ConstructType
+	kind      BasicKind
+	methods   *methodTable
+	fields    *fieldTable
+	array     *arrayDescriptor
+	mapp      *mapTypeDescriptor
+	ptr       *pointerDescriptor
+	channel   *channelTypeDescriptor
+	function  *functionDescriptor
 }
 
 type methodTable struct {

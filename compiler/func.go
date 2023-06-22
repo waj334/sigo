@@ -59,15 +59,18 @@ func (c *Compiler) createFunctionType(ctx context.Context, signature *types.Sign
 	return llvm.FunctionType(returnType, argValueTypes, signature.Variadic())
 }
 
-func (c *Compiler) createClosure(ctx context.Context, fn *ssa.Function, closureCtxType llvm.LLVMTypeRef) llvm.LLVMValueRef {
+func (c *Compiler) createClosure(ctx context.Context, fn *ssa.Function, closureCtxType llvm.LLVMTypeRef, discardReturn bool) llvm.LLVMValueRef {
 	// Get the actual function to call
-	actualFn := c.functions[fn]
+	actualFn := c.createFunction(ctx, fn)
 
 	// Get the context struct type that will hold the parameters forwarded by the closure
 	//closureCtxType := c.createClosureContextType(ctx, fn)
 
 	// Get the return type of the function to be called by this closure
 	returnType := llvm.GetReturnType(c.signatures[fn.Signature])
+	if discardReturn {
+		returnType = llvm.VoidTypeInContext(c.currentContext(ctx))
+	}
 	closureFnType := llvm.FunctionType(
 		returnType,
 		[]llvm.LLVMTypeRef{llvm.PointerType(closureCtxType, 0)},
@@ -91,7 +94,7 @@ func (c *Compiler) createClosure(ctx context.Context, fn *ssa.Function, closureC
 
 	// Build the call
 	ret := llvm.BuildCall2(c.builder, actualFn.llvmType, actualFn.value, args, "")
-	if returnType == llvm.VoidTypeInContext(c.currentContext(ctx)) {
+	if returnType == llvm.VoidTypeInContext(c.currentContext(ctx)) || discardReturn {
 		llvm.BuildRetVoid(c.builder)
 	} else {
 		llvm.BuildRet(c.builder, ret)
@@ -116,7 +119,7 @@ func (c *Compiler) createClosureContextType(ctx context.Context, fn *ssa.Functio
 		t := c.createType(ctx, bound.Type()).valueType
 		paramTypes = append(paramTypes, t)
 	}*/
-
+	c.createFunction(ctx, fn)
 	paramTypes := llvm.GetParamTypes(c.signatures[fn.Signature])
 	paramsStructType := llvm.StructTypeInContext(c.currentContext(ctx), paramTypes, false)
 	return paramsStructType

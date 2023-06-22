@@ -302,9 +302,24 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 			panic("function does not exist")
 		}
 	case *ssa.ChangeInterface:
-		panic("not implemented")
+		interfaceType := llvm.GetTypeByName2(c.currentContext(ctx), "interface")
+		concreteType := c.createTypeDescriptor(ctx, c.createType(ctx, expr.Type()))
+		interfaceValue := c.createExpression(ctx, expr.X).UnderlyingValue(ctx)
+		concreteValue := llvm.BuildExtractValue(c.builder, interfaceValue, 1, "")
+
+		// Create the new interface value
+		/*agg := llvm.GetUndef(interfaceType)
+		agg = llvm.BuildInsertValue(c.builder, agg, concreteType, 0, "")
+		agg = llvm.BuildInsertValue(c.builder, agg, concreteValue, 1, "")
+		value.ref = c.createAlloca(ctx, interfaceType, "")
+		llvm.BuildStore(c.builder, agg, value.ref)*/
+
+		value.ref = llvm.GetUndef(interfaceType)
+		value.ref = llvm.BuildInsertValue(c.builder, value.ref, concreteType, 0, "")
+		value.ref = llvm.BuildInsertValue(c.builder, value.ref, concreteValue, 1, "")
 	case *ssa.ChangeType:
-		value = c.createExpression(ctx, expr.X)
+		// TODO: Actually cast the types
+		value.ref = c.createExpression(ctx, expr.X).UnderlyingValue(ctx)
 	case *ssa.Extract:
 		// Get the return struct (tuple)
 		structValue := c.createExpression(ctx, expr.Tuple).UnderlyingValue(ctx)
@@ -353,7 +368,6 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		fn, ok := c.functions[expr]
 		if !ok {
 			fn = c.createFunction(ctx, expr)
-			c.functions[expr] = fn
 		}
 
 		// Return a pointer to the function
@@ -387,19 +401,19 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 				} else {
 					// Create a global with external linkage to some variable with the specified link name.
 					value.ref = llvm.AddGlobal(c.module, globalType.valueType, value.linkname)
-					llvm.SetLinkage(value.ref, llvm.LLVMLinkage(llvm.ExternalLinkage))
+					llvm.SetLinkage(value.ref, llvm.ExternalLinkage)
 				}
 			}
 		} else if expr.Pkg != c.currentPackage(ctx) {
 			// Create a extern global value
 			value.ref = llvm.AddGlobal(c.module, globalType.valueType, value.linkname)
-			llvm.SetLinkage(value.ref, llvm.LLVMLinkage(llvm.ExternalLinkage))
+			llvm.SetLinkage(value.ref, llvm.ExternalLinkage)
 		} else {
 			value.ref = c.createGlobalValue(ctx, llvm.ConstNull(globalType.valueType), value.linkname)
 			if value.exported {
-				llvm.SetLinkage(value.ref, llvm.LLVMLinkage(llvm.CommonLinkage))
+				llvm.SetLinkage(value.ref, llvm.CommonLinkage)
 			} else {
-				llvm.SetLinkage(value.ref, llvm.LLVMLinkage(llvm.PrivateLinkage))
+				llvm.SetLinkage(value.ref, llvm.PrivateLinkage)
 			}
 		}
 	case *ssa.Index:
@@ -621,42 +635,41 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 	case *ssa.TypeAssert:
 		x := c.createExpression(ctx, expr.X).UnderlyingValue(ctx)
 		newType := c.createType(ctx, expr.AssertedType)
+		commaOk := 0
+		if expr.CommaOk {
+			commaOk = 1
+		}
 
 		// The value needs to be passed by address. Create an alloca for it and store the value
 		xAlloca := c.addressOf(ctx, x)
-		xAlloca = llvm.BuildBitCast(c.builder, xAlloca, c.ptrType.valueType, "")
 
 		// create the runtime call
-		result := c.createRuntimeCall(ctx, "typeAssert", []llvm.LLVMValueRef{
+		result := c.createRuntimeCall(ctx, "interfaceAssert", []llvm.LLVMValueRef{
 			xAlloca,
 			c.createTypeDescriptor(ctx, c.createType(ctx, expr.X.Type())),
 			c.createTypeDescriptor(ctx, newType),
+			llvm.ConstInt(llvm.Int1TypeInContext(c.currentContext(ctx)), uint64(commaOk), false),
 		})
 
-		// Get addresses of return value
-		result = c.addressOf(ctx, result)
-		objAddr := llvm.BuildStructGEP2(c.builder, c.ptrType.valueType, result, 0, "")
-		okAddr := llvm.BuildStructGEP2(c.builder, llvm.Int1TypeInContext(c.currentContext(ctx)), result, 1, "")
+		ptr := llvm.BuildExtractValue(c.builder, result, 0, "")
+		ok := llvm.BuildExtractValue(c.builder, result, 1, "")
 
-		// TODO: There definitely more involved than this. Gonna try to
-		//       implement the semantics in Go code rather than hardcode it
-		//       here. I should be able to load the resulting object from
-		//       the address obtained from the runtime call.
-		objValue := llvm.BuildLoad2(c.builder, newType.valueType, objAddr, "")
+		// Load the value from the pointer
+		assertedValue := llvm.BuildLoad2(c.builder, newType.valueType, ptr, "")
 
 		if expr.CommaOk {
 			// Return the obj and the status
-			value.ref = llvm.ConstStruct([]llvm.LLVMValueRef{
-				llvm.GetUndef(newType.valueType),
-				llvm.GetUndef(llvm.Int1Type()),
-			}, false)
-
-			okValue := llvm.BuildLoad2(c.builder, newType.valueType, okAddr, "")
-
-			value.ref = llvm.BuildInsertValue(c.builder, value.ref, objValue, uint(0), "")
-			value.ref = llvm.BuildInsertValue(c.builder, value.ref, okValue, uint(1), "")
+			valueType := llvm.StructType([]llvm.LLVMTypeRef{llvm.TypeOf(assertedValue), llvm.TypeOf(ok)}, false)
+			/*agg := llvm.GetUndef(valueType)
+			agg = llvm.BuildInsertValue(c.builder, agg, assertedValue, 0, "")
+			agg = llvm.BuildInsertValue(c.builder, agg, ok, 1, "")
+			value.ref = c.createAlloca(ctx, valueType, "")
+			llvm.BuildStore(c.builder, agg, value.ref)*/
+			value.ref = llvm.GetUndef(valueType)
+			value.ref = llvm.BuildInsertValue(c.builder, value.ref, assertedValue, 0, "")
+			value.ref = llvm.BuildInsertValue(c.builder, value.ref, ok, 1, "")
 		} else {
-			value.ref = objValue
+			value.ref = assertedValue
 		}
 	case *ssa.UnOp:
 		value.ref = c.createUnOp(ctx, expr)

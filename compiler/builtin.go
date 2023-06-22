@@ -121,7 +121,7 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 	case "real":
 		panic("not implemented")
 	case "recover":
-		panic("not implemented")
+		value = c.createRuntimeCall(ctx, "_recover", nil)
 	case "Add":
 		// Add to pointer values
 		value = llvm.BuildGEP2(c.builder, llvm.Int8TypeInContext(c.currentContext(ctx)), argValues[0].UnderlyingValue(ctx), []llvm.LLVMValueRef{argValues[1].UnderlyingValue(ctx)}, "")
