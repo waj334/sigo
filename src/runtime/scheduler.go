@@ -11,6 +11,8 @@ const (
 	taskIdle
 	taskSleep
 	taskRunning
+	taskPanicking
+	taskRecovered
 )
 
 type goroutine struct {
@@ -26,6 +28,8 @@ type task struct {
 	prev          *task
 	state         taskState
 	sleepDeadline uint64
+	deferStack    *deferFrame
+	panicValue    any
 }
 
 //go:export lastTask runtime._lastTask
@@ -71,6 +75,10 @@ func runScheduler() (shouldSwitch bool) {
 			if currentTask.state == taskRunning {
 				// Move the current task to the idle state
 				currentTask.state = taskIdle
+			} else if currentTask.state == taskPanicking || currentTask.state == taskRecovered {
+				// Do not allow any further context switches from this task
+				lastTask = currentTask
+				return
 			}
 
 			// Update this task's stack pointer

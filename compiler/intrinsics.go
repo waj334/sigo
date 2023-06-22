@@ -64,6 +64,8 @@ var intrinsics = map[string]struct{}{
 	"volatile.StoreUint64":  {},
 	"volatile.StoreUintptr": {},
 	"volatile.StorePointer": {},
+
+	"runtime.deferCall": {},
 }
 
 func (c *Compiler) isIntrinsic(fn *ssa.Function) (ok bool) {
@@ -125,6 +127,17 @@ func (c *Compiler) createIntrinsic(ctx context.Context, call *ssa.Call) (value V
 	case "volatile.StoreInt8", "volatile.StoreInt16", "volatile.StoreInt32", "volatile.StoreInt64", "volatile.StoreUint8", "volatile.StoreUint16", "volatile.StoreUint32", "volatile.StoreUint64", "volatile.StoreUintptr", "volatile.StorePointer":
 		str := llvm.BuildStore(c.builder, args[1], args[0])
 		llvm.SetVolatile(str, true)
+		value.ref = llvm.GetUndef(llvm.VoidTypeInContext(c.currentContext(ctx)))
+	case "runtime.deferCall":
+		// Create the function signature
+		signature := llvm.FunctionType(
+			llvm.VoidTypeInContext(c.currentContext(ctx)),
+			[]llvm.LLVMTypeRef{
+				c.ptrType.valueType,
+			}, false)
+
+		// Call the closure
+		llvm.BuildCall2(c.builder, signature, args[0], []llvm.LLVMValueRef{args[1]}, "")
 		value.ref = llvm.GetUndef(llvm.VoidTypeInContext(c.currentContext(ctx)))
 	default:
 		panic("unknown intrinsic " + name)

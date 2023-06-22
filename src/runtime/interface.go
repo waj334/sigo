@@ -16,8 +16,57 @@ func interfaceMake(value unsafe.Pointer, valueType *typeDescriptor) interfaceDes
 }
 
 //go:export interfaceAssert runtime.typeAssert
-func interfaceAssert(X unsafe.Pointer, from unsafe.Pointer, to unsafe.Pointer) (unsafe.Pointer, bool) {
-	return nil, false
+func interfaceAssert(X *interfaceDescriptor, from *typeDescriptor, T *typeDescriptor, hasOk bool) (unsafe.Pointer, bool) {
+	var err error
+	if X == nil {
+		err = &TypeAssertError{
+			_interface:    from,
+			concrete:      nil,
+			asserted:      T,
+			missingMethod: "",
+		}
+	} else if T.construct != Interface && X.typePtr != T {
+		err = &TypeAssertError{
+			_interface:    from,
+			concrete:      X.typePtr,
+			asserted:      T,
+			missingMethod: "",
+		}
+	} else if T.construct == Interface && (X.typePtr.construct == Struct || X.typePtr.construct == Interface) {
+		for i := 0; i < T.methods.count; i++ {
+			methodNameT := *T.methods.index(i).name
+			found := false
+			for ii := 0; ii < X.typePtr.methods.count; ii++ {
+				methodNameX := *X.typePtr.methods.index(ii).name
+				if methodNameX == methodNameT {
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				err = &TypeAssertError{
+					_interface:    from,
+					concrete:      X.typePtr,
+					asserted:      T,
+					missingMethod: methodNameT,
+				}
+				break
+			}
+		}
+
+		// Return the input interface
+		return unsafe.Pointer(X), true
+	}
+
+	if err != nil {
+		if !hasOk {
+			panic(err)
+		}
+		return nil, false
+	}
+
+	return X.valuePtr, true
 }
 
 //go:export interfaceCompare runtime.interfaceCompare

@@ -22,6 +22,7 @@ type (
 
 type Function struct {
 	value      llvm.LLVMValueRef
+	deferTop   llvm.LLVMValueRef
 	llvmType   llvm.LLVMTypeRef
 	stateType  llvm.LLVMTypeRef
 	def        *ssa.Function
@@ -29,7 +30,6 @@ type Function struct {
 	diFile     llvm.LLVMMetadataRef
 	subprogram llvm.LLVMMetadataRef
 	compiled   bool
-	hasDefer   bool
 	name       string
 }
 
@@ -38,6 +38,10 @@ type Type struct {
 	debugType  llvm.LLVMMetadataRef
 	spec       types.Type
 	descriptor llvm.LLVMValueRef
+}
+
+func (t *Type) Nil() llvm.LLVMValueRef {
+	return llvm.ConstNull(t.valueType)
 }
 
 type Phi struct {
@@ -231,7 +235,6 @@ func (c *Compiler) CompilePackage(ctx context.Context, llvmCtx llvm.LLVMContextR
 					method := namedType.Method(i)
 					ssaFn := pkg.Prog.FuncValue(method)
 					fn := c.createFunction(ctx, ssaFn)
-					c.functions[ssaFn] = fn
 					uncompiledFunctions = append(uncompiledFunctions, fn)
 				}
 			}
@@ -277,7 +280,6 @@ func (c *Compiler) CompilePackage(ctx context.Context, llvmCtx llvm.LLVMContextR
 			}
 
 			fn := c.createFunction(ctx, ssaFn)
-			c.functions[ssaFn] = fn
 
 			if len(ssaFn.Blocks) > 0 {
 				uncompiledFunctions = append(uncompiledFunctions, fn)
@@ -285,7 +287,6 @@ func (c *Compiler) CompilePackage(ctx context.Context, llvmCtx llvm.LLVMContextR
 				// Create anonymous functions
 				for _, anonFn := range ssaFn.AnonFuncs {
 					fn := c.createFunction(ctx, anonFn)
-					c.functions[anonFn] = fn
 					if len(anonFn.FreeVars) > 0 {
 						// This function is a closure
 						c.closures[anonFn.Signature] = fn
@@ -398,7 +399,7 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) *Functi
 	var diFile llvm.LLVMMetadataRef
 	var subprogram llvm.LLVMMetadataRef
 
-	if !info.ExternalLinkage { // && fn.Pkg == c.currentPackage(ctx) {
+	if !info.ExternalLinkage && fn.Pkg == c.currentPackage(ctx) {
 		// Get the file information for this function
 		file := fn.Prog.Fset.File(fn.Pos())
 
@@ -440,7 +441,7 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) *Functi
 		c.subprograms[fn.Signature] = subprogram
 	}
 
-	result := Function{
+	result := &Function{
 		value:      fnValue,
 		llvmType:   fnType,
 		stateType:  stateType,
@@ -450,8 +451,8 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) *Functi
 		subprogram: subprogram,
 		diFile:     diFile,
 	}
-
-	return &result
+	c.functions[fn] = result
+	return result
 }
 
 func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error {
@@ -538,7 +539,71 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 	// Create the specific instruction
 	switch instr := instr.(type) {
 	case *ssa.Defer:
-		panic("not implemented")
+		fn := c.currentFunction(ctx)
+		if fn.deferTop == nil {
+			// Allocate the pointer to current top of the defer stack
+			fn.deferTop = c.createAlloca(ctx, c.ptrType.valueType, "defer_top")
+
+			// Store the top onto the stack for the current call
+			llvm.BuildStore(c.builder, fn.deferTop, c.ptrType.Nil())
+		}
+
+		/*
+			deferInitBlock := llvm.AppendBasicBlockInContext(c.currentContext(ctx), fn.value, fn.def.Name()+".defer.init")
+			deferInitDoneBlock := llvm.AppendBasicBlockInContext(c.currentContext(ctx), fn.value, fn.def.Name()+".defer.init.done")
+
+			// Check if top is nil first before initializing the top variable
+			isNil := llvm.BuildICmp(c.builder, llvm.IntNE, fn.deferTop, c.ptrType.Nil(), "")
+			llvm.BuildCondBr(c.builder, isNil, deferInitBlock, deferInitDoneBlock)
+
+			// Build the if-statement body
+			llvm.PositionBuilderAtEnd(c.builder, deferInitBlock)
+
+			// Get the current top of the defer stack
+			top := c.createRuntimeCall(ctx, "deferCurrentTop", nil)
+
+			// Store the top onto the stack for the current call
+			llvm.BuildStore(c.builder, top, fn.deferTop)
+			llvm.BuildBr(c.builder, deferInitDoneBlock)
+
+			// Continue building after the init block
+			llvm.PositionBuilderAtEnd(c.builder, deferInitDoneBlock)
+			ctx = context.WithValue(ctx, currentBlockKey{}, deferInitDoneBlock)*/
+
+		// Create a closure for the defer call
+		var closure llvm.LLVMValueRef
+		var closureContextType llvm.LLVMTypeRef
+		var args []llvm.LLVMValueRef
+
+		switch value := instr.Call.Value.(type) {
+		case *ssa.Function:
+			// Create a new closure
+			closureContextType = c.createClosureContextType(ctx, value)
+			closure = c.createClosure(ctx, value, closureContextType, true)
+			args = c.createValues(ctx, instr.Call.Args).Ref(ctx)
+		case *ssa.MakeClosure:
+			state := c.createExpression(ctx, value).UnderlyingValue(ctx)
+			closureContextType = c.createClosureContextType(ctx, value.Fn.(*ssa.Function))
+			closure = c.createClosure(ctx, value.Fn.(*ssa.Function), closureContextType, true)
+			args = append(c.createValues(ctx, instr.Call.Args).Ref(ctx), state)
+		default:
+			panic("unhandled")
+		}
+
+		c.createExpression(ctx, instr.Call.Value)
+		callArgs := instr.Call.Args
+
+		closureCtx := c.createClosureContext(ctx, closureContextType, args)
+		if closureExpr, ok := instr.Call.Value.(*ssa.MakeClosure); ok {
+			callArgs = append(callArgs, closureExpr.Bindings...)
+		}
+
+		// Push the defer frame to the defer stack
+		c.createRuntimeCall(ctx, "deferPush", []llvm.LLVMValueRef{
+			closure,
+			closureCtx,
+			fn.deferTop,
+		})
 	case *ssa.Go:
 		var closure llvm.LLVMValueRef
 		var closureContextType llvm.LLVMTypeRef
@@ -548,12 +613,12 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 		case *ssa.Function:
 			// Create a new closure
 			closureContextType = c.createClosureContextType(ctx, value)
-			closure = c.createClosure(ctx, value, closureContextType)
+			closure = c.createClosure(ctx, value, closureContextType, true)
 			args = c.createValues(ctx, instr.Call.Args).Ref(ctx)
 		case *ssa.MakeClosure:
 			state := c.createExpression(ctx, value).UnderlyingValue(ctx)
 			closureContextType = c.createClosureContextType(ctx, value.Fn.(*ssa.Function))
-			closure = c.createClosure(ctx, value.Fn.(*ssa.Function), closureContextType)
+			closure = c.createClosure(ctx, value.Fn.(*ssa.Function), closureContextType, true)
 			args = append(c.createValues(ctx, instr.Call.Args).Ref(ctx), state)
 		default:
 			panic("unhandled")
@@ -592,56 +657,59 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 	case *ssa.MapUpdate:
 		panic("not implemented")
 	case *ssa.Panic:
+		fn := c.currentFunction(ctx)
 		arg := c.createExpression(ctx, instr.X).UnderlyingValue(ctx)
 		c.createRuntimeCall(ctx, "_panic", []llvm.LLVMValueRef{arg})
 
-		// Create an unreachable terminator following the panic
-		llvm.BuildUnreachable(c.builder)
+		// First, run defers if there are any
+		if fn.deferTop != nil {
+			// Get the top at the time for the current defer
+			newTop := c.createRuntimeCall(ctx, "deferInitialTop", nil)
+
+			// Load the pointer to store top to
+			ptr := llvm.BuildLoad2(c.builder, c.ptrType.valueType, fn.deferTop, "")
+
+			// Update top for this function
+			llvm.BuildStore(c.builder, newTop, ptr)
+
+			recoverBlock := c.blocks[fn.def.Blocks[len(fn.def.Blocks)-1]]
+
+			// Jump to recover block
+			llvm.BuildBr(c.builder, recoverBlock)
+		} else {
+			// Create an unreachable terminator following the panic
+			llvm.BuildUnreachable(c.builder)
+		}
 	case *ssa.Return:
+		fn := c.currentFunction(ctx)
+
 		// Get the return type of this function
 		returnType := llvm.GetReturnType(c.currentFunction(ctx).llvmType)
 
+		// First, run defers if there are any
+		if fn.deferTop != nil {
+			c.createRuntimeCall(ctx, "deferRun", []llvm.LLVMValueRef{fn.deferTop})
+		}
+
 		// Void types do not need to return anything
 		if llvm.GetTypeKind(returnType) != llvm.VoidTypeKind {
-			var returnValue llvm.LLVMValueRef
-
 			// Get the return values
-			returnValues := c.createValues(ctx, instr.Results)
+			returnValues := c.createValues(ctx, instr.Results).Ref(ctx)
 
 			// Return a tuple if there should be more than one return value.
 			// Otherwise, just return the single value.
 			if len(instr.Results) > 1 {
-				// Allocate memory for the return tuple
-				returnValue = c.createAlloca(ctx, returnType, "return_tuple")
-				// Populate the return tuple with return values
-				for i, v := range returnValues.Ref(ctx) {
-					llvm.BuildStore(c.builder, v, llvm.BuildStructGEP2(c.builder, returnType, returnValue, uint(i), ""))
-				}
-				returnValue = llvm.BuildLoad2(c.builder, returnType, returnValue, "")
+				llvm.BuildAggregateRet(c.builder, returnValues)
 			} else {
 				// Return the single value
-				returnValue = returnValues[0].UnderlyingValue(ctx)
+				llvm.BuildRet(c.builder, returnValues[0])
 			}
-
-			// Create the return
-			_ = llvm.BuildRet(c.builder, returnValue)
 		} else {
 			// Return nothing
-			_ = llvm.BuildRetVoid(c.builder)
+			llvm.BuildRetVoid(c.builder)
 		}
 	case *ssa.RunDefers:
-		fn, ok := c.functions[instr.Parent()]
-		if !ok {
-			panic("function does not exist")
-		}
-
-		// The RunDefers instruction is always at the end of a function.
-		// Therefore, we can track if a defer statement was created earlier in
-		// order to determine if there is a defer stack that needs to be
-		// processed. This primarily for when *ssa.NaiveForm is enabled.
-		if fn.hasDefer {
-			panic("not implemented")
-		}
+		// Will not implement
 	case *ssa.Select:
 		panic("not implemented")
 	case *ssa.Send:

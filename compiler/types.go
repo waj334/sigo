@@ -127,3 +127,19 @@ func (c *Compiler) createType(ctx context.Context, typ types.Type) *Type {
 	// Return the type
 	return result
 }
+
+func (c *Compiler) createRuntimeType(ctx context.Context, typename string) *Type {
+	// Get the runtime package
+	runtimePkg := c.currentPackage(ctx).Prog.ImportedPackage("runtime")
+	if runtimePkg == nil {
+		panic("no runtime package")
+	}
+
+	// Get the type within the runtime package
+	t := runtimePkg.Type(typename)
+	if t == nil {
+		panic(typename + " does not exist in runtime")
+	}
+
+	return c.createType(ctx, t.Type())
+}

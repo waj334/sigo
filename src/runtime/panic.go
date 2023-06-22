@@ -1,10 +1,30 @@
 package runtime
 
-//go:export panicHandler runtime._panic
 func _panic(arg any) {
+	// Transition the current task to the panicking state
+	currentTask.state = taskPanicking
+
+	// Store the arg in the current goroutine's context
+	currentTask.panicValue = arg
+
 	// TODO: Attempt to print the arguments
-	// TODO: Call the current function's defer stack
+
+	// Call the current goroutine's defer stack
+	deferRun(nil)
 
 	// Abort if not recovered
-	abort()
+	if currentTask.state == taskPanicking {
+		abort()
+	}
+}
+
+func _recover() any {
+	if currentTask.state == taskPanicking {
+		// Transition task state to recovered
+		currentTask.state = taskRecovered
+
+		// Return the argument passed to panic
+		return currentTask.panicValue
+	}
+	return nil
 }

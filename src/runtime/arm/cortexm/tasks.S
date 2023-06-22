@@ -21,11 +21,13 @@ PendSV_Handler:
     // Load the stack pointer of the current task
     ldr r0, =runtime._currentTask   // Load the address of the current task pointer into R0
     ldr r0, [r0]                    // Load the current task into R0
-    ldr r0, [r0]                    // Load the stack pointer into R0
-
     ldr r1, =runtime._lastTask      // Load the last task pointer into R1
     ldr r1, [r1]                    // Load the value of the last task pointer into R1
-    cmp r1, #0                      // Check if the value of the poitner to the last task is 0
+    cmp r1, r0                      // Compare the last task to the current task
+    beq _return                     // Do nothing if the task has not changed
+
+    ldr r0, [r0]                    // Load the stack pointer into R0
+    cmp r1, #0                      // Check if the value of the pointer to the last task is 0
     beq _context_switch             // Skip saving the context of the last task if there was no last task
 
     // Save context of old task
@@ -63,6 +65,7 @@ _context_switch:
     ldr lr, [r0]                    // Load lr from the new task's stack
 #endif
     msr psp, r0;                    // Update PSP
+_return:
     ldr lr, =0xFFFFFFFD             // Set EXC_RETURN value for return to Thread mode with PSP
     bx lr                           // Use EXC_RETURN to set the next PC
 .size PendSV_Handler, .-PendSV_Handler

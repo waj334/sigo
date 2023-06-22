@@ -7,6 +7,20 @@ import (
 	"omibyte.io/sigo/llvm"
 )
 
+type ConstructType int
+
+const (
+	InvalidConstructType ConstructType = iota
+	Primitive
+	Pointer
+	Interface
+	Struct
+	Array
+	Slice
+	Map
+	Channel
+)
+
 func (c *Compiler) createTypeInfoTypes(ctx llvm.LLVMContextRef) {
 	typeType := llvm.StructCreateNamed(ctx, "Type")
 	typeTable := llvm.StructCreateNamed(ctx, "DescriptorTable")
@@ -21,6 +35,7 @@ func (c *Compiler) createTypeInfoTypes(ctx llvm.LLVMContextRef) {
 	llvm.StructSetBody(typeType, []llvm.LLVMTypeRef{
 		llvm.PointerType(llvm.GetTypeByName2(ctx, "string"), 0),
 		c.uintptrType.valueType,
+		llvm.Int32TypeInContext(ctx),
 		llvm.Int32TypeInContext(ctx),
 		llvm.PointerType(typeTable, 0),
 		llvm.PointerType(typeTable, 0),
@@ -96,8 +111,9 @@ func (c *Compiler) createTypeDescriptor(ctx context.Context, typ *Type) (descrip
 	descriptorType := llvm.GetTypeByName2(c.currentContext(ctx), "Type")
 	if descriptorType != nil {
 		// Create an array to store the typeDescriptor struct's values
-		var descriptorValues [10]llvm.LLVMValueRef
+		var descriptorValues [11]llvm.LLVMValueRef
 		var name string
+		var construct ConstructType
 
 		// Extract information from the type before processing
 		switch goType := goType.(type) {
@@ -114,22 +130,25 @@ func (c *Compiler) createTypeDescriptor(ctx context.Context, typ *Type) (descrip
 
 		switch goType := goType.Underlying().(type) {
 		case *types.Basic:
+			construct = Primitive
 			// Store the name of the basic type if no name has been determined
 			if len(name) == 0 {
 				name = goType.Name()
 			}
 			// Store the Go type kind
-			descriptorValues[2] = llvm.ConstInt(
+			descriptorValues[3] = llvm.ConstInt(
 				llvm.Int32TypeInContext(c.currentContext(ctx)), uint64(goType.Kind()), false)
 		case *types.Interface:
+			construct = Interface
 			// Collect the interface's methods
 			var methods []*types.Func
 			for i := 0; i < goType.NumMethods(); i++ {
 				methods = append(methods, goType.Method(i))
 			}
 			// Create the method table struct
-			descriptorValues[3] = c.createMethodTable(ctx, methods)
+			descriptorValues[4] = c.createMethodTable(ctx, methods)
 		case *types.Struct:
+			construct = Struct
 			// Find all methods for this type in the package
 			if named, ok := typ.spec.(*types.Named); ok {
 				// Collect this type's method
@@ -138,21 +157,26 @@ func (c *Compiler) createTypeDescriptor(ctx context.Context, typ *Type) (descrip
 					methods = append(methods, named.Method(i))
 				}
 				// Create the method table struct
-				descriptorValues[3] = c.createMethodTable(ctx, methods)
+				descriptorValues[4] = c.createMethodTable(ctx, methods)
 			}
 		case *types.Pointer:
+			construct = Pointer
 			// Create the descriptor for the element type
 			elementDescriptor := c.createTypeDescriptor(ctx, c.createType(ctx, goType.Elem()))
 
 			// Create the pointer value descriptor
 			pointerDescType := llvm.GetTypeByName2(c.currentContext(ctx), "PointerDescriptor")
-			descriptorValues[7] = c.createGlobalValue(ctx,
+			descriptorValues[8] = c.createGlobalValue(ctx,
 				llvm.ConstNamedStruct(pointerDescType, []llvm.LLVMValueRef{elementDescriptor}),
 				c.symbolName(c.currentPackage(ctx).Pkg, "pointer_descriptor"))
 		}
 
 		// Create a global for the typename
 		descriptorValues[0] = c.createGlobalString(ctx, name)
+
+		// Store the construct type
+		descriptorValues[2] = llvm.ConstInt(
+			llvm.Int32TypeInContext(c.currentContext(ctx)), uint64(construct), false)
 
 		// Fill nil pointers
 		members := llvm.GetStructElementTypes(descriptorType)
