@@ -31,12 +31,9 @@ func (v Value) Linkage() llvm.LLVMLinkage {
 func (v Value) UnderlyingValue(ctx context.Context) llvm.LLVMValueRef {
 	ref := v.ref
 	if llvm.IsAAllocaInst(ref) != nil && v.heap {
-		// Load the object ptr from the alloca
-		//ref = llvm.BuildLoad2(v.cc.builder, v.cc.ptrType.valueType, ref, "obj_load")
-
 		typ := v.cc.createType(ctx, v.spec.Type())
 
-		// Load the heap ptr from the object
+		// Heap allocations are ptr->ptr. Load the address of the actual value
 		ref = llvm.BuildLoad2(v.cc.builder, typ.valueType, ref, "heap_load")
 	}
 	return ref
@@ -106,8 +103,8 @@ func (c *Compiler) createValues(ctx context.Context, input []ssa.Value) Values {
 }
 
 func (c *Compiler) createSlice(ctx context.Context, array llvm.LLVMValueRef, elementType llvm.LLVMTypeRef, numElements uint64, low, high, max llvm.LLVMValueRef) llvm.LLVMValueRef {
-	stringType := llvm.GetTypeByName2(c.currentContext(ctx), "string")
-	sliceType := llvm.GetTypeByName2(c.currentContext(ctx), "slice")
+	stringType := c.createRuntimeType(ctx, "_string").valueType
+	sliceType := c.createRuntimeType(ctx, "_slice").valueType
 
 	var ptrVal, lengthVal, capacityVal, elementSizeVal llvm.LLVMValueRef
 
@@ -209,7 +206,7 @@ func (c *Compiler) createSliceFromValues(ctx context.Context, values []llvm.LLVM
 	}
 
 	// Create the slice struct
-	sliceType := llvm.GetTypeByName2(c.currentContext(ctx), "slice")
+	sliceType := c.createRuntimeType(ctx, "_slice").valueType
 	result := c.createAlloca(ctx, sliceType, "")
 
 	arrayAddr := llvm.BuildStructGEP2(c.builder, sliceType, result, 0, "")
@@ -225,8 +222,8 @@ func (c *Compiler) createSliceFromValues(ctx context.Context, values []llvm.LLVM
 }
 
 func (c *Compiler) createSliceFromStringValue(ctx context.Context, str llvm.LLVMValueRef) llvm.LLVMValueRef {
-	sliceType := llvm.GetTypeByName2(c.currentContext(ctx), "slice")
-	stringType := llvm.GetTypeByName2(c.currentContext(ctx), "string")
+	sliceType := c.createRuntimeType(ctx, "_slice").valueType
+	stringType := c.createRuntimeType(ctx, "_string").valueType
 
 	if !llvm.TypeIsEqual(stringType, llvm.TypeOf(str)) {
 		panic("value is not a string")
@@ -252,7 +249,7 @@ func (c *Compiler) createSliceFromStringValue(ctx context.Context, str llvm.LLVM
 func (c *Compiler) makeInterface(ctx context.Context, value ssa.Value) (result llvm.LLVMValueRef) {
 	x := c.createExpression(ctx, value).UnderlyingValue(ctx)
 
-	interfaceType := llvm.GetTypeByName2(c.currentContext(ctx), "interface")
+	interfaceType := c.createRuntimeType(ctx, "_interface").valueType
 
 	// Return the value if it is already of interface type
 	if llvm.TypeIsEqual(llvm.TypeOf(x), interfaceType) {
@@ -275,12 +272,13 @@ func (c *Compiler) makeInterface(ctx context.Context, value ssa.Value) (result l
 func (c *Compiler) addressOf(ctx context.Context, value llvm.LLVMValueRef) llvm.LLVMValueRef {
 	alloca := c.createAlloca(ctx, llvm.TypeOf(value), "")
 	llvm.BuildStore(c.builder, value, alloca)
-	return llvm.BuildBitCast(c.builder, alloca, c.ptrType.valueType, "")
+	//return llvm.BuildBitCast(c.builder, alloca, c.ptrType.valueType, "")
+	return alloca
 }
 
 func (c *Compiler) createConstantString(ctx context.Context, str string) llvm.LLVMValueRef {
 	// Get the string type
-	strType := llvm.GetTypeByName2(c.currentContext(ctx), "string")
+	strType := c.createRuntimeType(ctx, "_string").valueType
 	if strType == nil {
 		panic("missing string type")
 	}
@@ -317,7 +315,7 @@ func (c *Compiler) createGlobalValue(ctx context.Context, constVal llvm.LLVMValu
 
 	// Set the global variable's value
 	llvm.SetInitializer(value, constVal)
-	llvm.SetUnnamedAddr(value, llvm.GlobalUnnamedAddr != 0)
+	llvm.SetUnnamedAddr(value, true)
 	value = llvm.BuildBitCast(c.builder, value, c.ptrType.valueType, "")
 	return value
 }

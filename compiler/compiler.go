@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"go/token"
 	"go/types"
-	"golang.org/x/tools/go/ssa"
 	"path/filepath"
+	"strconv"
+
+	"golang.org/x/tools/go/ssa"
 
 	"omibyte.io/sigo/llvm"
 )
@@ -146,10 +148,6 @@ func NewCompiler(name string, options *Options) (*Compiler, llvm.LLVMContextRef)
 		uintptrType:     uintptrType,
 		ptrType:         ptrType,
 	}
-
-	// Initialize the type system
-	cc.createPrimitiveTypes(ctx)
-	cc.createTypeInfoTypes(ctx)
 
 	return &cc, ctx
 }
@@ -548,28 +546,6 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 			llvm.BuildStore(c.builder, fn.deferTop, c.ptrType.Nil())
 		}
 
-		/*
-			deferInitBlock := llvm.AppendBasicBlockInContext(c.currentContext(ctx), fn.value, fn.def.Name()+".defer.init")
-			deferInitDoneBlock := llvm.AppendBasicBlockInContext(c.currentContext(ctx), fn.value, fn.def.Name()+".defer.init.done")
-
-			// Check if top is nil first before initializing the top variable
-			isNil := llvm.BuildICmp(c.builder, llvm.IntNE, fn.deferTop, c.ptrType.Nil(), "")
-			llvm.BuildCondBr(c.builder, isNil, deferInitBlock, deferInitDoneBlock)
-
-			// Build the if-statement body
-			llvm.PositionBuilderAtEnd(c.builder, deferInitBlock)
-
-			// Get the current top of the defer stack
-			top := c.createRuntimeCall(ctx, "deferCurrentTop", nil)
-
-			// Store the top onto the stack for the current call
-			llvm.BuildStore(c.builder, top, fn.deferTop)
-			llvm.BuildBr(c.builder, deferInitDoneBlock)
-
-			// Continue building after the init block
-			llvm.PositionBuilderAtEnd(c.builder, deferInitDoneBlock)
-			ctx = context.WithValue(ctx, currentBlockKey{}, deferInitDoneBlock)*/
-
 		// Create a closure for the defer call
 		var closure llvm.LLVMValueRef
 		var closureContextType llvm.LLVMTypeRef
@@ -655,7 +631,16 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 			panic("block not created")
 		}
 	case *ssa.MapUpdate:
-		panic("not implemented")
+		mapValue := c.createExpression(ctx, instr.Map).UnderlyingValue(ctx)
+		key := c.createExpression(ctx, instr.Key).UnderlyingValue(ctx)
+		value := c.createExpression(ctx, instr.Value).UnderlyingValue(ctx)
+
+		// Create runtime call to update the map
+		c.createRuntimeCall(ctx, "mapUpdate", []llvm.LLVMValueRef{
+			mapValue,
+			c.addressOf(ctx, key),
+			c.addressOf(ctx, value),
+		})
 	case *ssa.Panic:
 		fn := c.currentFunction(ctx)
 		arg := c.createExpression(ctx, instr.X).UnderlyingValue(ctx)
@@ -801,7 +786,7 @@ func (c *Compiler) createRuntimeCall(ctx context.Context, name string, args []ll
 			println("runtime.", name)
 			println("expected: ", llvm.PrintTypeToString(t))
 			println("actual: ", llvm.PrintTypeToString(argType))
-			panic("argument type does not match")
+			panic("argument type " + strconv.Itoa(i) + " does not match")
 		}
 	}
 

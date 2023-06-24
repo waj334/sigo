@@ -2,21 +2,19 @@ package runtime
 
 import "unsafe"
 
-type interfaceDescriptor struct {
-	typePtr  *typeDescriptor
+type _interface struct {
+	typePtr  *_type
 	valuePtr unsafe.Pointer
 }
 
-//go:export interfaceMake runtime.makeInterface
-func interfaceMake(value unsafe.Pointer, valueType *typeDescriptor) interfaceDescriptor {
-	return interfaceDescriptor{
+func interfaceMake(value unsafe.Pointer, valueType *_type) _interface {
+	return _interface{
 		typePtr:  valueType,
 		valuePtr: value,
 	}
 }
 
-//go:export interfaceAssert runtime.typeAssert
-func interfaceAssert(X *interfaceDescriptor, from *typeDescriptor, T *typeDescriptor, hasOk bool) (unsafe.Pointer, bool) {
+func interfaceAssert(X *_interface, from *_type, T *_type, hasOk bool) (unsafe.Pointer, bool) {
 	var err error
 	if X == nil {
 		err = &TypeAssertError{
@@ -69,10 +67,9 @@ func interfaceAssert(X *interfaceDescriptor, from *typeDescriptor, T *typeDescri
 	return X.valuePtr, true
 }
 
-//go:export interfaceCompare runtime.interfaceCompare
 func interfaceCompare(X unsafe.Pointer, Y unsafe.Pointer) bool {
-	xi := (*interfaceDescriptor)(X)
-	yi := (*interfaceDescriptor)(Y)
+	xi := (*_interface)(X)
+	yi := (*_interface)(Y)
 
 	// Nil comparison
 	if xi.typePtr == yi.typePtr && xi.valuePtr == nil && yi.valuePtr == nil {
@@ -126,7 +123,7 @@ func interfaceCompare(X unsafe.Pointer, Y unsafe.Pointer) bool {
 }
 
 func interfaceLookUp(ptr unsafe.Pointer, id uint32) (result unsafe.Pointer) {
-	iface := (*interfaceDescriptor)(ptr)
+	iface := (*_interface)(ptr)
 	info := iface.typePtr
 
 	// Get the underlying type

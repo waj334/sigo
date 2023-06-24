@@ -32,37 +32,34 @@ type task struct {
 	panicValue    any
 }
 
-//go:export lastTask runtime._lastTask
+//go:export lastTask runtime.lastTask
+//go:export currentTask runtime.currentTask
+//sigo:extern goroutineStackSize runtime._goroutineStackSize
+
+//sigo:extern initTask runtime.initTask
+//sigo:extern alignStack runtime.alignStack
+//sigo:extern schedulerPause runtime.schedulerPause
+//go:export runScheduler runtime.runScheduler
+//go:export addTask runtime.addTask
+//go:export runtime.removeTask
+//go:export sleep runtime.sleep
 
 var (
-	headTask   *task      = nil
-	lastTask   *task      = nil
-	timeSource TimeSource = &SysTickSource{}
+	headTask           *task      = nil
+	lastTask           *task      = nil
+	currentTask        *task      = nil
+	timeSource         TimeSource = &SysTickSource{}
+	goroutineStackSize *uintptr
 )
 
 func init() {
-	*_goroutineStackSize = alignStack(*_goroutineStackSize)
+	*goroutineStackSize = alignStack(*goroutineStackSize)
 }
 
-//go:export currentTask runtime._currentTask
-var currentTask *task = nil
-
-//sigo:extern _goroutineStackSize runtime._goroutineStackSize
-var _goroutineStackSize *uintptr
-
-//sigo:extern initTask runtime.initTask
 func initTask(unsafe.Pointer)
-
-//sigo:extern alignStack runtime.alignStack
 func alignStack(n uintptr) uintptr
-
-//sigo:extern _currentTick runtime.currentTick
-func _currentTick() uint32
-
-//sigo:extern schedulerPause runtime.schedulerPause
 func schedulerPause()
 
-//go:export runScheduler runtime.runScheduler
 func runScheduler() (shouldSwitch bool) {
 	state := disableInterrupts()
 
@@ -90,8 +87,8 @@ func runScheduler() (shouldSwitch bool) {
 
 			for {
 				if nextTask.state == taskSleep {
-					currentTick := timeSource.Now()
-					if currentTick > nextTask.sleepDeadline {
+					t := timeSource.Now()
+					if t > nextTask.sleepDeadline {
 						nextTask.state = taskIdle
 						nextTask.sleepDeadline = 0
 					} else if nextTask == lastTask && nextTask.state == taskSleep {
@@ -127,20 +124,21 @@ func runScheduler() (shouldSwitch bool) {
 	return
 }
 
-//go:export addTask runtime.addTask
 func addTask(ptr unsafe.Pointer) {
 	state := disableInterrupts()
 	oldHead := headTask
-	//headTask = (*task)(malloc(unsafe.Sizeof(task{})))
-	headTask = (*task)(alloc(unsafe.Sizeof(task{})))
 
 	// Allocate stack for this goroutine
-	//headTask.stack = malloc(*_goroutineStackSize)
-	headTask.stack = alloc(*_goroutineStackSize)
-	headTask.ctx = (*goroutine)(ptr)
-	headTask.stackTop = headTask.stack
+	stack := alloc(*goroutineStackSize)
 
-	// Create a ring
+	// Create the new task
+	headTask = &task{
+		stack:    stack,
+		ctx:      (*goroutine)(ptr),
+		stackTop: stack,
+	}
+
+	// Insert into ring
 	if oldHead == nil {
 		headTask.next = headTask
 		headTask.prev = headTask
@@ -155,12 +153,8 @@ func addTask(ptr unsafe.Pointer) {
 	enableInterrupts(state)
 }
 
-//go:export runtime.removeTask
 func removeTask(t *task) {
 	state := disableInterrupts()
-
-	// Free the stack memory
-	free(t.stack)
 
 	if t.next == t && t.prev == t {
 		// There is only one task left.
@@ -193,14 +187,10 @@ func removeTask(t *task) {
 		}
 	}
 
-	// Free the task
-	free(unsafe.Pointer(t))
-
 	enableInterrupts(state)
 }
 
-//go:export _sleep runtime.sleep
-func _sleep(d uint64) {
+func sleep(d uint64) {
 	if currentTask == nil {
 		panic("sleep called from non-goroutine")
 	}

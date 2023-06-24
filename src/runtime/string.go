@@ -4,18 +4,21 @@ import (
 	"unsafe"
 )
 
-type stringDescriptor struct {
+type _string struct {
 	array unsafe.Pointer
 	len   int
 }
 
-func stringLen(descriptor *stringDescriptor) int {
+//sigo:extern strncmp strncmp
+
+func strncmp(str1, str2 unsafe.Pointer, size uintptr) int
+
+func stringLen(descriptor *_string) int {
 	str := descriptor
 	return str.len
 }
 
-//go:export stringConcat runtime.stringConcat
-func stringConcat(lhs *stringDescriptor, rhs *stringDescriptor) stringDescriptor {
+func stringConcat(lhs *_string, rhs *_string) _string {
 	// Allocate storage buffer for the new string
 	newLen := lhs.len + rhs.len
 	newArray := alloc(uintptr(newLen))
@@ -25,14 +28,13 @@ func stringConcat(lhs *stringDescriptor, rhs *stringDescriptor) stringDescriptor
 	memcpy(unsafe.Add(newArray, lhs.len), rhs.array, uintptr(rhs.len))
 
 	// Return a new string
-	return stringDescriptor{
+	return _string{
 		array: newArray,
 		len:   newLen,
 	}
 }
 
-//go:export stringIndexAddr stringIndexAddr
-func stringIndexAddr(str *stringDescriptor, index int) unsafe.Pointer {
+func stringIndexAddr(str *_string, index int) unsafe.Pointer {
 	// Index MUST not be greater than the length of the string
 	if index >= str.len {
 		panic("runtime: index out of range")
@@ -41,30 +43,19 @@ func stringIndexAddr(str *stringDescriptor, index int) unsafe.Pointer {
 	return unsafe.Add(str.array, uintptr(index))
 }
 
-//go:export stringCompare runtime.stringCompare
-func stringCompare(lhs, rhs *stringDescriptor) bool {
+func stringCompare(lhs, rhs *_string) bool {
 	// Fast path
 	if lhs.len != rhs.len {
 		return false
 	}
-
-	// Compare each byte
-	for i := 0; i < lhs.len; i++ {
-		charLhs := *(*byte)(unsafe.Pointer(uintptr(lhs.array) + uintptr(i)))
-		charRhs := *(*byte)(unsafe.Pointer(uintptr(rhs.array) + uintptr(i)))
-		if charLhs != charRhs {
-			return false
-		}
-	}
-	return true
+	return strncmp(lhs.array, rhs.array, uintptr(lhs.len)) == 0
 }
 
 type stringIterator struct {
-	str   stringDescriptor
+	str   _string
 	index int
 }
 
-//go:export stringRange runtime.stringRange
 func stringRange(it *stringIterator) (bool, int, rune) {
 	if it.index >= it.str.len {
 		return false, 0, 0

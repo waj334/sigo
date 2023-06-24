@@ -4,21 +4,20 @@ import (
 	"unsafe"
 )
 
-type sliceDescriptor struct {
+type _slice struct {
 	array unsafe.Pointer
 	len   int
 	cap   int
 }
 
-//go:export sliceMake runtime.makeSlice
-func sliceMake(t unsafe.Pointer, n int, m int) sliceDescriptor {
+func sliceMake(t unsafe.Pointer, n int, m int) _slice {
 	// The length MUST not be greater than the capacity of the slice!
 	if n > m {
 		panic("runtime error: makeslice: cap out of range")
 	}
 
-	elementTypeDesc := (*typeDescriptor)(t)
-	result := sliceDescriptor{
+	elementTypeDesc := (*_type)(t)
+	result := _slice{
 		len: n,
 		cap: m,
 	}
@@ -30,16 +29,15 @@ func sliceMake(t unsafe.Pointer, n int, m int) sliceDescriptor {
 	return result
 }
 
-//go:export sliceAppend runtime.append
-func sliceAppend(base unsafe.Pointer, elems unsafe.Pointer, elementType unsafe.Pointer) sliceDescriptor {
-	baseSlice := (*sliceDescriptor)(base)
+func sliceAppend(base unsafe.Pointer, elems unsafe.Pointer, elementType unsafe.Pointer) _slice {
+	baseSlice := (*_slice)(base)
 	baseLength := uintptr(baseSlice.len)
 
-	elementsSlice := (*sliceDescriptor)(elems)
+	elementsSlice := (*_slice)(elems)
 	elementsLength := uintptr(elementsSlice.len)
-	elementTypeDesc := (*typeDescriptor)(elementType)
+	elementTypeDesc := (*_type)(elementType)
 
-	result := sliceDescriptor{
+	result := _slice{
 		array: baseSlice.array,
 		cap:   baseSlice.cap,
 	}
@@ -67,23 +65,20 @@ func sliceAppend(base unsafe.Pointer, elems unsafe.Pointer, elementType unsafe.P
 	return result
 }
 
-//go:export sliceLen runtime.sliceLen
 func sliceLen(s unsafe.Pointer) int {
-	slice := (*sliceDescriptor)(s)
+	slice := (*_slice)(s)
 	return slice.len
 }
 
-//go:export sliceCap runtime.sliceCap
 func sliceCap(s unsafe.Pointer) int {
-	slice := (*sliceDescriptor)(s)
+	slice := (*_slice)(s)
 	return slice.cap
 }
 
-//go:export sliceCopy runtime.sliceCopy
 func sliceCopy(src, dst, elementType unsafe.Pointer) int {
-	srcSlice := (*sliceDescriptor)(src)
-	dstSlice := (*sliceDescriptor)(dst)
-	elementTypeDesc := (*typeDescriptor)(elementType)
+	srcSlice := (*_slice)(src)
+	dstSlice := (*_slice)(dst)
+	elementTypeDesc := (*_type)(elementType)
 
 	// Copy either as much as what is available or as much as there is capacity
 	// for.
@@ -99,10 +94,9 @@ func sliceCopy(src, dst, elementType unsafe.Pointer) int {
 	return n
 }
 
-//go:export sliceIndex runtime.sliceIndexAddr
-func sliceIndexAddr(s *sliceDescriptor, index int, elementType *typeDescriptor) unsafe.Pointer {
-	//slice := (*sliceDescriptor)(s)
-	//elementTypeDesc := (*typeDescriptor)(elementType)
+func sliceIndexAddr(s *_slice, index int, elementType *_type) unsafe.Pointer {
+	//slice := (*_slice)(s)
+	//elementTypeDesc := (*_type)(elementType)
 	// Index MUST not be greater than the length of the slice
 	if index >= s.len {
 		panic("runtime: index out of range")
@@ -111,8 +105,7 @@ func sliceIndexAddr(s *sliceDescriptor, index int, elementType *typeDescriptor) 
 	return unsafe.Add(s.array, uintptr(index)*elementType.size)
 }
 
-//go:export sliceAddr runtime.sliceAddr
-func sliceAddr(ptr unsafe.Pointer, length, capacity, elementSize, low, high, max int) sliceDescriptor {
+func sliceAddr(ptr unsafe.Pointer, length, capacity, elementSize, low, high, max int) _slice {
 	newLow := 0
 	newHigh := length
 	newMax := capacity
@@ -133,17 +126,16 @@ func sliceAddr(ptr unsafe.Pointer, length, capacity, elementSize, low, high, max
 		panic("runtime error: slice bounds out of range [TODO:TODO:TODO]")
 	}
 
-	return sliceDescriptor{
+	return _slice{
 		array: unsafe.Add(ptr, newLow*elementSize),
 		len:   newHigh - newLow,
 		cap:   newMax - newLow,
 	}
 }
 
-//go:export sliceString runtime.sliceString
-func sliceString(s string) sliceDescriptor {
-	str := (*stringDescriptor)(unsafe.Pointer(&s))
-	result := sliceDescriptor{
+func sliceString(s string) _slice {
+	str := (*_string)(unsafe.Pointer(&s))
+	result := _slice{
 		array: *(*unsafe.Pointer)(alloc(uintptr(str.len))),
 		len:   str.len,
 		cap:   str.len,

@@ -389,6 +389,12 @@ func Build(ctx context.Context, packageDir string) error {
 			"-c", asm,
 			"-ffunction-sections",
 			"-fdata-sections",
+			func() string {
+				if options.GenerateDebugInfo {
+					return "-g"
+				}
+				return ""
+			}(),
 			"-o", objFile}
 
 		// Append defines to the assembler arguments

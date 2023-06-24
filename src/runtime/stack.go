@@ -2,5 +2,5 @@ package runtime
 
 import "unsafe"
 
-//sigo:extern currentStack _current_stack
+//sigo:extern currentStack runtime.currentStack
 func currentStack() unsafe.Pointer

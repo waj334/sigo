@@ -1,11 +1,9 @@
 package runtime
 
-import "unsafe"
-
-type channelDescriptor struct {
+type _channel struct {
 	// TODO
 }
 
-func channelMake() unsafe.Pointer {
-	return unsafe.Pointer(&channelDescriptor{})
+func channelMake() _channel {
+	return _channel{}
 }

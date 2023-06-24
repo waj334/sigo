@@ -4,6 +4,7 @@ import (
 	"context"
 	"go/types"
 	"omibyte.io/sigo/llvm"
+	"strings"
 )
 
 type test struct {
@@ -57,6 +58,15 @@ func (c *Compiler) createDebugType(ctx context.Context, typ types.Type) (ditype 
 
 	// Create the equivalent LLVM type
 	switch typ := typ.(type) {
+	case *types.Array:
+		ditype = llvm.DIBuilderCreateArrayType(
+			c.dibuilder,
+			uint64(typ.Len()),
+			llvm.ABIAlignmentOfType(c.options.Target.dataLayout, t.valueType)*8,
+			c.createDebugType(ctx, typ.Elem()),
+			[]llvm.LLVMMetadataRef{
+				llvm.DIBuilderGetOrCreateSubrange(c.dibuilder, 0, typ.Len()),
+			})
 	case *types.Basic:
 		switch typ.Kind() {
 		case types.Uint8:
@@ -88,39 +98,8 @@ func (c *Compiler) createDebugType(ctx context.Context, typ types.Type) (ditype 
 		case types.Complex128:
 			panic("Not implemented")
 		case types.String:
-			ditype = llvm.DIBuilderCreateStructType(
-				c.dibuilder,
-				nil,
-				"string",
-				nil,
-				0,
-				llvm.SizeOfTypeInBits(c.options.Target.dataLayout, t.valueType),
-				llvm.ABIAlignmentOfType(c.options.Target.dataLayout, t.valueType)*8,
-				0, nil, []llvm.LLVMMetadataRef{
-					llvm.DIBuilderCreateMemberType(
-						c.dibuilder,
-						nil,
-						"array",
-						nil,
-						0,
-						llvm.SizeOfTypeInBits(c.options.Target.dataLayout, c.ptrType.valueType),
-						llvm.ABIAlignmentOfType(c.options.Target.dataLayout, c.ptrType.valueType)*8,
-						llvm.OffsetOfElement(c.options.Target.dataLayout, t.valueType, 0)*8,
-						0,
-						c.ptrType.debugType),
-					llvm.DIBuilderCreateMemberType(
-						c.dibuilder,
-						nil,
-						"len",
-						nil,
-						0,
-						llvm.SizeOfTypeInBits(c.options.Target.dataLayout, llvm.Int32TypeInContext(c.currentContext(ctx))),
-						llvm.ABIAlignmentOfType(c.options.Target.dataLayout, llvm.Int32TypeInContext(c.currentContext(ctx)))*8,
-						llvm.OffsetOfElement(c.options.Target.dataLayout, t.valueType, 1)*8,
-						0,
-						llvm.DIBuilderCreateBasicType(c.dibuilder, "int",
-							llvm.SizeOfTypeInBits(c.options.Target.dataLayout, llvm.Int32TypeInContext(c.currentContext(ctx))), DW_ATE_unsigned, 0)),
-				}, 0, nil, "")
+			tt := c.createRuntimeType(ctx, "_string")
+			ditype = c.createDebugType(ctx, tt.spec)
 		case types.Bool:
 			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, typ.Name(), 1, DW_ATE_boolean, 0)
 		default:
@@ -167,114 +146,30 @@ func (c *Compiler) createDebugType(ctx context.Context, typ types.Type) (ditype 
 		// Replace all uses of the temp type created earlier
 		llvm.MetadataReplaceAllUsesWith(t.debugType, ditype)
 	case *types.Map:
-		ditype = llvm.DIBuilderCreateStructType(
-			c.dibuilder,
-			nil,
-			"map",
-			nil,
-			0,
-			llvm.SizeOfTypeInBits(c.options.Target.dataLayout, t.valueType),
-			llvm.ABIAlignmentOfType(c.options.Target.dataLayout, t.valueType)*8,
-			0, nil, nil, 0, nil, "")
+		tt := c.createRuntimeType(ctx, "_map")
+		ditype = c.createDebugType(ctx, tt.spec)
 	case *types.Named:
+		name := typ.Obj().Name()
+		// Handle runtime type name. All other types should be unaffected
+		if typ.Obj().Pkg() != nil && typ.Obj().Pkg().Name() == "runtime" {
+			name = strings.Replace(typ.Obj().Name(), "_", "", 1)
+		}
+
 		ditype = llvm.DIBuilderCreateTypedef(
 			c.dibuilder,
 			c.createDebugType(ctx, typ.Underlying()),
-			typ.Obj().Name(),
+			name,
 			nil,
 			0,
 			nil,
 			0,
 		)
 	case *types.Slice:
-		ditype = llvm.DIBuilderCreateStructType(
-			c.dibuilder,
-			nil,
-			"slice",
-			nil,
-			0,
-			llvm.SizeOfTypeInBits(c.options.Target.dataLayout, t.valueType),
-			llvm.ABIAlignmentOfType(c.options.Target.dataLayout, t.valueType)*8,
-			0, nil, []llvm.LLVMMetadataRef{
-				llvm.DIBuilderCreateMemberType(
-					c.dibuilder,
-					nil,
-					"array",
-					nil,
-					0,
-					llvm.SizeOfTypeInBits(c.options.Target.dataLayout, c.ptrType.valueType),
-					llvm.ABIAlignmentOfType(c.options.Target.dataLayout, c.ptrType.valueType)*8,
-					llvm.OffsetOfElement(c.options.Target.dataLayout, t.valueType, 0)*8,
-					0,
-					c.ptrType.debugType),
-				llvm.DIBuilderCreateMemberType(
-					c.dibuilder,
-					nil,
-					"len",
-					nil,
-					0,
-					llvm.SizeOfTypeInBits(c.options.Target.dataLayout, llvm.Int32TypeInContext(c.currentContext(ctx))),
-					llvm.ABIAlignmentOfType(c.options.Target.dataLayout, llvm.Int32TypeInContext(c.currentContext(ctx)))*8,
-					llvm.OffsetOfElement(c.options.Target.dataLayout, t.valueType, 1)*8,
-					0,
-					llvm.DIBuilderCreateBasicType(c.dibuilder, "int",
-						llvm.SizeOfTypeInBits(c.options.Target.dataLayout, llvm.Int32TypeInContext(c.currentContext(ctx))), DW_ATE_unsigned, 0)),
-				llvm.DIBuilderCreateMemberType(
-					c.dibuilder,
-					nil,
-					"cap",
-					nil,
-					0,
-					llvm.SizeOfTypeInBits(c.options.Target.dataLayout, llvm.Int32TypeInContext(c.currentContext(ctx))),
-					llvm.ABIAlignmentOfType(c.options.Target.dataLayout, llvm.Int32TypeInContext(c.currentContext(ctx)))*8,
-					llvm.OffsetOfElement(c.options.Target.dataLayout, t.valueType, 2)*8,
-					0,
-					llvm.DIBuilderCreateBasicType(c.dibuilder, "int",
-						llvm.SizeOfTypeInBits(c.options.Target.dataLayout, llvm.Int32TypeInContext(c.currentContext(ctx))), DW_ATE_unsigned, 0)),
-			}, 0, nil, "")
-	case *types.Array:
-		elementType := c.createType(ctx, typ.Elem())
-		ditype = llvm.DIBuilderCreateArrayType(
-			c.dibuilder,
-			uint64(typ.Len())*llvm.SizeOfTypeInBits(c.options.Target.dataLayout, elementType.valueType),
-			llvm.ABIAlignmentOfType(c.options.Target.dataLayout, t.valueType)*8,
-			c.createDebugType(ctx, typ.Elem()),
-			[]llvm.LLVMMetadataRef{
-				llvm.DIBuilderGetOrCreateSubrange(c.dibuilder, 0, typ.Len()),
-			})
+		tt := c.createRuntimeType(ctx, "_slice")
+		ditype = c.createDebugType(ctx, tt.spec)
 	case *types.Interface:
-		ditype = llvm.DIBuilderCreateStructType(
-			c.dibuilder,
-			nil,
-			"interface",
-			nil,
-			0,
-			llvm.SizeOfTypeInBits(c.options.Target.dataLayout, t.valueType),
-			llvm.ABIAlignmentOfType(c.options.Target.dataLayout, t.valueType)*8,
-			0, nil, []llvm.LLVMMetadataRef{
-				llvm.DIBuilderCreateMemberType(
-					c.dibuilder,
-					nil,
-					"info",
-					nil,
-					0,
-					llvm.SizeOfTypeInBits(c.options.Target.dataLayout, c.ptrType.valueType),
-					llvm.ABIAlignmentOfType(c.options.Target.dataLayout, c.ptrType.valueType)*8,
-					llvm.OffsetOfElement(c.options.Target.dataLayout, t.valueType, 0)*8,
-					0,
-					c.ptrType.debugType),
-				llvm.DIBuilderCreateMemberType(
-					c.dibuilder,
-					nil,
-					"ptr",
-					nil,
-					0,
-					llvm.SizeOfTypeInBits(c.options.Target.dataLayout, c.ptrType.valueType),
-					llvm.ABIAlignmentOfType(c.options.Target.dataLayout, c.ptrType.valueType)*8,
-					llvm.OffsetOfElement(c.options.Target.dataLayout, t.valueType, 1)*8,
-					0,
-					c.ptrType.debugType),
-			}, 0, nil, "")
+		tt := c.createRuntimeType(ctx, "_interface")
+		ditype = c.createDebugType(ctx, tt.spec)
 	case *types.Pointer:
 		// Create a temporary type for this pointer
 		t.debugType = llvm.TemporaryMDNode(c.currentContext(ctx), []llvm.LLVMMetadataRef{})
@@ -286,21 +181,14 @@ func (c *Compiler) createDebugType(ctx context.Context, typ types.Type) (ditype 
 		ditype = llvm.DIBuilderCreatePointerType(
 			c.dibuilder,
 			elementDbg,
-			llvm.StoreSizeOfType(c.options.Target.dataLayout, t.valueType)*8,
+			llvm.SizeOfTypeInBits(c.options.Target.dataLayout, t.valueType),
 			llvm.ABIAlignmentOfType(c.options.Target.dataLayout, t.valueType)*8, 0, "")
 
 		// Replace the temp type
 		llvm.MetadataReplaceAllUsesWith(t.debugType, ditype)
 	case *types.Chan:
-		ditype = llvm.DIBuilderCreateStructType(
-			c.dibuilder,
-			nil,
-			"channel",
-			nil,
-			0,
-			llvm.SizeOfTypeInBits(c.options.Target.dataLayout, t.valueType),
-			llvm.ABIAlignmentOfType(c.options.Target.dataLayout, t.valueType)*8,
-			0, nil, nil, 0, nil, "")
+		tt := c.createRuntimeType(ctx, "_channel")
+		ditype = c.createDebugType(ctx, tt.spec)
 	case *types.Signature:
 		// Create the debug information for this function
 		var argDiTypes []llvm.LLVMMetadataRef

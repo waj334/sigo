@@ -63,9 +63,6 @@ func (c *Compiler) createClosure(ctx context.Context, fn *ssa.Function, closureC
 	// Get the actual function to call
 	actualFn := c.createFunction(ctx, fn)
 
-	// Get the context struct type that will hold the parameters forwarded by the closure
-	//closureCtxType := c.createClosureContextType(ctx, fn)
-
 	// Get the return type of the function to be called by this closure
 	returnType := llvm.GetReturnType(c.signatures[fn.Signature])
 	if discardReturn {
@@ -104,21 +101,6 @@ func (c *Compiler) createClosure(ctx context.Context, fn *ssa.Function, closureC
 }
 
 func (c *Compiler) createClosureContextType(ctx context.Context, fn *ssa.Function) llvm.LLVMTypeRef {
-	/*var paramTypes []llvm.LLVMTypeRef
-
-	signature := fn.Signature
-
-	// Get the function's parameter types
-	for i := 0; i < signature.Params().Len(); i++ {
-		t := c.createType(ctx, signature.Params().At(i).Type()).valueType
-		paramTypes = append(paramTypes, t)
-	}
-
-	// Bound values are appended to the closure's arguments. Add those to the context
-	for _, bound := range fn.FreeVars {
-		t := c.createType(ctx, bound.Type()).valueType
-		paramTypes = append(paramTypes, t)
-	}*/
 	c.createFunction(ctx, fn)
 	paramTypes := llvm.GetParamTypes(c.signatures[fn.Signature])
 	paramsStructType := llvm.StructTypeInContext(c.currentContext(ctx), paramTypes, false)
@@ -133,13 +115,9 @@ func (c *Compiler) createClosureContext(ctx context.Context, closureCtxType llvm
 		panic("len(args) != len(params)")
 	}
 
-	// Create the function argument values
-	//argValues := c.createValues(ctx, args)
-	//bound := c.createValues(ctx, bindings)
-
 	// Create an instance of the params struct
 	x := c.createAlloca(ctx, closureCtxType, "closure.args")
-	for i, arg := range args /*append(argValues, bound...)*/ {
+	for i, arg := range args {
 		// Verify argument types against param types
 		if !llvm.TypeIsEqual(llvm.TypeOf(arg), paramTypes[i]) {
 			panic("type mismatch")

@@ -18,3 +18,6 @@ func memmove(dst, src unsafe.Pointer, num uintptr) unsafe.Pointer
 
 //sigo:extern memset memset
 func memset(ptr unsafe.Pointer, value int, num uintptr) unsafe.Pointer
+
+//sigo:extern memcmp memcmp
+func memcmp(dst, src unsafe.Pointer, num uintptr) int

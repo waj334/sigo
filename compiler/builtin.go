@@ -19,8 +19,8 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 		elementType := c.createType(ctx, args[0].Type().Underlying().(*types.Slice).Elem())
 		elementTypeDesc := c.createTypeDescriptor(ctx, elementType)
 		appendArgs := [3]llvm.LLVMValueRef{c.addressOf(ctx, argValues[0].UnderlyingValue(ctx)), nil, elementTypeDesc}
-		sliceType := llvm.GetTypeByName2(c.currentContext(ctx), "slice")
-		stringType := llvm.GetTypeByName2(c.currentContext(ctx), "string")
+		sliceType := c.createRuntimeType(ctx, "_slice").valueType
+		stringType := c.createRuntimeType(ctx, "_string").valueType
 		if llvm.TypeIsEqual(llvm.TypeOf(argValues[1].UnderlyingValue(ctx)), sliceType) {
 			// Pass the slice directly to the runtime call
 			appendArgs[1] = c.addressOf(ctx, argValues[1].UnderlyingValue(ctx))
@@ -35,7 +35,7 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 
 		// Create the runtime call
 		var sliceValue llvm.LLVMValueRef
-		sliceValue = c.createRuntimeCall(ctx, "append", appendArgs[:])
+		sliceValue = c.createRuntimeCall(ctx, "sliceAppend", appendArgs[:])
 
 		// Load the resulting slice
 		value = llvm.BuildLoad2(c.builder, sliceType, c.addressOf(ctx, sliceValue), "")
@@ -56,7 +56,7 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 		elementType := c.createType(ctx, args[0].Type().Underlying().(*types.Slice).Elem())
 		elementTypeDesc := c.createTypeDescriptor(ctx, elementType)
 		copyArgs := [3]llvm.LLVMValueRef{c.addressOf(ctx, argValues[0].UnderlyingValue(ctx)), nil, elementTypeDesc}
-		stringType := llvm.GetTypeByName2(c.currentContext(ctx), "string")
+		stringType := c.createRuntimeType(ctx, "_string").valueType
 
 		// If the second argument is a string, convert it to a byte slice
 		if llvm.TypeIsEqual(stringType, llvm.TypeOf(argValues[1].UnderlyingValue(ctx))) {
@@ -69,7 +69,10 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 		// Create the runtime call
 		value = c.createRuntimeCall(ctx, "sliceCopy", copyArgs[:])
 	case "delete":
-		panic("not implemented")
+		value = c.createRuntimeCall(ctx, "mapDelete", []llvm.LLVMValueRef{
+			c.addressOf(ctx, argValues[0].UnderlyingValue(ctx)),
+			c.addressOf(ctx, argValues[1].UnderlyingValue(ctx)),
+		})
 	case "imag":
 		panic("not implemented")
 	case "len":
@@ -90,7 +93,7 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 		}
 	case "print", "println":
 		// Create an array of interfaces to pass to the print runtime calls
-		argType := llvm.GetTypeByName2(c.currentContext(ctx), "interface")
+		argType := c.createRuntimeType(ctx, "_interface").valueType
 		if argType == nil {
 			panic("missing \"interface\" type")
 		}
@@ -117,7 +120,7 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 		)
 
 		// Create a runtime call to either print or println
-		value = c.createRuntimeCall(ctx, builtin.Name(), []llvm.LLVMValueRef{arg})
+		value = c.createRuntimeCall(ctx, "_"+builtin.Name(), []llvm.LLVMValueRef{arg})
 	case "real":
 		panic("not implemented")
 	case "recover":
