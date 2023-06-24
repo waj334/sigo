@@ -21,81 +21,6 @@ const (
 	Channel
 )
 
-func (c *Compiler) createTypeInfoTypes(ctx llvm.LLVMContextRef) {
-	typeType := llvm.StructCreateNamed(ctx, "Type")
-	typeTable := llvm.StructCreateNamed(ctx, "DescriptorTable")
-	typeFunctionDesc := llvm.StructCreateNamed(ctx, "FunctionDescriptor")
-	typeFieldDesc := llvm.StructCreateNamed(ctx, "FieldDescriptor")
-	typeArrayDesc := llvm.StructCreateNamed(ctx, "ArrayDescriptor")
-	typeMapDesc := llvm.StructCreateNamed(ctx, "MapDescriptor")
-	typePointerDesc := llvm.StructCreateNamed(ctx, "PointerDescriptor")
-	typeChannelDesc := llvm.StructCreateNamed(ctx, "ChannelDescriptor")
-
-	// Type struct body
-	llvm.StructSetBody(typeType, []llvm.LLVMTypeRef{
-		llvm.PointerType(llvm.GetTypeByName2(ctx, "string"), 0),
-		c.uintptrType.valueType,
-		llvm.Int32TypeInContext(ctx),
-		llvm.Int32TypeInContext(ctx),
-		llvm.PointerType(typeTable, 0),
-		llvm.PointerType(typeTable, 0),
-		llvm.PointerType(typeArrayDesc, 0),
-		llvm.PointerType(typeMapDesc, 0),
-		llvm.PointerType(typePointerDesc, 0),
-		llvm.PointerType(typeChannelDesc, 0),
-		llvm.PointerType(typeFunctionDesc, 0),
-	}, false)
-
-	// Table struct body
-	llvm.StructSetBody(typeTable, []llvm.LLVMTypeRef{
-		llvm.Int32TypeInContext(ctx),
-		c.ptrType.valueType,
-	}, false)
-
-	// FunctionDescriptor struct body
-	llvm.StructSetBody(typeFunctionDesc, []llvm.LLVMTypeRef{
-		c.ptrType.valueType,
-		llvm.Int32TypeInContext(ctx),
-		llvm.PointerType(llvm.GetTypeByName2(ctx, "string"), 0),
-		c.ptrType.valueType,
-		c.ptrType.valueType,
-	}, false)
-
-	// FieldDescriptor struct body
-	llvm.StructSetBody(typeFieldDesc, []llvm.LLVMTypeRef{
-		llvm.PointerType(llvm.GetTypeByName2(ctx, "string"), 0),
-		typeType,
-		llvm.PointerType(llvm.GetTypeByName2(ctx, "string"), 0),
-	}, false)
-
-	// ArrayDescriptor struct body
-	llvm.StructSetBody(typeArrayDesc, []llvm.LLVMTypeRef{
-		llvm.PointerType(typeType, 0),
-		llvm.Int32TypeInContext(ctx),
-		llvm.Int32TypeInContext(ctx),
-	}, false)
-
-	// MapDescriptor struct body
-	llvm.StructSetBody(typeMapDesc, []llvm.LLVMTypeRef{
-		llvm.PointerType(typeType, 0),
-		llvm.PointerType(typeType, 0),
-	}, false)
-
-	// PointerDescriptor struct body
-	llvm.StructSetBody(typePointerDesc, []llvm.LLVMTypeRef{
-		llvm.PointerType(typeType, 0),
-	}, false)
-
-	// ChannelDescriptor struct body
-	llvm.StructSetBody(typeChannelDesc, []llvm.LLVMTypeRef{
-		llvm.PointerType(typeType, 0),
-		llvm.Int32TypeInContext(ctx),
-		llvm.Int32TypeInContext(ctx),
-	}, false)
-
-	return
-}
-
 func (c *Compiler) createTypeDescriptor(ctx context.Context, typ *Type) (descriptor llvm.LLVMValueRef) {
 	// Return the previously create type descriptor
 	if descriptor, ok := c.descriptors[typ.spec]; ok {
@@ -108,7 +33,7 @@ func (c *Compiler) createTypeDescriptor(ctx context.Context, typ *Type) (descrip
 	goType := typ.spec
 
 	// Find the "typeDescriptor" runtime type
-	descriptorType := llvm.GetTypeByName2(c.currentContext(ctx), "Type")
+	descriptorType := c.createRuntimeType(ctx, "_type").valueType
 	if descriptorType != nil {
 		// Create an array to store the typeDescriptor struct's values
 		var descriptorValues [11]llvm.LLVMValueRef
@@ -165,10 +90,10 @@ func (c *Compiler) createTypeDescriptor(ctx context.Context, typ *Type) (descrip
 			elementDescriptor := c.createTypeDescriptor(ctx, c.createType(ctx, goType.Elem()))
 
 			// Create the pointer value descriptor
-			pointerDescType := llvm.GetTypeByName2(c.currentContext(ctx), "PointerDescriptor")
+			pointerDescType := c.createRuntimeType(ctx, "_pointerType").valueType
 			descriptorValues[8] = c.createGlobalValue(ctx,
 				llvm.ConstNamedStruct(pointerDescType, []llvm.LLVMValueRef{elementDescriptor}),
-				c.symbolName(c.currentPackage(ctx).Pkg, "pointer_descriptor"))
+				c.symbolName(c.currentPackage(ctx).Pkg, "pointer_type"))
 		}
 
 		// Create a global for the typename
@@ -193,7 +118,7 @@ func (c *Compiler) createTypeDescriptor(ctx context.Context, typ *Type) (descrip
 		// Create a const descriptor struct value
 		descriptor = c.createGlobalValue(ctx,
 			llvm.ConstNamedStruct(descriptorType, descriptorValues[:]),
-			c.symbolName(c.currentPackage(ctx).Pkg, "typeDescriptor"))
+			c.symbolName(c.currentPackage(ctx).Pkg, "type"))
 		c.descriptors[typ.spec] = descriptor
 	}
 	return
@@ -201,9 +126,9 @@ func (c *Compiler) createTypeDescriptor(ctx context.Context, typ *Type) (descrip
 
 func (c *Compiler) createMethodTable(ctx context.Context, methods []*types.Func) llvm.LLVMValueRef {
 	// Get the required types
-	methodTableType := llvm.GetTypeByName2(c.currentContext(ctx), "DescriptorTable")
+	methodTableType := c.createRuntimeType(ctx, "_methodTable").valueType
 	if methodTableType == nil {
-		panic("missing DescriptorTable type")
+		panic("missing runtime._methodTable type")
 	}
 
 	methodTableValues := []llvm.LLVMValueRef{
@@ -237,18 +162,18 @@ func (c *Compiler) createFunctionDescriptor(ctx context.Context, fn *types.Func)
 	if descriptor, ok := c.descriptors[fn.Type()]; ok {
 		return descriptor
 	} else {
-		descriptorType := llvm.GetTypeByName2(c.currentContext(ctx), "Type")
+		descriptorType := c.createRuntimeType(ctx, "_type").valueType
 		if descriptorType == nil {
 			panic("missing Type type")
 		}
 
-		funcDescriptorType := llvm.GetTypeByName2(c.currentContext(ctx), "FunctionDescriptor")
+		funcDescriptorType := c.createRuntimeType(ctx, "_funcType").valueType
 		if funcDescriptorType == nil {
 			panic("missing FunctionDescriptor type")
 		}
 
-		tableType := llvm.GetTypeByName2(c.currentContext(ctx), "DescriptorTable")
-		if funcDescriptorType == nil {
+		tableType := c.createRuntimeType(ctx, "_typeTable").valueType
+		if tableType == nil {
 			panic("missing DescriptorTable type")
 		}
 
@@ -281,33 +206,15 @@ func (c *Compiler) createFunctionDescriptor(ctx context.Context, fn *types.Func)
 		}
 
 		// Create the return table
-		arr := c.createGlobalValue(ctx, llvm.ConstArray(c.ptrType.valueType, returnTypes), c.symbolName(c.currentPackage(ctx).Pkg, "returns"))
-		/*returnsBase := llvm.ConstNull(c.ptrType.valueType)
-		if len(returnTypes) > 0 {
-			returnsBase = llvm.BuildInBoundsGEP2(c.builder, c.ptrType.valueType, arr,
-				[]llvm.LLVMValueRef{
-					llvm.ConstInt(llvm.Int32TypeInContext(c.currentContext(ctx)), 0, false),
-				}, "")
-		}*/
+		arr := c.createGlobalValue(ctx,
+			llvm.ConstArray(c.ptrType.valueType, returnTypes),
+			c.symbolName(c.currentPackage(ctx).Pkg, "returns"))
 
 		returnTable := llvm.ConstNamedStruct(tableType, []llvm.LLVMValueRef{
 			llvm.ConstInt(llvm.Int32TypeInContext(c.currentContext(ctx)), uint64(len(returnTypes)), false),
 			arr,
 		})
 
-		// Find the function ptr for this function
-		/*var fnValue *Function
-		for _, f := range c.functions {
-			if f.def.Object() == fn {
-				fnValue = f
-			}
-		}
-
-		if fnValue == nil {
-			panic("no value for function signature")
-		}*/
-
-		//fnValue := c.signatures[fn.Type().(*types.Signature)]
 		ssaFn := c.currentPackage(ctx).Prog.FuncValue(fn)
 		if ssaFn == nil {
 			panic("function does not exist?")
@@ -326,7 +233,7 @@ func (c *Compiler) createFunctionDescriptor(ctx context.Context, fn *types.Func)
 
 		value := c.createGlobalValue(ctx,
 			llvm.ConstNamedStruct(funcDescriptorType, funcDescriptorValues),
-			c.symbolName(c.currentPackage(ctx).Pkg, "functionDescriptor"))
+			c.symbolName(c.currentPackage(ctx).Pkg, "funcType"))
 
 		// Cache this descriptor for fast lookup later
 		c.descriptors[fn.Type()] = value

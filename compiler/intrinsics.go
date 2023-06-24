@@ -92,32 +92,32 @@ func (c *Compiler) createIntrinsic(ctx context.Context, call *ssa.Call) (value V
 	switch name {
 	case "sync/atomic.AddUint32", "sync/atomic.AddInt32", "sync/atomic.AddUint64", "sync/atomic.AddInt64", "sync/atomic.AddUintptr":
 		value.ref = llvm.BuildAtomicRMW(c.builder,
-			llvm.LLVMAtomicRMWBinOp(llvm.AtomicRMWBinOpAdd),
+			llvm.AtomicRMWBinOpAdd,
 			args[0],
 			args[1],
-			llvm.LLVMAtomicOrdering(llvm.AtomicOrderingAcquireRelease),
+			llvm.AtomicOrderingAcquireRelease,
 			false)
 	case "sync/atomic.LoadUint32", "sync/atomic.LoadInt32", "sync/atomic.LoadUint64", "sync/atomic.LoadInt64", "sync/atomic.LoadUintptr", "sync/atomic.LoadPointer":
 		value.ref = llvm.BuildLoad2(c.builder, c.createType(ctx, call.Type()).valueType, args[0], "")
-		llvm.SetOrdering(value.ref, llvm.LLVMAtomicOrdering(llvm.AtomicOrderingAcquire))
+		llvm.SetOrdering(value.ref, llvm.AtomicOrderingAcquire)
 	case "sync/atomic.StoreUint32", "sync/atomic.StoreInt32", "sync/atomic.StoreUint64", "sync/atomic.StoreInt64", "sync/atomic.StoreUintptr", "sync/atomic.StorePointer":
 		str := llvm.BuildStore(c.builder, args[1], args[0])
-		llvm.SetOrdering(str, llvm.LLVMAtomicOrdering(llvm.AtomicOrderingRelease))
+		llvm.SetOrdering(str, llvm.AtomicOrderingRelease)
 		value.ref = llvm.GetUndef(llvm.VoidTypeInContext(c.currentContext(ctx)))
 	case "sync/atomic.SwapUint32", "sync/atomic.SwapInt32", "sync/atomic.SwapUint64", "sync/atomic.SwapInt64", "sync/atomic.SwapUintptr", "sync/atomic.SwapPointer":
 		value.ref = llvm.BuildAtomicRMW(c.builder,
-			llvm.LLVMAtomicRMWBinOp(llvm.AtomicRMWBinOpXchg),
+			llvm.AtomicRMWBinOpXchg,
 			args[0],
 			args[1],
-			llvm.LLVMAtomicOrdering(llvm.AtomicOrderingAcquireRelease),
+			llvm.AtomicOrderingAcquireRelease,
 			false)
 	case "sync/atomic.CompareAndSwapUint32", "sync/atomic.CompareAndSwapInt32", "sync/atomic.CompareAndSwapUint64", "sync/atomic.CompareAndSwapInt64", "sync/atomic.CompareAndSwapUintptr", "sync/atomic.CompareAndSwapPointer":
 		result := llvm.BuildAtomicCmpXchg(c.builder,
 			args[0],
 			args[1],
 			args[2],
-			llvm.LLVMAtomicOrdering(llvm.AtomicOrderingSequentiallyConsistent),
-			llvm.LLVMAtomicOrdering(llvm.AtomicOrderingSequentiallyConsistent),
+			llvm.AtomicOrderingSequentiallyConsistent,
+			llvm.AtomicOrderingSequentiallyConsistent,
 			false)
 		value.ref = llvm.BuildExtractValue(c.builder, result, 1, "")
 

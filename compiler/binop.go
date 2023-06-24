@@ -13,9 +13,10 @@ func (c *Compiler) createBinOp(ctx context.Context, expr *ssa.BinOp) (value llvm
 	// Get operand values
 	x := c.createExpression(ctx, expr.X).UnderlyingValue(ctx)
 	y := c.createExpression(ctx, expr.Y).UnderlyingValue(ctx)
+	xType := c.createType(ctx, expr.X.Type())
+	yType := c.createType(ctx, expr.Y.Type())
 
-	if basicType, ok := expr.Y.Type().Underlying().(*types.Basic); ok {
-		//if basicType.Info()&types.IsUntyped != 0 && basicType.Info()&types.IsInteger != 0 {
+	if basicType, ok := yType.spec.Underlying().(*types.Basic); ok {
 		if basicType.Info()&types.IsInteger != 0 {
 			// Cast the untyped integer to that of the lhs
 			y = llvm.BuildIntCast2(c.builder, y, llvm.TypeOf(x), basicType.Info()&types.IsUnsigned == 0, "untyped_int_cast")
@@ -32,7 +33,7 @@ func (c *Compiler) createBinOp(ctx context.Context, expr *ssa.BinOp) (value llvm
 	}
 
 	var typeInfo types.BasicInfo
-	if basic, ok := expr.X.Type().(*types.Basic); ok {
+	if basic, ok := xType.spec.(*types.Basic); ok {
 		typeInfo = basic.Info()
 	}
 	// Create the respective operator
@@ -49,7 +50,7 @@ func (c *Compiler) createBinOp(ctx context.Context, expr *ssa.BinOp) (value llvm
 			})
 
 			// Load the resulting string values
-			value = llvm.BuildLoad2(c.builder, llvm.GetTypeByName2(c.currentContext(ctx), "string"), c.addressOf(ctx, stringValue), "")
+			value = llvm.BuildLoad2(c.builder, c.createRuntimeType(ctx, "_string").valueType, c.addressOf(ctx, stringValue), "")
 		} else {
 			value = llvm.BuildAdd(c.builder, x, y, "")
 		}
@@ -105,8 +106,8 @@ func (c *Compiler) createBinOp(ctx context.Context, expr *ssa.BinOp) (value llvm
 		negY := llvm.BuildNeg(c.builder, y, "and_not_neg_y")
 		value = llvm.BuildAnd(c.builder, x, negY, "")
 	case token.EQL:
-		if types.IsInterface(expr.X.Type()) || types.IsInterface(expr.Y.Type()) {
-			if types.IsInterface(expr.X.Type()) && types.IsInterface(expr.X.Type()) {
+		if types.IsInterface(xType.spec) || types.IsInterface(yType.spec) {
+			if types.IsInterface(xType.spec) && types.IsInterface(xType.spec) {
 				// runtime call for interface equality
 				value = c.createRuntimeCall(ctx, "interfaceCompare", []llvm.LLVMValueRef{c.addressOf(ctx, x), c.addressOf(ctx, y)})
 			} else {
@@ -121,8 +122,8 @@ func (c *Compiler) createBinOp(ctx context.Context, expr *ssa.BinOp) (value llvm
 			value = llvm.BuildICmp(c.builder, llvm.IntEQ, x, y, "")
 		}
 	case token.NEQ:
-		if types.IsInterface(expr.X.Type()) || types.IsInterface(expr.Y.Type()) {
-			if types.IsInterface(expr.X.Type()) && types.IsInterface(expr.X.Type()) {
+		if types.IsInterface(xType.spec) || types.IsInterface(yType.spec) {
+			if types.IsInterface(xType.spec) && types.IsInterface(xType.spec) {
 				// runtime call for interface equality
 				value = c.createRuntimeCall(ctx, "interfaceCompare", []llvm.LLVMValueRef{c.addressOf(ctx, x), c.addressOf(ctx, y)})
 

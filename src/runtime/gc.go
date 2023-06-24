@@ -70,7 +70,12 @@ func alloc(size uintptr) unsafe.Pointer {
 		return nil
 	}
 
+	// Lock the mutex before disabling the interrupt so that goroutines can
+	// compete for the lock.
 	gcMu.Lock()
+
+	// Disable interrupts so that there is no context switch during memory
+	// allocation.
 	state := disableInterrupts()
 
 	// Attempt to allocate memory for the object ref
@@ -100,9 +105,15 @@ func alloc(size uintptr) unsafe.Pointer {
 	numAllocas++
 	heapUsage = mallinfo().uordblks
 
-	enableInterrupts(state)
+	// Unlock the mutex before enabling the interrupts to prevent a deadlock
+	// that can occur if there is a context switch within this critical
+	// section.
 	gcMu.Unlock()
-	//return ptr
+
+	// Allow context switches not
+	enableInterrupts(state)
+
+	// Return the starting address of the memory allocation
 	return obj.addr
 }
 
@@ -126,7 +137,7 @@ func markAll() {
 	_task := headTask
 	for {
 		if _task != nil {
-			stackBottom := unsafe.Add(_task.stack, alignStack(*_goroutineStackSize))
+			stackBottom := unsafe.Add(_task.stack, alignStack(*goroutineStackSize))
 			scan(currentStack(), stackBottom)
 
 			_task = _task.next

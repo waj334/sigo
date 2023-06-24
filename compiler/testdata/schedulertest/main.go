@@ -73,6 +73,16 @@ func main() {
 		mcu.PB11.Toggle()
 	})
 
+	testMap := make(map[string]string)
+	testMap["this is"] = "a test\n"
+
+	testMap2 := testMap
+	testMap2["this is another"] = "map test\n"
+
+	UART.WriteString(testMap["this is"])
+	UART.WriteString(testMap2["this is another"])
+	UART.WriteString(testMap2["does not exist"])
+
 	var mutex sync.Mutex
 
 	go func() {

@@ -11,7 +11,8 @@ _task_start:
     b .loop                         // ---------------------------
 .size _task_start, .-_task_start
 
-.global runtime._currentTask
+.global runtime.currentTask
+.global runtime.lastTask
 .global PendSV_Handler
 .type PendSV_Handler, %function
 PendSV_Handler:
@@ -19,9 +20,9 @@ PendSV_Handler:
     bl runtime.runScheduler
 
     // Load the stack pointer of the current task
-    ldr r0, =runtime._currentTask   // Load the address of the current task pointer into R0
+    ldr r0, =runtime.currentTask    // Load the address of the current task pointer into R0
     ldr r0, [r0]                    // Load the current task into R0
-    ldr r1, =runtime._lastTask      // Load the last task pointer into R1
+    ldr r1, =runtime.lastTask       // Load the last task pointer into R1
     ldr r1, [r1]                    // Load the value of the last task pointer into R1
     cmp r1, r0                      // Compare the last task to the current task
     beq _return                     // Do nothing if the task has not changed

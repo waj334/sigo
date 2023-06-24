@@ -8,8 +8,8 @@ import (
 
 var _tickCount uint32
 
-//go:export _currentTick runtime.currentTick
-func _currentTick() uint32 {
+//go:export currentTick runtime.currentTick
+func currentTick() uint32 {
 	return atomic.LoadUint32(&_tickCount)
 }
 

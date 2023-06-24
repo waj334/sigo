@@ -56,90 +56,90 @@ const (
 	Channel
 )
 
-type typeDescriptor struct {
+type _type struct {
 	name      *string
 	size      uintptr
 	construct ConstructType
 	kind      BasicKind
-	methods   *methodTable
-	fields    *fieldTable
-	array     *arrayDescriptor
-	mapp      *mapTypeDescriptor
-	ptr       *pointerDescriptor
-	channel   *channelTypeDescriptor
-	function  *functionDescriptor
+	methods   *_methodTable
+	fields    *_fieldTable
+	array     *_arrayType
+	mapp      *_mapType
+	ptr       *_pointerType
+	channel   *_channelType
+	function  *_funcType
 }
 
-type methodTable struct {
+type _methodTable struct {
 	count   int
 	methods unsafe.Pointer
 }
 
-func (m methodTable) index(i int) *functionDescriptor {
+func (m _methodTable) index(i int) *_funcType {
 	if i < m.count {
 		ptr := unsafe.Add(m.methods, unsafe.Sizeof(uintptr(0))*uintptr(i))
-		return (*functionDescriptor)(unsafe.Pointer(*(*uintptr)(ptr)))
+		return (*_funcType)(unsafe.Pointer(*(*uintptr)(ptr)))
 	}
 	return nil
 }
 
-type fieldTable struct {
+type _fieldTable struct {
 	count  int
 	fields unsafe.Pointer
 }
 
-func (f fieldTable) index(i int) *fieldDescriptor {
+func (f _fieldTable) index(i int) *_field {
 	if i < f.count {
 		ptr := unsafe.Add(f.fields, unsafe.Sizeof(uintptr(0))*uintptr(i))
-		return (*fieldDescriptor)(unsafe.Pointer(*(*uintptr)(ptr)))
+		return (*_field)(unsafe.Pointer(*(*uintptr)(ptr)))
 	}
 	return nil
 }
 
-type typeTable struct {
+type _typeTable struct {
 	count int
 	types unsafe.Pointer
 }
 
-func (t typeTable) index(i int) *typeDescriptor {
+func (t _typeTable) index(i int) *_type {
 	if i < t.count {
 		ptr := unsafe.Add(t.types, unsafe.Sizeof(uintptr(0))*uintptr(i))
-		return (*typeDescriptor)(unsafe.Pointer(*(*uintptr)(ptr)))
+		return (*_type)(unsafe.Pointer(*(*uintptr)(ptr)))
 	}
 	return nil
 }
 
-type functionDescriptor struct {
+type _funcType struct {
 	ptr     unsafe.Pointer
 	id      uint32
 	name    *string
-	args    *typeTable
-	returns *typeTable
+	args    *_typeTable
+	returns *_typeTable
 }
 
-type fieldDescriptor struct {
+type _field struct {
 	name     *string
-	typeInfo *typeDescriptor
+	typeInfo *_type
 	tag      *string
 }
 
-type arrayDescriptor struct {
-	elementType *typeDescriptor
-	length      int64
-	capacity    int64
+type _arrayType struct {
+	elementType *_type
+	length      int
+	capacity    int
 }
 
-type mapTypeDescriptor struct {
-	keyType   *typeDescriptor
-	valueType *typeDescriptor
+type _mapType struct {
+	keyType   *_type
+	valueType *_type
 }
 
-type pointerDescriptor struct {
-	elementType *typeDescriptor
+type _pointerType struct {
+	elementType *_type
 }
 
-type channelTypeDescriptor struct {
-	elementType *typeDescriptor
+type _channelType struct {
+	elementType *_type
 	direction   int
 	capacity    int
 }

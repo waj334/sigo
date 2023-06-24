@@ -5,8 +5,10 @@ import (
 	"go/constant"
 	"go/token"
 	"go/types"
-	"golang.org/x/tools/go/ssa"
 	"math"
+
+	"golang.org/x/tools/go/ssa"
+
 	"omibyte.io/sigo/llvm"
 )
 
@@ -302,18 +304,10 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 			panic("function does not exist")
 		}
 	case *ssa.ChangeInterface:
-		interfaceType := llvm.GetTypeByName2(c.currentContext(ctx), "interface")
+		interfaceType := c.createRuntimeType(ctx, "_interface").valueType
 		concreteType := c.createTypeDescriptor(ctx, c.createType(ctx, expr.Type()))
 		interfaceValue := c.createExpression(ctx, expr.X).UnderlyingValue(ctx)
 		concreteValue := llvm.BuildExtractValue(c.builder, interfaceValue, 1, "")
-
-		// Create the new interface value
-		/*agg := llvm.GetUndef(interfaceType)
-		agg = llvm.BuildInsertValue(c.builder, agg, concreteType, 0, "")
-		agg = llvm.BuildInsertValue(c.builder, agg, concreteValue, 1, "")
-		value.ref = c.createAlloca(ctx, interfaceType, "")
-		llvm.BuildStore(c.builder, agg, value.ref)*/
-
 		value.ref = llvm.GetUndef(interfaceType)
 		value.ref = llvm.BuildInsertValue(c.builder, value.ref, concreteType, 0, "")
 		value.ref = llvm.BuildInsertValue(c.builder, value.ref, concreteValue, 1, "")
@@ -501,7 +495,37 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 				[]llvm.LLVMValueRef{indexValue}, "")
 		}
 	case *ssa.Lookup:
-		panic("not implemented")
+		mapValue := c.createExpression(ctx, expr.X).UnderlyingValue(ctx)
+		keyValue := c.createExpression(ctx, expr.Index).UnderlyingValue(ctx)
+		elemType := c.createType(ctx, expr.Type()).valueType
+
+		// Create space on the stack to store the value returned by the lookup
+		result := c.createAlloca(ctx, elemType, "")
+
+		// Create the runtime call to perform the map lookup
+		okValue := c.createRuntimeCall(ctx, "mapLookup", []llvm.LLVMValueRef{
+			c.addressOf(ctx, mapValue),
+			c.addressOf(ctx, keyValue),
+			result,
+		})
+
+		// Load the result
+		result = llvm.BuildLoad2(c.builder, elemType, result, "")
+
+		if expr.CommaOk {
+			// Create an aggregate to return
+			resultType := llvm.StructTypeInContext(
+				c.currentContext(ctx),
+				[]llvm.LLVMTypeRef{
+					elemType,
+					llvm.Int1TypeInContext(c.currentContext(ctx)),
+				}, false)
+			value.ref = llvm.GetUndef(resultType)
+			value.ref = llvm.BuildInsertValue(c.builder, value.ref, result, 0, "")
+			value.ref = llvm.BuildInsertValue(c.builder, value.ref, okValue, 1, "")
+		} else {
+			value.ref = result
+		}
 	case *ssa.MakeChan:
 		panic("not implemented")
 	case *ssa.MakeClosure:
@@ -516,6 +540,19 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		}
 	case *ssa.MakeInterface:
 		value.ref = c.makeInterface(ctx, expr.X)
+	case *ssa.MakeMap:
+		mapType := expr.Type().Underlying().(*types.Map)
+		keyType := c.createTypeDescriptor(ctx, c.createType(ctx, mapType.Key()))
+		valueType := c.createTypeDescriptor(ctx, c.createType(ctx, mapType.Elem()))
+		var capacityValue llvm.LLVMValueRef
+		if expr.Reserve != nil {
+			capacityValue = c.createExpression(ctx, expr.Reserve).UnderlyingValue(ctx)
+		} else {
+			capacityValue = llvm.ConstInt(c.int32Type(ctx), 0, false)
+		}
+
+		// TODO: Handle reserve value
+		value.ref = c.createRuntimeCall(ctx, "mapMake", []llvm.LLVMValueRef{keyType, valueType, capacityValue})
 	case *ssa.MakeSlice:
 		lenValue := c.createExpression(ctx, expr.Len).UnderlyingValue(ctx)
 		lenValueType := expr.Len.Type().Underlying().(*types.Basic)
@@ -525,8 +562,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		elementTypeDesc := c.createTypeDescriptor(ctx, elementType)
 
 		// Create the runtime call
-		var slice llvm.LLVMValueRef
-		slice = c.createRuntimeCall(ctx, "sliceMake", []llvm.LLVMValueRef{
+		value.ref = c.createRuntimeCall(ctx, "sliceMake", []llvm.LLVMValueRef{
 			elementTypeDesc,
 			llvm.BuildIntCast2(c.builder,
 				lenValue,
@@ -539,10 +575,6 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 				capValueType.Info()&types.IsUnsigned == 0,
 				""),
 		})
-
-		// Load the slice value
-		//sliceType := llvm.GetTypeByName2(c.currentContext(ctx), "slice")
-		value.ref = slice //llvm.BuildLoad2(c.builder, sliceType, c.addressOf(ctx, slice), "")
 	case *ssa.MultiConvert:
 		panic("not implemented")
 	case *ssa.Next:
@@ -660,11 +692,6 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		if expr.CommaOk {
 			// Return the obj and the status
 			valueType := llvm.StructType([]llvm.LLVMTypeRef{llvm.TypeOf(assertedValue), llvm.TypeOf(ok)}, false)
-			/*agg := llvm.GetUndef(valueType)
-			agg = llvm.BuildInsertValue(c.builder, agg, assertedValue, 0, "")
-			agg = llvm.BuildInsertValue(c.builder, agg, ok, 1, "")
-			value.ref = c.createAlloca(ctx, valueType, "")
-			llvm.BuildStore(c.builder, agg, value.ref)*/
 			value.ref = llvm.GetUndef(valueType)
 			value.ref = llvm.BuildInsertValue(c.builder, value.ref, assertedValue, 0, "")
 			value.ref = llvm.BuildInsertValue(c.builder, value.ref, ok, 1, "")

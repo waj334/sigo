@@ -6,9 +6,9 @@ type Error interface {
 }
 
 type TypeAssertError struct {
-	_interface    *typeDescriptor
-	concrete      *typeDescriptor
-	asserted      *typeDescriptor
+	_interface    *_type
+	concrete      *_type
+	asserted      *_type
 	missingMethod string
 }
 

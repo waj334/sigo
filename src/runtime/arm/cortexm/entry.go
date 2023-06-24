@@ -10,7 +10,7 @@ func main()
 //sigo:extern gcmain runtime.gcmain
 func gcmain()
 
-//sigo:extern abort _abort
+//sigo:extern abort runtime.abort
 func abort()
 
 //sigo:extern initPackages runtime.initPackages
