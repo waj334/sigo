@@ -18,8 +18,30 @@ func (c *Compiler) createUnOp(ctx context.Context, expr *ssa.UnOp) (value llvm.L
 	// Create the respective LLVM operator
 	switch expr.Op {
 	case token.ARROW:
-		// TODO: Channel receive
-		panic("Not implemented")
+		// Allocate memory on the stack to receive the value into
+		result := c.createAlloca(ctx, c.createType(ctx, expr.Type()).valueType, "chan_recv")
+
+		// Perform the channel receive
+		okVal := c.createRuntimeCall(ctx, "channelReceive", []llvm.LLVMValueRef{
+			xValue,
+			result,
+			c.createConstBool(ctx, !expr.CommaOk),
+		})
+
+		if expr.CommaOk {
+			// Create the result tuple
+			value = llvm.GetUndef(llvm.StructTypeInContext(c.currentContext(ctx), []llvm.LLVMTypeRef{
+				c.ptrType.valueType,
+				c.int1Type(ctx),
+			}, false))
+
+			// Insert the result values into the tuple
+			value = llvm.BuildInsertValue(c.builder, value, result, 0, "")
+			value = llvm.BuildInsertValue(c.builder, value, okVal, 1, "")
+		} else {
+			// Just return the received value
+			value = result
+		}
 	case token.MUL:
 		value = x.UnderlyingValue(ctx)
 

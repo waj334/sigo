@@ -67,46 +67,43 @@ func interfaceAssert(X *_interface, from *_type, T *_type, hasOk bool) (unsafe.P
 	return X.valuePtr, true
 }
 
-func interfaceCompare(X unsafe.Pointer, Y unsafe.Pointer) bool {
-	xi := (*_interface)(X)
-	yi := (*_interface)(Y)
-
+func interfaceCompare(X _interface, Y _interface) bool {
 	// Nil comparison
-	if xi.typePtr == yi.typePtr && xi.valuePtr == nil && yi.valuePtr == nil {
+	if X.typePtr == Y.typePtr && X.valuePtr == nil && Y.valuePtr == nil {
 		return true
 	}
 
 	// Interfaces are equal if their types are the same and their values are the same
-	if xi.typePtr == yi.typePtr {
-		switch xi.typePtr.kind {
+	if X.typePtr == Y.typePtr {
+		switch X.typePtr.kind {
 		case Bool:
-			return *(*bool)(xi.valuePtr) == *(*bool)(yi.valuePtr)
+			return *(*bool)(X.valuePtr) == *(*bool)(Y.valuePtr)
 		case Int:
-			return *(*int)(xi.valuePtr) == *(*int)(yi.valuePtr)
+			return *(*int)(X.valuePtr) == *(*int)(Y.valuePtr)
 		case Int8:
-			return *(*int8)(xi.valuePtr) == *(*int8)(yi.valuePtr)
+			return *(*int8)(X.valuePtr) == *(*int8)(Y.valuePtr)
 		case Int16:
-			return *(*int16)(xi.valuePtr) == *(*int16)(yi.valuePtr)
+			return *(*int16)(X.valuePtr) == *(*int16)(Y.valuePtr)
 		case Int32:
-			return *(*int32)(xi.valuePtr) == *(*int32)(yi.valuePtr)
+			return *(*int32)(X.valuePtr) == *(*int32)(Y.valuePtr)
 		case Int64:
-			return *(*int64)(xi.valuePtr) == *(*int64)(yi.valuePtr)
+			return *(*int64)(X.valuePtr) == *(*int64)(Y.valuePtr)
 		case Uint:
-			return *(*uint)(xi.valuePtr) == *(*uint)(yi.valuePtr)
+			return *(*uint)(X.valuePtr) == *(*uint)(Y.valuePtr)
 		case Uint8:
-			return *(*uint8)(xi.valuePtr) == *(*uint8)(yi.valuePtr)
+			return *(*uint8)(X.valuePtr) == *(*uint8)(Y.valuePtr)
 		case Uint16:
-			return *(*uint16)(xi.valuePtr) == *(*uint16)(yi.valuePtr)
+			return *(*uint16)(X.valuePtr) == *(*uint16)(Y.valuePtr)
 		case Uint32:
-			return *(*uint32)(xi.valuePtr) == *(*uint32)(yi.valuePtr)
+			return *(*uint32)(X.valuePtr) == *(*uint32)(Y.valuePtr)
 		case Uint64:
-			return *(*uint64)(xi.valuePtr) == *(*uint64)(yi.valuePtr)
+			return *(*uint64)(X.valuePtr) == *(*uint64)(Y.valuePtr)
 		case Uintptr:
-			return *(*uintptr)(xi.valuePtr) == *(*uintptr)(yi.valuePtr)
+			return *(*uintptr)(X.valuePtr) == *(*uintptr)(Y.valuePtr)
 		case Float32:
-			return *(*float32)(xi.valuePtr) == *(*float32)(yi.valuePtr)
+			return *(*float32)(X.valuePtr) == *(*float32)(Y.valuePtr)
 		case Float64:
-			return *(*float64)(xi.valuePtr) == *(*float64)(yi.valuePtr)
+			return *(*float64)(X.valuePtr) == *(*float64)(Y.valuePtr)
 		case Complex64:
 			// TODO
 			return false
@@ -114,17 +111,16 @@ func interfaceCompare(X unsafe.Pointer, Y unsafe.Pointer) bool {
 			// TODO
 			return false
 		case String:
-			return *(*string)(xi.valuePtr) == *(*string)(yi.valuePtr)
+			return *(*string)(X.valuePtr) == *(*string)(Y.valuePtr)
 		case UnsafePointer:
-			return *(*unsafe.Pointer)(xi.valuePtr) == *(*unsafe.Pointer)(yi.valuePtr)
+			return *(*unsafe.Pointer)(X.valuePtr) == *(*unsafe.Pointer)(Y.valuePtr)
 		}
 	}
 	return false
 }
 
-func interfaceLookUp(ptr unsafe.Pointer, id uint32) (result unsafe.Pointer) {
-	iface := (*_interface)(ptr)
-	info := iface.typePtr
+func interfaceLookUp(i _interface, id uint32) (result unsafe.Pointer) {
+	info := i.typePtr
 
 	// Get the underlying type
 	if info.ptr != nil {

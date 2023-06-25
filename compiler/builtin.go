@@ -24,7 +24,7 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 	case "cap":
 		switch args[0].Type().Underlying().(type) {
 		case *types.Slice:
-			value = c.createRuntimeCall(ctx, "sliceCap", []llvm.LLVMValueRef{c.addressOf(ctx, argValues[0].UnderlyingValue(ctx))})
+			value = c.createRuntimeCall(ctx, "sliceCap", []llvm.LLVMValueRef{argValues[0].UnderlyingValue(ctx)})
 		case *types.Chan:
 			panic("not implemented")
 		default:
@@ -35,26 +35,25 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 	case "complex":
 		panic("not implemented")
 	case "copy":
+		argValues := argValues.Ref(ctx)
 		elementType := c.createType(ctx, args[0].Type().Underlying().(*types.Slice).Elem())
 		elementTypeDesc := c.createTypeDescriptor(ctx, elementType)
-		copyArgs := [3]llvm.LLVMValueRef{c.addressOf(ctx, argValues[0].UnderlyingValue(ctx)), nil, elementTypeDesc}
+		copyArgs := [3]llvm.LLVMValueRef{argValues[0], nil, elementTypeDesc}
 		stringType := c.createRuntimeType(ctx, "_string").valueType
 
 		// If the second argument is a string, convert it to a byte slice
-		if llvm.TypeIsEqual(stringType, llvm.TypeOf(argValues[1].UnderlyingValue(ctx))) {
-			copyArgs[1] = c.createSliceFromStringValue(ctx, argValues[1].UnderlyingValue(ctx))
+		if llvm.TypeIsEqual(stringType, llvm.TypeOf(argValues[1])) {
+			copyArgs[1] = c.createSliceFromStringValue(ctx, argValues[1])
 		} else {
 			// Pass the slice directly
-			copyArgs[1] = c.addressOf(ctx, argValues[1].UnderlyingValue(ctx))
+			copyArgs[1] = argValues[1]
 		}
 
 		// Create the runtime call
 		value = c.createRuntimeCall(ctx, "sliceCopy", copyArgs[:])
 	case "delete":
-		value = c.createRuntimeCall(ctx, "mapDelete", []llvm.LLVMValueRef{
-			c.addressOf(ctx, argValues[0].UnderlyingValue(ctx)),
-			c.addressOf(ctx, argValues[1].UnderlyingValue(ctx)),
-		})
+		argValues := argValues.Ref(ctx)
+		value = c.createRuntimeCall(ctx, "mapDelete", argValues)
 	case "imag":
 		panic("not implemented")
 	case "len":
@@ -62,12 +61,12 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 		case *types.Basic:
 			switch t.Kind() {
 			case types.String:
-				value = c.createRuntimeCall(ctx, "stringLen", []llvm.LLVMValueRef{c.addressOf(ctx, argValues[0].UnderlyingValue(ctx))})
+				value = c.createRuntimeCall(ctx, "stringLen", []llvm.LLVMValueRef{argValues[0].UnderlyingValue(ctx)})
 			default:
 				panic("len called with invalid value type")
 			}
 		case *types.Slice:
-			value = c.createRuntimeCall(ctx, "sliceLen", []llvm.LLVMValueRef{c.addressOf(ctx, argValues[0].UnderlyingValue(ctx))})
+			value = c.createRuntimeCall(ctx, "sliceLen", []llvm.LLVMValueRef{argValues[0].UnderlyingValue(ctx)})
 		case *types.Chan:
 			panic("not implemented")
 		default:

@@ -13,12 +13,12 @@ type _string struct {
 
 func strncmp(str1, str2 unsafe.Pointer, size uintptr) int
 
-func stringLen(descriptor *_string) int {
+func stringLen(descriptor _string) int {
 	str := descriptor
 	return str.len
 }
 
-func stringConcat(lhs *_string, rhs *_string) _string {
+func stringConcat(lhs _string, rhs _string) _string {
 	// Allocate storage buffer for the new string
 	newLen := lhs.len + rhs.len
 	newArray := alloc(uintptr(newLen))
@@ -34,7 +34,7 @@ func stringConcat(lhs *_string, rhs *_string) _string {
 	}
 }
 
-func stringIndexAddr(str *_string, index int) unsafe.Pointer {
+func stringIndexAddr(str _string, index int) unsafe.Pointer {
 	// Index MUST not be greater than the length of the string
 	if index >= str.len {
 		panic("runtime: index out of range")
@@ -43,7 +43,7 @@ func stringIndexAddr(str *_string, index int) unsafe.Pointer {
 	return unsafe.Add(str.array, uintptr(index))
 }
 
-func stringCompare(lhs, rhs *_string) bool {
+func stringCompare(lhs, rhs _string) bool {
 	// Fast path
 	if lhs.len != rhs.len {
 		return false

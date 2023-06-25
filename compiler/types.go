@@ -158,6 +158,10 @@ func (c *Compiler) createRuntimeType(ctx context.Context, typename string) *Type
 	return c.createType(ctx, t.Type())
 }
 
+func (c *Compiler) int1Type(ctx context.Context) llvm.LLVMTypeRef {
+	return llvm.Int1TypeInContext(c.currentContext(ctx))
+}
+
 func (c *Compiler) int8Type(ctx context.Context) llvm.LLVMTypeRef {
 	return llvm.Int8TypeInContext(c.currentContext(ctx))
 }

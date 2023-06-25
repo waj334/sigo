@@ -55,36 +55,30 @@ func sliceAppend(base _slice, incoming _slice, elementType *_type) _slice {
 	}
 }
 
-func sliceLen(s unsafe.Pointer) int {
-	slice := (*_slice)(s)
-	return slice.len
+func sliceLen(s _slice) int {
+	return s.len
 }
 
-func sliceCap(s unsafe.Pointer) int {
-	slice := (*_slice)(s)
-	return slice.cap
+func sliceCap(s _slice) int {
+	return s.cap
 }
 
-func sliceCopy(src, dst, elementType unsafe.Pointer) int {
-	srcSlice := (*_slice)(src)
-	dstSlice := (*_slice)(dst)
-	elementTypeDesc := (*_type)(elementType)
-
+func sliceCopy(src, dst _slice, elementType *_type) int {
 	// Copy either as much as what is available or as much as there is capacity
 	// for.
-	n := srcSlice.len
-	if n > dstSlice.cap {
-		n = dstSlice.cap
+	n := src.len
+	if n > dst.cap {
+		n = dst.cap
 	}
 
 	// Copy N elements from the src into dst
-	memcpy(dstSlice.array, srcSlice.array, uintptr(n)*elementTypeDesc.size)
+	memcpy(dst.array, src.array, uintptr(n)*elementType.size)
 
 	// Return the number elements copied
 	return n
 }
 
-func sliceIndexAddr(s *_slice, index int, elementType *_type) unsafe.Pointer {
+func sliceIndexAddr(s _slice, index int, elementType *_type) unsafe.Pointer {
 	// Index MUST not be greater than the length of the slice
 	if index >= s.len {
 		panic("runtime: index out of range")
@@ -121,8 +115,7 @@ func sliceAddr(ptr unsafe.Pointer, length, capacity, elementSize, low, high, max
 	}
 }
 
-func sliceString(s string) _slice {
-	str := (*_string)(unsafe.Pointer(&s))
+func sliceString(str _string) _slice {
 	result := _slice{
 		array: *(*unsafe.Pointer)(alloc(uintptr(str.len))),
 		len:   str.len,

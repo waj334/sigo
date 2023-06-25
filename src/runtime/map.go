@@ -47,7 +47,7 @@ func mapLen(m _map) int {
 
 func mapUpdate(m _map, key unsafe.Pointer, value unsafe.Pointer) {
 	// Perform key lookup
-	if entry := _mapLookup(&m, key); entry != nil {
+	if entry := _mapLookup(m, key); entry != nil {
 		// Update the value
 		memcpy(entry.value, value, m.valueType.size)
 	} else {
@@ -132,7 +132,7 @@ func mapDelete(m _map, key unsafe.Pointer) {
 	}
 }
 
-func mapLookup(m *_map, key unsafe.Pointer, result unsafe.Pointer) (ok bool) {
+func mapLookup(m _map, key unsafe.Pointer, result unsafe.Pointer) (ok bool) {
 	if entry := _mapLookup(m, key); entry != nil {
 		// Copy the mapped value to the address given by the result pointer
 		memcpy(result, entry.value, m.valueType.size)
@@ -143,7 +143,7 @@ func mapLookup(m *_map, key unsafe.Pointer, result unsafe.Pointer) (ok bool) {
 	return false
 }
 
-func _mapLookup(m *_map, K unsafe.Pointer) *mapEntry {
+func _mapLookup(m _map, K unsafe.Pointer) *mapEntry {
 	keyHash := mapKeyHash(K, m.keyType)
 	bucketIdx := keyHash % uint64(len(*m.buckets))
 	bucket := (*m.buckets)[bucketIdx]

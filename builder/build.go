@@ -218,14 +218,12 @@ func Build(ctx context.Context, packageDir string) error {
 				cc.Finalize()
 
 				dumpOut := options.Output + "." + strings.ReplaceAll(pkg.Pkg.Path(), "/", "_") + ".dump.ll"
-
-				// Verfiy the IR
-				verifySucceeded, errMsg := llvm.VerifyModule2(cc.Module(), llvm.LLVMVerifierFailureAction(llvm.ReturnStatusAction))
-				if (!verifySucceeded && options.DumpOnVerifyError) || options.DumpIR {
+				if options.DumpIR {
 					dumpModule(cc.Module(), dumpOut)
 				}
 
-				if !verifySucceeded {
+				// Verfiy the IR
+				if verifySucceeded, errMsg := llvm.VerifyModule2(cc.Module(), llvm.LLVMVerifierFailureAction(llvm.ReturnStatusAction)); !verifySucceeded {
 					errChan <- errors.Join(ErrCodeGeneratorError, errors.New(pkg.Pkg.Path()+":\n"+errMsg))
 					return
 				}
@@ -328,13 +326,17 @@ func Build(ctx context.Context, packageDir string) error {
 
 	cc.Finalize()
 
+	if options.DumpIR {
+		dumpModule(cc.Module(), options.Output+".dump.ll")
+	}
+
 	// Optimize modules
 	if err = optimize(cc.Module(), options.Optimization, target.Machine()); err != nil {
 		return errors.Join(ErrCodeGeneratorError, err)
 	}
 
 	if options.DumpIR {
-		dumpModule(cc.Module(), options.Output+".dump.ll")
+		dumpModule(cc.Module(), options.Output+".dump.opt.ll")
 	}
 
 	// Create the object file
@@ -531,74 +533,32 @@ func symbolName(pkg *types.Package, name string) string {
 }
 
 func optimize(module llvm.LLVMModuleRef, level string, machine llvm.LLVMTargetMachineRef) (err error) {
-	/*
-		// Create the pass manager builder
-		passMgrBuilder := llvm.PassManagerBuilderCreate()
-		defer llvm.PassManagerBuilderDispose(passMgrBuilder)
+	var passes string
 
-		llvm.PassManagerBuilderSetOptLevel(passMgrBuilder, 0)
-		llvm.PassManagerBuilderSetSizeLevel(passMgrBuilder, 0)
-
-		// Match Clang's optimization settings
-		for i, c := range level {
-			if i >= 2 {
-				break
-			}
-			switch c {
-			case '1':
-				llvm.PassManagerBuilderSetOptLevel(passMgrBuilder, 1)
-			case '2':
-				llvm.PassManagerBuilderSetOptLevel(passMgrBuilder, 2)
-			case '3':
-				llvm.PassManagerBuilderSetOptLevel(passMgrBuilder, 3)
-			case 's':
-				llvm.PassManagerBuilderSetSizeLevel(passMgrBuilder, 1)
-			case 'z':
-				llvm.PassManagerBuilderSetSizeLevel(passMgrBuilder, 2)
-			}
-		}
-
-		// Create the pass manager that will be used to optimize the input module
-		passMgr := llvm.CreatePassManager()
-		defer llvm.DisposePassManager(passMgr)
-
-		llvm.PassManagerBuilderPopulateModulePassManager(passMgrBuilder, passMgr)
-
-		// De-duplicate constant values to save program memory
-		llvm.AddConstantMergePass(passMgr)
-
-		// Perform Global Dead Code Elimination pass to remove any unused
-		// functions and globals.
-		llvm.AddDCEPass(passMgr)
-		//llvm.AddGlobalDCEPass(passMgr)
-		//llvm.AddAggressiveDCEPass(passMgr)
-
-		// Run the optimization passes
-		llvm.RunPassManager(passMgr, module)*/
-
+	// Create the pass builder options
 	opts := llvm.CreatePassBuilderOptions()
 	defer llvm.DisposePassBuilderOptions(opts)
 
 	// Match Clang's optimization settings
-	for i, c := range level {
-		if i >= 2 {
-			break
-		}
-		switch c {
-		case '1':
-
-		case '2':
-
-		case '3':
-
-		case 's':
-
-		case 'z':
-
-		}
+	switch level {
+	case "1":
+		passes = "default<O1>"
+	case "2":
+		passes = "default<O2>"
+	case "3":
+		passes = "default<O3>"
+	case "s":
+		passes = "default<O0>"
+	case "z":
+		passes = "default<Oz>"
+	case "d":
+		return nil
+	default:
+		passes = "default<O0>"
 	}
 
-	//llvm.RunPasses(module, "mem2reg,dce", machine, opts)
+	// Run the passes
+	llvm.RunPasses(module, passes, machine, opts)
 
 	// Verfiy the IR
 	if ok, errMsg := llvm.VerifyModule2(module, llvm.LLVMVerifierFailureAction(llvm.ReturnStatusAction)); !ok {

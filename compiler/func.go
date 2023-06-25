@@ -3,7 +3,6 @@ package compiler
 import (
 	"context"
 	"go/types"
-	"golang.org/x/tools/go/ssa"
 	"hash/fnv"
 	"io"
 
@@ -56,24 +55,29 @@ func (c *Compiler) createFunctionType(ctx context.Context, signature *types.Sign
 	}
 
 	// Create the function type
-	return llvm.FunctionType(returnType, argValueTypes, signature.Variadic())
+	t := llvm.FunctionType(returnType, argValueTypes, signature.Variadic())
+	c.signatures[signature] = t
+
+	// Return the type
+	return t
 }
 
-func (c *Compiler) createClosure(ctx context.Context, fn *ssa.Function, closureCtxType llvm.LLVMTypeRef, discardReturn bool) llvm.LLVMValueRef {
-	// Get the actual function to call
-	actualFn := c.createFunction(ctx, fn)
+func (c *Compiler) createClosure(ctx context.Context, signature *types.Signature, closureCtxType llvm.LLVMTypeRef, discardReturn bool) llvm.LLVMValueRef {
+	c.createType(ctx, signature)
+	fnType := c.signatures[signature]
 
 	// Get the return type of the function to be called by this closure
-	returnType := llvm.GetReturnType(c.signatures[fn.Signature])
+	returnType := llvm.GetReturnType(fnType)
 	if discardReturn {
 		returnType = llvm.VoidTypeInContext(c.currentContext(ctx))
 	}
 	closureFnType := llvm.FunctionType(
 		returnType,
-		[]llvm.LLVMTypeRef{llvm.PointerType(closureCtxType, 0)},
+		[]llvm.LLVMTypeRef{c.ptrType.valueType},
 		false)
 	linkname := c.symbolName(c.currentPackage(ctx).Pkg, "closure")
 	closureFnValue := llvm.AddFunction(c.module, linkname, closureFnType)
+	llvm.SetSection(closureFnValue, ".text."+llvm.GetValueName2(closureFnValue))
 
 	currentBlock := llvm.GetInsertBlock(c.builder)
 	defer llvm.PositionBuilderAtEnd(c.builder, currentBlock)
@@ -81,16 +85,20 @@ func (c *Compiler) createClosure(ctx context.Context, fn *ssa.Function, closureC
 	block := llvm.AppendBasicBlockInContext(c.currentContext(ctx), closureFnValue, "closure_entry")
 	llvm.PositionBuilderAtEnd(c.builder, block)
 	params := llvm.GetParam(closureFnValue, 0)
+	params = llvm.BuildLoad2(c.builder, closureCtxType, params, "")
 
+	// Load the function pointer
+	fnPtr := llvm.BuildExtractValue(c.builder, params, 0, "")
+
+	// Load each of the function parameter values
 	var args []llvm.LLVMValueRef
-	for i, t := range llvm.GetStructElementTypes(closureCtxType) {
-		argAddr := llvm.BuildStructGEP2(c.builder, closureCtxType, params, uint(i), "closure_arg_addr")
-		arg := llvm.BuildLoad2(c.builder, t, argAddr, "closure_arg_load")
+	for i := uint(1); i < llvm.CountStructElementTypes(llvm.TypeOf(params)); i++ {
+		arg := llvm.BuildExtractValue(c.builder, params, i, "")
 		args = append(args, arg)
 	}
 
 	// Build the call
-	ret := llvm.BuildCall2(c.builder, actualFn.llvmType, actualFn.value, args, "")
+	ret := llvm.BuildCall2(c.builder, fnType, fnPtr, args, "")
 	if returnType == llvm.VoidTypeInContext(c.currentContext(ctx)) || discardReturn {
 		llvm.BuildRetVoid(c.builder)
 	} else {
@@ -100,15 +108,20 @@ func (c *Compiler) createClosure(ctx context.Context, fn *ssa.Function, closureC
 	return closureFnValue
 }
 
-func (c *Compiler) createClosureContextType(ctx context.Context, fn *ssa.Function) llvm.LLVMTypeRef {
-	c.createFunction(ctx, fn)
-	paramTypes := llvm.GetParamTypes(c.signatures[fn.Signature])
+func (c *Compiler) createClosureContextType(ctx context.Context, signature *types.Signature) llvm.LLVMTypeRef {
+	c.createType(ctx, signature)
+	fnType := c.signatures[signature]
+	paramTypes := llvm.GetParamTypes(fnType)
+	paramTypes = append([]llvm.LLVMTypeRef{c.ptrType.valueType}, paramTypes...)
 	paramsStructType := llvm.StructTypeInContext(c.currentContext(ctx), paramTypes, false)
 	return paramsStructType
 }
 
-func (c *Compiler) createClosureContext(ctx context.Context, closureCtxType llvm.LLVMTypeRef, args []llvm.LLVMValueRef) llvm.LLVMValueRef {
+func (c *Compiler) createClosureContext(ctx context.Context, closureCtxType llvm.LLVMTypeRef, fn llvm.LLVMValueRef, args []llvm.LLVMValueRef) llvm.LLVMValueRef {
 	paramTypes := llvm.GetStructElementTypes(closureCtxType)
+
+	// Prepend the function pointer to the args
+	args = append([]llvm.LLVMValueRef{fn}, args...)
 
 	// Fail early if the number arguments doesn't match the number function parameters
 	if len(args) != len(paramTypes) {
@@ -116,16 +129,17 @@ func (c *Compiler) createClosureContext(ctx context.Context, closureCtxType llvm
 	}
 
 	// Create an instance of the params struct
-	x := c.createAlloca(ctx, closureCtxType, "closure.args")
+	agg := llvm.GetUndef(closureCtxType)
 	for i, arg := range args {
 		// Verify argument types against param types
 		if !llvm.TypeIsEqual(llvm.TypeOf(arg), paramTypes[i]) {
 			panic("type mismatch")
 		}
-		addr := llvm.BuildStructGEP2(c.builder, closureCtxType, x, uint(i), "closure_param_arg_addr")
-		llvm.BuildStore(c.builder, arg, addr)
+		agg = llvm.BuildInsertValue(c.builder, agg, arg, uint(i), "")
 	}
-	return x
+
+	// Return the address to the struct
+	return c.addressOf(ctx, agg)
 }
 
 func (c *Compiler) computeFunctionHash(fn *types.Func) uint32 {

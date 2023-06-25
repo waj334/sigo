@@ -16,14 +16,14 @@ const (
 	taskWaiting
 )
 
-type goroutine struct {
+type _goroutine struct {
 	fnPtr  unsafe.Pointer
 	params unsafe.Pointer
 }
 
 type task struct {
 	stackTop      unsafe.Pointer
-	ctx           *goroutine
+	ctx           *_goroutine
 	stack         unsafe.Pointer
 	next          *task
 	prev          *task
@@ -78,6 +78,8 @@ func runScheduler() (shouldSwitch bool) {
 				currentTask.state = taskIdle
 			} else if currentTask.state == taskPanicking || currentTask.state == taskRecovered {
 				// Do not allow any further context switches from this task
+				// NOTE: Interrupts are intentionally not re-enabled. The panic will re-enable them if a panic is
+				//		 recovered.
 				lastTask = currentTask
 				return
 			}
@@ -142,7 +144,7 @@ func addTask(ptr unsafe.Pointer) {
 	// Create the new task
 	headTask = &task{
 		stack:    stack,
-		ctx:      (*goroutine)(ptr),
+		ctx:      (*_goroutine)(ptr),
 		stackTop: stack,
 	}
 
