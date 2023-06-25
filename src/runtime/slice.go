@@ -29,40 +29,30 @@ func sliceMake(t unsafe.Pointer, n int, m int) _slice {
 	return result
 }
 
-func sliceAppend(base unsafe.Pointer, elems unsafe.Pointer, elementType unsafe.Pointer) _slice {
-	baseSlice := (*_slice)(base)
-	baseLength := uintptr(baseSlice.len)
+func sliceAppend(base _slice, incoming _slice, elementType *_type) _slice {
+	newLen := base.len + incoming.len
+	newCap := base.cap
+	array := base.array
+	offset := uintptr(base.len) * elementType.size
+	if newCap < newLen {
+		newCap = newLen
 
-	elementsSlice := (*_slice)(elems)
-	elementsLength := uintptr(elementsSlice.len)
-	elementTypeDesc := (*_type)(elementType)
-
-	result := _slice{
-		array: baseSlice.array,
-		cap:   baseSlice.cap,
-	}
-
-	// Check if the elements can fit into the base slice
-	result.len = baseSlice.len + elementsSlice.len
-	if result.len > baseSlice.cap {
 		// Allocate a new underlying array
-		result.array = *(*unsafe.Pointer)(alloc(uintptr(result.len) * elementTypeDesc.size))
+		array = alloc(uintptr(newCap) * elementType.size)
 
 		// Copy the contents of the old array into the new array
-		memcpy(result.array, baseSlice.array, baseLength*elementTypeDesc.size)
-
-		// Set the capacity to that of the new length
-		result.cap = result.len
+		memcpy(array, base.array, offset)
 	}
 
-	// Copy the contents of the elements slice onto the end of the base slice
-	memcpy(
-		unsafe.Add(result.array, baseLength*elementTypeDesc.size),
-		elementsSlice.array,
-		elementsLength*elementTypeDesc.size)
+	// Copy the incoming elements after the existing elements
+	memcpy(unsafe.Add(array, offset), incoming.array, uintptr(incoming.len)*elementType.size)
 
-	// Return the new slice
-	return result
+	// Return a new slice
+	return _slice{
+		array: array,
+		len:   newLen,
+		cap:   newCap,
+	}
 }
 
 func sliceLen(s unsafe.Pointer) int {
@@ -95,8 +85,6 @@ func sliceCopy(src, dst, elementType unsafe.Pointer) int {
 }
 
 func sliceIndexAddr(s *_slice, index int, elementType *_type) unsafe.Pointer {
-	//slice := (*_slice)(s)
-	//elementTypeDesc := (*_type)(elementType)
 	// Index MUST not be greater than the length of the slice
 	if index >= s.len {
 		panic("runtime: index out of range")

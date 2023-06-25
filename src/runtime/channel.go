@@ -1,7 +1,14 @@
 package runtime
 
+import (
+	"sync"
+	"unsafe"
+)
+
 type _channel struct {
-	// TODO
+	buffer unsafe.Pointer
+	mutex  sync.Mutex
+	closed bool
 }
 
 func channelMake() _channel {

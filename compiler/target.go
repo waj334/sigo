@@ -106,3 +106,7 @@ func (t *Target) Machine() llvm.LLVMTargetMachineRef {
 func (t *Target) Triple() string {
 	return t.triple
 }
+
+func (t *Target) Layout() llvm.LLVMTargetDataRef {
+	return t.dataLayout
+}

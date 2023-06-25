@@ -285,8 +285,17 @@ func (c *Compiler) createConstantString(ctx context.Context, str string) llvm.LL
 
 	var strArrVal llvm.LLVMValueRef
 	if len(str) > 0 {
-		cstr := llvm.ConstStringInContext(c.currentContext(ctx), str, true)
-		strArrVal = c.createGlobalValue(ctx, cstr, c.symbolName(c.currentPackage(ctx).Pkg, "cstring"))
+		//cstr := llvm.ConstStringInContext(c.currentContext(ctx), str, true)
+		//strArrVal = c.createGlobalValue(ctx, cstr, c.symbolName(c.currentPackage(ctx).Pkg, "cstring"))
+		// Create the global value, but don't initialize it yet. The constant string value will be placed into string
+		// table in order de-duplicate strings in order to save program memory.
+		strArrVal = llvm.AddGlobal(
+			c.module,
+			c.ptrType.valueType,
+			c.symbolName(c.currentPackage(ctx).Pkg, "cstring_ptr"))
+
+		// Map the global to the string value
+		c.stringTable[str] = append(c.stringTable[str], llvm.GetValueName2(strArrVal))
 	} else {
 		strArrVal = llvm.ConstNull(llvm.StructGetTypeAtIndex(strType, 0))
 	}
@@ -316,7 +325,7 @@ func (c *Compiler) createGlobalValue(ctx context.Context, constVal llvm.LLVMValu
 	// Set the global variable's value
 	llvm.SetInitializer(value, constVal)
 	llvm.SetUnnamedAddr(value, true)
-	value = llvm.BuildBitCast(c.builder, value, c.ptrType.valueType, "")
+	//value = llvm.BuildBitCast(c.builder, value, c.ptrType.valueType, "")
 	return value
 }
 

@@ -15,30 +15,12 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 	// NOTE: It MUST be defined in the runtime used by this application
 	switch builtin.Name() {
 	case "append":
-		// Determine the element type of the slice
-		elementType := c.createType(ctx, args[0].Type().Underlying().(*types.Slice).Elem())
-		elementTypeDesc := c.createTypeDescriptor(ctx, elementType)
-		appendArgs := [3]llvm.LLVMValueRef{c.addressOf(ctx, argValues[0].UnderlyingValue(ctx)), nil, elementTypeDesc}
-		sliceType := c.createRuntimeType(ctx, "_slice").valueType
-		stringType := c.createRuntimeType(ctx, "_string").valueType
-		if llvm.TypeIsEqual(llvm.TypeOf(argValues[1].UnderlyingValue(ctx)), sliceType) {
-			// Pass the slice directly to the runtime call
-			appendArgs[1] = c.addressOf(ctx, argValues[1].UnderlyingValue(ctx))
-		} else if llvm.TypeIsEqual(stringType, llvm.TypeOf(argValues[1].UnderlyingValue(ctx))) {
-			// Convert the string to a slice
-			appendArgs[1] = c.createSliceFromStringValue(ctx, argValues[1].UnderlyingValue(ctx))
-		} else {
-			// Create a slice from the remaining arguments and pass that to the
-			// runtime call.
-			appendArgs[1] = c.addressOf(ctx, c.createSliceFromValues(ctx, argValues[1:].Ref(ctx)))
-		}
-
-		// Create the runtime call
-		var sliceValue llvm.LLVMValueRef
-		sliceValue = c.createRuntimeCall(ctx, "sliceAppend", appendArgs[:])
-
-		// Load the resulting slice
-		value = llvm.BuildLoad2(c.builder, sliceType, c.addressOf(ctx, sliceValue), "")
+		argValues := argValues.Ref(ctx)
+		sliceType := args[0].Type().Underlying().(*types.Slice)
+		elementType := c.createTypeDescriptor(ctx, c.createType(ctx, sliceType.Elem()))
+		value = c.createRuntimeCall(ctx, "sliceAppend", []llvm.LLVMValueRef{
+			argValues[0], argValues[1], elementType,
+		})
 	case "cap":
 		switch args[0].Type().Underlying().(type) {
 		case *types.Slice:

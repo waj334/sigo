@@ -72,6 +72,7 @@ type Compiler struct {
 	values          map[ssa.Value]Value
 	phis            map[*ssa.Phi]Phi
 	blocks          map[*ssa.BasicBlock]llvm.LLVMBasicBlockRef
+	stringTable     map[string][]string
 	uintptrType     Type
 	ptrType         Type
 }
@@ -145,6 +146,7 @@ func NewCompiler(name string, options *Options) (*Compiler, llvm.LLVMContextRef)
 		values:          map[ssa.Value]Value{},
 		blocks:          map[*ssa.BasicBlock]llvm.LLVMBasicBlockRef{},
 		phis:            map[*ssa.Phi]Phi{},
+		stringTable:     map[string][]string{},
 		uintptrType:     uintptrType,
 		ptrType:         ptrType,
 	}
@@ -158,6 +160,10 @@ func (c *Compiler) Options() *Options {
 
 func (c *Compiler) Module() llvm.LLVMModuleRef {
 	return c.module
+}
+
+func (c *Compiler) Strings() map[string][]string {
+	return c.stringTable
 }
 
 func (c *Compiler) Finalize() {
@@ -369,6 +375,9 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) *Functi
 	// Add the function to the current module
 	fnValue = llvm.AddFunction(c.module, name, fnType)
 
+	// Place function into its own section
+	llvm.SetSection(fnValue, ".text."+name)
+
 	// Cannot be both exported and external
 	if info.Exported && info.ExternalLinkage {
 		println(symbolName)
@@ -381,10 +390,12 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) *Functi
 	} else if info.Exported {
 		isExported = true
 	}
-	//isWeak := false
+
 	if !isExported {
 		llvm.SetVisibility(fnValue, llvm.HiddenVisibility)
-	} else if info.ExternalLinkage {
+	}
+
+	if info.ExternalLinkage {
 		llvm.SetLinkage(fnValue, llvm.ExternalLinkage)
 	}
 
@@ -860,6 +871,6 @@ func (c *Compiler) CreateInitLib(llctx llvm.LLVMContextRef, pkgs []*ssa.Package)
 	constGoroutineStackSize := llvm.ConstInt(c.uintptrType.valueType, c.options.GoroutineStackSize, false)
 	globalGoroutineStackSize := llvm.AddGlobal(c.module, llvm.TypeOf(constGoroutineStackSize), "runtime._goroutineStackSize")
 	llvm.SetInitializer(globalGoroutineStackSize, constGoroutineStackSize)
-	llvm.SetLinkage(globalGoroutineStackSize, llvm.LLVMLinkage(llvm.ExternalLinkage))
+	llvm.SetLinkage(globalGoroutineStackSize, llvm.ExternalLinkage)
 	llvm.SetGlobalConstant(globalGoroutineStackSize, true)
 }
