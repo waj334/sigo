@@ -13,16 +13,17 @@ const (
 	taskRunning
 	taskPanicking
 	taskRecovered
+	taskWaiting
 )
 
-type goroutine struct {
+type _goroutine struct {
 	fnPtr  unsafe.Pointer
 	params unsafe.Pointer
 }
 
 type task struct {
 	stackTop      unsafe.Pointer
-	ctx           *goroutine
+	ctx           *_goroutine
 	stack         unsafe.Pointer
 	next          *task
 	prev          *task
@@ -32,17 +33,20 @@ type task struct {
 	panicValue    any
 }
 
-//go:export lastTask runtime.lastTask
-//go:export currentTask runtime.currentTask
 //sigo:extern goroutineStackSize runtime._goroutineStackSize
-
 //sigo:extern initTask runtime.initTask
 //sigo:extern alignStack runtime.alignStack
 //sigo:extern schedulerPause runtime.schedulerPause
+
+//go:export lastTask runtime.lastTask
+//go:export currentTask runtime.currentTask
 //go:export runScheduler runtime.runScheduler
 //go:export addTask runtime.addTask
 //go:export runtime.removeTask
 //go:export sleep runtime.sleep
+//go:export waitTask runtime.waitTask
+//go:export resumeTask runtime.resumeTask
+//go:export runningTask runtime.runningTask
 
 var (
 	headTask           *task      = nil
@@ -74,6 +78,8 @@ func runScheduler() (shouldSwitch bool) {
 				currentTask.state = taskIdle
 			} else if currentTask.state == taskPanicking || currentTask.state == taskRecovered {
 				// Do not allow any further context switches from this task
+				// NOTE: Interrupts are intentionally not re-enabled. The panic will re-enable them if a panic is
+				//		 recovered.
 				lastTask = currentTask
 				return
 			}
@@ -99,6 +105,10 @@ func runScheduler() (shouldSwitch bool) {
 						nextTask = nextTask.next
 						continue
 					}
+				} else if nextTask.state == taskWaiting {
+					// skip waiting tasks
+					nextTask = nextTask.next
+					continue
 				}
 				currentTask = nextTask
 				break
@@ -134,7 +144,7 @@ func addTask(ptr unsafe.Pointer) {
 	// Create the new task
 	headTask = &task{
 		stack:    stack,
-		ctx:      (*goroutine)(ptr),
+		ctx:      (*_goroutine)(ptr),
 		stackTop: stack,
 	}
 
@@ -188,6 +198,31 @@ func removeTask(t *task) {
 	}
 
 	enableInterrupts(state)
+}
+
+func waitTask(ptr unsafe.Pointer) {
+	t := (*task)(ptr)
+	if t.state != taskWaiting {
+		state := disableInterrupts()
+		t.state = taskWaiting
+		enableInterrupts(state)
+
+		// Schedule another task to begin running
+		schedulerPause()
+	}
+}
+
+func resumeTask(ptr unsafe.Pointer) {
+	t := (*task)(ptr)
+	if t.state == taskWaiting {
+		state := disableInterrupts()
+		t.state = taskIdle
+		enableInterrupts(state)
+	}
+}
+
+func runningTask() unsafe.Pointer {
+	return unsafe.Pointer(currentTask)
 }
 
 func sleep(d uint64) {

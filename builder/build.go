@@ -175,6 +175,8 @@ func Build(ctx context.Context, packageDir string) error {
 		numJobs = 1
 	}
 
+	stringTable := map[string][]string{}
+
 	// This will hold the compiled modules
 	var mu sync.Mutex
 
@@ -216,14 +218,12 @@ func Build(ctx context.Context, packageDir string) error {
 				cc.Finalize()
 
 				dumpOut := options.Output + "." + strings.ReplaceAll(pkg.Pkg.Path(), "/", "_") + ".dump.ll"
-
-				// Verfiy the IR
-				verifySucceeded, errMsg := llvm.VerifyModule2(cc.Module(), llvm.LLVMVerifierFailureAction(llvm.ReturnStatusAction))
-				if (!verifySucceeded && options.DumpOnVerifyError) || options.DumpIR {
+				if options.DumpIR {
 					dumpModule(cc.Module(), dumpOut)
 				}
 
-				if !verifySucceeded {
+				// Verfiy the IR
+				if verifySucceeded, errMsg := llvm.VerifyModule2(cc.Module(), llvm.LLVMVerifierFailureAction(llvm.ReturnStatusAction)); !verifySucceeded {
 					errChan <- errors.Join(ErrCodeGeneratorError, errors.New(pkg.Pkg.Path()+":\n"+errMsg))
 					return
 				}
@@ -232,6 +232,10 @@ func Build(ctx context.Context, packageDir string) error {
 				cc.Dispose()
 
 				mu.Lock()
+				// Combine string table
+				for str, globals := range cc.Strings() {
+					stringTable[str] = append(stringTable[str], globals...)
+				}
 				bitcode = append(bitcode, buf)
 				mu.Unlock()
 			}
@@ -279,7 +283,6 @@ func Build(ctx context.Context, packageDir string) error {
 	// Create the init module last
 	cc, llctx := compiler.NewCompiler("init", compilerOptions.WithTarget(target))
 	cc.CreateInitLib(llctx, pkgs)
-	cc.Finalize()
 
 	// Done with error monitor
 	stopChan <- struct{}{}
@@ -302,13 +305,38 @@ func Build(ctx context.Context, packageDir string) error {
 		llvm.DisposeMemoryBuffer(bitcode)
 	}
 
+	// Initialize global strings
+	for str, globals := range stringTable {
+		cstr := llvm.ConstStringInContext(llctx, str, true)
+		cstrVal := llvm.AddGlobal(
+			cc.Module(),
+			llvm.TypeOf(cstr), "cstring")
+		llvm.SetInitializer(cstrVal, cstr)
+
+		// Apply this string value to each global string
+		for _, globalName := range globals {
+			globalValue := llvm.GetNamedGlobal(cc.Module(), globalName)
+			if globalValue == nil {
+				// Skip globals that don't exist in the final module
+				continue
+			}
+			llvm.ReplaceAllUsesWith(globalValue, cstrVal)
+		}
+	}
+
+	cc.Finalize()
+
 	if options.DumpIR {
 		dumpModule(cc.Module(), options.Output+".dump.ll")
 	}
 
 	// Optimize modules
-	if err = optimize(cc.Module(), options.Optimization); err != nil {
+	if err = optimize(cc.Module(), options.Optimization, target.Machine()); err != nil {
 		return errors.Join(ErrCodeGeneratorError, err)
+	}
+
+	if options.DumpIR {
+		dumpModule(cc.Module(), options.Output+".dump.opt.ll")
 	}
 
 	// Create the object file
@@ -341,6 +369,7 @@ func Build(ctx context.Context, packageDir string) error {
 		executablePostfix = ".exe"
 	}
 
+	// Locate clang
 	clangExecutable := filepath.Join(options.Environment.Value("SIGOROOT"), "bin/clang"+executablePostfix)
 	if _, err = os.Stat(clangExecutable); os.IsNotExist(err) {
 		// Try build folder if this is a dev build
@@ -350,19 +379,19 @@ func Build(ctx context.Context, packageDir string) error {
 		}
 	}
 
+	buildToolsDir := filepath.Dir(clangExecutable)
+
 	// Other arguments
 	targetTriple := "--target=" + triple
 	elfOut := filepath.Join(options.BuildDir, "package.elf")
 	args := []string{
 		"-v",
-		targetTriple,
-		"-fuse-ld=lld",
-		"-W1,--gc-sections",
+		"--gc-sections",
 		"-o", elfOut,
 		"-nostdlib",
 		"-L" + libCDir,
 		"-L" + libCompilerRTDir,
-		"-W1,-L" + filepath.Join(options.Environment.Value("SIGOROOT"), "runtime"),
+		"-L" + filepath.Join(options.Environment.Value("SIGOROOT"), "runtime"),
 		"-L" + filepath.Dir(prog.targetLinkerFile),
 		"-T" + prog.targetLinkerFile,
 		"-lc",
@@ -387,8 +416,6 @@ func Build(ctx context.Context, packageDir string) error {
 
 		assemblerArgs := []string{targetTriple,
 			"-c", asm,
-			"-ffunction-sections",
-			"-fdata-sections",
 			func() string {
 				if options.GenerateDebugInfo {
 					return "-g"
@@ -421,8 +448,8 @@ func Build(ctx context.Context, packageDir string) error {
 		args = append(args, objFile)
 	}
 
-	// Invoke Clang to compile the final binary
-	clangCmd := exec.Command(clangExecutable, args...)
+	// Invoke ld.lld to compile the final binary
+	clangCmd := exec.Command(filepath.Join(buildToolsDir, "ld.lld"+executablePostfix), args...)
 	clangCmd.Stdout = os.Stdout
 	clangCmd.Stderr = os.Stderr
 	if err = clangCmd.Run(); err != nil {
@@ -505,46 +532,33 @@ func symbolName(pkg *types.Package, name string) string {
 	return path + "." + name
 }
 
-func optimize(module llvm.LLVMModuleRef, level string) (err error) {
-	// Create the pass manager builder
-	passMgrBuilder := llvm.PassManagerBuilderCreate()
-	defer llvm.PassManagerBuilderDispose(passMgrBuilder)
+func optimize(module llvm.LLVMModuleRef, level string, machine llvm.LLVMTargetMachineRef) (err error) {
+	var passes string
 
-	llvm.PassManagerBuilderSetOptLevel(passMgrBuilder, 0)
-	llvm.PassManagerBuilderSetSizeLevel(passMgrBuilder, 0)
+	// Create the pass builder options
+	opts := llvm.CreatePassBuilderOptions()
+	defer llvm.DisposePassBuilderOptions(opts)
 
 	// Match Clang's optimization settings
-	for i, c := range level {
-		if i >= 2 {
-			break
-		}
-		switch c {
-		case '1':
-			llvm.PassManagerBuilderSetOptLevel(passMgrBuilder, 1)
-		case '2':
-			llvm.PassManagerBuilderSetOptLevel(passMgrBuilder, 2)
-		case '3':
-			llvm.PassManagerBuilderSetOptLevel(passMgrBuilder, 3)
-		case 's':
-			llvm.PassManagerBuilderSetSizeLevel(passMgrBuilder, 1)
-		case 'z':
-			llvm.PassManagerBuilderSetSizeLevel(passMgrBuilder, 2)
-		}
+	switch level {
+	case "1":
+		passes = "default<O1>"
+	case "2":
+		passes = "default<O2>"
+	case "3":
+		passes = "default<O3>"
+	case "s":
+		passes = "default<O0>"
+	case "z":
+		passes = "default<Oz>"
+	case "d":
+		return nil
+	default:
+		passes = "default<O0>"
 	}
 
-	// Create the pass manager that will be used to optimize the input module
-	passMgr := llvm.CreatePassManager()
-	defer llvm.DisposePassManager(passMgr)
-
-	llvm.PassManagerBuilderPopulateModulePassManager(passMgrBuilder, passMgr)
-
-	// Perform Global Dead Code Elimination pass to remove any unused
-	// functions and globals.
-	llvm.AddGlobalDCEPass(passMgr)
-	llvm.AddAggressiveDCEPass(passMgr)
-
-	// Run the optimization passes
-	llvm.RunPassManager(passMgr, module)
+	// Run the passes
+	llvm.RunPasses(module, passes, machine, opts)
 
 	// Verfiy the IR
 	if ok, errMsg := llvm.VerifyModule2(module, llvm.LLVMVerifierFailureAction(llvm.ReturnStatusAction)); !ok {

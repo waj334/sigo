@@ -1,19 +1,23 @@
 package main
 
-import (
-	"context"
-	"errors"
-	"flag"
-	"fmt"
-	"os"
-	"path/filepath"
-	"runtime"
-	"strings"
+import "github.com/spf13/cobra"
 
-	"omibyte.io/sigo/builder"
-	"omibyte.io/sigo/compiler"
-)
+var rootCmd = &cobra.Command{
+	Use:   "sigo",
+	Short: "Sigo is an implementation of the Go language compiler for embedded systems!",
+	Long: `Sigo is an implementation of the Go language compiler and Go runtime for embedded systems based on the AVR, 
+				ARM Cortex-M, Xtensa or RISCV MCU architectures!`,
+}
 
+func init() {
+	rootCmd.AddCommand(buildCmd)
+}
+
+func main() {
+	rootCmd.Execute()
+}
+
+/*
 var (
 	command string
 )
@@ -78,15 +82,14 @@ func build(args []string) {
 	buildFlags := flag.NewFlagSet("build", flag.ExitOnError)
 
 	// Add build args
-	output := buildFlags.String("o", ".", "output file")
-	verbose := buildFlags.String("verbose", "", "verbosity level")
-	debug := buildFlags.Bool("g", false, "generate debug information")
-	dumpOnVerError := buildFlags.Bool("dump-verify", false, "dump IR upon verification error")
+	output := buildFlags.StringP("output", "o", ".", "output file")
+	verbose := buildFlags.StringP("verbose", "v", "", "verbosity level")
+	debug := buildFlags.BoolP("debug", "g", false, "generate debug information")
 	dumpIR := buildFlags.Bool("dump-ir", false, "dump the IR")
-	tags := buildFlags.String("tags", "", "build tags")
+	tags := buildFlags.StringP("tags", "t", "", "build tags")
 	useCTypeNames := buildFlags.Bool("ctypenames", false, "use C type names for primitives in debug information")
-	numJobs := buildFlags.Int("j", runtime.NumCPU(), "number of concurrent builds")
-	optimize := buildFlags.String("O", "0", "optimization level")
+	numJobs := buildFlags.IntP("jobs", "j", runtime.NumCPU(), "number of concurrent builds")
+	optimize := buildFlags.StringP("opt", "O", "0", "optimization level")
 
 	// TODO: Implement dependency files for smarter make builds
 	//createDependencyFiles := flags.Bool("MD", false, "create dependency files for Make")
@@ -105,7 +108,6 @@ func build(args []string) {
 
 	builderOptions := builder.Options{
 		Output:            *output,
-		DumpOnVerifyError: *dumpOnVerError,
 		DumpIR:            *dumpIR,
 		Environment:       builder.Environment(),
 		CompilerVerbosity: compiler.Debug,
@@ -157,3 +159,4 @@ func build(args []string) {
 		}
 	}
 }
+*/

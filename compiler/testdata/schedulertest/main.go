@@ -84,22 +84,19 @@ func main() {
 	UART.WriteString(testMap2["does not exist"])
 
 	var mutex sync.Mutex
+	blinkChan := make(chan struct{})
 
 	go func() {
 		for {
-			time.Sleep(time.Second * 5)
-			mutex.Lock()
-			time.Sleep(time.Second * 5)
-			mutex.Unlock()
+			time.Sleep(time.Millisecond * 500)
+			blinkChan <- struct{}{}
 		}
 	}()
 
 	go func(mutex sync.Mutex) {
 		for {
-			time.Sleep(time.Second)
-			mutex.Lock()
+			<-blinkChan
 			mcu.PB11.Toggle()
-			mutex.Unlock()
 		}
 	}(mutex)
 

@@ -157,11 +157,9 @@ func (c *Compiler) createSlice(ctx context.Context, array llvm.LLVMValueRef, ele
 	max = c.castInt(ctx, low, llvm.Int32TypeInContext(c.currentContext(ctx)))
 
 	// Create the runtime call
-	sliceValue := c.createRuntimeCall(ctx, "sliceAddr", []llvm.LLVMValueRef{
+	value := c.createRuntimeCall(ctx, "sliceAddr", []llvm.LLVMValueRef{
 		ptrVal, lengthVal, capacityVal, elementSizeVal, low, high, max,
 	})
-
-	value := llvm.BuildLoad2(c.builder, sliceType, c.addressOf(ctx, sliceValue), "")
 
 	// Return a new string if the input was a string
 	if isString {
@@ -246,7 +244,7 @@ func (c *Compiler) createSliceFromStringValue(ctx context.Context, str llvm.LLVM
 	return slice
 }
 
-func (c *Compiler) makeInterface(ctx context.Context, value ssa.Value) (result llvm.LLVMValueRef) {
+func (c *Compiler) makeInterface(ctx context.Context, value ssa.Value) llvm.LLVMValueRef {
 	x := c.createExpression(ctx, value).UnderlyingValue(ctx)
 
 	interfaceType := c.createRuntimeType(ctx, "_interface").valueType
@@ -256,23 +254,22 @@ func (c *Compiler) makeInterface(ctx context.Context, value ssa.Value) (result l
 		return x
 	}
 
+	if llvm.GetTypeKind(llvm.TypeOf(x)) != llvm.PointerTypeKind {
+		x = c.addressOf(ctx, x)
+	}
+
 	typeinfo := c.createTypeDescriptor(ctx, c.createType(ctx, value.Type().Underlying()))
 	args := []llvm.LLVMValueRef{
-		c.addressOf(ctx, x),
+		x,
 		typeinfo,
 	}
-	result = c.createRuntimeCall(ctx, "interfaceMake", args)
 
-	// Load the interface value
-	result = llvm.BuildLoad2(c.builder, interfaceType, c.addressOf(ctx, result), "")
-
-	return
+	return c.createRuntimeCall(ctx, "interfaceMake", args)
 }
 
 func (c *Compiler) addressOf(ctx context.Context, value llvm.LLVMValueRef) llvm.LLVMValueRef {
 	alloca := c.createAlloca(ctx, llvm.TypeOf(value), "")
 	llvm.BuildStore(c.builder, value, alloca)
-	//return llvm.BuildBitCast(c.builder, alloca, c.ptrType.valueType, "")
 	return alloca
 }
 
@@ -285,8 +282,17 @@ func (c *Compiler) createConstantString(ctx context.Context, str string) llvm.LL
 
 	var strArrVal llvm.LLVMValueRef
 	if len(str) > 0 {
-		cstr := llvm.ConstStringInContext(c.currentContext(ctx), str, true)
-		strArrVal = c.createGlobalValue(ctx, cstr, c.symbolName(c.currentPackage(ctx).Pkg, "cstring"))
+		//cstr := llvm.ConstStringInContext(c.currentContext(ctx), str, true)
+		//strArrVal = c.createGlobalValue(ctx, cstr, c.symbolName(c.currentPackage(ctx).Pkg, "cstring"))
+		// Create the global value, but don't initialize it yet. The constant string value will be placed into string
+		// table in order de-duplicate strings in order to save program memory.
+		strArrVal = llvm.AddGlobal(
+			c.module,
+			c.ptrType.valueType,
+			c.symbolName(c.currentPackage(ctx).Pkg, "cstring_ptr"))
+
+		// Map the global to the string value
+		c.stringTable[str] = append(c.stringTable[str], llvm.GetValueName2(strArrVal))
 	} else {
 		strArrVal = llvm.ConstNull(llvm.StructGetTypeAtIndex(strType, 0))
 	}
@@ -316,7 +322,7 @@ func (c *Compiler) createGlobalValue(ctx context.Context, constVal llvm.LLVMValu
 	// Set the global variable's value
 	llvm.SetInitializer(value, constVal)
 	llvm.SetUnnamedAddr(value, true)
-	value = llvm.BuildBitCast(c.builder, value, c.ptrType.valueType, "")
+	//value = llvm.BuildBitCast(c.builder, value, c.ptrType.valueType, "")
 	return value
 }
 
@@ -360,4 +366,11 @@ func (c *Compiler) castInt(ctx context.Context, value llvm.LLVMValueRef, to llvm
 	}
 
 	return llvm.BuildIntCast2(c.builder, value, to, isSigned, "")
+}
+
+func (c *Compiler) createConstBool(ctx context.Context, value bool) llvm.LLVMValueRef {
+	if value {
+		return llvm.ConstInt(c.int1Type(ctx), 1, false)
+	}
+	return llvm.ConstInt(c.int1Type(ctx), 0, false)
 }

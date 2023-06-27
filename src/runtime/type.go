@@ -141,5 +141,4 @@ type _pointerType struct {
 type _channelType struct {
 	elementType *_type
 	direction   int
-	capacity    int
 }

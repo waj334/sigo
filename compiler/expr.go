@@ -94,7 +94,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 
 			// Look up the function to be called
 			fnPtr := c.createRuntimeCall(ctx, "interfaceLookUp", []llvm.LLVMValueRef{
-				c.addressOf(ctx, interfaceValue),
+				interfaceValue,
 				llvm.ConstInt(llvm.Int32TypeInContext(
 					c.currentContext(ctx)), uint64(c.computeFunctionHash(expr.Call.Method)), false),
 			})
@@ -277,10 +277,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 			case *types.Pointer:
 				value.ref = llvm.BuildPointerCast(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
 			case *types.Slice:
-				sliceValue := c.createRuntimeCall(ctx, "sliceString", []llvm.LLVMValueRef{fromValue.UnderlyingValue(ctx)})
-
-				// Load the resulting slice
-				value.ref = llvm.BuildLoad2(c.builder, typeTo.valueType, c.addressOf(ctx, sliceValue), "")
+				value.ref = c.createRuntimeCall(ctx, "sliceString", []llvm.LLVMValueRef{fromValue.UnderlyingValue(ctx)})
 			}
 		case *types.Pointer:
 			otherType := expr.Type().(*types.Basic)
@@ -426,7 +423,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 
 			// Create a runtime call to retrieve the address of the element at index I
 			addr = c.createRuntimeCall(ctx, "sliceIndexAddr", []llvm.LLVMValueRef{
-				c.addressOf(ctx, arrayValue),
+				arrayValue,
 				indexValue,
 				c.createTypeDescriptor(ctx, elementType),
 			})
@@ -435,7 +432,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 
 			// Create a runtime call to retrieve the address of the element at index I
 			addr = c.createRuntimeCall(ctx, "stringIndexAddr", []llvm.LLVMValueRef{
-				c.addressOf(ctx, arrayValue),
+				arrayValue,
 				indexValue,
 			})
 		default:
@@ -468,7 +465,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 
 			// Create a runtime call to retrieve the address of the element at index I
 			value.ref = c.createRuntimeCall(ctx, "sliceIndexAddr", []llvm.LLVMValueRef{
-				c.addressOf(ctx, arrayValue),
+				arrayValue,
 				llvm.BuildIntCast2(c.builder,
 					indexValue,
 					llvm.Int32TypeInContext(c.currentContext(ctx)),
@@ -479,7 +476,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		case *types.Basic: // Strings
 			// Create a runtime call to retrieve the address of the element at index I
 			value.ref = c.createRuntimeCall(ctx, "stringIndexAddr", []llvm.LLVMValueRef{
-				c.addressOf(ctx, arrayValue),
+				arrayValue,
 				indexValue,
 			})
 		default:
@@ -504,7 +501,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 
 		// Create the runtime call to perform the map lookup
 		okValue := c.createRuntimeCall(ctx, "mapLookup", []llvm.LLVMValueRef{
-			c.addressOf(ctx, mapValue),
+			mapValue,
 			c.addressOf(ctx, keyValue),
 			result,
 		})
@@ -518,7 +515,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 				c.currentContext(ctx),
 				[]llvm.LLVMTypeRef{
 					elemType,
-					llvm.Int1TypeInContext(c.currentContext(ctx)),
+					c.int1Type(ctx),
 				}, false)
 			value.ref = llvm.GetUndef(resultType)
 			value.ref = llvm.BuildInsertValue(c.builder, value.ref, result, 0, "")
@@ -527,7 +524,11 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 			value.ref = result
 		}
 	case *ssa.MakeChan:
-		panic("not implemented")
+		chanType := expr.Type().(*types.Chan)
+		value.ref = c.createRuntimeCall(ctx, "channelMake", []llvm.LLVMValueRef{
+			c.createTypeDescriptor(ctx, c.createType(ctx, chanType)),
+			c.createExpression(ctx, expr.Size).UnderlyingValue(ctx),
+		})
 	case *ssa.MakeClosure:
 		fnObj := c.functions[expr.Fn.(*ssa.Function)]
 

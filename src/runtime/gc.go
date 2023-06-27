@@ -88,6 +88,7 @@ func alloc(size uintptr) unsafe.Pointer {
 		// Attempt to allocate again
 		ptr = malloc(size)
 		if ptr == nil {
+			gcMu.Unlock()
 			panic("gc error: out of memory")
 		}
 	}
@@ -214,8 +215,8 @@ func align(n uintptr) uintptr {
 }
 
 func GC() {
-	state := disableInterrupts()
 	gcMu.Lock()
+	state := disableInterrupts()
 	markAll()
 	sweep()
 	gcMu.Unlock()
@@ -232,8 +233,8 @@ func gcmain() {
 			markAll()
 			sweep()
 		}
-		enableInterrupts(state)
 		gcMu.Unlock()
+		enableInterrupts(state)
 		schedulerPause()
 	}
 }

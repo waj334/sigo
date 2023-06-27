@@ -63,6 +63,14 @@ func (c *Compiler) createTypeDescriptor(ctx context.Context, typ *Type) (descrip
 			// Store the Go type kind
 			descriptorValues[3] = llvm.ConstInt(
 				llvm.Int32TypeInContext(c.currentContext(ctx)), uint64(goType.Kind()), false)
+		case *types.Chan:
+			construct = Channel
+			chanType := c.createRuntimeType(ctx, "_channelType").valueType
+			descriptorValues[9] = c.createGlobalValue(ctx,
+				llvm.ConstNamedStruct(chanType, []llvm.LLVMValueRef{
+					c.createTypeDescriptor(ctx, c.createType(ctx, goType.Elem())),
+					llvm.ConstInt(c.int32Type(ctx), uint64(goType.Dir()), false),
+				}), "chan_type")
 		case *types.Interface:
 			construct = Interface
 			// Collect the interface's methods

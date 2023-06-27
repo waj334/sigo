@@ -1,5 +1,0 @@
-package testpkg
-
-func TestFunc() {
-	
-}

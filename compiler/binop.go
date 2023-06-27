@@ -43,14 +43,7 @@ func (c *Compiler) createBinOp(ctx context.Context, expr *ssa.BinOp) (value llvm
 			value = llvm.BuildFAdd(c.builder, x, y, "")
 		} else if typeInfo&types.IsString != 0 {
 			// Concatenate the strings using the respective runtime call
-			var stringValue llvm.LLVMValueRef
-			stringValue = c.createRuntimeCall(ctx, "stringConcat", []llvm.LLVMValueRef{
-				c.addressOf(ctx, x),
-				c.addressOf(ctx, y),
-			})
-
-			// Load the resulting string values
-			value = llvm.BuildLoad2(c.builder, c.createRuntimeType(ctx, "_string").valueType, c.addressOf(ctx, stringValue), "")
+			value = c.createRuntimeCall(ctx, "stringConcat", []llvm.LLVMValueRef{x, y})
 		} else {
 			value = llvm.BuildAdd(c.builder, x, y, "")
 		}
@@ -109,13 +102,13 @@ func (c *Compiler) createBinOp(ctx context.Context, expr *ssa.BinOp) (value llvm
 		if types.IsInterface(xType.spec) || types.IsInterface(yType.spec) {
 			if types.IsInterface(xType.spec) && types.IsInterface(xType.spec) {
 				// runtime call for interface equality
-				value = c.createRuntimeCall(ctx, "interfaceCompare", []llvm.LLVMValueRef{c.addressOf(ctx, x), c.addressOf(ctx, y)})
+				value = c.createRuntimeCall(ctx, "interfaceCompare", []llvm.LLVMValueRef{x, y})
 			} else {
 				// Comparing an interface against anything a non-interface. EQL = false in this scenario
 				value = llvm.ConstInt(llvm.Int1TypeInContext(c.currentContext(ctx)), 0, false)
 			}
 		} else if typeInfo&types.IsString != 0 {
-			value = c.createRuntimeCall(ctx, "stringCompare", []llvm.LLVMValueRef{c.addressOf(ctx, x), c.addressOf(ctx, y)})
+			value = c.createRuntimeCall(ctx, "stringCompare", []llvm.LLVMValueRef{x, y})
 		} else if typeInfo&types.IsFloat != 0 {
 			value = llvm.BuildFCmp(c.builder, llvm.RealOEQ, x, y, "")
 		} else {
@@ -125,7 +118,7 @@ func (c *Compiler) createBinOp(ctx context.Context, expr *ssa.BinOp) (value llvm
 		if types.IsInterface(xType.spec) || types.IsInterface(yType.spec) {
 			if types.IsInterface(xType.spec) && types.IsInterface(xType.spec) {
 				// runtime call for interface equality
-				value = c.createRuntimeCall(ctx, "interfaceCompare", []llvm.LLVMValueRef{c.addressOf(ctx, x), c.addressOf(ctx, y)})
+				value = c.createRuntimeCall(ctx, "interfaceCompare", []llvm.LLVMValueRef{x, y})
 
 				// Invert the result
 				value = llvm.BuildNot(c.builder, value, "")
@@ -133,6 +126,9 @@ func (c *Compiler) createBinOp(ctx context.Context, expr *ssa.BinOp) (value llvm
 				// Comparing an interface against anything a non-interface. NEQ = true in this scenario
 				value = llvm.ConstInt(llvm.Int1TypeInContext(c.currentContext(ctx)), 1, false)
 			}
+		} else if typeInfo&types.IsString != 0 {
+			value = c.createRuntimeCall(ctx, "stringCompare", []llvm.LLVMValueRef{x, y})
+			value = llvm.BuildNot(c.builder, value, "")
 		} else if typeInfo&types.IsFloat != 0 {
 			value = llvm.BuildFCmp(c.builder, llvm.RealONE, x, y, "")
 		} else {

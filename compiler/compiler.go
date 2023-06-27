@@ -7,6 +7,7 @@ import (
 	"go/types"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"golang.org/x/tools/go/ssa"
 
@@ -72,6 +73,7 @@ type Compiler struct {
 	values          map[ssa.Value]Value
 	phis            map[*ssa.Phi]Phi
 	blocks          map[*ssa.BasicBlock]llvm.LLVMBasicBlockRef
+	stringTable     map[string][]string
 	uintptrType     Type
 	ptrType         Type
 }
@@ -145,6 +147,7 @@ func NewCompiler(name string, options *Options) (*Compiler, llvm.LLVMContextRef)
 		values:          map[ssa.Value]Value{},
 		blocks:          map[*ssa.BasicBlock]llvm.LLVMBasicBlockRef{},
 		phis:            map[*ssa.Phi]Phi{},
+		stringTable:     map[string][]string{},
 		uintptrType:     uintptrType,
 		ptrType:         ptrType,
 	}
@@ -158,6 +161,10 @@ func (c *Compiler) Options() *Options {
 
 func (c *Compiler) Module() llvm.LLVMModuleRef {
 	return c.module
+}
+
+func (c *Compiler) Strings() map[string][]string {
+	return c.stringTable
 }
 
 func (c *Compiler) Finalize() {
@@ -353,7 +360,6 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) *Functi
 
 	// Create the function type
 	fnType := c.createFunctionType(ctx, fn.Signature, len(fn.FreeVars) > 0)
-	c.signatures[fn.Signature] = fnType
 
 	if len(fn.FreeVars) > 0 {
 		// Collect the types of the free vars
@@ -369,6 +375,9 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) *Functi
 	// Add the function to the current module
 	fnValue = llvm.AddFunction(c.module, name, fnType)
 
+	// Place function into its own section
+	llvm.SetSection(fnValue, ".text."+name)
+
 	// Cannot be both exported and external
 	if info.Exported && info.ExternalLinkage {
 		println(symbolName)
@@ -381,17 +390,19 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) *Functi
 	} else if info.Exported {
 		isExported = true
 	}
-	//isWeak := false
+
 	if !isExported {
 		llvm.SetVisibility(fnValue, llvm.HiddenVisibility)
-	} else if info.ExternalLinkage {
+	}
+
+	if info.ExternalLinkage {
 		llvm.SetLinkage(fnValue, llvm.ExternalLinkage)
 	}
 
 	// Apply attributes
 	if info.IsInterrupt {
 		llvm.AddAttributeAtIndex(fnValue, uint(llvm.AttributeFunctionIndex), c.getAttribute(ctx, "noinline"))
-		llvm.AddAttributeAtIndex(fnValue, uint(llvm.AttributeFunctionIndex), c.getAttribute(ctx, "noimplicitfloat"))
+		llvm.AddAttributeAtIndex(fnValue, uint(llvm.AttributeFunctionIndex), c.getAttribute(ctx, "optnone"))
 	}
 
 	var diFile llvm.LLVMMetadataRef
@@ -547,6 +558,7 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 		}
 
 		// Create a closure for the defer call
+		var fnPtr llvm.LLVMValueRef
 		var closure llvm.LLVMValueRef
 		var closureContextType llvm.LLVMTypeRef
 		var args []llvm.LLVMValueRef
@@ -554,22 +566,46 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 		switch value := instr.Call.Value.(type) {
 		case *ssa.Function:
 			// Create a new closure
-			closureContextType = c.createClosureContextType(ctx, value)
-			closure = c.createClosure(ctx, value, closureContextType, true)
+			fnPtr = c.createExpression(ctx, value).UnderlyingValue(ctx)
+			closureContextType = c.createClosureContextType(ctx, value.Signature)
+			closure = c.createClosure(ctx, value.Signature, closureContextType, true)
 			args = c.createValues(ctx, instr.Call.Args).Ref(ctx)
 		case *ssa.MakeClosure:
+			fnPtr = c.createExpression(ctx, value.Fn).UnderlyingValue(ctx)
 			state := c.createExpression(ctx, value).UnderlyingValue(ctx)
-			closureContextType = c.createClosureContextType(ctx, value.Fn.(*ssa.Function))
-			closure = c.createClosure(ctx, value.Fn.(*ssa.Function), closureContextType, true)
+			closureContextType = c.createClosureContextType(ctx, value.Fn.(*ssa.Function).Signature)
+			closure = c.createClosure(ctx, value.Fn.(*ssa.Function).Signature, closureContextType, true)
 			args = append(c.createValues(ctx, instr.Call.Args).Ref(ctx), state)
 		default:
-			panic("unhandled")
+			if instr.Call.IsInvoke() {
+				// This is an interface call
+				interfaceValue := c.createExpression(ctx, value).UnderlyingValue(ctx)
+				signature := instr.Call.Method.Type().(*types.Signature)
+
+				// Look up the function to be called
+				fnPtr = c.createRuntimeCall(ctx, "interfaceLookUp", []llvm.LLVMValueRef{
+					interfaceValue,
+					llvm.ConstInt(llvm.Int32TypeInContext(
+						c.currentContext(ctx)), uint64(c.computeFunctionHash(instr.Call.Method)), false),
+				})
+
+				// Load the value pointer from the interface
+				valuePtr := llvm.BuildExtractValue(c.builder, interfaceValue, 1, "")
+				args = c.createValues(ctx, instr.Call.Args).Ref(ctx)
+				args = append([]llvm.LLVMValueRef{valuePtr}, args...)
+
+				// Create a new closure
+				closureContextType = c.createClosureContextType(ctx, signature)
+				closure = c.createClosure(ctx, signature, closureContextType, true)
+			} else {
+				panic("unhandled")
+			}
 		}
 
 		c.createExpression(ctx, instr.Call.Value)
 		callArgs := instr.Call.Args
 
-		closureCtx := c.createClosureContext(ctx, closureContextType, args)
+		closureCtx := c.createClosureContext(ctx, closureContextType, fnPtr, args)
 		if closureExpr, ok := instr.Call.Value.(*ssa.MakeClosure); ok {
 			callArgs = append(callArgs, closureExpr.Bindings...)
 		}
@@ -581,6 +617,7 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 			fn.deferTop,
 		})
 	case *ssa.Go:
+		var fnPtr llvm.LLVMValueRef
 		var closure llvm.LLVMValueRef
 		var closureContextType llvm.LLVMTypeRef
 		var args []llvm.LLVMValueRef
@@ -588,13 +625,15 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 		switch value := instr.Call.Value.(type) {
 		case *ssa.Function:
 			// Create a new closure
-			closureContextType = c.createClosureContextType(ctx, value)
-			closure = c.createClosure(ctx, value, closureContextType, true)
+			fnPtr = c.createExpression(ctx, value).UnderlyingValue(ctx)
+			closureContextType = c.createClosureContextType(ctx, value.Signature)
+			closure = c.createClosure(ctx, value.Signature, closureContextType, true)
 			args = c.createValues(ctx, instr.Call.Args).Ref(ctx)
 		case *ssa.MakeClosure:
+			fnPtr = c.createExpression(ctx, value.Fn).UnderlyingValue(ctx)
 			state := c.createExpression(ctx, value).UnderlyingValue(ctx)
-			closureContextType = c.createClosureContextType(ctx, value.Fn.(*ssa.Function))
-			closure = c.createClosure(ctx, value.Fn.(*ssa.Function), closureContextType, true)
+			closureContextType = c.createClosureContextType(ctx, value.Fn.(*ssa.Function).Signature)
+			closure = c.createClosure(ctx, value.Fn.(*ssa.Function).Signature, closureContextType, true)
 			args = append(c.createValues(ctx, instr.Call.Args).Ref(ctx), state)
 		default:
 			panic("unhandled")
@@ -603,20 +642,19 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 		c.createExpression(ctx, instr.Call.Value)
 		callArgs := instr.Call.Args
 
-		closureCtx := c.createClosureContext(ctx, closureContextType, args)
+		closureCtx := c.createClosureContext(ctx, closureContextType, fnPtr, args)
 		if closureExpr, ok := instr.Call.Value.(*ssa.MakeClosure); ok {
 			callArgs = append(callArgs, closureExpr.Bindings...)
 		}
 
-		goroutineStructType := llvm.StructType([]llvm.LLVMTypeRef{c.ptrType.valueType, c.ptrType.valueType}, false)
-		goroutineValue := c.createAlloca(ctx, goroutineStructType, "goroutine")
-		addr := llvm.BuildStructGEP2(c.builder, goroutineStructType, goroutineValue, 0, "goroutine_fn_ptr")
-		llvm.BuildStore(c.builder, closure, addr)
-		addr = llvm.BuildStructGEP2(c.builder, goroutineStructType, goroutineValue, 1, "goroutine_params_ptr")
-		llvm.BuildStore(c.builder, closureCtx, addr)
+		// Get the goroutine type
+		goroutineType := c.createRuntimeType(ctx, "_goroutine").valueType
+		g := llvm.GetUndef(goroutineType)
+		g = llvm.BuildInsertValue(c.builder, g, closure, 0, "")
+		g = llvm.BuildInsertValue(c.builder, g, closureCtx, 1, "")
 
-		goroutineValue = llvm.BuildBitCast(c.builder, goroutineValue, c.ptrType.valueType, "")
-		c.createRuntimeCall(ctx, "addTask", []llvm.LLVMValueRef{goroutineValue})
+		// Add the new goroutine to the scheduler
+		c.createRuntimeCall(ctx, "addTask", []llvm.LLVMValueRef{c.addressOf(ctx, g)})
 	case *ssa.If:
 		condValue := c.createExpression(ctx, instr.Cond).UnderlyingValue(ctx)
 
@@ -642,7 +680,7 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 			c.addressOf(ctx, value),
 		})
 	case *ssa.Panic:
-		fn := c.currentFunction(ctx)
+		fn := c.functions[instr.Parent()]
 		arg := c.createExpression(ctx, instr.X).UnderlyingValue(ctx)
 		c.createRuntimeCall(ctx, "_panic", []llvm.LLVMValueRef{arg})
 
@@ -657,24 +695,33 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 			// Update top for this function
 			llvm.BuildStore(c.builder, newTop, ptr)
 
-			recoverBlock := c.blocks[fn.def.Blocks[len(fn.def.Blocks)-1]]
+			// Run the pending defers
+			if fn.deferTop != nil {
+				c.createRuntimeCall(ctx, "deferRun", []llvm.LLVMValueRef{fn.deferTop})
+			}
+
+			// Locate recover block
+			var recoverBlock *ssa.BasicBlock
+			for _, block := range instr.Parent().Blocks {
+				if strings.Contains(block.Comment, "recover") {
+					recoverBlock = block
+					break
+				}
+			}
+
+			if recoverBlock == nil {
+				panic("no recover block found")
+			}
 
 			// Jump to recover block
-			llvm.BuildBr(c.builder, recoverBlock)
+			llvm.BuildBr(c.builder, c.blocks[recoverBlock])
 		} else {
 			// Create an unreachable terminator following the panic
 			llvm.BuildUnreachable(c.builder)
 		}
 	case *ssa.Return:
-		fn := c.currentFunction(ctx)
-
 		// Get the return type of this function
 		returnType := llvm.GetReturnType(c.currentFunction(ctx).llvmType)
-
-		// First, run defers if there are any
-		if fn.deferTop != nil {
-			c.createRuntimeCall(ctx, "deferRun", []llvm.LLVMValueRef{fn.deferTop})
-		}
 
 		// Void types do not need to return anything
 		if llvm.GetTypeKind(returnType) != llvm.VoidTypeKind {
@@ -694,11 +741,22 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 			llvm.BuildRetVoid(c.builder)
 		}
 	case *ssa.RunDefers:
-		// Will not implement
+		// Run the pending defers
+		fn := c.functions[instr.Parent()]
+		if fn.deferTop != nil {
+			c.createRuntimeCall(ctx, "deferRun", []llvm.LLVMValueRef{fn.deferTop})
+		}
 	case *ssa.Select:
 		panic("not implemented")
 	case *ssa.Send:
-		panic("not implemented")
+		chanValue := c.createExpression(ctx, instr.Chan).UnderlyingValue(ctx)
+		sendValue := c.createExpression(ctx, instr.X).UnderlyingValue(ctx)
+
+		// Create the runtime call to send the value over the channel
+		c.createRuntimeCall(ctx, "channelSend", []llvm.LLVMValueRef{
+			chanValue,
+			c.addressOf(ctx, sendValue),
+		})
 	case *ssa.Store:
 		addr := c.createExpression(ctx, instr.Addr)
 		value := c.createExpression(ctx, instr.Val)
@@ -860,6 +918,6 @@ func (c *Compiler) CreateInitLib(llctx llvm.LLVMContextRef, pkgs []*ssa.Package)
 	constGoroutineStackSize := llvm.ConstInt(c.uintptrType.valueType, c.options.GoroutineStackSize, false)
 	globalGoroutineStackSize := llvm.AddGlobal(c.module, llvm.TypeOf(constGoroutineStackSize), "runtime._goroutineStackSize")
 	llvm.SetInitializer(globalGoroutineStackSize, constGoroutineStackSize)
-	llvm.SetLinkage(globalGoroutineStackSize, llvm.LLVMLinkage(llvm.ExternalLinkage))
+	llvm.SetLinkage(globalGoroutineStackSize, llvm.ExternalLinkage)
 	llvm.SetGlobalConstant(globalGoroutineStackSize, true)
 }
