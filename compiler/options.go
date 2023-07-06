@@ -20,6 +20,7 @@ type SymbolInfo struct {
 	Exported        bool
 	ExternalLinkage bool
 	IsInterrupt     bool
+	Linkage         string
 }
 
 type Options struct {
@@ -37,7 +38,7 @@ func NewOptions() *Options {
 	return &Options{
 		Symbols:            map[string]*SymbolInfo{},
 		PathMappings:       map[string]string{},
-		GoroutineStackSize: 2000,
+		GoroutineStackSize: 2048,
 	}
 }
 

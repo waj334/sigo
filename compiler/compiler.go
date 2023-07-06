@@ -17,7 +17,6 @@ import (
 type (
 	llvmContextKey        struct{}
 	currentPackageKey     struct{}
-	entryBlockKey         struct{}
 	currentBlockKey       struct{}
 	currentFnTypeKey      struct{}
 	currentDbgLocationKey struct{}
@@ -181,13 +180,6 @@ func (c *Compiler) Dispose() {
 func (c *Compiler) currentContext(ctx context.Context) llvm.LLVMContextRef {
 	if v := ctx.Value(llvmContextKey{}); v != nil {
 		return v.(llvm.LLVMContextRef)
-	}
-	return nil
-}
-
-func (c *Compiler) currentEntryBlock(ctx context.Context) llvm.LLVMBasicBlockRef {
-	if v := ctx.Value(entryBlockKey{}); v != nil {
-		return v.(llvm.LLVMBasicBlockRef)
 	}
 	return nil
 }
@@ -395,9 +387,20 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) *Functi
 		llvm.SetVisibility(fnValue, llvm.HiddenVisibility)
 	}
 
-	if info.ExternalLinkage {
+	switch info.Linkage {
+	case "external":
 		llvm.SetLinkage(fnValue, llvm.ExternalLinkage)
+	case "weak":
+		llvm.SetLinkage(fnValue, llvm.WeakAnyLinkage)
+	case "linkonce":
+		llvm.SetLinkage(fnValue, llvm.LinkOnceAnyLinkage)
+	default:
+		if info.ExternalLinkage {
+			llvm.SetLinkage(fnValue, llvm.ExternalLinkage)
+		}
 	}
+
+	// Override linkage
 
 	// Apply attributes
 	if info.IsInterrupt {
@@ -422,32 +425,33 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) *Functi
 				c.dibuilder,
 				filepath.Base(filename),
 				filepath.Dir(filename))
-		} else {
-			diFile = llvm.DIBuilderCreateFile(
+			/*} else {
+				diFile = llvm.DIBuilderCreateFile(
+					c.dibuilder,
+					"<unknown>",
+					"<unknown>")
+			}*/
+
+			subprogram = llvm.DIBuilderCreateFunction(
 				c.dibuilder,
-				"<unknown>",
-				"<unknown>")
+				diFile,
+				name,
+				name,
+				diFile,
+				line,
+				c.createDebugType(ctx, fn.Signature),
+				fn.Pkg == c.currentPackage(ctx),
+				fn.Pkg == c.currentPackage(ctx),
+				line,
+				llvm.LLVMDIFlags(llvm.DIFlagPrototyped), false)
+
+			// Subprograms must be finalized in order to pass verify check
+			llvm.DIBuilderFinalizeSubprogram(c.dibuilder, subprogram)
+
+			// Apply this metadata to the function
+			llvm.SetSubprogram(fnValue, subprogram)
+			c.subprograms[fn.Signature] = subprogram
 		}
-
-		subprogram = llvm.DIBuilderCreateFunction(
-			c.dibuilder,
-			diFile,
-			name,
-			name,
-			diFile,
-			line,
-			c.createDebugType(ctx, fn.Signature),
-			fn.Pkg == c.currentPackage(ctx),
-			fn.Pkg == c.currentPackage(ctx),
-			line,
-			llvm.LLVMDIFlags(llvm.DIFlagPrototyped), false)
-
-		// Subprograms must be finalized in order to pass verify check
-		llvm.DIBuilderFinalizeSubprogram(c.dibuilder, subprogram)
-
-		// Apply this metadata to the function
-		llvm.SetSubprogram(fnValue, subprogram)
-		c.subprograms[fn.Signature] = subprogram
 	}
 
 	result := &Function{
@@ -482,10 +486,6 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 		// Create a new block
 		bb := llvm.AppendBasicBlockInContext(c.currentContext(ctx), fn.value, fn.def.Name()+"."+block.Comment)
 		c.blocks[block] = bb
-		if block.Comment == "entry" {
-			// Set the current entry block in the context
-			ctx = context.WithValue(ctx, entryBlockKey{}, bb)
-		}
 	}
 
 	// Create the instructions in each of the function's blocks
@@ -495,7 +495,7 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 			panic("block not created")
 		}
 
-		c.println(Debug, "Processing block", i, "-", block.Comment)
+		c.printf(Debug, "(%s): Processing block %d - %s\n", fn.name, i, block.Comment)
 
 		// All further instructions should go into this block
 		llvm.PositionBuilderAtEnd(c.builder, insertionBlock)
@@ -505,15 +505,31 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 
 		// Create each instruction in the block
 		for ii, instr := range block.Instrs {
-			c.printf(Debug, "Begin instruction #%d\n", ii)
+			c.printf(Debug, "(%s): Begin instruction #%d\n", fn.name, ii)
+
+			// Change the current debug location to that of the instruction being processed
+			location := fn.def.Prog.Fset.Position(instr.Pos())
+			if fn.subprogram != nil {
+				llvm.SetCurrentDebugLocation2(c.builder,
+					llvm.DIBuilderCreateDebugLocation(
+						c.currentContext(ctx),
+						uint(location.Line),
+						uint(location.Column),
+						fn.subprogram,
+						nil),
+				)
+			}
 
 			// Create the instruction
 			if err := c.createInstruction(ctx, instr); err != nil {
 				return err
 			}
-			c.printf(Debug, "End instruction #%d\n", ii)
+
+			llvm.SetCurrentDebugLocation2(c.builder, nil)
+
+			c.printf(Debug, "(%s): End instruction #%d\n", fn.name, ii)
 		}
-		c.println(Debug, "Done processing block", i)
+		c.printf(Debug, "(%s): Done processing block %s\n", fn.name, i)
 	}
 
 	// Mark this function as compiled
@@ -524,26 +540,6 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 
 func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction) (err error) {
 	c.printf(Debug, "Processing instruction %T: %s\n", instr, instr.String())
-
-	// Get the current debug location to restore to when this instruction is done
-	currentDbgLoc := c.currentDbgLocation(ctx)
-	defer llvm.SetCurrentDebugLocation2(c.builder, currentDbgLoc)
-
-	// Change the current debug location to that of the instruction being processed
-	scope, file := c.instructionScope(instr)
-	var location token.Position
-	if file != nil {
-		location = file.Position(instr.Pos())
-	}
-	dbgLoc := llvm.DIBuilderCreateDebugLocation(
-		c.currentContext(ctx),
-		uint(location.Line),
-		uint(location.Column),
-		scope,
-		nil)
-
-	ctx = context.WithValue(ctx, currentDbgLocationKey{}, dbgLoc)
-	llvm.SetCurrentDebugLocation2(c.builder, dbgLoc)
 
 	// Create the specific instruction
 	switch instr := instr.(type) {
@@ -746,8 +742,6 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 		if fn.deferTop != nil {
 			c.createRuntimeCall(ctx, "deferRun", []llvm.LLVMValueRef{fn.deferTop})
 		}
-	case *ssa.Select:
-		panic("not implemented")
 	case *ssa.Send:
 		chanValue := c.createExpression(ctx, instr.Chan).UnderlyingValue(ctx)
 		sendValue := c.createExpression(ctx, instr.X).UnderlyingValue(ctx)
@@ -853,7 +847,8 @@ func (c *Compiler) createRuntimeCall(ctx context.Context, name string, args []ll
 }
 
 func (c *Compiler) positionAtEntryBlock(ctx context.Context) {
-	entryBlock := c.currentEntryBlock(ctx)
+	fn := c.currentFunction(ctx)
+	entryBlock := llvm.GetEntryBasicBlock(fn.value)
 	if blockFirst := llvm.GetFirstInstruction(entryBlock); blockFirst != nil {
 		llvm.PositionBuilderBefore(c.builder, blockFirst)
 	} else {
@@ -861,7 +856,8 @@ func (c *Compiler) positionAtEntryBlock(ctx context.Context) {
 	}
 }
 
-func (c *Compiler) instructionScope(instr instruction) (_ llvm.LLVMMetadataRef, file *token.File) {
+func (c *Compiler) instructionScope(instr instruction) (_ llvm.LLVMMetadataRef) {
+	var file *token.File
 	if instr.Parent() != nil {
 		if instr.Parent().Object() != nil {
 			fn := c.functions[instr.Parent()]
@@ -877,15 +873,15 @@ func (c *Compiler) instructionScope(instr instruction) (_ llvm.LLVMMetadataRef, 
 						filepath.Base(filename),
 						filepath.Dir(filename)),
 					uint(location.Line),
-					uint(location.Column)), file
+					uint(location.Column))
 			} else {
-				return fn.subprogram, nil
+				return fn.subprogram
 			}
 		} else if subprogram, ok := c.subprograms[instr.Parent().Signature]; ok {
-			return subprogram, nil
+			return subprogram
 		}
 	}
-	return c.compileUnit, nil
+	return c.compileUnit
 }
 
 func (c *Compiler) getAttribute(ctx context.Context, attr string) llvm.LLVMAttributeRef {

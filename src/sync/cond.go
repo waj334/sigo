@@ -24,7 +24,6 @@ func NewCond(l Locker) *Cond {
 
 func (c *Cond) Broadcast() {
 	c.mutex.Lock()
-	defer c.mutex.Unlock()
 
 	// Resume all waiting goroutines
 	for _, waiter := range c.waiters {
@@ -33,11 +32,11 @@ func (c *Cond) Broadcast() {
 
 	// Clear the waiters list
 	c.waiters = nil
+	c.mutex.Unlock()
 }
 
 func (c *Cond) Signal() {
 	c.mutex.Lock()
-	defer c.mutex.Unlock()
 
 	if len(c.waiters) > 0 {
 		// Pop the first waiter from the waiters list
@@ -52,6 +51,8 @@ func (c *Cond) Signal() {
 		// Resume this goroutine
 		resumeTask(waiter)
 	}
+
+	c.mutex.Unlock()
 }
 
 func (c *Cond) Wait() {

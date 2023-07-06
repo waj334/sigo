@@ -72,3 +72,36 @@ func stringRange(it *stringIterator) (bool, int, rune) {
 		return true, i, val
 	}
 }
+
+func stringSlice(str _string, low, high int) _string {
+	if low == -1 {
+		low = 0
+	}
+
+	if high == -1 {
+		high = str.len
+	}
+
+	if 0 > low || low > high || low > str.len || high > str.len {
+		panic("runtime error: slice out of bounds [::]")
+	}
+
+	newLen := high - low
+
+	result := _string{
+		array: alloc(uintptr(newLen)),
+		len:   newLen,
+	}
+	memcpy(result.array, unsafe.Add(str.array, low), uintptr(newLen))
+	return result
+}
+
+func stringToSlice(str _string) _slice {
+	result := _slice{
+		array: alloc(uintptr(str.len)),
+		len:   str.len,
+		cap:   str.len,
+	}
+	memcpy(result.array, str.array, uintptr(str.len))
+	return result
+}

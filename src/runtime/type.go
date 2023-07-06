@@ -126,7 +126,6 @@ type _field struct {
 type _arrayType struct {
 	elementType *_type
 	length      int
-	capacity    int
 }
 
 type _mapType struct {

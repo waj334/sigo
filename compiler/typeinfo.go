@@ -35,7 +35,7 @@ func (c *Compiler) createTypeDescriptor(ctx context.Context, typ *Type) (descrip
 	// Find the "typeDescriptor" runtime type
 	descriptorType := c.createRuntimeType(ctx, "_type").valueType
 	if descriptorType != nil {
-		// Create an array to store the typeDescriptor struct's values
+		// Create an array to store the typeDescriptor struct values
 		var descriptorValues [11]llvm.LLVMValueRef
 		var name string
 		var construct ConstructType
@@ -102,6 +102,10 @@ func (c *Compiler) createTypeDescriptor(ctx context.Context, typ *Type) (descrip
 			descriptorValues[8] = c.createGlobalValue(ctx,
 				llvm.ConstNamedStruct(pointerDescType, []llvm.LLVMValueRef{elementDescriptor}),
 				c.symbolName(c.currentPackage(ctx).Pkg, "pointer_type"))
+		case *types.Array:
+			descriptorValues[6] = c.createArrayDescriptor(ctx, goType.Elem(), goType.Len())
+		case *types.Slice:
+			descriptorValues[6] = c.createArrayDescriptor(ctx, goType.Elem(), -1)
 		}
 
 		// Create a global for the typename
@@ -198,10 +202,19 @@ func (c *Compiler) createFunctionDescriptor(ctx context.Context, fn *types.Func)
 		}
 
 		// Create the arg table
-		argTable := llvm.ConstNamedStruct(tableType, []llvm.LLVMValueRef{
+		argTableValues := [2]llvm.LLVMValueRef{
 			llvm.ConstInt(llvm.Int32TypeInContext(c.currentContext(ctx)), uint64(len(argTypes)), false),
-			llvm.ConstArray(c.ptrType.valueType, argTypes),
-		})
+		}
+
+		if len(argTypes) > 0 {
+			argTableValues[1] = c.createGlobalValue(ctx,
+				llvm.ConstArray(c.ptrType.valueType, argTypes),
+				c.symbolName(c.currentPackage(ctx).Pkg, "args"))
+		} else {
+			argTableValues[1] = llvm.ConstNull(c.ptrType.valueType)
+		}
+
+		argTable := llvm.ConstNamedStruct(tableType, argTableValues[:])
 
 		// Collect return types
 		returnTypes := make([]llvm.LLVMValueRef, 0, signature.Results().Len())
@@ -223,12 +236,13 @@ func (c *Compiler) createFunctionDescriptor(ctx context.Context, fn *types.Func)
 			arr,
 		})
 
+		var fnValue llvm.LLVMValueRef
 		ssaFn := c.currentPackage(ctx).Prog.FuncValue(fn)
-		if ssaFn == nil {
-			panic("function does not exist?")
+		if ssaFn != nil {
+			fnValue = c.createExpression(ctx, ssaFn).UnderlyingValue(ctx)
+		} else {
+			fnValue = llvm.ConstNull(c.ptrType.valueType)
 		}
-
-		fnValue := c.createExpression(ctx, ssaFn).UnderlyingValue(ctx)
 
 		// Collect the values for the functionDescriptor struct
 		funcDescriptorValues := []llvm.LLVMValueRef{
@@ -247,4 +261,22 @@ func (c *Compiler) createFunctionDescriptor(ctx context.Context, fn *types.Func)
 		c.descriptors[fn.Type()] = value
 		return value
 	}
+}
+
+func (c *Compiler) createArrayDescriptor(ctx context.Context, elem types.Type, length int64) llvm.LLVMValueRef {
+	desc := c.createRuntimeType(ctx, "_arrayType").valueType
+	if desc == nil {
+		panic("missing _arrayType type")
+	}
+
+	// Create the descriptor for the element type
+	elemType := c.createTypeDescriptor(ctx, c.createType(ctx, elem))
+
+	// Create the struct
+	arr := llvm.ConstNamedStruct(desc, []llvm.LLVMValueRef{
+		elemType,
+		llvm.ConstInt(c.int32Type(ctx), uint64(length), false),
+	})
+
+	return c.createGlobalValue(ctx, arr, c.symbolName(c.currentPackage(ctx).Pkg, "arr_type"))
 }

@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"math/rand"
 	"sync"
 	"unsafe"
 )
@@ -131,4 +132,54 @@ func channelLen(c _channel) int {
 
 func channelCap(c _channel) int {
 	return c.capacity
+}
+
+func channelSelect(_cases *_slice, _results *_slice, _send *_slice, _values *_slice, hasDefault bool) (int, bool) {
+	cases := *(*[]_channel)(unsafe.Pointer(_cases))
+	results := *(*[]unsafe.Pointer)(unsafe.Pointer(_results))
+	send := *(*[]bool)(unsafe.Pointer(_send))
+	values := *(*[]unsafe.Pointer)(unsafe.Pointer(_values))
+	readyCases := make([]int, 0, len(cases))
+
+	for {
+		// Reset readyCases
+		readyCases = readyCases[:0]
+
+		// Check which cases are ready
+		for i, c := range cases {
+			c.cond.L.Lock()
+			switch {
+			case send[i]:
+				if !*c.full {
+					readyCases = append(readyCases, i)
+				}
+			default:
+				if *c.readIndex != *c.writeIndex || *c.full {
+					readyCases = append(readyCases, i)
+				}
+			}
+			c.cond.L.Unlock()
+		}
+
+		// If one or more cases are ready, choose one at random
+		if len(readyCases) > 0 {
+			randIndex := rand.Intn(len(readyCases))
+			caseIndex := readyCases[randIndex]
+			ok := true
+
+			// Perform the send or receive operation
+			if send[caseIndex] {
+				channelSend(cases[caseIndex], values[caseIndex])
+			} else {
+				ok = channelReceive(cases[caseIndex], results[caseIndex], true)
+			}
+			return caseIndex, ok
+		} else if hasDefault {
+			// If no cases are ready and there's a default case, execute it
+			return len(cases), false
+		}
+
+		// If no cases are ready and there's no default case, yield to another goroutine
+		schedulerPause()
+	}
 }

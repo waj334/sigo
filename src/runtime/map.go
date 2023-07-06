@@ -167,7 +167,7 @@ func _mapLookup(m _map, K unsafe.Pointer) *mapEntry {
 			// TODO: Require the comparison operator for the underlying concrete value type
 			case Array:
 				// Hash the array's memory as-is
-				arraySize := m.keyType.array.elementType.size * uintptr(m.keyType.array.capacity)
+				arraySize := m.keyType.array.elementType.size * uintptr(m.keyType.array.length)
 				compareResult = memcmp(entry.key, K, arraySize) == 0
 			default:
 				compareResult = memcmp(entry.key, K, m.keyType.size) == 0
@@ -197,7 +197,7 @@ func mapKeyHash(K unsafe.Pointer, T *_type) (result uint64) {
 	// TODO: Require the comparison operator for the underlying concrete value type
 	case Array:
 		// Hash the array's memory as-is
-		result = computeFnv(K, T.array.elementType.size*uintptr(T.array.capacity))
+		result = computeFnv(K, T.array.elementType.size*uintptr(T.array.length))
 	default:
 		result = computeFnv(K, T.size)
 	}

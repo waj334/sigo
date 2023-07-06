@@ -1,7 +1,6 @@
 package atsamx51
 
 import (
-	"runtime/arm/cortexm"
 	"runtime/arm/cortexm/sam/chip"
 	"sync/atomic"
 )
@@ -33,13 +32,11 @@ func initSysTick() {
 
 //sigo:interrupt _SysTick_Handler SysTick_Handler
 func _SysTick_Handler() {
-	state := cortexm.DisableInterrupts()
 	// Atomically increment the tick counter
 	atomic.AddUint32(&_tickCount, 1)
 
 	// Trigger a PendSV interrupt to run the scheduler
 	triggerPendSV()
-	cortexm.EnableInterrupts(state)
 }
 
 //go:export triggerPendSV runtime.schedulerPause

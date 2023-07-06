@@ -18,6 +18,8 @@ _task_start:
 PendSV_Handler:
     // Choose the next task
     bl runtime.runScheduler
+    cmp r0, #0                      // Check if runScheduler returned false
+    beq _return                     // No context switch should be performed
 
     // Load the stack pointer of the current task
     ldr r0, =runtime.currentTask    // Load the address of the current task pointer into R0
@@ -33,10 +35,10 @@ PendSV_Handler:
 
     // Save context of old task
     mrs r1, psp;                    // Get the current PSP
-    subs r1, r1, #4*9               // Make room for r4-r11
 #ifdef __thumb2__
-    stmia r1!, {r4-r11, lr}         // Save r4-r11 on the stack
+    stmdb r1!, {r4-r11}             // Save r4-r11 on the last task's stack
 #else
+    subs r1, r1, #4*8                // Make room for r4-r11
     str r4, [r1], #4                // Store r4 on the stack
     str r5, [r1], #4                // Store r5 on the stack
     str r6, [r1], #4                // Store r6 on the stack
@@ -45,16 +47,17 @@ PendSV_Handler:
     str r9, [r1], #4                // Store r9 on the stack
     str r10, [r1], #4               // Store r10 on the stack
     str r11, [r1], #4               // Store r11 on the stack
-    str lr, [r1]                    // Store lr on the stack
 #endif
+    // Save the stack pointer of the last task
+    ldr r2, =runtime.lastTask       // Load the last task pointer into R1
+    ldr r2, [r2]                    // Load the value of the last task pointer into R1
+    str r1, [r2]                    // Store updated stack pointer in the task's context
 _context_switch:
-    msr psp, r1                     // Update PSP
-
     // Load context of new task
-    subs r0, r0, #4*9               // r4-r11 are stored at a lower address on the stack
 #ifdef __thumb2__
-    ldmia r0!, {r4-r11, lr}         // Load r4-r11 and lr from the new task's stack
+    ldmia r0!, {r4-r11}             // Load r4-r11 and lr from the new task's stack
 #else
+    subs r0, r0, #4*8               // r4-r11 are stored at a lower address on the stack
     ldr r4, [r0], #4                // Load r4 from the new task's stack
     ldr r5, [r0], #4                // Load r5 from the new task's stack
     ldr r6, [r0], #4                // Load r6 from the new task's stack
@@ -63,7 +66,6 @@ _context_switch:
     ldr r9, [r0], #4                // Load r9 from the new task's stack
     ldr r10, [r0], #4               // Load r10 from the new task's stack
     ldr r11, [r0], #4               // Load r11 from the new task's stack
-    ldr lr, [r0]                    // Load lr from the new task's stack
 #endif
     msr psp, r0;                    // Update PSP
 _return:

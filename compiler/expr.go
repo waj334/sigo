@@ -3,7 +3,6 @@ package compiler
 import (
 	"context"
 	"go/constant"
-	"go/token"
 	"go/types"
 	"math"
 
@@ -23,7 +22,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 	}
 
 	// Get the current debug location to restore to when this instruction is done
-	currentDbgLoc := c.currentDbgLocation(ctx)
+	/*currentDbgLoc := c.currentDbgLocation(ctx)
 	defer llvm.SetCurrentDebugLocation2(c.builder, currentDbgLoc)
 
 	// Change the current debug location to that of the instruction being processed
@@ -40,7 +39,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		nil)
 
 	ctx = context.WithValue(ctx, currentDbgLocationKey{}, dbgLoc)
-	llvm.SetCurrentDebugLocation2(c.builder, dbgLoc)
+	llvm.SetCurrentDebugLocation2(c.builder, dbgLoc)*/
 
 	// initialize the value
 	value.cc = c
@@ -175,37 +174,34 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 				}
 			} else {
 				constType := c.createType(ctx, expr.Type())
-				switch expr.Value.Kind() {
-				case constant.Bool:
-					if constant.BoolVal(expr.Value) {
-						value.ref = llvm.ConstInt(constType.valueType, 1, false)
-					} else {
-						value.ref = llvm.ConstInt(constType.valueType, 0, false)
+				switch t := expr.Type().Underlying().(type) {
+				case *types.Basic:
+					switch {
+					case t.Kind() == types.UnsafePointer:
+						value.ref = llvm.ConstInt(c.uintptrType.valueType, expr.Uint64(), false)
+						value.ref = llvm.BuildIntToPtr(c.builder, value.ref, constType.valueType, "")
+					case t.Info()&types.IsInteger != 0:
+						if t.Info()&types.IsUnsigned != 0 {
+							value.ref = llvm.ConstInt(constType.valueType, expr.Uint64(), false)
+						} else {
+							value.ref = llvm.ConstInt(constType.valueType, uint64(expr.Int64()), false)
+						}
+					case t.Info()&types.IsString != 0:
+						strValue := constant.StringVal(expr.Value)
+						value.ref = c.createConstantString(ctx, strValue)
+					case t.Info()&types.IsBoolean != 0:
+						value.ref = c.createConstBool(ctx, constant.BoolVal(expr.Value))
+					case t.Info()&types.IsFloat != 0:
+						value.ref = llvm.ConstReal(constType.valueType, expr.Float64())
+					default:
+						panic("not implemented")
 					}
-				case constant.String:
-					strValue := constant.StringVal(expr.Value)
-					value.ref = c.createConstantString(ctx, strValue)
-				case constant.Int:
-					intVal, _ := constant.Int64Val(expr.Value)
-					if llvm.GetTypeKind(constType.valueType) == llvm.PointerTypeKind {
-						constVal := llvm.ConstInt(c.uintptrType.valueType, uint64(intVal), false)
-						value.ref = llvm.BuildIntToPtr(c.builder, constVal, constType.valueType, "")
-					} else {
-						value.ref = llvm.ConstInt(constType.valueType, uint64(intVal), false)
-					}
-				case constant.Float:
-					constVal, _ := constant.Float64Val(expr.Value)
-					value.ref = llvm.ConstReal(constType.valueType, constVal)
-				case constant.Complex:
-					panic("not implemented")
-				default:
-					panic("unknown default value")
 				}
 			}
 		}
 	case *ssa.Convert:
 		typeTo := c.createType(ctx, expr.Type().Underlying())
-		fromValue := c.createExpression(ctx, expr.X)
+		fromValue := c.createExpression(ctx, expr.X).UnderlyingValue(ctx)
 
 		switch typeX := expr.X.Type().Underlying().(type) {
 		case *types.Basic:
@@ -229,32 +225,32 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 				switch typeX.Kind() {
 				case types.UnsafePointer:
 					if otherType.Kind() == types.Uintptr {
-						value.ref = llvm.BuildPtrToInt(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
+						value.ref = llvm.BuildPtrToInt(c.builder, fromValue, typeTo.valueType, "")
 					} else {
-						value.ref = llvm.BuildPointerCast(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
+						value.ref = llvm.BuildPointerCast(c.builder, fromValue, typeTo.valueType, "")
 					}
 				case types.Uintptr:
 					if otherType.Kind() == types.UnsafePointer {
-						value.ref = llvm.BuildIntToPtr(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
+						value.ref = llvm.BuildIntToPtr(c.builder, fromValue, typeTo.valueType, "")
 						break
 					}
 					fallthrough
 				default:
 					if fromIsInteger && toIsInteger {
-						value.ref = llvm.BuildIntCast2(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, fromIsUnsigned, "")
+						value.ref = llvm.BuildIntCast2(c.builder, fromValue, typeTo.valueType, fromIsUnsigned, "")
 					} else if fromIsFloat && toIsFloat {
-						value.ref = llvm.BuildFPCast(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
+						value.ref = llvm.BuildFPCast(c.builder, fromValue, typeTo.valueType, "")
 					} else if fromIsFloat && toIsInteger {
 						if toIsUnsigned {
-							value.ref = llvm.BuildFPToSI(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
+							value.ref = llvm.BuildFPToSI(c.builder, fromValue, typeTo.valueType, "")
 						} else {
-							value.ref = llvm.BuildFPToUI(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
+							value.ref = llvm.BuildFPToUI(c.builder, fromValue, typeTo.valueType, "")
 						}
 					} else if fromIsInteger && toIsFloat {
-						if toIsUnsigned {
-							value.ref = llvm.BuildUIToFP(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
+						if fromIsUnsigned {
+							value.ref = llvm.BuildUIToFP(c.builder, fromValue, typeTo.valueType, "")
 						} else {
-							value.ref = llvm.BuildSIToFP(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
+							value.ref = llvm.BuildSIToFP(c.builder, fromValue, typeTo.valueType, "")
 						}
 					} else if fromIsComplex && toIsComplex {
 						panic("not implemented")
@@ -275,14 +271,14 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 					}
 				}
 			case *types.Pointer:
-				value.ref = llvm.BuildPointerCast(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
+				value.ref = llvm.BuildPointerCast(c.builder, fromValue, typeTo.valueType, "")
 			case *types.Slice:
-				value.ref = c.createRuntimeCall(ctx, "sliceString", []llvm.LLVMValueRef{fromValue.UnderlyingValue(ctx)})
+				value.ref = c.createRuntimeCall(ctx, "stringToSlice", []llvm.LLVMValueRef{fromValue})
 			}
 		case *types.Pointer:
 			otherType := expr.Type().(*types.Basic)
 			if otherType.Kind() == types.UnsafePointer {
-				value.ref = llvm.BuildPointerCast(c.builder, fromValue.UnderlyingValue(ctx), typeTo.valueType, "")
+				value.ref = llvm.BuildPointerCast(c.builder, fromValue, typeTo.valueType, "")
 			} else {
 				panic("not implemented")
 			}
@@ -333,7 +329,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 			c.builder,
 			structType,
 			structValue,
-			uint(expr.Field), "")
+			uint(expr.Field), "struct_field_addr")
 	case *ssa.FreeVar:
 		fnObj := c.functions[expr.Parent()]
 		varType := c.createType(ctx, expr.Type())
@@ -345,10 +341,10 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		for i, freeVar := range fnObj.def.FreeVars {
 			if freeVar == expr {
 				// Get the address of the value to be loaded from the struct
-				addr := llvm.BuildStructGEP2(c.builder, fnObj.stateType, state, uint(i), "")
+				addr := llvm.BuildStructGEP2(c.builder, fnObj.stateType, state, uint(i), "free_var_addr")
 
 				// Load the value from the struct
-				value.ref = llvm.BuildLoad2(c.builder, varType.valueType, addr, "")
+				value.ref = llvm.BuildLoad2(c.builder, varType.valueType, addr, "free_var")
 
 				// Stop
 				break
@@ -629,40 +625,87 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		case *types.Map:
 			panic("map type not implemented")
 		}
+	case *ssa.Select:
+		chanValues := make([]llvm.LLVMValueRef, len(expr.States))
+		sendValues := make([]llvm.LLVMValueRef, len(expr.States))
+		directionValues := make([]llvm.LLVMValueRef, len(expr.States))
+		results := make([]llvm.LLVMValueRef, len(expr.States))
+
+		// Create each of the channel values
+		for i := range expr.States {
+			chanType := expr.States[i].Chan.Type().(*types.Chan)
+			chanValues[i] = c.createExpression(ctx, expr.States[i].Chan).UnderlyingValue(ctx)
+			directionValues[i] = c.createConstBool(ctx, expr.States[i].Dir == types.SendOnly)
+			results[i] = c.createAlloca(ctx, c.createType(ctx, chanType.Elem()).valueType, "")
+			if expr.States[i].Send != nil {
+				sendValues[i] = c.createExpression(ctx, expr.States[i].Send).UnderlyingValue(ctx)
+			} else {
+				sendValues[i] = llvm.ConstNull(c.ptrType.valueType)
+			}
+		}
+
+		// Create the runtime call
+		selectResult := c.createRuntimeCall(ctx, "channelSelect", []llvm.LLVMValueRef{
+			c.createSliceFromValues(ctx, chanValues),
+			c.createSliceFromValues(ctx, results),
+			c.createSliceFromValues(ctx, directionValues),
+			c.createSliceFromValues(ctx, sendValues),
+			c.createConstBool(ctx, !expr.Blocking),
+		})
+
+		indexValue := llvm.BuildExtractValue(c.builder, selectResult, 0, "")
+		okValue := llvm.BuildExtractValue(c.builder, selectResult, 1, "")
+
+		// Create the result tuple
+		value.ref = llvm.GetUndef(c.createType(ctx, expr.Type()).valueType)
+		value.ref = llvm.BuildInsertValue(c.builder, value.ref, indexValue, 0, "")
+		value.ref = llvm.BuildInsertValue(c.builder, value.ref, okValue, 1, "")
+		for i, r := range results {
+			v := llvm.BuildLoad2(c.builder, llvm.GetAllocatedType(r), r, "")
+			value.ref = llvm.BuildInsertValue(c.builder, value.ref, v, uint(2+i), "")
+		}
 	case *ssa.Slice:
 		var low, high, max llvm.LLVMValueRef
+		neg := llvm.ConstIntOfString(llvm.Int32TypeInContext(c.currentContext(ctx)), "-1", 10)
 		if expr.Low != nil {
 			low = c.createExpression(ctx, expr.Low).UnderlyingValue(ctx)
+			low = llvm.BuildIntCast2(c.builder, low, c.int32Type(ctx), true, "")
+		} else {
+			low = neg
 		}
 
 		if expr.High != nil {
 			high = c.createExpression(ctx, expr.High).UnderlyingValue(ctx)
+			high = llvm.BuildIntCast2(c.builder, high, c.int32Type(ctx), true, "")
+		} else {
+			high = neg
 		}
 
 		if expr.Max != nil {
 			max = c.createExpression(ctx, expr.Max).UnderlyingValue(ctx)
+			max = llvm.BuildIntCast2(c.builder, max, c.int32Type(ctx), true, "")
+		} else {
+			max = neg
 		}
 
 		array := c.createExpression(ctx, expr.X).UnderlyingValue(ctx)
 
-		var elementType llvm.LLVMTypeRef
-		numElements := uint64(0)
-
 		switch t := expr.X.Type().Underlying().(type) {
 		case *types.Slice:
-			elementType = c.createType(ctx, t.Elem()).valueType
+			info := c.createTypeDescriptor(ctx, c.createType(ctx, expr.X.Type()))
+			value.ref = c.createRuntimeCall(ctx, "sliceReslice", []llvm.LLVMValueRef{
+				array, info, low, high, max,
+			})
 		case *types.Basic:
-			elementType = llvm.Int8TypeInContext(c.currentContext(ctx))
+			value.ref = c.createRuntimeCall(ctx, "stringSlice", []llvm.LLVMValueRef{array, low, high})
 		case *types.Pointer:
 			if tt, ok := t.Elem().Underlying().(*types.Array); ok {
-				elementType = c.createType(ctx, tt.Elem()).valueType
-				numElements = uint64(tt.Len())
+				info := c.createTypeDescriptor(ctx, c.createType(ctx, tt))
+				value.ref = c.createRuntimeCall(ctx, "sliceAddr", []llvm.LLVMValueRef{array, info, low, high})
 			} else {
 				panic("invalid pointer type")
 			}
 		}
-
-		value.ref = c.createSlice(ctx, array, elementType, numElements, low, high, max)
 	case *ssa.SliceToArrayPointer:
 		panic("not implemented")
 	case *ssa.TypeAssert:
