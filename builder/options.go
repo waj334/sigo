@@ -15,4 +15,5 @@ type Options struct {
 	CTypeNames        bool
 	NumJobs           int
 	Optimization      string
+	StackSize         int
 }

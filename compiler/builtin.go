@@ -86,7 +86,7 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 			elements = append(elements, argValue)
 		}
 
-		arg := llvm.BuildArrayAlloca(c.builder, argType, llvm.ConstInt(llvm.Int32TypeInContext(c.currentContext(ctx)), uint64(len(elements)), false), "")
+		arg := c.createArrayAlloca(ctx, argType, uint64(len(elements)), "")
 		for i, _ := range args {
 			index := llvm.ConstInt(llvm.Int32TypeInContext(c.currentContext(ctx)), uint64(i), false)
 			addr := llvm.BuildGEP2(c.builder, argType, arg, []llvm.LLVMValueRef{index}, "")

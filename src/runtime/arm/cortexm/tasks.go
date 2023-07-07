@@ -29,7 +29,6 @@ type registers struct {
 	R9  uintptr
 	R10 uintptr
 	R11 uintptr
-	LR  uintptr
 }
 
 type _task struct {
@@ -54,7 +53,7 @@ func initTask(taskPtr unsafe.Pointer) {
 	estack.R0 = uintptr(task.goroutine.args)
 	estack.R1 = uintptr(task.goroutine.fn)
 	estack.R2 = uintptr(taskPtr)
-	task.stack = unsafe.Add(unsafe.Pointer(estack), unsafe.Sizeof(registers{}))
+	task.stack = unsafe.Pointer(estack)
 }
 
 //go:export align runtime.alignStack

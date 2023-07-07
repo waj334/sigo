@@ -7,13 +7,11 @@
 package main
 
 import (
-	"sync"
-	"time"
-
 	mcu "runtime/arm/cortexm/sam/atsamx51"
 	"runtime/arm/cortexm/sam/atsamx51/spi"
 	"runtime/arm/cortexm/sam/atsamx51/uart"
 	_ "runtime/arm/cortexm/sam/chip/atsame51g19a"
+	"time"
 )
 
 var (
@@ -83,24 +81,32 @@ func main() {
 	UART.WriteString(testMap2["this is another"])
 	UART.WriteString(testMap2["does not exist"])
 
-	var mutex sync.Mutex
 	blinkChan := make(chan struct{})
+	blinkChan2 := make(chan struct{})
 
 	go func() {
 		for {
 			time.Sleep(time.Millisecond * 500)
 			blinkChan <- struct{}{}
+			time.Sleep(time.Millisecond * 500)
+			blinkChan2 <- struct{}{}
 		}
 	}()
 
-	go func(mutex sync.Mutex) {
+	go func(blinkChan, blinkChan2 chan struct{}) {
 		for {
-			<-blinkChan
-			mcu.PB11.Toggle()
+			select {
+			case <-blinkChan:
+				mcu.PB11.Toggle()
+			case <-blinkChan2:
+				mcu.PB11.Toggle()
+				time.Sleep(time.Millisecond * 100)
+				mcu.PB11.Toggle()
+				time.Sleep(time.Millisecond * 100)
+				mcu.PB11.Toggle()
+			}
 		}
-	}(mutex)
+	}(blinkChan, blinkChan2)
 
-	for {
-		//UART.WriteString("test\n")
-	}
+	select {}
 }

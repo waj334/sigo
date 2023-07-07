@@ -14,57 +14,78 @@ func interfaceMake(value unsafe.Pointer, valueType *_type) _interface {
 	}
 }
 
-func interfaceAssert(X *_interface, from *_type, T *_type, hasOk bool) (unsafe.Pointer, bool) {
+func interfaceAssert(X *_interface, from *_type, T *_type, hasOk bool) (result unsafe.Pointer, ok bool) {
 	var err error
 	if X == nil {
-		err = &TypeAssertError{
-			_interface:    from,
-			concrete:      nil,
-			asserted:      T,
-			missingMethod: "",
-		}
-	} else if T.construct != Interface && X.typePtr != T {
-		err = &TypeAssertError{
-			_interface:    from,
-			concrete:      X.typePtr,
-			asserted:      T,
-			missingMethod: "",
-		}
-	} else if T.construct == Interface && (X.typePtr.construct == Struct || X.typePtr.construct == Interface) {
-		for i := 0; i < T.methods.count; i++ {
-			methodNameT := *T.methods.index(i).name
-			found := false
-			for ii := 0; ii < X.typePtr.methods.count; ii++ {
-				methodNameX := *X.typePtr.methods.index(ii).name
-				if methodNameX == methodNameT {
-					found = true
-					break
-				}
+		if T.ptr == nil {
+			return nil, true
+		} else {
+			err = &TypeAssertError{
+				_interface:    from,
+				concrete:      nil,
+				asserted:      T,
+				missingMethod: "",
 			}
+		}
+	} else {
+		XType := X.typePtr
+		if X.typePtr.construct == Pointer {
+			XType = X.typePtr.ptr.elementType
+		}
 
-			if !found {
+		if T.construct != Interface {
+			if XType != T { // Underlying test
 				err = &TypeAssertError{
 					_interface:    from,
-					concrete:      X.typePtr,
+					concrete:      XType,
 					asserted:      T,
-					missingMethod: methodNameT,
+					missingMethod: "",
 				}
-				break
+			} else {
+				// Return the concrete value
+				return X.valuePtr, true
 			}
-		}
+		} else {
+			if T.methods != nil { // Assignable test
+				for i := 0; i < T.methods.count; i++ {
+					methodNameT := *T.methods.index(i).name
+					found := false
+					for ii := 0; ii < XType.methods.count; ii++ {
+						methodNameX := *XType.methods.index(ii).name
+						if methodNameX == methodNameT {
+							found = true
+							break
+						}
+					}
 
-		// Return the input interface
-		return unsafe.Pointer(X), true
+					if !found {
+						err = &TypeAssertError{
+							_interface:    from,
+							concrete:      XType,
+							asserted:      T,
+							missingMethod: methodNameT,
+						}
+						break
+					} else {
+						// return a copy of the input interface
+						return unsafe.Pointer(&_interface{
+							valuePtr: X.valuePtr,
+							typePtr:  X.typePtr,
+						}), true
+					}
+				}
+			} // else any value can be assigned to this interface
+		}
 	}
 
+	// Handle error
 	if err != nil {
 		if !hasOk {
 			panic(err)
 		}
-		return nil, false
 	}
 
-	return X.valuePtr, true
+	return nil, false
 }
 
 func interfaceCompare(X _interface, Y _interface) bool {
@@ -122,12 +143,12 @@ func interfaceCompare(X _interface, Y _interface) bool {
 func interfaceLookUp(i _interface, id uint32) (result unsafe.Pointer) {
 	info := i.typePtr
 
-	// Get the underlying type
-	if info.ptr != nil {
-		ptrInfo := info.ptr
-		info = ptrInfo.elementType
+	// Get the element type of the pointer
+	if i.typePtr.ptr != nil {
+		info = i.typePtr.ptr.elementType
 	}
 
+	// Locate the method matching the id
 	for method := 0; method < info.methods.count; method++ {
 		fn := info.methods.index(method)
 		if id == fn.id {

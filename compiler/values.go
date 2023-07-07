@@ -6,6 +6,7 @@ import (
 	"golang.org/x/tools/go/ssa"
 	"omibyte.io/sigo/llvm"
 	"path/filepath"
+	"strings"
 )
 
 type Value struct {
@@ -34,7 +35,7 @@ func (v Value) UnderlyingValue(ctx context.Context) llvm.LLVMValueRef {
 		typ := v.cc.createType(ctx, v.spec.Type())
 
 		// Heap allocations are ptr->ptr. Load the address of the actual value
-		ref = llvm.BuildLoad2(v.cc.builder, typ.valueType, ref, "heap_load")
+		ref = llvm.BuildLoad2(v.cc.builder, typ.valueType, ref, "heap_data_start")
 	}
 	return ref
 }
@@ -194,13 +195,19 @@ func (c *Compiler) createSliceFromValues(ctx context.Context, values []llvm.LLVM
 
 	// Create the underlying array for the slice
 	constLen := llvm.ConstInt(llvm.Int32TypeInContext(c.currentContext(ctx)), uint64(len(values)), false)
-	array := llvm.BuildArrayAlloca(c.builder, lastType, constLen, "")
 
-	// Populate the underlying array for the slice
-	for i, value := range values {
-		index := llvm.ConstInt(llvm.Int32TypeInContext(c.currentContext(ctx)), uint64(i), false)
-		addr := llvm.BuildGEP2(c.builder, lastType, array, []llvm.LLVMValueRef{index}, "")
-		llvm.BuildStore(c.builder, value, addr)
+	var array llvm.LLVMValueRef
+	if len(values) > 0 {
+		array = c.createArrayAlloca(ctx, lastType, uint64(len(values)), "")
+
+		// Populate the underlying array for the slice
+		for i, value := range values {
+			index := llvm.ConstInt(llvm.Int32TypeInContext(c.currentContext(ctx)), uint64(i), false)
+			addr := llvm.BuildGEP2(c.builder, lastType, array, []llvm.LLVMValueRef{index}, "")
+			llvm.BuildStore(c.builder, value, addr)
+		}
+	} else {
+		array = c.ptrType.Nil()
 	}
 
 	// Create the slice struct
@@ -337,7 +344,16 @@ func (c *Compiler) structFieldAddress(ctx context.Context, value Value, structTy
 func (c *Compiler) createAlloca(ctx context.Context, _type llvm.LLVMTypeRef, name string) (result llvm.LLVMValueRef) {
 	// Create the alloca in the current function's entry block
 	c.positionAtEntryBlock(ctx)
-	result = llvm.BuildAlloca(c.builder, _type, name)
+	result = llvm.BuildAlloca(c.builder, _type, strings.TrimRight(strings.Join([]string{"stack_var", name}, "_"), "_"))
+	llvm.PositionBuilderAtEnd(c.builder, c.currentBlock(ctx))
+	return
+}
+
+func (c *Compiler) createArrayAlloca(ctx context.Context, _type llvm.LLVMTypeRef, length uint64, name string) (result llvm.LLVMValueRef) {
+	// Create the alloca in the current function's entry block
+	c.positionAtEntryBlock(ctx)
+	lengthVal := llvm.ConstInt(c.int32Type(ctx), length, false)
+	result = llvm.BuildArrayAlloca(c.builder, _type, lengthVal, strings.TrimRight(strings.Join([]string{"stack_arr_var", name}, "_"), "_"))
 	llvm.PositionBuilderAtEnd(c.builder, c.currentBlock(ctx))
 	return
 }

@@ -12,7 +12,6 @@ type deferFrame struct {
 }
 
 func deferPush(fn unsafe.Pointer, ctx unsafe.Pointer, top **deferFrame) {
-	state := disableInterrupts()
 	if *top == nil {
 		// Initialize the top pointer for the duration of the callee
 		*top = deferCurrentTop()
@@ -24,7 +23,6 @@ func deferPush(fn unsafe.Pointer, ctx unsafe.Pointer, top **deferFrame) {
 		next: currentTask.deferStack,
 		top:  *top,
 	}
-	enableInterrupts(state)
 }
 
 func deferRun(top *deferFrame) {

@@ -48,6 +48,11 @@ SECTIONS
     __heap_end = ORIGIN(RAM) + LENGTH(RAM);
     __heap_size = __heap_end - __heap_start;
 
+    /* Define the range that the garbage collector
+       should scan for heap references */
+    __gc_scan_start = __start_data;
+    __gc_scan_end   = __end_bss;
+
     /* Exception handling is not needed */
     /DISCARD/ :
     {

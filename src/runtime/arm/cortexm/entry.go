@@ -7,6 +7,9 @@ import (
 //sigo:extern main main.main
 func main()
 
+//sigo:extern initgc runtime.initgc
+func initgc()
+
 //sigo:extern gcmain runtime.gcmain
 func gcmain()
 
@@ -58,8 +61,10 @@ func _entry() {
 	// Initialize the global variables
 	initMemory()
 
-	// Call all the package inits before anything else!
-	// NOTE: The package init also sets up the pointer values in the chip support packages
+	// Init the GC
+	initgc()
+
+	// Initialize all packages
 	initPackages()
 
 	go func() {

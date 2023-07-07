@@ -244,6 +244,12 @@ func (p *Program) parse(ctx context.Context) (err error) {
 							} else {
 								// TODO: Return syntax error
 							}
+						case "//sigo:linkage":
+							if count == 3 {
+								funcName := symbolName(pkg.Types, parts[1])
+								info := p.options.GetSymbolInfo(funcName)
+								info.Linkage = strings.ToLower(parts[2])
+							}
 						}
 					}
 				}

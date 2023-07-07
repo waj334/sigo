@@ -67,6 +67,15 @@ func schedulerPause()
 func runScheduler() (shouldSwitch bool) {
 	state := disableInterrupts()
 
+	// Check for stack overflow on current task
+	if currentTask != nil {
+		stackBottom := unsafe.Add(currentTask.stack, *goroutineStackSize)
+		stackSize := uintptr(stackBottom) - uintptr(currentStack())
+		if stackSize > *goroutineStackSize {
+			panic("stack overflow")
+		}
+	}
+
 	if headTask != nil {
 		if currentTask == nil {
 			// Initialize the current task
@@ -83,9 +92,6 @@ func runScheduler() (shouldSwitch bool) {
 				lastTask = currentTask
 				return
 			}
-
-			// Update this task's stack pointer
-			currentTask.stackTop = currentStack()
 
 			// Switch to the next task
 			lastTask = currentTask
@@ -139,13 +145,14 @@ func addTask(ptr unsafe.Pointer) {
 	oldHead := headTask
 
 	// Allocate stack for this goroutine
-	stack := alloc(*goroutineStackSize)
+	stack := malloc(*goroutineStackSize)
 
 	// Create the new task
 	headTask = &task{
 		stack:    stack,
 		ctx:      (*_goroutine)(ptr),
 		stackTop: stack,
+		state:    taskNotStarted,
 	}
 
 	// Insert into ring
@@ -165,6 +172,9 @@ func addTask(ptr unsafe.Pointer) {
 
 func removeTask(t *task) {
 	state := disableInterrupts()
+
+	// Free this task's stack
+	free(t.stack)
 
 	if t.next == t && t.prev == t {
 		// There is only one task left.

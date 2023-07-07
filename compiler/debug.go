@@ -218,6 +218,11 @@ func (c *Compiler) createVariable(ctx context.Context, name string, value Value,
 	c.printf(Debug, "Creating variable for %s (%s)\n", name, valueType.String())
 	defer c.printf(Debug, "Done creating variable for %s (%s)\n", name, valueType.String())
 
+	fn := c.currentFunction(ctx)
+	if fn.subprogram == nil {
+		return value
+	}
+
 	dbgType := c.createDebugType(ctx, valueType)
 	if _, ok := valueType.(*types.Signature); ok {
 		dbgType = llvm.DIBuilderCreatePointerType(
@@ -228,10 +233,7 @@ func (c *Compiler) createVariable(ctx context.Context, name string, value Value,
 			0, "")
 	}
 
-	scope, _ := c.instructionScope(value.spec)
-	if scope == nil {
-		scope = c.compileUnit
-	}
+	scope := fn.subprogram
 
 	// Create the debug information about the variable
 	value.dbg = llvm.DIBuilderCreateAutoVariable(
@@ -263,7 +265,7 @@ func (c *Compiler) createVariable(ctx context.Context, name string, value Value,
 		value.dbg,
 		expression,
 		value.DebugPos(ctx),
-		c.currentEntryBlock(ctx))
+		llvm.GetEntryBasicBlock(fn.value))
 
 	return value
 }

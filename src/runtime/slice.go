@@ -87,40 +87,48 @@ func sliceIndexAddr(s _slice, index int, elementType *_type) unsafe.Pointer {
 	return unsafe.Add(s.array, uintptr(index)*elementType.size)
 }
 
-func sliceAddr(ptr unsafe.Pointer, length, capacity, elementSize, low, high, max int) _slice {
-	newLow := 0
-	newHigh := length
-	newMax := capacity
-
-	if low >= 0 {
-		newLow = low
+func sliceReslice(s _slice, info *_type, low, high, max int) _slice {
+	if low == -1 {
+		low = 0
 	}
 
-	if high >= 0 {
-		newHigh = high
+	if high == -1 {
+		high = s.len
 	}
 
-	if max >= 0 {
-		newMax = max
+	if max == -1 {
+		max = s.cap
 	}
 
-	if newLow < 0 || newHigh < newLow || newMax < newHigh || newHigh > length || newMax > capacity {
-		panic("runtime error: slice bounds out of range [TODO:TODO:TODO]")
+	if 0 > low || low > high || low > max ||
+		high < low || high > max ||
+		max < low || max < high {
+		panic("runtime error: slice out of bounds [::]")
 	}
 
 	return _slice{
-		array: unsafe.Add(ptr, newLow*elementSize),
-		len:   newHigh - newLow,
-		cap:   newMax - newLow,
+		array: unsafe.Add(s.array, uintptr(low)*info.array.elementType.size),
+		len:   high - low,
+		cap:   max - low,
 	}
 }
 
-func sliceString(str _string) _slice {
-	result := _slice{
-		array: *(*unsafe.Pointer)(alloc(uintptr(str.len))),
-		len:   str.len,
-		cap:   str.len,
+func sliceAddr(ptr unsafe.Pointer, info *_type, low, high int) _slice {
+	if low == -1 {
+		low = 0
 	}
-	memcpy(result.array, str.array, uintptr(str.len))
-	return result
+
+	if high == -1 {
+		high = info.array.length
+	}
+
+	if 0 > low || low > high || low > info.array.length || high > info.array.length {
+		panic("runtime error: slice out of bounds [::]")
+	}
+
+	return _slice{
+		array: unsafe.Add(ptr, uintptr(low)*info.array.elementType.size),
+		len:   high - low,
+		cap:   high - low,
+	}
 }

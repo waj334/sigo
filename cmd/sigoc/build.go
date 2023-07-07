@@ -17,14 +17,15 @@ import (
 
 var (
 	buildOpts = struct {
-		output   string
-		verbose  string
-		debug    bool
-		dumpIR   bool
-		tags     string
-		ctypes   bool
-		jobs     int
-		optimize string
+		output    string
+		verbose   string
+		debug     bool
+		dumpIR    bool
+		tags      string
+		ctypes    bool
+		jobs      int
+		optimize  string
+		stackSize int
 	}{}
 
 	buildCmd = &cobra.Command{
@@ -48,6 +49,7 @@ var (
 				CTypeNames:        buildOpts.ctypes,
 				NumJobs:           buildOpts.jobs,
 				Optimization:      buildOpts.optimize,
+				StackSize:         buildOpts.stackSize,
 			}
 
 			if len(cmd.Flags().Args()) == 0 {
@@ -103,4 +105,5 @@ func init() {
 	buildCmd.Flags().BoolVar(&buildOpts.ctypes, "ctypenames", false, "use C type names for primitives in debug information")
 	buildCmd.Flags().IntVarP(&buildOpts.jobs, "jobs", "j", runtime.NumCPU(), "number of concurrent builds")
 	buildCmd.Flags().StringVarP(&buildOpts.optimize, "opt", "O", "0", "optimization level")
+	buildCmd.Flags().IntVarP(&buildOpts.stackSize, "stack-size", "s", 2048, "stack size of each goroutine")
 }

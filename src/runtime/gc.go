@@ -6,48 +6,147 @@ import (
 )
 
 //sigo:extern __stack_top __stack_top
+//sigo:extern __stack_bottom __stack_bottom
 //sigo:extern __heap_start __heap_start
 //sigo:extern __heap_end __heap_end
 //sigo:extern __heap_size __heap_size
-//sigo:extern __start_data __start_data
-//sigo:extern __end_data __end_data
+//sigo:extern __gc_scan_start __gc_scan_start
+//sigo:extern __gc_scan_end __gc_scan_end
 //sigo:extern mallinfo mallinfo
 
 var (
-	head       *object
-	heapUsage  uintptr
-	numAllocas uintptr
+	headObject     *object
+	heapBuckets    *heapBucket
+	heapLoadFactor uintptr
+	numBuckets     uintptr
+	heapUsage      uintptr
+	numAllocas     uintptr
+	maxAllocas     uintptr
 
-	__stack_top  unsafe.Pointer
-	__heap_start unsafe.Pointer
-	__heap_end   unsafe.Pointer
-	__heap_size  uintptr
-
-	__start_data unsafe.Pointer
-	__end_data   unsafe.Pointer
-	gcMu         sync.Mutex
+	__stack_top     unsafe.Pointer
+	__stack_bottom  unsafe.Pointer
+	__heap_start    unsafe.Pointer
+	__heap_end      unsafe.Pointer
+	__heap_size     uintptr
+	__gc_scan_start unsafe.Pointer
+	__gc_scan_end   unsafe.Pointer
+	gcMu            sync.Mutex
 )
 
 type object struct {
-	addr unsafe.Pointer
-	next *object
-	sz   uintptr
+	addr    unsafe.Pointer
+	next    *object
+	sz      uintptr
+	marked  bool
+	scanned bool
+	_       [2]uint8 /* padding */
 }
 
-func (o *object) mark() {
-	o.sz |= 1 << 31
+type heapBucket struct {
+	head *heapBucketEntry
+	next *heapBucket
 }
 
-func (o *object) unmark() {
-	o.sz &= ^uintptr(1 << 31)
+type heapBucketEntry struct {
+	obj  *object
+	next *heapBucketEntry
 }
 
-func (o *object) isMarked() bool {
-	return (o.sz >> 31) != 0
+//go:export initgc runtime.initgc
+func initgc() {
+	heapLoadFactor = 4
+	numBuckets = 8
+	maxAllocas = numBuckets * heapLoadFactor
+
+	// Allocate new buckets
+	for i := uintptr(0); i < numBuckets; i++ {
+		bucket := (*heapBucket)(malloc(unsafe.Sizeof(heapBucket{})))
+		bucket.next = heapBuckets
+		heapBuckets = bucket
+	}
 }
 
-func (o *object) size() uintptr {
-	return o.sz & ^uintptr(1<<31)
+func resizeHeapBuckets() {
+	// Determine whether to grow or shrink the number of buckets
+	if numAllocas > maxAllocas {
+		numBuckets *= 2
+	} else if numAllocas < (maxAllocas/4) && numBuckets > 8 {
+		numBuckets /= 2
+	} else {
+		// If the number of allocations is within the acceptable range, don't resize
+		return
+	}
+
+	oldHeapBuckets := heapBuckets
+	heapBuckets = nil
+
+	// Allocate new buckets
+	for i := uintptr(0); i < numBuckets; i++ {
+		bucket := (*heapBucket)(malloc(unsafe.Sizeof(heapBucket{})))
+		bucket.next = heapBuckets
+		heapBuckets = bucket
+	}
+
+	// Redistribute objects
+	bucket := oldHeapBuckets
+	for bucket != nil {
+		entry := bucket.head
+		for entry != nil {
+			// Copy the entry
+			ptr := malloc(unsafe.Sizeof(heapBucketEntry{}))
+			memcpy(ptr, unsafe.Pointer(entry), unsafe.Sizeof(heapBucketEntry{}))
+			newEntry := (*heapBucketEntry)(ptr)
+
+			// Hash the address
+			ii := ptrHash(entry.obj.addr)
+
+			// Locate the bucket to place this entry
+			newBucket := getBucket(heapBuckets, ii)
+
+			//Prepend the entry
+			newEntry.next = newBucket.head
+			newBucket.head = newEntry
+
+			// Advance
+			lastEntry := entry
+			entry = entry.next
+
+			// Free the last entry
+			if lastEntry != nil {
+				free(unsafe.Pointer(lastEntry))
+			}
+		}
+
+		// Advance
+		lastBucket := bucket
+		bucket = bucket.next
+
+		// Free the last bucket
+		if lastBucket != nil {
+			free(unsafe.Pointer(lastBucket))
+		}
+	}
+
+	maxAllocas = numBuckets * heapLoadFactor
+}
+
+func getBucket(head *heapBucket, i uintptr) *heapBucket {
+	if i >= 0 {
+		bucket := head
+		for ii := uintptr(0); bucket != nil; ii++ {
+			if ii == i {
+				return bucket
+			}
+			bucket = bucket.next
+		}
+	}
+	return nil
+}
+
+func ptrHash(ptr unsafe.Pointer) uintptr {
+	const shiftAmount = 3 // adjust based on your knowledge of the alignment
+	shifted := uintptr(ptr) >> shiftAmount
+	return shifted % numBuckets
 }
 
 type strMallinfo struct {
@@ -70,6 +169,9 @@ func alloc(size uintptr) unsafe.Pointer {
 		return nil
 	}
 
+	// Align the size to the nearest word barrier
+	size = align(size)
+
 	// Lock the mutex before disabling the interrupt so that goroutines can
 	// compete for the lock.
 	gcMu.Lock()
@@ -79,7 +181,7 @@ func alloc(size uintptr) unsafe.Pointer {
 	state := disableInterrupts()
 
 	// Attempt to allocate memory for the object ref
-	ptr := malloc(align(unsafe.Sizeof(object{})) + size)
+	ptr := malloc(unsafe.Sizeof(object{}) + size)
 	if ptr == nil {
 		// Heap is full. Perform a GC now to reclaim any unused memory
 		markAll()
@@ -89,18 +191,27 @@ func alloc(size uintptr) unsafe.Pointer {
 		ptr = malloc(size)
 		if ptr == nil {
 			gcMu.Unlock()
+			enableInterrupts(state)
 			panic("gc error: out of memory")
 		}
 	}
 
 	// Set up the object ref
 	obj := (*object)(ptr)
-	obj.addr = unsafe.Add(ptr, align(unsafe.Sizeof(object{})))
+	obj.addr = unsafe.Add(ptr, unsafe.Sizeof(object{}))
 	obj.sz = size
-	obj.next = head
+	obj.next = headObject
 
 	// Set this object reference as the new head
-	head = obj
+	headObject = obj
+
+	// Update bucket
+	hash := ptrHash(obj.addr)
+	bucket := getBucket(heapBuckets, hash)
+	entry := (*heapBucketEntry)(malloc(unsafe.Sizeof(heapBucketEntry{})))
+	entry.obj = obj
+	entry.next = bucket.head
+	bucket.head = entry
 
 	// Update metrics
 	numAllocas++
@@ -120,26 +231,50 @@ func alloc(size uintptr) unsafe.Pointer {
 
 func freeObject(obj *object) {
 	if obj != nil {
+		// Remove from hash map
+		var lastEntry *heapBucketEntry
+		hash := ptrHash(obj.addr)
+		bucket := getBucket(heapBuckets, hash)
+		for entry := bucket.head; entry != nil; {
+			if entry.obj == obj {
+				if entry == bucket.head {
+					bucket.head = entry.next
+				} else {
+					lastEntry.next = entry.next
+				}
+
+				// Free the memory for the removed entry
+				free(unsafe.Pointer(entry))
+			}
+			// Advance
+			lastEntry = entry
+			entry = entry.next
+		}
+
+		memset(unsafe.Pointer(obj), 0, unsafe.Sizeof(object{}))
 		free(unsafe.Pointer(obj))
 
 		// Update metrics
+		numAllocas--
 		heapUsage = mallinfo().uordblks
 	}
 }
 
 // markAll scans the stack from bottom to top looking for addresses that "look like a heap pointer".
 func markAll() {
-	// Scan the globals
-	dataStart := unsafe.Pointer(&__start_data)
-	dataEnd := unsafe.Pointer(&__end_data)
-	scan(dataStart, dataEnd)
-
 	// Scan the goroutine stacks
 	_task := headTask
 	for {
 		if _task != nil {
 			stackBottom := unsafe.Add(_task.stack, alignStack(*goroutineStackSize))
-			scan(currentStack(), stackBottom)
+			stackTop := _task.stackTop
+			if _task == currentTask {
+				// Do not miss any heap object in the current goroutine since it
+				// will have a different stack pointer after when the context
+				// switched to it.
+				stackTop = currentStack()
+			}
+			scan(unsafe.Add(stackTop, -64), stackBottom)
 
 			_task = _task.next
 			if _task == headTask {
@@ -148,12 +283,16 @@ func markAll() {
 		}
 	}
 
-	// Scan current heap objects
-	obj := head
-	for obj != nil {
-		scan(obj.addr, unsafe.Add(obj.addr, obj.size()))
-		obj = obj.next
-	}
+	// Scan the main stack
+	mainStackTop := unsafe.Pointer(&__stack_top)
+	mainStackBottom := unsafe.Pointer(&__stack_bottom)
+	scan(mainStackBottom, mainStackTop)
+
+	// Scan the memory region defined by the linker script. This region
+	// should contain globals and such.
+	start := unsafe.Pointer(&__gc_scan_start)
+	end := unsafe.Pointer(&__gc_scan_end)
+	scan(start, end)
 }
 
 func scan(start, end unsafe.Pointer) {
@@ -162,18 +301,27 @@ func scan(start, end unsafe.Pointer) {
 	for ptr := start; uintptr(ptr) < uintptr(end); ptr = unsafe.Add(ptr, unsafe.Sizeof(uintptr(0))) {
 		addrVal := *(*uintptr)(ptr)
 		if addrVal >= heapStart && addrVal < heapEnd {
-			// Look up the object storing this pointer
-			obj := head
-			for obj != nil {
+			// Look up the object storing this pointer in the hash map
+			hash := ptrHash(unsafe.Pointer(addrVal))
+			bucket := getBucket(heapBuckets, hash)
+			entry := bucket.head
+			for entry != nil {
 				// Skip objects that are already marked
-				if !obj.isMarked() {
-					objAddr := uintptr(obj.addr)
-					if addrVal == objAddr {
+				if !entry.obj.marked {
+					objAddr := uintptr(entry.obj.addr)
+					objEnd := uintptr(unsafe.Add(entry.obj.addr, entry.obj.sz))
+					// Check if addrVal falls within the object's range
+					if addrVal >= objAddr && addrVal < objEnd {
 						// Mark this object
-						obj.mark()
+						entry.obj.marked = true
+
+						if !entry.obj.scanned {
+							entry.obj.scanned = true
+							scan(unsafe.Pointer(objAddr), unsafe.Pointer(objEnd))
+						}
 					}
 				}
-				obj = obj.next
+				entry = entry.next
 			}
 		}
 	}
@@ -181,16 +329,17 @@ func scan(start, end unsafe.Pointer) {
 
 func sweep() {
 	var lastMarked *object
-	it := head
+	it := headObject
 	for it != nil {
 		next := it.next
-		if it.isMarked() {
+		if it.marked {
 			lastMarked = it
-			it.unmark()
+			it.marked = false
+			it.scanned = false
 		} else {
-			if it == head {
+			if it == headObject {
 				// Set the next object as the new head
-				head = next
+				headObject = next
 			} else {
 				// Remove this object from the linked list
 				lastMarked.next = next
@@ -206,12 +355,11 @@ func sweep() {
 	}
 
 	// Update metrics
-	numAllocas = 0
 	heapUsage = mallinfo().uordblks
 }
 
 func align(n uintptr) uintptr {
-	return n + (unsafe.Sizeof(uintptr(0)) - (n % unsafe.Sizeof(uintptr(0))))
+	return (n + 8) - (n % 8)
 }
 
 func GC() {
@@ -229,10 +377,12 @@ func gcmain() {
 	for {
 		gcMu.Lock()
 		state := disableInterrupts()
-		if numAllocas > 10 || heapUsage >= heapLimit {
+		if numAllocas > maxAllocas || heapUsage >= heapLimit {
 			markAll()
 			sweep()
+			resizeHeapBuckets()
 		}
+
 		gcMu.Unlock()
 		enableInterrupts(state)
 		schedulerPause()
