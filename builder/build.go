@@ -26,6 +26,10 @@ import (
 
 type (
 	optionsContextKey struct{}
+	bitcode           struct {
+		pkg     string
+		bitcode llvm.LLVMMemoryBufferRef
+	}
 )
 
 func BuildPackages(ctx context.Context, options Options) error {
@@ -158,7 +162,7 @@ func Build(ctx context.Context, packageDir string) error {
 
 	compilerOptions.Target = target
 
-	var bitcode []llvm.LLVMMemoryBufferRef
+	var bitcodes []bitcode
 
 	stopChan := make(chan struct{})
 	errChan := make(chan error)
@@ -237,7 +241,10 @@ func Build(ctx context.Context, packageDir string) error {
 				for str, globals := range cc.Strings() {
 					stringTable[str] = append(stringTable[str], globals...)
 				}
-				bitcode = append(bitcode, buf)
+				bitcodes = append(bitcodes, bitcode{
+					pkg:     pkg.Pkg.Path(),
+					bitcode: buf,
+				})
 				mu.Unlock()
 			}
 		}()
@@ -291,9 +298,10 @@ func Build(ctx context.Context, packageDir string) error {
 	close(errChan)
 
 	// Combine modules
-	for _, bitcode := range bitcode {
+	for _, bc := range bitcodes {
+		print("Linking ", bc.pkg, "... ")
 		var module llvm.LLVMModuleRef
-		if llvm.ParseBitcodeInContext2(llctx, bitcode, &module) {
+		if llvm.ParseBitcodeInContext2(llctx, bc.bitcode, &module) {
 			return errors.Join(ErrCodeGeneratorError, errors.New("could not parse bitcode"))
 		}
 
@@ -303,7 +311,8 @@ func Build(ctx context.Context, packageDir string) error {
 		}
 
 		// Clean up
-		llvm.DisposeMemoryBuffer(bitcode)
+		llvm.DisposeMemoryBuffer(bc.bitcode)
+		println("Done")
 	}
 
 	// Initialize global strings

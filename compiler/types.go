@@ -126,6 +126,8 @@ func (c *Compiler) createType(ctx context.Context, typ types.Type) *Type {
 			}
 		}
 		result.valueType = llvm.StructTypeInContext(c.currentContext(ctx), memberTypes, false)
+	case *types.TypeParam:
+		result = c.createType(ctx, typ.Constraint())
 	default:
 		panic("encountered unknown type")
 	}

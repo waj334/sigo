@@ -318,6 +318,11 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) *Functi
 	isMethod := false
 	receiver := fn.Signature.Recv()
 
+	pkg := fn.Pkg
+	if pkg == nil {
+		pkg = c.currentPackage(ctx)
+	}
+
 	// Determine the function name. //go:linkname can override this
 	symbolName := ""
 	if receiver != nil {
@@ -330,10 +335,10 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) *Functi
 		default:
 			panic("unimplemented named type")
 		}
-		symbolName = c.symbolName(fn.Pkg.Pkg, typename+"."+fn.Name())
+		symbolName = c.symbolName(pkg.Pkg, typename+"."+fn.Name())
 		isMethod = true
 	} else {
-		symbolName = c.symbolName(fn.Pkg.Pkg, fn.Name())
+		symbolName = c.symbolName(pkg.Pkg, fn.Name())
 	}
 
 	name := symbolName
@@ -482,6 +487,12 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 		c.blocks[block] = bb
 	}
 
+	// Make this function reentrant
+	lastBlock := c.currentBlock(ctx)
+	lastDebugLocation := llvm.GetCurrentDebugLocation2(c.builder)
+	defer llvm.PositionBuilderAtEnd(c.builder, lastBlock)
+	defer llvm.SetCurrentDebugLocation2(c.builder, lastDebugLocation)
+
 	// Create the instructions in each of the function's blocks
 	for i, block := range fn.def.Blocks {
 		insertionBlock, ok := c.blocks[block]
@@ -519,8 +530,6 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 				return err
 			}
 
-			llvm.SetCurrentDebugLocation2(c.builder, nil)
-
 			c.printf(Debug, "(%s): End instruction #%d\n", fn.name, ii)
 		}
 		c.printf(Debug, "(%s): Done processing block %d\n", fn.name, i)
@@ -547,7 +556,7 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 			topValue := c.createRuntimeCall(ctx, "deferCurrentTop", nil)
 
 			// Store the current top value on the stack
-			llvm.BuildStore(c.builder, fn.deferTop, topValue)
+			llvm.BuildStore(c.builder, topValue, fn.deferTop)
 
 			// Do not allow the parent function to be inlined now
 			llvm.AddAttributeAtIndex(fn.value, uint(llvm.AttributeFunctionIndex), c.getAttribute(ctx, "noinline", 0))
