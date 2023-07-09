@@ -351,6 +351,9 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		fn, ok := c.functions[expr]
 		if !ok {
 			fn = c.createFunction(ctx, expr)
+			if expr.TypeParams().Len() > 0 {
+				c.createFunctionBlocks(ctx, fn)
+			}
 		}
 
 		// Return a pointer to the function
