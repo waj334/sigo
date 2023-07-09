@@ -196,12 +196,7 @@ func (c *Compiler) createDebugType(ctx context.Context, typ types.Type) (ditype 
 			arg := typ.Params().At(i)
 			argDiTypes = append(argDiTypes, c.createDebugType(ctx, arg.Type()))
 		}
-
-		ditype = llvm.DIBuilderCreateSubroutineType(
-			c.dibuilder,
-			nil,
-			argDiTypes,
-			0)
+		ditype = llvm.DIBuilderCreateSubroutineType(c.dibuilder, nil, argDiTypes, 0)
 	case *types.Tuple:
 		panic("cannot create debug information for this type")
 	default:
