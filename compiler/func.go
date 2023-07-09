@@ -78,6 +78,7 @@ func (c *Compiler) createClosure(ctx context.Context, signature *types.Signature
 	linkname := c.symbolName(c.currentPackage(ctx).Pkg, "closure")
 	closureFnValue := llvm.AddFunction(c.module, linkname, closureFnType)
 	llvm.SetSection(closureFnValue, ".text."+llvm.GetValueName2(closureFnValue))
+	llvm.AddAttributeAtIndex(closureFnValue, uint(llvm.AttributeFunctionIndex), c.getAttribute(ctx, "noinline", 0))
 
 	currentBlock := llvm.GetInsertBlock(c.builder)
 	defer llvm.PositionBuilderAtEnd(c.builder, currentBlock)

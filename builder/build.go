@@ -327,6 +327,11 @@ func Build(ctx context.Context, packageDir string) error {
 
 	cc.Finalize()
 
+	if !options.GenerateDebugInfo {
+		// Strip debug info
+		llvm.StripModuleDebugInfo(cc.Module())
+	}
+
 	if options.DumpIR {
 		dumpModule(cc.Module(), options.Output+".dump.ll")
 	}

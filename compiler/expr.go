@@ -21,26 +21,6 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		return value
 	}
 
-	// Get the current debug location to restore to when this instruction is done
-	/*currentDbgLoc := c.currentDbgLocation(ctx)
-	defer llvm.SetCurrentDebugLocation2(c.builder, currentDbgLoc)
-
-	// Change the current debug location to that of the instruction being processed
-	scope, file := c.instructionScope(expr)
-	var location token.Position
-	if file != nil {
-		location = file.Position(expr.Pos())
-	}
-	dbgLoc := llvm.DIBuilderCreateDebugLocation(
-		c.currentContext(ctx),
-		uint(location.Line),
-		uint(location.Column),
-		scope,
-		nil)
-
-	ctx = context.WithValue(ctx, currentDbgLocationKey{}, dbgLoc)
-	llvm.SetCurrentDebugLocation2(c.builder, dbgLoc)*/
-
 	// initialize the value
 	value.cc = c
 	value.spec = expr
@@ -56,6 +36,8 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		// Get the size of the type
 		size := llvm.StoreSizeOfType(c.options.Target.dataLayout, elementType.valueType)
 
+		currentBlock := llvm.GetInsertBlock(c.builder)
+
 		if expr.Heap {
 			// Create the alloca to hold the address on the stack
 			value.ref = c.createAlloca(ctx, c.ptrType.valueType, expr.Comment)
@@ -64,22 +46,36 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 			value.heap = true
 
 			// Next, create the debug info. This heap allocation will be treated differently
-			value = c.createVariable(ctx, expr.Comment, value, expr.Type().Underlying())
+			c.createVariable(ctx, expr.Comment, value, expr.Type().Underlying())
 
 			// Create the runtime call to allocate some memory on the heap
+			next := llvm.GetNextInstruction(value.ref)
+			if next == nil {
+				llvm.PositionBuilderAtEnd(c.builder, llvm.GetInstructionParent(value.ref))
+			} else {
+				llvm.PositionBuilderBefore(c.builder, next)
+			}
 			obj := c.createRuntimeCall(ctx, "alloc",
 				[]llvm.LLVMValueRef{llvm.ConstInt(c.uintptrType.valueType, size, false)})
 
 			// Store the address at the alloc
 			llvm.BuildStore(c.builder, obj, value.ref)
+			llvm.PositionBuilderAtEnd(c.builder, currentBlock)
 		} else {
 			// Create an alloca to hold the value on the stack
 			value.ref = c.createAlloca(ctx, elementType.valueType, expr.Comment)
-			value = c.createVariable(ctx, expr.Comment, value, elementType.spec)
+			c.createVariable(ctx, expr.Comment, value, elementType.spec)
 			value.heap = false
 
 			// Zero-initialize the stack variable
+			next := llvm.GetNextInstruction(value.ref)
+			if next == nil {
+				llvm.PositionBuilderAtEnd(c.builder, llvm.GetInstructionParent(value.ref))
+			} else {
+				llvm.PositionBuilderBefore(c.builder, next)
+			}
 			llvm.BuildStore(c.builder, llvm.ConstNull(elementType.valueType), value.ref)
+			llvm.PositionBuilderAtEnd(c.builder, currentBlock)
 		}
 	case *ssa.BinOp:
 		value.ref = c.createBinOp(ctx, expr)
@@ -388,20 +384,18 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 				} else {
 					// Create a global with external linkage to some variable with the specified link name.
 					value.ref = llvm.AddGlobal(c.module, globalType.valueType, value.linkname)
+					llvm.SetUnnamedAddr(value.ref, true)
 					llvm.SetLinkage(value.ref, llvm.ExternalLinkage)
 				}
 			}
 		} else if expr.Pkg != c.currentPackage(ctx) {
 			// Create a extern global value
 			value.ref = llvm.AddGlobal(c.module, globalType.valueType, value.linkname)
+			llvm.SetUnnamedAddr(value.ref, true)
 			llvm.SetLinkage(value.ref, llvm.ExternalLinkage)
 		} else {
 			value.ref = c.createGlobalValue(ctx, llvm.ConstNull(globalType.valueType), value.linkname)
-			if value.exported {
-				llvm.SetLinkage(value.ref, llvm.CommonLinkage)
-			} else {
-				llvm.SetLinkage(value.ref, llvm.PrivateLinkage)
-			}
+			llvm.SetLinkage(value.ref, llvm.CommonLinkage)
 		}
 	case *ssa.Index:
 		arrayValue := c.createExpression(ctx, expr.X).UnderlyingValue(ctx)
@@ -573,6 +567,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 				""),
 		})
 	case *ssa.MultiConvert:
+		//lhsValue := c.createExpression(ctx, expr.X)
 		panic("not implemented")
 	case *ssa.Next:
 		iter := c.createExpression(ctx, expr.Iter).UnderlyingValue(ctx)
@@ -644,12 +639,18 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 			}
 		}
 
+		readyCases := llvm.GetUndef(c.createRuntimeType(ctx, "_slice").valueType)
+		readyCases = llvm.BuildInsertValue(c.builder, readyCases, c.createArrayAlloca(ctx, c.int32Type(ctx), uint64(len(expr.States)), "ready_cases_arr"), 0, "")
+		readyCases = llvm.BuildInsertValue(c.builder, readyCases, llvm.ConstInt(c.int32Type(ctx), uint64(len(expr.States)), false), 1, "")
+		readyCases = llvm.BuildInsertValue(c.builder, readyCases, llvm.ConstInt(c.int32Type(ctx), uint64(len(expr.States)), false), 2, "")
+
 		// Create the runtime call
 		selectResult := c.createRuntimeCall(ctx, "channelSelect", []llvm.LLVMValueRef{
 			c.createSliceFromValues(ctx, chanValues),
 			c.createSliceFromValues(ctx, results),
 			c.createSliceFromValues(ctx, directionValues),
 			c.createSliceFromValues(ctx, sendValues),
+			c.addressOf(ctx, readyCases),
 			c.createConstBool(ctx, !expr.Blocking),
 		})
 
@@ -707,7 +708,8 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 			}
 		}
 	case *ssa.SliceToArrayPointer:
-		panic("not implemented")
+		sliceValue := c.createExpression(ctx, expr.X).UnderlyingValue(ctx)
+		value.ref = llvm.BuildExtractValue(c.builder, sliceValue, 0, "slice_arr")
 	case *ssa.TypeAssert:
 		x := c.createExpression(ctx, expr.X).UnderlyingValue(ctx)
 		newType := c.createType(ctx, expr.AssertedType)

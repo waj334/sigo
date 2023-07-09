@@ -7,11 +7,12 @@
 package main
 
 import (
+	"time"
+
 	mcu "runtime/arm/cortexm/sam/atsamx51"
 	"runtime/arm/cortexm/sam/atsamx51/spi"
 	"runtime/arm/cortexm/sam/atsamx51/uart"
 	_ "runtime/arm/cortexm/sam/chip/atsame51g19a"
-	"time"
 )
 
 var (
@@ -22,15 +23,14 @@ var (
 func initMCU() {
 	defer func() {
 		if err := recover(); err != nil {
-			UART.WriteString(err.(string) + "\n")
-			UART.WriteString("Recovered!\n")
+			uart.UART5.WriteString(err.(string) + "\n")
+			uart.UART5.WriteString("Recovered!\n")
 		}
 	}()
-	defer UART.WriteString("MCU initialized 2\n")
-	defer UART.WriteString("MCU initialized 1\n")
+	defer uart.UART5.WriteString("MCU initialized 1\n")
 
 	mcu.DefaultClocks()
-	UART.Configure(uart.Config{
+	uart.UART5.Configure(uart.Config{
 		TXD:             mcu.PB02,
 		RXD:             mcu.PB03,
 		FrameFormat:     uart.UsartFrame,
@@ -41,7 +41,7 @@ func initMCU() {
 		TransmitEnabled: true,
 	})
 
-	SPI.Configure(spi.Config{
+	spi.SPI0.Configure(spi.Config{
 		DI:             mcu.PA04,
 		DO:             mcu.PA07,
 		SCK:            mcu.PA05,
@@ -77,9 +77,9 @@ func main() {
 	testMap2 := testMap
 	testMap2["this is another"] = "map test\n"
 
-	UART.WriteString(testMap["this is"])
-	UART.WriteString(testMap2["this is another"])
-	UART.WriteString(testMap2["does not exist"])
+	uart.UART5.WriteString(testMap["this is"])
+	uart.UART5.WriteString(testMap2["this is another"])
+	uart.UART5.WriteString(testMap2["does not exist"])
 
 	blinkChan := make(chan struct{})
 	blinkChan2 := make(chan struct{})

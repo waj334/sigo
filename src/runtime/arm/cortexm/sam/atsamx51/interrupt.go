@@ -17,9 +17,6 @@ func (i Interrupt) DisableIRQ() {
 }
 
 func (i Interrupt) SetPriority(priority uint8) {
-	//index := uint32(i) / 4
-	//shift := uint32(i%4) * 8
 	ip := (*uint8)(unsafe.Add(unsafe.Pointer(&chip.NVIC.IP[0]), i))
 	volatile.StoreUint8(ip, priority)
-	//ip.SetPRI0((ip.GetPRI0() &^ (0xFF << shift)) | (uint32(priority&0xFF) << shift))
 }

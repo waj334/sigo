@@ -73,6 +73,8 @@ func _entry() {
 
 		// Run the main program
 		main()
+
+		// Stop if main returns
 		abort()
 	}()
 
