@@ -289,8 +289,6 @@ func (c *Compiler) createConstantString(ctx context.Context, str string) llvm.LL
 
 	var strArrVal llvm.LLVMValueRef
 	if len(str) > 0 {
-		//cstr := llvm.ConstStringInContext(c.currentContext(ctx), str, true)
-		//strArrVal = c.createGlobalValue(ctx, cstr, c.symbolName(c.currentPackage(ctx).Pkg, "cstring"))
 		// Create the global value, but don't initialize it yet. The constant string value will be placed into string
 		// table in order de-duplicate strings in order to save program memory.
 		strArrVal = llvm.AddGlobal(
@@ -329,7 +327,6 @@ func (c *Compiler) createGlobalValue(ctx context.Context, constVal llvm.LLVMValu
 	// Set the global variable's value
 	llvm.SetInitializer(value, constVal)
 	llvm.SetUnnamedAddr(value, true)
-	//value = llvm.BuildBitCast(c.builder, value, c.ptrType.valueType, "")
 	return value
 }
 

@@ -214,13 +214,13 @@ func (c *Compiler) createDebugType(ctx context.Context, typ types.Type) (ditype 
 	return
 }
 
-func (c *Compiler) createVariable(ctx context.Context, name string, value Value, valueType types.Type) Value {
+func (c *Compiler) createVariable(ctx context.Context, name string, value Value, valueType types.Type) {
 	c.printf(Debug, "Creating variable for %s (%s)\n", name, valueType.String())
 	defer c.printf(Debug, "Done creating variable for %s (%s)\n", name, valueType.String())
 
 	fn := c.currentFunction(ctx)
 	if fn.subprogram == nil {
-		return value
+		return
 	}
 
 	dbgType := c.createDebugType(ctx, valueType)
@@ -267,5 +267,5 @@ func (c *Compiler) createVariable(ctx context.Context, name string, value Value,
 		value.DebugPos(ctx),
 		llvm.GetEntryBasicBlock(fn.value))
 
-	return value
+	return
 }

@@ -14,6 +14,10 @@ import (
 //sigo:extern __gc_scan_end __gc_scan_end
 //sigo:extern mallinfo mallinfo
 
+const (
+	blockSize = 4096
+)
+
 var (
 	headObject     *object
 	heapBuckets    *heapBucket
@@ -22,6 +26,7 @@ var (
 	heapUsage      uintptr
 	numAllocas     uintptr
 	maxAllocas     uintptr
+	maxHeapSize    uintptr
 
 	__stack_top     unsafe.Pointer
 	__stack_bottom  unsafe.Pointer
@@ -57,6 +62,7 @@ func initgc() {
 	heapLoadFactor = 4
 	numBuckets = 8
 	maxAllocas = numBuckets * heapLoadFactor
+	maxHeapSize = blockSize * 2
 
 	// Allocate new buckets
 	for i := uintptr(0); i < numBuckets; i++ {
@@ -373,14 +379,17 @@ func GC() {
 
 //go:export gcmain runtime.gcmain
 func gcmain() {
-	heapLimit := (__heap_size / 100) * 70
 	for {
 		gcMu.Lock()
 		state := disableInterrupts()
-		if numAllocas > maxAllocas || heapUsage >= heapLimit {
+		if numAllocas > maxAllocas || heapUsage >= maxHeapSize {
 			markAll()
 			sweep()
 			resizeHeapBuckets()
+
+			// Grow the heap size to the nearest block size + 1
+			maxHeapSize = (heapUsage + blockSize) - (heapUsage % blockSize)
+			maxHeapSize += blockSize
 		}
 
 		gcMu.Unlock()

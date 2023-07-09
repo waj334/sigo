@@ -47,10 +47,10 @@ func channelMake(chanTyp *_type, capacity int) _channel {
 
 func channelSend(c _channel, val unsafe.Pointer) {
 	c.cond.L.Lock()
-	defer c.cond.L.Unlock()
 
 	if *c.closed {
 		// Channel is closed, cannot send
+		c.cond.L.Unlock()
 		panic(plainError("send on closed channel"))
 	}
 
@@ -66,6 +66,7 @@ func channelSend(c _channel, val unsafe.Pointer) {
 	for *c.full {
 		if *c.closed {
 			// Channel is closed while waiting, cannot send
+			c.cond.L.Unlock()
 			panic(plainError("send on closed channel"))
 		}
 		c.cond.Wait()
@@ -83,16 +84,18 @@ func channelSend(c _channel, val unsafe.Pointer) {
 
 	// Signal any goroutines waiting to receive
 	c.cond.Signal()
+
+	c.cond.L.Unlock()
 }
 
 func channelReceive(c _channel, result unsafe.Pointer, block bool) (ok bool) {
 	c.cond.L.Lock()
-	defer c.cond.L.Unlock()
 
 	if c.readIndex == c.writeIndex {
 		if *c.closed || !block {
 			// Receive the zero value immediately
 			memset(result, 0, c.chanType.channel.elementType.size)
+			c.cond.L.Unlock()
 			return false
 		}
 	}
@@ -115,6 +118,7 @@ func channelReceive(c _channel, result unsafe.Pointer, block bool) (ok bool) {
 
 	*c.full = false
 
+	c.cond.L.Unlock()
 	return true
 }
 
@@ -134,16 +138,17 @@ func channelCap(c _channel) int {
 	return c.capacity
 }
 
-func channelSelect(_cases *_slice, _results *_slice, _send *_slice, _values *_slice, hasDefault bool) (int, bool) {
+func channelSelect(_cases *_slice, _results *_slice, _send *_slice, _values *_slice, _readyCases *_slice, hasDefault bool) (int, bool) {
 	cases := *(*[]_channel)(unsafe.Pointer(_cases))
 	results := *(*[]unsafe.Pointer)(unsafe.Pointer(_results))
 	send := *(*[]bool)(unsafe.Pointer(_send))
 	values := *(*[]unsafe.Pointer)(unsafe.Pointer(_values))
-	readyCases := make([]int, 0, len(cases))
+	readyCases := *(*[]int)(unsafe.Pointer(_readyCases))
+	ii := 0
 
 	for {
-		// Reset readyCases
-		readyCases = readyCases[:0]
+		// Reset readyCases counter
+		ii = 0
 
 		// Check which cases are ready
 		for i, c := range cases {
@@ -151,19 +156,21 @@ func channelSelect(_cases *_slice, _results *_slice, _send *_slice, _values *_sl
 			switch {
 			case send[i]:
 				if !*c.full {
-					readyCases = append(readyCases, i)
+					readyCases[ii] = i
+					ii++
 				}
 			default:
 				if *c.readIndex != *c.writeIndex || *c.full {
-					readyCases = append(readyCases, i)
+					readyCases[ii] = i
+					ii++
 				}
 			}
 			c.cond.L.Unlock()
 		}
 
 		// If one or more cases are ready, choose one at random
-		if len(readyCases) > 0 {
-			randIndex := rand.Intn(len(readyCases))
+		if ii > 0 {
+			randIndex := rand.Intn(ii)
 			caseIndex := readyCases[randIndex]
 			ok := true
 

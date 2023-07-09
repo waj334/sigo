@@ -83,6 +83,10 @@ define build-picolibc
 	cmake --build ./build/picolibc-$(1)-$(2) --target install --parallel
 endef
 
+define run-test
+	CGO_CFLAGS="${CGO_CFLAGS}" CGO_LDFLAGS="${CGO_LDFLAGS} -lstdc++" go test -v -gcflags "all=-N -l" -ldflags="-linkmode external -extldflags=-Wl,--allow-multiple-definition" $(1)
+endef
+
 .PHONY: all clean sigo clean-sigo configure-llvm build-llvm generate-llvm-bindings clean-llvm-bindings
 
 all: sigo
@@ -94,6 +98,9 @@ sigo: ./llvm/llvm.go
 
 debug: sigo
 	dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec ${ROOT_DIR}/bin/${SIGO_EXECUTABLE} -- ${args}
+
+run-tests:
+	$(call run-test,./compiler)
 
 build-test:
 	@rm -f ./bin/test${EXECUTABLE_POSTFIX}

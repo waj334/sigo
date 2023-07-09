@@ -35,7 +35,7 @@ func CompileTestProgram(programStr string) (*ssa.Program, error) {
 
 	conf.CreateFromFiles("main", file)
 	//prog, _ := conf.Load()
-	ssaProg := ssa.NewProgram(fset, ssa.BuildSerially|ssa.BareInits|ssa.GlobalDebug|ssa.InstantiateGenerics)
+	ssaProg := ssa.NewProgram(fset, ssa.BareInits|ssa.GlobalDebug|ssa.InstantiateGenerics)
 
 	info := &types.Info{
 		Types:      make(map[ast.Expr]types.TypeAndValue),

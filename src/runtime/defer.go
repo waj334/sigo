@@ -12,11 +12,7 @@ type deferFrame struct {
 }
 
 func deferPush(fn unsafe.Pointer, ctx unsafe.Pointer, top **deferFrame) {
-	if *top == nil {
-		// Initialize the top pointer for the duration of the callee
-		*top = deferCurrentTop()
-	}
-
+	// Push the defer frame to the top of the defer stack for the current function
 	currentTask.deferStack = &deferFrame{
 		fn:   fn,
 		ctx:  ctx,

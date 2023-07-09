@@ -284,6 +284,8 @@ func (c *Compiler) CompilePackage(ctx context.Context, llvmCtx llvm.LLVMContextR
 				// Create anonymous functions
 				for _, anonFn := range ssaFn.AnonFuncs {
 					fn := c.createFunction(ctx, anonFn)
+					llvm.AddAttributeAtIndex(fn.value, uint(llvm.AttributeFunctionIndex), c.getAttribute(ctx, "optnone", 0))
+					llvm.AddAttributeAtIndex(fn.value, uint(llvm.AttributeFunctionIndex), c.getAttribute(ctx, "noinline", 0))
 					if len(anonFn.FreeVars) > 0 {
 						// This function is a closure
 						c.closures[anonFn.Signature] = fn
@@ -393,20 +395,18 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) *Functi
 	case "weak":
 		llvm.SetLinkage(fnValue, llvm.WeakAnyLinkage)
 	case "linkonce":
-		llvm.SetLinkage(fnValue, llvm.LinkOnceAnyLinkage)
+		llvm.SetLinkage(fnValue, llvm.LinkOnceODRLinkage)
 	default:
-		if info.ExternalLinkage {
-			llvm.SetLinkage(fnValue, llvm.ExternalLinkage)
-		}
+		llvm.SetLinkage(fnValue, llvm.ExternalLinkage)
 	}
-
-	// Override linkage
 
 	// Apply attributes
-	if info.IsInterrupt {
-		llvm.AddAttributeAtIndex(fnValue, uint(llvm.AttributeFunctionIndex), c.getAttribute(ctx, "noinline"))
-		llvm.AddAttributeAtIndex(fnValue, uint(llvm.AttributeFunctionIndex), c.getAttribute(ctx, "optnone"))
+	if info.IsInterrupt || name == "main.main" {
+		llvm.AddAttributeAtIndex(fnValue, uint(llvm.AttributeFunctionIndex), c.getAttribute(ctx, "noinline", 0))
 	}
+
+	llvm.AddAttributeAtIndex(fnValue, uint(llvm.AttributeFunctionIndex), c.getAttribute(ctx, "nounwind", 0))
+	llvm.AddAttributeAtIndex(fnValue, uint(llvm.AttributeFunctionIndex), c.getAttribute(ctx, "uwtable", 1))
 
 	var diFile llvm.LLVMMetadataRef
 	var subprogram llvm.LLVMMetadataRef
@@ -425,12 +425,6 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) *Functi
 				c.dibuilder,
 				filepath.Base(filename),
 				filepath.Dir(filename))
-			/*} else {
-				diFile = llvm.DIBuilderCreateFile(
-					c.dibuilder,
-					"<unknown>",
-					"<unknown>")
-			}*/
 
 			subprogram = llvm.DIBuilderCreateFunction(
 				c.dibuilder,
@@ -529,7 +523,7 @@ func (c *Compiler) createFunctionBlocks(ctx context.Context, fn *Function) error
 
 			c.printf(Debug, "(%s): End instruction #%d\n", fn.name, ii)
 		}
-		c.printf(Debug, "(%s): Done processing block %s\n", fn.name, i)
+		c.printf(Debug, "(%s): Done processing block %d\n", fn.name, i)
 	}
 
 	// Mark this function as compiled
@@ -549,8 +543,14 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 			// Allocate the pointer to current top of the defer stack
 			fn.deferTop = c.createAlloca(ctx, c.ptrType.valueType, "defer_top")
 
-			// Store the top onto the stack for the current call
-			llvm.BuildStore(c.builder, fn.deferTop, c.ptrType.Nil())
+			// Get the current top
+			topValue := c.createRuntimeCall(ctx, "deferCurrentTop", nil)
+
+			// Store the current top value on the stack
+			llvm.BuildStore(c.builder, fn.deferTop, topValue)
+
+			// Do not allow the parent function to be inlined now
+			llvm.AddAttributeAtIndex(fn.value, uint(llvm.AttributeFunctionIndex), c.getAttribute(ctx, "noinline", 0))
 		}
 
 		// Create a closure for the defer call
@@ -634,6 +634,8 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 		default:
 			panic("unhandled")
 		}
+
+		llvm.AddAttributeAtIndex(closure, uint(llvm.AttributeFunctionIndex), c.getAttribute(ctx, "optnone", 0))
 
 		c.createExpression(ctx, instr.Call.Value)
 		callArgs := instr.Call.Args
@@ -884,8 +886,8 @@ func (c *Compiler) instructionScope(instr instruction) (_ llvm.LLVMMetadataRef) 
 	return c.compileUnit
 }
 
-func (c *Compiler) getAttribute(ctx context.Context, attr string) llvm.LLVMAttributeRef {
-	return llvm.CreateEnumAttribute(c.currentContext(ctx), llvm.GetEnumAttributeKindForName(attr), 0)
+func (c *Compiler) getAttribute(ctx context.Context, attr string, val uint64) llvm.LLVMAttributeRef {
+	return llvm.CreateEnumAttribute(c.currentContext(ctx), llvm.GetEnumAttributeKindForName(attr), val)
 }
 
 func (c *Compiler) CreateInitLib(llctx llvm.LLVMContextRef, pkgs []*ssa.Package) {
