@@ -18,13 +18,13 @@ func (c *Compiler) createFunctionType(ctx context.Context, signature *types.Sign
 		return fnType
 	}
 
-	if numArgs := signature.Results().Len(); numArgs == 0 {
+	if numReturns := signature.Results().Len(); numReturns == 0 {
 		returnType = llvm.VoidTypeInContext(c.currentContext(ctx))
-	} else if numArgs == 1 {
+	} else if numReturns == 1 {
 		returnType = c.createType(ctx, signature.Results().At(0).Type()).valueType
 	} else {
 		// Create a struct type to store the return values into
-		for i := 0; i < numArgs; i++ {
+		for i := 0; i < numReturns; i++ {
 			resultType := signature.Results().At(i).Type()
 			returnValueTypes = append(returnValueTypes, c.createType(ctx, resultType).valueType)
 		}

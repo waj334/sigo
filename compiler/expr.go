@@ -459,11 +459,8 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 			// Create a runtime call to retrieve the address of the element at index I
 			value.ref = c.createRuntimeCall(ctx, "sliceIndexAddr", []llvm.LLVMValueRef{
 				arrayValue,
-				llvm.BuildIntCast2(c.builder,
-					indexValue,
-					llvm.Int32TypeInContext(c.currentContext(ctx)),
-					indexType.Info()&types.IsUnsigned == 0,
-					""),
+				llvm.BuildIntCast2(c.builder, indexValue, llvm.Int32TypeInContext(c.currentContext(ctx)),
+					indexType.Info()&types.IsUnsigned == 0, ""),
 				c.createTypeDescriptor(ctx, elementType),
 			})
 		case *types.Basic: // Strings
@@ -570,7 +567,6 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 				""),
 		})
 	case *ssa.MultiConvert:
-		//lhsValue := c.createExpression(ctx, expr.X)
 		panic("not implemented")
 	case *ssa.Next:
 		iter := c.createExpression(ctx, expr.Iter).UnderlyingValue(ctx)
@@ -579,7 +575,23 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		if expr.IsString {
 			value.ref = c.createRuntimeCall(ctx, "stringRange", []llvm.LLVMValueRef{iter})
 		} else {
-			panic("map type not implemented")
+			tupleType := c.createType(ctx, expr.Type())
+			result := c.createRuntimeCall(ctx, "mapRange", []llvm.LLVMValueRef{iter})
+
+			// Extract the values from the result. The pointers need to
+			// be loaded into the correct type expected by the tuple
+			ok := llvm.BuildExtractValue(c.builder, result, 0, "")
+
+			k := llvm.BuildExtractValue(c.builder, result, 1, "")
+			k = llvm.BuildLoad2(c.builder, tupleType.FieldType(1), k, "")
+
+			v := llvm.BuildExtractValue(c.builder, result, 2, "")
+			v = llvm.BuildLoad2(c.builder, tupleType.FieldType(2), v, "")
+
+			// Populate the tuple
+			value.ref = llvm.BuildInsertValue(c.builder, tupleType.Undef(), ok, 0, "")
+			value.ref = llvm.BuildInsertValue(c.builder, value.ref, k, 1, "")
+			value.ref = llvm.BuildInsertValue(c.builder, value.ref, v, 2, "")
 		}
 	case *ssa.Phi:
 		phiType := c.createType(ctx, expr.Type())
@@ -621,7 +633,16 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 			llvm.BuildStore(c.builder, containerVal, llvm.BuildStructGEP2(c.builder, strType, value.ref, 0, "str_addr"))
 			llvm.BuildStore(c.builder, llvm.ConstInt(c.int64Type(ctx), 0, false), llvm.BuildStructGEP2(c.builder, strType, value.ref, 1, "index_arr"))
 		case *types.Map:
-			panic("map type not implemented")
+			itType := c.createRuntimeType(ctx, "_mapIterator")
+
+			// Create the iterator struct
+			itStructValue := llvm.BuildInsertValue(c.builder, itType.Undef(), containerVal, 0, "")
+			itStructValue = llvm.BuildInsertValue(c.builder, itStructValue, llvm.ConstInt(c.int32Type(ctx), 0, false), 1, "")
+			itStructValue = llvm.BuildInsertValue(c.builder, itStructValue, c.ptrType.Nil(), 2, "")
+
+			// Allocate iterator on the stack
+			value.ref = c.createAlloca(ctx, itType.valueType, "map_it")
+			llvm.BuildStore(c.builder, itStructValue, value.ref)
 		}
 	case *ssa.Select:
 		chanValues := make([]llvm.LLVMValueRef, len(expr.States))

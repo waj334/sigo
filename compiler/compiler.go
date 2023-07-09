@@ -46,6 +46,14 @@ func (t *Type) Nil() llvm.LLVMValueRef {
 	return llvm.ConstNull(t.valueType)
 }
 
+func (t *Type) Undef() llvm.LLVMValueRef {
+	return llvm.GetUndef(t.valueType)
+}
+
+func (t *Type) FieldType(i uint) llvm.LLVMTypeRef {
+	return llvm.StructGetTypeAtIndex(t.valueType, i)
+}
+
 type Phi struct {
 	value llvm.LLVMValueRef
 	edges []ssa.Value
@@ -682,7 +690,7 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 
 		// Create runtime call to update the map
 		c.createRuntimeCall(ctx, "mapUpdate", []llvm.LLVMValueRef{
-			mapValue,
+			c.addressOf(ctx, mapValue),
 			c.addressOf(ctx, key),
 			c.addressOf(ctx, value),
 		})

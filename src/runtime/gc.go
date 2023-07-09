@@ -22,7 +22,7 @@ var (
 	headObject     *object
 	heapBuckets    *heapBucket
 	heapLoadFactor uintptr
-	numBuckets     uintptr
+	numHeapBuckets uintptr
 	heapUsage      uintptr
 	numAllocas     uintptr
 	maxAllocas     uintptr
@@ -60,12 +60,12 @@ type heapBucketEntry struct {
 //go:export initgc runtime.initgc
 func initgc() {
 	heapLoadFactor = 4
-	numBuckets = 8
-	maxAllocas = numBuckets * heapLoadFactor
+	numHeapBuckets = 8
+	maxAllocas = numHeapBuckets * heapLoadFactor
 	maxHeapSize = blockSize * 2
 
 	// Allocate new buckets
-	for i := uintptr(0); i < numBuckets; i++ {
+	for i := uintptr(0); i < numHeapBuckets; i++ {
 		bucket := (*heapBucket)(malloc(unsafe.Sizeof(heapBucket{})))
 		bucket.next = heapBuckets
 		heapBuckets = bucket
@@ -75,9 +75,9 @@ func initgc() {
 func resizeHeapBuckets() {
 	// Determine whether to grow or shrink the number of buckets
 	if numAllocas > maxAllocas {
-		numBuckets *= 2
-	} else if numAllocas < (maxAllocas/4) && numBuckets > 8 {
-		numBuckets /= 2
+		numHeapBuckets *= 2
+	} else if numAllocas < (maxAllocas/4) && numHeapBuckets > 8 {
+		numHeapBuckets /= 2
 	} else {
 		// If the number of allocations is within the acceptable range, don't resize
 		return
@@ -87,7 +87,7 @@ func resizeHeapBuckets() {
 	heapBuckets = nil
 
 	// Allocate new buckets
-	for i := uintptr(0); i < numBuckets; i++ {
+	for i := uintptr(0); i < numHeapBuckets; i++ {
 		bucket := (*heapBucket)(malloc(unsafe.Sizeof(heapBucket{})))
 		bucket.next = heapBuckets
 		heapBuckets = bucket
@@ -133,7 +133,7 @@ func resizeHeapBuckets() {
 		}
 	}
 
-	maxAllocas = numBuckets * heapLoadFactor
+	maxAllocas = numHeapBuckets * heapLoadFactor
 }
 
 func getBucket(head *heapBucket, i uintptr) *heapBucket {
@@ -152,7 +152,7 @@ func getBucket(head *heapBucket, i uintptr) *heapBucket {
 func ptrHash(ptr unsafe.Pointer) uintptr {
 	const shiftAmount = 3 // adjust based on your knowledge of the alignment
 	shifted := uintptr(ptr) >> shiftAmount
-	return shifted % numBuckets
+	return shifted % numHeapBuckets
 }
 
 type strMallinfo struct {

@@ -63,6 +63,16 @@ func main() {
 	blinkChan := make(chan struct{})
 	blinkChan2 := make(chan struct{})
 
+	testMap := make(map[string]string)
+	testMap["1"] = "a"
+	testMap["2"] = "b"
+	testMap["3"] = "c"
+	testMap["4"] = "d"
+
+	for k, v := range testMap {
+		uart.UART5.WriteString("testMap[" + k + "]=" + v + "\n")
+	}
+
 	go func() {
 		for {
 			time.Sleep(time.Millisecond * 500)
