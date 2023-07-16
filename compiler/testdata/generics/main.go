@@ -7,11 +7,19 @@
 package main
 
 import (
+	_ "reflect"
+	"strconv"
 	"time"
 
 	mcu "runtime/arm/cortexm/sam/atsamx51"
 	"runtime/arm/cortexm/sam/atsamx51/uart"
 	_ "runtime/arm/cortexm/sam/chip/atsame51g19a"
+)
+
+var (
+	UART   = uart.UART5
+	LED    = mcu.PB11
+	BUTTON = mcu.PB22
 )
 
 type Printer interface {
@@ -21,13 +29,13 @@ type Printer interface {
 type PrinterA struct{}
 
 func (p PrinterA) Print() {
-	uart.UART5.WriteString("PrinterA\n")
+	UART.WriteString("PrinterA\n")
 }
 
 type PrinterB struct{}
 
 func (p PrinterB) Print() {
-	uart.UART5.WriteString("PrinterB\n")
+	UART.WriteString("PrinterB\n")
 }
 
 func Print[T Printer](p T) {
@@ -35,9 +43,9 @@ func Print[T Printer](p T) {
 }
 
 func initMCU() {
-	defer uart.UART5.WriteString("MCU initialized 1\n")
+	defer UART.WriteString("MCU initialized 1\n")
 	mcu.DefaultClocks()
-	uart.UART5.Configure(uart.Config{
+	UART.Configure(uart.Config{
 		TXD:             mcu.PB02,
 		RXD:             mcu.PB03,
 		FrameFormat:     uart.UsartFrame,
@@ -52,12 +60,12 @@ func initMCU() {
 func main() {
 	initMCU()
 
-	mcu.PB11.SetDirection(1)
-	mcu.PB11.Set(true)
+	LED.SetDirection(mcu.Output)
+	LED.Set(true)
 
-	mcu.PB22.SetDirection(0)
-	mcu.PB22.SetInterrupt(2, func(pin mcu.Pin) {
-		mcu.PB11.Toggle()
+	BUTTON.SetDirection(mcu.Input)
+	BUTTON.SetInterrupt(mcu.FallingEdge, func(mcu.Pin) {
+		LED.Toggle()
 	})
 
 	blinkChan := make(chan struct{})
@@ -70,8 +78,10 @@ func main() {
 	testMap["4"] = "d"
 
 	for k, v := range testMap {
-		uart.UART5.WriteString("testMap[" + k + "]=" + v + "\n")
+		UART.WriteString("testMap[" + k + "]=" + v + "\n")
 	}
+
+	i := 0
 
 	go func() {
 		for {
@@ -79,6 +89,8 @@ func main() {
 			blinkChan <- struct{}{}
 			time.Sleep(time.Millisecond * 500)
 			blinkChan2 <- struct{}{}
+			UART.WriteString(strconv.Itoa(i) + "\n")
+			i++
 		}
 	}()
 
@@ -86,15 +98,15 @@ func main() {
 		for {
 			select {
 			case <-blinkChan:
-				mcu.PB11.Toggle()
+				LED.Toggle()
 				Print(PrinterA{})
 			case <-blinkChan2:
 				Print(PrinterB{})
-				mcu.PB11.Toggle()
+				LED.Toggle()
 				time.Sleep(time.Millisecond * 100)
-				mcu.PB11.Toggle()
+				LED.Toggle()
 				time.Sleep(time.Millisecond * 100)
-				mcu.PB11.Toggle()
+				LED.Toggle()
 			}
 		}
 	}(blinkChan, blinkChan2)

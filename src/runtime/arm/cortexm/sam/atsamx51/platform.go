@@ -1,11 +1,18 @@
 package atsamx51
 
-import "runtime/arm/cortexm/sam/chip"
+import (
+	"runtime/arm/cortexm"
+	"runtime/arm/cortexm/sam/chip"
+)
 
 var (
-	SERCOM_REF_FREQUENCY uint = 60_000_000
-	GCLK0_FREQUENCY      uint = 120_000_000
+	SERCOM_REF_FREQUENCY uint32 = 60_000_000
+	GCLK0_FREQUENCY      uint32 = 120_000_000
 )
+
+func init() {
+	cortexm.SYSTICK_FREQUENCY = GCLK0_FREQUENCY
+}
 
 func DefaultClocks() {
 	// Configure the XOSC32K oscillator

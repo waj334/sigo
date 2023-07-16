@@ -1,11 +1,11 @@
-package atsamx51
+package cortexm
 
 import (
-	"runtime/arm/cortexm/sam/chip"
 	"sync/atomic"
 )
 
 var _tickCount uint32
+var SYSTICK_FREQUENCY uint32
 
 //go:export currentTick runtime.currentTick
 func currentTick() uint32 {
@@ -15,18 +15,20 @@ func currentTick() uint32 {
 //sigo:extern runScheduler runtime.runScheduler
 func runScheduler() bool
 
-//go:export initSysTick initSysTick
 func initSysTick() {
+	// Disable SysTick first
+	SYST.CSR.SetENABLE(false)
+
 	// Set up priorities
-	chip.SystemControl.SHPR3.SetPRI_14(0) // Set PendSV to the highest priority
-	chip.SystemControl.SHPR3.SetPRI_15(1) // Set SysTick below PendSV
+	SCS.SHPR3.SetPRI_14(0) // Set PendSV to the highest priority
+	SCS.SHPR3.SetPRI_15(1) // Set SysTick below PendSV
 
 	// TODO: Derive this value from the system clock settings
-	chip.SysTick.RVR.SetRELOAD(uint32(GCLK0_FREQUENCY) / 1000)
-	chip.SysTick.CSR.SetTICKINT(chip.SysTickCSRTICKINTSelectVALUE_1)
-	chip.SysTick.CSR.SetCLKSOURCE(chip.SysTickCSRCLKSOURCESelectVALUE_1)
-	chip.SysTick.CSR.SetENABLE(chip.SysTickCSRENABLESelectVALUE_1)
-	for chip.SysTick.CSR.GetENABLE() == 0 {
+	SYST.RVR.SetRELOAD(SYSTICK_FREQUENCY / 1000)
+	SYST.CSR.SetTICKINT(true)
+	SYST.CSR.SetCLKSOURCE(true)
+	SYST.CSR.SetENABLE(true)
+	for !SYST.CSR.GetENABLE() {
 	}
 }
 
@@ -42,5 +44,5 @@ func _SysTick_Handler() {
 //go:export triggerPendSV runtime.schedulerPause
 func triggerPendSV() {
 	// Set the PendSV flag
-	chip.SystemControl.ICSR.SetPENDSVSET(chip.SystemControlICSRPENDSVSETSelectVALUE_1)
+	SCS.ICSR.SetPENDSVSET(true)
 }

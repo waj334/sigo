@@ -19,9 +19,6 @@ func abort()
 //sigo:extern initPackages runtime.initPackages
 func initPackages()
 
-//sigo:extern initSysTick initSysTick
-func initSysTick()
-
 //sigo:extern __start_bss __start_bss
 var __start_bss unsafe.Pointer
 

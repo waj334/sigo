@@ -121,7 +121,7 @@ func (s SERCOM) SetEnabled(enable bool) {
 }
 
 func (s SERCOM) Baud(hz uint) uint8 {
-	return uint8((SERCOM_REF_FREQUENCY / (2 * hz)) - 1)
+	return uint8((SERCOM_REF_FREQUENCY / (2 * uint32(hz))) - 1)
 }
 
 func (s SERCOM) BaudFP(hz uint) (uint16, uint8) {

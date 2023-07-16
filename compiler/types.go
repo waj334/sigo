@@ -44,9 +44,15 @@ func (c *Compiler) createType(ctx context.Context, typ types.Type) *Type {
 		case types.Float64:
 			result.valueType = c.float64(ctx)
 		case types.Complex64:
-			panic("Not implemented")
+			tt := c.createRuntimeType(ctx, "_complex64")
+			result.valueType = tt.valueType
+			result.debugType = c.createDebugType(ctx, tt.spec)
+			tt.spec = typ
 		case types.Complex128:
-			panic("Not implemented")
+			tt := c.createRuntimeType(ctx, "_complex128")
+			result.valueType = tt.valueType
+			result.debugType = c.createDebugType(ctx, tt.spec)
+			tt.spec = typ
 		case types.String, types.UntypedString:
 			tt := c.createRuntimeType(ctx, "_string")
 			result.valueType = tt.valueType

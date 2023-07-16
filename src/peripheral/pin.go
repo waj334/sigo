@@ -1,5 +1,9 @@
 package peripheral
 
+type PinDirection int
+type PinIRQMode int
+type PinPullMode int
+
 type PinInterruptHandler func(Pin)
 
 type Pin interface {
@@ -10,12 +14,12 @@ type Pin interface {
 	Set(on bool)
 	Get() bool
 
-	SetInterrupt(mode int, handler func(Pin))
+	SetInterrupt(mode PinIRQMode, handler func(Pin))
 	ClearInterrupt()
 
-	SetDirection(dir int)
-	GetDirection() int
+	SetDirection(dir PinDirection)
+	GetDirection() PinDirection
 
-	SetPullMode(mode int)
-	GetPullMode() int
+	SetPullMode(mode PinPullMode)
+	GetPullMode() PinPullMode
 }
