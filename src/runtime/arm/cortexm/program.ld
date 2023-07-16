@@ -63,7 +63,6 @@ SECTIONS
     }
 }
 
-__arm32_tls_tcb_offset = 4;
 __globals_start = __start_data;
 __globals_end = __end_bss;
 _estack = __stack;

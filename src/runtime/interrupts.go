@@ -6,7 +6,7 @@ func enableInterrupts(state uint32)
 //sigo:extern disableInterrupts _disable_irq
 func disableInterrupts() uint32
 
-func EnabledInterrupts(state uint32) {
+func EnableInterrupts(state uint32) {
 	enableInterrupts(state)
 }
 

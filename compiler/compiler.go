@@ -362,6 +362,18 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) *Functi
 		panic("function with no name")
 	}
 
+	// Attempt to get an existing function with the same symbol
+	// NOTE: This prevents clashes with createRuntimeCall
+	if fnValue := llvm.GetNamedFunction(c.module, name); fnValue != nil {
+		// Look up this function in the map
+		for _, f := range c.functions {
+			if f.value == fnValue {
+				c.signatures[fn.Signature] = f.llvmType
+				return f
+			}
+		}
+	}
+
 	var fnValue llvm.LLVMValueRef
 	var stateType llvm.LLVMTypeRef
 
@@ -391,14 +403,9 @@ func (c *Compiler) createFunction(ctx context.Context, fn *ssa.Function) *Functi
 		panic("function cannot be both external and exported")
 	}
 
-	isExported := false
-	if obj := fn.Object(); obj != nil && obj.Exported() {
-		isExported = true
-	} else if info.Exported {
-		isExported = true
-	}
-
-	if !isExported {
+	if info.Exported {
+		llvm.SetVisibility(fnValue, llvm.DefaultVisibility)
+	} else if obj := fn.Object(); obj != nil && !obj.Exported() {
 		llvm.SetVisibility(fnValue, llvm.HiddenVisibility)
 	}
 

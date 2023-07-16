@@ -14,6 +14,8 @@ import (
 //sigo:extern __gc_scan_end __gc_scan_end
 //sigo:extern mallinfo mallinfo
 
+//go:export alloc runtime.alloc
+
 const (
 	blockSize = 4096
 )

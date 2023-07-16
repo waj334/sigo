@@ -183,5 +183,6 @@ build-compiler-rt:
 	$(call build-compiler-rt,armv7m-none-eabi,armv7m+nofp,-mthumb)
 	$(call build-compiler-rt,armv6m-none-eabi,armv6m+nofp,-mthumb)
 
-generate-bsp:
+generate-csp:
+	go run ${ROOT_DIR}/cmd/svd-gen/main.go --in=${ROOT_DIR}/thirdparty/cmsis-svd/data/Atmel/ATSAMD21G18A.svd --out=${ROOT_DIR}/src/runtime/arm/cortexm/sam
 	go run ${ROOT_DIR}/cmd/svd-gen/main.go --in=${ROOT_DIR}/thirdparty/cmsis-svd/data/Atmel/ATSAME51G19A.svd --out=${ROOT_DIR}/src/runtime/arm/cortexm/sam

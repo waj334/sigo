@@ -94,9 +94,11 @@ func (c *Compiler) createDebugType(ctx context.Context, typ types.Type) (ditype 
 		case types.Float64:
 			ditype = llvm.DIBuilderCreateBasicType(c.dibuilder, c.mapPrimitiveName(typ.Name()), 64, DW_ATE_float, 0)
 		case types.Complex64:
-			panic("Not implemented")
+			tt := c.createRuntimeType(ctx, "_complex64")
+			ditype = c.createDebugType(ctx, tt.spec)
 		case types.Complex128:
-			panic("Not implemented")
+			tt := c.createRuntimeType(ctx, "_complex128")
+			ditype = c.createDebugType(ctx, tt.spec)
 		case types.String:
 			tt := c.createRuntimeType(ctx, "_string")
 			ditype = c.createDebugType(ctx, tt.spec)
