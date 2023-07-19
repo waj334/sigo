@@ -189,7 +189,8 @@ func alloc(size uintptr) unsafe.Pointer {
 	state := disableInterrupts()
 
 	// Attempt to allocate memory for the object ref
-	ptr := malloc(unsafe.Sizeof(object{}) + size)
+	objSize := unsafe.Sizeof(object{})
+	ptr := malloc(objSize + size)
 	if ptr == nil {
 		// Heap is full. Perform a GC now to reclaim any unused memory
 		markAll()

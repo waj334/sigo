@@ -2,8 +2,8 @@ package spi
 
 import (
 	"runtime/arm/cortexm/sam/atsamx51"
-	"runtime/arm/cortexm/sam/atsamx51/internal"
 	"runtime/arm/cortexm/sam/chip"
+	"runtime/ringbuffer"
 	"sync"
 )
 
@@ -29,20 +29,20 @@ var (
 )
 
 const (
-	HostMode   = chip.SERCOMSPIMCTRLAMODESelectSPI_MASTER
-	ClientMode = chip.SERCOMSPIMCTRLAMODESelectSPI_SLAVE
+	HostMode   = chip.SERCOM_SPIM_CTRLA_REG_MODE_SPI_MASTER
+	ClientMode = chip.SERCOM_SPIM_CTRLA_REG_MODE_SPI_SLAVE
 
-	MSB = chip.SERCOMSPIMCTRLADORDSelectMSB
-	LSB = chip.SERCOMSPIMCTRLADORDSelectLSB
+	MSB = chip.SERCOM_SPIM_CTRLA_REG_DORD_MSB
+	LSB = chip.SERCOM_SPIM_CTRLA_REG_DORD_LSB
 
-	Frame            = chip.SERCOMSPIMCTRLAFORMSelectSPI_FRAME
-	FrameWithAddress = chip.SERCOMSPIMCTRLAFORMSelectSPI_FRAME_WITH_ADDR
+	Frame            = chip.SERCOM_SPIM_CTRLA_REG_FORM_SPI_FRAME
+	FrameWithAddress = chip.SERCOM_SPIM_CTRLA_REG_FORM_SPI_FRAME_WITH_ADDR
 
-	LeadingEdge  = chip.SERCOMSPIMCTRLACPHASelectLEADING_EDGE
-	TrailingEdge = chip.SERCOMSPIMCTRLACPHASelectTRAILING_EDGE
+	LeadingEdge  = chip.SERCOM_SPIM_CTRLA_REG_CPHA_LEADING_EDGE
+	TrailingEdge = chip.SERCOM_SPIM_CTRLA_REG_CPHA_TRAILING_EDGE
 
-	IdleLow  = chip.SERCOMSPIMCTRLACPOLSelectIDLE_LOW
-	IdleHigh = chip.SERCOMSPIMCTRLACPOLSelectIDLE_HIGH
+	IdleLow  = chip.SERCOM_SPIM_CTRLA_REG_CPOL_IDLE_LOW
+	IdleHigh = chip.SERCOM_SPIM_CTRLA_REG_CPOL_IDLE_HIGH
 )
 
 const (
@@ -52,8 +52,8 @@ const (
 type SPI struct {
 	atsamx51.SERCOM
 	config   Config
-	txBuffer internal.RingBuffer
-	rxBuffer internal.RingBuffer
+	txBuffer ringbuffer.RingBuffer
+	rxBuffer ringbuffer.RingBuffer
 	mutex    sync.Mutex
 }
 
@@ -65,12 +65,12 @@ type Config struct {
 
 	BaudHz         uint
 	CharacterSize  uint8
-	DataOrder      chip.SERCOMSPIMCTRLADORDSelect
-	Form           chip.SERCOMSPIMCTRLAFORMSelect
+	DataOrder      chip.SERCOM_SPIM_CTRLA_REG_DORD
+	Form           chip.SERCOM_SPIM_CTRLA_REG_FORM
 	HardwareSelect bool
-	Mode           chip.SERCOMSPIMCTRLAMODESelect
-	Phase          chip.SERCOMSPIMCTRLACPHASelect
-	Polarity       chip.SERCOMSPIMCTRLACPOLSelect
+	Mode           chip.SERCOM_SPIM_CTRLA_REG_MODE
+	Phase          chip.SERCOM_SPIM_CTRLA_REG_CPHA
+	Polarity       chip.SERCOM_SPIM_CTRLA_REG_CPOL
 	ReceiveEnabled bool
 
 	RXBufferSize uintptr
@@ -141,29 +141,29 @@ func (s *SPI) Configure(config Config) {
 	baud := s.Baud(config.BaudHz)
 
 	// Set up the registers
-	chip.SERCOM[s.SERCOM].SPIM.BAUD.SetBAUD(baud)
+	chip.SERCOM_SPIM[s.SERCOM].BAUD.SetBAUD(baud)
 
-	chip.SERCOM[s.SERCOM].SPIM.CTRLA.SetDORD(config.DataOrder)
-	chip.SERCOM[s.SERCOM].SPIM.CTRLA.SetFORM(config.Form)
-	chip.SERCOM[s.SERCOM].SPIM.CTRLA.SetMODE(config.Mode)
-	chip.SERCOM[s.SERCOM].SPIM.CTRLA.SetCPHA(config.Phase)
-	chip.SERCOM[s.SERCOM].SPIM.CTRLA.SetCPOL(config.Polarity)
-	chip.SERCOM[s.SERCOM].SPIM.CTRLA.SetDIPO(chip.SERCOMSPIMCTRLADIPOSelect(diPad))
-	chip.SERCOM[s.SERCOM].SPIM.CTRLA.SetDOPO(chip.SERCOMSPIMCTRLADOPOSelect(doPad))
-	chip.SERCOM[s.SERCOM].SPIM.CTRLA.SetCPOL(config.Polarity)
+	chip.SERCOM_SPIM[s.SERCOM].CTRLA.SetDORD(config.DataOrder)
+	chip.SERCOM_SPIM[s.SERCOM].CTRLA.SetFORM(config.Form)
+	chip.SERCOM_SPIM[s.SERCOM].CTRLA.SetMODE(config.Mode)
+	chip.SERCOM_SPIM[s.SERCOM].CTRLA.SetCPHA(config.Phase)
+	chip.SERCOM_SPIM[s.SERCOM].CTRLA.SetCPOL(config.Polarity)
+	chip.SERCOM_SPIM[s.SERCOM].CTRLA.SetDIPO(chip.SERCOM_SPIM_CTRLA_REG_DIPO(diPad))
+	chip.SERCOM_SPIM[s.SERCOM].CTRLA.SetDOPO(chip.SERCOM_SPIM_CTRLA_REG_DOPO(doPad))
+	chip.SERCOM_SPIM[s.SERCOM].CTRLA.SetCPOL(config.Polarity)
 
-	chip.SERCOM[s.SERCOM].SPIM.CTRLB.SetRXEN(config.ReceiveEnabled)
-	chip.SERCOM[s.SERCOM].SPIM.CTRLB.SetMSSEN(config.HardwareSelect)
+	chip.SERCOM_SPIM[s.SERCOM].CTRLB.SetRXEN(config.ReceiveEnabled)
+	chip.SERCOM_SPIM[s.SERCOM].CTRLB.SetMSSEN(config.HardwareSelect)
 	switch config.CharacterSize {
 	case 9:
-		chip.SERCOM[s.SERCOM].SPIM.CTRLB.SetCHSIZE(chip.SERCOMSPIMCTRLBCHSIZESelect9_BIT)
+		chip.SERCOM_SPIM[s.SERCOM].CTRLB.SetCHSIZE(chip.SERCOM_SPIM_CTRLB_REG_CHSIZE_9_BIT)
 	default:
-		chip.SERCOM[s.SERCOM].SPIM.CTRLB.SetCHSIZE(chip.SERCOMSPIMCTRLBCHSIZESelect8_BIT)
+		chip.SERCOM_SPIM[s.SERCOM].CTRLB.SetCHSIZE(chip.SERCOM_SPIM_CTRLB_REG_CHSIZE_8_BIT)
 	}
 
 	// Set up buffers
-	rx := internal.NewRingBuffer(config.RXBufferSize)
-	tx := internal.NewRingBuffer(config.TXBufferSize)
+	rx := ringbuffer.New(config.RXBufferSize)
+	tx := ringbuffer.New(config.TXBufferSize)
 
 	s.rxBuffer = rx
 	s.txBuffer = tx
@@ -173,11 +173,11 @@ func (s *SPI) Configure(config Config) {
 
 	// Enable interrupts
 	s.Irq0().EnableIRQ()
-	chip.SERCOM[s.SERCOM].SPIM.INTENSET.SetRXC(true)
+	chip.SERCOM_SPIM[s.SERCOM].INTENSET.SetRXC(true)
 
 	// Enable the peripheral
-	chip.SERCOM[s.SERCOM].SPIM.CTRLA.SetENABLE(true)
-	for chip.SERCOM[s.SERCOM].SPIM.SYNCBUSY.GetENABLE() {
+	chip.SERCOM_SPIM[s.SERCOM].CTRLA.SetENABLE(true)
+	for chip.SERCOM_SPIM[s.SERCOM].SYNCBUSY.GetENABLE() {
 	}
 
 	s.config = config
@@ -193,7 +193,7 @@ func (s *SPI) Write(p []byte) (n int, err error) {
 	n, err = s.txBuffer.Write(p)
 
 	// Enable the DRE interrupt that will write the bytes from the buffer
-	chip.SERCOM[s.SERCOM].SPIM.INTENSET.SetDRE(true)
+	chip.SERCOM_SPIM[s.SERCOM].INTENSET.SetDRE(true)
 	s.mutex.Unlock()
 	return
 }
@@ -218,28 +218,28 @@ func (s *SPI) Deselect() {
 func irqHandler() {
 	sercom := int(chip.SystemControl.ICSR.GetVECTACTIVE()-62) / 4
 	switch {
-	case chip.SERCOM[sercom].SPIM.INTFLAG.GetRXC():
+	case chip.SERCOM_SPIM[sercom].INTFLAG.GetRXC():
 		rxcHandler(sercom)
-	case chip.SERCOM[sercom].SPIM.INTFLAG.GetDRE():
+	case chip.SERCOM_SPIM[sercom].INTFLAG.GetDRE():
 		dreHandler(sercom)
 	}
 }
 
 func rxcHandler(sercom int) {
-	b := byte(chip.SERCOM[sercom].SPIM.DATA.GetDATA())
+	b := byte(chip.SERCOM_SPIM[sercom].DATA.GetDATA())
 	spi[sercom].rxBuffer.WriteByte(b)
 }
 
 func dreHandler(sercom int) {
 	for spi[sercom].txBuffer.Len() > 0 {
 		if b, err := spi[sercom].txBuffer.ReadByte(); err == nil {
-			for !chip.SERCOM[sercom].SPIM.INTFLAG.GetDRE() {
+			for !chip.SERCOM_SPIM[sercom].INTFLAG.GetDRE() {
 			}
-			chip.SERCOM[sercom].SPIM.DATA.SetDATA(uint32(b))
+			chip.SERCOM_SPIM[sercom].DATA.SetDATA(uint32(b))
 		} else {
 			// Stop if there was an error reading the next byte
 			break
 		}
 	}
-	chip.SERCOM[sercom].USART_INT.INTENCLR.SetDRE(true)
+	chip.SERCOM_SPIM[sercom].INTENCLR.SetDRE(true)
 }

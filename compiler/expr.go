@@ -2,10 +2,9 @@ package compiler
 
 import (
 	"context"
+	"fmt"
 	"go/constant"
 	"go/types"
-	"math"
-
 	"golang.org/x/tools/go/ssa"
 
 	"omibyte.io/sigo/llvm"
@@ -38,7 +37,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 
 		currentBlock := llvm.GetInsertBlock(c.builder)
 
-		if expr.Heap {
+		if expr.Heap || size > c.options.MaxStackSize {
 			// Create the alloca to hold the address on the stack
 			value.ref = c.createAlloca(ctx, c.ptrType.valueType, expr.Comment)
 
@@ -88,16 +87,17 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 			interfaceValue := c.createExpression(ctx, expr.Call.Value).UnderlyingValue(ctx)
 
 			// Look up the function to be called
-			fnPtr := c.createRuntimeCall(ctx, "interfaceLookUp", []llvm.LLVMValueRef{
+			result := c.createRuntimeCall(ctx, "interfaceLookUp", []llvm.LLVMValueRef{
 				interfaceValue,
 				llvm.ConstInt(llvm.Int32TypeInContext(
 					c.currentContext(ctx)), uint64(c.computeFunctionHash(expr.Call.Method)), false),
 			})
 
-			// Load the value pointer from the interface
-			valuePtr := llvm.BuildExtractValue(c.builder, interfaceValue, 1, "")
+			receiverPtr := llvm.BuildExtractValue(c.builder, result, 0, "interface_call_extract_receiver")
+			fnPtr := llvm.BuildExtractValue(c.builder, result, 1, "interface_call_extract_fn_ptr")
+
 			args := c.createValues(ctx, expr.Call.Args).Ref(ctx)
-			args = append([]llvm.LLVMValueRef{valuePtr}, args...)
+			args = append([]llvm.LLVMValueRef{receiverPtr}, args...)
 
 			// Call the concrete method
 			fnType := c.createFunctionType(ctx, expr.Call.Signature(), false)
@@ -127,6 +127,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 			for i, paramType := range paramTypes {
 				argType := llvm.TypeOf(args[i])
 				if !llvm.TypeIsEqual(argType, paramType) {
+					fmt.Println(i)
 					panic(llvm.PrintTypeToString(argType) + " != " + llvm.PrintTypeToString(paramType))
 				}
 			}
@@ -139,59 +140,28 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 			constType := c.createType(ctx, expr.Type())
 			value.ref = llvm.ConstNull(constType.valueType)
 		} else {
-			if basicType, ok := expr.Type().Underlying().(*types.Basic); ok && basicType.Kind() == types.UntypedInt {
-				bitLen := int(math.Ceil(float64(constant.BitLen(expr.Value)) / 8))
-				if intVal, ok := constant.Int64Val(expr.Value); ok {
-					switch bitLen {
-					case 8:
-						value.ref = llvm.ConstInt(llvm.Int64TypeInContext(c.currentContext(ctx)), uint64(intVal), false)
-					case 4:
-						value.ref = llvm.ConstInt(llvm.Int32TypeInContext(c.currentContext(ctx)), uint64(intVal), false)
-					case 2:
-						value.ref = llvm.ConstInt(llvm.Int16TypeInContext(c.currentContext(ctx)), uint64(intVal), false)
-					case 1:
-						value.ref = llvm.ConstInt(llvm.Int8TypeInContext(c.currentContext(ctx)), uint64(intVal), false)
-					default:
-						panic("incompatible untyped int size")
+			constType := c.createType(ctx, expr.Type())
+			switch t := expr.Type().Underlying().(type) {
+			case *types.Basic:
+				switch {
+				case t.Kind() == types.UnsafePointer:
+					value.ref = llvm.ConstInt(c.uintptrType.valueType, expr.Uint64(), false)
+					value.ref = llvm.BuildIntToPtr(c.builder, value.ref, constType.valueType, "")
+				case t.Info()&types.IsInteger != 0:
+					if t.Info()&types.IsUnsigned != 0 {
+						value.ref = llvm.ConstInt(constType.valueType, expr.Uint64(), false)
+					} else {
+						value.ref = llvm.ConstInt(constType.valueType, uint64(expr.Int64()), false)
 					}
-				} else if uintVal, ok := constant.Uint64Val(expr.Value); ok {
-					switch bitLen {
-					case 8:
-						value.ref = llvm.ConstInt(llvm.Int64TypeInContext(c.currentContext(ctx)), uintVal, false)
-					case 4:
-						value.ref = llvm.ConstInt(llvm.Int32TypeInContext(c.currentContext(ctx)), uintVal, false)
-					case 2:
-						value.ref = llvm.ConstInt(llvm.Int16TypeInContext(c.currentContext(ctx)), uintVal, false)
-					case 1:
-						value.ref = llvm.ConstInt(llvm.Int8TypeInContext(c.currentContext(ctx)), uintVal, false)
-					default:
-						panic("incompatible untyped int size")
-					}
-				}
-			} else {
-				constType := c.createType(ctx, expr.Type())
-				switch t := expr.Type().Underlying().(type) {
-				case *types.Basic:
-					switch {
-					case t.Kind() == types.UnsafePointer:
-						value.ref = llvm.ConstInt(c.uintptrType.valueType, expr.Uint64(), false)
-						value.ref = llvm.BuildIntToPtr(c.builder, value.ref, constType.valueType, "")
-					case t.Info()&types.IsInteger != 0:
-						if t.Info()&types.IsUnsigned != 0 {
-							value.ref = llvm.ConstInt(constType.valueType, expr.Uint64(), false)
-						} else {
-							value.ref = llvm.ConstInt(constType.valueType, uint64(expr.Int64()), false)
-						}
-					case t.Info()&types.IsString != 0:
-						strValue := constant.StringVal(expr.Value)
-						value.ref = c.createConstantString(ctx, strValue)
-					case t.Info()&types.IsBoolean != 0:
-						value.ref = c.createConstBool(ctx, constant.BoolVal(expr.Value))
-					case t.Info()&types.IsFloat != 0:
-						value.ref = llvm.ConstReal(constType.valueType, expr.Float64())
-					default:
-						panic("not implemented")
-					}
+				case t.Info()&types.IsString != 0:
+					strValue := constant.StringVal(expr.Value)
+					value.ref = c.createConstantString(ctx, strValue)
+				case t.Info()&types.IsBoolean != 0:
+					value.ref = c.createConstBool(ctx, constant.BoolVal(expr.Value))
+				case t.Info()&types.IsFloat != 0:
+					value.ref = llvm.ConstReal(constType.valueType, expr.Float64())
+				default:
+					panic("not implemented")
 				}
 			}
 		}
@@ -387,6 +357,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 				} else {
 					// Create a global with external linkage to some variable with the specified link name.
 					value.ref = llvm.AddGlobal(c.module, globalType.valueType, value.linkname)
+					llvm.SetAlignment(value.ref, llvm.PreferredAlignmentOfGlobal(c.options.Target.dataLayout, value.ref))
 					llvm.SetUnnamedAddr(value.ref, true)
 					llvm.SetLinkage(value.ref, llvm.ExternalLinkage)
 				}
@@ -394,6 +365,7 @@ func (c *Compiler) createExpression(ctx context.Context, expr ssa.Value) (value 
 		} else if expr.Pkg != c.currentPackage(ctx) {
 			// Create a extern global value
 			value.ref = llvm.AddGlobal(c.module, globalType.valueType, value.linkname)
+			llvm.SetAlignment(value.ref, llvm.PreferredAlignmentOfGlobal(c.options.Target.dataLayout, value.ref))
 			llvm.SetUnnamedAddr(value.ref, true)
 			llvm.SetLinkage(value.ref, llvm.ExternalLinkage)
 		} else {

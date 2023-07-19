@@ -318,9 +318,8 @@ func Build(ctx context.Context, packageDir string) error {
 	// Initialize global strings
 	for str, globals := range stringTable {
 		cstr := llvm.ConstStringInContext(llctx, str, true)
-		cstrVal := llvm.AddGlobal(
-			cc.Module(),
-			llvm.TypeOf(cstr), "cstring")
+		cstrVal := llvm.AddGlobal(cc.Module(), llvm.TypeOf(cstr), "cstring")
+		llvm.SetAlignment(cstrVal, 4)
 		llvm.SetInitializer(cstrVal, cstr)
 
 		// Apply this string value to each global string

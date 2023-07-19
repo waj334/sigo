@@ -132,9 +132,6 @@ func (c *Compiler) createSlice(ctx context.Context, array llvm.LLVMValueRef, ele
 		}
 	}
 
-	// Bitcast the array base pointer to the generic pointer type
-	ptrVal = llvm.BuildBitCast(c.builder, ptrVal, c.ptrType.valueType, "")
-
 	if low == nil {
 		low = llvm.ConstIntOfString(llvm.Int32TypeInContext(c.currentContext(ctx)), "-1", 10)
 	}
@@ -253,6 +250,7 @@ func (c *Compiler) createSliceFromStringValue(ctx context.Context, str llvm.LLVM
 
 func (c *Compiler) makeInterface(ctx context.Context, value ssa.Value) llvm.LLVMValueRef {
 	x := c.createExpression(ctx, value).UnderlyingValue(ctx)
+	valueType := c.createType(ctx, value.Type())
 
 	interfaceType := c.createRuntimeType(ctx, "_interface").valueType
 
@@ -262,10 +260,13 @@ func (c *Compiler) makeInterface(ctx context.Context, value ssa.Value) llvm.LLVM
 	}
 
 	if llvm.GetTypeKind(llvm.TypeOf(x)) != llvm.PointerTypeKind {
-		x = c.addressOf(ctx, x)
+		// Allocate memory on the stack to store a copy of the value
+		ptr := c.createAlloca(ctx, valueType.valueType, "interface_value")
+		llvm.BuildStore(c.builder, x, ptr)
+		x = ptr
 	}
 
-	typeinfo := c.createTypeDescriptor(ctx, c.createType(ctx, value.Type().Underlying()))
+	typeinfo := c.createTypeDescriptor(ctx, valueType)
 	args := []llvm.LLVMValueRef{
 		x,
 		typeinfo,
@@ -295,6 +296,7 @@ func (c *Compiler) createConstantString(ctx context.Context, str string) llvm.LL
 			c.module,
 			c.ptrType.valueType,
 			c.symbolName(c.currentPackage(ctx).Pkg, "cstring_ptr"))
+		llvm.SetAlignment(strArrVal, llvm.PreferredAlignmentOfGlobal(c.options.Target.dataLayout, strArrVal))
 
 		// Map the global to the string value
 		c.stringTable[str] = append(c.stringTable[str], llvm.GetValueName2(strArrVal))
@@ -323,6 +325,7 @@ func (c *Compiler) createGlobalValue(ctx context.Context, constVal llvm.LLVMValu
 
 	// Create the global that will hold the constant string value's address
 	value := llvm.AddGlobal(c.module, llvm.TypeOf(constVal), name)
+	llvm.SetAlignment(value, llvm.PreferredAlignmentOfGlobal(c.options.Target.dataLayout, value))
 
 	// Set the global variable's value
 	llvm.SetInitializer(value, constVal)
@@ -343,6 +346,23 @@ func (c *Compiler) createAlloca(ctx context.Context, _type llvm.LLVMTypeRef, nam
 	c.positionAtEntryBlock(ctx)
 	result = llvm.BuildAlloca(c.builder, _type, strings.TrimRight(strings.Join([]string{"stack_var", name}, "_"), "_"))
 	llvm.PositionBuilderAtEnd(c.builder, c.currentBlock(ctx))
+
+	// Position the debug information at the function header
+	fn := c.currentFunction(ctx)
+	if fn != nil {
+		location := fn.def.Prog.Fset.Position(fn.def.Pos())
+		if fn.subprogram != nil {
+			llvm.InstructionSetDebugLoc(result,
+				llvm.DIBuilderCreateDebugLocation(
+					c.currentContext(ctx),
+					uint(location.Line),
+					uint(location.Column),
+					fn.subprogram,
+					nil),
+			)
+		}
+	}
+
 	return
 }
 
@@ -386,4 +406,8 @@ func (c *Compiler) createConstBool(ctx context.Context, value bool) llvm.LLVMVal
 		return llvm.ConstInt(c.int1Type(ctx), 1, false)
 	}
 	return llvm.ConstInt(c.int1Type(ctx), 0, false)
+}
+
+func (c *Compiler) createConstInt() llvm.LLVMValueRef {
+	return nil
 }

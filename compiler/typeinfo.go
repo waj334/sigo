@@ -30,11 +30,15 @@ func (c *Compiler) createTypeDescriptor(ctx context.Context, typ *Type) (descrip
 	c.printf(Debug, "Creating type descriptor for %s\n", typ.spec.String())
 	defer c.printf(Debug, "Done creating type descriptor for %s\n", typ.spec.String())
 
-	goType := typ.spec
-
 	// Find the "typeDescriptor" runtime type
 	descriptorType := c.createRuntimeType(ctx, "_type").valueType
 	if descriptorType != nil {
+		// Create the global value ahead of time
+		descriptor = llvm.AddGlobal(c.module, descriptorType, c.symbolName(c.currentPackage(ctx).Pkg, "type"))
+		llvm.SetAlignment(descriptor, llvm.PreferredAlignmentOfGlobal(c.options.Target.dataLayout, descriptor))
+		c.descriptors[typ.spec] = descriptor
+		goType := typ.spec
+
 		// Create an array to store the typeDescriptor struct values
 		var descriptorValues [11]llvm.LLVMValueRef
 		var name string
@@ -82,16 +86,6 @@ func (c *Compiler) createTypeDescriptor(ctx context.Context, typ *Type) (descrip
 			descriptorValues[4] = c.createMethodTable(ctx, methods)
 		case *types.Struct:
 			construct = Struct
-			// Find all methods for this type in the package
-			if named, ok := typ.spec.(*types.Named); ok {
-				// Collect this type's method
-				var methods []*types.Func
-				for i := 0; i < named.NumMethods(); i++ {
-					methods = append(methods, named.Method(i))
-				}
-				// Create the method table struct
-				descriptorValues[4] = c.createMethodTable(ctx, methods)
-			}
 		case *types.Pointer:
 			construct = Pointer
 			// Create the descriptor for the element type
@@ -106,6 +100,17 @@ func (c *Compiler) createTypeDescriptor(ctx context.Context, typ *Type) (descrip
 			descriptorValues[6] = c.createArrayDescriptor(ctx, goType.Elem(), goType.Len())
 		case *types.Slice:
 			descriptorValues[6] = c.createArrayDescriptor(ctx, goType.Elem(), -1)
+		}
+
+		// Find all methods for this type in the package
+		if named, ok := goType.(*types.Named); ok {
+			// Collect this type's method
+			var methods []*types.Func
+			for i := 0; i < named.NumMethods(); i++ {
+				methods = append(methods, named.Method(i))
+			}
+			// Create the method table struct
+			descriptorValues[4] = c.createMethodTable(ctx, methods)
 		}
 
 		// Create a global for the typename
@@ -128,10 +133,11 @@ func (c *Compiler) createTypeDescriptor(ctx context.Context, typ *Type) (descrip
 		}
 
 		// Create a const descriptor struct value
-		descriptor = c.createGlobalValue(ctx,
-			llvm.ConstNamedStruct(descriptorType, descriptorValues[:]),
-			c.symbolName(c.currentPackage(ctx).Pkg, "type"))
-		c.descriptors[typ.spec] = descriptor
+		constVal := llvm.ConstNamedStruct(descriptorType, descriptorValues[:])
+
+		// Set the global variable's value
+		llvm.SetInitializer(descriptor, constVal)
+		llvm.SetUnnamedAddr(descriptor, true)
 	}
 	return
 }
@@ -191,6 +197,12 @@ func (c *Compiler) createFunctionDescriptor(ctx context.Context, fn *types.Func)
 
 		signature := fn.Type().(*types.Signature)
 
+		var receiver llvm.LLVMValueRef
+		if signature.Recv() != nil {
+			// Create the type descriptor for the receiver type
+			receiver = c.createTypeDescriptor(ctx, c.createType(ctx, signature.Recv().Type()))
+		}
+
 		// Collect argument types
 		argTypes := make([]llvm.LLVMValueRef, 0, signature.Params().Len())
 		for i := 0; i < signature.Params().Len(); i++ {
@@ -239,7 +251,7 @@ func (c *Compiler) createFunctionDescriptor(ctx context.Context, fn *types.Func)
 		var fnValue llvm.LLVMValueRef
 		ssaFn := c.currentPackage(ctx).Prog.FuncValue(fn)
 		if ssaFn != nil {
-			fnValue = c.createExpression(ctx, ssaFn).UnderlyingValue(ctx)
+			fnValue = c.createCallWrapper(ctx, c.createFunction(ctx, ssaFn))
 		} else {
 			fnValue = llvm.ConstNull(c.ptrType.valueType)
 		}
@@ -251,6 +263,7 @@ func (c *Compiler) createFunctionDescriptor(ctx context.Context, fn *types.Func)
 			c.createGlobalString(ctx, fn.Name()),
 			c.createGlobalValue(ctx, argTable, c.symbolName(c.currentPackage(ctx).Pkg, "args")),
 			c.createGlobalValue(ctx, returnTable, c.symbolName(c.currentPackage(ctx).Pkg, "returns")),
+			receiver,
 		}
 
 		value := c.createGlobalValue(ctx,

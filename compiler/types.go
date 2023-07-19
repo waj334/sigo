@@ -33,7 +33,7 @@ func (c *Compiler) createType(ctx context.Context, typ types.Type) *Type {
 			result.valueType = c.int16Type(ctx)
 		case types.Int, types.Int32, types.Uint, types.Uint32:
 			result.valueType = c.int32Type(ctx)
-		case types.Uint64, types.Int64:
+		case types.Uint64, types.Int64, types.UntypedInt:
 			result.valueType = c.int64Type(ctx)
 		case types.Uintptr:
 			result.valueType = c.uintptrType.valueType
@@ -98,7 +98,8 @@ func (c *Compiler) createType(ctx context.Context, typ types.Type) *Type {
 			// Set the struct body to that of the underlying struct type
 			llvm.StructSetBody(result.valueType, llvm.GetStructElementTypes(st.valueType), false)
 		} else {
-			result = c.createType(ctx, typ.Underlying())
+			underlying := c.createType(ctx, typ.Underlying())
+			result.valueType = underlying.valueType
 		}
 	case *types.Array:
 		elementType := c.createType(ctx, typ.Elem())

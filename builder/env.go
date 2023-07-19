@@ -3,6 +3,7 @@ package builder
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 )
 
@@ -15,9 +16,17 @@ func Environment() Env {
 	}
 
 	// The default root should be back one directory from the compiler
-	defaultRoot, err := filepath.Abs(filepath.Dir(compilerPath) + "/..")
+	sigoRoot, err := filepath.Abs(filepath.Dir(compilerPath) + "/..")
 	if err != nil {
 		panic(err)
+	}
+
+	goRoot := sigoRoot
+
+	// Attempt to get GOROOT from the system Go
+	cmd := exec.Command("go", "env", "GOROOT")
+	if output, err := cmd.Output(); err != nil {
+		goRoot = string(output)
 	}
 
 	cwd, err := os.Getwd()
@@ -35,11 +44,11 @@ func Environment() Env {
 
 	// Return the environment
 	return map[string]string{
-		"SIGOROOT":  getenv("SIGOROOT", defaultRoot),
+		"SIGOROOT":  getenv("SIGOROOT", sigoRoot),
 		"SIGOPATH":  getenv("SIGOPATH", getenv("GOPATH", cwd)),
 		"SIGOCACHE": getenv("SIGOCACHE", getenv("GOCACHE", filepath.Join(cacheDir, "go-build"))),
 
-		"GOROOT": getenv("GOROOT", defaultRoot),
+		"GOROOT": getenv("GOROOT", goRoot),
 		//"GOPATH":   getenv("SIGOPATH", getenv("GOPATH", cwd)),
 		"GOCACHE":  getenv("SIGOCACHE", getenv("GOCACHE", filepath.Join(cacheDir, "go-build"))),
 		"GOTMPDIR": getenv("SIGOTMPDIR", filepath.Join(cacheDir, "sigo")),

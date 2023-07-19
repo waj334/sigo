@@ -2,7 +2,7 @@ package main
 
 import "github.com/spf13/cobra"
 
-var rootCmd = &cobra.Command{
+var sigoCmd = &cobra.Command{
 	Use:   "sigo",
 	Short: "Sigo is an implementation of the Go language compiler for embedded systems!",
 	Long: `Sigo is an implementation of the Go language compiler and Go runtime for embedded systems based on the AVR, 
@@ -10,9 +10,10 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(buildCmd)
+	sigoCmd.AddCommand(buildCmd)
+	sigoCmd.AddCommand(rootCmd)
 }
 
 func main() {
-	rootCmd.Execute()
+	sigoCmd.Execute()
 }

@@ -9,3 +9,6 @@
 [submodule "thirdparty/cmsis-svd"]
 	path = thirdparty/cmsis-svd
 	url = https://github.com/posborne/cmsis-svd.git
+[submodule "thirdparty/atmel-atdf"]
+	path = thirdparty/atmel-atdf
+	url = https://github.com/waj334/atmel-atdf.git

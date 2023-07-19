@@ -64,6 +64,19 @@ func GetParamTypes(FunctionTy LLVMTypeRef) (result []LLVMTypeRef) {
 	return
 }
 
+func GetParams(FunctionValue LLVMValueRef) (result []LLVMValueRef) {
+	count := int(CountParams(FunctionValue))
+	output := make([]C.LLVMValueRef, count)
+	if count > 0 {
+		C.LLVMGetParams(C.LLVMValueRef(unsafe.Pointer(FunctionValue)), (*C.LLVMValueRef)(unsafe.Pointer(&output[0])))
+	}
+	result = make([]LLVMValueRef, 0, count)
+	for _, value := range output {
+		result = append(result, LLVMValueRef(unsafe.Pointer(value)))
+	}
+	return
+}
+
 func GetStructElementTypes(StructTy LLVMTypeRef) (result []LLVMTypeRef) {
 	count := int(CountStructElementTypes(StructTy))
 	output := make([]C.LLVMTypeRef, count)

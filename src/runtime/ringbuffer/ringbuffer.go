@@ -1,4 +1,4 @@
-package internal
+package ringbuffer
 
 import "errors"
 
@@ -18,7 +18,7 @@ const (
 	defaultBufferSz = 256
 )
 
-func NewRingBuffer(sz uintptr) RingBuffer {
+func New(sz uintptr) RingBuffer {
 	if sz == 0 {
 		sz = defaultBufferSz
 	}

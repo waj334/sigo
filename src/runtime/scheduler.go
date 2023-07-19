@@ -56,10 +56,6 @@ var (
 	goroutineStackSize *uintptr
 )
 
-func init() {
-	*goroutineStackSize = alignStack(*goroutineStackSize)
-}
-
 func initTask(unsafe.Pointer)
 func alignStack(n uintptr) uintptr
 func schedulerPause()
@@ -145,13 +141,15 @@ func addTask(ptr unsafe.Pointer) {
 	oldHead := headTask
 
 	// Allocate stack for this goroutine
-	stack := malloc(*goroutineStackSize)
+	stackSize := *goroutineStackSize
+	stack := malloc(stackSize)
 
 	// Create the new task
 	headTask = &task{
-		stack:    stack,
-		ctx:      (*_goroutine)(ptr),
+		stack: stack,
+		// initTask may move the top of stack pointer depending on the target machine's stack growth direction
 		stackTop: stack,
+		ctx:      (*_goroutine)(ptr),
 		state:    taskNotStarted,
 	}
 

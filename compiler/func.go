@@ -169,3 +169,46 @@ func (c *Compiler) symbolName(pkg *types.Package, name string) string {
 	}
 	return path + "." + name
 }
+
+func (c *Compiler) createCallWrapper(ctx context.Context, fn *Function) llvm.LLVMValueRef {
+	if fn.wrapperFn != nil {
+		return fn.wrapperFn
+	}
+
+	argTypes := []llvm.LLVMTypeRef{
+		c.ptrType.valueType,
+	}
+
+	// Append the remaining parameter types
+	returnType := llvm.GetReturnType(fn.llvmType)
+	paramTypes := llvm.GetParamTypes(fn.llvmType)
+	argTypes = append(argTypes, paramTypes[1:]...)
+
+	receiverType := c.createType(ctx, fn.signature.Recv().Type()).valueType
+	wrapperFnType := llvm.FunctionType(returnType, argTypes, false)
+	wrapperFnValue := llvm.AddFunction(c.module, fn.name+".wrapper", wrapperFnType)
+	llvm.SetLinkage(wrapperFnValue, llvm.WeakAnyLinkage)
+
+	bb := llvm.AppendBasicBlockInContext(c.currentContext(ctx), wrapperFnValue, "entry")
+	llvm.PositionBuilderAtEnd(c.builder, bb)
+	defer llvm.PositionBuilderAtEnd(c.builder, c.currentBlock(ctx))
+	params := llvm.GetParams(wrapperFnValue)
+
+	if llvm.GetTypeKind(receiverType) != llvm.PointerTypeKind {
+		// Load the value from the pointer
+		params[0] = llvm.BuildLoad2(c.builder, receiverType, params[0], "fn_load_receiver_value")
+	}
+
+	// Create the function call
+	ret := llvm.BuildCall2(c.builder, fn.llvmType, fn.value, params, "")
+
+	if llvm.GetTypeKind(returnType) != llvm.VoidTypeKind {
+		// Forward the return value
+		llvm.BuildRet(c.builder, ret)
+	} else {
+		llvm.BuildRetVoid(c.builder)
+	}
+
+	fn.wrapperFn = wrapperFnValue
+	return wrapperFnValue
+}
