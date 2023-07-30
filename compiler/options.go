@@ -30,6 +30,7 @@ type Options struct {
 	Verbosity          Verbosity
 	PathMappings       map[string]string
 	GoroutineStackSize uint64
+	MaxStackSize       uint64
 	PrimitivesAsCTypes bool
 	mu                 sync.Mutex
 }
@@ -39,6 +40,7 @@ func NewOptions() *Options {
 		Symbols:            map[string]*SymbolInfo{},
 		PathMappings:       map[string]string{},
 		GoroutineStackSize: 2048,
+		MaxStackSize:       256,
 	}
 }
 
@@ -60,6 +62,7 @@ func (o *Options) WithTarget(target *Target) *Options {
 		GoroutineStackSize: o.GoroutineStackSize,
 		PrimitivesAsCTypes: o.PrimitivesAsCTypes,
 		mu:                 sync.Mutex{},
+		MaxStackSize:       o.MaxStackSize,
 	}
 }
 

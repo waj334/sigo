@@ -484,6 +484,7 @@ LLVM_ENUM(LLVMModuleFlagBehavior)
 %ignore LLVMGetTargetFromTriple;
 %ignore LLVMAddIncoming;
 %ignore LLVMGetParamTypes;
+%ignore LLVMGetParams;
 %ignore LLVMGetStructElementTypes;
 %ignore LLVMGetValueName2;
 

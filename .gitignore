@@ -22,8 +22,11 @@
 /pkg/
 /lib/
 /src/runtime/arm/cortexm/*/chip
+/root/
 !/llvm/llvm.go
 !/llvm/llvm_wrap.c
 !/llvm/wrappers.go
 !/clang/clang.go
 !/clang/clang_wrap.c
+/llvm/llvm_wrap.c
+/llvm/llvm.go

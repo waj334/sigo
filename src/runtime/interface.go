@@ -140,7 +140,7 @@ func interfaceCompare(X _interface, Y _interface) bool {
 	return false
 }
 
-func interfaceLookUp(i _interface, id uint32) (result unsafe.Pointer) {
+func interfaceLookUp(i _interface, id uint32) (receiver, result unsafe.Pointer) {
 	info := i.typePtr
 
 	// Get the element type of the pointer
@@ -149,11 +149,15 @@ func interfaceLookUp(i _interface, id uint32) (result unsafe.Pointer) {
 	}
 
 	// Locate the method matching the id
-	for method := 0; method < info.methods.count; method++ {
-		fn := info.methods.index(method)
-		if id == fn.id {
-			return fn.ptr
+	if info.methods != nil {
+		for method := 0; method < info.methods.count; method++ {
+			fn := info.methods.index(method)
+			if id == fn.id {
+				receiver = i.valuePtr
+				return receiver, fn.ptr
+			}
 		}
 	}
+
 	panic("no concrete implementation found")
 }

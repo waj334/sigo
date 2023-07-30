@@ -1,15 +1,16 @@
 package uart
 
 import (
+	"runtime/arm/cortexm"
 	"runtime/arm/cortexm/sam/atsamx51"
-	"runtime/arm/cortexm/sam/atsamx51/internal"
 	"runtime/arm/cortexm/sam/chip"
+	"runtime/ringbuffer"
 	"sync"
 )
 
 const (
-	UsartFrame           = chip.SERCOMUSART_INTCTRLAFORMSelectUSART_FRAME_NO_PARITY
-	UsartFrameWithParity = chip.SERCOMUSART_INTCTRLAFORMSelectUSART_FRAME_WITH_PARITY
+	UsartFrame           = chip.SERCOM_USART_INT_CTRLA_REG_FORM_USART_FRAME_NO_PARITY
+	UsartFrameWithParity = chip.SERCOM_USART_INT_CTRLA_REG_FORM_USART_FRAME_WITH_PARITY
 )
 
 var (
@@ -35,8 +36,8 @@ var (
 
 type UART struct {
 	sercom   int
-	txBuffer internal.RingBuffer
-	rxBuffer internal.RingBuffer
+	txBuffer ringbuffer.RingBuffer
+	rxBuffer ringbuffer.RingBuffer
 	mutex    sync.Mutex
 }
 
@@ -46,7 +47,7 @@ type Config struct {
 	XCK             atsamx51.Pin
 	RTS             atsamx51.Pin
 	CTS             atsamx51.Pin
-	FrameFormat     chip.SERCOMUSART_INTCTRLAFORMSelect
+	FrameFormat     chip.SERCOM_USART_INT_CTRLA_REG_FORM
 	BaudHz          uint
 	CharacterSize   uint
 	NumStopBits     uint
@@ -112,8 +113,8 @@ func (u *UART) Configure(config Config) {
 	}
 
 	// Disable the SERCOM first
-	chip.SERCOM[u.sercom].USART_INT.CTRLA.SetENABLE(false)
-	for chip.SERCOM[u.sercom].USART_INT.SYNCBUSY.GetENABLE() {
+	chip.SERCOM_USART_INT[u.sercom].CTRLA.SetENABLE(false)
+	for chip.SERCOM_USART_INT[u.sercom].SYNCBUSY.GetENABLE() {
 	}
 
 	// Enabled the SERCOM in MCLK
@@ -141,66 +142,66 @@ func (u *UART) Configure(config Config) {
 	baud := ratio / 1000
 	fp := ((ratio - (baud * 1000)) * 8) / 1000
 
-	chip.SERCOM[u.sercom].USART_INT.CTRLA.SetSAMPR(chip.SERCOMUSART_INTCTRLASAMPRSelect16X_FRACTIONAL)
-	chip.SERCOM[u.sercom].USART_INT.BAUD.SetBAUD(uint16(baud))
-	chip.SERCOM[u.sercom].USART_INT.BAUD.SetFP(uint8(fp))
+	chip.SERCOM_USART_INT[u.sercom].CTRLA.SetSAMPR(chip.SERCOM_USART_INT_CTRLA_REG_SAMPR_16X_FRACTIONAL)
+	chip.SERCOM_USART_INT[u.sercom].BAUD.SetFRACFPBAUD(uint16(baud))
+	chip.SERCOM_USART_INT[u.sercom].BAUD.SetFRACFPFP(uint8(fp))
 
-	chip.SERCOM[u.sercom].USART_INT.CTRLA.SetMODE(chip.SERCOMUSART_INTCTRLAMODESelectUSART_INT_CLK)
-	chip.SERCOM[u.sercom].USART_INT.CTRLA.SetRXPO(chip.SERCOMUSART_INTCTRLARXPOSelect(rxPad))
+	chip.SERCOM_USART_INT[u.sercom].CTRLA.SetMODE(chip.SERCOM_USART_INT_CTRLA_REG_MODE_USART_INT_CLK)
+	chip.SERCOM_USART_INT[u.sercom].CTRLA.SetRXPO(chip.SERCOM_USART_INT_CTRLA_REG_RXPO(rxPad))
 	if config.XCK != 0 && config.RTS != 0 {
-		chip.SERCOM[u.sercom].USART_INT.CTRLA.SetTXPO(chip.SERCOMUSART_INTCTRLATXPOSelectPAD3)
+		chip.SERCOM_USART_INT[u.sercom].CTRLA.SetTXPO(chip.SERCOM_USART_INT_CTRLA_REG_TXPO_PAD3)
 	} else if config.RTS != 0 && config.CTS != 0 {
-		chip.SERCOM[u.sercom].USART_INT.CTRLA.SetTXPO(chip.SERCOMUSART_INTCTRLATXPOSelect(0x2))
+		chip.SERCOM_USART_INT[u.sercom].CTRLA.SetTXPO(chip.SERCOM_USART_INT_CTRLA_REG_TXPO_PAD2)
 	} else {
-		chip.SERCOM[u.sercom].USART_INT.CTRLA.SetTXPO(chip.SERCOMUSART_INTCTRLATXPOSelectPAD0)
+		chip.SERCOM_USART_INT[u.sercom].CTRLA.SetTXPO(chip.SERCOM_USART_INT_CTRLA_REG_TXPO_PAD0)
 	}
-	chip.SERCOM[u.sercom].USART_INT.CTRLA.SetDORD(chip.SERCOMUSART_INTCTRLADORDSelectLSB)
-	chip.SERCOM[u.sercom].USART_INT.CTRLA.SetCMODE(chip.SERCOMUSART_INTCTRLACMODESelectASYNC)
+	chip.SERCOM_USART_INT[u.sercom].CTRLA.SetDORD(chip.SERCOM_USART_INT_CTRLA_REG_DORD_LSB)
+	chip.SERCOM_USART_INT[u.sercom].CTRLA.SetCMODE(chip.SERCOM_USART_INT_CTRLA_REG_CMODE_ASYNC)
 
 	switch config.CharacterSize {
 	case 5:
-		chip.SERCOM[u.sercom].USART_INT.CTRLB.SetCHSIZE(chip.SERCOMUSART_INTCTRLBCHSIZESelect5_BIT)
+		chip.SERCOM_USART_INT[u.sercom].CTRLB.SetCHSIZE(chip.SERCOM_USART_INT_CTRLB_REG_CHSIZE_5_BIT)
 	case 6:
-		chip.SERCOM[u.sercom].USART_INT.CTRLB.SetCHSIZE(chip.SERCOMUSART_INTCTRLBCHSIZESelect6_BIT)
+		chip.SERCOM_USART_INT[u.sercom].CTRLB.SetCHSIZE(chip.SERCOM_USART_INT_CTRLB_REG_CHSIZE_6_BIT)
 	case 7:
-		chip.SERCOM[u.sercom].USART_INT.CTRLB.SetCHSIZE(chip.SERCOMUSART_INTCTRLBCHSIZESelect7_BIT)
+		chip.SERCOM_USART_INT[u.sercom].CTRLB.SetCHSIZE(chip.SERCOM_USART_INT_CTRLB_REG_CHSIZE_7_BIT)
 	case 8:
-		chip.SERCOM[u.sercom].USART_INT.CTRLB.SetCHSIZE(chip.SERCOMUSART_INTCTRLBCHSIZESelect8_BIT)
+		chip.SERCOM_USART_INT[u.sercom].CTRLB.SetCHSIZE(chip.SERCOM_USART_INT_CTRLB_REG_CHSIZE_8_BIT)
 	case 9:
-		chip.SERCOM[u.sercom].USART_INT.CTRLB.SetCHSIZE(chip.SERCOMUSART_INTCTRLBCHSIZESelect9_BIT)
+		chip.SERCOM_USART_INT[u.sercom].CTRLB.SetCHSIZE(chip.SERCOM_USART_INT_CTRLB_REG_CHSIZE_9_BIT)
 	default:
 		panic("invalid character size value")
 	}
-	for chip.SERCOM[u.sercom].USART_INT.SYNCBUSY.GetCTRLB() {
+	for chip.SERCOM_USART_INT[u.sercom].SYNCBUSY.GetCTRLB() {
 	}
 
-	chip.SERCOM[u.sercom].USART_INT.CTRLA.SetFORM(config.FrameFormat)
+	chip.SERCOM_USART_INT[u.sercom].CTRLA.SetFORM(config.FrameFormat)
 
 	switch config.NumStopBits {
 	case 1:
-		chip.SERCOM[u.sercom].USART_INT.CTRLB.SetSBMODE(chip.SERCOMUSART_INTCTRLBSBMODESelect1_BIT)
+		chip.SERCOM_USART_INT[u.sercom].CTRLB.SetSBMODE(chip.SERCOM_USART_INT_CTRLB_REG_SBMODE_1_BIT)
 	case 2:
-		chip.SERCOM[u.sercom].USART_INT.CTRLB.SetSBMODE(chip.SERCOMUSART_INTCTRLBSBMODESelect2_BIT)
+		chip.SERCOM_USART_INT[u.sercom].CTRLB.SetSBMODE(chip.SERCOM_USART_INT_CTRLB_REG_SBMODE_2_BIT)
 	default:
 		panic("invalid stop bits value")
 	}
-	for chip.SERCOM[u.sercom].USART_INT.SYNCBUSY.GetCTRLB() {
+	for chip.SERCOM_USART_INT[u.sercom].SYNCBUSY.GetCTRLB() {
 	}
 
 	if config.ReceiveEnabled {
-		chip.SERCOM[u.sercom].USART_INT.CTRLB.SetRXEN(true)
-		for chip.SERCOM[u.sercom].USART_INT.SYNCBUSY.GetCTRLB() {
+		chip.SERCOM_USART_INT[u.sercom].CTRLB.SetRXEN(true)
+		for chip.SERCOM_USART_INT[u.sercom].SYNCBUSY.GetCTRLB() {
 		}
 	}
 
 	if config.TransmitEnabled {
-		chip.SERCOM[u.sercom].USART_INT.CTRLB.SetTXEN(true)
-		for chip.SERCOM[u.sercom].USART_INT.SYNCBUSY.GetCTRLB() {
+		chip.SERCOM_USART_INT[u.sercom].CTRLB.SetTXEN(true)
+		for chip.SERCOM_USART_INT[u.sercom].SYNCBUSY.GetCTRLB() {
 		}
 	}
 
-	rx := internal.NewRingBuffer(config.RXBufferSize)
-	tx := internal.NewRingBuffer(config.TXBufferSize)
+	rx := ringbuffer.New(config.RXBufferSize)
+	tx := ringbuffer.New(config.TXBufferSize)
 
 	u.rxBuffer = rx
 	u.txBuffer = tx
@@ -208,43 +209,43 @@ func (u *UART) Configure(config Config) {
 
 	// Enable interrupts
 	irqBase := 46 + u.sercom*4
-	irq := atsamx51.Interrupt(irqBase)
+	irq := cortexm.Interrupt(irqBase)
 	irq.EnableIRQ()
-	chip.SERCOM[u.sercom].USART_INT.INTENSET.SetRXC(true)
+	chip.SERCOM_USART_INT[u.sercom].INTENSET.SetRXC(true)
 
 	// Enable the peripheral
-	chip.SERCOM[u.sercom].USART_INT.CTRLA.SetENABLE(true)
-	for chip.SERCOM[u.sercom].USART_INT.SYNCBUSY.GetENABLE() {
+	chip.SERCOM_USART_INT[u.sercom].CTRLA.SetENABLE(true)
+	for chip.SERCOM_USART_INT[u.sercom].SYNCBUSY.GetENABLE() {
 	}
 }
 
 func irqHandler() {
 	sercom := int(chip.SystemControl.ICSR.GetVECTACTIVE()-62) / 4
 	switch {
-	case chip.SERCOM[sercom].USART_INT.INTFLAG.GetRXC():
+	case chip.SERCOM_USART_INT[sercom].INTFLAG.GetRXC():
 		rxcHandler(sercom)
-	case chip.SERCOM[sercom].USART_INT.INTFLAG.GetDRE():
+	case chip.SERCOM_USART_INT[sercom].INTFLAG.GetDRE():
 		dreHandler(sercom)
 	}
 }
 
 func rxcHandler(sercom int) {
-	b := byte(chip.SERCOM[sercom].USART_INT.DATA.GetDATA())
+	b := byte(chip.SERCOM_USART_INT[sercom].DATA.GetDATA())
 	uart[sercom].rxBuffer.WriteByte(b)
 }
 
 func dreHandler(sercom int) {
 	for uart[sercom].txBuffer.Len() > 0 {
 		if b, err := uart[sercom].txBuffer.ReadByte(); err == nil {
-			for !chip.SERCOM[sercom].USART_INT.INTFLAG.GetDRE() {
+			for !chip.SERCOM_USART_INT[sercom].INTFLAG.GetDRE() {
 			}
-			chip.SERCOM[sercom].USART_INT.DATA.SetDATA(uint32(b))
+			chip.SERCOM_USART_INT[sercom].DATA.SetDATA(uint32(b))
 		} else {
 			// Stop if there was an error reading the next byte
 			break
 		}
 	}
-	chip.SERCOM[sercom].USART_INT.INTENCLR.SetDRE(true)
+	chip.SERCOM_USART_INT[sercom].INTENCLR.SetDRE(true)
 }
 
 func (u *UART) Read(p []byte) (n int, err error) {
@@ -257,7 +258,7 @@ func (u *UART) Write(p []byte) (n int, err error) {
 	n, err = u.txBuffer.Write(p)
 
 	// Enable the DRE interrupt that will write the bytes from the buffer
-	chip.SERCOM[u.sercom].USART_INT.INTENSET.SetDRE(true)
+	chip.SERCOM_USART_INT[u.sercom].INTENSET.SetDRE(true)
 	u.mutex.Unlock()
 	return
 }
@@ -268,7 +269,7 @@ func (u *UART) WriteString(s string) (n int, err error) {
 	n, err = u.txBuffer.WriteString(s)
 
 	// Enable the DRE interrupt that will write the bytes from the buffer
-	chip.SERCOM[u.sercom].USART_INT.INTENSET.SetDRE(true)
+	chip.SERCOM_USART_INT[u.sercom].INTENSET.SetDRE(true)
 	u.mutex.Unlock()
 	return
 }

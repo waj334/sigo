@@ -139,22 +139,22 @@ var (
 )
 
 func (p Pin) High() {
-	portgroup := chip.PORT[0xFF&(p>>8)]
+	portgroup := &chip.PORT.GROUP[0xFF&(p>>8)]
 	portgroup.OUT.SetOUT(1 << (p & 0xFF))
 }
 
 func (p Pin) Low() {
-	portgroup := chip.PORT[0xFF&(p>>8)]
+	portgroup := &chip.PORT.GROUP[0xFF&(p>>8)]
 	portgroup.OUTCLR.SetOUTCLR(1 << (p & 0xFF))
 }
 
 func (p Pin) Toggle() {
-	portgroup := chip.PORT[0xFF&(p>>8)]
+	portgroup := &chip.PORT.GROUP[0xFF&(p>>8)]
 	portgroup.OUTTGL.SetOUTTGL(1 << (p & 0xFF))
 }
 
 func (p Pin) Set(on bool) {
-	portgroup := chip.PORT[0xFF&(p>>8)]
+	portgroup := &chip.PORT.GROUP[0xFF&(p>>8)]
 	if on {
 		portgroup.OUTSET.SetOUTSET(1 << (p & 0xFF))
 	} else {
@@ -163,7 +163,7 @@ func (p Pin) Set(on bool) {
 }
 
 func (p Pin) Get() bool {
-	portgroup := chip.PORT[0xFF&(p>>8)]
+	portgroup := &chip.PORT.GROUP[0xFF&(p>>8)]
 	if (1<<(p&0xFF))&portgroup.DIR.GetDIR() == 0 {
 		// Is input. Return the input value.
 		return portgroup.IN.GetIN()&(1<<(p&0xFF)) != 0
@@ -185,7 +185,7 @@ func (p Pin) SetInterrupt(mode peripheral.PinIRQMode, handler func(Pin)) {
 	}
 
 	// Set up PMUX
-	portgroup := chip.PORT[0xFF&(p>>8)]
+	portgroup := &chip.PORT.GROUP[0xFF&(p>>8)]
 	pmux := int(p&0xFF) / 2
 	if (p&0xFF)%2 == 0 {
 		// Pin is odd numbered
@@ -207,7 +207,7 @@ func (p Pin) SetInterrupt(mode peripheral.PinIRQMode, handler func(Pin)) {
 	mask := (0x07 << (3 * (exint % 2))) << pos
 	configVal := (mode << (3 * (exint % 2))) << pos
 
-	chip.EIC.CONFIG[config] = (chip.EIC.CONFIG[config] & (^chip.EICCONFIG(mask))) | chip.EICCONFIG(configVal)
+	chip.EIC.CONFIG[config] = (chip.EIC.CONFIG[config] & (^chip.EIC_CONFIG_REG(mask))) | chip.EIC_CONFIG_REG(configVal)
 
 	// Enable the interrupt
 	chip.EIC.INTENSET |= 1 << exint
@@ -225,13 +225,13 @@ func (p Pin) SetInterrupt(mode peripheral.PinIRQMode, handler func(Pin)) {
 
 func (p Pin) SetPMUX(mode PMUXFunction, enabled bool) {
 	// Set up PMUX
-	portgroup := chip.PORT[0xFF&(p>>8)]
+	portgroup := &chip.PORT.GROUP[0xFF&(p>>8)]
 	pmux := int(p&0xFF) / 2
 	if (p&0xFF)%2 == 0 {
 		// Pin is odd numbered
-		portgroup.PMUX[pmux].SetPMUXE(chip.PORTPMUX0PMUXESelect(mode))
+		portgroup.PMUX[pmux].SetPMUXE(chip.PORT_PMUX_REG_PMUXE(mode))
 	} else {
-		portgroup.PMUX[pmux].SetPMUXO(chip.PORTPMUX0PMUXOSelect(mode))
+		portgroup.PMUX[pmux].SetPMUXO(chip.PORT_PMUX_REG_PMUXO(mode))
 	}
 	portgroup.PINCFG[p&0xFF].SetPMUXEN(enabled)
 }
@@ -244,7 +244,7 @@ func (p Pin) ClearInterrupt() {
 		chip.EIC.INTENCLR &= 1 << exint
 
 		// Disable PMUX
-		portgroup := chip.PORT[p>>8]
+		portgroup := &chip.PORT.GROUP[p>>8]
 		portgroup.PINCFG[p&0xFF].SetPMUXEN(false)
 
 		// Disable the interrupt in NVIC
@@ -257,7 +257,7 @@ func (p Pin) ClearInterrupt() {
 }
 
 func (p Pin) SetDirection(dir peripheral.PinDirection) {
-	portgroup := chip.PORT[0xFF&(p>>8)]
+	portgroup := &chip.PORT.GROUP[0xFF&(p>>8)]
 	if dir == Input {
 		portgroup.DIRCLR.SetDIRCLR(1 << (p & 0xFF))
 		portgroup.CTRL.SetSAMPLING(1 << (p & 0xFF))
@@ -268,7 +268,7 @@ func (p Pin) SetDirection(dir peripheral.PinDirection) {
 }
 
 func (p Pin) GetDirection() peripheral.PinDirection {
-	portgroup := chip.PORT[0xFF&(p>>8)]
+	portgroup := &chip.PORT.GROUP[0xFF&(p>>8)]
 	if (1<<(p&0xFF))&portgroup.DIR.GetDIR() == 0 {
 		return Output
 	}
@@ -276,7 +276,7 @@ func (p Pin) GetDirection() peripheral.PinDirection {
 }
 
 func (p Pin) SetPullMode(mode peripheral.PinPullMode) {
-	portgroup := chip.PORT[0xFF&(p>>8)]
+	portgroup := &chip.PORT.GROUP[0xFF&(p>>8)]
 	if (1<<(p&0xFF))&portgroup.DIR.GetDIR() == 0 {
 		if mode == PullDown {
 			p.Set(false)
@@ -294,20 +294,20 @@ func (p Pin) GetPullMode() peripheral.PinPullMode {
 	return 0
 }
 
-func (p Pin) GetSERCOM() int {
+func (p Pin) GetSERCOM() SERCOM {
 	s := int(p>>28) & 0x0F
 	if s == 0x0F && p != 0 {
 		return -1
 	}
-	return s
+	return SERCOM(s)
 }
 
-func (p Pin) GetAltSERCOM() int {
+func (p Pin) GetAltSERCOM() SERCOM {
 	s := int(p>>20) & 0x0F
 	if s == 0x0F && p != 0 {
 		return -1
 	}
-	return s
+	return SERCOM(s)
 }
 
 func (p Pin) GetPAD() int {

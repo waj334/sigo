@@ -63,13 +63,17 @@ func stringRange(it *stringIterator) (bool, int, rune) {
 		// Get the current position for the iterator. This will be returned.
 		i := it.index
 
-		// Get the rune value at the index in the string's backing array
 		// TODO: Support unicode characters
-		val := *(*rune)(unsafe.Add(it.str.array, i))
+		// Perform an 4-byte aligned read
+		val := *(*uint32)(unsafe.Add(it.str.array, 4*(i/4)))
+
+		// Get the rune value at the index in the string's backing array
+		// Shift to access the intended byte
+		val = (val >> (8 * (i % 4))) & 0xFF
 
 		// Advance the position for the next iteration and then return
 		it.index++
-		return true, i, val
+		return true, i, rune(val)
 	}
 }
 

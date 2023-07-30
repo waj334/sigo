@@ -1,24 +1,27 @@
-package SAM
+package svd
 
 import (
 	"fmt"
 	"go/format"
-	"golang.org/x/exp/slices"
 	"io"
-	"omibyte.io/sigo/cmd/svd-gen/generator"
-	"omibyte.io/sigo/cmd/svd-gen/svd"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"golang.org/x/exp/slices"
+
+	"omibyte.io/sigo/cmd/csp-gen/generator"
+	"omibyte.io/sigo/cmd/csp-gen/svd"
+	"omibyte.io/sigo/cmd/csp-gen/types"
 )
 
 type samgen struct {
-	device  svd.DeviceElement
+	device  *svd.DeviceElement
 	methods map[string][]string
 }
 
-func NewGenerator(device svd.DeviceElement) generator.Generator {
+func NewGenerator(device *svd.DeviceElement) generator.Generator {
 	return &samgen{
 		device:  device,
 		methods: map[string][]string{},
@@ -235,8 +238,8 @@ __isr_vector:
 `)
 
 	// Collect all the interrupts
-	interrupts := map[svd.Integer]svd.InterruptElement{}
-	irqMaxValue := svd.Integer(0)
+	interrupts := map[types.Integer]svd.InterruptElement{}
+	irqMaxValue := types.Integer(0)
 	for _, periph := range s.device.Peripherals.Elements {
 		for _, irq := range periph.Interrupts {
 			interrupts[irq.Value] = irq
@@ -247,7 +250,7 @@ __isr_vector:
 	}
 
 	// Fill the remainder of the vector table with the peripheral interrupt handlers
-	for i := svd.Integer(0); i < irqMaxValue; i++ {
+	for i := types.Integer(0); i < irqMaxValue; i++ {
 		if irq, ok := interrupts[i]; ok {
 			fmt.Fprintf(&w, "\t.long %s_Handler\n", irq.Name)
 		} else {
@@ -403,7 +406,7 @@ func (s *samgen) generatePeripheralStruct(periph svd.PeripheralElement) (string,
 	//peripheralName := cleanIdentifier(periph.Name)
 
 	fmt.Fprintln(&buf, "struct {")
-	offset := svd.Integer(0)
+	offset := types.Integer(0)
 
 	// Sort the registers
 	slices.SortStableFunc(periph.Registers.RegisterElements, func(a, b svd.RegisterElement) bool {
@@ -438,7 +441,7 @@ func (s *samgen) generatePeripheralStruct(periph svd.PeripheralElement) (string,
 			var clusterBuf strings.Builder
 			clusterName := cleanIdentifier(obj.Name)
 
-			count := svd.Integer(1)
+			count := types.Integer(1)
 			if obj.Count > 0 {
 				count = obj.Count
 			}
@@ -465,7 +468,7 @@ func (s *samgen) generatePeripheralStruct(periph svd.PeripheralElement) (string,
 				fmt.Fprintf(&clusterBuf, "type %s%s struct{\n", periph.Group, clusterName)
 			}
 
-			nestedOffset := svd.Integer(0)
+			nestedOffset := types.Integer(0)
 			for _, register := range obj.Registers {
 				// Append to existing type for alternative registers
 				if len(register.Alternative) > 0 {
@@ -518,7 +521,7 @@ func (s *samgen) generatePeripheralStruct(periph svd.PeripheralElement) (string,
 				registerImpls = append(registerImpls, registerImpl)
 			} else {
 				registerName := cleanIdentifier(obj.Name)
-				count := svd.Integer(1)
+				count := types.Integer(1)
 				if obj.Count > 0 {
 					count = obj.Count
 				}
@@ -684,7 +687,7 @@ func (s *samgen) generateEnumeratedValuesType(prefix string, ev svd.EnumeratedVa
 	return typename, buf.String()
 }
 
-func (s *samgen) typeForSize(size svd.Integer) string {
+func (s *samgen) typeForSize(size types.Integer) string {
 	switch {
 	case size <= 8:
 		return "uint8"
@@ -697,7 +700,7 @@ func (s *samgen) typeForSize(size svd.Integer) string {
 	}
 }
 
-func (s *samgen) storeForSize(size svd.Integer) string {
+func (s *samgen) storeForSize(size types.Integer) string {
 	switch {
 	case size <= 8:
 		return "volatile.StoreUint8"
@@ -710,7 +713,7 @@ func (s *samgen) storeForSize(size svd.Integer) string {
 	}
 }
 
-func (s *samgen) loadForSize(size svd.Integer) string {
+func (s *samgen) loadForSize(size types.Integer) string {
 	switch {
 	case size <= 8:
 		return "volatile.LoadUint8"
@@ -734,7 +737,7 @@ func (s *samgen) typeHasMethod(typename, method string) bool {
 	return false
 }
 
-func maxForSize(size svd.Integer) string {
+func maxForSize(size types.Integer) string {
 	switch size {
 	case 8:
 		return "0xFF"
@@ -747,7 +750,7 @@ func maxForSize(size svd.Integer) string {
 	}
 }
 
-func typeForBitWidth(width svd.Integer) string {
+func typeForBitWidth(width types.Integer) string {
 	/*switch width {
 	case 1:
 		return "bool"
@@ -767,8 +770,8 @@ func typeForBitWidth(width svd.Integer) string {
 	}
 }
 
-func allSet(bits svd.Integer) (result string) {
-	for i := svd.Integer(0); i < bits; i++ {
+func allSet(bits types.Integer) (result string) {
+	for i := types.Integer(0); i < bits; i++ {
 		result += "1"
 	}
 	result = "0b" + result

@@ -110,11 +110,12 @@ func (t _typeTable) index(i int) *_type {
 }
 
 type _funcType struct {
-	ptr     unsafe.Pointer
-	id      uint32
-	name    *string
-	args    *_typeTable
-	returns *_typeTable
+	ptr      unsafe.Pointer
+	id       uint32
+	name     *string
+	args     *_typeTable
+	returns  *_typeTable
+	receiver *_type
 }
 
 type _field struct {

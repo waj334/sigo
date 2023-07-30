@@ -81,7 +81,6 @@ func _entry() {
 	// Enable interrupts
 	EnableInterrupts(InterruptState())
 
-	// Loop forever
-	for {
-	}
+	// Schedule tasks
+	triggerPendSV()
 }

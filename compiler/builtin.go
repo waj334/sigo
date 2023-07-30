@@ -76,7 +76,7 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 		// Create an array of interfaces to pass to the print runtime calls
 		argType := c.createRuntimeType(ctx, "_interface").valueType
 		if argType == nil {
-			panic("missing \"interface\" type")
+			panic(`missing "interface" type`)
 		}
 
 		// Convert each argument into an interface
@@ -86,22 +86,21 @@ func (c *Compiler) createBuiltinCall(ctx context.Context, builtin *ssa.Builtin, 
 			elements = append(elements, argValue)
 		}
 
-		arg := c.createArrayAlloca(ctx, argType, uint64(len(elements)), "")
+		arr := c.createArrayAlloca(ctx, argType, uint64(len(elements)), "")
 		for i, _ := range args {
 			index := llvm.ConstInt(llvm.Int32TypeInContext(c.currentContext(ctx)), uint64(i), false)
-			addr := llvm.BuildGEP2(c.builder, argType, arg, []llvm.LLVMValueRef{index}, "")
+			addr := llvm.BuildGEP2(c.builder, argType, arr, []llvm.LLVMValueRef{index}, "")
 			llvm.BuildStore(c.builder, elements[i], addr)
 		}
 
-		// Slice the array
-		arg = c.createSlice(ctx, arg, argType, uint64(len(args)),
-			llvm.ConstInt(llvm.Int32TypeInContext(c.currentContext(ctx)), 0, false),
-			llvm.ConstInt(llvm.Int32TypeInContext(c.currentContext(ctx)), uint64(len(elements)), false),
-			nil,
-		)
+		// Create the print args slice
+		sliceType := c.createRuntimeType(ctx, "_slice")
+		argsSlice := llvm.BuildInsertValue(c.builder, sliceType.Undef(), arr, 0, "")
+		argsSlice = llvm.BuildInsertValue(c.builder, argsSlice, llvm.ConstInt(c.int32Type(ctx), uint64(len(elements)), false), 1, "")
+		argsSlice = llvm.BuildInsertValue(c.builder, argsSlice, llvm.ConstInt(c.int32Type(ctx), uint64(len(elements)), false), 2, "")
 
 		// Create a runtime call to either print or println
-		value = c.createRuntimeCall(ctx, "_"+builtin.Name(), []llvm.LLVMValueRef{arg})
+		value = c.createRuntimeCall(ctx, "_"+builtin.Name(), []llvm.LLVMValueRef{argsSlice})
 	case "real":
 		panic("not implemented")
 	case "recover":

@@ -1,7 +1,10 @@
 package atsamx51
 
-import "runtime/arm/cortexm/sam/chip"
-import "peripheral"
+import (
+	"peripheral"
+	"runtime/arm/cortexm"
+	"runtime/arm/cortexm/sam/chip"
+)
 
 type Pin uint32
 
@@ -296,7 +299,7 @@ func (p Pin) SetInterrupt(mode peripheral.PinIRQMode, handler func(Pin)) {
 	mask := (0x07 << (3 * (exint % 2))) << pos
 	configVal := (mode << (3 * (exint % 2))) << pos
 
-	chip.EIC.CONFIG[config] = (chip.EIC.CONFIG[config] & (^chip.EICCONFIG(mask))) | chip.EICCONFIG(configVal)
+	chip.EIC.CONFIG[config] = (chip.EIC.CONFIG[config] & (^chip.EIC_CONFIG_REG(mask))) | chip.EIC_CONFIG_REG(configVal)
 
 	// Enable the interrupt
 	chip.EIC.INTENSET |= 1 << exint
@@ -307,7 +310,7 @@ func (p Pin) SetInterrupt(mode peripheral.PinIRQMode, handler func(Pin)) {
 	}
 
 	// Enable the interrupt in NVIC
-	irq := Interrupt(12 + exint)
+	irq := cortexm.Interrupt(12 + exint)
 	//irq.SetPriority(0xC0)
 	irq.EnableIRQ()
 }
@@ -318,9 +321,9 @@ func (p Pin) SetPMUX(mode PMUXFunction, enabled bool) {
 	pmux := int(p&0xFF) / 2
 	if (p&0xFF)%2 == 0 {
 		// Pin is odd numbered
-		portgroup.PMUX[pmux].SetPMUXE(uint8(mode))
+		portgroup.PMUX[pmux].SetPMUXE(chip.PORT_PMUX_REG_PMUXE(mode))
 	} else {
-		portgroup.PMUX[pmux].SetPMUXO(uint8(mode))
+		portgroup.PMUX[pmux].SetPMUXO(chip.PORT_PMUX_REG_PMUXO(mode))
 	}
 	portgroup.PINCFG[p&0xFF].SetPMUXEN(enabled)
 }
@@ -337,7 +340,7 @@ func (p Pin) ClearInterrupt() {
 		portgroup.PINCFG[p&0xFF].SetPMUXEN(false)
 
 		// Disable the interrupt in NVIC
-		irq := Interrupt(12 + exint)
+		irq := cortexm.Interrupt(12 + exint)
 		irq.DisableIRQ()
 
 		handlerFuncs[exint] = nil

@@ -42,10 +42,16 @@ type _task struct {
 //go:export initTask runtime.initTask
 func initTask(taskPtr unsafe.Pointer) {
 	task := (*_task)(taskPtr)
-	estack := (*exceptionStack)(unsafe.Add(task.stack, *_goroutineStackSize-unsafe.Sizeof(exceptionStack{})))
+	stackSize := *_goroutineStackSize
+
+	// The stack grows from the highest address to the lowest address on Cortex-M.
+	offset := stackSize - unsafe.Sizeof(exceptionStack{})
+
+	// Calculate the top of the stack past the registers
+	estack := (*exceptionStack)(unsafe.Add(task.stack, offset))
 
 	// NOTE: The THUMB bit must be set!
-	// TODO: This isn't available for Cortex-M0
+	// TODO: This isn't available for Cortex-M0 (excluding Cortex-M0+)
 	estack.PSR = 0x01000000
 
 	// Set up the call to _task_start

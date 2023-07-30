@@ -24,6 +24,7 @@ type (
 
 type Function struct {
 	value      llvm.LLVMValueRef
+	wrapperFn  llvm.LLVMValueRef
 	deferTop   llvm.LLVMValueRef
 	llvmType   llvm.LLVMTypeRef
 	stateType  llvm.LLVMTypeRef
@@ -603,16 +604,17 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 				signature := instr.Call.Method.Type().(*types.Signature)
 
 				// Look up the function to be called
-				fnPtr = c.createRuntimeCall(ctx, "interfaceLookUp", []llvm.LLVMValueRef{
+				result := c.createRuntimeCall(ctx, "interfaceLookUp", []llvm.LLVMValueRef{
 					interfaceValue,
 					llvm.ConstInt(llvm.Int32TypeInContext(
 						c.currentContext(ctx)), uint64(c.computeFunctionHash(instr.Call.Method)), false),
 				})
 
-				// Load the value pointer from the interface
-				valuePtr := llvm.BuildExtractValue(c.builder, interfaceValue, 1, "")
+				receiverPtr := llvm.BuildExtractValue(c.builder, result, 0, "interface_call_extract_receiver")
+				fnPtr = llvm.BuildExtractValue(c.builder, result, 1, "interface_call_extract_fn_ptr")
+
 				args = c.createValues(ctx, instr.Call.Args).Ref(ctx)
-				args = append([]llvm.LLVMValueRef{valuePtr}, args...)
+				args = append([]llvm.LLVMValueRef{receiverPtr}, args...)
 
 				// Create a new closure
 				closureContextType = c.createClosureContextType(ctx, signature)
@@ -656,7 +658,30 @@ func (c *Compiler) createInstruction(ctx context.Context, instr ssa.Instruction)
 			closure = c.createClosure(ctx, value.Fn.(*ssa.Function).Signature, closureContextType, true)
 			args = append(c.createValues(ctx, instr.Call.Args).Ref(ctx), state)
 		default:
-			panic("unhandled")
+			if instr.Call.IsInvoke() {
+				// This is an interface call
+				interfaceValue := c.createExpression(ctx, value).UnderlyingValue(ctx)
+				signature := instr.Call.Method.Type().(*types.Signature)
+
+				// Look up the function to be called
+				result := c.createRuntimeCall(ctx, "interfaceLookUp", []llvm.LLVMValueRef{
+					interfaceValue,
+					llvm.ConstInt(llvm.Int32TypeInContext(
+						c.currentContext(ctx)), uint64(c.computeFunctionHash(instr.Call.Method)), false),
+				})
+
+				receiverPtr := llvm.BuildExtractValue(c.builder, result, 0, "interface_call_extract_receiver")
+				fnPtr = llvm.BuildExtractValue(c.builder, result, 1, "interface_call_extract_fn_ptr")
+
+				args = c.createValues(ctx, instr.Call.Args).Ref(ctx)
+				args = append([]llvm.LLVMValueRef{receiverPtr}, args...)
+
+				// Create a new closure
+				closureContextType = c.createClosureContextType(ctx, signature)
+				closure = c.createClosure(ctx, signature, closureContextType, true)
+			} else {
+				panic("unhandled")
+			}
 		}
 
 		llvm.AddAttributeAtIndex(closure, uint(llvm.AttributeFunctionIndex), c.getAttribute(ctx, "optnone", 0))
@@ -861,7 +886,7 @@ func (c *Compiler) createRuntimeCall(ctx context.Context, name string, args []ll
 	for i, t := range llvm.GetParamTypes(fnType) {
 		argType := llvm.TypeOf(args[i])
 		if !llvm.TypeIsEqual(argType, t) {
-			println("runtime.", name)
+			println("runtime:", name)
 			println("expected: ", llvm.PrintTypeToString(t))
 			println("actual: ", llvm.PrintTypeToString(argType))
 			panic("argument type " + strconv.Itoa(i) + " does not match")
@@ -937,9 +962,32 @@ func (c *Compiler) CreateInitLib(llctx llvm.LLVMContextRef, pkgs []*ssa.Package)
 	llvm.BuildRetVoid(c.builder)
 
 	// Create goroutine stack size constant
-	constGoroutineStackSize := llvm.ConstInt(c.uintptrType.valueType, c.options.GoroutineStackSize, false)
+	layoutStr := llvm.CopyStringRepOfTargetData(c.options.Target.dataLayout)
+	stackAlignment, err := getStackAlignment(layoutStr)
+	if err != nil {
+		// Default to 8-byte alignment
+		stackAlignment = 8
+	}
+	constGoroutineStackSize := llvm.ConstInt(c.uintptrType.valueType, align(c.options.GoroutineStackSize, stackAlignment), false)
 	globalGoroutineStackSize := llvm.AddGlobal(c.module, llvm.TypeOf(constGoroutineStackSize), "runtime._goroutineStackSize")
+	llvm.SetAlignment(globalGoroutineStackSize, llvm.PreferredAlignmentOfGlobal(c.options.Target.dataLayout, globalGoroutineStackSize))
 	llvm.SetInitializer(globalGoroutineStackSize, constGoroutineStackSize)
 	llvm.SetLinkage(globalGoroutineStackSize, llvm.ExternalLinkage)
 	llvm.SetGlobalConstant(globalGoroutineStackSize, true)
+}
+
+func getStackAlignment(dataLayoutStr string) (uint64, error) {
+	stackAlignStr := strings.Split(dataLayoutStr, "-S")
+	if len(stackAlignStr) < 2 {
+		return 0, fmt.Errorf("stack alignment not found in data layout string")
+	}
+	stackAlign, err := strconv.Atoi(stackAlignStr[1])
+	if err != nil {
+		return 0, fmt.Errorf("error parsing stack alignment: %w", err)
+	}
+	return uint64(stackAlign), nil
+}
+
+func align(n uint64, m uint64) uint64 {
+	return n + (n % m)
 }

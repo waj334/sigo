@@ -1,6 +1,9 @@
 package atsamx51
 
-import "runtime/arm/cortexm/sam/chip"
+import (
+	"runtime/arm/cortexm"
+	"runtime/arm/cortexm/sam/chip"
+)
 
 type SERCOM int
 type SERCOMHandler func()
@@ -131,20 +134,26 @@ func (s SERCOM) BaudFP(hz uint) (uint16, uint8) {
 	return uint16(baud), uint8(fp)
 }
 
-func (s SERCOM) Irq0() Interrupt {
-	irqBase := 46 + s*4
-	return Interrupt(irqBase)
+func (s SERCOM) Synchronize() {
+	for chip.SERCOM_I2CM[s].SYNCBUSY.GetENABLE() {
+		// Wait for SERCOM sync
+	}
 }
 
-func (s SERCOM) Irq1() Interrupt {
+func (s SERCOM) Irq0() cortexm.Interrupt {
+	irqBase := 46 + s*4
+	return cortexm.Interrupt(irqBase)
+}
+
+func (s SERCOM) Irq1() cortexm.Interrupt {
 	return s.Irq0() + 1
 }
 
-func (s SERCOM) Irq2() Interrupt {
+func (s SERCOM) Irq2() cortexm.Interrupt {
 	return s.Irq0() + 2
 }
 
-func (s SERCOM) IrqMisc() Interrupt {
+func (s SERCOM) IrqMisc() cortexm.Interrupt {
 	return s.Irq0() + 3
 }
 
