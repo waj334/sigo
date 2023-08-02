@@ -1,4 +1,6 @@
-package peripheral
+//go:build generic
+
+package i2c
 
 import "io"
 

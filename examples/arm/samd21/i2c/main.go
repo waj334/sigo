@@ -1,15 +1,12 @@
-//sigo:architecture arm
-//sigo:cpu cortex-m0
-//sigo:triple armv6m-none-eabi
-//sigo:features
+//go:build samd21
 
-package i2c
+package main
 
 import (
-	mcu "runtime/arm/cortexm/sam/atsamd21"
-	i2c "runtime/arm/cortexm/sam/atsamd21/i2c/host"
-	"runtime/arm/cortexm/sam/atsamd21/uart"
-	_ "runtime/arm/cortexm/sam/chip/atsamd21g18a"
+	"peripheral/i2c"
+	"peripheral/pin"
+	"peripheral/uart"
+	mcu "runtime/arm/cortexm/sam/samd21"
 	"time"
 )
 
@@ -24,8 +21,8 @@ func main() {
 
 	// Configure UART
 	UART.Configure(uart.Config{
-		TXD:             mcu.PB22,
-		RXD:             mcu.PB23,
+		TXD:             pin.PB22,
+		RXD:             pin.PB23,
 		FrameFormat:     uart.UsartFrame,
 		BaudHz:          115_200,
 		CharacterSize:   8,
@@ -36,8 +33,8 @@ func main() {
 
 	// Configure the I2C host
 	if err := I2C.Configure(i2c.Config{
-		SDA:          mcu.PA22,
-		SCL:          mcu.PA23,
+		SDA:          pin.PA22,
+		SCL:          pin.PA23,
 		ClockSpeedHz: 100_000,
 		MasterCode:   i2c.MasterCode1,
 		Speed:        i2c.StandardAndFastMode,

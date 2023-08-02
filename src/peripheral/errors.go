@@ -5,4 +5,5 @@ import "errors"
 var (
 	ErrInvalidPinout = errors.New("invalid pinout")
 	ErrInvalidConfig = errors.New("invalid configuration")
+	ErrInvalidBuffer = errors.New("invalid buffer")
 )

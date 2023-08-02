@@ -1,10 +1,12 @@
-package peripheral
+//go:build generic
+
+package spi
 
 import "io"
 
 type SPI interface {
 	io.ReadWriter
-	Transact(b []byte) []byte
+	Transact(rx []byte, tx []byte) error
 	Select()
 	Deselect()
 }

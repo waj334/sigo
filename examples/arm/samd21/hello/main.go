@@ -1,16 +1,12 @@
-//sigo:architecture arm
-//sigo:cpu cortex-m0
-//sigo:triple armv6m-none-eabi
-//sigo:features
+//go:build samd21
 
 package main
 
 import (
+	"peripheral/pin"
+	"peripheral/uart"
+	mcu "runtime/arm/cortexm/sam/samd21"
 	"time"
-
-	mcu "runtime/arm/cortexm/sam/atsamd21"
-	"runtime/arm/cortexm/sam/atsamd21/uart"
-	_ "runtime/arm/cortexm/sam/chip/atsamd21g18a"
 )
 
 var (
@@ -20,8 +16,8 @@ var (
 func initMCU() {
 	mcu.DefaultClocks()
 	UART.Configure(uart.Config{
-		TXD:             mcu.PB22,
-		RXD:             mcu.PB23,
+		TXD:             pin.PB22,
+		RXD:             pin.PB23,
 		FrameFormat:     uart.UsartFrame,
 		BaudHz:          115_200,
 		CharacterSize:   8,

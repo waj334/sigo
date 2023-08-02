@@ -1,19 +1,15 @@
-//sigo:architecture arm
-//sigo:cpu cortex-m0
-//sigo:triple armv6m-none-eabi
-//sigo:features
+//go:build samd21
 
 package main
 
 import (
+	"peripheral/pin"
+	mcu "runtime/arm/cortexm/sam/samd21"
 	"time"
-
-	mcu "runtime/arm/cortexm/sam/atsamd21"
-	_ "runtime/arm/cortexm/sam/chip/atsamd21g18a"
 )
 
 var (
-	LED = mcu.PA17
+	LED = pin.PA17
 )
 
 func initMCU() {
@@ -23,7 +19,7 @@ func initMCU() {
 func main() {
 	initMCU()
 
-	LED.SetDirection(mcu.Output)
+	LED.SetDirection(pin.Output)
 	LED.Set(true)
 
 	blinkChan := make(chan struct{})

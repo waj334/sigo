@@ -6,6 +6,18 @@ import (
 	"strings"
 )
 
+type TargetInfo struct {
+	Series       string   `yaml:"series"`
+	Chips        []string `yaml:"chips"`
+	ChipPackage  string   `yaml:"chipPackage"`
+	Cpu          string   `yaml:"cpu"`
+	Architecture string   `yaml:"architecture"`
+	Triple       string   `yaml:"triple"`
+	Tags         []string `yaml:"tags"`
+	Features     []string `yaml:"features"`
+	Float        string   `yaml:"float"`
+}
+
 type Target struct {
 	architecture string
 	cpu          string
@@ -28,6 +40,30 @@ func NewTargetFromMap(info map[string]string) (*Target, error) {
 	if features, ok := info["features"]; ok {
 		target.features = strings.Split(features, ",")
 	}
+
+	// architecture, cpu and triple are required values
+	if len(target.architecture) == 0 {
+		return nil, ErrTargetMissingArchitecture
+	}
+
+	if len(target.cpu) == 0 {
+		return nil, ErrTargetMissingCpu
+	}
+
+	if len(target.triple) == 0 {
+		return nil, ErrTargetMissingTriple
+	}
+
+	return &target, nil
+}
+
+func NewTarget(info TargetInfo, additionalFeatures []string) (*Target, error) {
+	var target Target
+
+	target.architecture = info.Architecture
+	target.cpu = info.Cpu
+	target.triple = info.Triple
+	target.features = append(info.Features, additionalFeatures...)
 
 	// architecture, cpu and triple are required values
 	if len(target.architecture) == 0 {

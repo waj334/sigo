@@ -1,9 +1,12 @@
-package host
+//go:build samd21 && !generic
+
+package spi
 
 import (
-	"runtime/arm/cortexm/sam/atsamd21"
+	"peripheral"
+	"peripheral/pin"
 	"runtime/arm/cortexm/sam/chip"
-	"runtime/ringbuffer"
+	"runtime/arm/cortexm/sam/samd21"
 	"sync"
 )
 
@@ -43,19 +46,32 @@ const (
 	errStrInvalidPin = "(SPI): invalid pin configuration"
 )
 
+const (
+	stateIdle uint8 = iota
+	stateReading
+	stateWriting
+	stateTransacting
+	stateDone
+)
+
 type SPI struct {
-	atsamd21.SERCOM
-	config   Config
-	txBuffer ringbuffer.RingBuffer
-	rxBuffer ringbuffer.RingBuffer
-	mutex    sync.Mutex
+	samd21.SERCOM
+	cs         pin.Pin
+	hardwareCS bool
+	mutex      sync.Mutex
+
+	rxBuffer []byte
+	txBuffer []byte
+	busMutex sync.Mutex
+	nbytes   int
+	state    uint8
 }
 
 type Config struct {
-	DI  atsamd21.Pin
-	DO  atsamd21.Pin
-	SCK atsamd21.Pin
-	CS  atsamd21.Pin
+	DI  pin.Pin
+	DO  pin.Pin
+	SCK pin.Pin
+	CS  pin.Pin
 
 	BaudHz         uint
 	CharacterSize  uint8
@@ -66,9 +82,6 @@ type Config struct {
 	Phase          chip.SERCOM_SPIM_CTRLA_REG_CPHA
 	Polarity       chip.SERCOM_SPIM_CTRLA_REG_CPOL
 	ReceiveEnabled bool
-
-	RXBufferSize uintptr
-	TXBufferSize uintptr
 }
 
 func spiValidateDIPO(do, sck, cs int, mssen bool) (dopo chip.SERCOM_SPIM_CTRLA_REG_DOPO, ok bool) {
@@ -112,7 +125,7 @@ func spiValidateDIPO(do, sck, cs int, mssen bool) (dopo chip.SERCOM_SPIM_CTRLA_R
 }
 
 func (s *SPI) Configure(config Config) {
-	var mode atsamd21.PMUXFunction
+	var mode pin.PMUXFunction
 	var doPad chip.SERCOM_SPIM_CTRLA_REG_DOPO
 	var diPad chip.SERCOM_SPIM_CTRLA_REG_DIPO
 	alt := false
@@ -127,7 +140,7 @@ func (s *SPI) Configure(config Config) {
 		panic(errStrInvalidPin)
 	}
 
-	if config.DI == atsamd21.NoPin ||
+	if config.DI == pin.NoPin ||
 		config.DI == config.CS ||
 		config.DI == config.DO ||
 		config.DI == config.SCK {
@@ -193,62 +206,139 @@ func (s *SPI) Configure(config Config) {
 		chip.SERCOM_SPIM[s.SERCOM].CTRLB.SetCHSIZE(chip.SERCOM_SPIM_CTRLB_REG_CHSIZE_8_BIT)
 	}
 
-	// Set up buffers
-	rx := ringbuffer.New(config.RXBufferSize)
-	tx := ringbuffer.New(config.TXBufferSize)
-
-	s.rxBuffer = rx
-	s.txBuffer = tx
-
 	// Set the interrupt handler
 	s.SetHandler(irqHandler)
 
 	// Enable interrupts
 	s.Irq().EnableIRQ()
-	chip.SERCOM_SPIM[s.SERCOM].INTENSET.SetRXC(true)
 
 	// Enable the peripheral
 	chip.SERCOM_SPIM[s.SERCOM].CTRLA.SetENABLE(true)
 	for chip.SERCOM_SPIM[s.SERCOM].SYNCBUSY.GetENABLE() {
 	}
 
-	s.config = config
+	s.cs = config.CS
+	s.hardwareCS = config.HardwareSelect
+
+	// Lock the bus mutex
+	s.busMutex.Lock()
 }
 
 func (s *SPI) Read(p []byte) (n int, err error) {
-	return s.rxBuffer.Read(p)
-}
-
-func (s *SPI) Write(p []byte) (n int, err error) {
 	s.mutex.Lock()
-	// Write the string to the TX buffer
-	n, err = s.txBuffer.Write(p)
 
-	// Enable the DRE interrupt that will write the bytes from the buffer
-	chip.SERCOM_SPIM[s.SERCOM].INTENSET.SetDRE(true)
+	// Set up the transaction
+	s.rxBuffer = p
+	s.state = stateReading
+
+	// Enable receive interrupt so the incoming data can be written to the RX buffer
+	chip.SERCOM_SPIM[s.SERCOM].INTENSET.SetRXC(true)
+
+	// Write a byte to the DATA register to begin the transactions
+	chip.SERCOM_SPIM[s.SERCOM].DATA.SetDATA(0)
+
+	s.busMutex.Lock()
+
+	// ...
+	// Wait for transactions to complete
+	// ...
+
+	// Disable the receive interrupt since the RX buffer will be unset
+	chip.SERCOM_SPIM[s.SERCOM].INTENSET.SetRXC(false)
+
+	// Reset the state
+	s.state = stateIdle
+	s.rxBuffer = nil
+
+	n = s.nbytes
+	s.nbytes = 0
+
 	s.mutex.Unlock()
 	return
 }
 
-func (s *SPI) Transact(b []byte) []byte {
-	//TODO implement me
-	panic("implement me")
+func (s *SPI) Write(p []byte) (n int, err error) {
+	s.mutex.Lock()
+
+	// Set up the transaction
+	s.txBuffer = p
+	s.state = stateWriting
+
+	// Enable the DRE interrupt that will write the bytes from the buffer
+	chip.SERCOM_SPIM[s.SERCOM].INTENSET.SetDRE(true)
+
+	s.busMutex.Lock()
+
+	// ...
+	// Wait for transactions to complete
+	// ...
+
+	// Disable the DRE interrupt since the TX buffer will be unset
+	chip.SERCOM_SPIM[s.SERCOM].INTENSET.SetDRE(false)
+
+	// Reset the state
+	s.state = stateIdle
+	s.txBuffer = nil
+
+	n = s.nbytes
+	s.nbytes = 0
+
+	s.mutex.Unlock()
+	return
+}
+
+func (s *SPI) Transact(rx []byte, tx []byte) error {
+	// The length of the buffers must match
+	if len(rx) != len(tx) {
+		// TODO: Wrap this error adding a more specific error message
+		return peripheral.ErrInvalidBuffer
+	}
+
+	s.mutex.Lock()
+
+	// Set up the transaction
+	s.rxBuffer = rx
+	s.txBuffer = tx
+	s.state = stateTransacting
+
+	// Enable both the RXC and DRE buffer so that bytes can be transmitted and received at the same time
+	chip.SERCOM_SPIM[s.SERCOM].INTENSET.SetDRE(true)
+	chip.SERCOM_SPIM[s.SERCOM].INTENSET.SetRXC(true)
+
+	s.busMutex.Lock()
+
+	// ...
+	// Wait for transactions to complete
+	// ...
+
+	// Disable both the RXC and DRE interrupts
+	chip.SERCOM_SPIM[s.SERCOM].INTENSET.SetDRE(false)
+	chip.SERCOM_SPIM[s.SERCOM].INTENSET.SetRXC(true)
+
+	// Reset the state
+	s.state = stateIdle
+	s.txBuffer = nil
+	s.rxBuffer = nil
+	s.nbytes = 0
+
+	s.mutex.Unlock()
+	return nil
 }
 
 func (s *SPI) Select() {
-	if !s.config.HardwareSelect {
-		s.config.CS.Set(false)
+	if !s.hardwareCS {
+		s.cs.Set(false)
 	}
 }
 
 func (s *SPI) Deselect() {
-	if !s.config.HardwareSelect {
-		s.config.CS.Set(true)
+	if !s.hardwareCS {
+		s.cs.Set(true)
 	}
 }
 
 func irqHandler() {
-	sercom := int(chip.SystemControl.ICSR.GetVECTACTIVE()-16) - int(atsamd21.IRQ_SERCOM0)
+	sercom := int(chip.SystemControl.ICSR.GetVECTACTIVE()-16) - int(samd21.IRQ_SERCOM0)
 	switch {
 	case chip.SERCOM_SPIM[sercom].INTFLAG.GetRXC():
 		rxcHandler(sercom)
@@ -258,20 +348,65 @@ func irqHandler() {
 }
 
 func rxcHandler(sercom int) {
-	b := byte(chip.SERCOM_SPIM[sercom].DATA.GetDATA())
-	spi[sercom].rxBuffer.WriteByte(b)
+	s := spi[sercom]
+
+	if s.state == stateDone {
+		return
+	}
+
+	if s.nbytes < len(s.rxBuffer) {
+		// Receive the incoming byte
+		b := byte(chip.SERCOM_SPIM[sercom].DATA.GetDATA())
+		s.rxBuffer[s.nbytes] = b
+	}
+
+	if s.state == stateReading {
+		// NOTE: This increment is placed inside of this if-statement block to prevent interfering with transactions
+		//       where transmitting is driving the state.
+		s.nbytes++
+
+		if s.nbytes < len(s.rxBuffer) {
+			// Write another byte to the data register in order to read the next byte
+			chip.SERCOM_SPIM[sercom].DATA.SetDATA(0)
+		} else {
+			// Release the bus lock
+			chip.SERCOM_SPIM[sercom].INTENCLR.SetRXC(true)
+
+			s.state = stateDone
+			s.busMutex.Unlock()
+		}
+	} else if s.state == stateTransacting {
+		if s.nbytes >= len(s.txBuffer) {
+			chip.SERCOM_SPIM[sercom].INTENCLR.SetRXC(true)
+
+			s.state = stateDone
+			s.busMutex.Unlock()
+		}
+	}
 }
 
 func dreHandler(sercom int) {
-	for spi[sercom].txBuffer.Len() > 0 {
-		if b, err := spi[sercom].txBuffer.ReadByte(); err == nil {
-			for !chip.SERCOM_SPIM[sercom].INTFLAG.GetDRE() {
-			}
-			chip.SERCOM_SPIM[sercom].DATA.SetDATA(uint16(b))
-		} else {
-			// Stop if there was an error reading the next byte
-			break
+	s := spi[sercom]
+
+	if s.state == stateDone {
+		return
+	}
+
+	if s.nbytes < len(s.txBuffer) {
+		// Transmit the outgoing byte
+		b := s.txBuffer[s.nbytes]
+		chip.SERCOM_SPIM[sercom].DATA.SetDATA(uint16(b))
+		s.nbytes++
+	}
+
+	if s.nbytes >= len(s.txBuffer) {
+		// Disable this interrupt
+		chip.SERCOM_SPIM[sercom].INTENCLR.SetDRE(true)
+
+		if s.state == stateWriting {
+			s.state = stateDone
+			s.busMutex.Unlock()
 		}
 	}
-	chip.SERCOM_SPIM[sercom].INTENCLR.SetDRE(true)
+	// NOTE: The transaction is complete when the last byte is received when the state is stateTransacting
 }

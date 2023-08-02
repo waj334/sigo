@@ -184,7 +184,7 @@ __isr_vector:
 	}
 
 	// Write the contents to the file
-	f, err := os.Create(filepath.Join(out, "__isr_vector.s"))
+	f, err := os.Create(filepath.Join(out, "isr-vector.s"))
 	if err != nil {
 		return err
 	}

@@ -1,4 +1,4 @@
-package atsamx51
+package samx51
 
 import "runtime/arm/cortexm"
 

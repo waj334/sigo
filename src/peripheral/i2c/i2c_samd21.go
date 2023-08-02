@@ -1,10 +1,13 @@
-package host
+//go:build samd21 && !generic
+
+package i2c
 
 import (
 	"errors"
 	"peripheral"
-	"runtime/arm/cortexm/sam/atsamd21"
+	"peripheral/pin"
 	"runtime/arm/cortexm/sam/chip"
+	"runtime/arm/cortexm/sam/samd21"
 	"sync"
 )
 
@@ -81,7 +84,7 @@ var (
 )
 
 type I2C struct {
-	atsamd21.SERCOM
+	samd21.SERCOM
 	address    uint16
 	mutex      sync.Mutex
 	busMutex   sync.Mutex
@@ -94,10 +97,10 @@ type I2C struct {
 }
 
 type Config struct {
-	SDA     atsamd21.Pin
-	SCL     atsamd21.Pin
-	SDA_OUT atsamd21.Pin
-	SCL_OUT atsamd21.Pin
+	SDA     pin.Pin
+	SCL     pin.Pin
+	SDA_OUT pin.Pin
+	SCL_OUT pin.Pin
 
 	ClockSpeedHz uint32
 	MasterCode   MasterCode
@@ -124,11 +127,11 @@ func (c *Config) validate() bool {
 		return false
 	}
 
-	if c.SDA_OUT != atsamd21.NoPin && c.SDA_OUT.GetPAD() != 2 && c.SDA_OUT.GetAltPAD() != 2 {
+	if c.SDA_OUT != pin.NoPin && c.SDA_OUT.GetPAD() != 2 && c.SDA_OUT.GetAltPAD() != 2 {
 		return false
 	}
 
-	if c.SCL_OUT != atsamd21.NoPin && c.SCL_OUT.GetPAD() != 3 && c.SCL_OUT.GetAltPAD() != 3 {
+	if c.SCL_OUT != pin.NoPin && c.SCL_OUT.GetPAD() != 3 && c.SCL_OUT.GetAltPAD() != 3 {
 		return false
 	}
 
@@ -143,37 +146,37 @@ func (i *I2C) Configure(config Config) error {
 
 	// Calculate the baud
 	var baudLow, baudHigh uint32
-	baudLow, baudHigh, ok := CalculateBaudValue(atsamd21.SERCOM_REF_FREQUENCY, config.ClockSpeedHz)
+	baudLow, baudHigh, ok := CalculateBaudValue(samd21.SERCOM_REF_FREQUENCY, config.ClockSpeedHz)
 	if !ok {
 		return peripheral.ErrInvalidConfig
 	}
 
 	// Set pin configurations
 	if config.SDA.GetPAD() == 0 {
-		config.SDA.SetPMUX(atsamd21.PMUXFunctionC, true)
+		config.SDA.SetPMUX(pin.PMUXFunctionC, true)
 	} else {
-		config.SDA.SetPMUX(atsamd21.PMUXFunctionD, true)
+		config.SDA.SetPMUX(pin.PMUXFunctionD, true)
 	}
 
 	if config.SCL.GetPAD() == 1 {
-		config.SCL.SetPMUX(atsamd21.PMUXFunctionC, true)
+		config.SCL.SetPMUX(pin.PMUXFunctionC, true)
 	} else {
-		config.SCL.SetPMUX(atsamd21.PMUXFunctionD, true)
+		config.SCL.SetPMUX(pin.PMUXFunctionD, true)
 	}
 
-	if config.SDA_OUT != atsamd21.NoPin {
+	if config.SDA_OUT != pin.NoPin {
 		if config.SDA_OUT.GetPAD() == 2 {
-			config.SDA_OUT.SetPMUX(atsamd21.PMUXFunctionC, true)
+			config.SDA_OUT.SetPMUX(pin.PMUXFunctionC, true)
 		} else {
-			config.SDA_OUT.SetPMUX(atsamd21.PMUXFunctionD, true)
+			config.SDA_OUT.SetPMUX(pin.PMUXFunctionD, true)
 		}
 	}
 
-	if config.SCL_OUT != atsamd21.NoPin {
+	if config.SCL_OUT != pin.NoPin {
 		if config.SCL_OUT.GetPAD() == 3 {
-			config.SCL_OUT.SetPMUX(atsamd21.PMUXFunctionC, true)
+			config.SCL_OUT.SetPMUX(pin.PMUXFunctionC, true)
 		} else {
-			config.SCL_OUT.SetPMUX(atsamd21.PMUXFunctionD, true)
+			config.SCL_OUT.SetPMUX(pin.PMUXFunctionD, true)
 		}
 	}
 
@@ -216,7 +219,7 @@ func (i *I2C) Configure(config Config) error {
 		chip.SERCOM_I2CM[i.SERCOM].BAUD.SetHSBAUDLOW(uint8(baudLow))
 
 		// Configure Fast-Mode for 400 KHz
-		baudLow, baudHigh, ok = CalculateBaudValue(atsamd21.SERCOM_REF_FREQUENCY, 400_000)
+		baudLow, baudHigh, ok = CalculateBaudValue(samd21.SERCOM_REF_FREQUENCY, 400_000)
 		if !ok {
 			return peripheral.ErrInvalidConfig
 		}
@@ -270,7 +273,7 @@ func (i *I2C) SetAddress(addr uint16) {
 
 func (i *I2C) SetClockFrequency(clockSpeedHz uint32) bool {
 	var baudLow, baudHigh uint32
-	baudLow, baudHigh, ok := CalculateBaudValue(atsamd21.SERCOM_REF_FREQUENCY, clockSpeedHz)
+	baudLow, baudHigh, ok := CalculateBaudValue(samd21.SERCOM_REF_FREQUENCY, clockSpeedHz)
 	if !ok {
 		return false
 	}
@@ -285,7 +288,7 @@ func (i *I2C) SetClockFrequency(clockSpeedHz uint32) bool {
 		chip.SERCOM_I2CM[i.SERCOM].BAUD.SetHSBAUDLOW(uint8(baudLow))
 
 		// Configure Fast-Mode for 400 KHz
-		baudLow, baudHigh, ok = CalculateBaudValue(atsamd21.SERCOM_REF_FREQUENCY, 400_000)
+		baudLow, baudHigh, ok = CalculateBaudValue(samd21.SERCOM_REF_FREQUENCY, 400_000)
 		if !ok {
 			return false
 		}
@@ -517,7 +520,7 @@ func (i *I2C) statusError() (err error) {
 }
 
 func irqHandler() {
-	sercom := int(chip.SystemControl.ICSR.GetVECTACTIVE()-16) - int(atsamd21.IRQ_SERCOM0)
+	sercom := int(chip.SystemControl.ICSR.GetVECTACTIVE()-16) - int(samd21.IRQ_SERCOM0)
 	i := i2c[sercom]
 	switch {
 	case chip.SERCOM_I2CM[sercom].INTFLAG.GetERROR():
