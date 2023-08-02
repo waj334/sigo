@@ -21,6 +21,8 @@ var (
 		verbose   string
 		debug     bool
 		dumpIR    bool
+		cpu       string
+		float     string
 		tags      string
 		ctypes    bool
 		jobs      int
@@ -39,17 +41,39 @@ var (
 				panic(err)
 			}
 
+			// Check the target CPU string
+			if len(buildOpts.cpu) == 0 {
+				println("no target CPU specified.")
+				println("Example:")
+				println("-cpu=\"atsamd21g18a\"")
+				println(`--cpu=samd21 --tags=atsamd21g18a,other,tags,...`)
+				cmd.Help()
+				return
+			}
+
+			// Check the float string
+			if buildOpts.float != "softfp" && buildOpts.float != "hardfp" {
+				println("invalid floating-point mode\"", buildOpts.float, "\" specified")
+				cmd.Help()
+				return
+			}
+
 			builderOptions := builder.Options{
 				Output:            buildOpts.output,
 				DumpIR:            buildOpts.dumpIR,
 				Environment:       builder.Environment(),
 				CompilerVerbosity: compiler.Debug,
 				GenerateDebugInfo: buildOpts.debug,
-				BuildTags:         strings.Split(buildOpts.tags, ","),
+				Cpu:               buildOpts.cpu,
+				Float:             buildOpts.float,
 				CTypeNames:        buildOpts.ctypes,
 				NumJobs:           buildOpts.jobs,
 				Optimization:      buildOpts.optimize,
 				StackSize:         buildOpts.stackSize,
+			}
+
+			if len(buildOpts.tags) > 0 {
+				builderOptions.BuildTags = strings.Split(buildOpts.tags, ",")
 			}
 
 			if len(cmd.Flags().Args()) == 0 {
@@ -99,6 +123,8 @@ var (
 func init() {
 	buildCmd.Flags().StringVarP(&buildOpts.output, "output", "o", ".", "output file")
 	buildCmd.Flags().StringVarP(&buildOpts.verbose, "verbose", "v", "", "verbosity level")
+	buildCmd.Flags().StringVar(&buildOpts.cpu, "cpu", "", "target cpu")
+	buildCmd.Flags().StringVar(&buildOpts.float, "float", "softfp", "floating-point mode (=softfp, =hardfp")
 	buildCmd.Flags().BoolVarP(&buildOpts.debug, "debug", "g", false, "generate debug information")
 	buildCmd.Flags().BoolVar(&buildOpts.dumpIR, "dump-ir", false, "dump the IR")
 	buildCmd.Flags().StringVarP(&buildOpts.tags, "tags", "t", "", "build tags")

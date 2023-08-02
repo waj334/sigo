@@ -1,4 +1,6 @@
-package peripheral
+//go:build generic
+
+package uart
 
 import "io"
 

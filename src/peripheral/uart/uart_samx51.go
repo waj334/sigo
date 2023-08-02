@@ -1,8 +1,12 @@
+//go:build samx51 && !generic
+
 package uart
 
 import (
-	"runtime/arm/cortexm/sam/atsamd21"
+	"peripheral/pin"
+	"runtime/arm/cortexm"
 	"runtime/arm/cortexm/sam/chip"
+	"runtime/arm/cortexm/sam/samx51"
 	"runtime/ringbuffer"
 	"sync"
 )
@@ -19,29 +23,33 @@ var (
 	UART3 = &UART{SERCOM: 3}
 	UART4 = &UART{SERCOM: 4}
 	UART5 = &UART{SERCOM: 5}
-	uart  = [6]*UART{
+	UART6 = &UART{SERCOM: 6}
+	UART7 = &UART{SERCOM: 7}
+	uart  = [8]*UART{
 		UART0,
 		UART1,
 		UART2,
 		UART3,
 		UART4,
 		UART5,
+		UART6,
+		UART7,
 	}
 )
 
 type UART struct {
-	atsamd21.SERCOM
+	samx51.SERCOM
 	txBuffer ringbuffer.RingBuffer
 	rxBuffer ringbuffer.RingBuffer
 	mutex    sync.Mutex
 }
 
 type Config struct {
-	TXD             atsamd21.Pin
-	RXD             atsamd21.Pin
-	XCK             atsamd21.Pin
-	RTS             atsamd21.Pin
-	CTS             atsamd21.Pin
+	TXD             pin.Pin
+	RXD             pin.Pin
+	XCK             pin.Pin
+	RTS             pin.Pin
+	CTS             pin.Pin
 	FrameFormat     chip.SERCOM_USART_INT_CTRLA_REG_FORM
 	BaudHz          uint
 	CharacterSize   uint
@@ -53,12 +61,12 @@ type Config struct {
 }
 
 func (u *UART) Configure(config Config) {
-	var mode atsamd21.PMUXFunction
+	var mode pin.PMUXFunction
 	var rxPad int
 
 	// Determine the SERCOM number from the PAD value of TXD pin
 	if config.TXD.GetPAD() == 0 {
-		mode = atsamd21.PMUXFunctionC
+		mode = pin.PMUXFunctionC
 		rxPad = config.RXD.GetPAD()
 		// Check the other optional pins
 		if config.TXD.GetSERCOM() != u.SERCOM ||
@@ -73,43 +81,13 @@ func (u *UART) Configure(config Config) {
 			panic("invalid selection")
 		}
 	} else if config.TXD.GetAltPAD() == 0 {
-		mode = atsamd21.PMUXFunctionD
+		mode = pin.PMUXFunctionD
 		rxPad = config.RXD.GetAltPAD()
 		// Check the other optional pins
 		if config.TXD.GetAltSERCOM() != u.SERCOM ||
 			config.XCK != 0 && config.XCK.GetAltPAD() != 1 ||
 			config.RTS != 0 && config.RTS.GetAltPAD() != 2 ||
 			config.CTS != 0 && config.CTS.GetAltPAD() != 3 ||
-			// The receive pad must not conflict with any of the other pads
-			rxPad == config.TXD.GetAltPAD() ||
-			rxPad == config.XCK.GetAltPAD() ||
-			rxPad == config.RTS.GetAltPAD() ||
-			rxPad == config.CTS.GetAltPAD() {
-			panic("invalid selection")
-		}
-	} else if config.TXD.GetPAD() == 2 {
-		mode = atsamd21.PMUXFunctionC
-		rxPad = config.RXD.GetPAD()
-		// Check the other optional pins
-		if config.TXD.GetSERCOM() != u.SERCOM ||
-			config.XCK != 0 && config.XCK.GetPAD() != 3 ||
-			config.RTS != 0 && config.RTS.GetPAD() != 0xFF || // NoPAD
-			config.CTS != 0 && config.CTS.GetPAD() != 0xFF || // NoPAD
-			// The receive pad must not conflict with any of the other pads
-			rxPad == config.TXD.GetPAD() ||
-			rxPad == config.XCK.GetPAD() ||
-			rxPad == config.RTS.GetPAD() ||
-			rxPad == config.CTS.GetPAD() {
-			panic("invalid selection")
-		}
-	} else if config.TXD.GetAltPAD() == 2 {
-		mode = atsamd21.PMUXFunctionD
-		rxPad = config.RXD.GetAltPAD()
-		// Check the other optional pins
-		if config.TXD.GetAltSERCOM() != u.SERCOM ||
-			config.XCK != 0 && config.XCK.GetAltPAD() != 3 ||
-			config.RTS != 0 && config.RTS.GetAltPAD() != 0xFF || // NoPAD
-			config.CTS != 0 && config.CTS.GetAltPAD() != 0xFF || // NoPAD
 			// The receive pad must not conflict with any of the other pads
 			rxPad == config.TXD.GetAltPAD() ||
 			rxPad == config.XCK.GetAltPAD() ||
@@ -137,15 +115,33 @@ func (u *UART) Configure(config Config) {
 		config.CTS.SetPMUX(mode, true)
 	}
 
-	// Reset the SERCOM
-	chip.SERCOM_USART_INT[u.SERCOM].CTRLA.SetSWRST(true)
-	u.Synchronize()
+	// Disable the SERCOM first
+	chip.SERCOM_USART_INT[u.SERCOM].CTRLA.SetENABLE(false)
+	for chip.SERCOM_USART_INT[u.SERCOM].SYNCBUSY.GetENABLE() {
+	}
 
-	// Enable the SERCOM in PM
-	u.SERCOM.SetPMEnabled(true)
+	// Enabled the SERCOM in MCLK
+	switch u.SERCOM {
+	case 0:
+		chip.MCLK.APBAMASK.SetSERCOM0(true)
+	case 1:
+		chip.MCLK.APBAMASK.SetSERCOM1(true)
+	case 2:
+		chip.MCLK.APBBMASK.SetSERCOM2(true)
+	case 3:
+		chip.MCLK.APBBMASK.SetSERCOM3(true)
+	case 4:
+		chip.MCLK.APBDMASK.SetSERCOM4(true)
+	case 5:
+		chip.MCLK.APBDMASK.SetSERCOM5(true)
+	case 6:
+		chip.MCLK.APBDMASK.SetSERCOM6(true)
+	case 7:
+		chip.MCLK.APBDMASK.SetSERCOM7(true)
+	}
 
 	// Set the baud rate
-	ratio := (uint64(atsamd21.SERCOM_REF_FREQUENCY) * uint64(1000)) / uint64(config.BaudHz*16)
+	ratio := (uint64(samx51.SERCOM_REF_FREQUENCY) * uint64(1000)) / uint64(config.BaudHz*16)
 	baud := ratio / 1000
 	fp := ((ratio - (baud * 1000)) * 8) / 1000
 
@@ -156,11 +152,9 @@ func (u *UART) Configure(config Config) {
 	chip.SERCOM_USART_INT[u.SERCOM].CTRLA.SetMODE(chip.SERCOM_USART_INT_CTRLA_REG_MODE_USART_INT_CLK)
 	chip.SERCOM_USART_INT[u.SERCOM].CTRLA.SetRXPO(chip.SERCOM_USART_INT_CTRLA_REG_RXPO(rxPad))
 	if config.XCK != 0 && config.RTS != 0 {
-		panic("configuration not available for SAMD21")
+		chip.SERCOM_USART_INT[u.SERCOM].CTRLA.SetTXPO(chip.SERCOM_USART_INT_CTRLA_REG_TXPO_PAD3)
 	} else if config.RTS != 0 && config.CTS != 0 {
 		chip.SERCOM_USART_INT[u.SERCOM].CTRLA.SetTXPO(chip.SERCOM_USART_INT_CTRLA_REG_TXPO_PAD2)
-	} else if config.TXD.GetPAD() == 2 || config.TXD.GetAltPAD() == 2 {
-		chip.SERCOM_USART_INT[u.SERCOM].CTRLA.SetTXPO(chip.SERCOM_USART_INT_CTRLA_REG_TXPO_PAD1)
 	} else {
 		chip.SERCOM_USART_INT[u.SERCOM].CTRLA.SetTXPO(chip.SERCOM_USART_INT_CTRLA_REG_TXPO_PAD0)
 	}
@@ -214,12 +208,12 @@ func (u *UART) Configure(config Config) {
 
 	u.rxBuffer = rx
 	u.txBuffer = tx
-
-	// Set the interrupt handler function
-	u.SERCOM.SetHandler(irqHandler)
+	samx51.SERCOMHandlers[u.SERCOM][0].Set(irqHandler)
 
 	// Enable interrupts
-	u.SERCOM.Irq().EnableIRQ()
+	irqBase := 46 + u.SERCOM*4
+	irq := cortexm.Interrupt(irqBase)
+	irq.EnableIRQ()
 	chip.SERCOM_USART_INT[u.SERCOM].INTENSET.SetRXC(true)
 
 	// Enable the peripheral
@@ -229,7 +223,7 @@ func (u *UART) Configure(config Config) {
 }
 
 func irqHandler() {
-	sercom := int(chip.SystemControl.ICSR.GetVECTACTIVE()-16) - int(atsamd21.IRQ_SERCOM0)
+	sercom := int(chip.SystemControl.ICSR.GetVECTACTIVE()-62) / 4
 	switch {
 	case chip.SERCOM_USART_INT[sercom].INTFLAG.GetRXC():
 		rxcHandler(sercom)
@@ -248,7 +242,7 @@ func dreHandler(sercom int) {
 		if b, err := uart[sercom].txBuffer.ReadByte(); err == nil {
 			for !chip.SERCOM_USART_INT[sercom].INTFLAG.GetDRE() {
 			}
-			chip.SERCOM_USART_INT[sercom].DATA.SetDATA(uint16(b) & 0x1FF)
+			chip.SERCOM_USART_INT[sercom].DATA.SetDATA(uint32(b))
 		} else {
 			// Stop if there was an error reading the next byte
 			break

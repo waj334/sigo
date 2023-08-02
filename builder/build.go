@@ -71,6 +71,24 @@ func Build(ctx context.Context, packageDir string) error {
 	compilerOptions.PrimitivesAsCTypes = options.CTypeNames
 	compilerOptions.GoroutineStackSize = uint64(options.StackSize)
 
+	var tags = options.BuildTags
+	var features []string
+	var additionalPackages []string
+
+	// Get the target information
+	targetInfo, err := targets.FindByChip(options.Cpu)
+	if err != nil {
+		// Fallback to series
+		targetInfo, err = targets.FindBySeries(options.Cpu)
+		if err != nil {
+			return err
+		}
+	} else {
+		tags = append(tags, options.Cpu, targetInfo.Architecture, targetInfo.Series, options.Float)
+		tags = append(tags, targetInfo.Tags...)
+		additionalPackages = append(additionalPackages, strings.ReplaceAll(targetInfo.ChipPackage, "${chip}", options.Cpu))
+	}
+
 	// Create the build directory
 	if len(options.BuildDir) == 0 {
 		// Create a random build directory
@@ -126,19 +144,17 @@ func Build(ctx context.Context, packageDir string) error {
 
 	// Create a new program
 	prog := Program{
-		config:        config,
-		fset:          fset,
-		path:          packageDir,
-		targetInfo:    map[string]string{},
-		pkgs:          []*packages.Package{},
-		env:           options.Environment,
-		options:       compilerOptions,
-		assemblyFiles: map[string]struct{}{},
-		linkerFiles:   map[string]struct{}{},
+		config:     config,
+		fset:       fset,
+		path:       packageDir,
+		pkgs:       []*packages.Package{},
+		env:        options.Environment,
+		options:    compilerOptions,
+		otherFiles: map[string][]string{},
 	}
 
 	// Parse the program
-	if err := prog.parse(ctx); err != nil {
+	if err := prog.parse(ctx, tags, additionalPackages); err != nil {
 		return err
 	}
 
@@ -148,9 +164,21 @@ func Build(ctx context.Context, packageDir string) error {
 		return err
 	}
 
-	// TODO: Check target triple now to fail early!!!
+	arch := strings.Split(targetInfo.Triple, "-")[0]
+	float := "nofp"
+	switch targetInfo.Float {
+	case "hard":
+		if options.Float != "softfp" {
+			float = "fp"
+			features = append(features, "soft-float")
+		}
+	default:
+		float = "nofp"
+		features = append(features, "soft-float")
+	}
+
 	// Get the target
-	target, err := compiler.NewTargetFromMap(prog.targetInfo)
+	target, err := compiler.NewTarget(targetInfo, features)
 	if err != nil {
 		return err
 	}
@@ -198,7 +226,7 @@ func Build(ctx context.Context, packageDir string) error {
 			defer wg.Done()
 			for pkg := range pkgChan {
 				// Get the target
-				target, err := compiler.NewTargetFromMap(prog.targetInfo)
+				target, err := compiler.NewTarget(targetInfo, features)
 				if err != nil {
 					// TODO: Handle compiler errors more elegantly
 					errChan <- err
@@ -359,23 +387,11 @@ func Build(ctx context.Context, packageDir string) error {
 		return errors.Join(ErrCodeGeneratorError, errors.New(errMsg))
 	}
 
-	triple := prog.targetInfo["triple"]
-	arch := strings.Split(triple, "-")[0]
-	float := "nofp"
-	if mode, ok := prog.targetInfo["float"]; ok {
-		switch mode {
-		case "hard":
-			float = "fp"
-		default:
-			float = "nofp"
-		}
-	}
-
 	// TODO: Select the proper build of picolibc
-	libCDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/picolibc", triple, arch+"+"+float, "lib")
+	libCDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/picolibc", targetInfo.Triple, arch+"+"+float, "lib")
 
 	// Select build of runtime-rt
-	libCompilerRTDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/compiler-rt", triple, arch+"+"+float, "lib", triple)
+	libCompilerRTDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/compiler-rt", targetInfo.Triple, arch+"+"+float, "lib", targetInfo.Triple)
 
 	// Locate clang
 	executablePostfix := ""
@@ -396,7 +412,7 @@ func Build(ctx context.Context, packageDir string) error {
 	buildToolsDir := filepath.Dir(clangExecutable)
 
 	// Other arguments
-	targetTriple := "--target=" + triple
+	targetTriple := "--target=" + targetInfo.Triple
 	elfOut := filepath.Join(options.BuildDir, "package.elf")
 	args := []string{
 		"-v",
@@ -417,14 +433,14 @@ func Build(ctx context.Context, packageDir string) error {
 	}
 
 	// Add all linker files
-	for ld, _ := range prog.linkerFiles {
+	for _, ld := range append(prog.otherFiles[".ld"], prog.otherFiles[".linker"]...) {
 		args = append(args, "-L"+filepath.Dir(ld))
 	}
 
 	args = append(args, objectOut)
 
 	// Compile all assembly files
-	for asm, _ := range prog.assemblyFiles {
+	for _, asm := range append(prog.otherFiles[".s"], prog.otherFiles[".asm"]...) {
 		// Format object file name
 		objFile := filepath.Join(options.BuildDir, fmt.Sprintf("%s-%d.o", filepath.Base(asm), rand.Int()))
 

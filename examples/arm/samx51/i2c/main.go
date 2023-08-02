@@ -1,16 +1,12 @@
-//sigo:architecture arm
-//sigo:cpu cortex-m4
-//sigo:triple armv7m-none-eabi
-//sigo:features thumb2,soft-float
-//sigo:float soft
+//go:build samx51
 
-package i2c
+package main
 
 import (
-	mcu "runtime/arm/cortexm/sam/atsamx51"
-	i2c "runtime/arm/cortexm/sam/atsamx51/i2c/host"
-	"runtime/arm/cortexm/sam/atsamx51/uart"
-	_ "runtime/arm/cortexm/sam/chip/atsame51g19a"
+	"peripheral/i2c"
+	"peripheral/pin"
+	"peripheral/uart"
+	mcu "runtime/arm/cortexm/sam/samx51"
 	"time"
 )
 
@@ -20,16 +16,13 @@ var (
 )
 
 func main() {
-	// Initialize the FPU
-	//mcu.InitFPU()
-
 	// Initialize the clock system
 	mcu.DefaultClocks()
 
 	// Configure UART
 	UART.Configure(uart.Config{
-		TXD:             mcu.PB02,
-		RXD:             mcu.PB03,
+		TXD:             pin.PB02,
+		RXD:             pin.PB03,
 		FrameFormat:     uart.UsartFrame,
 		BaudHz:          115_200,
 		CharacterSize:   8,
@@ -40,8 +33,8 @@ func main() {
 
 	// Configure the I2C host
 	if err := I2C.Configure(i2c.Config{
-		SDA:          mcu.PB08,
-		SCL:          mcu.PB09,
+		SDA:          pin.PB08,
+		SCL:          pin.PB09,
 		ClockSpeedHz: 100_000,
 		MasterCode:   i2c.MasterCode1,
 		Speed:        i2c.StandardAndFastMode,

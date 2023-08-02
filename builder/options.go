@@ -12,6 +12,8 @@ type Options struct {
 	CompilerVerbosity compiler.Verbosity
 	GenerateDebugInfo bool
 	BuildTags         []string
+	Cpu               string
+	Float             string
 	CTypeNames        bool
 	NumJobs           int
 	Optimization      string

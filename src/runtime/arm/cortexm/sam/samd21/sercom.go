@@ -1,4 +1,4 @@
-package atsamd21
+package samd21
 
 import (
 	"runtime/arm/cortexm"

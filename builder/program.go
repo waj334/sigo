@@ -6,6 +6,7 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
+	"golang.org/x/exp/slices"
 	"golang.org/x/tools/go/packages"
 	"golang.org/x/tools/go/ssa"
 	"io/fs"
@@ -24,37 +25,39 @@ type Program struct {
 	pkgs []*packages.Package
 
 	ssaProg    *ssa.Program
-	targetInfo map[string]string
 	defines    map[string]string
+	otherFiles map[string][]string
 
 	options *compiler.Options
 
 	targetLinkerFile      string
 	targetLinkerSetByMain bool
-	assemblyFiles         map[string]struct{}
-	linkerFiles           map[string]struct{}
 }
 
-func (p *Program) parse(ctx context.Context) (err error) {
+func (p *Program) parse(ctx context.Context, tags []string, additionalPackages []string) (err error) {
 	// Get the current build options
 	builderOpts := ctx.Value(optionsContextKey{}).(Options)
 
 	// Parse the package at the directory
 	config := packages.Config{
-		Mode:    packages.NeedName | packages.NeedFiles | packages.NeedImports | packages.NeedDeps | packages.NeedTypes | packages.NeedSyntax | packages.NeedTypesInfo | packages.NeedModule | packages.NeedEmbedFiles | packages.NeedEmbedPatterns,
+		Mode:    packages.NeedName | packages.NeedFiles | packages.NeedImports | packages.NeedDeps | packages.NeedTypes | packages.NeedSyntax | packages.NeedTypesInfo | packages.NeedModule | packages.NeedEmbedFiles | packages.NeedEmbedPatterns | packages.NeedCompiledGoFiles,
 		Context: context.Background(),
 		Logf:    nil,
 		Dir:     "",
 		Env:     p.env.List(),
 		BuildFlags: []string{
-			"-tags=" + strings.Join(builderOpts.BuildTags, ","),
+			"-tags=" + strings.Join(tags, ","),
 		},
 		Fset:      p.fset,
 		ParseFile: nil,
 		Tests:     false,
 	}
 
-	pkgs, err := packages.Load(&config, "runtime", p.path)
+	parsePkgs := []string{"runtime"}
+	parsePkgs = append(parsePkgs, additionalPackages...)
+	parsePkgs = append(parsePkgs, p.path)
+
+	pkgs, err := packages.Load(&config, parsePkgs...)
 	if err != nil {
 		return err
 	}
@@ -89,32 +92,49 @@ func (p *Program) parse(ctx context.Context) (err error) {
 		if len(pkg.GoFiles) > 0 {
 			pkgDir := filepath.Dir(pkg.GoFiles[0])
 			filepath.Walk(pkgDir, func(path string, info fs.FileInfo, err error) error {
-				if info.IsDir() && path != pkgDir {
-					// Walk any subdirectories
-					return filepath.SkipDir
+				if info.IsDir() {
+					if path != pkgDir {
+						return filepath.SkipDir
+					} else {
+						// Walk any subdirectories
+						return nil
+					}
 				}
-
-				ext := strings.ToLower(filepath.Ext(info.Name()))
 
 				// Resolve the symlink
 				realPath, _ := filepath.EvalSymlinks(path)
+				filename := strings.Split(info.Name(), ".")[0]
+				ext := strings.ToLower(filepath.Ext(info.Name()))
 
-				if info.Name() == "target.ld" && !p.targetLinkerSetByMain {
-					if len(p.targetLinkerFile) == 0 || pkg.Name == "main" {
-						p.targetLinkerFile = realPath
-						if pkg.Name == "main" {
-							// Main takes precedence. Stop considering other linker files
+				// Handle build tags
+				if strings.Contains(filename, "_") {
+					tag := filename[strings.LastIndex(filename, "_")+1:]
+					if !slices.Contains(builderOpts.BuildTags, tag) {
+						return nil
+					}
+				}
+
+				// Collect all "other" files
+				if ext != ".go" {
+					files := p.otherFiles[ext]
+					if !slices.Contains(files, realPath) {
+						files = append(files, realPath)
+						p.otherFiles[ext] = files
+					}
+
+					if filename == "target" && (ext == ".ld" || ext == ".linker") {
+						if pkg.Name != "main" && !p.targetLinkerSetByMain {
+							if slices.Contains(p.otherFiles[".ld"], "target.ld") ||
+								slices.Contains(p.otherFiles[".linker"], "target.linker") {
+								panic("multiple target linker files found")
+							} else {
+								p.targetLinkerFile = realPath
+							}
+						} else {
 							p.targetLinkerSetByMain = true
-						}
-					} else {
-						if realPath != p.targetLinkerFile {
-							panic("multiple target linker files found")
+							p.targetLinkerFile = realPath
 						}
 					}
-				} else if ext == ".ld" || ext == ".linker" {
-					p.linkerFiles[realPath] = struct{}{}
-				} else if ext == ".s" || ext == ".asm" {
-					p.assemblyFiles[realPath] = struct{}{}
 				}
 
 				return nil
@@ -162,42 +182,6 @@ func (p *Program) parse(ctx context.Context) (err error) {
 					if count := len(parts); count > 1 {
 						// Process the comment based of the first part
 						switch parts[0] {
-						//TODO: Only allow these in the main package
-						case "//sigo:architecture":
-							// value must follow
-							if count == 2 {
-								p.targetInfo["architecture"] = parts[1]
-							} else {
-								// TODO: Return syntax error
-							}
-						case "//sigo:cpu":
-							// value must follow
-							if count == 2 {
-								p.targetInfo["cpu"] = parts[1]
-							} else {
-								// TODO: Return syntax error
-							}
-						case "//sigo:triple":
-							// value must follow
-							if count == 2 {
-								p.targetInfo["triple"] = parts[1]
-							} else {
-								// TODO: Return syntax error
-							}
-						case "//sigo:features":
-							// value must follow
-							if count == 2 {
-								p.targetInfo["features"] = parts[1]
-							} else {
-								// TODO: Return syntax error
-							}
-						case "//sigo:float":
-							// value must follow
-							if count == 2 {
-								p.targetInfo["float"] = parts[1]
-							} else {
-								// TODO: Return syntax error
-							}
 						case "//sigo:extern":
 							if count == 3 {
 								_symbolName := symbolName(pkg.Types, parts[1])

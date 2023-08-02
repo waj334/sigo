@@ -24,6 +24,8 @@ var (
 	goRootInclude = map[string]bool{
 		"src/internal": true,
 		"src/builtin":  true,
+		"src/unicode":  true,
+		"pkg":          true,
 	}
 
 	inclusionFileList = []string{
