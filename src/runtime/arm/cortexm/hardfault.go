@@ -13,6 +13,7 @@ type exceptionStack struct {
 }*/
 
 //go:export _hardfault _hardfault
-func _hardfault(estack exceptionStack) {
+//sigo:required _hardfault
+func _hardfault(estack *exceptionStack) {
 	abort()
 }

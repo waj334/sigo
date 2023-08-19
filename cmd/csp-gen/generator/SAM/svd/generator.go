@@ -409,8 +409,8 @@ func (s *samgen) generatePeripheralStruct(periph svd.PeripheralElement) (string,
 	offset := types.Integer(0)
 
 	// Sort the registers
-	slices.SortStableFunc(periph.Registers.RegisterElements, func(a, b svd.RegisterElement) bool {
-		return a.AddressOffset < b.AddressOffset
+	slices.SortStableFunc(periph.Registers.RegisterElements, func(a, b svd.RegisterElement) int {
+		return int(a.AddressOffset - b.AddressOffset)
 	})
 
 	// Collect registers and cluster into the same list, so they can be sorted by address offset
@@ -424,8 +424,8 @@ func (s *samgen) generatePeripheralStruct(periph svd.PeripheralElement) (string,
 	}
 
 	// Sort by address offset
-	slices.SortStableFunc(objs, func(a, b svd.Addressable) bool {
-		return a.GetAddressOffset() < b.GetAddressOffset()
+	slices.SortStableFunc(objs, func(a, b svd.Addressable) int {
+		return int(a.GetAddressOffset() - b.GetAddressOffset())
 	})
 
 	for _, obj := range objs {

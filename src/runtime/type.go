@@ -2,13 +2,10 @@ package runtime
 
 import "unsafe"
 
-// BasicKind describes the kind of basic type.
-type BasicKind int
+type kind uint8
 
 const (
-	InvalidBasicKind BasicKind = iota // type is invalid
-
-	// predeclared types
+	Invalid kind = iota
 	Bool
 	Int
 	Int8
@@ -25,120 +22,67 @@ const (
 	Float64
 	Complex64
 	Complex128
-	String
-	UnsafePointer
-
-	// types for untyped values
-	UntypedBool
-	UntypedInt
-	UntypedRune
-	UntypedFloat
-	UntypedComplex
-	UntypedString
-	UntypedNil
-
-	// aliases
-	Byte = Uint8
-	Rune = Int32
-)
-
-type ConstructType int
-
-const (
-	InvalidConstructType ConstructType = iota
-	Primitive
-	Pointer
-	Interface
-	Struct
 	Array
-	Slice
+	Chan
+	Func
+	Interface
 	Map
-	Channel
+	Pointer
+	Slice
+	String
+	Struct
+	UnsafePointer
 )
 
 type _type struct {
-	name      *string
-	size      uintptr
-	construct ConstructType
-	kind      BasicKind
-	methods   *_methodTable
-	fields    *_fieldTable
-	array     *_arrayType
-	mapp      *_mapType
-	ptr       *_pointerType
-	channel   *_channelType
-	function  *_funcType
+	kind kind
+	size uint16
+	data unsafe.Pointer
+	name string
 }
 
-type _methodTable struct {
-	count   int
-	methods unsafe.Pointer
+type _namedTypeData struct {
+	underlyingType *_type
+	methods        []*_funcData
 }
 
-func (m _methodTable) index(i int) *_funcType {
-	if i < m.count {
-		ptr := unsafe.Add(m.methods, unsafe.Sizeof(uintptr(0))*uintptr(i))
-		return (*_funcType)(unsafe.Pointer(*(*uintptr)(ptr)))
-	}
-	return nil
+type _funcData struct {
+	id        uint32
+	funcPtr   unsafe.Pointer
+	signature *_type
 }
 
-type _fieldTable struct {
-	count  int
-	fields unsafe.Pointer
+type _interfaceMethodData struct {
+	id        uint32
+	signature *_signatureTypeData
 }
 
-func (f _fieldTable) index(i int) *_field {
-	if i < f.count {
-		ptr := unsafe.Add(f.fields, unsafe.Sizeof(uintptr(0))*uintptr(i))
-		return (*_field)(unsafe.Pointer(*(*uintptr)(ptr)))
-	}
-	return nil
+type _signatureTypeData struct {
+	receiverType   *_type
+	parameterTypes []*_type
+	returnTypes    []*_type
 }
 
-type _typeTable struct {
-	count int
-	types unsafe.Pointer
-}
-
-func (t _typeTable) index(i int) *_type {
-	if i < t.count {
-		ptr := unsafe.Add(t.types, unsafe.Sizeof(uintptr(0))*uintptr(i))
-		return (*_type)(unsafe.Pointer(*(*uintptr)(ptr)))
-	}
-	return nil
-}
-
-type _funcType struct {
-	ptr      unsafe.Pointer
-	id       uint32
-	name     *string
-	args     *_typeTable
-	returns  *_typeTable
-	receiver *_type
-}
-
-type _field struct {
-	name     *string
-	typeInfo *_type
-	tag      *string
-}
-
-type _arrayType struct {
+type _arrayTypeData struct {
+	length      uint16
 	elementType *_type
-	length      int
 }
 
-type _mapType struct {
+type _structTypeData struct {
+	fields []_structFieldData
+}
+
+type _structFieldData struct {
+	dataType *_type
+	tag      string
+}
+
+type _channelTypeData struct {
+	elementType *_type
+	direction   uint8
+}
+
+type _mapTypeData struct {
 	keyType   *_type
 	valueType *_type
-}
-
-type _pointerType struct {
-	elementType *_type
-}
-
-type _channelType struct {
-	elementType *_type
-	direction   int
 }

@@ -36,7 +36,8 @@ _irq_state:
 .global HardFault_Handler
 .type HardFault_Handler. %function
 HardFault_Handler:
-    mov r0, sp
-    movs r3, #0
-    ldr r3, [r3]
+    tst lr, #4
+    ite eq
+    mrseq r0, msp
+    mrsne r0, psp
     bl _hardfault

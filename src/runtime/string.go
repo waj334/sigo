@@ -51,12 +51,12 @@ func stringCompare(lhs, rhs _string) bool {
 	return strncmp(lhs.array, rhs.array, uintptr(lhs.len)) == 0
 }
 
-type stringIterator struct {
+type _stringIterator struct {
 	str   _string
 	index int
 }
 
-func stringRange(it *stringIterator) (bool, int, rune) {
+func stringRange(it *_stringIterator) (bool, int, rune) {
 	if it.index >= it.str.len {
 		return false, 0, 0
 	} else {
@@ -65,15 +65,15 @@ func stringRange(it *stringIterator) (bool, int, rune) {
 
 		// TODO: Support unicode characters
 		// Perform an 4-byte aligned read
-		val := *(*uint32)(unsafe.Add(it.str.array, 4*(i/4)))
+		val := *(*rune)(unsafe.Add(it.str.array, 4*(i/4)))
 
 		// Get the rune value at the index in the string's backing array
 		// Shift to access the intended byte
-		val = (val >> (8 * (i % 4))) & 0xFF
+		val = (val >> (8 * (it.index % 4))) & 0xFF
 
 		// Advance the position for the next iteration and then return
 		it.index++
-		return true, i, rune(val)
+		return true, i, val
 	}
 }
 
@@ -107,5 +107,14 @@ func stringToSlice(str _string) _slice {
 		cap:   str.len,
 	}
 	memcpy(result.array, str.array, uintptr(str.len))
+	return result
+}
+
+func sliceToString(s _slice) _string {
+	result := _string{
+		array: alloc(uintptr(s.len)),
+		len:   s.len,
+	}
+	memcpy(result.array, s.array, uintptr(s.len))
 	return result
 }

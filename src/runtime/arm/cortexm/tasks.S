@@ -56,8 +56,8 @@ PendSV_Handler:
 
 #endif
     // Save the stack pointer of the last task
-    ldr r2, =runtime.lastTask       // Load the last task pointer into R1
-    ldr r2, [r2]                    // Load the value of the last task pointer into R1
+    ldr r2, =runtime.lastTask       // Load the last task pointer into R2
+    ldr r2, [r2]                    // Load the address of the last task pointer into R2
     str r1, [r2]                    // Store updated stack pointer in the task's context
 _context_switch:
     // Load context of new task

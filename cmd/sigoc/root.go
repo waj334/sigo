@@ -64,6 +64,11 @@ var (
 						log.Fatalf("Failed to get relative path: %v", err)
 					}
 
+					if strings.Contains(relPath, ".git") || strings.Contains(relPath, "CMakeFiles") || strings.Contains(path, "sigo/build") {
+						// Skip git folder
+						return nil
+					}
+
 					includedInSigo := isInclusionList(filepath.ToSlash(relPath), sigoRootInclude)
 					includedInGo := isInclusionList(filepath.ToSlash(relPath), goRootInclude)
 
@@ -116,7 +121,7 @@ var (
 				tempDirMap[k] = v
 			}
 
-			for path, dirType := range tempDirMap {
+			/*for path, dirType := range tempDirMap {
 				if dirType == CONCRETE {
 					// remove all directories that are nested within this concrete directory (children, grandchildren, etc.)
 					for nestedPath := range tempDirMap {
@@ -125,7 +130,7 @@ var (
 						}
 					}
 				}
-			}
+			}*/
 
 			// keep only those directories that are immediate children of concrete directories or are not nested within any concrete directory
 			reducedDirMap := make(map[string]int)

@@ -4,55 +4,57 @@ import (
 	"unsafe"
 )
 
+type deferStack struct {
+	head *deferFrame
+	next *deferStack
+}
+
 type deferFrame struct {
 	fn   unsafe.Pointer
 	ctx  unsafe.Pointer
 	next *deferFrame
-	top  *deferFrame
 }
 
-func deferPush(fn unsafe.Pointer, ctx unsafe.Pointer, top **deferFrame) {
-	// Push the defer frame to the top of the defer stack for the current function
-	currentTask.deferStack = &deferFrame{
-		fn:   fn,
-		ctx:  ctx,
+func deferStartStack() {
+	currentTask.deferStack = &deferStack{
+		head: nil,
 		next: currentTask.deferStack,
-		top:  *top,
 	}
 }
 
-func deferRun(top *deferFrame) {
+func deferPush(fn unsafe.Pointer, ctx unsafe.Pointer) {
+	// Push the defer frame to the top of the defer stack for the current function
+	currentTask.deferStack.head = &deferFrame{
+		fn:   fn,
+		ctx:  ctx,
+		next: currentTask.deferStack.head,
+	}
+}
+
+func deferRun() {
 	lastState := currentTask.state
-	for currentTask.deferStack != top && currentTask.deferStack != nil {
-		frame := currentTask.deferStack
+	for currentTask.deferStack != nil {
+		for currentTask.deferStack.head != nil {
+			frame := currentTask.deferStack.head
 
-		// Pop frame from stack
-		currentTask.deferStack = frame.next
+			// Pop frame from stack
+			currentTask.deferStack.head = frame.next
 
-		// Call the deferred function
-		deferCall(frame.fn, frame.ctx)
+			// Dispatch the deferred function
+			_dispatch(frame.fn, frame.ctx)
 
-		// Check if a panic recovered
-		if lastState == taskPanicking && currentTask.state == taskRecovered {
-			// Transition this task back to the running state
-			currentTask.state = taskRunning
+			// Check if a panic recovered
+			if lastState == taskPanicking && currentTask.state == taskRecovered {
+				// Transition this task back to the running state
+				currentTask.state = taskRunning
+			}
+		}
 
-			// Stop the panic sequence
+		if currentTask.state == taskPanicking {
+			// Begin executing the next defer stack
+			currentTask.deferStack = currentTask.deferStack.next
+		} else {
 			break
 		}
 	}
 }
-
-func deferCurrentTop() *deferFrame {
-	return currentTask.deferStack
-}
-
-func deferInitialTop() *deferFrame {
-	if currentTask.deferStack != nil {
-		return currentTask.deferStack.top
-	}
-	return nil
-}
-
-// deferCall is an intrinsic for executing the deferred function
-func deferCall(fn unsafe.Pointer, ctx unsafe.Pointer)

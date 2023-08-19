@@ -1,0 +1,7 @@
+﻿---
+BasedOnStyle: LLVM
+ColumnLimit: 120
+Language: Cpp
+SortIncludes: CaseSensitive
+TabWidth: 2
+...

@@ -6,7 +6,7 @@ import (
 	"peripheral/i2c"
 	"peripheral/pin"
 	"peripheral/uart"
-	mcu "runtime/arm/cortexm/sam/samx51"
+	"runtime/arm/cortexm/sam/samx51"
 	"time"
 )
 
@@ -17,7 +17,7 @@ var (
 
 func main() {
 	// Initialize the clock system
-	mcu.DefaultClocks()
+	samx51.DefaultClocks()
 
 	// Configure UART
 	UART.Configure(uart.Config{
@@ -35,11 +35,12 @@ func main() {
 	if err := I2C.Configure(i2c.Config{
 		SDA:          pin.PB08,
 		SCL:          pin.PB09,
-		ClockSpeedHz: 100_000,
+		ClockSpeedHz: 1_000_000,
 		MasterCode:   i2c.MasterCode1,
 		Speed:        i2c.StandardAndFastMode,
 	}); err != nil {
-		UART.WriteString(err.Error() + "\n")
+		UART.WriteString(err.Error())
+		UART.WriteString("\r\n")
 		panic(err)
 	}
 
@@ -57,17 +58,17 @@ func main() {
 		wake := make([]byte, 4)
 		if _, err := I2C.ReadAddress(address, wake); err != nil {
 			UART.WriteString(err.Error())
-			UART.WriteString("\n")
+			UART.WriteString("r\\n")
 			continue
 		}
 
 		if wake[0] == 0x4 && wake[1] == 0x11 && wake[2] == 0x33 && wake[3] == 0x43 {
-			UART.WriteString("ATECC608 Woke!\n")
+			UART.WriteString("ATECC608 Woke!\r\n")
 			return
 		} else if wake[0] == 0x4 && wake[1] == 0x07 && wake[2] == 0xC4 && wake[3] == 0x40 {
-			UART.WriteString("Self-test error!\n")
+			UART.WriteString("Self-test error!\r\n")
 			return
 		}
-		UART.WriteString("retrying wake sequence\n")
+		UART.WriteString("retrying wake sequence\r\n")
 	}
 }

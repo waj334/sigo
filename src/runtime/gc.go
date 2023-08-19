@@ -201,7 +201,13 @@ func alloc(size uintptr) unsafe.Pointer {
 		if ptr == nil {
 			gcMu.Unlock()
 			enableInterrupts(state)
-			panic("gc error: out of memory")
+
+			// TODO: print the panic message
+			// NOTE: Cannot panic normally here because panics require a heap allocation causing infinite recursion.
+			//panic("gc error: out of memory")
+
+			// Stop running.
+			abort()
 		}
 	}
 
@@ -275,7 +281,7 @@ func markAll() {
 	_task := headTask
 	for {
 		if _task != nil {
-			stackBottom := unsafe.Add(_task.stack, alignStack(*goroutineStackSize))
+			stackBottom := unsafe.Add(_task.stack, alignStack(goroutineStackSize))
 			stackTop := _task.stackTop
 			if _task == currentTask {
 				// Do not miss any heap object in the current goroutine since it

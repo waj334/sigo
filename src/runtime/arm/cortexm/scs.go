@@ -102,84 +102,84 @@ func (reg *SCS_ICSR) SetPENDSTCLR(enable bool) {
 
 func (s *SCS_SHPR1) GetPRI_4() uint8 {
 	v := volatile.LoadUint32((*uint32)(s))
-	return uint8((v >> 0) & 0xFF)
+	return uint8((v>>0)&0xFF) >> (8 - NPRIORITY_BITS)
 }
 
 func (s *SCS_SHPR1) SetPRI_4(value uint8) {
 	v := volatile.LoadUint32((*uint32)(s))
-	v &= ^(v & (0xFF << 0))
-	v |= uint32(value) << 0
+	v &= ^(0xFF << 0)
+	v |= uint32(value<<(8-NPRIORITY_BITS)) << 0
 	volatile.StoreUint32((*uint32)(s), v)
 }
 
 func (s *SCS_SHPR1) GetPRI_5() uint8 {
 	v := volatile.LoadUint32((*uint32)(s))
-	return uint8((v >> 8) & 0xFF)
+	return uint8((v>>8)&0xFF) >> (8 - NPRIORITY_BITS)
 }
 
 func (s *SCS_SHPR1) SetPRI_5(value uint8) {
 	v := volatile.LoadUint32((*uint32)(s))
-	v &= ^(v & (0xFF << 8))
-	v |= uint32(value) << 8
+	v &= ^(0xFF << 8)
+	v |= uint32(value<<(8-NPRIORITY_BITS)) << 8
 	volatile.StoreUint32((*uint32)(s), v)
 }
 
 func (s *SCS_SHPR1) GetPRI_6() uint8 {
 	v := volatile.LoadUint32((*uint32)(s))
-	return uint8((v >> 16) & 0xFF)
+	return uint8((v>>16)&0xFF) >> (8 - NPRIORITY_BITS)
 }
 
 func (s *SCS_SHPR1) SetPRI_6(value uint8) {
 	v := volatile.LoadUint32((*uint32)(s))
-	v &= ^(v & (0xFF << 16))
-	v |= uint32(value) << 16
+	v &= ^(0xFF << 16)
+	v |= uint32(value<<(8-NPRIORITY_BITS)) << 16
 	volatile.StoreUint32((*uint32)(s), v)
 }
 
 func (s *SCS_SHPR2) GetPRI_11() uint8 {
 	v := volatile.LoadUint32((*uint32)(s))
-	return uint8((v >> 24) & 0xFF)
+	return uint8((v>>24)&0xFF) >> (8 - NPRIORITY_BITS)
 }
 
 func (s *SCS_SHPR2) SetPRI_11(value uint8) {
 	v := volatile.LoadUint32((*uint32)(s))
-	v &= ^(v & (0xFF << 24))
-	v |= uint32(value) << 24
+	v &= ^(0xFF << 24)
+	v |= uint32(value<<(8-NPRIORITY_BITS)) << 24
 	volatile.StoreUint32((*uint32)(s), v)
 }
 
 func (s *SCS_SHPR3) GetPRI_12() uint8 {
 	v := volatile.LoadUint32((*uint32)(s))
-	return uint8((v >> 0) & 0xFF)
+	return uint8((v>>0)&0xFF) >> (8 - NPRIORITY_BITS)
 }
 
 func (s *SCS_SHPR3) SetPRI_12(value uint8) {
 	v := volatile.LoadUint32((*uint32)(s))
-	v &= ^(v & (0xFF << 0))
-	v |= uint32(value) << 0
+	v &= ^(0xFF << 0)
+	v |= uint32(value<<(8-NPRIORITY_BITS)) << 0
 	volatile.StoreUint32((*uint32)(s), v)
 }
 
 func (s *SCS_SHPR3) GetPRI_14() uint8 {
 	v := volatile.LoadUint32((*uint32)(s))
-	return uint8((v >> 16) & 0xFF)
+	return uint8((v>>16)&0xFF) >> (8 - NPRIORITY_BITS)
 }
 
 func (s *SCS_SHPR3) SetPRI_14(value uint8) {
 	v := volatile.LoadUint32((*uint32)(s))
-	v &= ^(v & (0xFF << 16))
-	v |= uint32(value) << 16
+	v &= ^(0xFF << 16)
+	v |= uint32(value<<(8-NPRIORITY_BITS)) << 16
 	volatile.StoreUint32((*uint32)(s), v)
 }
 
 func (s *SCS_SHPR3) GetPRI_15() uint8 {
 	v := volatile.LoadUint32((*uint32)(s))
-	return uint8((v >> 24) & 0xFF)
+	return uint8((v>>24)&0xFF) >> (8 - NPRIORITY_BITS)
 }
 
 func (s *SCS_SHPR3) SetPRI_15(value uint8) {
 	v := volatile.LoadUint32((*uint32)(s))
-	v &= ^(v & (0xFF << 24))
-	v |= uint32(value) << 24
+	v &= ^(0xFF << 24)
+	v |= uint32(value<<(8-NPRIORITY_BITS)) << 24
 	volatile.StoreUint32((*uint32)(s), v)
 }

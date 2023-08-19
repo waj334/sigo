@@ -28,7 +28,7 @@ func GetTargetFromTriple(triple string) (target LLVMTargetRef, errStr string, ok
 		C.LLVMDisposeMessage(CErrStr)
 	}
 
-	target = LLVMTargetRef(unsafe.Pointer(CTarget))
+	target.SetSwigcptr(uintptr(unsafe.Pointer(CTarget)))
 	return
 }
 
@@ -44,22 +44,24 @@ func AddIncoming(phi LLVMValueRef, edges []LLVMValueRef, blocks []LLVMBasicBlock
 	defer C.free(unsafe.Pointer(blocksArr))
 
 	for i, edge := range edges {
-		*(*C.LLVMValueRef)(unsafe.Pointer(uintptr(unsafe.Pointer(edgesArr)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMValueRef)(unsafe.Pointer(edge))
-		*(*C.LLVMBasicBlockRef)(unsafe.Pointer(uintptr(unsafe.Pointer(blocksArr)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMBasicBlockRef)(unsafe.Pointer(blocks[i]))
+		*(*C.LLVMValueRef)(unsafe.Pointer(uintptr(unsafe.Pointer(edgesArr)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMValueRef)(unsafe.Pointer(edge.cptr))
+		*(*C.LLVMBasicBlockRef)(unsafe.Pointer(uintptr(unsafe.Pointer(blocksArr)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = (C.LLVMBasicBlockRef)(unsafe.Pointer(blocks[i].cptr))
 	}
 
-	C.LLVMAddIncoming(C.LLVMValueRef(unsafe.Pointer(phi)), edgesArr, blocksArr, C.uint(len(edges)))
+	C.LLVMAddIncoming(C.LLVMValueRef(unsafe.Pointer(phi.cptr)), edgesArr, blocksArr, C.uint(len(edges)))
 }
 
 func GetParamTypes(FunctionTy LLVMTypeRef) (result []LLVMTypeRef) {
 	count := int(CountParamTypes(FunctionTy))
 	output := make([]C.LLVMTypeRef, count)
 	if count > 0 {
-		C.LLVMGetParamTypes(C.LLVMTypeRef(unsafe.Pointer(FunctionTy)), (*C.LLVMTypeRef)(unsafe.Pointer(&output[0])))
+		C.LLVMGetParamTypes(C.LLVMTypeRef(unsafe.Pointer(FunctionTy.cptr)), (*C.LLVMTypeRef)(unsafe.Pointer(&output[0])))
 	}
 	result = make([]LLVMTypeRef, 0, count)
 	for _, value := range output {
-		result = append(result, LLVMTypeRef(unsafe.Pointer(value)))
+		var ty LLVMTypeRef
+		ty.SetSwigcptr(uintptr(unsafe.Pointer(value)))
+		result = append(result, ty)
 	}
 	return
 }
@@ -68,11 +70,13 @@ func GetParams(FunctionValue LLVMValueRef) (result []LLVMValueRef) {
 	count := int(CountParams(FunctionValue))
 	output := make([]C.LLVMValueRef, count)
 	if count > 0 {
-		C.LLVMGetParams(C.LLVMValueRef(unsafe.Pointer(FunctionValue)), (*C.LLVMValueRef)(unsafe.Pointer(&output[0])))
+		C.LLVMGetParams(C.LLVMValueRef(unsafe.Pointer(FunctionValue.cptr)), (*C.LLVMValueRef)(unsafe.Pointer(&output[0])))
 	}
 	result = make([]LLVMValueRef, 0, count)
 	for _, value := range output {
-		result = append(result, LLVMValueRef(unsafe.Pointer(value)))
+		var val LLVMValueRef
+		val.SetSwigcptr(uintptr(unsafe.Pointer(value)))
+		result = append(result, val)
 	}
 	return
 }
@@ -81,17 +85,19 @@ func GetStructElementTypes(StructTy LLVMTypeRef) (result []LLVMTypeRef) {
 	count := int(CountStructElementTypes(StructTy))
 	output := make([]C.LLVMTypeRef, count)
 	if count > 0 {
-		C.LLVMGetStructElementTypes(C.LLVMTypeRef(unsafe.Pointer(StructTy)), (*C.LLVMTypeRef)(unsafe.Pointer(&output[0])))
+		C.LLVMGetStructElementTypes(C.LLVMTypeRef(unsafe.Pointer(StructTy.cptr)), (*C.LLVMTypeRef)(unsafe.Pointer(&output[0])))
 	}
 	result = make([]LLVMTypeRef, 0, count)
 	for _, value := range output {
-		result = append(result, LLVMTypeRef(unsafe.Pointer(value)))
+		var ty LLVMTypeRef
+		ty.SetSwigcptr(uintptr(unsafe.Pointer(value)))
+		result = append(result, ty)
 	}
 	return
 }
 
 func TypeIsEqual(a, b LLVMTypeRef) bool {
-	return a == b
+	return a.cptr == b.cptr
 }
 
 func TargetMachineEmitToFile2(machine LLVMTargetMachineRef, module LLVMModuleRef, output string, fileType LLVMCodeGenFileType) (ok bool, errMsg string) {
@@ -101,8 +107,8 @@ func TargetMachineEmitToFile2(machine LLVMTargetMachineRef, module LLVMModuleRef
 	var CErrStr *C.char
 
 	result := C.LLVMTargetMachineEmitToFile(
-		C.LLVMTargetMachineRef(unsafe.Pointer(machine)),
-		C.LLVMModuleRef(unsafe.Pointer(module)),
+		C.LLVMTargetMachineRef(unsafe.Pointer(machine.cptr)),
+		C.LLVMModuleRef(unsafe.Pointer(module.cptr)),
 		COutput,
 		C.LLVMCodeGenFileType(fileType),
 		&CErrStr)
@@ -117,7 +123,7 @@ func TargetMachineEmitToFile2(machine LLVMTargetMachineRef, module LLVMModuleRef
 
 func VerifyModule2(module LLVMModuleRef, failureAction LLVMVerifierFailureAction) (ok bool, errMsg string) {
 	var CErrStr *C.char
-	result := C.LLVMVerifyModule(C.LLVMModuleRef(unsafe.Pointer(module)), C.LLVMVerifierFailureAction(failureAction), &CErrStr)
+	result := C.LLVMVerifyModule(C.LLVMModuleRef(unsafe.Pointer(module.cptr)), C.LLVMVerifierFailureAction(failureAction), &CErrStr)
 	ok = result == 0
 	if CErrStr != nil {
 		errMsg = C.GoString(CErrStr)
@@ -128,6 +134,6 @@ func VerifyModule2(module LLVMModuleRef, failureAction LLVMVerifierFailureAction
 
 func GetValueName2(value LLVMValueRef) string {
 	var length C.size_t
-	nameStr := C.LLVMGetValueName2(C.LLVMValueRef(unsafe.Pointer(value)), (*C.size_t)(&length))
+	nameStr := C.LLVMGetValueName2(C.LLVMValueRef(unsafe.Pointer(value.cptr)), (*C.size_t)(&length))
 	return C.GoStringN(nameStr, C.int(length))
 }

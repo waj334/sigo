@@ -1,0 +1,50 @@
+add_mlir_dialect_library(GoIR
+        Interface/ReflectTypeInterface.cxx
+        IR/Operations/BinOps.cxx
+        IR/Operations/Builtin.cxx
+        IR/Operations/Call.cxx
+        IR/Operations/Casting.cxx
+        IR/Operations/Constant.cxx
+        IR/Operations/Func.cxx
+        IR/Operations/Intrinsics.cxx
+        IR/Operations/Map.cxx
+        IR/Operations/Memory.cxx
+        IR/Operations/Slice.cxx
+        IR/Operations/Struct.cxx
+        IR/Operations/UnaryOps.cxx
+        IR/Operations/Value.cxx
+        IR/Types/Interface.cxx
+        IR/Types/Pointer.cxx
+        IR/GoDialect.cxx
+        IR/GoOps.cxx
+        IR/StructBuilder.cxx
+        Transforms/AttachDebugInfoPass.cxx
+        Transforms/DumpToFilePass.cxx
+        Transforms/GlobalConstantsPass.cxx
+        Transforms/GlobalInitializerPass.cxx
+        Transforms/HeapEscapePass.cxx
+        Transforms/LowerToCore.cxx
+        Transforms/LowerToLLVM.cxx
+        Transforms/LowerTypeInfoToGo.cxx
+        Transforms/OptimizeDefersPass.cxx
+        Transforms/Passes.cxx
+        Transforms/TypeConverter.cxx
+        Util.cxx
+ADDITIONAL_HEADER_DIRS
+    ${PROJECT_SOURCE_DIR}/include/Go
+
+DEPENDS
+        MLIRReflectTypeInterfaceIncGen
+        MLIRGoTypesIncGen
+        MLIRGoOpsIncGen
+
+LINK_LIBS PUBLIC
+        MLIRIR
+        MLIRInferTypeOpInterface
+
+        MLIRArithDialect
+        MLIRComplexDialect
+        MLIRControlFlowDialect
+        MLIRFuncDialect
+        MLIRLLVMDialect
+)
