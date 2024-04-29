@@ -12,22 +12,22 @@ import (
 	"github.com/spf13/cobra"
 
 	"omibyte.io/sigo/builder"
-	"omibyte.io/sigo/compiler"
 )
 
 var (
 	buildOpts = struct {
-		output    string
-		verbose   string
-		debug     bool
-		dumpIR    bool
-		cpu       string
-		float     string
-		tags      string
-		ctypes    bool
-		jobs      int
-		optimize  string
-		stackSize int
+		output      string
+		verbose     string
+		debug       bool
+		dumpIR      bool
+		cpu         string
+		float       string
+		tags        string
+		ctypes      bool
+		jobs        int
+		optimize    string
+		stackSize   int
+		keepWorkDir bool
 	}{}
 
 	buildCmd = &cobra.Command{
@@ -59,10 +59,10 @@ var (
 			}
 
 			builderOptions := builder.Options{
-				Output:            buildOpts.output,
-				DumpIR:            buildOpts.dumpIR,
-				Environment:       builder.Environment(),
-				CompilerVerbosity: compiler.Debug,
+				Output:      buildOpts.output,
+				DumpIR:      buildOpts.dumpIR,
+				Environment: builder.Environment(),
+				//CompilerVerbosity: compiler.Debug,
 				GenerateDebugInfo: buildOpts.debug,
 				Cpu:               buildOpts.cpu,
 				Float:             buildOpts.float,
@@ -70,6 +70,7 @@ var (
 				NumJobs:           buildOpts.jobs,
 				Optimization:      buildOpts.optimize,
 				StackSize:         buildOpts.stackSize,
+				KeepWorkDir:       buildOpts.keepWorkDir,
 			}
 
 			if len(buildOpts.tags) > 0 {
@@ -92,7 +93,7 @@ var (
 			}
 
 			// Determine output verbosity
-			switch strings.ToLower(buildOpts.verbose) {
+			/*switch strings.ToLower(buildOpts.verbose) {
 			case "", "verbose":
 				builderOptions.CompilerVerbosity = compiler.Verbose
 			case "quiet":
@@ -106,7 +107,7 @@ var (
 			default:
 				println("Unknown output verbosity mode. Defaulting to \"quiet\"")
 				builderOptions.CompilerVerbosity = compiler.Quiet
-			}
+			}*/
 
 			// Begin building the packages
 			if err = builder.BuildPackages(context.Background(), builderOptions); err != nil {
@@ -132,4 +133,5 @@ func init() {
 	buildCmd.Flags().IntVarP(&buildOpts.jobs, "jobs", "j", runtime.NumCPU(), "number of concurrent builds")
 	buildCmd.Flags().StringVarP(&buildOpts.optimize, "opt", "O", "0", "optimization level")
 	buildCmd.Flags().IntVarP(&buildOpts.stackSize, "stack-size", "s", 2048, "stack size of each goroutine")
+	buildCmd.Flags().BoolVar(&buildOpts.keepWorkDir, "work", false, "do not delete the work directory upon build")
 }

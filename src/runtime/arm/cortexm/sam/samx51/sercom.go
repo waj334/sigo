@@ -182,8 +182,8 @@ func SERCOM0_2_Handler() {
 	}
 }
 
-//sigo:interrupt SERCOM0_3_Handler SERCOM0_3_Handler
-func SERCOM0_3_Handler() {
+//sigo:interrupt SERCOM0_OTHER_Handler SERCOM0_OTHER_Handler
+func SERCOM0_OTHER_Handler() {
 	if SERCOM03HandlerFunc != nil {
 		SERCOM03HandlerFunc()
 	}
@@ -210,8 +210,8 @@ func SERCOM1_2_Handler() {
 	}
 }
 
-//sigo:interrupt SERCOM1_3_Handler SERCOM1_3_Handler
-func SERCOM1_3_Handler() {
+//sigo:interrupt SERCOM1_OTHER_Handler SERCOM1_OTHER_Handler
+func SERCOM1_OTHER_Handler() {
 	if SERCOM13HandlerFunc != nil {
 		SERCOM13HandlerFunc()
 	}
@@ -238,8 +238,8 @@ func SERCOM2_2_Handler() {
 	}
 }
 
-//sigo:interrupt SERCOM2_3_Handler SERCOM2_3_Handler
-func SERCOM2_3_Handler() {
+//sigo:interrupt SERCOM2_OTHER_Handler SERCOM2_OTHER_Handler
+func SERCOM2_OTHER_Handler() {
 	if SERCOM23HandlerFunc != nil {
 		SERCOM23HandlerFunc()
 	}
@@ -266,8 +266,8 @@ func SERCOM3_2_Handler() {
 	}
 }
 
-//sigo:interrupt SERCOM3_3_Handler SERCOM3_3_Handler
-func SERCOM3_3_Handler() {
+//sigo:interrupt SERCOM3_OTHER_Handler SERCOM3_OTHER_Handler
+func SERCOM3_OTHER_Handler() {
 	if SERCOM33HandlerFunc != nil {
 		SERCOM33HandlerFunc()
 	}
@@ -294,8 +294,8 @@ func SERCOM4_2_Handler() {
 	}
 }
 
-//sigo:interrupt SERCOM4_3_Handler SERCOM4_3_Handler
-func SERCOM4_3_Handler() {
+//sigo:interrupt SERCOM4_OTHER_Handler SERCOM4_OTHER_Handler
+func SERCOM4_OTHER_Handler() {
 	if SERCOM43HandlerFunc != nil {
 		SERCOM43HandlerFunc()
 	}
@@ -322,8 +322,8 @@ func SERCOM5_2_Handler() {
 	}
 }
 
-//sigo:interrupt SERCOM5_3_Handler SERCOM5_3_Handler
-func SERCOM5_3_Handler() {
+//sigo:interrupt SERCOM5_OTHER_Handler SERCOM5_OTHER_Handler
+func SERCOM5_OTHER_Handler() {
 	if SERCOM53HandlerFunc != nil {
 		SERCOM53HandlerFunc()
 	}
@@ -350,8 +350,8 @@ func SERCOM6_2_Handler() {
 	}
 }
 
-//sigo:interrupt SERCOM6_3_Handler SERCOM6_3_Handler
-func SERCOM6_3_Handler() {
+//sigo:interrupt SERCOM6_OTHER_Handler SERCOM6_OTHER_Handler
+func SERCOM6_OTHER_Handler() {
 	if SERCOM63HandlerFunc != nil {
 		SERCOM63HandlerFunc()
 	}
@@ -378,8 +378,8 @@ func SERCOM7_2_Handler() {
 	}
 }
 
-//sigo:interrupt SERCOM7_3_Handler SERCOM7_3_Handler
-func SERCOM7_3_Handler() {
+//sigo:interrupt SERCOM7_OTHER_Handler SERCOM7_OTHER_Handler
+func SERCOM7_OTHER_Handler() {
 	if SERCOM73HandlerFunc != nil {
 		SERCOM73HandlerFunc()
 	}

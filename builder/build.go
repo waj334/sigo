@@ -4,32 +4,23 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go/token"
 	"go/types"
-	"gonum.org/v1/gonum/graph/simple"
-	"gonum.org/v1/gonum/graph/topo"
 	"math/rand"
 	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
-	"runtime"
 	"strings"
-	"sync"
+	"time"
 
-	"golang.org/x/tools/go/packages"
-	"golang.org/x/tools/go/ssa"
-
-	"omibyte.io/sigo/compiler"
+	"omibyte.io/sigo/compiler/ssa"
 	"omibyte.io/sigo/llvm"
+	"omibyte.io/sigo/mlir"
+	"omibyte.io/sigo/targets"
 )
 
 type (
 	optionsContextKey struct{}
-	bitcode           struct {
-		pkg     string
-		bitcode llvm.LLVMMemoryBufferRef
-	}
 )
 
 func BuildPackages(ctx context.Context, options Options) error {
@@ -59,35 +50,14 @@ func BuildPackages(ctx context.Context, options Options) error {
 }
 
 func Build(ctx context.Context, packageDir string) error {
+	t := time.Now()
+	defer func() {
+		fmt.Printf("Build duration: %3fsec\n", time.Now().Sub(t).Seconds())
+	}()
+
 	// Get the options from the context
 	options := ctx.Value(optionsContextKey{}).(Options)
-
-	fset := token.NewFileSet()
-	config := types.Config{}
-
-	compilerOptions := compiler.NewOptions()
-	compilerOptions.Verbosity = options.CompilerVerbosity
-	compilerOptions.GenerateDebugInfo = options.GenerateDebugInfo
-	compilerOptions.PrimitivesAsCTypes = options.CTypeNames
-	compilerOptions.GoroutineStackSize = uint64(options.StackSize)
-
-	var tags = options.BuildTags
-	var features []string
-	var additionalPackages []string
-
-	// Get the target information
-	targetInfo, err := targets.FindByChip(options.Cpu)
-	if err != nil {
-		// Fallback to series
-		targetInfo, err = targets.FindBySeries(options.Cpu)
-		if err != nil {
-			return err
-		}
-	} else {
-		tags = append(tags, options.Cpu, targetInfo.Architecture, targetInfo.Series, options.Float)
-		tags = append(tags, targetInfo.Tags...)
-		additionalPackages = append(additionalPackages, strings.ReplaceAll(targetInfo.ChipPackage, "${chip}", options.Cpu))
-	}
+	pathMappings := map[string]string{}
 
 	// Create the build directory
 	if len(options.BuildDir) == 0 {
@@ -97,7 +67,11 @@ func Build(ctx context.Context, packageDir string) error {
 			return err
 		}
 		// Delete the build directory when done
-		defer os.RemoveAll(options.BuildDir)
+		if !options.KeepWorkDir {
+			defer os.RemoveAll(options.BuildDir)
+		} else {
+			fmt.Printf("Work directory: %s\n", options.BuildDir)
+		}
 	} else {
 		stat, err := os.Stat(options.BuildDir)
 		if os.IsNotExist(err) {
@@ -129,7 +103,11 @@ func Build(ctx context.Context, packageDir string) error {
 	}
 
 	// Delete the staging directory when the build is done.
-	defer os.RemoveAll(goRootStaging)
+	if !options.KeepWorkDir {
+		defer os.RemoveAll(goRootStaging)
+	} else {
+		fmt.Printf("GOROOT staging directory: %s\n", options.BuildDir)
+	}
 
 	// Now modify the GOROOT value in the environment
 	options.Environment["GOROOT"] = goRootStaging
@@ -137,253 +115,193 @@ func Build(ctx context.Context, packageDir string) error {
 	// Create a path mapping from the staged goroot to sigoroot
 	// so file paths are correct in any debug info generated
 	// later.
-	compilerOptions.PathMappings[goRootStaging] = options.Environment.Value("SIGOROOT")
+	pathMappings[goRootStaging] = options.Environment.Value("SIGOROOT")
+
+	// Get the target information
+	var tags = options.BuildTags
+	var additionalPackages []string
+	targetInfo, err := targets.All().FindByChip(options.Cpu)
+	if err != nil {
+		// Fallback to series
+		targetInfo, err = targets.All().FindBySeries(options.Cpu)
+		if err != nil {
+			return err
+		}
+	} else {
+		tags = append(tags, options.Cpu, targetInfo.Architecture, targetInfo.Series, options.Float)
+		tags = append(tags, targetInfo.Tags...)
+		additionalPackages = append(additionalPackages, strings.ReplaceAll(targetInfo.ChipPackage, "${chip}", options.Cpu))
+	}
 
 	// TODO: Detect the target architecture by some other means
 	options.Environment["GOARCH"] = "arm"
-
-	// Create a new program
-	prog := Program{
-		config:     config,
-		fset:       fset,
-		path:       packageDir,
-		pkgs:       []*packages.Package{},
-		env:        options.Environment,
-		options:    compilerOptions,
-		otherFiles: map[string][]string{},
-	}
-
-	// Parse the program
-	if err := prog.parse(ctx, tags, additionalPackages); err != nil {
-		return err
-	}
-
-	// Create the SSA
-	allPackages, err := prog.buildPackages()
-	if err != nil {
-		return err
-	}
-
 	arch := strings.Split(targetInfo.Triple, "-")[0]
 	float := "nofp"
 	switch targetInfo.Float {
-	case "hard":
-		if options.Float != "softfp" {
+	case "hardfp":
+		if options.Float == "softfp" {
+			float = "nofp"
+			targetInfo.Features = append(targetInfo.Features, "soft-float")
+		} else {
 			float = "fp"
-			features = append(features, "soft-float")
+			/// TODO: There are different FP instruction features available for different chips. Find a better way of
+			/// specifying those respective features.
 		}
 	default:
 		float = "nofp"
-		features = append(features, "soft-float")
+		targetInfo.Features = append(targetInfo.Features, "soft-float")
 	}
 
-	// Get the target
-	target, err := compiler.NewTarget(targetInfo, features)
+	// Create the machine target
+	target, err := targetInfo.CreateTarget()
 	if err != nil {
 		return err
 	}
+	targetMachine := targetInfo.CreateTargetMachine(target)
+	targetLayout := llvm.CreateTargetDataLayout(targetMachine)
 
-	// Initialize the target
-	if err = target.Initialize(); err != nil {
+	// Create a new program.
+	program := ssa.NewProgram(&ssa.ProgramConfig{
+		Tags:               tags,
+		AdditionalPackages: additionalPackages,
+		Environment:        options.Environment.List(),
+		PackagePath:        packageDir,
+		GoRoot:             options.Environment.Value("GOROOT"),
+	})
+
+	// Parse the package.
+	fmt.Print("Parsing packages...")
+	if err := program.Parse(ctx); err != nil {
+		// TODO: Replace paths from the virtual GOROOT with the real paths in error strings.
 		return err
 	}
+	fmt.Println("done")
 
-	compilerOptions.Target = target
+	// Initialize MLIR.
+	mlirCtx := mlir.ContextCreate()
+	mlir.DialectHandleRegisterDialect(mlir.GetDialectHandle__go__(), mlirCtx)
+	mlir.ContextLoadAllAvailableDialects(mlirCtx)
 
-	var bitcodes []bitcode
+	// Create the MLIR module.
+	mlirModule := mlir.ModuleCreateEmpty(mlir.LocationUnknownGet(mlirCtx))
 
-	stopChan := make(chan struct{})
-	errChan := make(chan error)
-	go func() {
-		select {
-		case <-stopChan:
-			return
-		case err := <-errChan:
-			panic(err)
-		}
-	}()
+	// Create the SSA builder.
+	builder := ssa.NewBuilder(ssa.Config{
+		NumWorkers: options.NumJobs,
+		Fset:       program.FileSet,
+		Ctx:        mlirCtx,
+		Info:       program.Info,
+		Sizes: &types.StdSizes{
+			WordSize: int64(llvm.PointerSize(targetLayout)),
+			MaxAlign: int64(targetInfo.Alignment),
+		},
+		Module:  mlirModule,
+		Program: program,
+	})
 
-	numJobs := options.NumJobs
-	if numJobs == 0 {
-		numJobs = 1
-	}
+	// Set module attributes
+	dataLayout := llvm.CreateTargetDataLayout(targetMachine)
+	mlir.GoSetTargetDataLayout(mlirModule, dataLayout)
+	mlir.GoSetTargetTriple(mlirModule, targetInfo.Triple)
 
-	stringTable := map[string][]string{}
+	// Generate the SSA.
+	fmt.Print("Building Go IR...")
+	builder.GeneratePackages(ctx, program.OrderedPackages)
+	fmt.Println("done")
 
-	// This will hold the compiled modules
-	var mu sync.Mutex
+	// dump the module to a string
+	fname, _ := filepath.Abs(options.Output + ".dump.mlir")
 
-	// Create a bounded worker pool
-	var wg sync.WaitGroup
-	wg.Add(numJobs)
+	// Post IR generation:
+	if options.DumpIR {
 
-	// Create the channel that packages to be compiled will be signaled on
-	pkgChan := make(chan *ssa.Package, numJobs)
-
-	// Create the compiler pool
-	for i := 0; i < numJobs; i++ {
-		go func() {
-			defer wg.Done()
-			for pkg := range pkgChan {
-				// Get the target
-				target, err := compiler.NewTarget(targetInfo, features)
-				if err != nil {
-					// TODO: Handle compiler errors more elegantly
-					errChan <- err
-					return
-				}
-
-				// Initialize the target
-				target.Initialize()
-
-				opts := compilerOptions.WithTarget(target)
-				// Create a compiler
-				cc, compilerCtx := compiler.NewCompiler(pkg.Pkg.Path(), opts)
-
-				// Compile the package
-				if err = cc.CompilePackage(ctx, compilerCtx, pkg); err != nil {
-					// TODO: Handle compiler errors more elegantly
-					errChan <- err
-					return
-				}
-
-				// Finish up
-				cc.Finalize()
-
-				dumpOut := options.Output + "." + strings.ReplaceAll(pkg.Pkg.Path(), "/", "_") + ".dump.ll"
-				if options.DumpIR {
-					dumpModule(cc.Module(), dumpOut)
-				}
-
-				// Verfiy the IR
-				if verifySucceeded, errMsg := llvm.VerifyModule2(cc.Module(), llvm.LLVMVerifierFailureAction(llvm.ReturnStatusAction)); !verifySucceeded {
-					errChan <- errors.Join(ErrCodeGeneratorError, errors.New(pkg.Pkg.Path()+":\n"+errMsg))
-					return
-				}
-
-				buf := llvm.WriteBitcodeToMemoryBuffer(cc.Module())
-				cc.Dispose()
-
-				mu.Lock()
-				// Combine string table
-				for str, globals := range cc.Strings() {
-					stringTable[str] = append(stringTable[str], globals...)
-				}
-				bitcodes = append(bitcodes, bitcode{
-					pkg:     pkg.Pkg.Path(),
-					bitcode: buf,
-				})
-				mu.Unlock()
+		// The path to the output must exist. Create it if it doesn't
+		if stat, err := os.Stat(path.Dir(fname)); errors.Is(err, os.ErrNotExist) {
+			if err := os.MkdirAll(path.Dir(fname), 0750); err != nil {
+				return err
 			}
-		}()
-	}
-
-	// Start signaling packages to be compiled by the pool
-	for _, pkg := range allPackages {
-		pkgChan <- pkg
-	}
-	close(pkgChan)
-
-	// Wait for remaining jobs to complete
-	wg.Wait()
-
-	// Create lookup table for packages
-	lookup := map[*types.Package]int64{}
-	for i, pkg := range allPackages {
-		lookup[pkg.Pkg] = int64(i)
-	}
-
-	// Create a directed graph so that the order in which the init functions should be call can be determined.
-	graph := simple.NewDirectedGraph()
-	for _, pkg := range allPackages {
-		from, _ := graph.NodeWithID(lookup[pkg.Pkg])
-		for _, imported := range pkg.Pkg.Imports() {
-			to, _ := graph.NodeWithID(lookup[imported])
-			e := graph.NewEdge(from, to)
-			graph.SetEdge(e)
-		}
-	}
-
-	// Perform a topological sort
-	result, err := topo.Sort(graph)
-	if err != nil {
-		return err
-	}
-
-	var pkgs []*ssa.Package
-	for _, node := range result {
-		// Prepend to get the correct call order
-		pkgs = append([]*ssa.Package{allPackages[node.ID()]}, pkgs...)
-	}
-
-	// Create the init module last
-	cc, llctx := compiler.NewCompiler("init", compilerOptions.WithTarget(target))
-	cc.CreateInitLib(llctx, pkgs)
-
-	// Done with error monitor
-	stopChan <- struct{}{}
-	close(stopChan)
-	close(errChan)
-
-	// Combine modules
-	for _, bc := range bitcodes {
-		print("Linking ", bc.pkg, "... ")
-		var module llvm.LLVMModuleRef
-		if llvm.ParseBitcodeInContext2(llctx, bc.bitcode, &module) {
-			return errors.Join(ErrCodeGeneratorError, errors.New("could not parse bitcode"))
+		} else if !stat.IsDir() {
+			return os.ErrInvalid
 		}
 
-		// Combine this module
-		if llvm.LinkModules2(cc.Module(), module) {
-			return errors.Join(ErrCodeGeneratorError, errors.New("could not link module"))
-		}
-
-		// Clean up
-		llvm.DisposeMemoryBuffer(bc.bitcode)
-		println("Done")
+		mlir.ModuleDumpToFile(mlirModule, fname)
 	}
 
-	// Initialize global strings
-	for str, globals := range stringTable {
-		cstr := llvm.ConstStringInContext(llctx, str, true)
-		cstrVal := llvm.AddGlobal(cc.Module(), llvm.TypeOf(cstr), "cstring")
-		llvm.SetAlignment(cstrVal, 4)
-		llvm.SetInitializer(cstrVal, cstr)
-
-		// Apply this string value to each global string
-		for _, globalName := range globals {
-			globalValue := llvm.GetNamedGlobal(cc.Module(), globalName)
-			if globalValue == nil {
-				// Skip globals that don't exist in the final module
-				continue
-			}
-			llvm.ReplaceAllUsesWith(globalValue, cstrVal)
-		}
+	// Run the optimization passes
+	passDumpDir, _ := filepath.Abs(options.Output)
+	passDumpDir = filepath.Dir(passDumpDir)
+	passDumpName := filepath.Base(options.Output)
+	fmt.Print("Optimizing Go IR...")
+	if mlir.LogicalResultIsFailure(mlir.GoOptimizeModule(mlirModule, passDumpName, passDumpDir)) {
+		fmt.Println()
+		return errors.Join(ErrCodeGeneratorError, err, errors.New("optimization passes failed"))
 	}
-
-	cc.Finalize()
-
-	if !options.GenerateDebugInfo {
-		// Strip debug info
-		llvm.StripModuleDebugInfo(cc.Module())
-	}
+	fmt.Println("done")
 
 	if options.DumpIR {
-		dumpModule(cc.Module(), options.Output+".dump.ll")
+		// dump the module to a string
+		fname := options.Output + ".dump.llvm.mlir"
+
+		// The path to the output must exist. Create it if it doesn't
+		if stat, err := os.Stat(path.Dir(fname)); errors.Is(err, os.ErrNotExist) {
+			if err := os.MkdirAll(path.Dir(fname), 0750); err != nil {
+				return err
+			}
+		} else if !stat.IsDir() {
+			return os.ErrInvalid
+		}
+
+		mlir.ModuleDumpToFile(mlirModule, fname)
+	}
+
+	// Initialize the LLVMIR translator
+	mlir.InitModuleTranslation(mlir.ModuleGetContext(mlirModule))
+
+	// Generate the LLVM module
+	llvmContext := llvm.ContextCreate()
+	fmt.Print("Translating Go IR to LLVM IR...")
+	llvmModule := mlir.TranslateModuleToLLVMIR(mlirModule, llvmContext, "module")
+	if !options.GenerateDebugInfo {
+		// Strip debug info
+		llvm.StripModuleDebugInfo(llvmModule)
+	}
+	fmt.Println("done")
+
+	// Add required constant globals to the LLVM module directly
+	addConstantGlobals(llvmModule, options, dataLayout)
+
+	if options.DumpIR {
+		dumpModule(llvmModule, options.Output+".dump.ll")
 	}
 
 	// Optimize modules
-	if err = optimize(cc.Module(), options.Optimization, target.Machine()); err != nil {
+	fmt.Print("Optimizing LLVM IR...")
+	if err = optimize(llvmModule, options.Optimization, targetMachine); err != nil {
+		fmt.Println()
 		return errors.Join(ErrCodeGeneratorError, err)
 	}
+	fmt.Println("done")
 
 	if options.DumpIR {
-		dumpModule(cc.Module(), options.Output+".dump.opt.ll")
+		dumpModule(llvmModule, options.Output+".dump.opt.ll")
 	}
 
+	fmt.Print("Linking firmware image...")
+	if err := link(options, targetInfo, arch, float, program, targetMachine, llvmModule); err != nil {
+		fmt.Println()
+		return err
+	}
+	fmt.Println("done")
+
+	//TODO: Clean up
+
+	return nil
+}
+
+func link(options Options, targetInfo targets.TargetInfo, arch string, float string, prog *ssa.Program, targetMachine llvm.LLVMTargetMachineRef, module llvm.LLVMModuleRef) error {
 	// Create the object file
 	objectOut := filepath.Join(options.BuildDir, "firmware.o")
-	if ok, errMsg := llvm.TargetMachineEmitToFile2(target.Machine(), cc.Module(), objectOut, llvm.LLVMCodeGenFileType(llvm.ObjectFile)); !ok {
+	if ok, errMsg := llvm.TargetMachineEmitToFile2(targetMachine, module, objectOut, llvm.LLVMCodeGenFileType(llvm.ObjectFile)); !ok {
 		return errors.Join(ErrCodeGeneratorError, errors.New(errMsg))
 	}
 
@@ -393,23 +311,12 @@ func Build(ctx context.Context, packageDir string) error {
 	// Select build of runtime-rt
 	libCompilerRTDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/compiler-rt", targetInfo.Triple, arch+"+"+float, "lib", targetInfo.Triple)
 
-	// Locate clang
-	executablePostfix := ""
-	if runtime.GOOS == "windows" {
-		executablePostfix = ".exe"
+	// Get the toolchain.
+	// TODO: Determine the toolchain more intelligently.
+	toolchain, err := findToolchain(options.Environment)
+	if err != nil {
+		return err
 	}
-
-	// Locate clang
-	clangExecutable := filepath.Join(options.Environment.Value("SIGOROOT"), "bin/clang"+executablePostfix)
-	if _, err = os.Stat(clangExecutable); os.IsNotExist(err) {
-		// Try build folder if this is a dev build
-		clangExecutable = filepath.Join(options.Environment.Value("SIGOROOT"), "build/llvm-build/bin/clang"+executablePostfix)
-		if _, err = os.Stat(clangExecutable); os.IsNotExist(err) {
-			return errors.New("could not locate clang in SIGOROOT")
-		}
-	}
-
-	buildToolsDir := filepath.Dir(clangExecutable)
 
 	// Other arguments
 	targetTriple := "--target=" + targetInfo.Triple
@@ -422,8 +329,8 @@ func Build(ctx context.Context, packageDir string) error {
 		"-L" + libCDir,
 		"-L" + libCompilerRTDir,
 		"-L" + filepath.Join(options.Environment.Value("SIGOROOT"), "runtime"),
-		"-L" + filepath.Dir(prog.targetLinkerFile),
-		"-T" + prog.targetLinkerFile,
+		"-L" + filepath.Dir(prog.LinkerScript),
+		"-T" + prog.LinkerScript,
 		"-lc",
 		"-lclang_rt.builtins-" + arch,
 	}
@@ -433,14 +340,14 @@ func Build(ctx context.Context, packageDir string) error {
 	}
 
 	// Add all linker files
-	for _, ld := range append(prog.otherFiles[".ld"], prog.otherFiles[".linker"]...) {
+	for _, ld := range append(prog.Files[".ld"], prog.Files[".linker"]...) {
 		args = append(args, "-L"+filepath.Dir(ld))
 	}
 
 	args = append(args, objectOut)
 
 	// Compile all assembly files
-	for _, asm := range append(prog.otherFiles[".s"], prog.otherFiles[".asm"]...) {
+	for _, asm := range append(prog.Files[".s"], prog.Files[".asm"]...) {
 		// Format object file name
 		objFile := filepath.Join(options.BuildDir, fmt.Sprintf("%s-%d.o", filepath.Base(asm), rand.Int()))
 
@@ -455,7 +362,7 @@ func Build(ctx context.Context, packageDir string) error {
 			"-o", objFile}
 
 		// Append defines to the assembler arguments
-		for def, val := range prog.defines {
+		for def, val := range prog.Defines {
 			if len(val) == 0 {
 				assemblerArgs = append(assemblerArgs,
 					"-D"+def)
@@ -466,11 +373,13 @@ func Build(ctx context.Context, packageDir string) error {
 		}
 
 		// Invoke Clang to compile the assembly sources
-		clangCmd := exec.Command(clangExecutable, assemblerArgs...)
+		clangCmd := exec.Command(toolchain.CC, assemblerArgs...)
 
-		clangCmd.Stdout = os.Stdout
+		clangCmd.Stdout = nil
 		clangCmd.Stderr = os.Stderr
-		if err = clangCmd.Run(); err != nil {
+		if err := clangCmd.Run(); err != nil {
+			fmt.Println()
+			fmt.Println("Command failed: ", clangCmd.String())
 			return errors.Join(ErrClangFailed, err)
 		}
 
@@ -479,25 +388,27 @@ func Build(ctx context.Context, packageDir string) error {
 	}
 
 	// Invoke ld.lld to compile the final binary
-	clangCmd := exec.Command(filepath.Join(buildToolsDir, "ld.lld"+executablePostfix), args...)
-	clangCmd.Stdout = os.Stdout
-	clangCmd.Stderr = os.Stderr
-	if err = clangCmd.Run(); err != nil {
+	lldCmd := exec.Command(toolchain.LD, args...)
+	lldCmd.Stdout = nil
+	lldCmd.Stderr = os.Stderr
+	if err := lldCmd.Run(); err != nil {
+		fmt.Println()
+		fmt.Println("Command failed: ", lldCmd.String())
 		return errors.Join(ErrClangFailed, err)
 	}
 
 	// Convert the final binary image to the specified output binary type
 	switch filepath.Ext(options.Output) {
 	case ".bin":
-		objCopyCmd := exec.Command(filepath.Join(filepath.Dir(clangExecutable), "llvm-objcopy"), "-O", "binary", elfOut, options.Output)
-		if err = objCopyCmd.Run(); err != nil {
-			output, _ := clangCmd.Output()
+		objCopyCmd := exec.Command(toolchain.ObjCopy, "-O", "binary", elfOut, options.Output)
+		if err := objCopyCmd.Run(); err != nil {
+			output, _ := lldCmd.Output()
 			return errors.Join(ErrClangFailed, err, errors.New(string(output)))
 		}
 	case ".hex":
-		objCopyCmd := exec.Command(filepath.Join(filepath.Dir(clangExecutable), "llvm-objcopy"), "-O", "ihex", elfOut, options.Output)
-		if err = objCopyCmd.Run(); err != nil {
-			output, _ := clangCmd.Output()
+		objCopyCmd := exec.Command(toolchain.ObjCopy, "-O", "ihex", elfOut, options.Output)
+		if err := objCopyCmd.Run(); err != nil {
+			output, _ := lldCmd.Output()
 			return errors.Join(ErrClangFailed, err, errors.New(string(output)))
 		}
 	default:
@@ -512,10 +423,6 @@ func Build(ctx context.Context, packageDir string) error {
 			return err
 		}
 	}
-
-	// Clean up
-	cc.Dispose()
-
 	return nil
 }
 
@@ -596,4 +503,36 @@ func optimize(module llvm.LLVMModuleRef, level string, machine llvm.LLVMTargetMa
 	}
 
 	return
+}
+
+func addConstantGlobals(module llvm.LLVMModuleRef, options Options, dataLayout llvm.LLVMTargetDataRef) {
+	intPtrType := llvm.IntPtrTypeInContext(llvm.GetModuleContext(module), dataLayout)
+
+	// Stack size for goroutines
+	globalGoroutineStackSize := findOrCreateGlobal(module, intPtrType, "runtime._goroutineStackSize")
+	alignment := llvm.PreferredAlignmentOfGlobal(dataLayout, globalGoroutineStackSize)
+	constGoroutineStackSize := llvm.ConstInt(intPtrType, uint64(align(uint(options.StackSize), alignment)), false)
+	llvm.SetAlignment(globalGoroutineStackSize, alignment)
+	llvm.SetInitializer(globalGoroutineStackSize, constGoroutineStackSize)
+	llvm.SetLinkage(globalGoroutineStackSize, llvm.ExternalLinkage)
+	llvm.SetGlobalConstant(globalGoroutineStackSize, true)
+}
+
+func findOrCreateGlobal(module llvm.LLVMModuleRef, ty llvm.LLVMTypeRef, name string) llvm.LLVMValueRef {
+	// Attempt to find the global value first
+	for value := llvm.GetFirstGlobal(module); !value.IsNil(); value = llvm.GetNextGlobal(value) {
+		if llvm.GetValueName2(value) == name {
+			if !llvm.TypeIsEqual(llvm.GlobalGetValueType(value), ty) {
+				panic("global value type mismatch")
+			}
+			return value
+		}
+	}
+
+	// Create the global value
+	return llvm.AddGlobal(module, ty, name)
+}
+
+func align(n uint, m uint) uint {
+	return n + (n % m)
 }

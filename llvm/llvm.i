@@ -20,7 +20,6 @@
 #include "llvm-c/ErrorHandling.h"
 //#include "llvm-c/ExecutionEngine.h"
 #include "llvm-c/ExternC.h"
-#include "llvm-c/Initialization.h"
 #include "llvm-c/IRReader.h"
 #include "llvm-c/Linker.h"
 //#include "llvm-c/LLJIT.h"
@@ -33,13 +32,7 @@
 #include "llvm-c/Target.h"
 #include "llvm-c/TargetMachine.h"
 #include "llvm-c/Types.h"
-#include "llvm-c/Transforms/InstCombine.h"
-#include "llvm-c/Transforms/IPO.h"
 #include "llvm-c/Transforms/PassBuilder.h"
-#include "llvm-c/Transforms/PassManagerBuilder.h"
-#include "llvm-c/Transforms/Scalar.h"
-#include "llvm-c/Transforms/Utils.h"
-#include "llvm-c/Transforms/Vectorize.h"
 %}
 
 %insert(cgo_comment_typedefs) %{
@@ -59,7 +52,6 @@
 #include "llvm-c/ErrorHandling.h"
 //#include "llvm-c/ExecutionEngine.h"
 #include "llvm-c/ExternC.h"
-#include "llvm-c/Initialization.h"
 #include "llvm-c/IRReader.h"
 #include "llvm-c/Linker.h"
 //#include "llvm-c/LLJIT.h"
@@ -72,13 +64,7 @@
 #include "llvm-c/Target.h"
 #include "llvm-c/TargetMachine.h"
 #include "llvm-c/Types.h"
-#include "llvm-c/Transforms/InstCombine.h"
-#include "llvm-c/Transforms/IPO.h"
 #include "llvm-c/Transforms/PassBuilder.h"
-#include "llvm-c/Transforms/PassManagerBuilder.h"
-#include "llvm-c/Transforms/Scalar.h"
-#include "llvm-c/Transforms/Utils.h"
-#include "llvm-c/Transforms/Vectorize.h"
 %}
 
 %{
@@ -378,8 +364,8 @@ typedef unsigned                                LLVMDWARFTypeEncoding;
 {
    $result = make([]C.$*1_type, 0, len($input))
    for _, val := range $input {
-        if val != nil {
-            $result = append($result, (C.$*1_type)(unsafe.Pointer(val)))
+        if val.cptr != 0 {
+            $result = append($result, (C.$*1_type)(unsafe.Pointer(val.Swigcptr())))
        } else {
             $result = append($result, (C.$*1_type)(unsafe.Pointer(nil)))
        }
@@ -412,16 +398,32 @@ typedef unsigned                                LLVMDWARFTypeEncoding;
 }
 
 %define LLVM_TYPEMAP(TYPE)
-%typemap(gotype) TYPE "TYPE";
-%typemap(gotype) TYPE * "*TYPE";
+
+%insert(go_wrapper) %{
+type TYPE struct {
+    cptr uintptr
+}
+
+func (s *TYPE) Swigcptr() uintptr {
+    return s.cptr
+}
+
+func (s *TYPE) SetSwigcptr(cptr uintptr) {
+    s.cptr = cptr
+}
+
+func (s *TYPE) IsNil() bool {
+    return s.cptr == 0
+}
+%}
+
+%typemap(gotype) TYPE "TYPE"
 %typemap(imtype) TYPE "C.TYPE"
-%typemap(goin) TYPE "$result = C.$type(unsafe.Pointer($input))"
-%typemap(goout) TYPE "$result = TYPE(unsafe.Pointer($1))"
+%typemap(goin) TYPE "$result = C.$type(unsafe.Pointer($input.Swigcptr()))"
+%typemap(goout) TYPE "$result.cptr = uintptr(unsafe.Pointer($1))"
 %typemap(in) TYPE "$1 = $input;"
 %typemap(out) TYPE "$result = $1;"
-%insert(go_wrapper) %{
-type TYPE C.TYPE
-%}
+
 %enddef
 
 LLVM_TYPEMAP(LLVMContextRef)
@@ -436,7 +438,6 @@ LLVM_TYPEMAP(LLVMBuilderRef)
 LLVM_TYPEMAP(LLVMDIBuilderRef)
 LLVM_TYPEMAP(LLVMModuleProviderRef)
 LLVM_TYPEMAP(LLVMPassManagerRef)
-LLVM_TYPEMAP(LLVMPassRegistryRef)
 LLVM_TYPEMAP(LLVMUseRef)
 LLVM_TYPEMAP(LLVMAttributeRef)
 LLVM_TYPEMAP(LLVMDiagnosticInfoRef)
@@ -449,7 +450,6 @@ LLVM_TYPEMAP(LLVMTargetRef)
 LLVM_TYPEMAP(LLVMTargetDataRef)
 LLVM_TYPEMAP(LLVMTargetLibraryInfoRef)
 LLVM_TYPEMAP(LLVMPassBuilderOptionsRef)
-LLVM_TYPEMAP(LLVMPassManagerBuilderRef)
 LLVM_TYPEMAP(LLVMSectionIteratorRef)
 LLVM_TYPEMAP(LLVMSymbolIteratorRef)
 LLVM_TYPEMAP(LLVMRelocationIteratorRef)
@@ -505,17 +505,10 @@ LLVM_ENUM(LLVMModuleFlagBehavior)
 %include "llvm-c/DebugInfo.h"
 %include "llvm-c/Disassembler.h"
 %include "llvm-c/DisassemblerTypes.h"
-%include "llvm-c/Initialization.h"
 %include "llvm-c/IRReader.h"
 %include "llvm-c/Linker.h"
 %include "llvm-c/Object.h"
 %include "llvm-c/Support.h"
 %include "llvm-c/Target.h"
 %include "llvm-c/TargetMachine.h"
-%include "llvm-c/Transforms/InstCombine.h"
-%include "llvm-c/Transforms/IPO.h"
 %include "llvm-c/Transforms/PassBuilder.h"
-%include "llvm-c/Transforms/PassManagerBuilder.h"
-%include "llvm-c/Transforms/Scalar.h"
-%include "llvm-c/Transforms/Utils.h"
-%include "llvm-c/Transforms/Vectorize.h"

@@ -14,6 +14,7 @@ var (
 
 func init() {
 	cortexm.SYSTICK_FREQUENCY = GCLK0_FREQUENCY
+	cortexm.NPRIORITY_BITS = 4
 }
 
 func DefaultClocks() {

@@ -6,7 +6,7 @@ type Error interface {
 }
 
 type TypeAssertError struct {
-	_interface    *_type
+	interfaceType *_type
 	concrete      *_type
 	asserted      *_type
 	missingMethod string
@@ -16,14 +16,16 @@ func (*TypeAssertError) RuntimeError() {}
 
 func (e *TypeAssertError) Error() string {
 	inter := "interface"
-	if e._interface != nil {
-		inter = *e._interface.name
+	if e.interfaceType != nil {
+		//inter = typeName(e.interfaceType)
 	}
-	as := *e.asserted.name
+	//as := typeName(e.asserted)
+	as := ""
 	if e.concrete == nil {
 		return "interface conversion: " + inter + " is nil, not " + as
 	}
-	cs := *e.concrete.name
+	//cs := typeName(e.concrete)
+	cs := ""
 	if len(e.missingMethod) == 0 {
 		msg := "interface conversion: " + inter + " is " + cs + ", not " + as
 		// TODO: Need to store package path in type information

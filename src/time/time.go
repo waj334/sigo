@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	source runtime.TimeSource = &runtime.SysTickSource{}
+	source runtime.TimeSource = runtime.SysTickSource{}
 )
 
 func SetSource(src runtime.TimeSource) {

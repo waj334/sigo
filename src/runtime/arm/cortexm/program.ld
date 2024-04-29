@@ -11,6 +11,13 @@ SECTIONS
         *(.rodata)
         *(.rodata.*)
         . = ALIGN(8);
+
+        /* Required for global ctors. */
+        PROVIDE_HIDDEN ( __init_array_start = . );
+        KEEP (*(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*)))
+        KEEP (*(.init_array .ctors))
+        PROVIDE_HIDDEN ( __init_array_end = . );
+
     } >FLASH
 
     /* Place the stack at the end of RAM so that any stack overflow that occurs
@@ -49,11 +56,11 @@ SECTIONS
     __heap_size = __heap_end - __heap_start;
 
     /* Define the range that the garbage collector
-       should scan for heap references */
+       should scan for heap references. */
     __gc_scan_start = __start_data;
     __gc_scan_end   = __end_bss;
 
-    /* Exception handling is not needed */
+    /* Exception handling is not needed. */
     /DISCARD/ :
     {
         *(.note .note.*)

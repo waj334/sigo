@@ -10,7 +10,7 @@ func _panic(arg any) {
 	// TODO: Attempt to print the arguments
 
 	// Call the current goroutine's defer stack
-	deferRun(nil)
+	deferRun()
 
 	// Abort if not recovered
 	if currentTask.state == taskPanicking {

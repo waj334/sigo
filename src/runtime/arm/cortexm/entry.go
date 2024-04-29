@@ -16,8 +16,8 @@ func gcmain()
 //sigo:extern abort runtime.abort
 func abort()
 
-//sigo:extern initPackages runtime.initPackages
-func initPackages()
+//sigo:extern __libc_init_array __libc_init_array
+func __libc_init_array()
 
 //sigo:extern __start_bss __start_bss
 var __start_bss unsafe.Pointer
@@ -54,6 +54,7 @@ func initMemory() {
 }
 
 //sigo:interrupt _entry Reset_Handler
+//sigo:required _entry
 func _entry() {
 	// Initialize the global variables
 	initMemory()
@@ -61,8 +62,8 @@ func _entry() {
 	// Init the GC
 	initgc()
 
-	// Initialize all packages
-	initPackages()
+	// Initialize all the global variables.
+	__libc_init_array()
 
 	go func() {
 		// Start the garbage collector

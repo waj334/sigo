@@ -30,3 +30,6 @@
 !/clang/clang_wrap.c
 /llvm/llvm_wrap.c
 /llvm/llvm.go
+/mlir/mlir.go
+/mlir/mlir_wrap.c
+/goir/.idea

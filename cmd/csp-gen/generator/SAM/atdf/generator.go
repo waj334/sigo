@@ -285,12 +285,12 @@ func (g *_generator) generateInitializers(w io.Writer) {
 	for varName, e := range merges {
 		if len(e) > 1 {
 			// Sort by address
-			slices.SortFunc(e, func(a, b entry) bool {
-				return a.offset < b.offset
+			slices.SortFunc(e, func(a, b entry) int {
+				return int(a.offset - b.offset)
 			})
 
 			typename := e[0].typename
-			fmt.Fprintf(w, "%s = []*%s{\n", varName, typename)
+			fmt.Fprintf(w, "%s = [%d]*%s{\n", varName, len(e), typename)
 			for _, ee := range e {
 				fmt.Fprintf(w, "(*%s)(unsafe.Pointer(uintptr(%#x))),\n", ee.typename, ee.offset)
 			}
@@ -406,8 +406,8 @@ func generateRegisterGroupStructBody(w io.Writer, module atdf.ModuleElement, gro
 	}
 
 	// Sort the list by offset
-	slices.SortFunc(l, func(a, b atdf.Offsetable) bool {
-		return a.Offset() < b.Offset()
+	slices.SortFunc(l, func(a, b atdf.Offsetable) int {
+		return int(a.Offset() - b.Offset())
 	})
 
 	if len(l) == 0 {
@@ -483,7 +483,7 @@ func generateBitfieldFuncs(w io.Writer, module atdf.ModuleElement, group atdf.Mo
 			fmt.Fprintf(w, "func (reg *%s) Get%s%s() %s {", registerTypeName, alt, cleanIdentifier(bitfield.Name), typename)
 			fmt.Fprintf(w, "v := volatile.Load%s((*%s)(reg))\n", strings.Title(intType), intType)
 			if typename == "bool" {
-				fmt.Fprintf(w, "return v&(0x1<<%d) != 0\n", offset)
+				fmt.Fprintf(w, "return v&(1<<%d) != 0\n", offset)
 			} else {
 				fmt.Fprintf(w, "return %s(v&%#x) >> %d\n", typename, bitfield.Mask, offset)
 			}
@@ -495,15 +495,15 @@ func generateBitfieldFuncs(w io.Writer, module atdf.ModuleElement, group atdf.Mo
 				fmt.Fprintf(w, "func (reg *%s) Set%s%s(enable bool)  {\n", registerTypeName, alt, cleanIdentifier(bitfield.Name))
 				fmt.Fprintf(w, "v := volatile.Load%s((*%s)(reg))\n", strings.Title(intType), intType)
 				fmt.Fprintf(w, "if enable {\n")
-				fmt.Fprintf(w, "v |= 0x1 << %d\n", offset)
+				fmt.Fprintf(w, "v |= 1 << %d\n", offset)
 				fmt.Fprintf(w, "} else {\n")
-				fmt.Fprintf(w, "v &= ^(v & (0x1 << %d))\n", offset)
+				fmt.Fprintf(w, "v &^= 1 << %d\n", offset)
 				fmt.Fprintf(w, "}\n")
 			} else {
 				fmt.Fprintf(w, "func (reg *%s) Set%s%s(value %s)  {\n", registerTypeName, alt, cleanIdentifier(bitfield.Name), typename)
 				fmt.Fprintf(w, "v := volatile.Load%s((*%s)(reg))\n", strings.Title(intType), intType)
-				fmt.Fprintf(w, "v &= ^(v & %#x)\n", bitfield.Mask)
-				fmt.Fprintf(w, "v |= %s(value) << %d\n", intType, offset)
+				fmt.Fprintf(w, "v &^= %#x\n", bitfield.Mask)              // Unset the respective bits.
+				fmt.Fprintf(w, "v |= %s(value) << %d\n", intType, offset) // Set the respective bits to the specified value.
 			}
 			fmt.Fprintf(w, "volatile.Store%s((*%s)(reg), v)\n", strings.Title(intType), intType)
 			fmt.Fprintf(w, "}\n\n")

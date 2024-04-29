@@ -16,20 +16,20 @@ const (
 	taskWaiting
 )
 
-type _goroutine struct {
-	fnPtr  unsafe.Pointer
-	params unsafe.Pointer
+type _func struct {
+	f    unsafe.Pointer
+	args unsafe.Pointer
 }
 
 type task struct {
 	stackTop      unsafe.Pointer
-	ctx           *_goroutine
+	__func        _func
 	stack         unsafe.Pointer
 	next          *task
 	prev          *task
 	state         taskState
 	sleepDeadline uint64
-	deferStack    *deferFrame
+	deferStack    *deferStack
 	panicValue    any
 }
 
@@ -42,18 +42,20 @@ type task struct {
 //go:export currentTask runtime.currentTask
 //go:export runScheduler runtime.runScheduler
 //go:export addTask runtime.addTask
-//go:export runtime.removeTask
+//go:export removeTask runtime.removeTask
 //go:export sleep runtime.sleep
 //go:export waitTask runtime.waitTask
 //go:export resumeTask runtime.resumeTask
 //go:export runningTask runtime.runningTask
 
+//sigo:required runScheduler
+
 var (
 	headTask           *task      = nil
 	lastTask           *task      = nil
 	currentTask        *task      = nil
-	timeSource         TimeSource = &SysTickSource{}
-	goroutineStackSize *uintptr
+	timeSource         TimeSource = SysTickSource{}
+	goroutineStackSize uintptr
 )
 
 func initTask(unsafe.Pointer)
@@ -65,9 +67,9 @@ func runScheduler() (shouldSwitch bool) {
 
 	// Check for stack overflow on current task
 	if currentTask != nil {
-		stackBottom := unsafe.Add(currentTask.stack, *goroutineStackSize)
+		stackBottom := unsafe.Add(currentTask.stack, goroutineStackSize)
 		stackSize := uintptr(stackBottom) - uintptr(currentStack())
-		if stackSize > *goroutineStackSize {
+		if stackSize > goroutineStackSize {
 			panic("stack overflow")
 		}
 	}
@@ -136,12 +138,17 @@ func runScheduler() (shouldSwitch bool) {
 	return
 }
 
-func addTask(ptr unsafe.Pointer) {
+func addTask(f _func) {
+	if f.f == nil {
+		// Do nothing.
+		return
+	}
+
 	state := disableInterrupts()
 	oldHead := headTask
 
 	// Allocate stack for this goroutine
-	stackSize := *goroutineStackSize
+	stackSize := goroutineStackSize
 	stack := malloc(stackSize)
 
 	// Create the new task
@@ -149,7 +156,7 @@ func addTask(ptr unsafe.Pointer) {
 		stack: stack,
 		// initTask may move the top of stack pointer depending on the target machine's stack growth direction
 		stackTop: stack,
-		ctx:      (*_goroutine)(ptr),
+		__func:   f,
 		state:    taskNotStarted,
 	}
 

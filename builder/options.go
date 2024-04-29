@@ -1,7 +1,5 @@
 package builder
 
-import "omibyte.io/sigo/compiler"
-
 type Options struct {
 	Packages          []string
 	Output            string
@@ -9,7 +7,7 @@ type Options struct {
 	DumpOnVerifyError bool
 	DumpIR            bool
 	Environment       Env
-	CompilerVerbosity compiler.Verbosity
+	//CompilerVerbosity compiler.Verbosity
 	GenerateDebugInfo bool
 	BuildTags         []string
 	Cpu               string
@@ -18,4 +16,5 @@ type Options struct {
 	NumJobs           int
 	Optimization      string
 	StackSize         int
+	KeepWorkDir       bool
 }

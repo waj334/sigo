@@ -6,6 +6,7 @@ import (
 
 var _tickCount uint32
 var SYSTICK_FREQUENCY uint32
+var NPRIORITY_BITS uint8 = 8
 
 //go:export currentTick runtime.currentTick
 func currentTick() uint32 {
@@ -19,9 +20,11 @@ func initSysTick() {
 	// Disable SysTick first
 	SYST.CSR.SetENABLE(false)
 
-	// Set up priorities
-	SCS.SHPR3.SetPRI_14(0) // Set PendSV to the highest priority
-	SCS.SHPR3.SetPRI_15(1) // Set SysTick below PendSV
+	// Set PendSV to the lowest priority so that context switching does not occur before other interrupts are serviced.
+	SCS.SHPR3.SetPRI_14(0xFF)
+
+	// NOTE: The priority for SysTick should be higher than PendSV, but lower than other critical interrupts.
+	SCS.SHPR3.SetPRI_15(4)
 
 	// TODO: Derive this value from the system clock settings
 	SYST.RVR.SetRELOAD(SYSTICK_FREQUENCY / 1000)

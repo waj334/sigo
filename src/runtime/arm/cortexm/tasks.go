@@ -3,38 +3,26 @@ package cortexm
 import "unsafe"
 
 //sigo:extern _goroutineStackSize runtime._goroutineStackSize
-var _goroutineStackSize *uintptr
+var _goroutineStackSize uintptr
 
 //sigo:extern _task_start _task_start
 var _task_start unsafe.Pointer
 
 type exceptionStack struct {
-	regs registers
-	R0   uintptr
-	R1   uintptr
-	R2   uintptr
-	R3   uintptr
-	R12  uintptr
-	LR   uintptr
-	PC   uintptr
-	PSR  uintptr
-}
-
-type registers struct {
-	R4  uintptr
-	R5  uintptr
-	R6  uintptr
-	R7  uintptr
-	R8  uintptr
-	R9  uintptr
-	R10 uintptr
-	R11 uintptr
+	R0  uintptr
+	R1  uintptr
+	R2  uintptr
+	R3  uintptr
+	R12 uintptr
+	LR  uintptr
+	PC  uintptr
+	PSR uintptr
 }
 
 type _task struct {
-	stack     unsafe.Pointer
-	goroutine *struct {
-		fn   unsafe.Pointer
+	stack  unsafe.Pointer
+	__func struct {
+		ptr  unsafe.Pointer
 		args unsafe.Pointer
 	}
 }
@@ -42,24 +30,23 @@ type _task struct {
 //go:export initTask runtime.initTask
 func initTask(taskPtr unsafe.Pointer) {
 	task := (*_task)(taskPtr)
-	stackSize := *_goroutineStackSize
-
-	// The stack grows from the highest address to the lowest address on Cortex-M.
-	offset := stackSize - unsafe.Sizeof(exceptionStack{})
 
 	// Calculate the top of the stack past the registers
-	estack := (*exceptionStack)(unsafe.Add(task.stack, offset))
+	// NOTE: The stack grows from the highest address to the lowest address on Cortex-M.
+	estack := (*exceptionStack)(unsafe.Add(task.stack, _goroutineStackSize-32))
 
 	// NOTE: The THUMB bit must be set!
 	// TODO: This isn't available for Cortex-M0 (excluding Cortex-M0+)
-	estack.PSR = 0x01000000
+	estack.PSR = 0x0100_0000
 
 	// Set up the call to _task_start
-	estack.PC = uintptr(_task_start)
-	estack.R0 = uintptr(task.goroutine.args)
-	estack.R1 = uintptr(task.goroutine.fn)
+	estack.PC = uintptr(unsafe.Pointer(&_task_start))
+	estack.R0 = uintptr(task.__func.args)
+	estack.R1 = uintptr(task.__func.ptr)
 	estack.R2 = uintptr(taskPtr)
-	task.stack = unsafe.Pointer(estack)
+
+	// Subtract 64 bytes to account for unstacking R4 - R11 during the initial context switch.
+	task.stack = unsafe.Add(task.stack, _goroutineStackSize-64)
 }
 
 //go:export align runtime.alignStack

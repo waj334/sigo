@@ -1,0 +1,16 @@
+
+set(LLVM_TARGET_DEFINITIONS GoOps.td)
+mlir_tablegen(GoOps.h.inc -gen-op-decls)
+mlir_tablegen(GoOps.cpp.inc -gen-op-defs)
+mlir_tablegen(GoOpsDialect.h.inc -gen-dialect-decls -dialect=go)
+mlir_tablegen(GoOpsDialect.cpp.inc -gen-dialect-defs -dialect=go)
+mlir_tablegen(GoEnums.h.inc -gen-enum-decls)
+mlir_tablegen(GoEnums.cpp.inc -gen-enum-defs)
+mlir_tablegen(GoAttrDefs.h.inc -gen-attrdef-decls -attrdefs-dialect=go)
+mlir_tablegen(GoAttrDefs.cpp.inc -gen-attrdef-defs -attrdefs-dialect=go)
+add_public_tablegen_target(MLIRGoOpsIncGen)
+
+set(LLVM_TARGET_DEFINITIONS GoOps.td)
+mlir_tablegen(GoTypes.h.inc -gen-typedef-decls -typedefs-dialect=go)
+mlir_tablegen(GoTypes.cpp.inc -gen-typedef-defs -typedefs-dialect=go)
+add_public_tablegen_target(MLIRGoTypesIncGen)

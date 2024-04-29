@@ -1,0 +1,67 @@
+@startuml
+
+class Type {
+    kind uint8
+    size uint16
+    data ptr
+}
+
+note right of Type::data
+    Pointer: element type
+    Slice: element type
+    Interface: signature slice
+end note
+
+class GoString {
+    length uint16
+    data ptr
+}
+
+class ArrayTypeData {
+    length uint16
+    elementType *Type
+}
+
+ArrayTypeData::elementType -> Type
+
+class StructTypeData {
+    fields []StructFieldData
+}
+
+class StructFieldData {
+    type *Type
+    tag *GoString
+}
+
+StructTypeData::fields -> StructFieldData
+StructFieldData::type --> Type
+StructFieldData::tag --> GoString
+
+class SignatureTypeData {
+    id uint32
+    receiverType *Type
+    parameterTypes []*Type
+    returnTypes []*Type
+}
+
+class MethodData {
+    func ptr
+    signature *Type
+}
+
+class MapTypeData {
+    keyType *Type
+    elementType *Type
+}
+
+class ChannelTypeData {
+    elementType *Type
+    direction uint8
+}
+
+class NamedTypeData {
+    underlyingType *Type
+    methods []MethodData
+}
+
+@enduml

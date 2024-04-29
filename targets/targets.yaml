@@ -1,0 +1,42 @@
+targets:
+  - series: "samd21"
+    chips: [ "atsamd21e15a",  "atsamd21e15b",  "atsamd21e15bu",  "atsamd21e15cu",  "atsamd21e15l",  "atsamd21e16a",  "atsamd21e16b",  "atsamd21e16bu",  "atsamd21e16cu",  "atsamd21e16l",  "atsamd21e17a",  "atsamd21e17d",  "atsamd21e17du",  "atsamd21e17l",  "atsamd21e18a",  "atsamd21g15a",  "atsamd21g15b",  "atsamd21g15l",  "atsamd21g16a",  "atsamd21g16b",  "atsamd21g16l",  "atsamd21g17a",  "atsamd21g17au",  "atsamd21g17d",  "atsamd21g17l",  "atsamd21g18a",  "atsamd21g18au",  "atsamd21j15a",  "atsamd21j15b",  "atsamd21j16a",  "atsamd21j16b",  "atsamd21j17a",  "atsamd21j17d",  "atsamd21j18a" ]
+    chipPackage: "runtime/arm/cortexm/sam/chip/${chip}"
+    architecture: "arm"
+    alignment: 4
+    triple: "armv6m-none-eabi"
+    cpu: "cortex-m0"
+    features: [ "armv6-m", "soft-float" ]
+    float: "softfp"
+
+  - series: "samc21"
+    chips: [ "atsamc21e15a",  "atsamc21e16a",  "atsamc21e17a",  "atsamc21e18a",  "atsamc21g15a",  "atsamc21g16a",  "atsamc21g17a",  "atsamc21g18a",  "atsamc21j15a",  "atsamc21j16a",  "atsamc21j17a",  "atsamc21j17au",  "atsamc21j18a",  "atsamc21j18au",  "atsamc21n17a",  "atsamc21n18a" ]
+    chipPackage: "runtime/arm/cortexm/sam/chip/${chip}"
+    architecture: "arm"
+    alignment: 4
+    triple: "armv6m-none-eabi"
+    cpu: "cortex-m0"
+    features: [ "armv6-m", "soft-float" ]
+    float: "softfp"
+
+  - series: "samd51"
+    chips: [ "atsamd51g18a", "atsamd51g19a", "atsamd51j18a", "atsamd51j19a", "atsamd51j20a",  "atsamd51n19a", "atsamd51n20a", "atsamd51p19a", "atsamd51p20a" ]
+    chipPackage: "runtime/arm/cortexm/sam/chip/${chip}"
+    architecture: "thumb"
+    alignment: 4
+    triple: "armv7m-none-eabi"
+    cpu: "cortex-m4"
+    tags: [ "samx51" ]
+    features: [ "armv7-m" ]
+    float: "hardfp"
+
+  - series: "same51"
+    chips: [ "atsame51g18a", "atsame51g19a", "atsame51j18a", "atsame51j19a", "atsame51j20a", "atsame51n19a", "atsame51n20a" ]
+    chipPackage: "runtime/arm/cortexm/sam/chip/${chip}"
+    architecture: "thumb"
+    alignment: 4
+    triple: "armv7m-none-eabi"
+    cpu: "cortex-m4"
+    tags: [ "samx51" ]
+    features: [ "armv7-m" ]
+    float: "hardfp"

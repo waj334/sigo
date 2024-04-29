@@ -1,0 +1,13 @@
+// RUN: go-opt %s -lower-go-to-llvm | FileCheck %s
+
+func.func @test() {
+    %0 = go.alloc {elementType = i32}
+    return
+}
+
+// CHECK: llvm.func @test() {
+// CHECK-NEXT: %0 = llvm.mlir.undef : i32
+// CHECK-NEXT: %1 = llvm.mlir.constant(false) : i1
+// CHECK-NEXT: %2 = llvm.call_intrinsic "go.alloc"(%0, %1) : (i32, i1) -> !llvm.ptr<i32>
+// CHECK-NEXT: llvm.return
+// CHECK-NEXT: }

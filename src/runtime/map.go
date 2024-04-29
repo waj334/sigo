@@ -8,11 +8,15 @@ const (
 )
 
 type _map struct {
-	buckets   []*mapEntry
+	data      *mapData
 	size      int
 	capacity  int
 	keyType   *_type
 	valueType *_type
+}
+
+type mapData struct {
+	buckets []*mapEntry
 }
 
 type mapEntry struct {
@@ -33,7 +37,7 @@ func mapMake(keyType, valueType *_type, capacity int) _map {
 	initialSize := 0
 
 	return _map{
-		buckets:   initialBuckets,
+		data:      &mapData{buckets: initialBuckets},
 		size:      initialSize,
 		capacity:  initialCapacity,
 		keyType:   keyType,
@@ -41,15 +45,29 @@ func mapMake(keyType, valueType *_type, capacity int) _map {
 	}
 }
 
+func mapClear(m *_map) {
+	if m.data.buckets == nil {
+		return
+	}
+
+	numBuckets := nextPow2(m.capacity)
+	if numBuckets < minBuckets {
+		numBuckets = minBuckets
+	}
+
+	m.data.buckets = make([]*mapEntry, numBuckets)
+	m.size = 0
+}
+
 func mapLen(m _map) int {
 	return m.size
 }
 
-func mapUpdate(m *_map, key unsafe.Pointer, value unsafe.Pointer) {
+func mapUpdate(m _map, key unsafe.Pointer, value unsafe.Pointer) {
 	// Perform key lookup
-	if entry := _mapLookup(*m, key); entry != nil {
+	if entry := _mapLookup(m, key); entry != nil {
 		// Update the value
-		memcpy(entry.value, value, m.valueType.size)
+		memcpy(entry.value, value, uintptr(m.valueType.size))
 	} else {
 		// Resize if necessary
 		if m.size+1 > m.capacity {
@@ -60,20 +78,20 @@ func mapUpdate(m *_map, key unsafe.Pointer, value unsafe.Pointer) {
 		keyHash := mapKeyHash(key, m.keyType)
 
 		// Locate bucket to place value into
-		bucketIdx := keyHash % uint64(len(m.buckets))
-		bucket := &m.buckets[bucketIdx]
+		bucketIdx := keyHash % uint64(len(m.data.buckets))
+		bucket := &m.data.buckets[bucketIdx]
 
 		// Insert a new entry into the hash map
 		entry = &mapEntry{
 			hash:  keyHash,
-			key:   alloc(m.keyType.size),
-			value: alloc(m.valueType.size),
+			key:   alloc(uintptr(m.keyType.size)),
+			value: alloc(uintptr(m.valueType.size)),
 			next:  *bucket,
 		}
 
 		// Copy the key and value
-		memcpy(entry.key, key, m.keyType.size)
-		memcpy(entry.value, value, m.valueType.size)
+		memcpy(entry.key, key, uintptr(m.keyType.size))
+		memcpy(entry.value, value, uintptr(m.valueType.size))
 
 		// Update the head of the map
 		*bucket = entry
@@ -83,9 +101,9 @@ func mapUpdate(m *_map, key unsafe.Pointer, value unsafe.Pointer) {
 	}
 }
 
-func mapResize(m *_map) {
+func mapResize(m _map) {
 	// double the number of buckets
-	oldBuckets := m.buckets
+	oldBuckets := m.data.buckets
 	newBuckets := make([]*mapEntry, 2*len(oldBuckets))
 
 	// rehash the entries
@@ -102,7 +120,7 @@ func mapResize(m *_map) {
 	}
 
 	// replace the old bucket slice with the new one
-	m.buckets = newBuckets
+	m.data.buckets = newBuckets
 	m.capacity = len(newBuckets) * loadFactor
 }
 
@@ -111,8 +129,8 @@ func mapDelete(m _map, key unsafe.Pointer) {
 	keyHash := mapKeyHash(key, m.keyType)
 
 	// Locate bucket to place value into
-	bucketIdx := keyHash % uint64(len(m.buckets))
-	bucket := &m.buckets[bucketIdx]
+	bucketIdx := keyHash % uint64(len(m.data.buckets))
+	bucket := &m.data.buckets[bucketIdx]
 
 	// Perform key lookup
 	var last *mapEntry
@@ -129,45 +147,51 @@ func mapDelete(m _map, key unsafe.Pointer) {
 	}
 }
 
-func mapLookup(m _map, key unsafe.Pointer, result unsafe.Pointer) (ok bool) {
+func mapLookup(m _map, key unsafe.Pointer) (unsafe.Pointer, bool) {
+	if entry := _mapLookup(m, key); entry != nil {
+		return entry.value, true
+	}
+	return nil, false
+}
+
+/*
+func mapLookup(m _map, key, result unsafe.Pointer) (unsafe.Pointer, bool) {
 	if entry := _mapLookup(m, key); entry != nil {
 		// Copy the mapped value to the address given by the result pointer
-		memcpy(result, entry.value, m.valueType.size)
-		return true
+		memcpy(result, entry.value, uintptr(m.valueType.size))
+		return result, true
 	}
 	// Store the zero value in the result and return false
-	memset(result, 0, m.valueType.size)
-	return false
+	memset(result, 0, uintptr(m.valueType.size))
+	return result, false
 }
+*/
 
 func _mapLookup(m _map, K unsafe.Pointer) *mapEntry {
 	keyHash := mapKeyHash(K, m.keyType)
-	bucketIdx := keyHash % uint64(len(m.buckets))
-	bucket := m.buckets[bucketIdx]
+	bucketIdx := keyHash % uint64(len(m.data.buckets))
+	bucket := m.data.buckets[bucketIdx]
 
 	for entry := bucket; entry != nil; entry = entry.next {
 		compareResult := false
 		if entry.hash == keyHash {
 			// Compare the key values just in-case there is a collision with the hash
-			switch m.keyType.construct {
-			case Primitive:
-				switch m.keyType.kind {
-				case String:
-					// Hash the string's backing array
-					lhs := (*_string)(K)
-					rhs := (*_string)(entry.key)
-					compareResult = *lhs == *rhs
-				default:
-					compareResult = memcmp(entry.key, K, m.keyType.size) == 0
-				}
+			switch m.keyType.kind {
+			case String:
+				// Hash the string's backing array
+				lhs := (*_string)(K)
+				rhs := (*_string)(entry.key)
+				compareResult = stringCompare(*lhs, *rhs)
+
 			//case Interface:
 			// TODO: Require the comparison operator for the underlying concrete value type
 			case Array:
+				arrayType := (*_arrayTypeData)(m.keyType.data)
 				// Hash the array's memory as-is
-				arraySize := m.keyType.array.elementType.size * uintptr(m.keyType.array.length)
+				arraySize := uintptr(arrayType.elementType.size) * uintptr(arrayType.length)
 				compareResult = memcmp(entry.key, K, arraySize) == 0
 			default:
-				compareResult = memcmp(entry.key, K, m.keyType.size) == 0
+				compareResult = memcmp(entry.key, K, uintptr(m.keyType.size)) == 0
 			}
 
 			if compareResult {
@@ -180,23 +204,19 @@ func _mapLookup(m _map, K unsafe.Pointer) *mapEntry {
 
 func mapKeyHash(K unsafe.Pointer, T *_type) (result uint64) {
 	// Hash the key based on the key's type
-	switch T.construct {
-	case Primitive:
-		switch T.kind {
-		case String:
-			// Hash the string's backing array
-			str := (*_string)(K)
-			result = computeFnv(str.array, uintptr(str.len))
-		default:
-			result = computeFnv(K, T.size)
-		}
+	switch T.kind {
+	case String:
+		// Hash the string's backing array
+		str := (*_string)(K)
+		result = computeFnv(str.array, uintptr(str.len))
 	//case Interface:
 	// TODO: Require the comparison operator for the underlying concrete value type
 	case Array:
+		arrayType := (*_arrayTypeData)(T.data)
 		// Hash the array's memory as-is
-		result = computeFnv(K, T.array.elementType.size*uintptr(T.array.length))
+		result = computeFnv(K, uintptr(arrayType.elementType.size)*uintptr(arrayType.length))
 	default:
-		result = computeFnv(K, T.size)
+		result = computeFnv(K, uintptr(T.size))
 	}
 	return
 }
@@ -210,8 +230,8 @@ type _mapIterator struct {
 func mapRange(it *_mapIterator) (bool, unsafe.Pointer, unsafe.Pointer) {
 	if it.entry == nil {
 		// Initialize the iterator by finding the next non-empty bucket
-		for ; it.bucket < len(it.m.buckets); it.bucket++ {
-			it.entry = it.m.buckets[it.bucket]
+		for ; it.bucket < len(it.m.data.buckets); it.bucket++ {
+			it.entry = it.m.data.buckets[it.bucket]
 			if it.entry != nil {
 				break
 			}
@@ -229,6 +249,10 @@ func mapRange(it *_mapIterator) (bool, unsafe.Pointer, unsafe.Pointer) {
 		}
 		return true, k, v
 	}
+}
+
+func mapIsNil(m _map) bool {
+	return len(m.data.buckets) == 0
 }
 
 func nextPow2(n int) int {
