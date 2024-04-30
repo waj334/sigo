@@ -3,6 +3,7 @@ package ssa
 import (
 	"context"
 	"go/ast"
+	"go/token"
 	"go/types"
 
 	"omibyte.io/sigo/mlir"
@@ -72,7 +73,9 @@ func fill[T any](s []T, v T) []T {
 
 func isEmpty(block *ast.BlockStmt) bool {
 	if block != nil {
-		return len(block.List) == 0
+		return len(block.List) == 0 &&
+			block.Lbrace == token.NoPos &&
+			block.Rbrace == token.NoPos
 	}
 	return true
 }

@@ -267,6 +267,13 @@ func (b *Builder) emitPanic(ctx context.Context, expr *ast.CallExpr) {
 	// Evaluate the input argument.
 	arg := b.emitExpr(ctx, expr.Args[0])[0]
 
+	// Generate methods for named types.
+	if T := b.typeOf(expr.Args[0]); T != nil {
+		if T, ok := T.(*types.Named); ok {
+			b.queueNamedTypeJobs(ctx, T)
+		}
+	}
+
 	// Convert the argument to an interface value.
 	arg = b.emitInterfaceValue(ctx, b.anyType, arg, location)
 
@@ -292,6 +299,13 @@ func (b *Builder) emitPrint(ctx context.Context, expr *ast.CallExpr) {
 		// Evaluate the input argument.
 		arg := b.emitExpr(ctx, expr.Args[i])[0]
 
+		// Generate methods for named types.
+		if T := b.typeOf(expr.Args[i]); T != nil {
+			if T, ok := T.(*types.Named); ok {
+				b.queueNamedTypeJobs(ctx, T)
+			}
+		}
+
 		// Create interface values from this input argument.
 		values[i] = b.emitInterfaceValue(ctx, b.anyType, arg, location)
 	}
@@ -315,7 +329,7 @@ func (b *Builder) emitPrint(ctx context.Context, expr *ast.CallExpr) {
 	inputSlice = b.bitcastTo(ctx, inputSlice, mlir.GoCreateSliceType(b._any), location)
 
 	// Create the runtime call to perform the print.
-	callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, "_"+ident.Name, nil, []mlir.Value{inputSlice}, location)
+	callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime._"+ident.Name, nil, []mlir.Value{inputSlice}, location)
 	appendOperation(ctx, callOp)
 }
 

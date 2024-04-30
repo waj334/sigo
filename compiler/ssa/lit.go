@@ -61,6 +61,11 @@ func (b *Builder) emitArrayLiteral(ctx context.Context, expr *ast.CompositeLit) 
 				// Convert from interface A to interface B.
 				elementValue = b.emitChangeType(ctx, elementT, elementValue, location)
 			} else {
+				// Generate methods for named types.
+				if T, ok := valueT.(*types.Named); ok {
+					b.queueNamedTypeJobs(ctx, T)
+				}
+
 				// Create an interface value from the value expression.
 				elementValue = b.emitInterfaceValue(ctx, elementT, elementValue, location)
 			}
@@ -104,6 +109,11 @@ func (b *Builder) emitMapLiteral(ctx context.Context, expr *ast.CompositeLit) ml
 				// Convert from interface A to interface B.
 				keyValue = b.emitChangeType(ctx, mapType.Elem(), keyValue, location)
 			} else {
+				// Generate methods for named types.
+				if T, ok := valueT.(*types.Named); ok {
+					b.queueNamedTypeJobs(ctx, T)
+				}
+
 				// Create an interface value from the value expression.
 				keyValue = b.emitInterfaceValue(ctx, mapType.Elem(), keyValue, location)
 			}
@@ -116,6 +126,11 @@ func (b *Builder) emitMapLiteral(ctx context.Context, expr *ast.CompositeLit) ml
 				// Convert from interface A to interface B.
 				elementValue = b.emitChangeType(ctx, mapType.Elem(), elementValue, location)
 			} else {
+				// Generate methods for named types.
+				if T, ok := valueT.(*types.Named); ok {
+					b.queueNamedTypeJobs(ctx, T)
+				}
+
 				// Create an interface value from the value expression.
 				elementValue = b.emitInterfaceValue(ctx, mapType.Elem(), elementValue, location)
 			}
@@ -154,6 +169,11 @@ func (b *Builder) emitSliceLiteral(ctx context.Context, expr *ast.CompositeLit) 
 				// Convert from interface A to interface B.
 				elementValue = b.emitChangeType(ctx, sliceType.Elem(), elementValue, location)
 			} else {
+				// Generate methods for named types.
+				if T, ok := valueT.(*types.Named); ok {
+					b.queueNamedTypeJobs(ctx, T)
+				}
+
 				// Create an interface value from the value expression.
 				elementValue = b.emitInterfaceValue(ctx, sliceType.Elem(), elementValue, location)
 			}
@@ -224,6 +244,11 @@ func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit)
 				// Convert from interface A to interface B.
 				elementValue = b.emitChangeType(ctx, field.Type(), elementValue, location)
 			} else {
+				// Generate methods for named types.
+				if T, ok := valueT.(*types.Named); ok {
+					b.queueNamedTypeJobs(ctx, T)
+				}
+
 				// Create an interface value from the value expression.
 				elementValue = b.emitInterfaceValue(ctx, field.Type(), elementValue, location)
 			}

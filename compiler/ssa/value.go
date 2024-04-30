@@ -63,7 +63,7 @@ func (g GlobalValue) Type() mlir.Type {
 	return g.T
 }
 
-func (g GlobalValue) Initialize(builder *Builder, priority int, fn func(context.Context, *Builder) mlir.Value, location mlir.Location) {
+func (g GlobalValue) Initialize(ctx context.Context, builder *Builder, priority int, fn func(context.Context, *Builder) mlir.Value, location mlir.Location) {
 	// Find the operation for this global in the current module's symbol table.
 	globalOp := builder.lookupSymbol(g.symbol)
 	if globalOp == nil {
@@ -86,16 +86,21 @@ func (g GlobalValue) Initialize(builder *Builder, priority int, fn func(context.
 
 	// Create the initializer block.
 	mlir.RegionAppendOwnedBlock(region, block)
-	ctx := newGlobalContext(context.Background())
-	ctx = newContextWithRegion(ctx, region)
-	ctx = newContextWithCurrentBlock(ctx)
 
-	setCurrentBlock(ctx, block)
-	result := fn(ctx, builder)
+	newCtx := newGlobalContext(context.Background())
+	if val := ctx.Value(jobQueueKey{}); val != nil {
+		queue := val.(*jobQueue)
+		newCtx = context.WithValue(newCtx, jobQueueKey{}, queue)
+	}
+	newCtx = newContextWithRegion(newCtx, region)
+	newCtx = newContextWithCurrentBlock(newCtx)
+
+	setCurrentBlock(newCtx, block)
+	result := fn(newCtx, builder)
 
 	// Create the terminator operation.
 	yieldOp := mlir.GoCreateYieldOperation(builder.ctx, result, location)
-	appendOperation(ctx, yieldOp)
+	appendOperation(newCtx, yieldOp)
 }
 
 type LocalValue struct {

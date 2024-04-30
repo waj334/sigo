@@ -119,6 +119,11 @@ func (b *Builder) emitAssign(ctx context.Context, stmt *ast.AssignStmt) {
 						// Convert from interface A to interface B.
 						rhs = b.emitChangeType(ctx, lhsType, rhs, location)
 					} else {
+						// Generate methods for named types.
+						if T, ok := rhsType.(*types.Named); ok {
+							b.queueNamedTypeJobs(ctx, T)
+						}
+
 						// Create an interface value from the value expression.
 						rhs = b.emitInterfaceValue(ctx, lhsType, rhs, location)
 					}
@@ -443,6 +448,7 @@ func (b *Builder) emitIdent(ctx context.Context, expr *ast.Ident) []mlir.Value {
 		return []mlir.Value{val}
 	case *types.Func:
 		symbol := b.resolveSymbol(qualifiedFuncName(obj))
+		b.queueJob(ctx, symbol)
 		signatureType := b.createSignatureType(ctx, obj.Type().Underlying().(*types.Signature), false)
 		op := mlir.GoCreateAddressOfOperation(b.ctx, symbol, signatureType, b.location(expr.Pos()))
 		appendOperation(ctx, op)
@@ -665,6 +671,11 @@ func (b *Builder) emitReturn(ctx context.Context, stmt *ast.ReturnStmt) {
 						// Convert from interface A to interface B.
 						v[ii] = b.emitChangeType(ctx, returnType, v[ii], location)
 					} else {
+						// Generate methods for named types.
+						if T, ok := valueType.(*types.Named); ok {
+							b.queueNamedTypeJobs(ctx, T)
+						}
+
 						// Create an interface value from the value expression.
 						v[ii] = b.emitInterfaceValue(ctx, returnType, v[ii], location)
 					}
@@ -764,50 +775,11 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 		case *types.Func:
 			// Return the address of the selected method.
 			symbol := b.resolveSymbol(qualifiedFuncName(obj))
+			b.queueJob(ctx, symbol)
 			T := b.GetType(ctx, obj.Type())
 			return []mlir.Value{
 				b.addressOfSymbol(ctx, symbol, T, location),
 			}
-
-			/*
-				var recv mlir.Value
-
-				recvType := sel.Recv()
-				if isPointer(recvType) {
-					// Pass the address of the receiver.
-					recv = b.valueOf(ctx, expr.X).Pointer(ctx, location)
-				} else {
-					// Load the value of the receiver.
-					recv = b.valueOf(ctx, expr.X).Load(ctx, location)
-				}
-
-				// Format the callee name.
-				callee := fmt.Sprintf("%s.%s.%s", obj.Pkg().Name(), sel.Obj().Id(), expr.Sel.Name)
-
-				// Create the argument pack.
-				argTypes := []mlir.Type{b.GetType(ctx, recvType)}
-				argsValue, argsType := b.createArgumentPack(ctx, []mlir.Value{recv}, location)
-
-				// Allocate heap to store the argument pack.
-				allocOp := mlir.GoCreateAllocaOperation(b.ctx, mlir.GoCreatePointerType(argsType), argsType, nil, true, location)
-				appendOperation(ctx, allocOp)
-
-				// Store the argument pack value at the heap address.
-				storeOp := mlir.GoCreateStoreOperation(b.ctx, argsValue, resultOf(allocOp), location)
-				appendOperation(ctx, storeOp)
-				argsValue = resultOf(allocOp)
-
-				// Create a thunk to wrap the method call, passing the receiver value.
-				thunkSymbolName := fmt.Sprintf("%s$thunk$2", callee)
-				b.createThunk(ctx, thunkSymbolName, callee, obj.Type().(*types.Signature), argTypes, true)
-
-				// Get the address of the thunk.
-				thunkAddr := b.addressOfSymbol(ctx, thunkSymbolName, b.ptr, b._noLoc)
-
-				// Return a func value.
-				return []mlir.Value{
-					b.createFunctionValue(ctx, thunkAddr, argsValue, location)}
-			*/
 		case *types.Var:
 			// Evaluate the address of the selected member.
 			baseAddr := b.emitSelectAddr(ctx, expr)
@@ -848,7 +820,9 @@ func (b *Builder) emitSelectAddr(ctx context.Context, expr *ast.SelectorExpr) ml
 				}
 			case *types.Func:
 				// Functions cannot be GEP'ed, so just return its address.
-				return b.addressOfSymbol(ctx, b.resolveSymbol(qualifiedFuncName(obj)), b.GetType(ctx, obj.Type()), location), nil
+				symbol := b.resolveSymbol(qualifiedFuncName(obj))
+				b.queueJob(ctx, symbol)
+				return b.addressOfSymbol(ctx, symbol, b.GetType(ctx, obj.Type()), location), nil
 			case *types.PkgName:
 				// Format the symbol name.
 				symbol := obj.Imported().Path() + "." + selectorExpr.Sel.Name

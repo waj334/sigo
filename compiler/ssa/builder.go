@@ -15,7 +15,6 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
-	"time"
 )
 
 type Config struct {
@@ -36,12 +35,15 @@ type Builder struct {
 	program       *Program
 	declaredTypes map[types.Type]struct{}
 	genericFuncs  map[string]*funcData
-	funcDeclData  map[string]*funcData
 	diFiles       map[*token.File]mlir.Attribute
 	compileUnits  map[*token.File]mlir.Attribute
 	symbols       mlir.SymbolTable
 
 	// Thread-unsafe structures:
+	funcDeclDataMutex sync.RWMutex
+	funcDeclData      map[string]*funcData
+	ungeneratedFuncs  map[string]*ast.FuncDecl
+
 	typeCache      map[types.Type]mlir.Type
 	typeCacheMutex sync.RWMutex
 
@@ -93,6 +95,10 @@ type Builder struct {
 	initPackageCounter map[*packages.Package]*atomic.Uint32
 }
 
+type jobQueue struct {
+	jobs []*funcData
+}
+
 func NewBuilder(config Config) *Builder {
 	builder := &Builder{
 		config:        config,
@@ -107,8 +113,9 @@ func NewBuilder(config Config) *Builder {
 
 		declaredTypes: map[types.Type]struct{}{},
 
-		funcDeclData: map[string]*funcData{},
-		addToModule:  map[string]mlir.Operation{},
+		ungeneratedFuncs: map[string]*ast.FuncDecl{},
+		funcDeclData:     map[string]*funcData{},
+		addToModule:      map[string]mlir.Operation{},
 
 		diFiles:            map[*token.File]mlir.Attribute{},
 		compileUnits:       map[*token.File]mlir.Attribute{},
@@ -214,6 +221,37 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 		return true
 	})
 
+	// Create the initial work queue.
+	initialWork := &jobQueue{
+		jobs: make([]*funcData, 0, 1000),
+	}
+	ctx = context.WithValue(ctx, jobQueueKey{}, initialWork)
+
+	// Populate un-generated functions list first so global initializers can add work to the initial job queue.
+	for _, pkg := range pkgs {
+		for _, file := range pkg.Syntax {
+			for _, decl := range file.Decls {
+				if decl, ok := decl.(*ast.FuncDecl); ok {
+					obj := b.objectOf(decl.Name).(*types.Func)
+					symbol := qualifiedFuncName(obj)
+					if symbol == b.config.Program.MainFunc {
+						symbol = "main.main"
+					}
+
+					// Is this function an intrinsic?
+					if isIntrinsic(symbol) {
+						// Skip intrinsic functions.
+						continue
+					}
+
+					// Mark this function as un-generated.
+					actualSymbol := b.resolveSymbol(symbol)
+					b.ungeneratedFuncs[actualSymbol] = decl
+				}
+			}
+		}
+	}
+
 	// Emit constants and global variables serially.
 	gvars := map[types.Object]*GlobalValue{}
 	for _, pkg := range pkgs {
@@ -246,25 +284,31 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 
 	// Handle global initializers.
 	initializedGlobals := map[*GlobalValue]struct{}{}
-	for i, intializer := range b.config.Info.InitOrder {
-		if len(intializer.Lhs) == 1 {
-			lhs := intializer.Lhs[0]
+	for i, initializer := range b.config.Info.InitOrder {
+		if len(initializer.Lhs) == 1 {
+			lhs := initializer.Lhs[0]
 			gv := gvars[lhs]
 			location := b.location(lhs.Pos())
 
 			// Initialize this global.
-			gv.Initialize(b, i, func(ctx context.Context, builder *Builder) mlir.Value {
+			gv.Initialize(ctx, b, i, func(ctx context.Context, builder *Builder) mlir.Value {
 				// Nil types will be untyped, so set up type inference.
 				ctx = newContextWithLhsList(ctx, []types.Type{lhs.Type()})
 				ctx = newContextWithRhsIndex(ctx, 0)
 
-				result := b.emitExpr(ctx, intializer.Rhs)[0]
+				result := b.emitExpr(ctx, initializer.Rhs)[0]
+
+				if T := b.typeOf(initializer.Rhs); T != nil {
+					if T, ok := T.(*types.Named); ok {
+						b.queueNamedTypeJobs(ctx, T)
+					}
+				}
 
 				switch baseType(lhs.Type()).(type) {
 				case *types.Interface:
 					result = b.emitInterfaceValue(ctx, lhs.Type(), result, location)
 				default:
-					switch b.typeOf(intializer.Rhs).(type) {
+					switch b.typeOf(initializer.Rhs).(type) {
 					case *types.Signature:
 						result = b.createFunctionValue(ctx, result, nil, location)
 					}
@@ -288,7 +332,7 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 			// Is this global NOT externally linked?
 			if len(info.LinkName) == 0 {
 				// Zero initialize the value.
-				gv.Initialize(b, 0, func(ctx context.Context, b *Builder) mlir.Value {
+				gv.Initialize(ctx, b, 0, func(ctx context.Context, b *Builder) mlir.Value {
 					T := b.GetStoredType(ctx, obj.Type())
 					zeroOp := mlir.GoCreateZeroOperation(b.ctx, T, location)
 					appendOperation(ctx, zeroOp)
@@ -305,8 +349,10 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 				if decl, ok := decl.(*ast.FuncDecl); ok {
 					obj := b.objectOf(decl.Name).(*types.Func)
 					symbol := qualifiedFuncName(obj)
+					isMain := false
 					if symbol == b.config.Program.MainFunc {
 						symbol = "main.main"
+						isMain = true
 					}
 
 					// Is this function an intrinsic?
@@ -315,118 +361,128 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 						continue
 					}
 
-					signature := obj.Type().Underlying().(*types.Signature)
 					symbolInfo := b.config.Program.Symbols.GetSymbolInfo(symbol)
 					actualSymbol := b.resolveSymbol(symbol)
 
-					existing, ok := b.funcDeclData[actualSymbol]
-					createData := !ok
+					// Mark this function as un-generated.
+					//b.ungeneratedFuncs[actualSymbol] = decl
 
 					isPackageInit := false
 					if strings.HasSuffix(actualSymbol, ".init") {
-						// This is a package initializer.
-						counter, ok := b.initPackageCounter[pkg]
-						if !ok {
-							counter = &atomic.Uint32{}
-							b.initPackageCounter[pkg] = counter
-						}
-						actualSymbol = fmt.Sprintf("%s.%d", actualSymbol, counter.Add(1))
 						isPackageInit = true
+					}
+
+					// Perform use analysis.
+					if !isPackageInit &&
+						!symbolInfo.IsInterrupt &&
+						!symbolInfo.ExternalLinkage &&
+						len(symbolInfo.LinkName) == 0 &&
+						pkg.PkgPath != "runtime" &&
+						!isMain {
+						if _, ok := b.config.Info.Uses[decl.Name]; !ok {
+							// Do not build this function.
+							continue
+						}
 					}
 
 					// Create the data for this function if it has NOT been encountered before or the incoming function
 					// has a body and the previous did not (overrides the pre-declaration).
+					existing, ok := b.funcDeclData[actualSymbol]
+					createData := !ok
 					if !createData {
 						if isEmpty(existing.body) {
 							createData = !isEmpty(decl.Body)
+							b.ungeneratedFuncs[actualSymbol] = decl
 						}
 					}
 
 					if createData {
-						data := &funcData{
-							symbol:         actualSymbol,
-							funcType:       decl.Type,
-							recv:           decl.Recv,
-							body:           decl.Body,
-							pos:            decl.Pos(),
-							signature:      signature,
-							isExported:     decl.Name.IsExported() || symbolInfo.Exported,
-							isGeneric:      signature.RecvTypeParams() != nil || signature.TypeParams() != nil,
-							locals:         map[string]Value{},
-							anonymousFuncs: map[*ast.FuncLit]*funcData{},
-							instances:      map[*types.Signature]*funcData{},
-							typeMap:        map[int]types.Type{},
+						data := b.addFunctionDecl(ctx, decl)
+						if data == nil {
+							panic("data is nil")
 						}
-
 						if isPackageInit {
+							// This is a package initializer.
+							counter, ok := b.initPackageCounter[pkg]
+							if !ok {
+								counter = &atomic.Uint32{}
+								b.initPackageCounter[pkg] = counter
+							}
+							data.symbol = fmt.Sprintf("%s.%d", actualSymbol, counter.Add(1))
 							data.isPackageInit = true
 							data.priority = pkgNum
 						}
 
-						// NOTE: Have to create the function type after the func object has been initialized if the function is
-						//       NOT generic.
-						if !data.isGeneric {
-							data.mlirType = b.GetType(ctx, obj.Type())
-						} else {
-							b.genericFuncs[data.symbol] = data
-						}
-
-						b.funcDeclData[actualSymbol] = data
+						// Queue this function to be generated.
+						initialWork.jobs = append(initialWork.jobs, data)
 					}
 				}
 			}
 		}
 	}
 
-	var doneCh = make(chan struct{})
-	go func() {
-		// For each package, add all function declarations the to generate queue to be generated
-		// asynchronously.
-		for _, data := range b.funcDeclData {
-			b.addWork(data)
-		}
-
-		// Signal that initial job queuing is complete.
-		close(doneCh)
-	}()
-
-	// Begin consuming the queue.
-	/*g := runtime.GOMAXPROCS(0)
-	if b.config.NumWorkers > 0 {
-		g = max(1, min(b.config.NumWorkers, g))
-	}*/
-
+	// Bound the number of worker goroutines.
 	g := max(1, b.config.NumWorkers)
 
-	// Generate functions in batches until the work counter reaches zero.
-	var wg sync.WaitGroup
-	wg.Add(g)
+	// Fast-path: Do nothing if there are no functions to generate.
+	if len(initialWork.jobs) == 0 {
+		return
+	}
+
+	var wgQueue sync.WaitGroup
+	generateQueue := make(chan *funcData)
+
+	// Define a function to queue new jobs.
+	queueFunc := func(queue *jobQueue) {
+		// Signal that job queueing is complete when this function returns.
+		defer wgQueue.Done()
+
+		// Queue each job.
+		for _, job := range queue.jobs {
+			generateQueue <- job
+		}
+	}
+
+	// Queue all initial jobs.
+	// NOTE: This should guarantee each function has a chance to queue new jobs, causing the job queue channel to be
+	//       closed later.
+	wgQueue.Add(1)
+	go queueFunc(initialWork)
+
+	// Begin consuming the queue.
+	var wgJobs sync.WaitGroup
+	wgJobs.Add(g)
 	for c := 0; c < g; c++ {
 		go func() {
-			defer wg.Done()
-			for job := range b.generateQueue {
+			defer wgJobs.Done()
+			for job := range generateQueue {
+				// Add to the queue wait group to delay closing the work queue until this job finishes.
+				wgQueue.Add(1)
+
+				// Create a new job queue for when functions need other functions to be generated.
+				queue := &jobQueue{jobs: make([]*funcData, 0, 1000)}
+				ctx = context.WithValue(ctx, jobQueueKey{}, queue)
 				b.emitFunc(ctx, job)
-				b.work.Add(-1)
+
+				if len(queue.jobs) > 0 {
+					// Queue new jobs requested by the last job.
+					go queueFunc(queue)
+				} else {
+					// There is nothing to be queued.
+					wgQueue.Done()
+				}
 			}
 		}()
 	}
 
-	// Wait to initial job queuing to complete.
-	<-doneCh
-
-	// Poll for when all work is complete.
+	// Wait for queuing to be completed.
 	go func() {
-		for {
-			if b.work.Load() <= 0 {
-				close(b.generateQueue)
-				return
-			}
-			time.Sleep(time.Millisecond * 10)
-		}
+		wgQueue.Wait()
+		close(generateQueue)
 	}()
 
 	// Wait for all work to complete.
-	wg.Wait()
+	wgJobs.Wait()
 
 	// Sort module-level operations by symbol name.
 	symbolKeys := maps.Keys(b.addToModule)
@@ -436,6 +492,84 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 	for _, symbol := range symbolKeys {
 		b.appendToModule(b.addToModule[symbol])
 	}
+}
+
+func (b *Builder) lookUpUngeneratedJob(symbol string) *ast.FuncDecl {
+	b.funcDeclDataMutex.RLock()
+	defer b.funcDeclDataMutex.RUnlock()
+	return b.ungeneratedFuncs[symbol]
+}
+
+func (b *Builder) queueNamedTypeJobs(ctx context.Context, T *types.Named) {
+	for i := 0; i < T.NumMethods(); i++ {
+		// Need to generate methods for this named type in order for interfaces to function correctly.
+		symbol := qualifiedFuncName(T.Method(i))
+		b.queueJob(ctx, symbol)
+	}
+}
+
+func (b *Builder) queueJob(ctx context.Context, symbol string) {
+	if val := ctx.Value(jobQueueKey{}); val != nil {
+		if decl := b.lookUpUngeneratedJob(symbol); decl != nil {
+			if job := b.addFunctionDecl(ctx, decl); job != nil {
+				queue := val.(*jobQueue)
+				queue.jobs = append(queue.jobs, job)
+			}
+		}
+	}
+}
+
+func (b *Builder) addFunctionDecl(ctx context.Context, decl *ast.FuncDecl) *funcData {
+	b.funcDeclDataMutex.Lock()
+	defer b.funcDeclDataMutex.Unlock()
+
+	obj := b.objectOf(decl.Name).(*types.Func)
+	symbol := qualifiedFuncName(obj)
+	if symbol == b.config.Program.MainFunc {
+		symbol = "main.main"
+	}
+
+	signature := obj.Type().Underlying().(*types.Signature)
+	symbolInfo := b.config.Program.Symbols.GetSymbolInfo(symbol)
+	actualSymbol := b.resolveSymbol(symbol)
+
+	if _, ok := b.ungeneratedFuncs[actualSymbol]; !ok && obj.Name() != "init" {
+		// Do nothing.
+		return nil
+	}
+
+	data := &funcData{
+		symbol:         actualSymbol,
+		funcType:       decl.Type,
+		recv:           decl.Recv,
+		body:           decl.Body,
+		pos:            decl.Pos(),
+		signature:      signature,
+		isExported:     decl.Name.IsExported() || symbolInfo.Exported,
+		isGeneric:      signature.RecvTypeParams() != nil || signature.TypeParams() != nil,
+		locals:         map[string]Value{},
+		anonymousFuncs: map[*ast.FuncLit]*funcData{},
+		instances:      map[*types.Signature]*funcData{},
+		typeMap:        map[int]types.Type{},
+	}
+
+	// NOTE: Have to create the function type after the func object has been initialized if the function is
+	//       NOT generic.
+	if !data.isGeneric {
+		data.mlirType = b.GetType(ctx, obj.Type())
+	} else {
+		b.genericFuncs[data.symbol] = data
+	}
+
+	// NOTE: Init functions do not need to be tracked as they will ONLY be called by the runtime.
+	if symbol != "init" {
+		b.funcDeclData[actualSymbol] = data
+	}
+
+	// Remove this entry in the un-generated job map.
+	delete(b.ungeneratedFuncs, actualSymbol)
+
+	return data
 }
 
 func (b *Builder) objectOf(node ast.Node) types.Object {

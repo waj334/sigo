@@ -76,8 +76,17 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 		return
 	}
 
+	var queue *jobQueue
+	if val := ctx.Value(jobQueueKey{}); val != nil {
+		queue = val.(*jobQueue)
+	}
+
 	// Set the current data in a fresh context.
 	ctx = newContextWithFuncData(context.Background(), data)
+
+	if queue != nil {
+		ctx = context.WithValue(ctx, jobQueueKey{}, queue)
+	}
 
 	// Get the location of the input function.
 	loc := b.location(data.pos)

@@ -287,7 +287,6 @@ private:
 
                     // Look up the function in the current module.
                     auto funcOp = cast_or_null<func::FuncOp>(getOperation().lookupSymbol(funcSymbol));
-                    const auto signature = funcOp.getFunctionType();
 
                     // Note: It is possible for some method functions to be dropped if there is no usage of them. Do not
                     // generate information for these.
@@ -295,6 +294,7 @@ private:
                       continue;
                     }
 
+                    const auto signature = funcOp.getFunctionType();
                     const auto fnType = cast<FunctionType>(
                         funcOp->getAttrOfType<TypeAttr>(funcOp.getFunctionTypeAttrName()).getValue());
 

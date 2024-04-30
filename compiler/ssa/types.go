@@ -311,7 +311,6 @@ func (b *Builder) createNamedType(ctx context.Context, T *types.Named) mlir.Type
 			symbol := qualifiedFuncName(method)
 			refAttr := mlir.FlatSymbolRefAttrGet(b.ctx, symbol)
 			entries[i] = refAttr
-
 		}
 		methodSymbols = mlir.ArrayAttrGet(b.ctx, entries)
 	}
