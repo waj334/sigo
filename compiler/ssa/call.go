@@ -52,6 +52,11 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 					// Convert from interface A to interface B.
 					argValues[i] = b.emitChangeType(ctx, paramT, argValues[i], location)
 				} else {
+					// Generate methods for named types.
+					if T, ok := argT.(*types.Named); ok {
+						b.queueNamedTypeJobs(ctx, T)
+					}
+
 					// Create an interface value from the value expression.
 					argValues[i] = b.emitInterfaceValue(ctx, paramT, argValues[i], location)
 				}
@@ -218,7 +223,10 @@ func (b *Builder) emitGeneralCall(ctx context.Context, ident *ast.Ident, obj *ty
 	}
 
 	// Create the function call.
-	callOp := mlir.GoCreateCallOperation(b.ctx, b.resolveSymbol(callee), resultTypes, args, location)
+	symbol := b.resolveSymbol(callee)
+	b.queueJob(ctx, symbol)
+
+	callOp := mlir.GoCreateCallOperation(b.ctx, symbol, resultTypes, args, location)
 	appendOperation(ctx, callOp)
 	return resultsOf(callOp)
 }

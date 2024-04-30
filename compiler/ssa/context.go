@@ -18,6 +18,7 @@ type (
 	rhsIndexKey          struct{}
 	funcDataKey          struct{}
 	globalKey            struct{}
+	jobQueueKey          struct{}
 )
 
 func newGlobalContext(ctx context.Context) context.Context {
