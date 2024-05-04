@@ -10,18 +10,11 @@
 
 #include "Go/Util.h"
 
-MlirType mlirGoCreateNamedType(MlirType underlying, MlirStringRef package, MlirStringRef name, MlirAttribute* methods) {
+MlirType mlirGoCreateNamedType(MlirType underlying, MlirStringRef name) {
   const auto _underlying = unwrap(underlying);
   const auto ctx = _underlying.getContext();
-
   const auto _name = mlir::StringAttr::get(ctx, unwrap(name));
-  const auto _package = mlir::StringAttr::get(ctx, unwrap(package));
-
-  std::optional<mlir::ArrayAttr> _methods;
-  if (methods != nullptr) {
-    _methods = mlir::cast<mlir::ArrayAttr>(unwrap(*methods));
-  }
-  return wrap(mlir::go::NamedType::get(ctx, _underlying, _name, _package, _methods));
+  return wrap(mlir::go::NamedType::get(ctx, _underlying, _name));
 }
 
 MlirType mlirGoGetUnderlyingType(MlirType type) {

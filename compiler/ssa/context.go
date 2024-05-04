@@ -126,7 +126,7 @@ func currentPredecessorBlock(ctx context.Context) mlir.Block {
 func newContextWithLhsList(ctx context.Context, lhs []types.Type) context.Context {
 	// Enforce that no type is untyped.
 	for _, T := range lhs {
-		if typeHasFlags(T, types.IsUntyped) {
+		if T != nil && typeHasFlags(T, types.IsUntyped) {
 			panic("untyped type are forbidden")
 		}
 	}

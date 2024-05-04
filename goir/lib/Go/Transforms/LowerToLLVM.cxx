@@ -509,8 +509,7 @@ namespace mlir::go {
                 // Compute method hash (method name, args types, result types)
                 const auto signature = cast<InterfaceType>(op.getIface().getType()).getMethods().at(
                     adaptor.getCallee().str());
-                auto methodHash = computeMethodHash(adaptor.getCallee(), signature, true);
-
+                auto methodHash = uint32_t(computeMethodHash(adaptor.getCallee(), signature, true));
                 for (size_t i = 0; i < adaptor.getCalleeOperands().size(); ++i) {
                     auto arg = adaptor.getCalleeOperands()[i];
                     argTypes.push_back(this->typeConverter->convertType(arg.getType()));
@@ -764,74 +763,6 @@ namespace mlir::go {
             }
         };
 
-        struct SliceOpLowering : ConvertOpToLLVMPattern<SliceOp> {
-            using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
-
-            LogicalResult matchAndRewrite(SliceOp op, OpAdaptor adaptor,
-                                          ConversionPatternRewriter &rewriter) const override {
-                Operation *resultOp;
-                const auto loc = op.getLoc();
-                auto baseInputType = underlyingType(op.getInput().getType());
-                auto resultType = this->typeConverter->convertType(op.getType());
-                auto intType = IntegerType::get(rewriter.getContext(), 32);
-                if (mlir::isa<SliceType>(baseInputType)) {
-                    auto symbol = typeInfoSymbol(op.getInput().getType());
-                    Value typeInfoValue = rewriter.create<mlir::LLVM::AddressOfOp>(loc, getVoidPtrType(), symbol);
-
-                    SmallVector<Value> args = {
-                        adaptor.getInput(), typeInfoValue,
-                        adaptor.getLow()
-                            ? adaptor.getLow()
-                            : rewriter.create<mlir::LLVM::ConstantOp>(loc, intType, -1).getResult(),
-                        adaptor.getHigh()
-                            ? adaptor.getHigh()
-                            : rewriter.create<mlir::LLVM::ConstantOp>(loc, intType, -1).getResult(),
-                        adaptor.getMax()
-                            ? adaptor.getMax()
-                            : rewriter.create<mlir::LLVM::ConstantOp>(loc, intType, -1).getResult()
-                    };
-                    resultOp = createRuntimeCall(rewriter, loc, "sliceReslice", {resultType}, args);
-                } else if (mlir::isa<StringType>(baseInputType)) {
-                    SmallVector<Value> args = {
-                        adaptor.getInput(),
-                        adaptor.getLow()
-                            ? adaptor.getLow()
-                            : rewriter.create<mlir::LLVM::ConstantOp>(loc, intType, -1).getResult(),
-                        adaptor.getHigh()
-                            ? adaptor.getHigh()
-                            : rewriter.create<mlir::LLVM::ConstantOp>(loc, intType, -1).getResult(),
-                    };
-                    resultOp = createRuntimeCall(rewriter, loc, "stringSlice", {resultType}, args);
-                } else if (auto ptrType = mlir::dyn_cast_or_null<PointerType>(baseInputType); ptrType) {
-                    auto arrayType =
-                            mlir::dyn_cast<mlir::LLVM::LLVMArrayType>(
-                                this->typeConverter->convertType(*ptrType.getElementType()));
-                    const auto module = op->getParentOfType<ModuleOp>();
-                    auto dataLayout = mlir::DataLayout(module);
-                    auto wordType = IntegerType::get(rewriter.getContext(), getTypeConverter()->getPointerBitwidth());
-                    auto stride = dataLayout.getTypeSize(arrayType.getElementType());
-
-                    SmallVector<Value> args = {
-                        adaptor.getInput(),
-                        adaptor.getLow()
-                            ? adaptor.getLow()
-                            : rewriter.create<mlir::LLVM::ConstantOp>(loc, intType, -1).getResult(),
-                        adaptor.getHigh()
-                            ? adaptor.getHigh()
-                            : rewriter.create<mlir::LLVM::ConstantOp>(loc, intType, -1).getResult(),
-                        rewriter.create<mlir::LLVM::ConstantOp>(loc, intType, arrayType.getNumElements()).getResult(),
-                        rewriter.create<mlir::LLVM::ConstantOp>(loc, wordType, stride).getResult()
-                    };
-                    resultOp = createRuntimeCall(rewriter, loc, "sliceAddr", {resultType}, args);
-                } else {
-                    return failure();
-                }
-
-                rewriter.replaceOp(op, resultOp);
-                return success();
-            }
-        };
-
         struct StoreOpLowering : ConvertOpToLLVMPattern<StoreOp> {
             using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
 
@@ -935,7 +866,6 @@ namespace mlir::go {
             transforms::LLVM::RecoverOpLowering,
             transforms::LLVM::RecvOpLowering,
             transforms::LLVM::RuntimeCallOpLowering,
-            transforms::LLVM::SliceOpLowering,
             transforms::LLVM::StoreOpLowering,
             transforms::LLVM::ExtractOpLowering,
             transforms::LLVM::InsertOpLowering,

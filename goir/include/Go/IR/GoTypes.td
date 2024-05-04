@@ -22,9 +22,7 @@ def NamedType : GoDialect_Type<"Named", "named", [
         ]> {
     let parameters = (ins
         "Type":$underlying,
-        "StringAttr":$name,
-        "StringAttr":$package,
-        DefaultValuedParameter<"std::optional<ArrayAttr>", "std::nullopt">:$methods
+        "StringAttr":$name
         );
     let assemblyFormat = "`<` struct(params) `>`";
     let extraClassDefinition = [{

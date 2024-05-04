@@ -29,7 +29,7 @@ func (c ConstantValue) Store(ctx context.Context, value mlir.Value, location mli
 
 func (c ConstantValue) Pointer(ctx context.Context, location mlir.Location) mlir.Value {
 	value := c.Emitter(ctx, location)
-	return c.b.makeAddressOf(ctx, value, location)
+	return c.b.makeCopyOf(ctx, value, location)
 }
 
 func (c ConstantValue) Type() mlir.Type {

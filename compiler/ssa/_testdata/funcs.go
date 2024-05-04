@@ -43,3 +43,11 @@ func returnNils2() (a, b, c *int) {
 func returnBasicLits() (int, bool, float32) {
 	return 0, true, 0.5
 }
+
+func funcParam(f func()) {
+	funcParam(f)
+}
+
+func funcArg() {
+	funcParam(funcArg)
+}

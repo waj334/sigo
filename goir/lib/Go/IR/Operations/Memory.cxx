@@ -61,16 +61,4 @@ namespace mlir::go {
         }
         return success();
     }
-
-    void SliceOp::inferResultRanges(ArrayRef<ConstantIntRanges> argRanges, SetIntRangeFn setResultRange) {
-        setResultRange(getResult(), ::mlir::intrange::inferAdd(argRanges));
-    }
-
-    LogicalResult SliceOp::verify() {
-        // The result can only be a string ONLY if the input is a string.
-        if (go::isa<StringType>(this->getType()) && !go::isa<StringType>(this->getInput().getType())) {
-            return this->emitOpError() << "the result can only be a string ONLY if the input is a string";
-        }
-        return success();
-    }
 } // namespace mlir::go

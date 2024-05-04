@@ -18,13 +18,14 @@ import (
 )
 
 type Config struct {
-	Fset       *token.FileSet
-	Info       *types.Info
-	Ctx        mlir.Context
-	Module     mlir.Module
-	Sizes      *types.StdSizes
-	Program    *Program
-	NumWorkers int
+	Fset               *token.FileSet
+	Info               *types.Info
+	Ctx                mlir.Context
+	Module             mlir.Module
+	Sizes              *types.StdSizes
+	Program            *Program
+	NumWorkers         int
+	DisableUseAnalysis bool
 }
 
 type Builder struct {
@@ -152,11 +153,12 @@ func NewBuilder(config Config) *Builder {
 	builder._any = builder.GetType(context.Background(), builder.anyType)
 
 	// {func_ptr, env_ptr}
-	builder._func = mlir.GoCreateNamedType(mlir.GoCreateLiteralStructType(config.Ctx, []mlir.Type{builder.ptr, builder.ptr}), "runtime", "func", nil)
+	//builder._func = mlir.GoCreateNamedType(mlir.GoCreateLiteralStructType(config.Ctx, []mlir.Type{builder.ptr, builder.ptr}), "func")
+	builder._func = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_func"))
 
 	builder._noLoc = builder.location(0)
 
-	// Bind dialect types to runtime types
+	// Bind dialect types to runtime types.
 	typeMap := map[string]string{
 		"chan":                "runtime._channel",
 		"interface":           "runtime._interface",
@@ -283,40 +285,56 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 	}
 
 	// Handle global initializers.
+	// NOTE: Need to range over the package list so each global is assigned a priority based on the dependency ordering
+	//       of the packages.
 	initializedGlobals := map[*GlobalValue]struct{}{}
-	for i, initializer := range b.config.Info.InitOrder {
-		if len(initializer.Lhs) == 1 {
-			lhs := initializer.Lhs[0]
-			gv := gvars[lhs]
-			location := b.location(lhs.Pos())
+	globalPriority := 0
+	for _, pkg := range pkgs {
+		for _, initializer := range pkg.TypesInfo.InitOrder {
+			if len(initializer.Lhs) == 1 {
+				lhs := initializer.Lhs[0]
+				gv := gvars[lhs]
+				location := b.location(lhs.Pos())
 
-			// Initialize this global.
-			gv.Initialize(ctx, b, i, func(ctx context.Context, builder *Builder) mlir.Value {
-				// Nil types will be untyped, so set up type inference.
-				ctx = newContextWithLhsList(ctx, []types.Type{lhs.Type()})
-				ctx = newContextWithRhsIndex(ctx, 0)
+				// Initialize this global.
+				gv.Initialize(ctx, b, globalPriority, func(ctx context.Context, builder *Builder) mlir.Value {
+					// Nil types will be untyped, so set up type inference.
+					ctx = newContextWithLhsList(ctx, []types.Type{lhs.Type()})
+					ctx = newContextWithRhsIndex(ctx, 0)
+					rhsType := b.typeOf(initializer.Rhs)
 
-				result := b.emitExpr(ctx, initializer.Rhs)[0]
+					result := b.emitExpr(ctx, initializer.Rhs)[0]
 
-				if T := b.typeOf(initializer.Rhs); T != nil {
-					if T, ok := T.(*types.Named); ok {
-						b.queueNamedTypeJobs(ctx, T)
+					if rhsType != nil {
+						if T, ok := rhsType.(*types.Named); ok {
+							b.queueNamedTypeJobs(ctx, T)
+						}
+
+						switch baseType(lhs.Type()).(type) {
+						case *types.Interface:
+							if !types.Identical(lhs.Type(), rhsType) {
+								switch rhsType.(type) {
+								case *types.Interface:
+									result = b.emitChangeType(ctx, lhs.Type(), result, location)
+								default:
+									result = b.emitInterfaceValue(ctx, lhs.Type(), result, location)
+								}
+							}
+						default:
+							switch b.typeOf(initializer.Rhs).(type) {
+							case *types.Signature:
+								result = b.createFunctionValue(ctx, result, nil, location)
+							}
+						}
 					}
-				}
 
-				switch baseType(lhs.Type()).(type) {
-				case *types.Interface:
-					result = b.emitInterfaceValue(ctx, lhs.Type(), result, location)
-				default:
-					switch b.typeOf(initializer.Rhs).(type) {
-					case *types.Signature:
-						result = b.createFunctionValue(ctx, result, nil, location)
-					}
-				}
+					return result
+				}, location)
+				initializedGlobals[gv] = struct{}{}
+			}
 
-				return result
-			}, location)
-			initializedGlobals[gv] = struct{}{}
+			// Increment the priority counter.
+			globalPriority++
 		}
 	}
 
@@ -373,7 +391,8 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 					}
 
 					// Perform use analysis.
-					if !isPackageInit &&
+					if !b.config.DisableUseAnalysis &&
+						!isPackageInit &&
 						!symbolInfo.IsInterrupt &&
 						!symbolInfo.ExternalLinkage &&
 						len(symbolInfo.LinkName) == 0 &&
@@ -390,8 +409,8 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 					existing, ok := b.funcDeclData[actualSymbol]
 					createData := !ok
 					if !createData {
-						if isEmpty(existing.body) {
-							createData = !isEmpty(decl.Body)
+						if isPredeclaration(existing.decl) {
+							createData = !isPredeclaration(decl)
 							b.ungeneratedFuncs[actualSymbol] = decl
 						}
 					}
@@ -429,14 +448,16 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 		return
 	}
 
-	var wgQueue sync.WaitGroup
 	generateQueue := make(chan *funcData)
+
+	// Track the number of pending jobs.
+	//var pendingJobs atomic.Int32
+	//pendingJobs.Store(int32(len(initialWork.jobs)))
+	var pendingJobs sync.WaitGroup
+	pendingJobs.Add(len(initialWork.jobs))
 
 	// Define a function to queue new jobs.
 	queueFunc := func(queue *jobQueue) {
-		// Signal that job queueing is complete when this function returns.
-		defer wgQueue.Done()
-
 		// Queue each job.
 		for _, job := range queue.jobs {
 			generateQueue <- job
@@ -446,43 +467,45 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 	// Queue all initial jobs.
 	// NOTE: This should guarantee each function has a chance to queue new jobs, causing the job queue channel to be
 	//       closed later.
-	wgQueue.Add(1)
 	go queueFunc(initialWork)
 
 	// Begin consuming the queue.
-	var wgJobs sync.WaitGroup
-	wgJobs.Add(g)
+	var activeWorkers sync.WaitGroup
+	activeWorkers.Add(g)
 	for c := 0; c < g; c++ {
 		go func() {
-			defer wgJobs.Done()
+			defer activeWorkers.Done()
 			for job := range generateQueue {
-				// Add to the queue wait group to delay closing the work queue until this job finishes.
-				wgQueue.Add(1)
-
 				// Create a new job queue for when functions need other functions to be generated.
 				queue := &jobQueue{jobs: make([]*funcData, 0, 1000)}
 				ctx = context.WithValue(ctx, jobQueueKey{}, queue)
 				b.emitFunc(ctx, job)
 
 				if len(queue.jobs) > 0 {
+					// Add to the work counter.
+					pendingJobs.Add(len(queue.jobs))
+
 					// Queue new jobs requested by the last job.
 					go queueFunc(queue)
-				} else {
-					// There is nothing to be queued.
-					wgQueue.Done()
 				}
+
+				// Finally, signal that this job is done.
+				pendingJobs.Done()
 			}
 		}()
 	}
 
 	// Wait for queuing to be completed.
 	go func() {
-		wgQueue.Wait()
+		// Wait for all pending jobs to be done.
+		pendingJobs.Wait()
+
+		// Close the queue channel so that the worker goroutines can exit.
 		close(generateQueue)
 	}()
 
-	// Wait for all work to complete.
-	wgJobs.Wait()
+	// Wait for all workers to exit.
+	activeWorkers.Wait()
 
 	// Sort module-level operations by symbol name.
 	symbolKeys := maps.Keys(b.addToModule)
@@ -551,6 +574,7 @@ func (b *Builder) addFunctionDecl(ctx context.Context, decl *ast.FuncDecl) *func
 		anonymousFuncs: map[*ast.FuncLit]*funcData{},
 		instances:      map[*types.Signature]*funcData{},
 		typeMap:        map[int]types.Type{},
+		decl:           decl,
 	}
 
 	// NOTE: Have to create the function type after the func object has been initialized if the function is

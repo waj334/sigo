@@ -370,7 +370,7 @@ func (b *Builder) emitRangeStatement(ctx context.Context, stmt *ast.RangeStmt) {
 		keyType := b.GetStoredType(ctx, b.typeOf(stmt.Key))
 		elementType := b.GetStoredType(ctx, valueType.Elem())
 		lenValue := b.emitConstInt(ctx, valueType.Len(), keyType, location)
-		b.emitArrayRange(ctx, stmt.Key, stmt.Value, ptr, elementType, lenValue, stmt.Body, location)
+		b.emitArrayRange(ctx, stmt.Key, stmt.Value, stmt.Tok, ptr, elementType, lenValue, stmt.Body, location)
 	case *types.Basic:
 		b.emitStringRange(ctx, stmt)
 	case *types.Chan:
@@ -401,13 +401,13 @@ func (b *Builder) emitRangeStatement(ctx context.Context, stmt *ast.RangeStmt) {
 		lenValue = b.emitTypeConversion(ctx, lenValue, types.Typ[types.Int], keyType, location)
 
 		// Range over the slice
-		b.emitArrayRange(ctx, stmt.Key, stmt.Value, arrValue, elementType, lenValue, stmt.Body, location)
+		b.emitArrayRange(ctx, stmt.Key, stmt.Value, stmt.Tok, arrValue, elementType, lenValue, stmt.Body, location)
 	default:
 		panic("unhandled")
 	}
 }
 
-func (b *Builder) emitArrayRange(ctx context.Context, key ast.Expr, value ast.Expr, arrValue mlir.Value,
+func (b *Builder) emitArrayRange(ctx context.Context, key ast.Expr, value ast.Expr, tok token.Token, arrValue mlir.Value,
 	elementType mlir.Type, lenValue mlir.Value, body *ast.BlockStmt, location mlir.Location) {
 	// Create the exit block where execution will continue following the range statement.
 	exitBlock := mlir.BlockCreate2(nil, nil)
@@ -434,24 +434,16 @@ func (b *Builder) emitArrayRange(ctx context.Context, key ast.Expr, value ast.Ex
 	// The key variable is either a new one or an existing one.
 	keyVar := b.valueOf(ctx, key)
 	if keyVar == nil {
-		switch key := key.(type) {
-		case *ast.SelectorExpr:
-			addr := b.emitSelectAddr(ctx, key)
-			keyVar = b.NewTempValue(addr)
-			if obj := b.objectOf(key.Sel); obj != nil {
-				b.setAddr(key.Sel, keyVar)
-			}
-		case *ast.Ident:
-			// NOTE: A func value cannot be a map key.
-			if keyVar = b.valueOf(ctx, key); keyVar == nil {
-				// Emit a new local variable.
-				obj := b.objectOf(key).(*types.Var)
-				keyVar = b.emitLocalVar(ctx, obj, keyType)
-			}
-		default:
-			panic("unhandled")
-		}
+		// Need to allocate memory for this variable.
+		ptrT := mlir.GoCreatePointerType(keyType)
+		allocaOp := mlir.GoCreateAllocaOperation(b.ctx, ptrT, keyType, nil, false, location)
+		appendOperation(ctx, allocaOp)
+		keyVar = b.NewTempValue(resultOf(allocaOp))
 	}
+
+	// Initialize the iterator to zero.
+	zeroValue := b.emitConstInt(ctx, 0, keyType, location)
+	keyVar.Store(ctx, zeroValue, location)
 
 	// The value variable is either a new one or an existing one.
 	// NOTE: The value variable can be omitted from the range statement.
@@ -459,28 +451,13 @@ func (b *Builder) emitArrayRange(ctx context.Context, key ast.Expr, value ast.Ex
 	if value != nil {
 		valueVar = b.valueOf(ctx, value)
 		if valueVar == nil {
-			switch value := value.(type) {
-			case *ast.SelectorExpr:
-				addr := b.emitSelectAddr(ctx, value)
-				valueVar = b.NewTempValue(addr)
-				if obj := b.objectOf(value.Sel); obj != nil {
-					b.setAddr(value.Sel, valueVar)
-				}
-			case *ast.Ident:
-				if valueVar = b.valueOf(ctx, value); valueVar == nil {
-					// Emit a new local variable.
-					obj := b.objectOf(value)
-					valueVar = b.emitLocalVar(ctx, obj, elementType)
-				}
-			default:
-				panic("unhandled")
-			}
+			// Need to allocate memory for this variable.
+			ptrT := mlir.GoCreatePointerType(elementType)
+			allocaOp := mlir.GoCreateAllocaOperation(b.ctx, ptrT, elementType, nil, false, location)
+			appendOperation(ctx, allocaOp)
+			valueVar = b.NewTempValue(resultOf(allocaOp))
 		}
 	}
-
-	// Initialize the iterator to zero.
-	zeroValue := b.emitConstInt(ctx, 0, keyType, location)
-	keyVar.Store(ctx, zeroValue, location)
 
 	// Build the post iteration block.
 	buildBlock(ctx, postIterBlock, func() {
@@ -521,10 +498,29 @@ func (b *Builder) emitArrayRange(ctx context.Context, key ast.Expr, value ast.Ex
 		// Set the predecessor block to the post loop iteration block where any continue statement will branch to.
 		ctx = newContextWithPredecessorBlock(ctx, postIterBlock)
 
+		iterationKeyVar := keyVar
+		iterationValueVar := valueVar
+
+		// TODO: Need to check if the iterator was actually omitted "_".
+		if tok == token.DEFINE && iterationKeyVar != nil {
+			// Emit a new local variable that is unique to this iteration to store the key into.
+			alloc := b.makeCopyOf(ctx, iterationKeyVar.Load(ctx, location), location)
+			iterationKeyVar = b.NewTempValue(alloc)
+			b.setAddr(key.(*ast.Ident), iterationKeyVar)
+		}
+
 		// NOTE: No store should be performed when the value var is omitted in the range statement.
-		if valueVar != nil {
+		if iterationValueVar != nil {
+			if tok == token.DEFINE {
+				// Emit a new local variable that is unique to this iteration to store the value into.
+				// TODO: Need to set the allocation name to that of the local variable definition.
+				alloc := b.makeCopyOf(ctx, iterationValueVar.Load(ctx, location), location)
+				iterationValueVar = b.NewTempValue(alloc)
+				b.setAddr(value.(*ast.Ident), iterationValueVar)
+			}
+
 			// Load the current iterator value to store into the key address.
-			itValue := keyVar.Load(ctx, location)
+			itValue := iterationKeyVar.Load(ctx, location)
 
 			// Get the address of the array element at the current iterator index.
 			gepOp := mlir.GoCreateGepOperation2(b.ctx, arrValue, elementType, []any{itValue}, mlir.GoCreatePointerType(elementType), location)
@@ -533,7 +529,7 @@ func (b *Builder) emitArrayRange(ctx context.Context, key ast.Expr, value ast.Ex
 			// Load the value from the array and store it at the value address.
 			loadOp := mlir.GoCreateLoadOperation(b.ctx, resultOf(gepOp), elementType, location)
 			appendOperation(ctx, loadOp)
-			valueVar.Store(ctx, resultOf(loadOp), location)
+			iterationValueVar.Store(ctx, resultOf(loadOp), location)
 		}
 
 		// Emit the loop body.
@@ -585,11 +581,13 @@ func (b *Builder) emitChanRange(ctx context.Context, stmt *ast.RangeStmt) {
 	X = resultOf(bitcastOp)
 
 	// Get the memory address to receive a value from the channel in.
+	var receiveValue Value
 	var receiveAddr mlir.Value
-	if stmt.Value != nil {
-		valueAddr := b.valueOf(ctx, stmt.Value)
-		receiveAddr = valueAddr.Pointer(ctx, location)
-	} else {
+	if receiveValue = b.valueOf(ctx, stmt.Value); receiveValue != nil && stmt.Value != nil {
+		receiveAddr = receiveValue.Pointer(ctx, location)
+	}
+
+	if receiveAddr == nil {
 		zeroOp := mlir.GoCreateZeroOperation(b.ctx, b.ptr, location)
 		appendOperation(ctx, zeroOp)
 		receiveAddr = resultOf(zeroOp)
@@ -615,6 +613,13 @@ func (b *Builder) emitChanRange(ctx context.Context, stmt *ast.RangeStmt) {
 	buildBlock(ctx, bodyBlock, func() {
 		// Set the predecessor block to the post loop iteration block where any continue statement will branch to.
 		ctx = newContextWithPredecessorBlock(ctx, condBlock)
+
+		if stmt.Tok == token.DEFINE && receiveValue != nil {
+			// Emit a new local variable that is unique to this iteration to store the value into.
+			alloc := b.makeCopyOf(ctx, receiveValue.Load(ctx, location), location)
+			iterationReceiveValue := b.NewTempValue(alloc)
+			b.setAddr(stmt.Value.(*ast.Ident), iterationReceiveValue)
+		}
 
 		// Emit the loop body
 		for _, stmt := range stmt.Body.List {
@@ -712,19 +717,37 @@ func (b *Builder) emitMapRange(ctx context.Context, stmt *ast.RangeStmt) {
 		keyType := b.GetStoredType(ctx, T.Key())
 		loadOp := mlir.GoCreateLoadOperation(b.ctx, iterateResults[1], keyType, location)
 		appendOperation(ctx, loadOp)
+		keyValue := resultOf(loadOp)
 
 		// Assign the key/value values.
-		keyAddr := b.valueOf(ctx, stmt.Key)
-		keyAddr.Store(ctx, resultOf(loadOp), location)
+		if keyAddr := b.valueOf(ctx, stmt.Key); keyAddr != nil {
+			keyAddr.Store(ctx, keyValue, location)
+
+			if stmt.Tok == token.DEFINE {
+				// Emit a new local variable that is unique to this iteration to store the key into.
+				alloc := b.makeCopyOf(ctx, keyValue, location)
+				iterationKeyVar := b.NewTempValue(alloc)
+				b.setAddr(stmt.Key.(*ast.Ident), iterationKeyVar)
+			}
+		}
 
 		if stmt.Value != nil {
 			// Load the value value.
 			valueType := b.GetStoredType(ctx, T.Elem())
 			loadOp = mlir.GoCreateLoadOperation(b.ctx, iterateResults[2], valueType, location)
 			appendOperation(ctx, loadOp)
+			value := resultOf(loadOp)
 
-			valueAddr := b.valueOf(ctx, stmt.Value)
-			valueAddr.Store(ctx, resultOf(loadOp), location)
+			if valueAddr := b.valueOf(ctx, stmt.Value); valueAddr != nil {
+				valueAddr.Store(ctx, value, location)
+
+				if stmt.Tok == token.DEFINE {
+					// Emit a new local variable that is unique to this iteration to store the key into.
+					alloc := b.makeCopyOf(ctx, value, location)
+					iterationValueVar := b.NewTempValue(alloc)
+					b.setAddr(stmt.Value.(*ast.Ident), iterationValueVar)
+				}
+			}
 		}
 
 		// Emit the loop body
@@ -766,6 +789,34 @@ func (b *Builder) emitStringRange(ctx context.Context, stmt *ast.RangeStmt) {
 
 	// Any continue statement should branch to the condition block.
 	ctx = newContextWithPredecessorBlock(ctx, condBlock)
+
+	// The key variable is either a new one or an existing one.
+	keyVar := b.valueOf(ctx, stmt.Key)
+	if keyVar == nil {
+		// Need to allocate memory for this variable.
+		keyType := b.typeOf(stmt.Key)
+		keyT := b.GetStoredType(ctx, keyType)
+		ptrT := mlir.GoCreatePointerType(keyT)
+		allocaOp := mlir.GoCreateAllocaOperation(b.ctx, ptrT, keyT, nil, false, location)
+		appendOperation(ctx, allocaOp)
+		keyVar = b.NewTempValue(resultOf(allocaOp))
+	}
+
+	// The value variable is either a new one or an existing one.
+	// NOTE: The value variable can be omitted from the range statement.
+	var valueVar Value
+	if stmt.Value != nil {
+		valueVar = b.valueOf(ctx, stmt.Value)
+		if valueVar == nil {
+			// Need to allocate memory for this variable.
+			elementType := b.typeOf(stmt.Value)
+			elementT := b.GetStoredType(ctx, elementType)
+			ptrT := mlir.GoCreatePointerType(elementT)
+			allocaOp := mlir.GoCreateAllocaOperation(b.ctx, ptrT, elementT, nil, false, location)
+			appendOperation(ctx, allocaOp)
+			valueVar = b.NewTempValue(resultOf(allocaOp))
+		}
+	}
 
 	// Evaluate the string value that will be iterated over.
 	X := b.emitExpr(ctx, stmt.X)[0]
@@ -819,12 +870,23 @@ func (b *Builder) emitStringRange(ctx context.Context, stmt *ast.RangeStmt) {
 		ctx = newContextWithPredecessorBlock(ctx, condBlock)
 
 		// Assign the key/value values.
-		keyAddr := b.valueOf(ctx, stmt.Key)
-		keyAddr.Store(ctx, iterateResults[1], location)
+		// NOTE: Key value may be nil if its identifier is "_"
+		keyVar.Store(ctx, iterateResults[1], location)
+		if stmt.Tok == token.DEFINE {
+			// Emit a new local variable that is unique to this iteration to store the key into.
+			alloc := b.makeCopyOf(ctx, iterateResults[1], location)
+			iterationKeyVar := b.NewTempValue(alloc)
+			b.setAddr(stmt.Key.(*ast.Ident), iterationKeyVar)
+		}
 
 		if stmt.Value != nil {
-			valueAddr := b.valueOf(ctx, stmt.Value)
-			valueAddr.Store(ctx, iterateResults[2], location)
+			valueVar.Store(ctx, iterateResults[2], location)
+			if stmt.Tok == token.DEFINE {
+				// Emit a new local variable that is unique to this iteration to store the key into.
+				alloc := b.makeCopyOf(ctx, iterateResults[2], location)
+				iterationValueVar := b.NewTempValue(alloc)
+				b.setAddr(stmt.Value.(*ast.Ident), iterationValueVar)
+			}
 		}
 
 		// Emit the loop body

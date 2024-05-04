@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-MlirType mlirGoCreateNamedType(MlirType underlying, MlirStringRef package, MlirStringRef name, MlirAttribute *methods);
+MlirType mlirGoCreateNamedType(MlirType underlying, MlirStringRef name);
 
 MlirType mlirGoGetUnderlyingType(MlirType type);
 

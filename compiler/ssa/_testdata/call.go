@@ -126,3 +126,9 @@ type funcAlias func()
 func callFuncAlias(f funcAlias) {
 	f()
 }
+
+func multipleReturn() (int, uint, bool)
+
+func callMultipleReturn(a int, b uint, c bool) {
+	a, b, c = multipleReturn()
+}

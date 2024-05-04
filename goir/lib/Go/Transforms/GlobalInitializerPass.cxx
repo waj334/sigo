@@ -88,9 +88,17 @@ struct GlobalInitializerPass : PassWrapper<GlobalInitializerPass, OperationPass<
         yieldOp.erase();
       }
 
-      // Clone the global operation without its regions.
+      // Clone the global operation without its original regions.
       auto newGlobal = globalOp.cloneWithoutRegions();
       builder.insert(newGlobal);
+
+      // Zero initialize this global.
+      {
+        mlir::OpBuilder::InsertionGuard guard(builder);
+        builder.createBlock(&newGlobal.getInitializerRegion());
+        Value zero = builder.create<ZeroOp>(newGlobal.getLoc(), newGlobal.getGlobalType());
+        builder.create<YieldOp>(newGlobal.getLoc(), zero);
+      }
 
       // Erase the original global.
       globalOp.erase();

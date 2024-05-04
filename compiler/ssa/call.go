@@ -37,6 +37,17 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 		for i, expr := range expr.Args {
 			ctx = newContextWithRhsIndex(ctx, i)
 			argValues[i] = b.emitExpr(ctx, expr)[0]
+			switch expr := expr.(type) {
+			case *ast.Ident:
+				if expr.Obj != nil {
+					if _, ok := expr.Obj.Decl.(*ast.FuncDecl); ok {
+						// Only create a function struct value if the identifier is that of a function declaration.
+						if typeIs[*types.Signature](b.typeOf(expr)) {
+							argValues[i] = b.createFunctionValue(ctx, argValues[i], nil, location)
+						}
+					}
+				}
+			}
 		}
 
 		signature := baseType(b.typeOf(expr.Fun)).(*types.Signature)
@@ -48,17 +59,19 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 
 			switch baseType(paramT).(type) {
 			case *types.Interface:
-				if types.IsInterface(baseType(argT)) {
-					// Convert from interface A to interface B.
-					argValues[i] = b.emitChangeType(ctx, paramT, argValues[i], location)
-				} else {
-					// Generate methods for named types.
-					if T, ok := argT.(*types.Named); ok {
-						b.queueNamedTypeJobs(ctx, T)
-					}
+				if !isNil(argT) && !types.Identical(paramT, argT) {
+					if types.IsInterface(baseType(argT)) {
+						// Convert from interface A to interface B.
+						argValues[i] = b.emitChangeType(ctx, paramT, argValues[i], location)
+					} else {
+						// Generate methods for named types.
+						if T, ok := argT.(*types.Named); ok {
+							b.queueNamedTypeJobs(ctx, T)
+						}
 
-					// Create an interface value from the value expression.
-					argValues[i] = b.emitInterfaceValue(ctx, paramT, argValues[i], location)
+						// Create an interface value from the value expression.
+						argValues[i] = b.emitInterfaceValue(ctx, paramT, argValues[i], location)
+					}
 				}
 			}
 		}
@@ -75,26 +88,111 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 				// Emit the interface call.
 				return b.emitInterfaceCall(ctx, X, funcObj, argValues, location)
 			default:
-				recvT := funcObj.Type().(*types.Signature).Recv()
-				if recvT != nil {
-					// Get the receiver address.
-					recvValue := b.valueOf(ctx, Fun.X)
+				signature := funcObj.Type().(*types.Signature)
+				if signature.Recv() != nil {
+					recvType := signature.Recv().Type()
+					//recvT := b.GetStoredType(ctx, recvType)
+					actualRecvType := b.typeOf(Fun.X)
 
-					if mlir.GoTypeIsAPointer(recvValue.Type()) {
-						// Values such as global pointers (**ptr) require an additional load to get to the actual
-						// receiver value.
-						recvValue = b.NewTempValue(recvValue.Load(ctx, location))
+					recvValue := b.NewTempValue(b.addressOf(ctx, Fun.X, location))
+
+					var recv mlir.Value
+					if isPointer(b.typeOf(Fun.X)) {
+						// Load the address stored in the value.
+						recv = recvValue.Load(ctx, location)
+					} else {
+						// Get the address of the value.
+						recv = recvValue.Pointer(ctx, location)
 					}
 
-					// Handle acquiring the expected receiver value.
-					var recv mlir.Value
-					if isPointer(funcObj.Type().(*types.Signature).Recv().Type()) {
-						// Pass the address of the receiver (pointer semantics).
-						recv = recvValue.Pointer(ctx, location)
-					} else {
-						// Load the receiver value (copy semantics).
+					// The callee is from an embedded type if it matches a receiver from any method of a type embedded
+					// in a struct.
+					actualStructType := baseStructTypeOf(actualRecvType)
+					if actualStructType != nil {
+						embeddedType := recvType
+						if ptrType, ok := recvType.(*types.Pointer); ok {
+							embeddedType = ptrType.Elem()
+						}
+
+						for i := 0; i < actualStructType.NumFields(); i++ {
+							field := actualStructType.Field(i)
+							if field.Embedded() {
+								matches := false
+								load := false
+								switch fieldType := field.Type().(type) {
+								case *types.Pointer:
+									matches = types.Identical(embeddedType, fieldType.Elem())
+									load = true
+								default:
+									matches = types.Identical(embeddedType, fieldType)
+								}
+
+								if matches {
+									ptrT := b.pointerOf(ctx, field.Type())
+									structT := b.GetStoredType(ctx, actualStructType)
+									gepOp := mlir.GoCreateGepOperation2(b.ctx, recv, structT, []any{0, i}, ptrT, location)
+									appendOperation(ctx, gepOp)
+									recv = resultOf(gepOp)
+									if load {
+										recvValue = b.NewTempValue(recv)
+										recv = recvValue.Load(ctx, location)
+									}
+									break
+								}
+							}
+						}
+					}
+
+					if !isPointer(recvType) {
+						recvValue = b.NewTempValue(recv)
 						recv = recvValue.Load(ctx, location)
 					}
+
+					/*
+						var recv mlir.Value
+						if isPointer(recvType) {
+							recvType := recvType.(*types.Pointer)
+							recv = b.addressOf(ctx, Fun.X, location)
+							loadOp := mlir.GoCreateLoadOperation(b.ctx, recv, recvT, location)
+							appendOperation(ctx, loadOp)
+							recv = resultOf(loadOp)
+
+							// Check if the receiver is embedded.
+							recvStructType := baseStructTypeOf(recvType)
+							actualStructType := baseStructTypeOf(actualRecvType)
+							if recvStructType != nil && actualStructType != nil {
+								// This method is from an embedded type. Find it and get the address of it.
+								for i := 0; i < actualStructType.NumFields(); i++ {
+									field := actualStructType.Field(i)
+									if types.Identical(field.Type(), recvType.Elem()) {
+										structT := b.GetStoredType(ctx, actualStructType)
+										gepOp := mlir.GoCreateGepOperation2(b.ctx, recv, structT, []any{0, i}, recvT, location)
+										appendOperation(ctx, gepOp)
+										recv = resultOf(gepOp)
+										break
+									}
+								}
+							}
+						} else {
+							// Load the receiver value (copy semantics).
+							recv = b.emitExpr(ctx, Fun.X)[0]
+
+							// Check if the receiver is embedded.
+							if !types.Identical(recvType, actualRecvType) {
+								// This method is from an embedded type. Find it and extract the value.
+								structType := baseStructTypeOf(actualRecvType)
+								for i := 0; i < structType.NumFields(); i++ {
+									field := structType.Field(i)
+									if types.Identical(field.Type(), recvType) {
+										extractOp := mlir.GoCreateExtractOperation(b.ctx, uint64(i), recvT, recv, location)
+										appendOperation(ctx, extractOp)
+										recv = resultOf(extractOp)
+										break
+									}
+								}
+							}
+						}
+					*/
 
 					// Prepend the receiver value to the call args.
 					argValues = append([]mlir.Value{recv}, argValues...)

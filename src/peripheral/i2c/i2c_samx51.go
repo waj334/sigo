@@ -407,9 +407,7 @@ func (i *I2C) read(b []byte) (n int, err error) {
 	// Results
 	n = i.nbytes
 	if i.state == stateError {
-		if i.state == stateError {
-			err = i.statusError()
-		}
+		err = i.statusError()
 	}
 
 	// Reset

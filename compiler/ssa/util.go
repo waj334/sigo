@@ -9,16 +9,6 @@ import (
 	"omibyte.io/sigo/mlir"
 )
 
-func prependToEntryBlock(ctx context.Context, op mlir.Operation) {
-	region := currentRegion(ctx)
-	entryBlock := mlir.RegionGetFirstBlock(region)
-	if firstOp := mlir.BlockGetFirstOperation(entryBlock); !mlir.OperationIsNull(firstOp) {
-		mlir.BlockInsertOwnedOperationBefore(entryBlock, firstOp, op)
-	} else {
-		mlir.BlockAppendOwnedOperation(entryBlock, op)
-	}
-}
-
 // appendOperation Appends the operation to the last block in the region provided by the context.
 func appendOperation(ctx context.Context, op mlir.Operation) {
 	block := currentBlock(ctx)
@@ -71,13 +61,11 @@ func fill[T any](s []T, v T) []T {
 	return s
 }
 
-func isEmpty(block *ast.BlockStmt) bool {
-	if block != nil {
-		return len(block.List) == 0 &&
-			block.Lbrace == token.NoPos &&
-			block.Rbrace == token.NoPos
+func isPredeclaration(decl *ast.FuncDecl) bool {
+	if decl == nil {
+		return false
 	}
-	return true
+	return decl.Body == nil || decl.Body.Lbrace == token.NoPos || decl.Body.Rbrace == token.NoPos
 }
 
 func tupleTypes(tuple *types.Tuple) []types.Type {

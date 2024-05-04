@@ -175,8 +175,9 @@ func TestSSA(t *testing.T) {
 					WordSize: 4,
 					MaxAlign: 4,
 				},
-				Module:  mlir.ModuleCreateEmpty(mlir.LocationUnknownGet(mlirCtx)),
-				Program: program,
+				Module:             mlir.ModuleCreateEmpty(mlir.LocationUnknownGet(mlirCtx)),
+				Program:            program,
+				DisableUseAnalysis: true,
 			})
 
 			// Build SSA for parsed file.

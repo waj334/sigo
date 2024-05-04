@@ -127,6 +127,19 @@ func (b *Builder) createTypeDeclaration(ctx context.Context, T types.Type, pos t
 		// Create the data for the element type.
 		b.createTypeDeclaration(ctx, T.Elem(), pos)
 	case *types.Named:
+		// Create the methods dictionary if this named type has methods.
+		var methodSymbols mlir.Attribute
+		if T.NumMethods() > 0 {
+			entries := make([]mlir.Attribute, T.NumMethods())
+			for i := 0; i < T.NumMethods(); i++ {
+				method := T.Method(i)
+				symbol := qualifiedFuncName(method)
+				refAttr := mlir.FlatSymbolRefAttrGet(b.ctx, symbol)
+				entries[i] = refAttr
+			}
+			methodSymbols = mlir.ArrayAttrGet(b.ctx, entries)
+			extraData = append(extraData, b.namedOf("methods", methodSymbols))
+		}
 		// Create the data for the underlying type.
 		b.createTypeDeclaration(ctx, T.Underlying(), pos)
 	case *types.Pointer:
@@ -281,11 +294,6 @@ func (b *Builder) createNamedType(ctx context.Context, T *types.Named) mlir.Type
 	// Format the qualified identifier for this type with respect to its origin package.
 	identifier := qualifiedName(T.Obj().Name(), T.Obj().Pkg())
 
-	pkgPath := ""
-	if T.Obj().Pkg() != nil {
-		pkgPath = T.Obj().Pkg().Path()
-	}
-
 	if T.TypeArgs().Len() > 0 {
 		hasher := fnv.New32()
 		hasher.Write([]byte(T.Obj().Name()))
@@ -302,21 +310,8 @@ func (b *Builder) createNamedType(ctx context.Context, T *types.Named) mlir.Type
 	// Create the underlying type.
 	underlyingType := b.GetType(ctx, T.Underlying())
 
-	// Create the methods dictionary if this named type has methods.
-	var methodSymbols mlir.Attribute
-	if T.NumMethods() > 0 {
-		entries := make([]mlir.Attribute, T.NumMethods())
-		for i := 0; i < T.NumMethods(); i++ {
-			method := T.Method(i)
-			symbol := qualifiedFuncName(method)
-			refAttr := mlir.FlatSymbolRefAttrGet(b.ctx, symbol)
-			entries[i] = refAttr
-		}
-		methodSymbols = mlir.ArrayAttrGet(b.ctx, entries)
-	}
-
 	// Create the named type now.
-	result := mlir.GoCreateNamedType(underlyingType, pkgPath, identifier, methodSymbols)
+	result := mlir.GoCreateNamedType(underlyingType, identifier)
 
 	// Prevent infinite recursion within metadata and mutually recursive types by mapping the named type now.
 	b.typeCache[T] = result
@@ -440,6 +435,22 @@ func typeHasFlags(T types.Type, flags ...types.BasicInfo) bool {
 		return true
 	}
 	return false
+}
+
+func isBasicKind(T types.Type, kind types.BasicKind) bool {
+	if T, ok := T.(*types.Basic); ok {
+		return T.Kind() == kind
+	}
+	return false
+}
+
+func isNil(T types.Type) bool {
+	switch T := T.(type) {
+	case *types.Tuple:
+		return T == nil
+	default:
+		return isBasicKind(T, types.UntypedNil)
+	}
 }
 
 func isUntyped(T types.Type) bool {

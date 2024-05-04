@@ -61,3 +61,16 @@ func interfaceAssignmentAs(a structA, aa structAA, i interfaceA) {
 func interfaceReturnAs(a structA, aa structAA) (interfaceA, interfaceA) {
 	return &a, aa
 }
+
+func nilError() error {
+	return nil
+}
+
+func assignNilError(err error) {
+	err = nil
+}
+
+func assignDeclareNilError() error {
+	err := error(nil)
+	return err
+}

@@ -42,6 +42,11 @@ type (
 	_structFieldData     struct{}
 	_channelTypeData     struct{}
 	_mapTypeData         struct{}
+
+	_func struct {
+		fptr unsafe.Pointer
+		args unsafe.Pointer
+	}
 )
 
 func deferStartStack() {}

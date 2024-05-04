@@ -57,17 +57,19 @@ func (b *Builder) emitArrayLiteral(ctx context.Context, expr *ast.CompositeLit) 
 		switch baseType(elementT).(type) {
 		case *types.Interface:
 			valueT := b.typeOf(e)
-			if types.IsInterface(baseType(valueT)) {
-				// Convert from interface A to interface B.
-				elementValue = b.emitChangeType(ctx, elementT, elementValue, location)
-			} else {
-				// Generate methods for named types.
-				if T, ok := valueT.(*types.Named); ok {
-					b.queueNamedTypeJobs(ctx, T)
-				}
+			if !isNil(valueT) && !types.Identical(elementT, valueT) {
+				if types.IsInterface(baseType(valueT)) {
+					// Convert from interface A to interface B.
+					elementValue = b.emitChangeType(ctx, elementT, elementValue, location)
+				} else {
+					// Generate methods for named types.
+					if T, ok := valueT.(*types.Named); ok {
+						b.queueNamedTypeJobs(ctx, T)
+					}
 
-				// Create an interface value from the value expression.
-				elementValue = b.emitInterfaceValue(ctx, elementT, elementValue, location)
+					// Create an interface value from the value expression.
+					elementValue = b.emitInterfaceValue(ctx, elementT, elementValue, location)
+				}
 			}
 		}
 
@@ -101,38 +103,45 @@ func (b *Builder) emitMapLiteral(ctx context.Context, expr *ast.CompositeLit) ml
 		keyValue := b.emitExpr(ctx, expr)[0]
 		elementValue := b.emitExpr(ctx, expr)[0]
 
+		keyT := mapType.Key()
+		elementT := mapType.Elem()
+
 		// Handle interface conversions.
-		switch baseType(mapType.Key()).(type) {
+		switch baseType(keyT).(type) {
 		case *types.Interface:
 			valueT := b.typeOf(expr.Key)
-			if types.IsInterface(baseType(valueT)) {
-				// Convert from interface A to interface B.
-				keyValue = b.emitChangeType(ctx, mapType.Elem(), keyValue, location)
-			} else {
-				// Generate methods for named types.
-				if T, ok := valueT.(*types.Named); ok {
-					b.queueNamedTypeJobs(ctx, T)
-				}
+			if !isNil(valueT) && !types.Identical(elementT, valueT) {
+				if types.IsInterface(baseType(valueT)) {
+					// Convert from interface A to interface B.
+					keyValue = b.emitChangeType(ctx, keyT, keyValue, location)
+				} else {
+					// Generate methods for named types.
+					if T, ok := valueT.(*types.Named); ok {
+						b.queueNamedTypeJobs(ctx, T)
+					}
 
-				// Create an interface value from the value expression.
-				keyValue = b.emitInterfaceValue(ctx, mapType.Elem(), keyValue, location)
+					// Create an interface value from the value expression.
+					keyValue = b.emitInterfaceValue(ctx, keyT, keyValue, location)
+				}
 			}
 		}
 
-		switch baseType(mapType.Elem()).(type) {
+		switch baseType(elementT).(type) {
 		case *types.Interface:
 			valueT := b.typeOf(expr.Value)
-			if types.IsInterface(baseType(valueT)) {
-				// Convert from interface A to interface B.
-				elementValue = b.emitChangeType(ctx, mapType.Elem(), elementValue, location)
-			} else {
-				// Generate methods for named types.
-				if T, ok := valueT.(*types.Named); ok {
-					b.queueNamedTypeJobs(ctx, T)
-				}
+			if !isNil(valueT) && !types.Identical(elementT, valueT) {
+				if types.IsInterface(baseType(valueT)) {
+					// Convert from interface A to interface B.
+					elementValue = b.emitChangeType(ctx, elementT, elementValue, location)
+				} else {
+					// Generate methods for named types.
+					if T, ok := valueT.(*types.Named); ok {
+						b.queueNamedTypeJobs(ctx, T)
+					}
 
-				// Create an interface value from the value expression.
-				elementValue = b.emitInterfaceValue(ctx, mapType.Elem(), elementValue, location)
+					// Create an interface value from the value expression.
+					elementValue = b.emitInterfaceValue(ctx, elementT, elementValue, location)
+				}
 			}
 		}
 
@@ -148,6 +157,7 @@ func (b *Builder) emitMapLiteral(ctx context.Context, expr *ast.CompositeLit) ml
 func (b *Builder) emitSliceLiteral(ctx context.Context, expr *ast.CompositeLit) mlir.Value {
 	location := b.location(expr.Pos())
 	sliceType := b.typeOf(expr).Underlying().(*types.Slice)
+	elementT := sliceType.Elem()
 	sliceT := b.GetStoredType(ctx, sliceType)
 
 	// Create the slice value.
@@ -162,20 +172,22 @@ func (b *Builder) emitSliceLiteral(ctx context.Context, expr *ast.CompositeLit) 
 		elementValue := b.emitExpr(ctx, expr)[0]
 
 		// Handle interface conversion.
-		switch baseType(sliceType.Elem()).(type) {
+		switch baseType(elementT).(type) {
 		case *types.Interface:
 			valueT := b.typeOf(expr)
-			if types.IsInterface(baseType(valueT)) {
-				// Convert from interface A to interface B.
-				elementValue = b.emitChangeType(ctx, sliceType.Elem(), elementValue, location)
-			} else {
-				// Generate methods for named types.
-				if T, ok := valueT.(*types.Named); ok {
-					b.queueNamedTypeJobs(ctx, T)
-				}
+			if !isNil(valueT) && !types.Identical(elementT, valueT) {
+				if types.IsInterface(baseType(valueT)) {
+					// Convert from interface A to interface B.
+					elementValue = b.emitChangeType(ctx, elementT, elementValue, location)
+				} else {
+					// Generate methods for named types.
+					if T, ok := valueT.(*types.Named); ok {
+						b.queueNamedTypeJobs(ctx, T)
+					}
 
-				// Create an interface value from the value expression.
-				elementValue = b.emitInterfaceValue(ctx, sliceType.Elem(), elementValue, location)
+					// Create an interface value from the value expression.
+					elementValue = b.emitInterfaceValue(ctx, elementT, elementValue, location)
+				}
 			}
 		}
 
@@ -232,25 +244,28 @@ func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit)
 
 			valueExpr = e
 		}
+		fieldT := field.Type()
 
 		// Evaluate the array element value.
 		elementValue := b.emitExpr(ctx, valueExpr)[0]
 
 		// Handle interface conversion.
-		switch baseType(field.Type()).(type) {
+		switch baseType(fieldT).(type) {
 		case *types.Interface:
 			valueT := b.typeOf(valueExpr)
-			if types.IsInterface(baseType(valueT)) {
-				// Convert from interface A to interface B.
-				elementValue = b.emitChangeType(ctx, field.Type(), elementValue, location)
-			} else {
-				// Generate methods for named types.
-				if T, ok := valueT.(*types.Named); ok {
-					b.queueNamedTypeJobs(ctx, T)
-				}
+			if !isNil(valueT) && !types.Identical(fieldT, valueT) {
+				if types.IsInterface(baseType(valueT)) {
+					// Convert from interface A to interface B.
+					elementValue = b.emitChangeType(ctx, fieldT, elementValue, location)
+				} else {
+					// Generate methods for named types.
+					if T, ok := valueT.(*types.Named); ok {
+						b.queueNamedTypeJobs(ctx, T)
+					}
 
-				// Create an interface value from the value expression.
-				elementValue = b.emitInterfaceValue(ctx, field.Type(), elementValue, location)
+					// Create an interface value from the value expression.
+					elementValue = b.emitInterfaceValue(ctx, fieldT, elementValue, location)
+				}
 			}
 		}
 

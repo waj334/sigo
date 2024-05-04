@@ -35,6 +35,8 @@ type funcData struct {
 	anonymousFuncs map[*ast.FuncLit]*funcData
 	instances      map[*types.Signature]*funcData
 	typeMap        map[int]types.Type
+
+	decl *ast.FuncDecl
 }
 
 type inputParam struct {
@@ -341,9 +343,8 @@ func (b *Builder) createFunctionValue(ctx context.Context, fn mlir.Value, args m
 	appendOperation(ctx, zeroOp)
 
 	if mlir.TypeIsAFunction(mlir.ValueGetType(fn)) {
-		fntoptrOp := mlir.GoCreateFunctionToPointerOperation(b.ctx, fn, b.ptr, location)
-		appendOperation(ctx, fntoptrOp)
-		fn = resultOf(fntoptrOp)
+		// Bitcast the function value to a pointer.
+		fn = b.bitcastTo(ctx, fn, b.ptr, location)
 	}
 
 	// Insert the function pointer.

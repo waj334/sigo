@@ -100,7 +100,7 @@ func (b *Builder) emitInterfaceCompare(ctx context.Context, op token.Token, X ml
 		infoValue := resultOf(typeInfoOp)
 
 		// Take the address of the RHS value.
-		Y = b.makeAddressOf(ctx, Y, location)
+		Y = b.makeCopyOf(ctx, Y, location)
 
 		// Reinterpret the pointer as an unsafe.Pointer.
 		Y = b.bitcastTo(ctx, Y, b.ptr, location)

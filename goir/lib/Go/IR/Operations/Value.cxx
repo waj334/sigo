@@ -63,8 +63,9 @@ namespace mlir::go {
         Value info = rewriter.create<TypeInfoOp>(loc, infoType, resultType.getElementType());
 
         // Lower to runtime call.
-        const SmallVector<Type> results = {op.getType()};
-        const SmallVector<Value> args = {info, op.getLength(), op.getCapacity()};
+        const SmallVector<Type, 1> results = {op.getType()};
+        const SmallVector<Value, 3> args = {info, op.getLength(), op.getCapacity() ? op.getCapacity() : op.getLength()};
+
         rewriter.replaceOpWithNewOp<RuntimeCallOp>(op, results, "runtime.sliceMake", args);
         return success();
     }

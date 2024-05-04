@@ -26,6 +26,19 @@ func (b *Builder) emitAssign(ctx context.Context, stmt *ast.AssignStmt) {
 			T := b.typeOf(lhs)
 			lhsTypes[i] = T
 		}
+
+		rhsTypes := make([]types.Type, 0, len(stmt.Rhs))
+		for _, rhs := range stmt.Rhs {
+			T := b.typeOf(rhs)
+			if T, ok := T.(*types.Tuple); ok {
+				for i := 0; i < T.Len(); i++ {
+					rhsTypes = append(rhsTypes, T.At(i).Type())
+				}
+			} else {
+				rhsTypes = append(rhsTypes, T)
+			}
+		}
+
 		ctx = newContextWithLhsList(ctx, lhsTypes)
 		lvals := make([]Value, len(stmt.Lhs))
 		rvals := make([]mlir.Value, 0, len(stmt.Rhs))
@@ -109,23 +122,25 @@ func (b *Builder) emitAssign(ctx context.Context, stmt *ast.AssignStmt) {
 				}
 			}
 
-			if i < len(stmt.Rhs) {
+			if i < len(rvals) {
 				rhs := rvals[i]
-				lhsType := b.typeOf(stmt.Lhs[i])
+				lhsType := lhsTypes[i]
 				switch baseType(lhsType).(type) {
 				case *types.Interface:
-					rhsType := b.typeOf(stmt.Rhs[i])
-					if types.IsInterface(baseType(rhsType)) {
-						// Convert from interface A to interface B.
-						rhs = b.emitChangeType(ctx, lhsType, rhs, location)
-					} else {
-						// Generate methods for named types.
-						if T, ok := rhsType.(*types.Named); ok {
-							b.queueNamedTypeJobs(ctx, T)
-						}
+					rhsType := rhsTypes[i]
+					if !isNil(rhsType) && !types.Identical(lhsType, rhsType) {
+						if types.IsInterface(baseType(rhsType)) {
+							// Convert from interface A to interface B.
+							rhs = b.emitChangeType(ctx, lhsType, rhs, location)
+						} else {
+							// Generate methods for named types.
+							if T, ok := rhsType.(*types.Named); ok {
+								b.queueNamedTypeJobs(ctx, T)
+							}
 
-						// Create an interface value from the value expression.
-						rhs = b.emitInterfaceValue(ctx, lhsType, rhs, location)
+							// Create an interface value from the value expression.
+							rhs = b.emitInterfaceValue(ctx, lhsType, rhs, location)
+						}
 					}
 				}
 
@@ -351,8 +366,9 @@ func (b *Builder) emitExpr(ctx context.Context, expr ast.Expr) []mlir.Value {
 			pos := b.config.Fset.Position(expr.Pos())
 			fname, _ := filepath.EvalSymlinks(pos.Filename)
 			fname = fmt.Sprintf("%s:%d:%d", fname, pos.Line, pos.Column)
-			fmt.Fprintf(os.Stderr, "failure while emitting %T: %+v\n%s\n\n%s\n",
-				expr, v, fname, string(debug.Stack()))
+			line := b.locationString(expr.Pos())
+			fmt.Fprintf(os.Stderr, "failure while emitting %T: %+v\n%s\n\n%s\n\n%s\n",
+				expr, v, fname, line, string(debug.Stack()))
 			os.Exit(-1)
 		}
 	}()
@@ -375,7 +391,7 @@ func (b *Builder) emitExpr(ctx context.Context, expr ast.Expr) []mlir.Value {
 	case *ast.IndexExpr:
 		return b.emitIndexExpr(ctx, expr)
 	case *ast.IndexListExpr:
-		panic("unimplemented")
+		panic("unreachable")
 	case *ast.KeyValueExpr:
 		panic("unreachable")
 	case *ast.ParenExpr:
@@ -440,17 +456,18 @@ func (b *Builder) emitGenericDecl(ctx context.Context, decl *ast.GenDecl) {
 }
 
 func (b *Builder) emitIdent(ctx context.Context, expr *ast.Ident) []mlir.Value {
+	location := b.location(expr.Pos())
 	obj := b.objectOf(expr)
 	switch obj := obj.(type) {
 	case *types.Const:
 		T := resolveType(ctx, b.typeOf(expr))
-		val := b.emitConstantValue(ctx, obj.Val(), T, b.location(expr.Pos()))
+		val := b.emitConstantValue(ctx, obj.Val(), T, location)
 		return []mlir.Value{val}
 	case *types.Func:
 		symbol := b.resolveSymbol(qualifiedFuncName(obj))
 		b.queueJob(ctx, symbol)
 		signatureType := b.createSignatureType(ctx, obj.Type().Underlying().(*types.Signature), false)
-		op := mlir.GoCreateAddressOfOperation(b.ctx, symbol, signatureType, b.location(expr.Pos()))
+		op := mlir.GoCreateAddressOfOperation(b.ctx, symbol, signatureType, location)
 		appendOperation(ctx, op)
 		return resultsOf(op)
 	case *types.Nil:
@@ -579,17 +596,12 @@ func (b *Builder) emitIndexAddr(ctx context.Context, expr *ast.IndexExpr) mlir.V
 	// Perform the specific index operation based on the input value type.
 	switch baseType := b.typeOf(expr.X).(type) {
 	case *types.Array:
-		// Get the address of the array.
-		value := b.valueOf(ctx, expr.X)
-		if value == nil {
-			panic("unreachable")
-		}
-
-		// Get the base address of the array.
-		ptr := value.Pointer(ctx, b.location(expr.Pos()))
-
-		// Get the address of the array element.
 		arrayT := b.GetType(ctx, baseType)
+
+		// Get the address of the array.
+		ptr := b.addressOf(ctx, expr.X, location)
+
+		// GEP to the address of the element at the specified index.
 		gepOp := mlir.GoCreateGepOperation2(b.ctx, ptr, arrayT, []any{0, index}, pointerT, location)
 		appendOperation(ctx, gepOp)
 		return resultOf(gepOp)
@@ -667,17 +679,19 @@ func (b *Builder) emitReturn(ctx context.Context, stmt *ast.ReturnStmt) {
 				returnType := returnTypes[i]
 				switch baseType(returnType).(type) {
 				case *types.Interface:
-					if types.IsInterface(baseType(valueType)) {
-						// Convert from interface A to interface B.
-						v[ii] = b.emitChangeType(ctx, returnType, v[ii], location)
-					} else {
-						// Generate methods for named types.
-						if T, ok := valueType.(*types.Named); ok {
-							b.queueNamedTypeJobs(ctx, T)
-						}
+					if !isNil(valueType) && !types.Identical(valueType, returnType) {
+						if types.IsInterface(baseType(valueType)) {
+							// Convert from interface A to interface B.
+							v[ii] = b.emitChangeType(ctx, returnType, v[ii], location)
+						} else {
+							// Generate methods for named types.
+							if T, ok := valueType.(*types.Named); ok {
+								b.queueNamedTypeJobs(ctx, T)
+							}
 
-						// Create an interface value from the value expression.
-						v[ii] = b.emitInterfaceValue(ctx, returnType, v[ii], location)
+							// Create an interface value from the value expression.
+							v[ii] = b.emitInterfaceValue(ctx, returnType, v[ii], location)
+						}
 					}
 				case *types.Signature:
 					v[ii] = b.createFunctionValue(ctx, v[ii], nil, location)
@@ -718,16 +732,11 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 	sel := b.config.Info.Selections[expr]
 	if sel == nil {
 		// This is actually a qualified identifier.
-		X := expr.X.(*ast.Ident)
-		symbol := fmt.Sprintf("%s.%s", X.Name, expr.Sel.Name)
 		switch obj := b.objectOf(expr.Sel).(type) {
 		case *types.Func:
 			T := b.GetType(ctx, obj.Type())
+			symbol := qualifiedFuncName(obj)
 			return b.values(b.addressOfSymbol(ctx, symbol, T, location))
-		case *types.Var:
-			T := mlir.GoCreatePointerType(b.GetType(ctx, obj.Type()))
-			value := b.NewTempValue(b.addressOfSymbol(ctx, symbol, T, location))
-			return b.values(value.Load(ctx, location))
 		default:
 			value := b.valueOf(ctx, expr.Sel)
 			return b.values(value.Load(ctx, location))
@@ -848,14 +857,19 @@ func (b *Builder) emitSelectAddr(ctx context.Context, expr *ast.SelectorExpr) ml
 			}
 		default:
 			if value := b.valueOf(ctx, X); value != nil {
-				basePtr = value.Pointer(ctx, location)
+				T := b.typeOf(X)
+				if isPointer(T) {
+					basePtr = value.Load(ctx, location)
+				} else {
+					basePtr = value.Pointer(ctx, location)
+				}
 			} else {
 				// Evaluate the value to select from.
 				basePtr = b.emitExpr(ctx, X)[0]
 				T := b.typeOf(X)
 				if !isPointer(T) {
 					// This value needs to be stored on the stack before any pointer can be derived from it.
-					basePtr = b.makeAddressOf(ctx, basePtr, location)
+					basePtr = b.makeCopyOf(ctx, basePtr, location)
 				}
 			}
 		}
@@ -1063,25 +1077,11 @@ func (b *Builder) emitUnaryExpr(ctx context.Context, expr *ast.UnaryExpr) []mlir
 	case token.MUL:
 		panic("unreachable")
 	case token.AND:
-		var X mlir.Value
-		switch expr := expr.X.(type) {
-		case *ast.Ident:
-			// Return the address of the original allocation for the value.
-			X = b.valueOf(ctx, expr).Pointer(ctx, location)
-		case *ast.IndexExpr:
-			X = b.emitIndexAddr(ctx, expr)
-		case *ast.SelectorExpr:
-			X = b.emitSelectAddr(ctx, expr)
-		default:
-			// Load the value.
-			X = b.emitExpr(ctx, expr)[0]
-
-			// Create a reference to the loaded value.
-			// TODO: Should return the address of the original allocation in this scenario.
-			// TODO: Test that this is covered by the *ast.Ident case fulltime.
-			X = b.makeAddressOf(ctx, X, location)
+		T := b.typeOf(expr.X)
+		if T, ok := T.(*types.Named); ok {
+			b.queueNamedTypeJobs(ctx, T)
 		}
-		return []mlir.Value{X}
+		return []mlir.Value{b.addressOf(ctx, expr.X, location)}
 	case token.ARROW:
 		return b.emitReceiveExpression(ctx, expr)
 	default:

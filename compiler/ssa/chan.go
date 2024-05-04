@@ -170,7 +170,7 @@ func (b *Builder) emitSendStatement(ctx context.Context, stmt *ast.SendStmt) {
 	value := b.emitExpr(ctx, stmt.Value)[0]
 
 	// Take the address of the value since the runtime expects a pointer.
-	valueAddr := b.makeAddressOf(ctx, value, b.location(stmt.Pos()))
+	valueAddr := b.makeCopyOf(ctx, value, b.location(stmt.Pos()))
 
 	// Emit the runtime call to perform the channel send.
 	op := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.channelSend", nil, []mlir.Value{channel, valueAddr}, b.location(stmt.Pos()))

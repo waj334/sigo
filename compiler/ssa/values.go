@@ -42,7 +42,9 @@ func (b *Builder) emitLocalVar(ctx context.Context, obj types.Object, T mlir.Typ
 
 	ptrType := mlir.GoCreatePointerType(T)
 	allocaOp := mlir.GoCreateAllocaOperation(b.config.Ctx, ptrType, T, nil, false, b.location(obj.Pos()))
-	if len(obj.Name()) > 0 {
+
+	// NOTE: Omitted identifiers ( `_` )  will not have any debug information attached.
+	if len(obj.Name()) > 0 && obj.Name() != "_" {
 		mlir.GoAllocaOperationSetName(allocaOp, obj.Name())
 	}
 	appendOperation(ctx, allocaOp)
@@ -107,7 +109,7 @@ func (b *Builder) emitCastPointerToInt(ctx context.Context, X mlir.Value, locati
 	return resultOf(op)
 }
 
-func (b *Builder) makeAddressOf(ctx context.Context, X mlir.Value, location mlir.Location) mlir.Value {
+func (b *Builder) makeCopyOf(ctx context.Context, X mlir.Value, location mlir.Location) mlir.Value {
 	elementType := mlir.ValueGetType(X)
 	ptrType := mlir.GoCreatePointerType(elementType)
 
@@ -219,7 +221,7 @@ func (b *Builder) emitZeroValue(ctx context.Context, T types.Type, location mlir
 func (b *Builder) emitInterfaceValue(ctx context.Context, T types.Type, value mlir.Value, location mlir.Location) mlir.Value {
 	// Copy the value onto the stack.
 	// NOTE: This value may escape to the heap later.
-	addr := b.makeAddressOf(ctx, value, location)
+	addr := b.makeCopyOf(ctx, value, location)
 
 	// Create the interface value.
 	interfaceT := b.GetType(ctx, T)
@@ -246,6 +248,24 @@ func (b *Builder) addressOfSymbol(ctx context.Context, symbol string, T mlir.Typ
 	addressOfOp := mlir.GoCreateAddressOfOperation(b.ctx, symbol, T, location)
 	appendOperation(ctx, addressOfOp)
 	return resultOf(addressOfOp)
+}
+
+func (b *Builder) addressOf(ctx context.Context, expr ast.Expr, location mlir.Location) mlir.Value {
+	switch expr := expr.(type) {
+	case *ast.Ident:
+		// Return the address of the original allocation for the value.
+		return b.valueOf(ctx, expr).Pointer(ctx, location)
+	case *ast.IndexExpr:
+		return b.emitIndexAddr(ctx, expr)
+	case *ast.SelectorExpr:
+		return b.emitSelectAddr(ctx, expr)
+	default:
+		// Load the value.
+		value := b.emitExpr(ctx, expr)[0]
+
+		// Create a reference to the loaded value.
+		return b.makeCopyOf(ctx, value, location)
+	}
 }
 
 func (b *Builder) exprTypes(ctx context.Context, expr ...ast.Expr) []mlir.Type {

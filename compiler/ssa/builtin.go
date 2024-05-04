@@ -239,9 +239,6 @@ func (b *Builder) emitMake(ctx context.Context, expr *ast.CallExpr) []mlir.Value
 		var capacity mlir.Value
 		if len(expr.Args) == 3 {
 			capacity = b.emitExpr(ctx, expr.Args[1])[0]
-		} else {
-			// Pass zero as the capacity value.
-			capacity = b.emitConstInt(ctx, 0, b.si, location)
 		}
 
 		sliceT := b.GetType(ctx, T)
