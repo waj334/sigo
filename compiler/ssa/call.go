@@ -148,52 +148,6 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 						recv = recvValue.Load(ctx, location)
 					}
 
-					/*
-						var recv mlir.Value
-						if isPointer(recvType) {
-							recvType := recvType.(*types.Pointer)
-							recv = b.addressOf(ctx, Fun.X, location)
-							loadOp := mlir.GoCreateLoadOperation(b.ctx, recv, recvT, location)
-							appendOperation(ctx, loadOp)
-							recv = resultOf(loadOp)
-
-							// Check if the receiver is embedded.
-							recvStructType := baseStructTypeOf(recvType)
-							actualStructType := baseStructTypeOf(actualRecvType)
-							if recvStructType != nil && actualStructType != nil {
-								// This method is from an embedded type. Find it and get the address of it.
-								for i := 0; i < actualStructType.NumFields(); i++ {
-									field := actualStructType.Field(i)
-									if types.Identical(field.Type(), recvType.Elem()) {
-										structT := b.GetStoredType(ctx, actualStructType)
-										gepOp := mlir.GoCreateGepOperation2(b.ctx, recv, structT, []any{0, i}, recvT, location)
-										appendOperation(ctx, gepOp)
-										recv = resultOf(gepOp)
-										break
-									}
-								}
-							}
-						} else {
-							// Load the receiver value (copy semantics).
-							recv = b.emitExpr(ctx, Fun.X)[0]
-
-							// Check if the receiver is embedded.
-							if !types.Identical(recvType, actualRecvType) {
-								// This method is from an embedded type. Find it and extract the value.
-								structType := baseStructTypeOf(actualRecvType)
-								for i := 0; i < structType.NumFields(); i++ {
-									field := structType.Field(i)
-									if types.Identical(field.Type(), recvType) {
-										extractOp := mlir.GoCreateExtractOperation(b.ctx, uint64(i), recvT, recv, location)
-										appendOperation(ctx, extractOp)
-										recv = resultOf(extractOp)
-										break
-									}
-								}
-							}
-						}
-					*/
-
 					// Prepend the receiver value to the call args.
 					argValues = append([]mlir.Value{recv}, argValues...)
 				}
