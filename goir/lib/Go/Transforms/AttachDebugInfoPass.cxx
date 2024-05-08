@@ -353,12 +353,24 @@ namespace mlir::go {
                                                             elementAttrs);
                 }
                 break;
-                case GoTypeId::UnsafePointer:
-                    result = LLVM::DIBasicTypeAttr::get(context, llvm::dwarf::DW_TAG_base_type, "void*", size,
-                                                        llvm::dwarf::DW_ATE_address);
-                    break;
+                case GoTypeId::UnsafePointer: {
+                    const auto base = LLVM::DIBasicTypeAttr::get(context,
+                                                                 llvm::dwarf::DW_TAG_base_type,
+                                                                 "void",
+                                                                 0,
+                                                                 llvm::dwarf::DW_ATE_unsigned);
+                    result = LLVM::DIDerivedTypeAttr::get(context,
+                                                          llvm::dwarf::DW_TAG_pointer_type,
+                                                          StringAttr::get(context, "void*"),
+                                                          base,
+                                                          size,
+                                                          align,
+                                                          0,
+                                                          LLVM::DINodeAttr());
+                }
+                break;
                 default:
-                    return LLVM::DITypeAttr();
+                    return {};
             }
 
             this->m_typeMap[type] = result;
