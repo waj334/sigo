@@ -23,16 +23,16 @@ func (b *Builder) emitAssign(ctx context.Context, stmt *ast.AssignStmt) {
 		// Get the types of the LHS expressions to use for type inference for untyped types.
 		lhsTypes := make([]types.Type, len(stmt.Lhs))
 		for i, lhs := range stmt.Lhs {
-			T := b.typeOf(lhs)
+			T := b.typeOf(ctx, lhs)
 			lhsTypes[i] = T
 		}
 
 		rhsTypes := make([]types.Type, 0, len(stmt.Rhs))
 		for _, rhs := range stmt.Rhs {
-			T := b.typeOf(rhs)
-			if T, ok := T.(*types.Tuple); ok {
-				for i := 0; i < T.Len(); i++ {
-					rhsTypes = append(rhsTypes, T.At(i).Type())
+			T := b.typeOf(ctx, rhs)
+			if tupleT, ok := T.(*types.Tuple); ok {
+				for i := 0; i < tupleT.Len(); i++ {
+					rhsTypes = append(rhsTypes, tupleT.At(i).Type())
 				}
 			} else {
 				rhsTypes = append(rhsTypes, T)
@@ -44,9 +44,17 @@ func (b *Builder) emitAssign(ctx context.Context, stmt *ast.AssignStmt) {
 		rvals := make([]mlir.Value, 0, len(stmt.Rhs))
 		for i, lhs := range stmt.Lhs {
 			var lval Value
+			switch expr := stmt.Lhs[i].(type) {
+			case *ast.Ident:
+				if expr.Name == "_" {
+					// Skip evaluating this expression.
+					continue
+				}
+			}
+
 			if stmt.Tok == token.DEFINE {
 				// Local variables need to be emitted into the current block.
-				lval = b.emitLocalVar(ctx, b.objectOf(lhs), b.GetStoredType(ctx, lhsTypes[i]))
+				lval = b.emitLocalVar(ctx, b.objectOf(ctx, lhs), b.GetStoredType(ctx, lhsTypes[i]))
 			} else {
 				// Memory to hold the value should have already been created. Acquire the address of the memory
 				// location.
@@ -58,36 +66,6 @@ func (b *Builder) emitAssign(ctx context.Context, stmt *ast.AssignStmt) {
 		for i, rhss := range stmt.Rhs {
 			ctx = newContextWithRhsIndex(ctx, i)
 			rval := b.emitExpr(ctx, rhss)
-
-			// Some values need special storage:
-			switch expr := rhss.(type) {
-			case *ast.FuncLit:
-				// Get the data for the function literal.
-				enclosingFuncData := currentFuncData(ctx)
-				data := enclosingFuncData.anonymousFuncs[expr]
-
-				data.mutex.RLock()
-				var ctxAddr mlir.Value
-				if len(data.freeVars) > 0 {
-					// Create the context struct for the call.
-					ctxValue, ctxType := data.createContextStructValue(ctx, b, b.location(expr.Pos()))
-
-					// Allocate heap to store the context struct value.
-					allocOp := mlir.GoCreateAllocaOperation(b.ctx, mlir.GoCreatePointerType(ctxType), ctxType, nil, true, location)
-					appendOperation(ctx, allocOp)
-					ctxAddr = resultOf(allocOp)
-
-					// Store the argument pack at the address.
-					storeOp := mlir.GoCreateStoreOperation(b.ctx, ctxValue, ctxAddr, location)
-					appendOperation(ctx, storeOp)
-				}
-				data.mutex.RUnlock()
-
-				// Create a func value to store.
-				ctxAddr = b.bitcastTo(ctx, ctxAddr, b.ptr, location)
-				rval = []mlir.Value{b.createFunctionValue(ctx, rval[0], ctxAddr, location)}
-			}
-
 			rvals = append(rvals, rval...)
 		}
 
@@ -198,12 +176,12 @@ func (b *Builder) emitCompoundAssign(ctx context.Context, stmt *ast.AssignStmt) 
 	X := lvar.Load(ctx, location)
 
 	// Set up type inference.
-	lhsT := b.typeOf(stmt.Lhs[0])
+	lhsT := b.typeOf(ctx, stmt.Lhs[0])
 	ctx = newContextWithLhsList(ctx, []types.Type{lhsT})
 	ctx = newContextWithRhsIndex(ctx, 0)
 
 	// Evaluate the RHS value.
-	rhsT := b.typeOf(stmt.Rhs[0])
+	rhsT := b.typeOf(ctx, stmt.Rhs[0])
 	Y := b.emitExpr(ctx, stmt.Rhs[0])[0]
 
 	// Make sure operands are the same type.
@@ -221,9 +199,8 @@ func (b *Builder) emitBinaryExpression(ctx context.Context, expr *ast.BinaryExpr
 	// Get the types of the LHS expressions to use for type inference for untyped types.
 	// NOTE: Use the type of the left-most operand if consecutive right-hand operands are also untyped.
 	var exprT types.Type
-
-	lhsT := b.typeOf(expr.X)
-	rhsT := b.typeOf(expr.Y)
+	lhsT := b.typeOf(ctx, expr.X)
+	rhsT := b.typeOf(ctx, expr.Y)
 	if isUntyped(lhsT) || isUntyped(rhsT) {
 		if !isUntyped(lhsT) {
 			exprT = lhsT
@@ -233,7 +210,7 @@ func (b *Builder) emitBinaryExpression(ctx context.Context, expr *ast.BinaryExpr
 	}
 
 	if exprT == nil {
-		exprT = b.typeOf(expr)
+		exprT = b.typeOf(ctx, expr)
 		if isUntyped(exprT) {
 			exprT = resolveType(ctx, exprT)
 		}
@@ -302,6 +279,11 @@ func (b *Builder) emitBlock(ctx context.Context, stmt *ast.BlockStmt) {
 
 	// Emit operations for every statement in the input block.
 	for _, stmt := range stmt.List {
+		// Do not continue emission if the current block is already terminated.
+		if blockHasTerminator(currentBlock(ctx)) {
+			return
+		}
+
 		b.emitStmt(ctx, stmt)
 	}
 }
@@ -395,10 +377,10 @@ func (b *Builder) emitExpr(ctx context.Context, expr ast.Expr) []mlir.Value {
 	case *ast.KeyValueExpr:
 		panic("unreachable")
 	case *ast.ParenExpr:
-		exprT := b.typeOf(expr)
+		exprT := b.typeOf(ctx, expr)
 		if !typeHasFlags(exprT, types.IsUntyped) {
 			// Update the inferred types.
-			ctx = newContextWithLhsList(ctx, []types.Type{b.typeOf(expr)})
+			ctx = newContextWithLhsList(ctx, []types.Type{b.typeOf(ctx, expr)})
 			ctx = newContextWithRhsIndex(ctx, 0)
 		}
 		return b.emitExpr(ctx, expr.X)
@@ -413,7 +395,7 @@ func (b *Builder) emitExpr(ctx context.Context, expr ast.Expr) []mlir.Value {
 	case *ast.UnaryExpr:
 		return b.emitUnaryExpr(ctx, expr)
 	case *ast.ArrayType, *ast.ChanType, *ast.StructType, *ast.FuncType, *ast.InterfaceType, *ast.MapType:
-		T := b.GetStoredType(ctx, b.typeOf(expr))
+		T := b.GetStoredType(ctx, b.typeOf(ctx, expr))
 		op := mlir.GoCreateTypeInfoOperation(b.ctx, b.typeInfoPtr, T, b.location(expr.Pos()))
 		appendOperation(ctx, op)
 		return []mlir.Value{resultOf(op)}
@@ -438,7 +420,7 @@ func (b *Builder) emitGenericDecl(ctx context.Context, decl *ast.GenDecl) {
 
 			// Local variables need to be emitted into the current block.
 			for i, ident := range spec.Names {
-				vars[i] = b.emitLocalVar(ctx, b.objectOf(ident), b.GetStoredType(ctx, b.typeOf(ident)))
+				vars[i] = b.emitLocalVar(ctx, b.objectOf(ctx, ident), b.GetStoredType(ctx, b.typeOf(ctx, ident)))
 			}
 
 			// Assign initial value (if any).
@@ -457,10 +439,11 @@ func (b *Builder) emitGenericDecl(ctx context.Context, decl *ast.GenDecl) {
 
 func (b *Builder) emitIdent(ctx context.Context, expr *ast.Ident) []mlir.Value {
 	location := b.location(expr.Pos())
-	obj := b.objectOf(expr)
+	obj := b.objectOf(ctx, expr)
 	switch obj := obj.(type) {
 	case *types.Const:
-		T := resolveType(ctx, b.typeOf(expr))
+		exprType := b.typeOf(ctx, expr)
+		T := resolveType(ctx, exprType)
 		val := b.emitConstantValue(ctx, obj.Val(), T, location)
 		return []mlir.Value{val}
 	case *types.Func:
@@ -481,30 +464,37 @@ func (b *Builder) emitIdent(ctx context.Context, expr *ast.Ident) []mlir.Value {
 			T = b.GetStoredType(ctx, obj.Type())
 		}
 		// Create the zero value of the specified type.
-		op := mlir.GoCreateZeroOperation(b.ctx, T, b.location(expr.Pos()))
+		op := mlir.GoCreateZeroOperation(b.ctx, T, location)
 		appendOperation(ctx, op)
 		return resultsOf(op)
 	default:
-		var value Value
-		if data := currentFuncData(ctx); data != nil {
-			data.mutex.RLock()
-			// Attempt to retrieve the value from the function's known free variables first.
-			for _, fv := range data.freeVars {
-				if fv.ident == expr {
-					value = fv
-					break
+		/*
+			var value Value
+			if data := currentFuncData(ctx); data != nil {
+				data.mutex.RLock()
+				// Attempt to retrieve the value from the function's known free variables first.
+				for _, fv := range data.freeVars {
+					if fv.ident == expr {
+						value = fv
+						break
+					}
 				}
+				data.mutex.RUnlock()
 			}
-			data.mutex.RUnlock()
-		}
 
+			if value == nil {
+				// Otherwise, the variable is local.
+				value = b.valueOf(ctx, expr)
+			}
+		*/
+
+		value := b.valueOf(ctx, expr)
 		if value == nil {
-			// Otherwise, the variable is local.
-			value = b.valueOf(ctx, expr)
+			panic("value is nil")
 		}
 
 		// Load the value
-		return []mlir.Value{value.Load(ctx, b.location(expr.Pos()))}
+		return []mlir.Value{value.Load(ctx, location)}
 	}
 }
 
@@ -512,7 +502,7 @@ func (b *Builder) emitIndexExpr(ctx context.Context, expr *ast.IndexExpr) []mlir
 	var resultType mlir.Type
 
 	// Handle various result type scenarios.
-	switch T := b.typeOf(expr).(type) {
+	switch T := b.typeOf(ctx, expr).(type) {
 	case *types.Tuple:
 		// The result type of the index operation is that of the first member of the tuple.
 		resultType = b.GetStoredType(ctx, T.At(0).Type())
@@ -523,7 +513,7 @@ func (b *Builder) emitIndexExpr(ctx context.Context, expr *ast.IndexExpr) []mlir
 	location := b.location(expr.Pos())
 
 	// Perform the specific index operation based on the input value type.
-	switch b.typeOf(expr.X).(type) {
+	switch b.typeOf(ctx, expr.X).(type) {
 	case *types.Array:
 		// Evaluate the address.
 		addr := b.emitIndexAddr(ctx, expr)
@@ -580,7 +570,7 @@ func (b *Builder) emitIndexAddr(ctx context.Context, expr *ast.IndexExpr) mlir.V
 
 	// Handle various result type scenarios.
 	var resultType mlir.Type
-	switch T := b.typeOf(expr).(type) {
+	switch T := b.typeOf(ctx, expr).(type) {
 	case *types.Tuple:
 		// The result type of the index operation is that of the first member of the tuple.
 		resultType = b.GetStoredType(ctx, T.At(0).Type())
@@ -594,7 +584,7 @@ func (b *Builder) emitIndexAddr(ctx context.Context, expr *ast.IndexExpr) mlir.V
 	index := b.emitExpr(ctx, expr.Index)[0]
 
 	// Perform the specific index operation based on the input value type.
-	switch baseType := b.typeOf(expr.X).(type) {
+	switch baseType := b.typeOf(ctx, expr.X).(type) {
 	case *types.Array:
 		arrayT := b.GetType(ctx, baseType)
 
@@ -638,6 +628,7 @@ func (b *Builder) emitIndexAddr(ctx context.Context, expr *ast.IndexExpr) mlir.V
 func (b *Builder) emitReturn(ctx context.Context, stmt *ast.ReturnStmt) {
 	var results []mlir.Value
 	location := b.location(stmt.Pos())
+	info := currentInfo(ctx)
 
 	// Get the current function declaration being built.
 	state := currentFuncData(ctx)
@@ -667,7 +658,7 @@ func (b *Builder) emitReturn(ctx context.Context, stmt *ast.ReturnStmt) {
 			ctx = newContextWithRhsIndex(ctx, i)
 
 			v := b.emitExpr(ctx, result)
-			valueType := b.typeOf(result)
+			valueType := b.typeOf(ctx, result)
 
 			// NOTE: The following might not convert correctly in the scenario where the expression above yields
 			//       multiple interface values.
@@ -694,6 +685,14 @@ func (b *Builder) emitReturn(ctx context.Context, stmt *ast.ReturnStmt) {
 						}
 					}
 				case *types.Signature:
+					if selExpr, ok := result.(*ast.SelectorExpr); ok {
+						if sel, ok := info.Selections[selExpr]; ok {
+							// Member variables would've been store as the func struct type.
+							if _, ok := sel.Obj().(*types.Var); ok {
+								break
+							}
+						}
+					}
 					v[ii] = b.createFunctionValue(ctx, v[ii], nil, location)
 				}
 			}
@@ -729,10 +728,11 @@ func (b *Builder) emitLabeledStatement(ctx context.Context, stmt *ast.LabeledStm
 
 func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) []mlir.Value {
 	location := b.location(expr.Pos())
-	sel := b.config.Info.Selections[expr]
+	info := currentInfo(ctx)
+	sel := info.Selections[expr]
 	if sel == nil {
 		// This is actually a qualified identifier.
-		switch obj := b.objectOf(expr.Sel).(type) {
+		switch obj := b.objectOf(ctx, expr.Sel).(type) {
 		case *types.Func:
 			T := b.GetType(ctx, obj.Type())
 			symbol := qualifiedFuncName(obj)
@@ -794,7 +794,7 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 			baseAddr := b.emitSelectAddr(ctx, expr)
 
 			// Load the member value.
-			loadOp := mlir.GoCreateLoadOperation(b.ctx, baseAddr, b.GetStoredType(ctx, b.typeOf(expr)), location)
+			loadOp := mlir.GoCreateLoadOperation(b.ctx, baseAddr, b.GetStoredType(ctx, b.typeOf(ctx, expr)), location)
 			appendOperation(ctx, loadOp)
 			return resultsOf(loadOp)
 		default:
@@ -804,130 +804,101 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 }
 
 func (b *Builder) emitSelectAddr(ctx context.Context, expr *ast.SelectorExpr) mlir.Value {
-	var selectorFn func(*ast.SelectorExpr) (mlir.Value, func() mlir.Value)
+	info := currentInfo(ctx)
+	location := b.location(expr.Pos())
+	selectedType := b.typeOf(ctx, expr)
 
-	selectorFn = func(selectorExpr *ast.SelectorExpr) (mlir.Value, func() mlir.Value) {
-		location := b.location(selectorExpr.Pos())
-		var basePtr mlir.Value
-		switch X := selectorExpr.X.(type) {
-		case *ast.Ident:
-			obj := b.config.Info.Uses[X]
-			switch obj := obj.(type) {
-			case *types.Var:
-				// Look up the value for this object.
-				value := b.valueOf(ctx, X)
-
-				// Special case for **void pointers.
-				if mlir.GoTypeIsAPointer(mlir.GoGetBaseType(value.Type())) {
-					// Load the underlying pointer value.
-					basePtr = value.Load(ctx, location)
-				}
-
-				// Otherwise, acquire the address to the value.
-				if basePtr == nil {
-					basePtr = value.Pointer(ctx, location)
-				}
-			case *types.Func:
-				// Functions cannot be GEP'ed, so just return its address.
-				symbol := b.resolveSymbol(qualifiedFuncName(obj))
-				b.queueJob(ctx, symbol)
-				return b.addressOfSymbol(ctx, symbol, b.GetType(ctx, obj.Type()), location), nil
-			case *types.PkgName:
-				// Format the symbol name.
-				symbol := obj.Imported().Path() + "." + selectorExpr.Sel.Name
-
-				// Look up the symbol.
-				T := b.GetType(ctx, b.typeOf(selectorExpr))
-				basePtr = b.addressOfSymbol(ctx, symbol, mlir.GoCreatePointerType(T), b._noLoc)
-
-				// Special case for **void pointers.
-				if mlir.GoTypeIsAPointer(mlir.GoGetBaseType(T)) {
-					// Load the underlying pointer value.
-					loadOp := mlir.GoCreateLoadOperation(b.ctx, basePtr, T, location)
-					appendOperation(ctx, loadOp)
-					basePtr = resultOf(loadOp)
-				}
-			}
-		case *ast.SelectorExpr:
-			var loader func() mlir.Value
-			basePtr, loader = selectorFn(X)
-			if loader != nil {
-				// The pointer at the address should be loaded before continuing.
-				basePtr = loader()
-			}
-		default:
-			if value := b.valueOf(ctx, X); value != nil {
-				T := b.typeOf(X)
-				if isPointer(T) {
-					basePtr = value.Load(ctx, location)
-				} else {
-					basePtr = value.Pointer(ctx, location)
-				}
-			} else {
-				// Evaluate the value to select from.
-				basePtr = b.emitExpr(ctx, X)[0]
-				T := b.typeOf(X)
-				if !isPointer(T) {
-					// This value needs to be stored on the stack before any pointer can be derived from it.
-					basePtr = b.makeCopyOf(ctx, basePtr, location)
-				}
-			}
+	// Handle declared functions separately.
+	if _, isFunc := selectedType.(*types.Signature); isFunc {
+		if funcObj, ok := info.ObjectOf(expr.Sel).(*types.Func); ok {
+			symbol := b.resolveSymbol(qualifiedFuncName(funcObj))
+			b.queueJob(ctx, symbol)
+			return b.addressOfSymbol(ctx, symbol, b.GetType(ctx, funcObj.Type()), location)
 		}
-
-		T := baseType(b.typeOf(selectorExpr.X))
-		ST := baseStructTypeOf(T)
-		loadLast := false
-		var loadFn func() mlir.Value
-		if sel, ok := b.config.Info.Selections[selectorExpr]; ok {
-			// Get the address of the selected struct member.
-			for _, index := range sel.Index() {
-				// Determine the base type first.
-				structT := b.GetType(ctx, ST)
-
-				if loadLast {
-					basePtr = loadFn()
-				}
-
-				memberType := ST.Field(index).Type()
-				if memberST := baseStructTypeOf(baseType(memberType)); memberST != nil {
-					ST = memberST
-				}
-
-				// Get the address of the struct member.
-				gepOp := mlir.GoCreateGepOperation2(b.ctx, basePtr, structT, []any{0, index}, b.pointerOf(ctx, memberType), location)
-				appendOperation(ctx, gepOp)
-				basePtr = resultOf(gepOp)
-
-				// Load the address if the member is a pointer.
-				if isPointer(baseType(memberType)) {
-					loadLast = true
-					loadFn = func() mlir.Value {
-						loadOp := mlir.GoCreateLoadOperation(b.ctx, basePtr, b.GetStoredType(ctx, memberType), location)
-						appendOperation(ctx, loadOp)
-						return resultOf(loadOp)
-					}
-				} else {
-					loadLast = false
-				}
-			}
-
-			// Load the very last element if necessary.
-			/*if loadLast {
-				basePtr = loadFn()
-			}*/
-		}
-		return basePtr, loadFn
 	}
 
-	// NOTE: Is the result is an address to a pointer, it will not be loaded to return the correct address to store to.
-	result, _ := selectorFn(expr)
-	return result
+	var basePtr mlir.Value
+
+	// Handle acquiring the address of some constant.
+	// TODO: valueOf could probably handle all cases here, thus eliminating the nil check below.
+	if obj, ok := info.Uses[expr.Sel]; ok {
+		if constObj, ok := obj.(*types.Const); ok {
+			val := b.emitConstantValue(ctx, constObj.Val(), constObj.Type(), location)
+			basePtr = b.makeCopyOf(ctx, val, location)
+		}
+	}
+
+	if basePtr == nil {
+		// Get the base pointer to begin pointer arithmetic on.
+		basePtr = b.baseAddressOf(ctx, expr, location)
+	}
+
+	if selection, ok := info.Selections[expr]; ok {
+		// Emit GEP operations to derive the address of the selected identifier starting with the receiver type as
+		// specified by the type checker.
+		currentType := selection.Recv()
+		for _, index := range selection.Index() {
+			if isPointer(currentType) {
+				// Load the pointer value.
+				ptrType := b.GetType(ctx, currentType)
+				loadOp := mlir.GoCreateLoadOperation(b.ctx, basePtr, ptrType, location)
+				appendOperation(ctx, loadOp)
+				basePtr = resultOf(loadOp)
+				currentType = currentType.(*types.Pointer).Elem()
+			}
+
+			// Get the field type currently selected.
+			structType := baseStructTypeOf(currentType)
+			fieldType := structType.Field(index).Type()
+			if _, isSignature := fieldType.(*types.Signature); isSignature {
+				// Functions are stored as the func struct type.
+				fieldType = b.config.Program.LookupType("runtime", "_func")
+			}
+			fieldPtrType := b.pointerOf(ctx, fieldType)
+
+			// GEP to the struct field at the specified index.
+			gepOp := mlir.GoCreateGepOperation2(b.ctx, basePtr, b.GetType(ctx, structType), []any{0, index}, fieldPtrType, location)
+			appendOperation(ctx, gepOp)
+			basePtr = resultOf(gepOp)
+
+			// Update the current type.
+			currentType = fieldType.Underlying()
+		}
+	}
+
+	// Return the resulting pointer.
+	return basePtr
+}
+
+func (b *Builder) baseAddressOf(ctx context.Context, expr *ast.SelectorExpr, location mlir.Location) mlir.Value {
+	info := currentInfo(ctx)
+	switch X := expr.X.(type) {
+	case *ast.Ident:
+		baseObj := info.ObjectOf(X)
+		switch baseObj := baseObj.(type) {
+		case *types.Var:
+			return b.valueOf(ctx, X).Pointer(ctx, location)
+		case *types.PkgName:
+			symbol := baseObj.Imported().Path() + "." + expr.Sel.Name
+			globalT := b.typeOf(ctx, expr)
+			addressOfOp := mlir.GoCreateAddressOfOperation(b.ctx, symbol, b.pointerOf(ctx, globalT), location)
+			appendOperation(ctx, addressOfOp)
+			return resultOf(addressOfOp)
+		default:
+			panic("unhandled")
+		}
+	case *ast.SelectorExpr:
+		return b.emitSelectAddr(ctx, X)
+	default:
+		// Store the value on the stack and return the stack address.
+		return b.addressOf(ctx, X, location)
+	}
 }
 
 func (b *Builder) emitSliceExpr(ctx context.Context, expr *ast.SliceExpr) []mlir.Value {
 	var lowValue, highValue, maxValue mlir.Value
 	location := b.location(expr.Pos())
-	T := b.GetStoredType(ctx, b.typeOf(expr))
+	T := b.GetStoredType(ctx, b.typeOf(ctx, expr))
 
 	// Evaluate the input slice.
 	X := b.emitExpr(ctx, expr.X)[0]
@@ -952,7 +923,7 @@ func (b *Builder) emitSliceExpr(ctx context.Context, expr *ast.SliceExpr) []mlir
 }
 
 func (b *Builder) emitStarExpr(ctx context.Context, expr *ast.StarExpr) []mlir.Value {
-	elementType := b.GetStoredType(ctx, b.typeOf(expr))
+	elementType := b.GetStoredType(ctx, b.typeOf(ctx, expr))
 	X := b.emitExpr(ctx, expr.X)[0]
 
 	// Load and return the value at the address.
@@ -1030,7 +1001,7 @@ func (b *Builder) emitTypeAssertExpr(ctx context.Context, expr *ast.TypeAssertEx
 	X := b.emitExpr(ctx, expr.X)[0]
 
 	// Get the information of the type to assert.
-	T := b.GetType(ctx, b.typeOf(expr.Type))
+	T := b.GetType(ctx, b.typeOf(ctx, expr.Type))
 
 	// Create the type assertion operation.
 	op := mlir.GoCreateTypeAssertOperation(b.ctx, X, T, location)
@@ -1040,7 +1011,7 @@ func (b *Builder) emitTypeAssertExpr(ctx context.Context, expr *ast.TypeAssertEx
 
 func (b *Builder) emitUnaryExpr(ctx context.Context, expr *ast.UnaryExpr) []mlir.Value {
 	location := b.location(expr.Pos())
-	exprT := b.typeOf(expr)
+	exprT := b.typeOf(ctx, expr)
 	if !typeHasFlags(exprT, types.IsUntyped) {
 		ctx = newContextWithLhsList(ctx, []types.Type{exprT})
 		ctx = newContextWithRhsIndex(ctx, 0)
@@ -1055,11 +1026,11 @@ func (b *Builder) emitUnaryExpr(ctx context.Context, expr *ast.UnaryExpr) []mlir
 		var op mlir.Operation
 		X := b.emitExpr(ctx, expr.X)[0]
 		switch {
-		case b.exprTypeHasFlags(expr, types.IsInteger):
+		case b.exprTypeHasFlags(ctx, expr, types.IsInteger):
 			op = mlir.GoCreateNegIOperation(b.ctx, X, location)
-		case b.exprTypeHasFlags(expr, types.IsFloat):
+		case b.exprTypeHasFlags(ctx, expr, types.IsFloat):
 			op = mlir.GoCreateNegFOperation(b.ctx, X, location)
-		case b.exprTypeHasFlags(expr, types.IsComplex):
+		case b.exprTypeHasFlags(ctx, expr, types.IsComplex):
 			op = mlir.GoCreateNegCOperation(b.ctx, X, location)
 		}
 		appendOperation(ctx, op)
@@ -1077,7 +1048,7 @@ func (b *Builder) emitUnaryExpr(ctx context.Context, expr *ast.UnaryExpr) []mlir
 	case token.MUL:
 		panic("unreachable")
 	case token.AND:
-		T := b.typeOf(expr.X)
+		T := b.typeOf(ctx, expr.X)
 		if T, ok := T.(*types.Named); ok {
 			b.queueNamedTypeJobs(ctx, T)
 		}

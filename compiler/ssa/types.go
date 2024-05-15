@@ -414,9 +414,11 @@ func (b *Builder) GetStoredType(ctx context.Context, T types.Type) mlir.Type {
 	}
 }
 
-func (b *Builder) exprTypeHasFlags(expr ast.Expr, flags ...types.BasicInfo) bool {
+func (b *Builder) exprTypeHasFlags(ctx context.Context, expr ast.Expr, flags ...types.BasicInfo) bool {
+	info := currentInfo(ctx)
+
 	// Look the type information about the input expression.
-	T := b.config.Info.TypeOf(expr)
+	T := info.TypeOf(expr)
 	return typeHasFlags(T, flags...)
 }
 
@@ -454,6 +456,9 @@ func isNil(T types.Type) bool {
 }
 
 func isUntyped(T types.Type) bool {
+	if T == nil {
+		return true
+	}
 	return typeHasFlags(T, types.IsUntyped)
 }
 
@@ -474,6 +479,13 @@ func isPointer(T types.Type) bool {
 		if T.Kind() == types.UnsafePointer {
 			return true
 		}
+	}
+	return false
+}
+
+func isGeneric(T types.Type) bool {
+	if T, ok := T.(*types.Named); ok {
+		return T.TypeParams().Len() > 0
 	}
 	return false
 }

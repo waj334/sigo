@@ -237,37 +237,75 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 	X := b.emitExpr(ctx, expr.X)[0]
 	location := b.location(expr.Pos())
 
-	XT := baseType(b.typeOf(expr.X))
-	YT := baseType(b.typeOf(expr.Y))
+	XT := baseType(b.typeOf(ctx, expr.X))
+	YT := baseType(b.typeOf(ctx, expr.Y))
 
-	if typeHasFlags(YT, types.IsUntyped) {
-		// Infer the type to compare against.
-		lhsTypes := currentLhsList(ctx)
-		index := currentRhsIndex(ctx)
-		YT = lhsTypes[index]
-	}
+	/*
+		if typeHasFlags(YT, types.IsUntyped) {
+			// Infer the type to compare against.
+			lhsTypes := currentLhsList(ctx)
+			index := currentRhsIndex(ctx)
+			YT = lhsTypes[index]
+		}
+	*/
 
 	switch {
 	case typeHasFlags(XT, types.IsBoolean), typeHasFlags(XT, types.IsInteger):
-		Y := b.emitExpr(ctx, expr.Y)[0]
+		var Y mlir.Value
+		if isNil(YT) {
+			Y = b.emitZeroValue(ctx, XT, location)
+		} else {
+			Y = b.emitExpr(ctx, expr.Y)[0]
+		}
 		return b.emitIntegerCompare(ctx, expr.Op, X, Y, location)
 	case typeHasFlags(XT, types.IsFloat):
-		Y := b.emitExpr(ctx, expr.Y)[0]
+		var Y mlir.Value
+		if isNil(YT) {
+			Y = b.emitZeroValue(ctx, XT, location)
+		} else {
+			Y = b.emitExpr(ctx, expr.Y)[0]
+		}
 		return b.emitFloatCompare(ctx, expr.Op, X, Y, location)
 	case typeHasFlags(XT, types.IsComplex):
-		Y := b.emitExpr(ctx, expr.Y)[0]
+		var Y mlir.Value
+		if isNil(YT) {
+			Y = b.emitZeroValue(ctx, XT, location)
+		} else {
+			Y = b.emitExpr(ctx, expr.Y)[0]
+		}
 		return b.emitComplexCompare(ctx, expr.Op, X, Y, location)
 	case typeHasFlags(XT, types.IsString):
-		Y := b.emitExpr(ctx, expr.Y)[0]
+		var Y mlir.Value
+		if isNil(YT) {
+			Y = b.emitZeroValue(ctx, XT, location)
+		} else {
+			Y = b.emitExpr(ctx, expr.Y)[0]
+		}
 		return b.emitStringCompare(ctx, expr.Op, X, Y, location)
-	case isPointer(b.typeOf(expr.X)):
-		Y := b.emitExpr(ctx, expr.Y)[0]
+	case isPointer(b.typeOf(ctx, expr.X)):
+		var Y mlir.Value
+		if isNil(YT) {
+			Y = b.emitZeroValue(ctx, XT, location)
+		} else {
+			Y = b.emitExpr(ctx, expr.Y)[0]
+		}
 		return b.emitPointerCompare(ctx, expr.Op, X, Y, location)
 	case typeIs[*types.Interface](XT):
-		Y := b.emitExpr(ctx, expr.Y)[0]
+		var Y mlir.Value
+		if isNil(YT) {
+			Y = b.emitZeroValue(ctx, XT, location)
+			YT = XT
+		} else {
+			Y = b.emitExpr(ctx, expr.Y)[0]
+		}
 		return b.emitInterfaceCompare(ctx, expr.Op, X, Y, YT, location)
 	case typeIs[*types.Struct](XT):
-		Y := b.emitExpr(ctx, expr.Y)[0]
+		var Y mlir.Value
+		if isNil(YT) {
+			Y = b.emitZeroValue(ctx, XT, location)
+		} else {
+			Y = b.emitExpr(ctx, expr.Y)[0]
+		}
 		return b.emitStructCompare(ctx, token.EQL, X, Y, XT.Underlying().(*types.Struct), location)
 
 		// The following are special cases when compared against nil:

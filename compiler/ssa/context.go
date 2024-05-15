@@ -19,6 +19,7 @@ type (
 	funcDataKey          struct{}
 	globalKey            struct{}
 	jobQueueKey          struct{}
+	infoKey              struct{}
 )
 
 func newGlobalContext(ctx context.Context) context.Context {
@@ -149,4 +150,15 @@ func currentRhsIndex(ctx context.Context) int {
 		return val.(int)
 	}
 	return -1
+}
+
+func newContextWithInfo(ctx context.Context, info *types.Info) context.Context {
+	return context.WithValue(ctx, infoKey{}, info)
+}
+
+func currentInfo(ctx context.Context) *types.Info {
+	if val := ctx.Value(infoKey{}); val != nil {
+		return val.(*types.Info)
+	}
+	return nil
 }

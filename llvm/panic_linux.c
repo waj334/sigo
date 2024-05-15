@@ -17,3 +17,7 @@ void __assert_fail(const char* expr, const char *filename, unsigned int line, co
     // Trigger the panic
     gopanic(buf);
 }
+
+void init_panic_handler() {
+    // Does nothing on linux.
+}

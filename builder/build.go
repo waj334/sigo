@@ -160,6 +160,12 @@ func Build(ctx context.Context, packageDir string) error {
 	targetMachine := targetInfo.CreateTargetMachine(target)
 	targetLayout := llvm.CreateTargetDataLayout(targetMachine)
 
+	// Set up sizes.
+	sizes := types.StdSizes{
+		WordSize: int64(llvm.PointerSize(targetLayout)),
+		MaxAlign: int64(targetInfo.Alignment),
+	}
+
 	// Create a new program.
 	program := ssa.NewProgram(&ssa.ProgramConfig{
 		Tags:               tags,
@@ -167,6 +173,7 @@ func Build(ctx context.Context, packageDir string) error {
 		Environment:        options.Environment.List(),
 		PackagePath:        packageDir,
 		GoRoot:             options.Environment.Value("GOROOT"),
+		Sizes:              &sizes,
 	})
 
 	// Parse the package.
@@ -190,13 +197,9 @@ func Build(ctx context.Context, packageDir string) error {
 		NumWorkers: options.NumJobs,
 		Fset:       program.FileSet,
 		Ctx:        mlirCtx,
-		Info:       program.Info,
-		Sizes: &types.StdSizes{
-			WordSize: int64(llvm.PointerSize(targetLayout)),
-			MaxAlign: int64(targetInfo.Alignment),
-		},
-		Module:  mlirModule,
-		Program: program,
+		Sizes:      &sizes,
+		Module:     mlirModule,
+		Program:    program,
 	})
 
 	// Set module attributes
@@ -312,7 +315,6 @@ func link(options Options, targetInfo targets.TargetInfo, arch string, float str
 	libCompilerRTDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/compiler-rt", targetInfo.Triple, arch+"+"+float, "lib", targetInfo.Triple)
 
 	// Get the toolchain.
-	// TODO: Determine the toolchain more intelligently.
 	toolchain, err := findToolchain(options.Environment)
 	if err != nil {
 		return err

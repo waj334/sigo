@@ -67,7 +67,7 @@ func sliceClear(s _slice, elementType *_type) {
 	memset(s.array, 0, uintptr(elementType.size)*uintptr(s.len))
 }
 
-func sliceCopy(src, dst _slice, elementType *_type) int {
+func sliceCopy(dst, src _slice, elementType *_type) int {
 	// Copy either as much as what is available or as much as there is capacity
 	// for.
 	n := src.len
@@ -92,7 +92,7 @@ func sliceIndexAddr(s _slice, index int, elementType *_type) unsafe.Pointer {
 }
 
 func sliceReslice(s _slice, info *_type, low, high, max int) _slice {
-	arrayType := (*_arrayTypeData)(info.data)
+	elementType := (*_type)(info.data)
 
 	if low == -1 {
 		low = 0
@@ -113,7 +113,7 @@ func sliceReslice(s _slice, info *_type, low, high, max int) _slice {
 	}
 
 	return _slice{
-		array: unsafe.Add(s.array, uintptr(low)*uintptr(arrayType.elementType.size)),
+		array: unsafe.Add(s.array, uintptr(low)*uintptr(elementType.size)),
 		len:   high - low,
 		cap:   max - low,
 	}
@@ -141,4 +141,16 @@ func sliceAddr(ptr unsafe.Pointer, low, high, length int, stride uintptr) _slice
 
 func sliceIsNil(s _slice) bool {
 	return s.array == nil
+}
+
+func sliceData(s _slice) unsafe.Pointer {
+	return s.array
+}
+
+func slice(ptr unsafe.Pointer, len int) _slice {
+	return _slice{
+		array: ptr,
+		len:   len,
+		cap:   len,
+	}
 }

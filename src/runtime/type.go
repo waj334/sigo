@@ -37,6 +37,7 @@ const (
 type _type struct {
 	kind kind
 	size uint16
+	_    byte
 	data unsafe.Pointer
 	name string
 }

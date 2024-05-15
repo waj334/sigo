@@ -4,13 +4,13 @@ import (
 	"context"
 	"errors"
 	"go/ast"
+	"go/importer"
 	"go/token"
 	"go/types"
 	"gonum.org/v1/gonum/graph/multi"
 	"gonum.org/v1/gonum/graph/topo"
 	"hash/fnv"
 	"io/fs"
-	"maps"
 	"path/filepath"
 	"strings"
 
@@ -23,6 +23,7 @@ type ProgramConfig struct {
 	Environment        []string
 	PackagePath        string
 	GoRoot             string
+	Sizes              types.Sizes
 }
 
 type Program struct {
@@ -38,7 +39,20 @@ type Program struct {
 	Config          *ProgramConfig
 	MainFunc        string
 	PackageInits    []*ast.Ident
+
 	packageNodes    map[*packages.Package]*packageNode
+	defaultImporter types.Importer
+}
+
+func (p *Program) Import(path string) (*types.Package, error) {
+	if pkg, ok := p.Packages[path]; ok {
+		return pkg.Types, nil
+	}
+	return p.defaultImporter.Import(path)
+}
+
+func (p *Program) ImportFrom(path, dir string, mode types.ImportMode) (*types.Package, error) {
+	return p.Import(path)
 }
 
 type packageNode struct {
@@ -58,19 +72,10 @@ func NewProgram(config *ProgramConfig) *Program {
 		Defines:         map[string]string{},
 		Files:           map[string][]string{},
 		FileSet:         token.NewFileSet(),
-		Info: &types.Info{
-			Types:      map[ast.Expr]types.TypeAndValue{},
-			Instances:  map[*ast.Ident]types.Instance{},
-			Defs:       map[*ast.Ident]types.Object{},
-			Uses:       map[*ast.Ident]types.Object{},
-			Implicits:  map[ast.Node]types.Object{},
-			Selections: map[*ast.SelectorExpr]*types.Selection{},
-			Scopes:     map[ast.Node]*types.Scope{},
-			InitOrder:  []*types.Initializer{},
-		},
-		Symbols:      NewSymbolInfoStore(),
-		Config:       config,
-		packageNodes: map[*packages.Package]*packageNode{},
+		Symbols:         NewSymbolInfoStore(),
+		Config:          config,
+		packageNodes:    map[*packages.Package]*packageNode{},
+		defaultImporter: importer.Default(),
 	}
 }
 
@@ -117,42 +122,21 @@ func (p *Program) Parse(ctx context.Context) error {
 
 	// Add all parse packages (including their imported packages).
 	for _, pkg := range pkgs {
-		for _, pkgErr := range pkg.TypeErrors {
+		// Add the package to the program.
+		if pkgErr := p.AddPackage(pkg); pkgErr != nil {
 			err = errors.Join(err, pkgErr)
 		}
-		p.AddPackage(pkg)
 	}
 
-	// Create a directed graph that will be used to sort the packaged topologically in order of dependency.
-	graph := multi.NewDirectedGraph()
-	runtimePackageNode := p.makeNode(p.Packages["runtime"])
-	for _, pkg := range p.Packages {
-		// Add graph edges.
-		pkgNode := p.makeNode(pkg)
-
-		// Exclude the runtime package.
-		// TODO: This might be problematic if any package runtime is dependent on has package initializers.
-		if pkg.PkgPath != "runtime" {
-			// All other packages implicitly depend on the runtime package.
-			graph.SetLine(graph.NewLine(runtimePackageNode, pkgNode))
-
-			// Add edges to imported packages.
-			for _, imported := range pkg.Imports {
-				importedPkgNode := p.makeNode(imported)
-				graph.SetLine(graph.NewLine(importedPkgNode, pkgNode))
-			}
-		}
+	// Return early with error.
+	if err != nil {
+		return err
 	}
 
 	// Compute dependency graph.
-	sorted, sortErr := topo.Sort(graph)
+	sortErr := p.computePackageOrder()
 	if sortErr != nil {
 		return errors.Join(err, sortErr)
-	}
-
-	p.OrderedPackages = make([]*packages.Package, len(sorted))
-	for i, node := range sorted {
-		p.OrderedPackages[i] = node.(*packageNode).pkg
 	}
 
 	// Locate linker script.
@@ -187,10 +171,77 @@ done:
 	return err
 }
 
-func (p *Program) AddPackage(pkg *packages.Package) {
+func (p *Program) computePackageOrder() error {
+	// Create a directed graph that will be used to sort the packaged topologically in order of dependency.
+	graph := multi.NewDirectedGraph()
+	runtimePackageNode := p.makeNode(p.Packages["runtime"])
+	for _, pkg := range p.Packages {
+		// Add graph edges.
+		pkgNode := p.makeNode(pkg)
+
+		// Exclude the runtime package.
+		// TODO: This might be problematic if any package runtime is dependent on has package initializers.
+		if pkg.PkgPath != "runtime" {
+			// All other packages implicitly depend on the runtime package.
+			graph.SetLine(graph.NewLine(runtimePackageNode, pkgNode))
+
+			// Add edges to imported packages.
+			for _, imported := range pkg.Imports {
+				importedPkgNode := p.makeNode(imported)
+				graph.SetLine(graph.NewLine(importedPkgNode, pkgNode))
+			}
+		}
+	}
+
+	sorted, sortErr := topo.Sort(graph)
+	if sortErr != nil {
+		return sortErr
+	}
+
+	p.OrderedPackages = make([]*packages.Package, len(sorted))
+	for i, node := range sorted {
+		p.OrderedPackages[i] = node.(*packageNode).pkg
+	}
+
+	return nil
+}
+
+func (p *Program) AddPackage(pkg *packages.Package) (err error) {
 	if _, ok := p.Packages[pkg.PkgPath]; ok {
 		// Do not process this package again.
-		return
+		return nil
+	}
+
+	defer func() {
+		// Update package mappings.
+		p.Packages[pkg.PkgPath] = pkg
+	}()
+
+	// Fail early by returning errors (if any).
+	if len(pkg.Errors) > 0 {
+		for _, pkgErr := range pkg.Errors {
+			pos := strings.Split(pkgErr.Pos, ":")
+			if strings.Index(pkgErr.Pos, ":") == 1 {
+				// This is a Windoze path. Merge the first 2 elements.
+				newPos := []string{pos[0] + ":" + pos[1]}
+				if len(pos) > 2 {
+					pos = append(newPos, pos[2:]...)
+				} else {
+					pos = newPos
+				}
+			}
+
+			for i := 0; i < len(pos); i++ {
+				evalPkgDir, symlinkErr := filepath.EvalSymlinks(pos[i])
+				if symlinkErr == nil {
+					pos[i] = evalPkgDir
+				}
+			}
+
+			pkgErr.Pos = strings.Join(pos, ":")
+			err = errors.Join(err, pkgErr)
+		}
+		return err
 	}
 
 	// Locate this package on the filesystem.
@@ -205,8 +256,8 @@ func (p *Program) AddPackage(pkg *packages.Package) {
 	}
 
 	// Evaluate symbolic links.
-	evalPkgDir, err := filepath.EvalSymlinks(pkgDir)
-	if err == nil {
+	evalPkgDir, symlinkErr := filepath.EvalSymlinks(pkgDir)
+	if symlinkErr == nil {
 		pkgDir = evalPkgDir
 	}
 
@@ -230,19 +281,8 @@ func (p *Program) AddPackage(pkg *packages.Package) {
 		return nil
 	})
 
-	// Update package mapping.
-	p.Packages[pkg.PkgPath] = pkg
+	// Create type mappings.
 	p.Types[pkg] = map[string]types.Type{}
-
-	// Merge the info map.
-	maps.Copy(p.Info.Defs, pkg.TypesInfo.Defs)
-	maps.Copy(p.Info.Types, pkg.TypesInfo.Types)
-	maps.Copy(p.Info.Instances, pkg.TypesInfo.Instances)
-	maps.Copy(p.Info.Selections, pkg.TypesInfo.Selections)
-	maps.Copy(p.Info.Scopes, pkg.TypesInfo.Scopes)
-	maps.Copy(p.Info.Implicits, pkg.TypesInfo.Implicits)
-	maps.Copy(p.Info.Uses, pkg.TypesInfo.Uses)
-	p.Info.InitOrder = append(p.Info.InitOrder, pkg.TypesInfo.InitOrder...)
 
 	// Collect various information from this package.
 	for _, file := range pkg.Syntax {
@@ -257,7 +297,7 @@ func (p *Program) AddPackage(pkg *packages.Package) {
 				case token.TYPE:
 					for _, spec := range decl.Specs {
 						id := spec.(*ast.TypeSpec).Name
-						p.Types[pkg][id.Name] = p.Info.Defs[id].Type()
+						p.Types[pkg][id.Name] = pkg.TypesInfo.Defs[id].Type()
 					}
 				}
 			}
@@ -266,8 +306,13 @@ func (p *Program) AddPackage(pkg *packages.Package) {
 
 	// Add any imported package.
 	for _, imported := range pkg.Imports {
-		p.AddPackage(imported)
+		pkgErr := p.AddPackage(imported)
+		if pkgErr != nil {
+			err = errors.Join(err, pkgErr)
+		}
 	}
+
+	return err
 }
 
 func (p *Program) LookupType(pkgname, typename string) types.Type {

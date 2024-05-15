@@ -456,13 +456,13 @@ namespace mlir::go {
 
                 if (globalDataOp) {
                     Value dataValue = builder.create<AddressOfOp>(loc, ptrType, globalDataOp.getSymName());
-                    infoValue = builder.create<InsertOp>(loc, infoType, dataValue, 2, infoValue);
+                    infoValue = builder.create<InsertOp>(loc, infoType, dataValue, 3, infoValue);
                 }
 
                 if (!typeName.empty()) {
                     Value nameStrValue = builder.create<ConstantOp>(loc, StringType::get(context),
                                                                     builder.getStringAttr(typeName));
-                    infoValue = builder.create<InsertOp>(loc, infoType, nameStrValue, 3, infoValue);
+                    infoValue = builder.create<InsertOp>(loc, infoType, nameStrValue, 4, infoValue);
                 }
 
                 builder.create<YieldOp>(loc, infoValue);

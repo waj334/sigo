@@ -11,14 +11,13 @@ else
 	CGO_LDFLAGS += -fuse-ld=lld -lrt -ldl -lpthread -lm -lz -ltinfo
 endif
 
-C_FOR_GO_EXECUTABLE=c-for-go${EXECUTABLE_POSTFIX}
-LLVM_BUILD_DIR=${ROOT_DIR}/build/llvm-build
-LLVM_CONFIG_EXECUTABLE=${LLVM_BUILD_DIR}/bin/llvm-config${EXECUTABLE_POSTFIX}
+LLVM_BUILD_DIR=$(ROOT_DIR)/build/llvm-build
+LLVM_CONFIG_EXECUTABLE=${LLVM_BUILD_DIR}/bin/llvm-config$(EXECUTABLE_POSTFIX)
 LLVM_BUILD_COMPONENTS := ARM AVR RISCV
 LLVM_COMPONENTS := ARM AVR RISCV passes
 
-GOIR_ROOT=${ROOT_DIR}/goir
-GOIR_BUILD_DIR=${ROOT_DIR}/build/goir-build
+GOIR_ROOT=$(ROOT_DIR)/goir
+GOIR_BUILD_DIR=$(ROOT_DIR)/build/goir-build
 
 # Build a semicolon separated list that CMake can accept
 CMAKE_LLVM_COMPONENTS :=
@@ -34,19 +33,39 @@ CGO_LDFLAGS +=  -lMLIRAnalysis -lMLIRArithAttrToLLVMConversion -lMLIRArithDialec
 CGO_LDFLAGS += -lMLIRIR -lGoIR -lCGoIR
 
 # Add MLIR includes
-CGO_CFLAGS += -I${ROOT_DIR}/thirdparty/llvm-project/mlir/include
+CGO_CFLAGS += -I$(ROOT_DIR)/thirdparty/llvm-project/mlir/include
 CGO_CFLAGS += -I${LLVM_BUILD_DIR}/tools/mlir/include
 CGO_CFLAGS += -I${GOIR_ROOT}/include
 CGO_CFLAGS += -I${GOIR_BUILD_DIR}/include
 
-SIGO_EXECUTABLE=sigoc${EXECUTABLE_POSTFIX}
-
 # These LLVM header will be preprocessed before handing them to SWIG
 LLVM_PREPROCESS_HEADERS += llvm-c/Target.h llvm-c/TargetMachine.h
-LLVM_PREPROCESS_HEADERS_OUT := ${ROOT_DIR}/build/llvm-headers/include
+LLVM_PREPROCESS_HEADERS_OUT := $(ROOT_DIR)/build/llvm-headers/include
 
-# Add LLVM to the path.
-#export PATH := ${LLVM_BUILD_DIR}/bin:$(PATH)
+# Paths:
+BINDIR := ./bin
+ABS_BINDIR := $(ROOT_DIR)/bin
+
+# Sources:
+GO_BUILDER_SRCS := $(wildcard $(ROOT_DIR)/builder/*.go)
+GO_COMPILER_SSA_SRCS := $(wildcard $(ROOT_DIR)/compiler/ssa/*.go)
+GO_CMD_SIGOC_SRCS :=  $(wildcard $(ROOT_DIR)/cmd/sigoc/*.go)
+GO_LLVM_SRCS :=  $(wildcard $(ROOT_DIR)/llvm/*.go)
+GO_MLIR_SRCS :=  $(wildcard $(ROOT_DIR)/mlir/*.go)
+GO_SRCS := $(GO_BUILDER_SRCS) $(GO_COMPILER_SSA_SRCS) $(GO_CMD_SIGOC_SRCS) $(GO_LLVM_SRCS) $(GO_MLIR_SRCS)
+
+# Libraries:
+LIBS := $(wildcard $(GOIR_BUILD_DIR)/lib/*.a) $(wildcard $(LLVM_BUILD_DIR)/lib/*.a)
+
+# Executables:
+SIGO_EXE=$(BINDIR)/sigoc$(EXECUTABLE_POSTFIX)
+ABS_SIGO_EXE=$(ABS_BINDIR)/sigoc$(EXECUTABLE_POSTFIX)
+
+SSA_TEST_EXE=$(BINDIR)/ssa_test$(EXECUTABLE_POSTFIX)
+ABS_SSA_TEST_EXE=$(ABS_BINDIR)/ssa_test$(EXECUTABLE_POSTFIX)
+
+# Common commandline options:
+DEBUG ?= 0
 
 define build-compiler-rt
 	cmake $(ROOT_DIR)/thirdparty/llvm-project/compiler-rt -G "Ninja" -B ./build/compiler-rt-$(1)-$(2) \
@@ -102,47 +121,55 @@ define build-picolibc
 endef
 
 define build-test
-	@rm -f $(1)${EXECUTABLE_POSTFIX}
-	CGO_CFLAGS="${CGO_CFLAGS}" CGO_LDFLAGS="${CGO_LDFLAGS} -lstdc++" go test -gcflags "all=-N -l" -ldflags="-linkmode external -extldflags=-Wl,--allow-multiple-definition" -c -o $(1)${EXECUTABLE_POSTFIX} $(2)
+	@rm -f $(1)$(EXECUTABLE_POSTFIX)
+	CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS) -lstdc++" go test -gcflags "all=-N -l" -ldflags="-linkmode external -extldflags=-Wl,--allow-multiple-definition" -c -o $(1) $(2)
 endef
 
 define run-test
-	CGO_CFLAGS="${CGO_CFLAGS}" CGO_LDFLAGS="${CGO_LDFLAGS} -lstdc++" go test -v -gcflags "all=-N -l" -ldflags="-linkmode external -extldflags=-Wl,--allow-multiple-definition" $(1) -args ${args}
+	CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS) -lstdc++" go test -v -gcflags "all=-N -l" -ldflags="-linkmode external -extldflags=-Wl,--allow-multiple-definition" $(1) -args ${args}
 endef
 
-.PHONY: all clean sigo clean-sigo configure-llvm build-llvm generate-llvm-bindings clean-llvm-bindings
+.PHONY: all build-compiler-rt build-goir build-llvm build-mlir build-picolibc build-tests clean clean-clang-bindings clean-llvm-bindings clean-mlir-bindings clean-tests clean-sigo configure-goir configure-llvm configure-mlir debug generate-clang-bindings generate-csp generate-llvm-bindings generate-mlir-bindings sigo ssa_test
 
 all: sigo
 
-clean: clean-sigo clean-llvm-bindings
+clean: clean-sigo clean-llvm-bindings clean-clang-bindings clean-mlir-bindings clean-tests
 
-sigo: ./llvm/llvm.go ./mlir/mlir.go ./builder/*.go ./targets/*.go $(GOIR_BUILD_DIR)/lib/*.a ./build/llvm-build/lib/*.a
-	rm -f ${ROOT_DIR}/bin/${SIGO_EXECUTABLE}
-	CGO_CFLAGS="${CGO_CFLAGS}" CGO_LDFLAGS="${CGO_LDFLAGS} -lstdc++" go build -o ${ROOT_DIR}/bin/${SIGO_EXECUTABLE} -gcflags "all=-N -l" -ldflags="-linkmode external" ${ROOT_DIR}/cmd/sigoc
+$(SIGO_EXE): $(GO_SRCS) $(LIBS)
+	rm -f $(SIGO_EXE)
+	CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS) -lstdc++" go build -o $(SIGO_EXE) -gcflags "all=-N -l" -ldflags="-linkmode external" $(ROOT_DIR)/cmd/sigoc
 
-debug: #sigo
-	dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec ${ROOT_DIR}/bin/${SIGO_EXECUTABLE} -- ${args}
+sigo: $(SIGO_EXE)
+
+debug: sigo
+	dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(SIGO_EXE) -- ${args}
 
 run-tests:
 	$(call run-test,./compiler/ssa)
 
-./bin/ssa_test: ./compiler/ssa/*_test.go ./compiler/ssa/*.go ./build/llvm-build/lib ./build/goir-build/lib
+$(SSA_TEST_EXE): $(GO_COMPILER_SSA_SRCS) $(LIBS)
 	$(call build-test, $@, ./compiler/ssa)
 
-build-tests: ./bin/ssa_test
+ssa_test: $(SSA_TEST_EXE)
+
+build-tests: ssa_test
 
 test: build-tests
-	cd ./compiler/ssa && ${ROOT_DIR}/bin/ssa_test${EXECUTABLE_POSTFIX} ${args}
+	@if [ $(DEBUG) -eq 1 ]; then \
+		dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec --wd=$(ROOT_DIR)/compiler/ssa $(ABS_SSA_TEST_EXE) -- -tests=${TESTS}; \
+	else \
+		cd ./compiler/ssa && $(ABS_SSA_TEST_EXE) -tests=${TESTS}; \
+	fi
 
-debug-test:
-	dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec --wd=${wd} ${target} -- ${args}
+clean-tests:
+	rm $(SSA_TEST_EXE)
 
 clean-sigo:
-	rm ${ROOT_DIR}/bin/${SIGO_EXECUTABLE}
+	rm $(SIGO_EXE)
 
 configure-llvm:
 	@mkdir -p ${LLVM_BUILD_DIR}
-	cmake -G "Ninja" -B ${LLVM_BUILD_DIR} ${ROOT_DIR}/thirdparty/llvm-project/llvm 	\
+	cmake -G "Ninja" -B ${LLVM_BUILD_DIR} $(ROOT_DIR)/thirdparty/llvm-project/llvm 	\
 		-DCMAKE_C_COMPILER=clang 													\
         -DCMAKE_C_COMPILER_TARGET=${CLANG_TARGET} 									\
         -DCMAKE_CXX_COMPILER=clang++ 												\
@@ -153,7 +180,7 @@ configure-llvm:
         -DCMAKE_CXX_STANDARD_LIBRARIES="${CMAKE_CXX_STANDARD_LIBRARIES}"			\
         -DCMAKE_LINKER_TYPE=LLD 													\
 		-DCMAKE_BUILD_TYPE=Debug 													\
-		-DLLVM_ENABLE_PROJECTS="clang;llvm;lld;mlir" 								\
+		-DLLVM_ENABLE_PROJECTS="llvm;mlir" 											\
 		-DLLVM_ENABLE_ASSERTIONS=ON 												\
 		-DLLVM_ENABLE_EXPENSIVE_CHECKS=ON 											\
 		-DLLVM_ENABLE_BACKTRACES=ON 												\
@@ -187,49 +214,48 @@ generate-llvm-bindings: ./llvm/llvm.go
 ./llvm/llvm.go: ./llvm/llvm.i
 	@echo "Generating LLVM bindings using SWIG..."
 	@swig -go -intgosize 64 -cgo \
-	-I${ROOT_DIR}/build/llvm-build/lib/clang/16/include \
-	-I${ROOT_DIR}/build/llvm-build/include \
-	-I${ROOT_DIR}/build/llvm-headers/include \
-	-I${ROOT_DIR}/build/llvm-build/include \
-	-I${ROOT_DIR}/thirdparty/llvm-project/llvm/include \
-	${ROOT_DIR}/llvm/llvm.i
+	-I$(ROOT_DIR)/build/llvm-build/lib/clang/16/include \
+	-I$(ROOT_DIR)/build/llvm-build/include \
+	-I$(ROOT_DIR)/build/llvm-headers/include \
+	-I$(ROOT_DIR)/build/llvm-build/include \
+	-I$(ROOT_DIR)/thirdparty/llvm-project/llvm/include \
+	$(ROOT_DIR)/llvm/llvm.i
 	@echo "Done."
 
 clean-llvm-bindings:
-	rm ${ROOT_DIR}/llvm/llvm.go \
-	   ${ROOT_DIR}/llvm/llvm_wrap.c
+	rm $(ROOT_DIR)/llvm/llvm.go \
+	   $(ROOT_DIR)/llvm/llvm_wrap.c
 
 generate-clang-bindings: ./clang/clang.go
 ./clang/clang.go: ./clang/clang.i
 	@echo "Generating Clang bindings using SWIG..."
 	@swig -go -intgosize 64 -cgo \
-	-I${ROOT_DIR}/build/llvm-build/lib/clang/16/include \
-	-I${ROOT_DIR}/build/llvm-build/include \
-	-I${ROOT_DIR}/build/llvm-build/include \
-	-I${ROOT_DIR}/thirdparty/llvm-project/clang/include \
-	${ROOT_DIR}/clang/clang.i
+	-I$(ROOT_DIR)/build/llvm-build/lib/clang/16/include \
+	-I$(ROOT_DIR)/build/llvm-build/include \
+	-I$(ROOT_DIR)/build/llvm-build/include \
+	-I$(ROOT_DIR)/thirdparty/llvm-project/clang/include \
+	$(ROOT_DIR)/clang/clang.i
 	@echo "Done."
 
 clean-clang-bindings:
-	rm ${ROOT_DIR}/clang/clang.go \
-	   ${ROOT_DIR}/clang/clang_wrap.c
-
+	rm $(ROOT_DIR)/clang/clang.go \
+	   $(ROOT_DIR)/clang/clang_wrap.c
 
 generate-mlir-bindings: ./mlir/mlir.go
 ./mlir/mlir.go: ./mlir/mlir.i $(GOIR_ROOT)/include/Go-c/mlir/Dialects.h $(GOIR_ROOT)/include/Go-c/mlir/Enums.h $(GOIR_ROOT)/include/Go-c/mlir/Operations.h $(GOIR_ROOT)/include/Go-c/mlir/Types.h
 	@echo "Generating MLIR bindings using SWIG..."
 	@swig -go -intgosize 64 -cgo \
-	-I${ROOT_DIR}/build/llvm-build/lib/clang/16/include \
-	-I${ROOT_DIR}/build/llvm-build/include \
+	-I$(ROOT_DIR)/build/llvm-build/lib/clang/16/include \
+	-I$(ROOT_DIR)/build/llvm-build/include \
 	-I${GOIR_ROOT}/include \
-	-I${ROOT_DIR}/thirdparty/llvm-project/mlir/include \
-	-I${ROOT_DIR}/thirdparty/llvm-project/llvm/include \
-	${ROOT_DIR}/mlir/mlir.i
+	-I$(ROOT_DIR)/thirdparty/llvm-project/mlir/include \
+	-I$(ROOT_DIR)/thirdparty/llvm-project/llvm/include \
+	$(ROOT_DIR)/mlir/mlir.i
 	@echo "Done."
 
 clean-mlir-bindings:
-	rm ${ROOT_DIR}/mlir/mlir.go \
-	   ${ROOT_DIR}/mlir/mlir_wrap.c
+	rm $(ROOT_DIR)/mlir/mlir.go \
+	   $(ROOT_DIR)/mlir/mlir_wrap.c
 
 build-picolibc:
 	$(call build-picolibc,armv7m-none-eabi,armv7m+fp,-mthumb)
@@ -242,4 +268,4 @@ build-compiler-rt:
 	$(call build-compiler-rt,armv6m-none-eabi,armv6m+nofp,-mthumb)
 
 generate-csp:
-	go run ${ROOT_DIR}/cmd/csp-gen/main.go --in=${ROOT_DIR}/thirdparty/atmel-atdf/src/*.atdf --out=${ROOT_DIR}/src/runtime/arm/cortexm/sam
+	go run $(ROOT_DIR)/cmd/csp-gen/main.go --in=$(ROOT_DIR)/thirdparty/atmel-atdf/src/*.atdf --out=$(ROOT_DIR)/src/runtime/arm/cortexm/sam

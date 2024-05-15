@@ -3,6 +3,7 @@
 #include "Go/Util.h"
 
 #include <llvm/ADT/TypeSwitch.h>
+#include <llvm/ADT/SmallVectorExtras.h>
 
 namespace mlir::go {
     ::mlir::LogicalResult DeferOp::verify() {
@@ -37,10 +38,10 @@ namespace mlir::go {
                 .Case<LLVM::LLVMStructType>([&](LLVM::LLVMStructType T) -> LogicalResult {
                     // The struct must be the "func" struct type.
                     auto namedType = mlir::dyn_cast<NamedType>(this->getCallee().getType());
-                    if (namedType && namedType.getName() == "func") {
+                    if (namedType && namedType.getName() == "runtime._func") {
                         return success();
                     }
-                    return this->emitOpError() << "expected \"func\" struct type.";
+                    return this->emitOpError() << "expected \"runtime._func\" struct type, but got " << namedType;
                 })
                 .Default([&](auto T) { return this->emitOpError() << "unsupported callee type " << T; });
 
@@ -79,25 +80,53 @@ namespace mlir::go {
         // Get the function value type from the runtime function signature.
         const auto funcType = *addTaskFunc.getArgumentTypes().begin();
 
-        // Create the function value.
-        Value funcValue = rewriter.create<ZeroOp>(loc, funcType);
+        Value funcValue;
+        SmallVector<Value> callArgs;
+
+        // Handle invoking the callee based on its type
+        Value funcAddr;
+        llvm::TypeSwitch<Type>(go::baseType(calleeType))
+                .Case<FunctionType, PointerType>([&](auto type) {
+                    // Create the function value.
+                    funcValue = rewriter.create<ZeroOp>(loc, funcType);
+
+                    // Get the address of the function.
+                    funcAddr = op.getCallee();
+                    if (go::isa<FunctionType>(calleeType)) {
+                        // Bitcast the function value to a pointer.
+                        funcAddr = rewriter.create<BitcastOp>(loc, ptrType, funcAddr);
+                    }
+
+                    // Insert the function pointer into the _func value.
+                    funcValue = rewriter.create<InsertOp>(loc, funcType, funcAddr, 0, funcValue);
+                })
+                .Case([&](InterfaceType) {
+                    // TODO: Must create a call wrapper for interfaces matching this signature.
+                })
+                .Case([&](LLVM::LLVMStructType) {
+                    // Extract the context pointer value from the _func value and prepend it to the callee args.
+                    Value contextPtrValue = rewriter.create<ExtractOp>(loc, ptrType, 1, op.getCallee());
+                    append_values(callArgs, contextPtrValue);
+
+                    funcValue = op.getCallee();
+                });
 
         // Pack the call arguments (if any).
+        llvm::append_range(callArgs, calleeOperands);
         if (!calleeOperands.empty()) {
             // Create the argument pack type.
-            SmallVector<Type> elements;
-            for (const auto operand: calleeOperands) {
-                elements.push_back(operand.getType());
+            SmallVector<Type> argTypes;
+            for (const auto operand: callArgs) {
+                argTypes.push_back(operand.getType());
             }
-            const auto argPackT = LLVM::LLVMStructType::getLiteral(context, elements);
+            const auto argPackT = LLVM::LLVMStructType::getLiteral(context, argTypes);
 
             // Allocate memory to store the call arguments.
-            const auto argsPackPtrT = PointerType::get(context, argPackT);
-            Value args = rewriter.create<AllocaOp>(loc, argsPackPtrT, argPackT, Value(), UnitAttr(), StringAttr());
+            Value args = rewriter.create<AllocaOp>(loc, ptrType, argPackT, Value(), UnitAttr(), StringAttr());
 
             // Pack the call arguments.
             for (size_t i = 0; i < calleeOperands.size(); i++) {
-                const auto addrT = PointerType::get(context, elements[i]);
+                const auto addrT = PointerType::get(context, argTypes[i]);
                 const auto indices = DenseI32ArrayAttr::get(context, SmallVector{0, static_cast<int>(i)});
                 Value addr = rewriter.create<GetElementPointerOp>(loc, addrT, args, argPackT, SmallVector<Value>(),
                                                                   indices);
@@ -106,34 +135,6 @@ namespace mlir::go {
 
             // Store the arguments in the function value struct.
             funcValue = rewriter.create<InsertOp>(loc, funcType, args, 1, funcValue);
-        }
-
-        // Handle invoking the callee based on its type
-        Value funcAddr;
-        llvm::TypeSwitch<Type>(calleeType)
-                .Case<FunctionType, PointerType>([&](auto type) {
-                    // Get the address of the function.
-                    funcAddr = op.getCallee();
-                    if (go::isa<FunctionType>(calleeType)) {
-                        // Bitcast the function value to a pointer.
-                        funcAddr = rewriter.create<BitcastOp>(loc, ptrType, funcAddr);
-                    }
-                })
-                .Case([&](InterfaceType) {
-                    // TODO: Must create a call wrapper for interfaces matching this signature.
-                })
-                .Case([&](LLVM::LLVMStructType) {
-                    // TODO: Must create a call wrapper that will call the underlying function with the argument
-                    //       pointer. If the argument pointer is null, then the function pointer value from the struct
-                    //       can probably be used directly without needing any wrapper call.
-                });
-
-        if (!calleeOperands.empty()) {
-            // TODO: If there were call arguments, then a call wrapper method should be created that will unpack them and
-            //       then call the respective function.
-        } else {
-            // The function can be invoked by the runtime directly, so just store the function pointer as is.
-            funcValue = rewriter.create<InsertOp>(loc, funcType, funcAddr, 0, funcValue);
         }
 
         // Lower to runtime call.
@@ -174,10 +175,10 @@ namespace mlir::go {
                 .Case<LLVM::LLVMStructType>([&](LLVM::LLVMStructType T) -> LogicalResult {
                     // The struct must be the "func" struct type.
                     auto namedType = mlir::dyn_cast<NamedType>(this->getCallee().getType());
-                    if (namedType && namedType.getName() == "func") {
+                    if (namedType && namedType.getName() == "runtime._func") {
                         return success();
                     }
-                    return this->emitOpError() << "expected \"func\" struct type.";
+                    return this->emitOpError() << "expected \"runtime._func\" struct type.";
                 })
                 .Default([&](auto T) { return this->emitOpError() << "unsupported callee type " << T; });
 

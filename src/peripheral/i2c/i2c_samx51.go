@@ -3,7 +3,6 @@
 package i2c
 
 import (
-	"errors"
 	"peripheral"
 	"peripheral/pin"
 	"runtime/arm/cortexm/sam/chip"
@@ -74,14 +73,39 @@ var (
 		I2C5,
 	}
 
-	errLENERR   = errors.New("I2C: transaction length error")
-	errSEXTTOUT = errors.New("I2C: client SCL low extend time-out")
-	errMEXTTOUT = errors.New("I2C: host SCL low extend time-out")
-	errLOWTOUT  = errors.New("I2C: SCL low time-out")
-	errARBLOST  = errors.New("I2C: arbitration lost")
-	errBUSERR   = errors.New("I2C: bus error")
-	errRXNACK   = errors.New("I2C: received not acknowledge")
+	errLENERR   _error = -1
+	errSEXTTOUT _error = -2
+	errMEXTTOUT _error = -3
+	errLOWTOUT  _error = -4
+	errARBLOST  _error = -5
+	errBUSERR   _error = -6
+	errRXNACK   _error = -7
 )
+
+type _error int
+
+func (e _error) Error() string {
+	switch e {
+	case 0:
+		return "no error"
+	case -1:
+		return "I2C: transaction length error"
+	case -2:
+		return "I2C: client SCL low extend time-out"
+	case -3:
+		return "I2C: host SCL low extend time-out"
+	case -4:
+		return "I2C: SCL low time-out"
+	case -5:
+		return "I2C: arbitration lost"
+	case -6:
+		return "I2C: bus error"
+	case -7:
+		return "I2C: received not acknowledge"
+	default:
+		return "unknown error"
+	}
+}
 
 type I2C struct {
 	samx51.SERCOM

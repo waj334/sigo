@@ -7,8 +7,8 @@ import (
 	"omibyte.io/sigo/mlir"
 )
 
-func (b *Builder) isIntrinsic(expr *ast.CallExpr) bool {
-	if obj, ok := b.objectOf(expr.Fun).(*types.Func); ok {
+func (b *Builder) isIntrinsic(ctx context.Context, expr *ast.CallExpr) bool {
+	if obj, ok := b.objectOf(ctx, expr.Fun).(*types.Func); ok {
 		return isIntrinsic(qualifiedFuncName(obj))
 	}
 	return false
@@ -78,7 +78,7 @@ func isIntrinsic(symbol string) bool {
 }
 
 func (b *Builder) emitIntrinsic(ctx context.Context, expr *ast.CallExpr) []mlir.Value {
-	F := b.objectOf(expr.Fun).(*types.Func)
+	F := b.objectOf(ctx, expr.Fun).(*types.Func)
 	signature := F.Type().Underlying().(*types.Signature)
 	symbol := qualifiedFuncName(F)
 
