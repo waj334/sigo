@@ -167,6 +167,10 @@ func (b *Builder) emitCompoundAssign(ctx context.Context, stmt *ast.AssignStmt) 
 		switch node := stmt.Lhs[0].(type) {
 		case *ast.SelectorExpr:
 			lvar = b.valueOf(ctx, node.Sel)
+		case *ast.StarExpr:
+			// Evaluate the address.
+			addr := b.emitExpr(ctx, node.X)[0]
+			lvar = b.NewTempValue(addr)
 		default:
 			panic("unhandled")
 		}
