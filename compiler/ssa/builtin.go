@@ -20,6 +20,32 @@ func (b *Builder) emitBuiltinCall(ctx context.Context, expr *ast.CallExpr) []mli
 		panic("unhandled")
 	}
 
+	// TODO: Need to set up type inference to take in account the builtin's synthetic signature.
+	var inferredTypes []types.Type
+	switch name {
+	case "unsafe.Sizeof":
+		inferredTypes = []types.Type{b.typeOf(ctx, expr.Args[0])}
+	case "unsafe.Offsetof":
+		inferredTypes = []types.Type{b.typeOf(ctx, expr.Args[0])}
+	case "unsafe.Alignof":
+		inferredTypes = []types.Type{b.typeOf(ctx, expr.Args[0])}
+	case "unsafe.Add":
+		inferredTypes = []types.Type{b.typeOf(ctx, expr.Args[0]), types.Typ[types.Int]}
+	case "unsafe.Slice":
+		inferredTypes = []types.Type{b.typeOf(ctx, expr.Args[0]), types.Typ[types.Int]}
+	case "unsafe.SliceData":
+		inferredTypes = []types.Type{b.typeOf(ctx, expr.Args[0])}
+	case "unsafe.String":
+		inferredTypes = []types.Type{b.typeOf(ctx, expr.Args[0]), types.Typ[types.Int]}
+	case "unsafe.StringData":
+		inferredTypes = []types.Type{types.Typ[types.String]}
+	case "make":
+		inferredTypes = []types.Type{b.typeOf(ctx, expr.Args[0]), types.Typ[types.Int], types.Typ[types.Int]}
+	case "panic":
+		inferredTypes = []types.Type{b.anyType}
+	}
+	ctx = newContextWithLhsList(ctx, inferredTypes)
+
 	switch name {
 	// Go Spec Builtins:
 	case "append":
@@ -64,6 +90,10 @@ func (b *Builder) emitBuiltinCall(ctx context.Context, expr *ast.CallExpr) []mli
 		return b.emitUnsafeAdd(ctx, expr)
 	case "unsafe.Sizeof":
 		return b.emitUnsafeSizeof(ctx, expr)
+	case "unsafe.SliceData":
+		return b.emitUnsafeSliceData(ctx, expr)
+	case "unsafe.Slice":
+		return b.emitUnsafeSlice(ctx, expr)
 	default:
 		panic("unknown built-in function " + name)
 	}
@@ -72,11 +102,10 @@ func (b *Builder) emitBuiltinCall(ctx context.Context, expr *ast.CallExpr) []mli
 
 func (b *Builder) emitAppend(ctx context.Context, expr *ast.CallExpr) []mlir.Value {
 	location := b.location(expr.Pos())
-	T := b.typeOf(expr.Fun)
+	T := b.typeOf(ctx, expr.Fun)
 	signature := T.(*types.Signature)
-	args := b.exprValues(ctx, expr.Args...)
-	args = b.emitVariadicArgs(ctx, signature, args, location)
-	args = append(args, b.typeInfoOf(ctx, b.typeOf(expr.Args[0]), location))
+	args := b.emitCallArgs(ctx, signature, expr)
+	args = append(args, b.typeInfoOf(ctx, b.typeOf(ctx, expr.Args[0]), location))
 	op := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.sliceAppend", b.exprTypes(ctx, expr), args, location)
 	appendOperation(ctx, op)
 	return resultsOf(op)
@@ -85,7 +114,7 @@ func (b *Builder) emitAppend(ctx context.Context, expr *ast.CallExpr) []mlir.Val
 func (b *Builder) emitCap(ctx context.Context, expr *ast.CallExpr) []mlir.Value {
 	location := b.location(expr.Pos())
 	args := b.exprValues(ctx, expr.Args...)
-	T := b.typeOf(expr.Args[0])
+	T := b.typeOf(ctx, expr.Args[0])
 	switch {
 	case typeIs[*types.Array](T):
 		T := T.(*types.Array)
@@ -106,7 +135,7 @@ func (b *Builder) emitCap(ctx context.Context, expr *ast.CallExpr) []mlir.Value 
 func (b *Builder) emitClear(ctx context.Context, expr *ast.CallExpr) []mlir.Value {
 	location := b.location(expr.Pos())
 	value := b.valueOf(ctx, expr.Args[0])
-	T := b.typeOf(expr.Args[0])
+	T := b.typeOf(ctx, expr.Args[0])
 	switch T := T.(type) {
 	case *types.Map:
 		args := b.values(value.Pointer(ctx, location))
@@ -133,7 +162,7 @@ func (b *Builder) emitClose(ctx context.Context, expr *ast.CallExpr) {
 func (b *Builder) emitComplex(ctx context.Context, expr *ast.CallExpr) []mlir.Value {
 	location := b.location(expr.Pos())
 	args := b.exprValues(ctx, expr.Args...)
-	T := b.GetStoredType(ctx, b.typeOf(expr))
+	T := b.GetStoredType(ctx, b.typeOf(ctx, expr))
 	op := mlir.GoCreateComplexOperation(b.ctx, T, args[0], args[1], location)
 	appendOperation(ctx, op)
 	return resultsOf(op)
@@ -143,14 +172,14 @@ func (b *Builder) emitCopy(ctx context.Context, expr *ast.CallExpr) []mlir.Value
 	var info mlir.Value
 	location := b.location(expr.Pos())
 	args := b.exprValues(ctx, expr.Args...)
-	if typeHasFlags(b.typeOf(expr.Args[1]), types.IsString) {
+	if typeHasFlags(b.typeOf(ctx, expr.Args[1]), types.IsString) {
 		// Convert the string value into a slice value
 		op := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.stringToSlice", []mlir.Type{b._slice}, []mlir.Value{args[1]}, location)
 		appendOperation(ctx, op)
 		args[1] = resultOf(op)
 		info = b.typeInfoOf(ctx, types.Typ[types.Byte], location)
 	} else {
-		elementType := b.typeOf(expr.Args[1]).Underlying().(*types.Slice).Elem()
+		elementType := b.typeOf(ctx, expr.Args[1]).Underlying().(*types.Slice).Elem()
 		info = b.typeInfoOf(ctx, elementType, location)
 	}
 	args = append(args, info)
@@ -169,7 +198,7 @@ func (b *Builder) emitDelete(ctx context.Context, expr *ast.CallExpr) {
 func (b *Builder) emitImag(ctx context.Context, expr *ast.CallExpr) []mlir.Value {
 	location := b.location(expr.Pos())
 	arg := b.emitExpr(ctx, expr.Args[0])[0]
-	T := b.GetStoredType(ctx, b.typeOf(expr))
+	T := b.GetStoredType(ctx, b.typeOf(ctx, expr))
 	op := mlir.GoCreateImagOperation(b.ctx, T, arg, location)
 	appendOperation(ctx, op)
 	return resultsOf(op)
@@ -178,7 +207,7 @@ func (b *Builder) emitImag(ctx context.Context, expr *ast.CallExpr) []mlir.Value
 func (b *Builder) emitLen(ctx context.Context, expr *ast.CallExpr) []mlir.Value {
 	location := b.location(expr.Pos())
 	args := b.exprValues(ctx, expr.Args...)
-	T := b.typeOf(expr.Args[0])
+	T := b.typeOf(ctx, expr.Args[0])
 	switch {
 	case typeHasFlags(T, types.IsString):
 		op := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.stringLen", []mlir.Type{b.si}, args, location)
@@ -206,18 +235,20 @@ func (b *Builder) emitLen(ctx context.Context, expr *ast.CallExpr) []mlir.Value 
 
 func (b *Builder) emitMake(ctx context.Context, expr *ast.CallExpr) []mlir.Value {
 	location := b.location(expr.Pos())
-	switch T := b.typeOf(expr).(type) {
+	switch T := b.typeOf(ctx, expr).(type) {
 	case *types.Chan:
 		// Is the optional capacity value present?
 		var capacity mlir.Value
-		if len(expr.Args) == 2 {
+		if len(expr.Args) == 3 {
 			capacity = b.emitExpr(ctx, expr.Args[2])[0]
+			capacityType := b.typeOf(ctx, expr.Args[2])
+			capacity = b.emitTypeConversion(ctx, capacity, capacityType, types.Typ[types.Int], location)
 		} else {
 			capacity = b.emitConstInt(ctx, 0, b.si, location)
 		}
 
 		chanT := b.GetType(ctx, T)
-		makeOp := mlir.GoCreateMakeMapOperation(b.ctx, chanT, capacity, location)
+		makeOp := mlir.GoCreateMakeChanOperation(b.ctx, chanT, capacity, location)
 		appendOperation(ctx, makeOp)
 		return resultsOf(makeOp)
 	case *types.Map:
@@ -225,6 +256,10 @@ func (b *Builder) emitMake(ctx context.Context, expr *ast.CallExpr) []mlir.Value
 		if len(expr.Args) == 1 {
 			// Pass zero as the initial size value.
 			capacity = b.emitConstInt(ctx, 0, b.si, location)
+		} else {
+			capacity = b.emitExpr(ctx, expr.Args[1])[0]
+			capacityType := b.typeOf(ctx, expr.Args[1])
+			capacity = b.emitTypeConversion(ctx, capacity, capacityType, types.Typ[types.Int], location)
 		}
 
 		mapT := b.GetType(ctx, T)
@@ -234,11 +269,15 @@ func (b *Builder) emitMake(ctx context.Context, expr *ast.CallExpr) []mlir.Value
 	case *types.Slice:
 		// Evaluate the length value.
 		length := b.emitExpr(ctx, expr.Args[1])[0]
+		lengthType := b.typeOf(ctx, expr.Args[1])
+		length = b.emitTypeConversion(ctx, length, lengthType, types.Typ[types.Int], location)
 
 		// Is the optional capacity value present?
 		var capacity mlir.Value
 		if len(expr.Args) == 3 {
-			capacity = b.emitExpr(ctx, expr.Args[1])[0]
+			capacity = b.emitExpr(ctx, expr.Args[2])[0]
+			capacityType := b.typeOf(ctx, expr.Args[2])
+			capacity = b.emitTypeConversion(ctx, capacity, capacityType, types.Typ[types.Int], location)
 		}
 
 		sliceT := b.GetType(ctx, T)
@@ -252,7 +291,7 @@ func (b *Builder) emitMake(ctx context.Context, expr *ast.CallExpr) []mlir.Value
 
 func (b *Builder) emitNew(ctx context.Context, expr *ast.CallExpr) []mlir.Value {
 	location := b.location(expr.Pos())
-	T := b.GetStoredType(ctx, b.typeOf(expr.Args[0]))
+	T := b.GetStoredType(ctx, b.typeOf(ctx, expr.Args[0]))
 	allocaOp := mlir.GoCreateAllocaOperation(b.ctx, mlir.GoCreatePointerType(T), T, nil, true, location)
 	appendOperation(ctx, allocaOp)
 	return resultsOf(allocaOp)
@@ -260,26 +299,16 @@ func (b *Builder) emitNew(ctx context.Context, expr *ast.CallExpr) []mlir.Value 
 
 func (b *Builder) emitPanic(ctx context.Context, expr *ast.CallExpr) {
 	location := b.location(expr.Pos())
-
-	// Evaluate the input argument.
-	arg := b.emitExpr(ctx, expr.Args[0])[0]
-
-	// Generate methods for named types.
-	if T := b.typeOf(expr.Args[0]); T != nil {
-		if T, ok := T.(*types.Named); ok {
-			b.queueNamedTypeJobs(ctx, T)
-		}
-	}
-
-	// Convert the argument to an interface value.
-	arg = b.emitInterfaceValue(ctx, b.anyType, arg, location)
+	ident := expr.Fun.(*ast.Ident)
+	signature := b.syntheticSignatures[ident.Name]
+	args := b.emitCallArgs(ctx, signature, expr)
 
 	// Create the successor block to continue execution from upon recover.
 	successorBlock := mlir.BlockCreate2(nil, nil)
 	appendBlock(ctx, successorBlock)
 
 	// Create the panic operation.
-	op := mlir.GoCreatePanicOperation(b.ctx, arg, successorBlock, location)
+	op := mlir.GoCreatePanicOperation(b.ctx, args[0], successorBlock, location)
 	appendOperation(ctx, op)
 
 	// Continue control flow in the successor block.
@@ -289,51 +318,18 @@ func (b *Builder) emitPanic(ctx context.Context, expr *ast.CallExpr) {
 func (b *Builder) emitPrint(ctx context.Context, expr *ast.CallExpr) {
 	location := b.location(expr.Pos())
 	ident := expr.Fun.(*ast.Ident)
-
-	// Create interface values from the variadic inputs.
-	values := make([]mlir.Value, len(expr.Args))
-	for i := range expr.Args {
-		// Evaluate the input argument.
-		arg := b.emitExpr(ctx, expr.Args[i])[0]
-
-		// Generate methods for named types.
-		if T := b.typeOf(expr.Args[i]); T != nil {
-			if T, ok := T.(*types.Named); ok {
-				b.queueNamedTypeJobs(ctx, T)
-			}
-		}
-
-		// Create interface values from this input argument.
-		values[i] = b.emitInterfaceValue(ctx, b.anyType, arg, location)
-	}
-
-	// Create the slice holding the variadic input interface values.
-	constLen := b.emitConstInt(ctx, int64(len(expr.Args)), b.si, location)
-	inputArrOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, b._any, constLen, false, location)
-	appendOperation(ctx, inputArrOp)
-	mlir.OperationMoveBefore(mlir.ValueGetDefiningOperation(constLen), inputArrOp)
-
-	// Insert each value into the data array.
-	for i, v := range values {
-		gepOp := mlir.GoCreateGepOperation2(b.ctx, resultOf(inputArrOp), b._any, []any{i}, mlir.GoCreatePointerType(b._any), location)
-		appendOperation(ctx, gepOp)
-		storeOp := mlir.GoCreateStoreOperation(b.ctx, v, resultOf(gepOp), location)
-		appendOperation(ctx, storeOp)
-	}
-
-	// Emit the arguments slice.
-	inputSlice := b.emitConstSlice(ctx, resultOf(inputArrOp), len(expr.Args), location)
-	inputSlice = b.bitcastTo(ctx, inputSlice, mlir.GoCreateSliceType(b._any), location)
+	signature := b.syntheticSignatures[ident.Name]
+	args := b.emitCallArgs(ctx, signature, expr)
 
 	// Create the runtime call to perform the print.
-	callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime._"+ident.Name, nil, []mlir.Value{inputSlice}, location)
+	callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime._"+ident.Name, nil, args, location)
 	appendOperation(ctx, callOp)
 }
 
 func (b *Builder) emitReal(ctx context.Context, expr *ast.CallExpr) []mlir.Value {
 	location := b.location(expr.Pos())
 	arg := b.emitExpr(ctx, expr.Args[0])[0]
-	T := b.GetStoredType(ctx, b.typeOf(expr))
+	T := b.GetStoredType(ctx, b.typeOf(ctx, expr))
 	op := mlir.GoCreateRealOperation(b.ctx, T, arg, location)
 	appendOperation(ctx, op)
 	return resultsOf(op)
@@ -356,7 +352,7 @@ func (b *Builder) emitUnsafeAdd(ctx context.Context, expr *ast.CallExpr) []mlir.
 	ptrValue := resultOf(op)
 
 	// Convert the len value to uintptr.
-	lenValue := b.emitTypeConversion(ctx, args[1], b.typeOf(expr.Args[1]), types.Typ[types.Uintptr], location)
+	lenValue := b.emitTypeConversion(ctx, args[1], b.typeOf(ctx, expr.Args[1]), types.Typ[types.Uintptr], location)
 
 	// Add the values.
 	op = mlir.GoCreateAddIOperation(b.ctx, b.uiptr, ptrValue, lenValue, location)
@@ -371,7 +367,44 @@ func (b *Builder) emitUnsafeAdd(ctx context.Context, expr *ast.CallExpr) []mlir.
 
 func (b *Builder) emitUnsafeSizeof(ctx context.Context, expr *ast.CallExpr) []mlir.Value {
 	location := b.location(expr.Pos())
-	T := b.GetStoredType(ctx, b.typeOf(expr.Args[0]))
+	T := b.GetStoredType(ctx, b.typeOf(ctx, expr.Args[0]))
 	sz := mlir.GoGetTypeSizeInBytes(T, b.config.Module)
 	return []mlir.Value{b.emitConstInt(ctx, int64(sz), b.uiptr, location)}
+}
+
+func (b *Builder) emitUnsafeSliceData(ctx context.Context, expr *ast.CallExpr) []mlir.Value {
+	location := b.location(expr.Pos())
+	args := b.exprValues(ctx, expr.Args...)
+	resultT := b.GetStoredType(ctx, b.typeOf(ctx, expr))
+
+	// Create the runtime call to extract the slice's underlying array.
+	callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.sliceData", []mlir.Type{b.ptr}, []mlir.Value{args[0]}, location)
+	appendOperation(ctx, callOp)
+	resultValue := resultOf(callOp)
+	resultValue = b.bitcastTo(ctx, resultValue, resultT, location)
+
+	// Bitcast to the resulting pointer type.
+	return []mlir.Value{resultValue}
+}
+
+func (b *Builder) emitUnsafeSlice(ctx context.Context, expr *ast.CallExpr) []mlir.Value {
+	location := b.location(expr.Pos())
+	args := b.exprValues(ctx, expr.Args...)
+	resultT := b.GetStoredType(ctx, b.typeOf(ctx, expr))
+
+	// Bitcast the array pointer to unsafe.Pointer.
+	ptrValue := b.bitcastTo(ctx, args[0], b.ptr, location)
+
+	// Convert the length value to int.
+	lenType := b.typeOf(ctx, expr.Args[0])
+	lenValue := b.emitTypeConversion(ctx, args[1], lenType, types.Typ[types.Int], location)
+
+	// Create the runtime call to construct the slice value.
+	callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.slice", []mlir.Type{resultT}, []mlir.Value{ptrValue, lenValue}, location)
+	appendOperation(ctx, callOp)
+	resultValue := resultOf(callOp)
+	resultValue = b.bitcastTo(ctx, resultValue, resultT, location)
+
+	// Bitcast to the resulting pointer type.
+	return []mlir.Value{resultValue}
 }

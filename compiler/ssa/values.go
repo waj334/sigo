@@ -17,22 +17,30 @@ func (b *Builder) valueOf(ctx context.Context, node ast.Node) Value {
 		// Look in the current function's locals first.
 		if data := currentFuncData(ctx); data != nil {
 			data.mutex.RLock()
-			if value, ok := data.locals[node.Name]; ok {
+			obj := b.objectOf(ctx, node)
+			if obj == nil {
+				panic("object is nil")
+			}
+			if value, ok := data.locals[obj]; ok {
 				data.mutex.RUnlock()
 				return value
 			}
 			data.mutex.RUnlock()
 		}
 
-		// Lock the value cache mutex for reading.
-		b.valueCacheMutex.RLock()
-		defer b.valueCacheMutex.RUnlock()
-
-		obj := b.objectOf(node)
-		return b.valueCache[obj]
+		// Look up the value by object.
+		obj := b.objectOf(ctx, node)
+		return b.lookupValue(obj)
 	default:
 		return nil
 	}
+}
+
+func (b *Builder) lookupValue(obj types.Object) Value {
+	// Lock the value cache mutex for reading.
+	b.valueCacheMutex.RLock()
+	defer b.valueCacheMutex.RUnlock()
+	return b.valueCache[obj]
 }
 
 func (b *Builder) emitLocalVar(ctx context.Context, obj types.Object, T mlir.Type) *LocalValue {
@@ -61,7 +69,7 @@ func (b *Builder) emitLocalVar(ctx context.Context, obj types.Object, T mlir.Typ
 }
 
 func (b *Builder) emitGlobalVar(ctx context.Context, ident *ast.Ident) *GlobalValue {
-	obj := b.objectOf(ident).(*types.Var)
+	obj := b.objectOf(ctx, ident).(*types.Var)
 	symbol := qualifiedName(obj.Name(), obj.Pkg())
 	info := b.config.Program.Symbols.GetSymbolInfo(symbol)
 	T := b.GetStoredType(ctx, obj.Type())
@@ -271,7 +279,7 @@ func (b *Builder) addressOf(ctx context.Context, expr ast.Expr, location mlir.Lo
 func (b *Builder) exprTypes(ctx context.Context, expr ...ast.Expr) []mlir.Type {
 	var result []mlir.Type
 	for _, expr := range expr {
-		result = append(result, b.GetStoredType(ctx, b.typeOf(expr)))
+		result = append(result, b.GetStoredType(ctx, b.typeOf(ctx, expr)))
 	}
 	return result
 }

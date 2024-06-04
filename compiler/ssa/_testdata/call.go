@@ -2,7 +2,12 @@
 
 package main
 
-import "somepkg"
+import (
+	"omibyte.io/sigo/compiler/ssa/_testdata/src/somepkg"
+	"unsafe"
+)
+
+//import "omibyte.io/sigo/compiler/ssa/_testdata/src/somepkg"
 
 type someinterface interface {
 	method()
@@ -13,10 +18,38 @@ type someinterface2 interface {
 	method2()
 }
 
-type sometype struct{}
+type sometype struct {
+	sometype2
+}
+type sometype2 struct{}
+
+type sometype3 struct {
+	member sometype4
+}
+
+type sometype4 struct{}
+
+var (
+	g  sometype
+	g2 = (*sometype3)(unsafe.Pointer(uintptr(0xDEADBEEF)))
+)
+
+type sometype5 int
+
+const (
+	constValue sometype5 = 0
+)
 
 func (s sometype) method()   {}
 func (s *sometype) method2() {}
+
+func (s sometype2) method3()  {}
+func (s *sometype2) method4() {}
+
+func (s *sometype4) method() {}
+
+func (s sometype5) method()     {}
+func (s *sometype5) ptrMethod() {}
 
 func standardFunc(arg0, arg1 int) (int, int)
 func variadicFunc(args ...int)
@@ -64,6 +97,8 @@ func funcCall() {
 func methodCall(s sometype) {
 	s.method()
 	s.method2()
+	s.method3()
+	s.method4()
 }
 
 func interfaceCall(i someinterface) {
@@ -97,8 +132,15 @@ func deferCall(s sometype, i someinterface) {
 func globalCall() {
 	somepkg.SomeValue.Method()
 	somepkg.SomeValue.PtrMethod()
+
 	somepkg.SomePtrValue.Method()
 	somepkg.SomePtrValue.PtrMethod()
+
+	somepkg.SomePtrValue.Member.Method()
+	somepkg.SomePtrValue.Member.PtrMethod()
+
+	somepkg.SomePtrValue.MemberPtr.Method()
+	somepkg.SomePtrValue.MemberPtr.PtrMethod()
 }
 
 func elementRecv() {
@@ -112,11 +154,13 @@ func elementRecv2() {
 }
 
 func somefunc(s someinterface)
+
 func argImplementsInterface(s someinterface2) {
 	somefunc(s)
 }
 
 func somefunc2(a any)
+
 func argIsAssignable() {
 	somefunc2(0)
 }
@@ -131,4 +175,23 @@ func multipleReturn() (int, uint, bool)
 
 func callMultipleReturn(a int, b uint, c bool) {
 	a, b, c = multipleReturn()
+}
+
+func globalMethodCall() {
+	g.method()
+	g.method3()
+}
+
+func globalPtrMethodCall() {
+	g.method2()
+	g.method4()
+	g2.member.method()
+}
+
+func constValueMethodCall() {
+	constValue.method()
+}
+
+func packageConstAliasMethodCall() {
+	somepkg.SomeConstAliasTypeValue.Method()
 }

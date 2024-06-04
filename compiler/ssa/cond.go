@@ -157,7 +157,7 @@ func (b *Builder) emitExpressionSwitchStatement(ctx context.Context, stmt *ast.S
 
 			if tagValue != nil {
 				// Emit a comparison the result of the clause expression and the tag value.
-				T := b.typeOf(expr)
+				T := b.typeOf(ctx, expr)
 				switch {
 				case typeHasFlags(T, types.IsBoolean), typeHasFlags(T, types.IsInteger):
 					value = b.emitIntegerCompare(ctx, token.EQL, value, tagValue, location)
@@ -341,7 +341,7 @@ func (b *Builder) emitForStatement(ctx context.Context, stmt *ast.ForStmt) {
 
 func (b *Builder) emitRangeStatement(ctx context.Context, stmt *ast.RangeStmt) {
 	location := b.location(stmt.Pos())
-	T := b.typeOf(stmt.X)
+	T := b.typeOf(ctx, stmt.X)
 
 	switch valueType := T.(type) {
 	case *types.Array:
@@ -367,7 +367,7 @@ func (b *Builder) emitRangeStatement(ctx context.Context, stmt *ast.RangeStmt) {
 		// The base address of the array is at the beginning of its memory allocation.
 		ptr := value.Pointer(ctx, location)
 
-		keyType := b.GetStoredType(ctx, b.typeOf(stmt.Key))
+		keyType := b.GetStoredType(ctx, b.typeOf(ctx, stmt.Key))
 		elementType := b.GetStoredType(ctx, valueType.Elem())
 		lenValue := b.emitConstInt(ctx, valueType.Len(), keyType, location)
 		b.emitArrayRange(ctx, stmt.Key, stmt.Value, stmt.Tok, ptr, elementType, lenValue, stmt.Body, location)
@@ -379,7 +379,7 @@ func (b *Builder) emitRangeStatement(ctx context.Context, stmt *ast.RangeStmt) {
 		b.emitMapRange(ctx, stmt)
 	case *types.Slice:
 		value := b.emitExpr(ctx, stmt.X)[0]
-		keyType := b.typeOf(stmt.Key)
+		keyType := b.typeOf(ctx, stmt.Key)
 		elementType := b.GetStoredType(ctx, valueType.Elem())
 
 		// Bitcast the slice value to its runtime representation.
@@ -429,7 +429,7 @@ func (b *Builder) emitArrayRange(ctx context.Context, key ast.Expr, value ast.Ex
 	ctx = newContextWithPredecessorBlock(ctx, postIterBlock)
 
 	// Create or evaluate the loop variables.
-	keyType := b.GetStoredType(ctx, b.typeOf(key))
+	keyType := b.GetStoredType(ctx, b.typeOf(ctx, key))
 
 	// The key variable is either a new one or an existing one.
 	keyVar := b.valueOf(ctx, key)
@@ -506,7 +506,7 @@ func (b *Builder) emitArrayRange(ctx context.Context, key ast.Expr, value ast.Ex
 			// Emit a new local variable that is unique to this iteration to store the key into.
 			alloc := b.makeCopyOf(ctx, iterationKeyVar.Load(ctx, location), location)
 			iterationKeyVar = b.NewTempValue(alloc)
-			b.setAddr(key.(*ast.Ident), iterationKeyVar)
+			b.setAddr(ctx, key.(*ast.Ident), iterationKeyVar)
 		}
 
 		// NOTE: No store should be performed when the value var is omitted in the range statement.
@@ -516,7 +516,7 @@ func (b *Builder) emitArrayRange(ctx context.Context, key ast.Expr, value ast.Ex
 				// TODO: Need to set the allocation name to that of the local variable definition.
 				alloc := b.makeCopyOf(ctx, iterationValueVar.Load(ctx, location), location)
 				iterationValueVar = b.NewTempValue(alloc)
-				b.setAddr(value.(*ast.Ident), iterationValueVar)
+				b.setAddr(ctx, value.(*ast.Ident), iterationValueVar)
 			}
 
 			// Load the current iterator value to store into the key address.
@@ -618,7 +618,7 @@ func (b *Builder) emitChanRange(ctx context.Context, stmt *ast.RangeStmt) {
 			// Emit a new local variable that is unique to this iteration to store the value into.
 			alloc := b.makeCopyOf(ctx, receiveValue.Load(ctx, location), location)
 			iterationReceiveValue := b.NewTempValue(alloc)
-			b.setAddr(stmt.Value.(*ast.Ident), iterationReceiveValue)
+			b.setAddr(ctx, stmt.Value.(*ast.Ident), iterationReceiveValue)
 		}
 
 		// Emit the loop body
@@ -663,7 +663,7 @@ func (b *Builder) emitMapRange(ctx context.Context, stmt *ast.RangeStmt) {
 
 	// Evaluate the map value that will be iterated over.
 	X := b.emitExpr(ctx, stmt.X)[0]
-	T := b.typeOf(stmt.X).(*types.Map)
+	T := b.typeOf(ctx, stmt.X).(*types.Map)
 
 	// Reinterpret the map value as its runtime type.
 	bitcastOp := mlir.GoCreateBitcastOperation(b.ctx, X, b._map, location)
@@ -727,7 +727,7 @@ func (b *Builder) emitMapRange(ctx context.Context, stmt *ast.RangeStmt) {
 				// Emit a new local variable that is unique to this iteration to store the key into.
 				alloc := b.makeCopyOf(ctx, keyValue, location)
 				iterationKeyVar := b.NewTempValue(alloc)
-				b.setAddr(stmt.Key.(*ast.Ident), iterationKeyVar)
+				b.setAddr(ctx, stmt.Key.(*ast.Ident), iterationKeyVar)
 			}
 		}
 
@@ -745,7 +745,7 @@ func (b *Builder) emitMapRange(ctx context.Context, stmt *ast.RangeStmt) {
 					// Emit a new local variable that is unique to this iteration to store the key into.
 					alloc := b.makeCopyOf(ctx, value, location)
 					iterationValueVar := b.NewTempValue(alloc)
-					b.setAddr(stmt.Value.(*ast.Ident), iterationValueVar)
+					b.setAddr(ctx, stmt.Value.(*ast.Ident), iterationValueVar)
 				}
 			}
 		}
@@ -794,7 +794,7 @@ func (b *Builder) emitStringRange(ctx context.Context, stmt *ast.RangeStmt) {
 	keyVar := b.valueOf(ctx, stmt.Key)
 	if keyVar == nil {
 		// Need to allocate memory for this variable.
-		keyType := b.typeOf(stmt.Key)
+		keyType := b.typeOf(ctx, stmt.Key)
 		keyT := b.GetStoredType(ctx, keyType)
 		ptrT := mlir.GoCreatePointerType(keyT)
 		allocaOp := mlir.GoCreateAllocaOperation(b.ctx, ptrT, keyT, nil, false, location)
@@ -809,7 +809,7 @@ func (b *Builder) emitStringRange(ctx context.Context, stmt *ast.RangeStmt) {
 		valueVar = b.valueOf(ctx, stmt.Value)
 		if valueVar == nil {
 			// Need to allocate memory for this variable.
-			elementType := b.typeOf(stmt.Value)
+			elementType := b.typeOf(ctx, stmt.Value)
 			elementT := b.GetStoredType(ctx, elementType)
 			ptrT := mlir.GoCreatePointerType(elementT)
 			allocaOp := mlir.GoCreateAllocaOperation(b.ctx, ptrT, elementT, nil, false, location)
@@ -876,7 +876,7 @@ func (b *Builder) emitStringRange(ctx context.Context, stmt *ast.RangeStmt) {
 			// Emit a new local variable that is unique to this iteration to store the key into.
 			alloc := b.makeCopyOf(ctx, iterateResults[1], location)
 			iterationKeyVar := b.NewTempValue(alloc)
-			b.setAddr(stmt.Key.(*ast.Ident), iterationKeyVar)
+			b.setAddr(ctx, stmt.Key.(*ast.Ident), iterationKeyVar)
 		}
 
 		if stmt.Value != nil {
@@ -885,7 +885,7 @@ func (b *Builder) emitStringRange(ctx context.Context, stmt *ast.RangeStmt) {
 				// Emit a new local variable that is unique to this iteration to store the key into.
 				alloc := b.makeCopyOf(ctx, iterateResults[2], location)
 				iterationValueVar := b.NewTempValue(alloc)
-				b.setAddr(stmt.Value.(*ast.Ident), iterationValueVar)
+				b.setAddr(ctx, stmt.Value.(*ast.Ident), iterationValueVar)
 			}
 		}
 
@@ -945,7 +945,7 @@ func (b *Builder) emitTypeSwitchStatement(ctx context.Context, stmt *ast.TypeSwi
 		// Create the body block
 		bodyBlocks[i] = mlir.BlockCreate2([]mlir.Type{b._interface}, []mlir.Location{b.location(clause.Pos())})
 		buildBlock(ctx, bodyBlocks[i], func() {
-			if obj := b.objectOf(clause); obj != nil {
+			if obj := b.objectOf(ctx, clause); obj != nil {
 				var local *LocalValue
 				location := b.location(obj.Pos())
 				value := mlir.BlockGetArgument(bodyBlocks[i], 0)
@@ -1008,7 +1008,7 @@ func (b *Builder) emitTypeSwitchStatement(ctx context.Context, stmt *ast.TypeSwi
 			exprSuccessor := mlir.BlockCreate2(nil, nil)
 
 			// Get the type information about the asserted type.
-			assertedType := b.GetType(ctx, b.typeOf(expr))
+			assertedType := b.GetType(ctx, b.typeOf(ctx, expr))
 			infoOp := mlir.GoCreateTypeInfoOperation(b.ctx, b.typeInfoPtr, assertedType, b.location(expr.Pos()))
 			info := resultOf(infoOp)
 			appendOperation(ctx, infoOp)

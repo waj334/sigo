@@ -2,7 +2,7 @@
 
 package main
 
-import "somepkg"
+import "omibyte.io/sigo/compiler/ssa/_testdata/src/somepkg"
 
 type embeddedStruct struct {
 	e int
@@ -92,4 +92,8 @@ func selectPackageGlobalMember() int {
 
 func selectPackageGlobalPtrMember() int {
 	return somepkg.SomePtrValue.A
+}
+
+func selectPackageFunc() func() {
+	return somepkg.SomeFunc
 }

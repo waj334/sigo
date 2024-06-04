@@ -51,3 +51,8 @@ func funcParam(f func()) {
 func funcArg() {
 	funcParam(funcArg)
 }
+
+func multipleReturnStatements() int {
+	return 0
+	return 1
+}

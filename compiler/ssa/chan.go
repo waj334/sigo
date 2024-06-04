@@ -73,9 +73,6 @@ func (b *Builder) emitSelectStatement(ctx context.Context, stmt *ast.SelectStmt)
 	appendOperation(ctx, readySliceArrOp)
 	readySliceValue := b.emitConstSlice(ctx, resultOf(readySliceArrOp), len(stmt.Body.List), b.location(stmt.Pos()))
 
-	// Move the const length value to before the last prepended alloca.
-	mlir.OperationMoveBefore(mlir.ValueGetDefiningOperation(constLenValue), readySliceArrOp)
-
 	// Create the runtime call to select a ready channel.
 	hasDefaultValue := b.emitConstBool(ctx, defaultIdx != -1, b.location(stmt.Pos()))
 	callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.channelSelect", []mlir.Type{b.si},
@@ -137,7 +134,7 @@ func (b *Builder) emitSelectStatement(ctx context.Context, stmt *ast.SelectStmt)
 
 func (b *Builder) emitReceiveExpression(ctx context.Context, expr *ast.UnaryExpr) []mlir.Value {
 	// Get the channel type.
-	chanType := b.typeOf(expr.X).(*types.Chan)
+	chanType := b.typeOf(ctx, expr.X).(*types.Chan)
 
 	// Get the element type of the channel.
 	elementType := b.GetStoredType(ctx, chanType.Elem())

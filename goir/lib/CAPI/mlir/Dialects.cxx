@@ -245,18 +245,7 @@ MlirBlock mlirRegionGetLastBlock(MlirRegion region) {
 
 MlirLogicalResult mlirVerifyModule(MlirModule module) {
     auto _module = unwrap(module);
-    bool isSuccess = true;
-    _module.walk([&](mlir::Operation *topLevelOp) {
-        if (mlir::isa<mlir::FunctionOpInterface>(topLevelOp) || mlir::isa<mlir::ModuleOp>(topLevelOp))
-            return;
-
-        if (failed(verify(topLevelOp))) {
-            topLevelOp->print(llvm::outs());
-            llvm::outs() << "\n";
-            isSuccess = false;
-        }
-    });
-    return wrap(mlir::success(isSuccess));
+    return wrap(mlir::verify(_module, true));
 }
 
 MlirAttribute mlirGoCreateComplexNumberAttr(MlirContext context, MlirType type, double real, double imag) {

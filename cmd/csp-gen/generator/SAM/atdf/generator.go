@@ -267,7 +267,15 @@ func (g *_generator) generateInitializers(w io.Writer) {
 			}
 
 			for _, instance := range instances {
-				varName := group.Name
+				var varName string
+
+				// Handle some module specializations
+				switch group.NameInModule {
+				case "ADC", "CAN", "SDHC", "TC", "TCC":
+					varName = group.NameInModule
+				default:
+					varName = group.Name
+				}
 				if strings.Contains(instance, ".") {
 					parts := strings.Split(instance, ".")
 					varName = parts[0]
@@ -283,7 +291,14 @@ func (g *_generator) generateInitializers(w io.Writer) {
 	}
 
 	for varName, e := range merges {
-		if len(e) > 1 {
+		forceArray := false
+		// Handle some module specializations
+		switch varName {
+		case "ADC", "CAN", "SDHC", "TC", "TCC":
+			forceArray = true
+		}
+
+		if len(e) > 1 || forceArray {
 			// Sort by address
 			slices.SortFunc(e, func(a, b entry) int {
 				return int(a.offset - b.offset)
@@ -484,7 +499,7 @@ func generateBitfieldFuncs(w io.Writer, module atdf.ModuleElement, group atdf.Mo
 			if typename == "bool" {
 				fmt.Fprintf(w, "return volatile.Load%s((*%s)(reg))&(1<<%d) != 0\n", strings.Title(intType), intType, offset)
 			} else {
-				fmt.Fprintf(w, "return %s(volatile.Load%s((*%s)(reg))&%#x) >> %d\n", typename, strings.Title(intType), intType, bitfield.Mask, offset)
+				fmt.Fprintf(w, "return %s((volatile.Load%s((*%s)(reg))&%#x) >> %d)\n", typename, strings.Title(intType), intType, bitfield.Mask, offset)
 			}
 			fmt.Fprintf(w, "}\n\n")
 		}

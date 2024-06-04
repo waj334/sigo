@@ -62,8 +62,15 @@ namespace mlir::go {
                 const auto rhsType = mlir::dyn_cast<mlir::IntegerType>(typeConverter->convertType(rhsValue.getType()));
                 rewriter.setInsertionPointAfter(op->getPrevNode());
 
+                uint64_t allOnes;
+                if (mlir::cast<IntegerType>(op.getRhs().getType()).isSigned()) {
+                    allOnes = INT64_MAX;
+                } else {
+                    allOnes = UINT64_MAX;
+                }
+
                 // Calculate the complement of the RHS by XOR'ing the RHS and all ones
-                auto allOnesConstOp = rewriter.create<mlir::arith::ConstantIntOp>(loc, UINT64_MAX, rhsType);
+                auto allOnesConstOp = rewriter.create<mlir::arith::ConstantIntOp>(loc, allOnes, rhsType);
                 auto xOrOp = rewriter.create<mlir::arith::XOrIOp>(loc, rhsType, rhsValue, allOnesConstOp.getResult());
 
                 // And the complement with the LHS
@@ -617,9 +624,16 @@ namespace mlir::go {
 
             mlir::LogicalResult matchAndRewrite(ComplementOp op, OpAdaptor adaptor,
                                                 ConversionPatternRewriter &rewriter) const override {
+                uint64_t allOnes;
+                if (mlir::cast<IntegerType>(op.getOperand().getType()).isSigned()) {
+                    allOnes = INT64_MAX;
+                } else {
+                    allOnes = UINT64_MAX;
+                }
+
                 auto constOp = rewriter.create<mlir::arith::ConstantOp>(
                     op.getLoc(),
-                    mlir::IntegerAttr::get(typeConverter->convertType(op.getResult().getType()), UINT64_MAX));
+                    mlir::IntegerAttr::get(typeConverter->convertType(op.getResult().getType()), allOnes));
                 rewriter.replaceOpWithNewOp<mlir::arith::XOrIOp>(
                     op, typeConverter->convertType(op.getResult().getType()),
                     adaptor.getOperand(), constOp.getResult());

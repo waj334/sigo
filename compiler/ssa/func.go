@@ -12,18 +12,19 @@ import (
 )
 
 type funcData struct {
-	symbol     string
-	scope      *types.Scope
-	funcType   *ast.FuncType
-	mlirType   mlir.Type
-	signature  *types.Signature
-	freeVars   []*FreeVar
-	recv       *ast.FieldList
-	body       *ast.BlockStmt
-	pos        token.Pos
-	isGeneric  bool
-	isExported bool
-	isInstance bool
+	symbol      string
+	scope       *types.Scope
+	funcType    *ast.FuncType
+	mlirType    mlir.Type
+	signature   *types.Signature
+	freeVars    []*FreeVar
+	recv        *ast.FieldList
+	body        *ast.BlockStmt
+	pos         token.Pos
+	isGeneric   bool
+	isExported  bool
+	isInstance  bool
+	isAnonymous bool
 
 	isPackageInit bool
 	priority      int
@@ -31,12 +32,14 @@ type funcData struct {
 	mutex    sync.RWMutex
 	instance int
 
-	locals         map[string]Value
+	//locals         map[string]Value
+	locals         map[types.Object]Value
 	anonymousFuncs map[*ast.FuncLit]*funcData
 	instances      map[*types.Signature]*funcData
 	typeMap        map[int]types.Type
 
 	decl *ast.FuncDecl
+	info *types.Info
 }
 
 type inputParam struct {
@@ -66,7 +69,8 @@ func (f *funcData) createContextStructValue(ctx context.Context, b *Builder, loc
 	// Collect the addresses of each value captured by this function.
 	var values []mlir.Value
 	for _, fv := range f.freeVars {
-		ptr := b.valueOf(ctx, fv.ident).Pointer(ctx, location)
+		//ptr := b.valueOf(ctx, fv.ident).Pointer(ctx, location)
+		ptr := b.lookupValue(fv.obj).Pointer(ctx, location)
 		values = append(values, ptr)
 	}
 	return b.createArgumentPack(ctx, values, location)
@@ -85,6 +89,7 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 
 	// Set the current data in a fresh context.
 	ctx = newContextWithFuncData(context.Background(), data)
+	ctx = newContextWithInfo(ctx, data.info)
 
 	if queue != nil {
 		ctx = context.WithValue(ctx, jobQueueKey{}, queue)
@@ -124,6 +129,11 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 		inputs[argOffset+i].l = b.location(param.Pos())
 	}
 
+	if data.isAnonymous {
+		// Don't emit a local variable for the context pointer.
+		argOffset = 1
+	}
+
 	// NOTE: Forward declarations will not have any block.
 	if data.body != nil {
 		// Create the entry block for the current function.
@@ -141,7 +151,7 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 			for i, fv := range data.freeVars {
 				// Append the freevar's alloca operation to the current block.
 				allocaOp := mlir.ValueGetDefiningOperation(fv.ptr)
-				mlir.GoAllocaOperationSetName(allocaOp, fv.ident.Name)
+				mlir.GoAllocaOperationSetName(allocaOp, fv.obj.Name())
 				appendOperation(ctx, allocaOp)
 
 				ptrType := mlir.GoCreatePointerType(fv.T)
@@ -167,7 +177,7 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 		if data.recv != nil {
 			for _, field := range data.recv.List {
 				for _, name := range field.Names {
-					recvVar := b.objectOf(name)
+					recvVar := b.objectOf(ctx, name)
 					recvVal := mlir.BlockGetArgument(entryBlock, 0)
 
 					// Emit a local variable allocation to hold the argument value.
@@ -180,11 +190,11 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 		}
 
 		// Handle function parameter values.
-		if data.funcType.Params != nil {
+		if data.signature.Params().Len() > 0 {
 			arg := argOffset
 			for _, field := range data.funcType.Params.List {
 				for _, name := range field.Names {
-					argVar := b.objectOf(name)
+					argVar := b.objectOf(ctx, name)
 					argVal := mlir.BlockGetArgument(entryBlock, arg)
 					arg++
 
@@ -202,7 +212,7 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 			result := 0
 			for _, field := range data.funcType.Results.List {
 				for _, name := range field.Names {
-					resultVar := b.objectOf(name)
+					resultVar := b.objectOf(ctx, name)
 					result++
 					b.emitLocalVar(ctx, resultVar, b.GetStoredType(ctx, resultVar.Type()))
 				}
@@ -323,6 +333,7 @@ func (b *Builder) createFuncInstance(ctx context.Context, genericSignature *type
 		isExported:     data.isExported,
 		isInstance:     true,
 		instance:       instanceNo,
+		info:           data.info,
 	}
 
 	// Create the instantiated function type.

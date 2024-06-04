@@ -5,6 +5,11 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"go/ast"
+	"go/importer"
+	"go/parser"
+	"go/token"
+	"go/types"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -13,14 +18,9 @@ import (
 	"strings"
 	"testing"
 
-	"go/ast"
-	"go/importer"
-	"go/parser"
-	"go/token"
-	"go/types"
-
 	"golang.org/x/tools/go/packages"
 
+	_ "omibyte.io/sigo/llvm"
 	"omibyte.io/sigo/mlir"
 )
 
@@ -77,7 +77,17 @@ func TestSSA(t *testing.T) {
 				defaultImporter: importer.Default(),
 			}
 			config := types.Config{Importer: testImporter}
-			info := &types.Info{
+
+			fset := token.NewFileSet()
+
+			// Parse the runtime package.
+			runtimeFile, err := parser.ParseFile(fset, "./_testdata/src/runtime/runtime.go", nil, parser.ParseComments)
+			if err != nil {
+				t.Fatalf("Failed to parse the test runtime: %v", err)
+			}
+
+			// Type check the parsed packages.
+			runtimeInfo := types.Info{
 				Types:      map[ast.Expr]types.TypeAndValue{},
 				Instances:  map[*ast.Ident]types.Instance{},
 				Defs:       map[*ast.Ident]types.Object{},
@@ -88,24 +98,11 @@ func TestSSA(t *testing.T) {
 				InitOrder:  []*types.Initializer{},
 			}
 
-			fset := token.NewFileSet()
-
-			// Parse the runtime package.
-			runtimeFile, err := parser.ParseFile(fset, "./_testdata/src/runtime/runtime.go", nil, parser.ParseComments)
+			runtimePkg, err := config.Check("runtime", fset, []*ast.File{runtimeFile}, &runtimeInfo)
 			if err != nil {
-				t.Fatalf("Failed to parse the test runtime: %v", err)
+				t.Fatal(err)
 			}
-
-			// Parse the "somepkg" package which is used to test interaction with external packages.
-			somePkgFile, err := parser.ParseFile(fset, "./_testdata/src/somepkg/decl.go", nil, parser.ParseComments)
-			if err != nil {
-				t.Fatalf("Failed to parse the test runtime: %v", err)
-			}
-
-			volatileFile, err := parser.ParseFile(fset, "./_testdata/src/volatile/doc.go", nil, parser.ParseComments)
-			if err != nil {
-				t.Fatalf("Failed to parse the test runtime: %v", err)
-			}
+			testImporter.pkgs[runtimePkg.Path()] = runtimePkg
 
 			// Parse the source file.
 			parsedFile, err := parser.ParseFile(fset, sourceFile, nil, parser.ParseComments)
@@ -113,46 +110,86 @@ func TestSSA(t *testing.T) {
 				t.Fatalf("Failed to parse the source file: %v", err)
 			}
 
-			// Type check the parsed packages.
-			runtimePkg, err := config.Check("runtime", fset, []*ast.File{runtimeFile}, info)
+			// Parse the imported packages.
+			imports := make(map[string]*packages.Package, len(parsedFile.Imports)+1)
+			imports["runtime"] = createPackage(runtimePkg, fset, &runtimeInfo, []*ast.File{runtimeFile})
+			for _, importSpec := range parsedFile.Imports {
+				pkgPath := strings.Trim(importSpec.Path.Value, "\"")
+				pkgName := pkgPath
+				if last := strings.LastIndex(pkgPath, "/"); last >= 0 {
+					pkgName = pkgPath[last+1:]
+				}
+
+				if pkgName == "unsafe" {
+					// Skip the unsafe package since it is special.
+					continue
+				}
+
+				pkgDir := filepath.Join("./_testdata/src", pkgName, "*.go")
+				goFiles, err := filepath.Glob(pkgDir)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				// Parse the test package's sources.
+				files := make([]*ast.File, len(goFiles))
+				for i, goFile := range goFiles {
+					f, err := parser.ParseFile(fset, goFile, nil, parser.ParseComments)
+					if err != nil {
+						t.Fatal(err)
+					}
+					files[i] = f
+				}
+
+				// Construct and type check the test package.
+				info := types.Info{
+					Types:      map[ast.Expr]types.TypeAndValue{},
+					Instances:  map[*ast.Ident]types.Instance{},
+					Defs:       map[*ast.Ident]types.Object{},
+					Uses:       map[*ast.Ident]types.Object{},
+					Implicits:  map[ast.Node]types.Object{},
+					Selections: map[*ast.SelectorExpr]*types.Selection{},
+					Scopes:     map[ast.Node]*types.Scope{},
+					InitOrder:  []*types.Initializer{},
+				}
+				checked, err := config.Check(pkgPath, fset, files, &info)
+				if err != nil {
+					t.Fatal(err)
+				}
+				testImporter.pkgs[checked.Path()] = checked
+				imports[checked.Path()] = createPackage(checked, fset, &info, files)
+			}
+
+			// Finally, type check the test main package.
+			srcInfo := types.Info{
+				Types:      map[ast.Expr]types.TypeAndValue{},
+				Instances:  map[*ast.Ident]types.Instance{},
+				Defs:       map[*ast.Ident]types.Object{},
+				Uses:       map[*ast.Ident]types.Object{},
+				Implicits:  map[ast.Node]types.Object{},
+				Selections: map[*ast.SelectorExpr]*types.Selection{},
+				Scopes:     map[ast.Node]*types.Scope{},
+				InitOrder:  []*types.Initializer{},
+			}
+			srcPkg, err := config.Check("main", fset, []*ast.File{parsedFile}, &srcInfo)
 			if err != nil {
 				t.Fatal(err)
 			}
-			testImporter.pkgs[runtimePkg.Path()] = runtimePkg
 
-			somePkg, err := config.Check("somepkg", fset, []*ast.File{somePkgFile}, info)
-			if err != nil {
-				t.Fatal(err)
-			}
-			testImporter.pkgs[somePkg.Path()] = somePkg
-
-			volatilePkg, err := config.Check("volatile", fset, []*ast.File{volatileFile}, info)
-			if err != nil {
-				t.Fatal(err)
-			}
-			testImporter.pkgs[volatilePkg.Path()] = volatilePkg
-
-			srcPkg, err := config.Check("main", fset, []*ast.File{parsedFile}, info)
-			if err != nil {
-				t.Fatal(err)
+			sizes := types.StdSizes{
+				WordSize: 4,
+				MaxAlign: 4,
 			}
 
 			pkg := &packages.Package{
-				Name:    srcPkg.Name(),
-				PkgPath: srcPkg.Path(),
-				Imports: map[string]*packages.Package{
-					"runtime":  createPackage(runtimePkg, fset, info, []*ast.File{runtimeFile}),
-					"somepkg":  createPackage(somePkg, fset, info, []*ast.File{somePkgFile}),
-					"volatile": createPackage(volatilePkg, fset, info, []*ast.File{volatileFile}),
-				},
-				Types:     srcPkg,
-				Fset:      fset,
-				Syntax:    []*ast.File{parsedFile},
-				TypesInfo: info,
-				TypesSizes: &types.StdSizes{
-					WordSize: 4,
-					MaxAlign: 4,
-				},
+				Name:       srcPkg.Name(),
+				PkgPath:    srcPkg.Path(),
+				Imports:    imports,
+				Types:      srcPkg,
+				Fset:       fset,
+				Syntax:     []*ast.File{parsedFile},
+				TypesInfo:  &srcInfo,
+				TypesSizes: &sizes,
 			}
 
 			// Create the SSA Program.
@@ -161,16 +198,22 @@ func TestSSA(t *testing.T) {
 				AdditionalPackages: nil,
 				Environment:        nil,
 				PackagePath:        "",
+				Sizes:              &sizes,
 			})
 
 			// Add the packages to the program.
 			program.AddPackage(pkg)
 
+			// Compute dependency graph.
+			err = program.computePackageOrder()
+			if err != nil {
+				t.Fatal(err)
+			}
+
 			builder := NewBuilder(Config{
 				NumWorkers: 1,
 				Fset:       fset,
 				Ctx:        mlirCtx,
-				Info:       info,
 				Sizes: &types.StdSizes{
 					WordSize: 4,
 					MaxAlign: 4,
@@ -182,7 +225,7 @@ func TestSSA(t *testing.T) {
 
 			// Build SSA for parsed file.
 			ctx := context.Background()
-			builder.GeneratePackages(ctx, []*packages.Package{pkg.Imports["somepkg"], pkg})
+			builder.GeneratePackages(ctx, program.OrderedPackages)
 
 			// Dump the module to a string.
 			inputText := mlir.ModuleDump(builder.config.Module)

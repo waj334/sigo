@@ -11,19 +11,15 @@ import (
 )
 
 func (b *Builder) emitBasicLiteral(ctx context.Context, expr *ast.BasicLit) mlir.Value {
-	TV := b.config.Info.Types[expr]
+	info := currentInfo(ctx)
+	TV := info.Types[expr]
 	location := b.location(expr.Pos())
-	T := TV.Type
-	if typeHasFlags(T, types.IsUntyped) {
-		lhsTypes := currentLhsList(ctx)
-		index := currentRhsIndex(ctx)
-		T = lhsTypes[index]
-	}
+	T := resolveType(ctx, TV.Type)
 	return b.emitConstantValue(ctx, TV.Value, T, location)
 }
 
 func (b *Builder) emitCompositeLiteral(ctx context.Context, expr *ast.CompositeLit) mlir.Value {
-	switch b.typeOf(expr).Underlying().(type) {
+	switch b.typeOf(ctx, expr).Underlying().(type) {
 	case *types.Array:
 		return b.emitArrayLiteral(ctx, expr)
 	case *types.Map:
@@ -39,7 +35,7 @@ func (b *Builder) emitCompositeLiteral(ctx context.Context, expr *ast.CompositeL
 
 func (b *Builder) emitArrayLiteral(ctx context.Context, expr *ast.CompositeLit) mlir.Value {
 	location := b.location(expr.Pos())
-	arrayType := b.typeOf(expr).Underlying().(*types.Array)
+	arrayType := b.typeOf(ctx, expr).Underlying().(*types.Array)
 	T := b.GetStoredType(ctx, arrayType)
 
 	// Create the zero value of the array type.
@@ -56,7 +52,7 @@ func (b *Builder) emitArrayLiteral(ctx context.Context, expr *ast.CompositeLit) 
 
 		switch baseType(elementT).(type) {
 		case *types.Interface:
-			valueT := b.typeOf(e)
+			valueT := b.typeOf(ctx, e)
 			if !isNil(valueT) && !types.Identical(elementT, valueT) {
 				if types.IsInterface(baseType(valueT)) {
 					// Convert from interface A to interface B.
@@ -84,7 +80,7 @@ func (b *Builder) emitArrayLiteral(ctx context.Context, expr *ast.CompositeLit) 
 
 func (b *Builder) emitMapLiteral(ctx context.Context, expr *ast.CompositeLit) mlir.Value {
 	location := b.location(expr.Pos())
-	mapType := b.typeOf(expr).Underlying().(*types.Map)
+	mapType := b.typeOf(ctx, expr).Underlying().(*types.Map)
 	mapT := b.GetStoredType(ctx, mapType)
 
 	// Emit the capacity value.
@@ -100,8 +96,8 @@ func (b *Builder) emitMapLiteral(ctx context.Context, expr *ast.CompositeLit) ml
 		expr := expr.(*ast.KeyValueExpr)
 
 		// Evaluate the key and element values.
-		keyValue := b.emitExpr(ctx, expr)[0]
-		elementValue := b.emitExpr(ctx, expr)[0]
+		keyValue := b.emitExpr(ctx, expr.Key)[0]
+		elementValue := b.emitExpr(ctx, expr.Value)[0]
 
 		keyT := mapType.Key()
 		elementT := mapType.Elem()
@@ -109,7 +105,7 @@ func (b *Builder) emitMapLiteral(ctx context.Context, expr *ast.CompositeLit) ml
 		// Handle interface conversions.
 		switch baseType(keyT).(type) {
 		case *types.Interface:
-			valueT := b.typeOf(expr.Key)
+			valueT := b.typeOf(ctx, expr.Key)
 			if !isNil(valueT) && !types.Identical(elementT, valueT) {
 				if types.IsInterface(baseType(valueT)) {
 					// Convert from interface A to interface B.
@@ -128,7 +124,7 @@ func (b *Builder) emitMapLiteral(ctx context.Context, expr *ast.CompositeLit) ml
 
 		switch baseType(elementT).(type) {
 		case *types.Interface:
-			valueT := b.typeOf(expr.Value)
+			valueT := b.typeOf(ctx, expr.Value)
 			if !isNil(valueT) && !types.Identical(elementT, valueT) {
 				if types.IsInterface(baseType(valueT)) {
 					// Convert from interface A to interface B.
@@ -156,7 +152,7 @@ func (b *Builder) emitMapLiteral(ctx context.Context, expr *ast.CompositeLit) ml
 
 func (b *Builder) emitSliceLiteral(ctx context.Context, expr *ast.CompositeLit) mlir.Value {
 	location := b.location(expr.Pos())
-	sliceType := b.typeOf(expr).Underlying().(*types.Slice)
+	sliceType := b.typeOf(ctx, expr).Underlying().(*types.Slice)
 	elementT := sliceType.Elem()
 	sliceT := b.GetStoredType(ctx, sliceType)
 
@@ -174,7 +170,7 @@ func (b *Builder) emitSliceLiteral(ctx context.Context, expr *ast.CompositeLit) 
 		// Handle interface conversion.
 		switch baseType(elementT).(type) {
 		case *types.Interface:
-			valueT := b.typeOf(expr)
+			valueT := b.typeOf(ctx, expr)
 			if !isNil(valueT) && !types.Identical(elementT, valueT) {
 				if types.IsInterface(baseType(valueT)) {
 					// Convert from interface A to interface B.
@@ -208,8 +204,8 @@ func (b *Builder) emitSliceLiteral(ctx context.Context, expr *ast.CompositeLit) 
 
 func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit) mlir.Value {
 	location := b.location(expr.Pos())
-	structType := b.typeOf(expr).Underlying().(*types.Struct)
-	structT := b.GetStoredType(ctx, b.typeOf(expr))
+	structType := b.typeOf(ctx, expr).Underlying().(*types.Struct)
+	structT := b.GetStoredType(ctx, b.typeOf(ctx, expr))
 
 	// Create the zero value of the struct type.
 	zeroOp := mlir.GoCreateZeroOperation(b.ctx, structT, location)
@@ -249,10 +245,10 @@ func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit)
 		// Evaluate the array element value.
 		elementValue := b.emitExpr(ctx, valueExpr)[0]
 
-		// Handle interface conversion.
 		switch baseType(fieldT).(type) {
 		case *types.Interface:
-			valueT := b.typeOf(valueExpr)
+			// Handle interface conversion.
+			valueT := b.typeOf(ctx, valueExpr)
 			if !isNil(valueT) && !types.Identical(fieldT, valueT) {
 				if types.IsInterface(baseType(valueT)) {
 					// Convert from interface A to interface B.
@@ -279,36 +275,114 @@ func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit)
 }
 
 func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.Value {
+	location := b.location(expr.Pos())
 	enclosingData := currentFuncData(ctx)
-	scope := b.config.Info.Scopes[expr.Type]
-	T := b.GetType(ctx, b.typeOf(expr))
+	info := currentInfo(ctx)
+	scope := info.Scopes[expr.Type]
+	signature := b.typeOf(ctx, expr).(*types.Signature)
+
+	// Create a synthetic signature with the context pointer as the first parameter.
+	var recvTypeParams, typeParams []*types.TypeParam
+	var params, results []*types.Var
+	if signature.RecvTypeParams() != nil {
+		recvTypeParams = make([]*types.TypeParam, signature.RecvTypeParams().Len())
+		for i := 0; i < signature.RecvTypeParams().Len(); i++ {
+			recvTypeParams[i] = signature.RecvTypeParams().At(i)
+		}
+	}
+
+	if signature.TypeParams() != nil {
+		typeParams = make([]*types.TypeParam, signature.TypeParams().Len())
+		for i := 0; i < signature.TypeParams().Len(); i++ {
+			typeParams[i] = signature.TypeParams().At(i)
+		}
+	}
+
+	params = make([]*types.Var, signature.Params().Len()+1)
+	params[0] = types.NewVar(token.NoPos, nil, "captures", types.Typ[types.UnsafePointer])
+	for i := 0; i < signature.Params().Len(); i++ {
+		params[i+1] = signature.Params().At(i)
+	}
+
+	results = make([]*types.Var, signature.Results().Len())
+	for i := 0; i < signature.Results().Len(); i++ {
+		results[i] = signature.Results().At(i)
+	}
+
+	signature = types.NewSignatureType(nil, recvTypeParams, typeParams, types.NewTuple(params...), types.NewTuple(results...), signature.Variadic())
+	T := b.GetType(ctx, signature)
 
 	// Create the function data for the anonymous function.
 	anonData := &funcData{
 		symbol:    fmt.Sprintf("anon_func_%s", b.locationHashString(expr.Pos())),
 		funcType:  expr.Type,
 		mlirType:  T,
-		signature: b.typeOf(expr).(*types.Signature),
+		signature: signature,
 		body:      expr.Body,
 		pos:       expr.Pos(),
 
-		locals:         map[string]Value{},
+		//locals:         map[string]Value{},
+		locals:         map[types.Object]Value{},
 		anonymousFuncs: map[*ast.FuncLit]*funcData{},
 		instances:      map[*types.Signature]*funcData{},
 		typeMap:        map[int]types.Type{},
+		scope:          scope,
+		info:           info,
+
+		isAnonymous: true,
 	}
 
+	// NOTE: A literal function defined at the global scope will NOT have any enclosing function.
 	if enclosingData != nil {
 		// Inherit the enclosing function's type mappings.
 		anonData.typeMap = enclosingData.typeMap
 	}
 
 	// Find all free variables.
-	var captures []*ast.Ident
-	ast.Inspect(expr, func(node ast.Node) bool {
+	captures := map[types.Object]*FreeVar{}
+	for scope.Parent() != nil {
+		scope = scope.Parent()
+		for _, name := range scope.Names() {
+			capturedObj := scope.Lookup(name)
+
+			// Skip variables declared after this anonymous function.
+			if capturedObj.Pos() > expr.Pos() {
+				continue
+			}
+
+			varType := b.GetStoredType(ctx, capturedObj.Type())
+			ptrType := mlir.GoCreatePointerType(varType)
+			allocType := mlir.GoCreatePointerType(ptrType)
+
+			// Create an allocation to hold the pointer to the variable in the outer scope.
+			// NOTE: The pointee should reside on the heap.
+			allocaOp := mlir.GoCreateAllocaOperation(b.ctx, allocType, ptrType, nil, false, b.location(scope.Pos()))
+
+			// Create a FreeVar.
+			fv := &FreeVar{
+				//ident: node,
+				obj: capturedObj,
+				ptr: resultOf(allocaOp),
+				T:   varType,
+				b:   b,
+			}
+			captures[capturedObj] = fv
+			anonData.freeVars = append(anonData.freeVars, fv)
+			anonData.locals[capturedObj] = fv
+		}
+
+		if scope == enclosingData.scope {
+			// Stop examining parent scopes.
+			break
+		}
+	}
+	/*ast.Inspect(expr, func(node ast.Node) bool {
 		switch node := node.(type) {
 		case *ast.Ident:
-			obj := b.config.Info.ObjectOf(node)
+			obj := info.ObjectOf(node)
+			if _, ok := captures[obj]; ok {
+				return true
+			}
 
 			// Free variables will be captured from the anonymous function's outer scope.
 			if parentScope := scope.Parent(); parentScope != nil {
@@ -329,7 +403,7 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 							T:     varType,
 							b:     b,
 						}
-						captures = append(captures, node)
+						captures[obj] = fv
 						anonData.freeVars = append(anonData.freeVars, fv)
 						anonData.locals[node.Name] = fv
 					}
@@ -338,43 +412,31 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 		}
 		return true
 	})
+	*/
 
-	if len(captures) > 0 {
-		recvTypeParams := make([]*types.TypeParam, anonData.signature.RecvTypeParams().Len())
-		for i := 0; i < anonData.signature.RecvTypeParams().Len(); i++ {
-			recvTypeParams[i] = anonData.signature.RecvTypeParams().At(i)
-		}
-
-		typeParams := make([]*types.TypeParam, anonData.signature.TypeParams().Len())
-		for i := 0; i < anonData.signature.TypeParams().Len(); i++ {
-			recvTypeParams[i] = anonData.signature.TypeParams().At(i)
-		}
-
-		// Add the captures struct as the first parameter to the literal function.
-		params := make([]*types.Var, anonData.signature.Params().Len()+1)
-		params[0] = types.NewVar(token.NoPos, nil, "captures", types.Typ[types.UnsafePointer])
-		for i := 0; i < anonData.signature.Params().Len(); i++ {
-			params[i+1] = anonData.signature.Params().At(i)
-		}
-
-		// Replace the signature.
-		anonData.signature = types.NewSignatureType(
-			anonData.signature.Recv(),
-			recvTypeParams,
-			typeParams,
-			types.NewTuple(params...),
-			anonData.signature.Results(),
-			anonData.signature.Variadic())
-		anonData.mlirType = b.GetType(ctx, anonData.signature)
+	// NOTE: A literal function defined at the global scope will NOT have any enclosing function.
+	if enclosingData != nil {
+		enclosingData.anonymousFuncs[expr] = anonData
 	}
-
-	enclosingData.anonymousFuncs[expr] = anonData
 
 	// Emit the anonymous function.
 	b.emitFunc(ctx, anonData)
 
 	// Get and return the address of the function.
-	op := mlir.GoCreateAddressOfOperation(b.ctx, anonData.symbol, anonData.mlirType, b.location(expr.Pos()))
+	op := mlir.GoCreateAddressOfOperation(b.ctx, anonData.symbol, anonData.mlirType, location)
 	appendOperation(ctx, op)
-	return resultOf(op)
+	funcPtr := resultOf(op)
+
+	// Create a pointer to a context value.
+	contextValue, contextType := anonData.createContextStructValue(ctx, b, location)
+
+	allocaOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, contextType, nil, false, location)
+	appendOperation(ctx, allocaOp)
+	contextPtr := resultOf(allocaOp)
+
+	storeOp := mlir.GoCreateStoreOperation(b.ctx, contextValue, contextPtr, location)
+	appendOperation(ctx, storeOp)
+
+	// Return a func value.
+	return b.createFunctionValue(ctx, funcPtr, contextPtr, location)
 }

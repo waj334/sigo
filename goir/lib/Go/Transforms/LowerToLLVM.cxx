@@ -415,7 +415,6 @@ namespace mlir::go {
                     linkage = mlir::LLVM::LinkageAttr::get(this->getContext(), mlir::LLVM::Linkage::External);
                 }
 
-
                 auto elemT = this->typeConverter->convertType(adaptor.getGlobalType());
 
                 // TODO: Any global that is NOT assigned a value in some function can be constant.
@@ -433,7 +432,6 @@ namespace mlir::go {
                 rewriter.inlineRegionBefore(op.getRegion(),
                                             global.getRegion(),
                                             global.getRegion().end());
-
 
                 // Erase the old global op.
                 rewriter.eraseOp(op);

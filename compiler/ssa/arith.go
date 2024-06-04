@@ -158,7 +158,7 @@ func (b *Builder) emitIncDecStatement(ctx context.Context, stmt *ast.IncDecStmt)
 	lhs := value.Load(ctx, location)
 
 	// Create the respective constant one value matching the LHS type.
-	T := b.typeOf(stmt.X).Underlying()
+	T := b.typeOf(ctx, stmt.X).Underlying()
 	intType := b.GetStoredType(ctx, T)
 	intAttrType := mlir.IntegerTypeGet(b.ctx, 64)
 	constOneOp := mlir.GoCreateConstantOperation(b.ctx, mlir.IntegerAttrGet(intAttrType, 1), intType, location)

@@ -86,7 +86,7 @@ namespace mlir::go {
                     const auto infoType = argTypes[1];
 
                     // Get information about the slice element type.
-                    Value info = rewriter.create<TypeInfoOp>(loc, infoType, T.getElementType());
+                    Value info = rewriter.create<TypeInfoOp>(loc, infoType, T);
 
                     // Create the runtime call arguments.
                     SmallVector<Value, 5> args = {

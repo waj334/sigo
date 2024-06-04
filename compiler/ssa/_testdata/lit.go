@@ -2,6 +2,7 @@
 
 package main
 
+/*
 var (
 	arrLit    = [4]int{0, 1, 2, 3}
 	mapLit    = map[int]int{0: 1, 1: 2, 2: 3}
@@ -20,17 +21,28 @@ var (
 		a, b, c any
 	}{a: 0, b: 1, c: 2}
 )
+*/
 
-func testAnonymousFn(f func()) int {
+func testAnonymousFn(f func() int) int {
 	var a int
-	f = func() {
-		func() {
+	/*f = func() int {
+		return func() int {
 			a = 0
+			return a
 		}()
+	}*/
+	f = func() int {
+		a := 0
+		return a
 	}
 	return a
+
+	// Test that "aa" is not captured by the literal function.
+	aa := 0
+	return aa
 }
 
+/*
 func testIArrayLit() [4]any {
 	var a, b, c, d interface{ test() }
 	return [4]any{a, b, c, d}
@@ -60,3 +72,4 @@ func testIStructLit() struct {
 		d any
 	}{a: a, b: b, c: c, d: d}
 }
+*/

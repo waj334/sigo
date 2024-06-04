@@ -18,8 +18,8 @@ import (
 )
 
 type Config struct {
-	Fset               *token.FileSet
-	Info               *types.Info
+	Fset *token.FileSet
+	//Info               *types.Info
 	Ctx                mlir.Context
 	Module             mlir.Module
 	Sizes              *types.StdSizes
@@ -39,6 +39,7 @@ type Builder struct {
 	diFiles       map[*token.File]mlir.Attribute
 	compileUnits  map[*token.File]mlir.Attribute
 	symbols       mlir.SymbolTable
+	declInfo      map[ast.Decl]*types.Info
 
 	// Thread-unsafe structures:
 	funcDeclDataMutex sync.RWMutex
@@ -93,6 +94,8 @@ type Builder struct {
 
 	_noLoc mlir.Location
 
+	syntheticSignatures map[string]*types.Signature
+
 	initPackageCounter map[*packages.Package]*atomic.Uint32
 }
 
@@ -121,6 +124,7 @@ func NewBuilder(config Config) *Builder {
 		diFiles:            map[*token.File]mlir.Attribute{},
 		compileUnits:       map[*token.File]mlir.Attribute{},
 		initPackageCounter: map[*packages.Package]*atomic.Uint32{},
+		declInfo:           map[ast.Decl]*types.Info{},
 	}
 
 	// Create all basic types up front for ease of use later.
@@ -148,13 +152,10 @@ func NewBuilder(config Config) *Builder {
 	builder._slice = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_slice"))
 	builder._string = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_string"))
 	builder._interface = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_interface"))
+	builder._func = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_func"))
 
 	builder.anyType = types.NewInterfaceType(nil, nil).Complete()
 	builder._any = builder.GetType(context.Background(), builder.anyType)
-
-	// {func_ptr, env_ptr}
-	//builder._func = mlir.GoCreateNamedType(mlir.GoCreateLiteralStructType(config.Ctx, []mlir.Type{builder.ptr, builder.ptr}), "func")
-	builder._func = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_func"))
 
 	builder._noLoc = builder.location(0)
 
@@ -183,6 +184,16 @@ func NewBuilder(config Config) *Builder {
 		mlir.GoBindRuntimeType(config.Module, k, builder.GetType(context.Background(), T))
 	}
 
+	// Synthetic builtin function signatures.
+	synthetics := map[string]*types.Signature{}
+	printArgs := types.NewTuple(types.NewVar(0, nil, "values", types.NewSlice(builder.anyType)))
+	synthetics["print"] = types.NewSignatureType(nil, nil, nil, printArgs, nil, true)
+	synthetics["println"] = types.NewSignatureType(nil, nil, nil, printArgs, nil, true)
+
+	panicArgs := types.NewTuple(types.NewVar(0, nil, "value", builder.anyType))
+	synthetics["panic"] = types.NewSignatureType(nil, nil, nil, panicArgs, nil, false)
+
+	builder.syntheticSignatures = synthetics
 	return builder
 }
 
@@ -229,12 +240,22 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 	}
 	ctx = context.WithValue(ctx, jobQueueKey{}, initialWork)
 
-	// Populate un-generated functions list first so global initializers can add work to the initial job queue.
+	// Map declarations to their respective type checked info.
 	for _, pkg := range pkgs {
 		for _, file := range pkg.Syntax {
 			for _, decl := range file.Decls {
+				b.declInfo[decl] = pkg.TypesInfo
+			}
+		}
+	}
+
+	// Populate un-generated functions list first so global initializers can add work to the initial job queue.
+	for _, pkg := range pkgs {
+		ctx = newContextWithInfo(ctx, pkg.TypesInfo)
+		for _, file := range pkg.Syntax {
+			for _, decl := range file.Decls {
 				if decl, ok := decl.(*ast.FuncDecl); ok {
-					obj := b.objectOf(decl.Name).(*types.Func)
+					obj := b.objectOf(ctx, decl.Name).(*types.Func)
 					symbol := qualifiedFuncName(obj)
 					if symbol == b.config.Program.MainFunc {
 						symbol = "main.main"
@@ -257,6 +278,7 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 	// Emit constants and global variables serially.
 	gvars := map[types.Object]*GlobalValue{}
 	for _, pkg := range pkgs {
+		ctx = newContextWithInfo(ctx, pkg.TypesInfo)
 		for _, file := range pkg.Syntax {
 			for _, decl := range file.Decls {
 				switch decl := decl.(type) {
@@ -265,15 +287,17 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 					case token.TYPE:
 						for _, spec := range decl.Specs {
 							spec := spec.(*ast.TypeSpec)
-							obj := b.objectOf(spec.Name)
-							b.createTypeDeclaration(ctx, obj.Type(), obj.Pos())
+							obj := b.objectOf(ctx, spec.Name)
+							if !isGeneric(obj.Type()) {
+								b.createTypeDeclaration(ctx, obj.Type(), obj.Pos())
+							}
 						}
 					case token.VAR:
 						for _, spec := range decl.Specs {
 							spec := spec.(*ast.ValueSpec)
 							for _, ident := range spec.Names {
 								gvar := b.emitGlobalVar(ctx, ident)
-								gvars[b.objectOf(ident)] = gvar
+								gvars[b.objectOf(ctx, ident)] = gvar
 							}
 						}
 					default:
@@ -301,7 +325,8 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 					// Nil types will be untyped, so set up type inference.
 					ctx = newContextWithLhsList(ctx, []types.Type{lhs.Type()})
 					ctx = newContextWithRhsIndex(ctx, 0)
-					rhsType := b.typeOf(initializer.Rhs)
+					ctx = newContextWithInfo(ctx, pkg.TypesInfo)
+					rhsType := b.typeOf(ctx, initializer.Rhs)
 
 					result := b.emitExpr(ctx, initializer.Rhs)[0]
 
@@ -321,7 +346,7 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 								}
 							}
 						default:
-							switch b.typeOf(initializer.Rhs).(type) {
+							switch b.typeOf(ctx, initializer.Rhs).(type) {
 							case *types.Signature:
 								result = b.createFunctionValue(ctx, result, nil, location)
 							}
@@ -362,10 +387,11 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 
 	// Perform a first pass on functions to create an initial state for top-level and any of their anonymous functions.
 	for pkgNum, pkg := range pkgs {
+		ctx = newContextWithInfo(ctx, pkg.TypesInfo)
 		for _, file := range pkg.Syntax {
 			for _, decl := range file.Decls {
 				if decl, ok := decl.(*ast.FuncDecl); ok {
-					obj := b.objectOf(decl.Name).(*types.Func)
+					obj := b.objectOf(ctx, decl.Name).(*types.Func)
 					symbol := qualifiedFuncName(obj)
 					isMain := false
 					if symbol == b.config.Program.MainFunc {
@@ -398,7 +424,7 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 						len(symbolInfo.LinkName) == 0 &&
 						pkg.PkgPath != "runtime" &&
 						!isMain {
-						if _, ok := b.config.Info.Uses[decl.Name]; !ok {
+						if _, ok := pkg.TypesInfo.Uses[decl.Name]; !ok {
 							// Do not build this function.
 							continue
 						}
@@ -546,7 +572,14 @@ func (b *Builder) addFunctionDecl(ctx context.Context, decl *ast.FuncDecl) *func
 	b.funcDeclDataMutex.Lock()
 	defer b.funcDeclDataMutex.Unlock()
 
-	obj := b.objectOf(decl.Name).(*types.Func)
+	info := b.declInfo[decl]
+	if info == nil {
+		info = currentInfo(ctx)
+	} else {
+		ctx = newContextWithInfo(ctx, info)
+	}
+
+	obj := b.objectOf(ctx, decl.Name).(*types.Func)
 	symbol := qualifiedFuncName(obj)
 	if symbol == b.config.Program.MainFunc {
 		symbol = "main.main"
@@ -562,19 +595,22 @@ func (b *Builder) addFunctionDecl(ctx context.Context, decl *ast.FuncDecl) *func
 	}
 
 	data := &funcData{
-		symbol:         actualSymbol,
-		funcType:       decl.Type,
-		recv:           decl.Recv,
-		body:           decl.Body,
-		pos:            decl.Pos(),
-		signature:      signature,
-		isExported:     decl.Name.IsExported() || symbolInfo.Exported,
-		isGeneric:      signature.RecvTypeParams() != nil || signature.TypeParams() != nil,
-		locals:         map[string]Value{},
+		symbol:     actualSymbol,
+		funcType:   decl.Type,
+		recv:       decl.Recv,
+		body:       decl.Body,
+		pos:        decl.Pos(),
+		signature:  signature,
+		isExported: decl.Name.IsExported() || symbolInfo.Exported,
+		isGeneric:  signature.RecvTypeParams() != nil || signature.TypeParams() != nil,
+		//locals:         map[string]Value{},
+		locals:         map[types.Object]Value{},
 		anonymousFuncs: map[*ast.FuncLit]*funcData{},
 		instances:      map[*types.Signature]*funcData{},
 		typeMap:        map[int]types.Type{},
 		decl:           decl,
+		info:           info,
+		scope:          obj.Scope(),
 	}
 
 	// NOTE: Have to create the function type after the func object has been initialized if the function is
@@ -596,37 +632,56 @@ func (b *Builder) addFunctionDecl(ctx context.Context, decl *ast.FuncDecl) *func
 	return data
 }
 
-func (b *Builder) objectOf(node ast.Node) types.Object {
+func (b *Builder) objectOf(ctx context.Context, node ast.Node) types.Object {
+	info := currentInfo(ctx)
+	if info == nil {
+		panic("info is nil")
+	}
+
 	switch node := node.(type) {
 	case *ast.Ident:
-		return b.config.Info.ObjectOf(node)
+		return info.ObjectOf(node)
 	case *ast.SelectorExpr:
-		if selection := b.config.Info.Selections[node]; selection != nil {
+		if selection := info.Selections[node]; selection != nil {
 			return selection.Obj()
 		} else {
-			return b.objectOf(node.Sel)
+			return b.objectOf(ctx, node.Sel)
 		}
 	default:
 		// Look in implicits.
-		return b.config.Info.Implicits[node]
+		return info.Implicits[node]
 	}
 }
 
-func (b *Builder) typeOf(expr ast.Expr) types.Type {
-	return b.config.Info.TypeOf(expr)
+func (b *Builder) typeOf(ctx context.Context, expr ast.Expr) types.Type {
+	info := currentInfo(ctx)
+	if info == nil {
+		panic("info is nil")
+	}
+	return info.TypeOf(expr)
 }
 
-func (b *Builder) hasUse(ident *ast.Ident) bool {
-	_, ok := b.config.Info.Uses[ident]
+func (b *Builder) hasUse(ctx context.Context, ident *ast.Ident) bool {
+	info := currentInfo(ctx)
+	if info == nil {
+		panic("info is nil")
+	}
+
+	_, ok := info.Uses[ident]
 	return ok
 }
 
-func (b *Builder) setAddr(ident *ast.Ident, addr Value) {
+func (b *Builder) setAddr(ctx context.Context, ident *ast.Ident, addr Value) {
 	if ident.Obj == nil {
 		panic("no object associated with the AST node could be determined")
 	}
 
-	obj := b.config.Info.ObjectOf(ident)
+	info := currentInfo(ctx)
+	if info == nil {
+		panic("info is nil")
+	}
+
+	obj := info.ObjectOf(ident)
 
 	b.valueCacheMutex.Lock()
 	defer b.valueCacheMutex.Unlock()
