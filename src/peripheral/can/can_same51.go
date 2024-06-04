@@ -45,15 +45,15 @@ const (
 )
 
 var (
-	CAN0 = &CAN{
+	CAN0 = &can{
 		index: 0,
 	}
 
-	CAN1 = &CAN{
+	CAN1 = &can{
 		index: 1,
 	}
 
-	can = [2]*CAN{
+	instances = [2]*can{
 		CAN0,
 		CAN1,
 	}
@@ -84,7 +84,7 @@ func (e CANError) Error() string {
 	}
 }
 
-type CAN struct {
+type can struct {
 	module *chip.CAN_TYPE
 
 	rx0Buffer []uint32
@@ -173,19 +173,19 @@ type Config struct {
 func (c *Config) validate() (int8, error) {
 	if c.TX == pin.PA22 || c.TX == pin.PA24 {
 		if c.RX == pin.PA23 || c.RX == pin.PA25 {
-			// CAN 0
+			// can 0
 			return 0, nil
 		}
 	} else if c.TX == pin.PB11 || c.TX == pin.PB14 {
 		if c.RX == pin.PB13 || c.RX == pin.PB15 {
-			// CAN 1
+			// can 1
 			return 1, nil
 		}
 	}
 	return -1, peripheral.ErrInvalidPinout
 }
 
-func (c *CAN) Configure(config Config) error {
+func (c *can) Configure(config Config) error {
 	index, err := config.validate()
 	if err != nil {
 		return err
@@ -204,7 +204,7 @@ func (c *CAN) Configure(config Config) error {
 	c.index = index
 	c.module = chip.CAN[c.index]
 
-	// Assert the Initialization (CCCR.INIT) bit so that the CAN module can be configured.
+	// Assert the Initialization (CCCR.INIT) bit so that the can module can be configured.
 	c.setInit(true)
 
 	// Assert the Configuration Change Enable (CCCR.CCE) bit.
@@ -226,7 +226,7 @@ func (c *CAN) Configure(config Config) error {
 		c.module.DBTP.SetTDC(config.DataBitTiming.DelayCompensation)
 	}
 
-	// Enable/disable CAN FD.
+	// Enable/disable can FD.
 	c.module.CCCR.SetFDOE(config.FD)
 	c.module.CCCR.SetBRSE(config.FD)
 
@@ -343,7 +343,7 @@ func (c *CAN) Configure(config Config) error {
 	c.module.ILE.SetEINT1(true)
 	//***
 
-	// Finally De-assert CCE bit and the CCCR.INIT bit to enable the CAN module.
+	// Finally De-assert CCE bit and the CCCR.INIT bit to enable the can module.
 	c.module.CCCR.SetCCE(false)
 	c.setInit(false)
 
@@ -357,7 +357,7 @@ func (c *CAN) Configure(config Config) error {
 	return nil
 }
 
-func (c *CAN) ReadFIFO(fifo FIFO, b []byte) (int, error) {
+func (c *can) ReadFIFO(fifo FIFO, b []byte) (int, error) {
 	var ptr unsafe.Pointer
 	var index, fillLevel uint8
 	var n int
@@ -399,18 +399,18 @@ func (c *CAN) ReadFIFO(fifo FIFO, b []byte) (int, error) {
 	return n, nil
 }
 
-func (c *CAN) SetFIFO(index FIFO) {
+func (c *can) SetFIFO(index FIFO) {
 	c.mutex.Lock()
 	c.fifo = index
 	c.mutex.Unlock()
 }
 
 // Read will fill the input byte slice with an entire frame from the receive buffer.
-func (c *CAN) Read(b []byte) (int, error) {
+func (c *can) Read(b []byte) (int, error) {
 	return c.ReadFIFO(c.fifo, b)
 }
 
-func (c *CAN) Write(b []byte) (int, error) {
+func (c *can) Write(b []byte) (int, error) {
 	c.mutex.Lock()
 	ptr := unsafe.Pointer(unsafe.SliceData(c.txBuffer))
 	n := FrameLengthInBytes(c.rx0DataLength)
@@ -436,7 +436,7 @@ func (c *CAN) Write(b []byte) (int, error) {
 	return n, nil
 }
 
-func (c *CAN) SendFrame(frame Frame) error {
+func (c *can) SendFrame(frame Frame) error {
 	c.mutex.Lock()
 	ptr := unsafe.Pointer(unsafe.SliceData(c.txBuffer))
 	n := FrameLengthInBytes(c.rx0DataLength)
@@ -472,7 +472,7 @@ func (c *CAN) SendFrame(frame Frame) error {
 	return nil
 }
 
-func (c *CAN) ReceiveFrame(fifo FIFO, frameBuffer []byte) (Frame, error) {
+func (c *can) ReceiveFrame(fifo FIFO, frameBuffer []byte) (Frame, error) {
 	var n int
 	switch fifo {
 	case 0:
@@ -509,7 +509,7 @@ func (c *CAN) ReceiveFrame(fifo FIFO, frameBuffer []byte) (Frame, error) {
 	return frame, nil
 }
 
-func (c *CAN) _onNewMessage(fifo FIFO) {
+func (c *can) _onNewMessage(fifo FIFO) {
 	module := c.module
 
 	if c.onNewMessage != nil {
@@ -526,7 +526,7 @@ func (c *CAN) _onNewMessage(fifo FIFO) {
 	}
 }
 
-func (c *CAN) _onMessageLost(fifo FIFO) {
+func (c *can) _onMessageLost(fifo FIFO) {
 	module := c.module
 
 	if c.onMessageLost != nil {
@@ -543,7 +543,7 @@ func (c *CAN) _onMessageLost(fifo FIFO) {
 	}
 }
 
-func (c *CAN) _onProtocolError() {
+func (c *can) _onProtocolError() {
 	module := c.module
 
 	if c.onProtocolError != nil {
@@ -560,7 +560,7 @@ func (c *CAN) _onProtocolError() {
 }
 
 func canEvent(index int8) {
-	instance := can[index]
+	instance := instances[index]
 	module := instance.module
 
 	if module.IR.GetPED() || module.IR.GetPEA() {
@@ -584,7 +584,7 @@ func canEvent(index int8) {
 	}
 }
 
-func (c *CAN) setInit(on bool) {
+func (c *can) setInit(on bool) {
 	// Toggle the bit.
 	c.module.CCCR.SetINIT(on)
 
