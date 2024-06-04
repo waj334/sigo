@@ -129,7 +129,6 @@ func (l LocalValue) Type() mlir.Type {
 }
 
 type FreeVar struct {
-	//ident *ast.Ident
 	obj types.Object
 	ptr mlir.Value // **void
 	T   mlir.Type

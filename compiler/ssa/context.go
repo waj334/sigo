@@ -7,19 +7,18 @@ import (
 )
 
 type (
-	regionKey            struct{}
-	blockKey             struct{}
-	successorBlockKey    struct{}
-	predecessorBlockKey  struct{}
-	labeledBlocksKey     struct{}
-	identifierKey        struct{}
-	identifierPostfixKey struct{}
-	lhsListKey           struct{}
-	rhsIndexKey          struct{}
-	funcDataKey          struct{}
-	globalKey            struct{}
-	jobQueueKey          struct{}
-	infoKey              struct{}
+	regionKey           struct{}
+	blockKey            struct{}
+	successorBlockKey   struct{}
+	predecessorBlockKey struct{}
+	labeledBlocksKey    struct{}
+	identifierKey       struct{}
+	lhsListKey          struct{}
+	rhsIndexKey         struct{}
+	funcDataKey         struct{}
+	globalKey           struct{}
+	jobQueueKey         struct{}
+	infoKey             struct{}
 )
 
 func newGlobalContext(ctx context.Context) context.Context {

@@ -32,7 +32,6 @@ type funcData struct {
 	mutex    sync.RWMutex
 	instance int
 
-	//locals         map[string]Value
 	locals         map[types.Object]Value
 	anonymousFuncs map[*ast.FuncLit]*funcData
 	instances      map[*types.Signature]*funcData

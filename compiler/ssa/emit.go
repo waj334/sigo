@@ -468,26 +468,6 @@ func (b *Builder) emitIdent(ctx context.Context, expr *ast.Ident) []mlir.Value {
 		appendOperation(ctx, op)
 		return resultsOf(op)
 	default:
-		/*
-			var value Value
-			if data := currentFuncData(ctx); data != nil {
-				data.mutex.RLock()
-				// Attempt to retrieve the value from the function's known free variables first.
-				for _, fv := range data.freeVars {
-					if fv.ident == expr {
-						value = fv
-						break
-					}
-				}
-				data.mutex.RUnlock()
-			}
-
-			if value == nil {
-				// Otherwise, the variable is local.
-				value = b.valueOf(ctx, expr)
-			}
-		*/
-
 		value := b.valueOf(ctx, expr)
 		if value == nil {
 			panic("value is nil")

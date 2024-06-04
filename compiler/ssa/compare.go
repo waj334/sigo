@@ -240,15 +240,6 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 	XT := baseType(b.typeOf(ctx, expr.X))
 	YT := baseType(b.typeOf(ctx, expr.Y))
 
-	/*
-		if typeHasFlags(YT, types.IsUntyped) {
-			// Infer the type to compare against.
-			lhsTypes := currentLhsList(ctx)
-			index := currentRhsIndex(ctx)
-			YT = lhsTypes[index]
-		}
-	*/
-
 	switch {
 	case typeHasFlags(XT, types.IsBoolean), typeHasFlags(XT, types.IsInteger):
 		var Y mlir.Value

@@ -55,7 +55,6 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 				signature := obj.Type().(*types.Signature)
 				if signature.Recv() != nil {
 					recvType := signature.Recv().Type()
-					//recvT := b.GetStoredType(ctx, recvType)
 					actualRecvType := b.typeOf(ctx, Fun.X)
 
 					addr := b.addressOf(ctx, Fun.X, location)
@@ -366,29 +365,6 @@ func (b *Builder) emitGoStatement(ctx context.Context, stmt *ast.GoStmt) {
 		// Emit the literal function.
 		F := b.emitExpr(ctx, Fun)[0]
 
-		/*
-			// Create the expected synthetic signature type.
-			T := b.createSyntheticClosureSignature(ctx, signature)
-			resultTypes := make([]mlir.Type, mlir.FunctionTypeGetNumResults(T))
-			for i := range resultTypes {
-				resultTypes[i] = mlir.FunctionTypeGetResult(T, i)
-			}
-
-			// Extract the callee ptr from the func value struct.
-			extractOp := mlir.GoCreateExtractOperation(b.ctx, 0, b.ptr, F, location)
-			appendOperation(ctx, extractOp)
-			fn := resultOf(extractOp)
-			fn = b.bitcastTo(ctx, fn, T, location)
-
-			// Extract the context pointer from the func value struct.
-			extractOp = mlir.GoCreateExtractOperation(b.ctx, 1, b.ptr, F, location)
-			appendOperation(ctx, extractOp)
-			contextPtr := resultOf(extractOp)
-
-			// Prepend the context pointer to the arg list.
-			callArgs = append([]mlir.Value{contextPtr}, callArgs...)
-		*/
-
 		// Emit the goroutine operation.
 		op := mlir.GoCreateGoOperation(b.ctx, F, nil, callArgs, location)
 		appendOperation(ctx, op)
@@ -414,7 +390,6 @@ func (b *Builder) emitGoStatement(ctx context.Context, stmt *ast.GoStmt) {
 			// This is a named type method or a package function.
 			// Evaluate the callee.
 			F := b.emitExpr(ctx, Fun)[0]
-			//obj := b.objectOf(ctx, Fun)
 
 			switch b.objectOf(ctx, Fun.X).(type) {
 			case *types.Var:
@@ -424,34 +399,6 @@ func (b *Builder) emitGoStatement(ctx context.Context, stmt *ast.GoStmt) {
 				// Prepend the receiver value to the call args.
 				callArgs = append([]mlir.Value{recv}, callArgs...)
 			}
-
-			/*
-				if _, ok := obj.(*types.Var); ok {
-					// Evaluate the function literal symbol to call indirectly.
-					fnValue := b.emitExpr(ctx, Fun)[0]
-
-					// Create the expected synthetic signature type.
-					funcT := b.createSyntheticClosureSignature(ctx, signature)
-					resultTypes := make([]mlir.Type, mlir.FunctionTypeGetNumResults(funcT))
-					for i := range resultTypes {
-						resultTypes[i] = mlir.FunctionTypeGetResult(funcT, i)
-					}
-
-					// Extract the callee ptr from the func value struct.
-					extractOp := mlir.GoCreateExtractOperation(b.ctx, 0, b.ptr, fnValue, location)
-					appendOperation(ctx, extractOp)
-					F = resultOf(extractOp)
-					F = b.bitcastTo(ctx, F, funcT, location)
-
-					// Extract the context pointer from the func value struct.
-					extractOp = mlir.GoCreateExtractOperation(b.ctx, 1, b.ptr, fnValue, location)
-					appendOperation(ctx, extractOp)
-					contextPtr := resultOf(extractOp)
-
-					// Prepend the context pointer to the arg list.
-					callArgs = append([]mlir.Value{contextPtr}, callArgs...)
-				}
-			*/
 
 			// Emit the goroutine operation.
 			op := mlir.GoCreateGoOperation(b.ctx, F, nil, callArgs, location)

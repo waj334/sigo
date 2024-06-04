@@ -408,9 +408,6 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 					symbolInfo := b.config.Program.Symbols.GetSymbolInfo(symbol)
 					actualSymbol := b.resolveSymbol(symbol)
 
-					// Mark this function as un-generated.
-					//b.ungeneratedFuncs[actualSymbol] = decl
-
 					isPackageInit := false
 					if strings.HasSuffix(actualSymbol, ".init") {
 						isPackageInit = true
@@ -477,8 +474,6 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 	generateQueue := make(chan *funcData)
 
 	// Track the number of pending jobs.
-	//var pendingJobs atomic.Int32
-	//pendingJobs.Store(int32(len(initialWork.jobs)))
 	var pendingJobs sync.WaitGroup
 	pendingJobs.Add(len(initialWork.jobs))
 
@@ -595,15 +590,14 @@ func (b *Builder) addFunctionDecl(ctx context.Context, decl *ast.FuncDecl) *func
 	}
 
 	data := &funcData{
-		symbol:     actualSymbol,
-		funcType:   decl.Type,
-		recv:       decl.Recv,
-		body:       decl.Body,
-		pos:        decl.Pos(),
-		signature:  signature,
-		isExported: decl.Name.IsExported() || symbolInfo.Exported,
-		isGeneric:  signature.RecvTypeParams() != nil || signature.TypeParams() != nil,
-		//locals:         map[string]Value{},
+		symbol:         actualSymbol,
+		funcType:       decl.Type,
+		recv:           decl.Recv,
+		body:           decl.Body,
+		pos:            decl.Pos(),
+		signature:      signature,
+		isExported:     decl.Name.IsExported() || symbolInfo.Exported,
+		isGeneric:      signature.RecvTypeParams() != nil || signature.TypeParams() != nil,
 		locals:         map[types.Object]Value{},
 		anonymousFuncs: map[*ast.FuncLit]*funcData{},
 		instances:      map[*types.Signature]*funcData{},

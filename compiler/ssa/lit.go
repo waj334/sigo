@@ -360,7 +360,6 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 
 			// Create a FreeVar.
 			fv := &FreeVar{
-				//ident: node,
 				obj: capturedObj,
 				ptr: resultOf(allocaOp),
 				T:   varType,
@@ -376,43 +375,6 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 			break
 		}
 	}
-	/*ast.Inspect(expr, func(node ast.Node) bool {
-		switch node := node.(type) {
-		case *ast.Ident:
-			obj := info.ObjectOf(node)
-			if _, ok := captures[obj]; ok {
-				return true
-			}
-
-			// Free variables will be captured from the anonymous function's outer scope.
-			if parentScope := scope.Parent(); parentScope != nil {
-				if _, parentObj := parentScope.LookupParent(obj.Name(), token.NoPos); parentObj != nil {
-					if parentObj, ok := parentObj.(*types.Var); ok {
-						varType := b.GetStoredType(ctx, parentObj.Type())
-						ptrType := mlir.GoCreatePointerType(varType)
-						allocType := mlir.GoCreatePointerType(ptrType)
-
-						// Create an allocation to hold the pointer to the variable in the outer scope.
-						// NOTE: The pointee should reside on the heap.
-						allocaOp := mlir.GoCreateAllocaOperation(b.ctx, allocType, ptrType, nil, false, b.location(scope.Pos()))
-
-						// Create a FreeVar.
-						fv := &FreeVar{
-							ident: node,
-							ptr:   resultOf(allocaOp),
-							T:     varType,
-							b:     b,
-						}
-						captures[obj] = fv
-						anonData.freeVars = append(anonData.freeVars, fv)
-						anonData.locals[node.Name] = fv
-					}
-				}
-			}
-		}
-		return true
-	})
-	*/
 
 	// NOTE: A literal function defined at the global scope will NOT have any enclosing function.
 	if enclosingData != nil {
