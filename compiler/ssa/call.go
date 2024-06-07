@@ -290,7 +290,7 @@ func (b *Builder) emitCallArgs(ctx context.Context, signature *types.Signature, 
 					}
 
 					// Create an interface value from the value expression.
-					argValues[i] = b.emitInterfaceValue(ctx, paramT, argValues[i], location)
+					argValues[i] = b.emitInterfaceValue(ctx, paramT, argT, argValues[i], location)
 				}
 			}
 		}
@@ -526,7 +526,7 @@ func (b *Builder) emitVariadicArgs(ctx context.Context, signature *types.Signatu
 						}
 
 						// Create an interface value from the value expression.
-						arg = b.emitInterfaceValue(ctx, elementType, arg, location)
+						arg = b.emitInterfaceValue(ctx, elementType, argT, arg, location)
 					}
 				}
 			}

@@ -64,7 +64,7 @@ func (b *Builder) emitArrayLiteral(ctx context.Context, expr *ast.CompositeLit) 
 					}
 
 					// Create an interface value from the value expression.
-					elementValue = b.emitInterfaceValue(ctx, elementT, elementValue, location)
+					elementValue = b.emitInterfaceValue(ctx, elementT, valueT, elementValue, location)
 				}
 			}
 		}
@@ -117,7 +117,7 @@ func (b *Builder) emitMapLiteral(ctx context.Context, expr *ast.CompositeLit) ml
 					}
 
 					// Create an interface value from the value expression.
-					keyValue = b.emitInterfaceValue(ctx, keyT, keyValue, location)
+					keyValue = b.emitInterfaceValue(ctx, keyT, valueT, keyValue, location)
 				}
 			}
 		}
@@ -136,7 +136,7 @@ func (b *Builder) emitMapLiteral(ctx context.Context, expr *ast.CompositeLit) ml
 					}
 
 					// Create an interface value from the value expression.
-					elementValue = b.emitInterfaceValue(ctx, elementT, elementValue, location)
+					elementValue = b.emitInterfaceValue(ctx, elementT, valueT, elementValue, location)
 				}
 			}
 		}
@@ -182,7 +182,7 @@ func (b *Builder) emitSliceLiteral(ctx context.Context, expr *ast.CompositeLit) 
 					}
 
 					// Create an interface value from the value expression.
-					elementValue = b.emitInterfaceValue(ctx, elementT, elementValue, location)
+					elementValue = b.emitInterfaceValue(ctx, elementT, valueT, elementValue, location)
 				}
 			}
 		}
@@ -260,7 +260,7 @@ func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit)
 					}
 
 					// Create an interface value from the value expression.
-					elementValue = b.emitInterfaceValue(ctx, fieldT, elementValue, location)
+					elementValue = b.emitInterfaceValue(ctx, fieldT, valueT, elementValue, location)
 				}
 			}
 		}

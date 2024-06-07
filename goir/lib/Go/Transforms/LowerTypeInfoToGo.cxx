@@ -194,14 +194,28 @@ namespace mlir::go {
                     .Case<FunctionType>([&](FunctionType funcType) {
                         const auto dataSymbol = typeInfoSymbol(funcType, "_signature_");
                         return createGlobal(builder, signatureDataType, dataSymbol, loc, [&](OpBuilder &builder) {
-                            // TODO: The receiver can be known contextually from the first parameter of the function signature data.
-                            Value receiverTypeVal = builder.create<ZeroOp>(loc, infoPtrType);
+                            size_t offset = 0;
+
+                            Value receiverTypeVal;
+                            // TODO: Investigate why extraData is sometimes NULL.
+                            if (extraData && extraData.getAs<BoolAttr>("receiver").getValue()) {
+                                // The receiver can be known contextually from the first parameter of the function signature data.
+                                const auto receiverType = funcType.getInput(0);
+                                createTypeInfo(builder, converter, loc, receiverType);
+
+                                auto typeSymbol = typeInfoSymbol(receiverType);
+                                receiverTypeVal = builder.create<AddressOfOp>(loc, infoPtrType, typeSymbol);
+                                offset = 1;
+                            } else {
+                                receiverTypeVal = builder.create<ZeroOp>(loc, infoPtrType);
+                            }
 
                             // Create the type information for each input parameter type.
-                            SmallVector<Value> inputInfoValues(funcType.getNumInputs());
-                            for (size_t i = 0; i < funcType.getNumInputs(); ++i) {
+                            SmallVector<Value> inputInfoValues(funcType.getNumInputs() - offset);
+                            for (size_t i = offset; i < funcType.getNumInputs(); ++i) {
                                 auto GV = createTypeInfo(builder, converter, loc, funcType.getInput(i));
-                                inputInfoValues[i] = builder.create<AddressOfOp>(loc, infoPtrType, GV.getSymName());
+                                inputInfoValues[i - offset] = builder.create<AddressOfOp>(
+                                    loc, infoPtrType, GV.getSymName());
                             }
 
                             // Create the slice value holding the parameters.

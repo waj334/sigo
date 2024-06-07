@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"time"
 	"unsafe"
 )
 
@@ -51,10 +52,9 @@ type task struct {
 //sigo:required runScheduler
 
 var (
-	headTask           *task      = nil
-	lastTask           *task      = nil
-	currentTask        *task      = nil
-	timeSource         TimeSource = SysTickSource{}
+	headTask           *task = nil
+	lastTask           *task = nil
+	currentTask        *task = nil
 	goroutineStackSize uintptr
 )
 
@@ -97,7 +97,7 @@ func runScheduler() (shouldSwitch bool) {
 
 			for {
 				if nextTask.state == taskSleep {
-					t := timeSource.Now()
+					t := uint64(time.Now().UnixNano())
 					if t > nextTask.sleepDeadline {
 						nextTask.state = taskIdle
 						nextTask.sleepDeadline = 0
@@ -244,7 +244,7 @@ func sleep(d uint64) {
 	if currentTask == nil {
 		panic("sleep called from non-goroutine")
 	}
-	currentTask.sleepDeadline = timeSource.Now() + d
+	currentTask.sleepDeadline = uint64(time.Now().UnixNano()) + d
 	currentTask.state = taskSleep
 
 	// Schedule another task to begin running

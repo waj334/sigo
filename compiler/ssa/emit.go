@@ -117,7 +117,7 @@ func (b *Builder) emitAssign(ctx context.Context, stmt *ast.AssignStmt) {
 							}
 
 							// Create an interface value from the value expression.
-							rhs = b.emitInterfaceValue(ctx, lhsType, rhs, location)
+							rhs = b.emitInterfaceValue(ctx, lhsType, rhsType, rhs, location)
 						}
 					}
 				}
@@ -661,7 +661,7 @@ func (b *Builder) emitReturn(ctx context.Context, stmt *ast.ReturnStmt) {
 							}
 
 							// Create an interface value from the value expression.
-							v[ii] = b.emitInterfaceValue(ctx, returnType, v[ii], location)
+							v[ii] = b.emitInterfaceValue(ctx, returnType, valueType, v[ii], location)
 						}
 					}
 				case *types.Signature:

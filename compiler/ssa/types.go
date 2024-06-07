@@ -136,6 +136,9 @@ func (b *Builder) createTypeDeclaration(ctx context.Context, T types.Type, pos t
 				symbol := qualifiedFuncName(method)
 				refAttr := mlir.FlatSymbolRefAttrGet(b.ctx, symbol)
 				entries[i] = refAttr
+
+				// Create type information for the signature.
+				b.createTypeDeclaration(ctx, method.Type(), pos)
 			}
 			methodSymbols = mlir.ArrayAttrGet(b.ctx, entries)
 			extraData = append(extraData, b.namedOf("methods", methodSymbols))
@@ -146,7 +149,11 @@ func (b *Builder) createTypeDeclaration(ctx context.Context, T types.Type, pos t
 		// Create the data for the element type.
 		b.createTypeDeclaration(ctx, T.Elem(), pos)
 	case *types.Signature:
-
+		if T.Recv() != nil {
+			extraData = append(extraData, b.namedOf("receiver", mlir.BoolAttrGet(b.ctx, 1)))
+		} else {
+			extraData = append(extraData, b.namedOf("receiver", mlir.BoolAttrGet(b.ctx, 0)))
+		}
 	case *types.Slice:
 		// Create the data for the element type.
 		b.createTypeDeclaration(ctx, T.Elem(), pos)

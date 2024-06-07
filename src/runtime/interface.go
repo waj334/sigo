@@ -102,7 +102,21 @@ func interfaceLookUp(i _interface, id uint32) (receiver, result unsafe.Pointer) 
 	for _, method := range elementType.methods {
 		methodId := method.id
 		if id == methodId {
+			signature := (*_signatureTypeData)(method.signature.data)
 			receiver = i.value
+			if i.valueT.kind == Pointer {
+				// Load the receiver pointer value.
+				receiver = *(*unsafe.Pointer)(receiver)
+				if signature.receiverType.kind != Pointer {
+					// Load the value.
+					receiver = *(*unsafe.Pointer)(receiver)
+				}
+			} else {
+				if signature.receiverType.kind == Pointer {
+					// Pass the address of the underlying value.
+					receiver = *(*unsafe.Pointer)(&i.value)
+				} // else the receiver value is already holds the address of the value.
+			}
 			return receiver, method.funcPtr
 		}
 	}

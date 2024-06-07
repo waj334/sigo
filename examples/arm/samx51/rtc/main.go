@@ -7,15 +7,20 @@ import (
 	"peripheral/rtc"
 	"peripheral/uart"
 	mcu "runtime/arm/cortexm/sam/samx51"
+	"time"
 )
 
 var (
 	RTC  = rtc.RTC
 	UART = uart.UART5
+	LED  = pin.PB11
 )
 
 func init() {
 	rtc.SOURCE_CLK_FREQUENCY = 32_768
+
+	// Use the realtime clock as the time source.
+	time.SetSource(RTC)
 }
 
 func main() {
@@ -45,14 +50,18 @@ func main() {
 		panic(err)
 	}
 
-	// Echo the current counter value.
-	for {
-		value := RTC.Now()
-		UART.WriteString("tick")
-		foo(value)
-	}
-}
+	// Set up the LED
+	LED.SetDirection(pin.Output)
+	LED.Set(true)
 
-func foo(v uint64) {
-	// Does nothing.
+	go func() {
+		// Blink the LED
+		for {
+			time.Sleep(time.Millisecond * 500)
+			LED.Toggle()
+		}
+	}()
+
+	for {
+	}
 }

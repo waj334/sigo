@@ -1,14 +1,8 @@
 package time
 
-import (
-	"runtime"
-)
+var source TimeSource
 
-var (
-	source runtime.TimeSource = runtime.SysTickSource{}
-)
-
-func SetSource(src runtime.TimeSource) {
+func SetSource(src TimeSource) {
 	source = src
 }
 
@@ -16,7 +10,7 @@ type Time struct {
 	t uint64
 }
 
-var (
+const (
 	yearNs   uint64 = 3.154e+16
 	monthNs  uint64 = 2.628e+15
 	dayNs    uint64 = 86399905315173
@@ -163,19 +157,19 @@ func (t Time) UTC() Time {
 }
 
 func (t Time) Unix() int64 {
-	return 0
+	return t.UnixMilli() * 1000
 }
 
 func (t Time) UnixMicro() int64 {
-	return 0
+	return t.UnixNano() * 1000
 }
 
 func (t Time) UnixMilli() int64 {
-	return 0
+	return t.UnixMicro() * 1000
 }
 
 func (t Time) UnixNano() int64 {
-	return 0
+	return int64(t.t)
 }
 
 func (t *Time) UnmarshalBinary(data []byte) error {

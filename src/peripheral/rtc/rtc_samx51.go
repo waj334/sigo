@@ -5,10 +5,7 @@ package rtc
 import (
 	"peripheral"
 	"runtime/arm/cortexm/sam/chip"
-)
-
-const (
-	secondNs = 1_000_000_000
+	"time"
 )
 
 const (
@@ -54,6 +51,8 @@ type Config struct {
 
 type rtc struct {
 	prescaler uint16
+	frequency uint32
+	period    uint32
 }
 
 func EnableClocks(oscillator Oscillator, frequency Frequency) error {
@@ -147,6 +146,12 @@ func (r *rtc) Configure(config Config) error {
 	for chip.RTC_MODE0.SYNCBUSY.GetENABLE() {
 	}
 
+	// Get the RTC frequency.
+	r.frequency = SOURCE_CLK_FREQUENCY / (1 << r.prescaler)
+
+	// Calculate the period of each tick in nanoseconds.
+	r.period = uint32(time.Second) / r.frequency
+
 	return nil
 }
 
@@ -180,19 +185,13 @@ func (r *rtc) SetCompareValue(value [2]uint32) {
 }
 
 func (r *rtc) Frequency() uint32 {
-	return SOURCE_CLK_FREQUENCY / (1 << r.prescaler)
+	return r.frequency
 }
 
 func (r *rtc) Now() uint64 {
 	// Get the current count value.
 	count := r.Value()
 
-	// Get the RTC frequency.
-	frequency := r.Frequency()
-
-	// Calculate the period of each tick in nanoseconds.
-	period := uint64(secondNs) / uint64(frequency)
-
 	// Calculate the elapsed time in nanoseconds.
-	return uint64(count) * period
+	return uint64(count) * uint64(r.period)
 }

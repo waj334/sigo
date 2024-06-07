@@ -63,7 +63,7 @@ namespace mlir::go {
                 rewriter.setInsertionPointAfter(op->getPrevNode());
 
                 uint64_t allOnes;
-                if (mlir::cast<IntegerType>(op.getRhs().getType()).isSigned()) {
+                if (mlir::cast<IntegerType>(go::baseType(op.getRhs().getType())).isSigned()) {
                     allOnes = INT64_MAX;
                 } else {
                     allOnes = UINT64_MAX;
@@ -625,7 +625,7 @@ namespace mlir::go {
             mlir::LogicalResult matchAndRewrite(ComplementOp op, OpAdaptor adaptor,
                                                 ConversionPatternRewriter &rewriter) const override {
                 uint64_t allOnes;
-                if (mlir::cast<IntegerType>(op.getOperand().getType()).isSigned()) {
+                if (mlir::cast<IntegerType>(go::baseType(op.getOperand().getType())).isSigned()) {
                     allOnes = INT64_MAX;
                 } else {
                     allOnes = UINT64_MAX;

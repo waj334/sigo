@@ -342,7 +342,7 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 								case *types.Interface:
 									result = b.emitChangeType(ctx, lhs.Type(), result, location)
 								default:
-									result = b.emitInterfaceValue(ctx, lhs.Type(), result, location)
+									result = b.emitInterfaceValue(ctx, lhs.Type(), rhsType, result, location)
 								}
 							}
 						default:

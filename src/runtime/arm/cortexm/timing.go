@@ -2,15 +2,24 @@ package cortexm
 
 import (
 	"sync/atomic"
+	"time"
 )
 
 var _tickCount uint32
 var SYSTICK_FREQUENCY uint32
 var NPRIORITY_BITS uint8 = 8
 
-//go:export currentTick runtime.currentTick
-func currentTick() uint32 {
-	return atomic.LoadUint32(&_tickCount)
+func init() {
+	// Use SysTick as the default time source.
+	time.SetSource(SysTickSource{})
+}
+
+type SysTickSource struct{}
+
+func (s SysTickSource) Now() uint64 {
+	// NOTE: The tick count is incremented at a frequency of 1ms
+	// Return the tick count in nanoseconds
+	return uint64(atomic.LoadUint32(&_tickCount)) * 1_000_000
 }
 
 //sigo:extern runScheduler runtime.runScheduler

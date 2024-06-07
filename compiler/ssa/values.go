@@ -226,14 +226,20 @@ func (b *Builder) emitZeroValue(ctx context.Context, T types.Type, location mlir
 	return resultOf(zeroOp)
 }
 
-func (b *Builder) emitInterfaceValue(ctx context.Context, T types.Type, value mlir.Value, location mlir.Location) mlir.Value {
-	// Copy the value onto the stack.
-	// NOTE: This value may escape to the heap later.
-	addr := b.makeCopyOf(ctx, value, location)
+func (b *Builder) emitInterfaceValue(ctx context.Context, T types.Type, valueType types.Type, value mlir.Value, location mlir.Location) mlir.Value {
+	var addr mlir.Value
+	if isPointer(valueType) {
+		// Use the pointer value directly.
+		addr = value
+	} else {
+		// Copy the value onto the stack.
+		// NOTE: This value may escape to the heap later.
+		addr = b.makeCopyOf(ctx, value, location)
+	}
 
 	// Create the interface value.
 	interfaceT := b.GetType(ctx, T)
-	dynamicT := mlir.ValueGetType(value)
+	dynamicT := b.GetType(ctx, valueType)
 	makeOp := mlir.GoCreateMakeInterfaceOperation(b.ctx, interfaceT, dynamicT, addr, location)
 	appendOperation(ctx, makeOp)
 	return resultOf(makeOp)
