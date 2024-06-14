@@ -17,17 +17,15 @@ var (
 )
 
 func init() {
-	rtc.SOURCE_CLK_FREQUENCY = 32_768
+	rtc.SOURCE_CLK_FREQUENCY = 32_768 // Hz
 
 	// Use the realtime clock as the time source.
 	time.SetSource(RTC)
-}
 
-func main() {
-	// Initialize the clock system
+	// Initialize the clock system.
 	mcu.DefaultClocks()
 
-	// Configure UART
+	// Configure UART.
 	UART.Configure(uart.Config{
 		TXD:             pin.PB02,
 		RXD:             pin.PB03,
@@ -45,22 +43,32 @@ func main() {
 		ClearOnMatch: false,
 		Value:        0,
 		Compare:      [2]uint32{0, 0},
+		OnCompare0:   blink,
 	}); err != nil {
 		UART.WriteString(err.Error() + "\n")
 		panic(err)
 	}
 
-	// Set up the LED
+	// Set up the LED.
 	LED.SetDirection(pin.Output)
 	LED.Set(true)
+}
 
-	go func(LED pin.Pin) {
-		// Blink the LED
-		for {
-			time.Sleep(time.Millisecond * 500)
-			LED.Toggle()
-		}
-	}(LED)
-
+func main() {
+	// Block forever.
 	select {}
+}
+
+func blink() {
+	// Get the current compare values.
+	cmp := RTC.CompareValue()
+
+	// Set the first value to now + 500ms.
+	cmp[0] = RTC.Value() + RTC.Ticks(time.Millisecond*500)
+
+	// Apply the new compare value.
+	RTC.SetCompareValue(cmp)
+
+	// Toggle the LED.
+	LED.Toggle()
 }

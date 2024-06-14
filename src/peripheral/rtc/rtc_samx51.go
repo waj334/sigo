@@ -5,6 +5,7 @@ package rtc
 import (
 	"peripheral"
 	"runtime/arm/cortexm/sam/chip"
+	"runtime/arm/cortexm/sam/samx51"
 	"time"
 )
 
@@ -47,12 +48,18 @@ type Config struct {
 	ClearOnMatch bool
 	Value        uint32
 	Compare      [2]uint32
+	OnCompare0   func()
+	OnCompare1   func()
+	OnOverflow   func()
 }
 
 type rtc struct {
-	prescaler uint16
-	frequency uint32
-	period    uint32
+	prescaler  uint16
+	frequency  uint32
+	period     uint32
+	onCompare0 func()
+	onCompare1 func()
+	onOverflow func()
 }
 
 func EnableClocks(oscillator Oscillator, frequency Frequency) error {
@@ -152,6 +159,17 @@ func (r *rtc) Configure(config Config) error {
 	// Calculate the period of each tick in nanoseconds.
 	r.period = uint32(time.Second) / r.frequency
 
+	// Enable interrupts.
+	r.onCompare0 = config.OnCompare0
+	r.onCompare1 = config.OnCompare1
+	r.onOverflow = config.OnOverflow
+
+	samx51.IRQ_RTC.EnableIRQ()
+
+	chip.RTC_MODE0.INTENSET.SetCMP0(true)
+	chip.RTC_MODE0.INTENSET.SetCMP1(true)
+	chip.RTC_MODE0.INTENSET.SetOVF(true)
+
 	return nil
 }
 
@@ -188,10 +206,45 @@ func (r *rtc) Frequency() uint32 {
 	return r.frequency
 }
 
+func (r *rtc) Period() uint32 {
+	return r.period
+}
+
 func (r *rtc) Now() uint64 {
 	// Get the current count value.
 	count := r.Value()
 
 	// Calculate the elapsed time in nanoseconds.
 	return uint64(count) * uint64(r.period)
+}
+
+func (r *rtc) Ticks(d time.Duration) uint32 {
+	return uint32(d) / r.period
+}
+
+//sigo:interrupt _RTC_Handler RTC_Handler
+func _RTC_Handler() {
+	if chip.RTC_MODE0.INTFLAG.GetCMP0() && RTC.onCompare0 != nil {
+		// Call the handler.
+		RTC.onCompare0()
+
+		// Clear the interrupt flag.
+		chip.RTC_MODE0.INTFLAG.SetCMP0(true)
+	}
+
+	if chip.RTC_MODE0.INTFLAG.GetCMP1() && RTC.onCompare1 != nil {
+		// Call the handler.
+		RTC.onCompare1()
+
+		// Clear the interrupt flag.
+		chip.RTC_MODE0.INTFLAG.SetCMP1(true)
+	}
+
+	if chip.RTC_MODE0.INTFLAG.GetOVF() && RTC.onOverflow != nil {
+		// Call the handler.
+		RTC.onOverflow()
+
+		// Clear the interrupt flag.
+		chip.RTC_MODE0.INTFLAG.SetOVF(true)
+	}
 }

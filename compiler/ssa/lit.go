@@ -246,6 +246,11 @@ func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit)
 		elementValue := b.emitExpr(ctx, valueExpr)[0]
 
 		switch baseType(fieldT).(type) {
+		case *types.Signature:
+			if mlir.TypeIsAFunction(mlir.ValueGetType(elementValue)) {
+				// Convert the function pointer to a func value.
+				elementValue = b.createFunctionValue(ctx, elementValue, nil, location)
+			}
 		case *types.Interface:
 			// Handle interface conversion.
 			valueT := b.typeOf(ctx, valueExpr)
