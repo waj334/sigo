@@ -449,38 +449,6 @@ namespace mlir::go {
             }
         };
 
-        struct GoOperationLowering : ConvertOpToLLVMPattern<GoOp> {
-            using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
-
-            LogicalResult
-            matchAndRewrite(GoOp op, OpAdaptor adaptor, ConversionPatternRewriter &rewriter) const override {
-                Location loc = op.getLoc();
-                const auto module = op->getParentOfType<ModuleOp>();
-                const auto dataLayout = mlir::DataLayout(module);
-                auto wordType = IntegerType::get(rewriter.getContext(), getTypeConverter()->getPointerBitwidth());
-
-                // Create the parameter pack holding the arguments
-                intptr_t packSize;
-                auto pack = createParameterPack(rewriter, loc, llvm::SmallVector<Value>(adaptor.getCalleeOperands()),
-                                                packSize,
-                                                dataLayout, getTypeConverter());
-
-                // Allocate memory on the heap to store the parameter pack into
-                auto constantIntOp = rewriter.create<mlir::LLVM::ConstantOp>(loc, wordType, packSize);
-                auto allocOp = createRuntimeCall(rewriter, loc, "alloc", {getVoidPtrType()},
-                                                 {constantIntOp.getResult()});
-
-                // Store the parameter pack into the allocated memory
-                rewriter.create<mlir::LLVM::StoreOp>(loc, pack, allocOp->getResult(0));
-
-                // Create the runtime call to schedule this function call
-                createRuntimeCall(rewriter, loc, "addTask", {}, {adaptor.getCallee(), allocOp->getResult(0)});
-
-                rewriter.eraseOp(op);
-                return success();
-            }
-        };
-
         struct IntToPtrOpLowering : ConvertOpToLLVMPattern<IntToPtrOp> {
             using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
 
@@ -853,7 +821,6 @@ namespace mlir::go {
             transforms::LLVM::GetElementPointerOpLowering,
             transforms::LLVM::GlobalOpLowering,
             transforms::LLVM::GlobalCtorsOpLowering,
-            transforms::LLVM::GoOperationLowering,
             transforms::LLVM::InterfaceCallOpLowering,
             transforms::LLVM::IntToPtrOpLowering,
             transforms::LLVM::LoadOpLowering,

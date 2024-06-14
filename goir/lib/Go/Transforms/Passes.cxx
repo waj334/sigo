@@ -109,6 +109,7 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>> {
     target.addIllegalOp<FloatToUnsignedIntOp>();
     target.addIllegalOp<FloatToSignedIntOp>();
     target.addIllegalOp<FloatTruncateOp>();
+    target.addIllegalOp<GoOp>();
     target.addIllegalOp<ImagOp>();
     target.addIllegalOp<IntTruncateOp>();
     target.addIllegalOp<MapUpdateOp>();
@@ -161,7 +162,6 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>> {
     target.addLegalOp<DeferOp>();
     target.addLegalOp<FunctionToPointerOp>();
     target.addLegalOp<GetElementPointerOp>();
-    target.addLegalOp<GoOp>();
     target.addLegalOp<InterfaceCallOp>();
     target.addLegalOp<IntToPtrOp>();
     target.addLegalOp<LoadOp>();

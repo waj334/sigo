@@ -68,7 +68,6 @@ func (f *funcData) createContextStructValue(ctx context.Context, b *Builder, loc
 	// Collect the addresses of each value captured by this function.
 	var values []mlir.Value
 	for _, fv := range f.freeVars {
-		//ptr := b.valueOf(ctx, fv.ident).Pointer(ctx, location)
 		ptr := b.lookupValue(fv.obj).Pointer(ctx, location)
 		values = append(values, ptr)
 	}
@@ -449,6 +448,10 @@ func (b *Builder) createThunk(ctx context.Context, symbol string, callee string,
 }
 
 func (b *Builder) createArgumentPack(ctx context.Context, args []mlir.Value, location mlir.Location) (mlir.Value, mlir.Type) {
+	if len(args) == 0 {
+		return nil, nil
+	}
+
 	// Collect the argument types.
 	argTypes := make([]mlir.Type, len(args))
 	for i := range args {

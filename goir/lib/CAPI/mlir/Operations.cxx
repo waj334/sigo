@@ -952,21 +952,26 @@ MlirOperation mlirGoCreateDeferOperation(MlirContext context, MlirValue fn, Mlir
     return wrap(op);
 }
 
-MlirOperation mlirGoCreateGoOperation(MlirContext context, MlirValue fn, MlirAttribute *method, intptr_t nArgs,
+MlirOperation mlirGoCreateGoOperation(MlirContext context, MlirValue fn, MlirType signature, MlirStringRef method,
+                                      intptr_t nArgs,
                                       MlirValue *args, MlirLocation location) {
     auto _context = unwrap(context);
     auto _fn = unwrap(fn);
+    auto _signature = mlir::cast<FunctionType>(unwrap(signature));
+
     StringAttr _method;
-    if (method != nullptr) {
-        _method = mlir::cast<StringAttr>(unwrap(*method));
+    const auto _methodStr = unwrap(method);
+    if (!_methodStr.empty()) {
+        _method = StringAttr::get(_context, _methodStr);
     }
+
     auto _location = unwrap(location);
 
     ::llvm::SmallVector<::mlir::Value> _args;
     (void) unwrapList(nArgs, args, _args);
 
     mlir::OpBuilder builder(_context);
-    mlir::Operation *op = builder.create<::mlir::go::GoOp>(_location, _fn, _method, _args);
+    mlir::Operation *op = builder.create<::mlir::go::GoOp>(_location, _fn, _args, _signature, _method);
     return wrap(op);
 }
 

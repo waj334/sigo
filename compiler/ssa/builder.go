@@ -167,6 +167,7 @@ func NewBuilder(config Config) *Builder {
 		"slice":               "runtime._slice",
 		"string":              "runtime._string",
 		"type":                "runtime._type",
+		"func":                "runtime._func",
 		"namedTypeData":       "runtime._namedTypeData",
 		"funcData":            "runtime._funcData",
 		"interfaceMethodData": "runtime._interfaceMethodData",

@@ -173,6 +173,7 @@ MlirLogicalResult mlirGoOptimizeModule(MlirModule module, MlirStringRef name, Ml
     //pm.enableTiming();
     pm.addPass(mlir::createCanonicalizerPass());
     pm.addNestedPass<mlir::func::FuncOp>(mlir::go::createOptimizeDefersPass());
+    pm.addPass(mlir::go::createCallPass());
     pm.addPass(mlir::go::createAttachDebugInfoPass());
     pm.addPass(mlir::go::createLowerTypeInfoPass());
     pm.addPass(mlir::go::createGlobalConstantsPass());

@@ -355,6 +355,7 @@ func (b *Builder) emitInterfaceCall(ctx context.Context, X mlir.Value, obj *type
 func (b *Builder) emitGoStatement(ctx context.Context, stmt *ast.GoStmt) {
 	location := b.location(stmt.Pos())
 	signature := b.typeOf(ctx, stmt.Call.Fun).Underlying().(*types.Signature)
+	signatureT := b.GetType(ctx, signature)
 
 	// Evaluate the call arguments
 	callArgs := b.emitCallArgs(ctx, signature, stmt.Call)
@@ -366,24 +367,32 @@ func (b *Builder) emitGoStatement(ctx context.Context, stmt *ast.GoStmt) {
 		F := b.emitExpr(ctx, Fun)[0]
 
 		// Emit the goroutine operation.
-		op := mlir.GoCreateGoOperation(b.ctx, F, nil, callArgs, location)
+		op := mlir.GoCreateGoOperation(b.ctx, F, signatureT, "", callArgs, location)
 		appendOperation(ctx, op)
 	case *ast.Ident:
 		// Evaluate the callee.
 		F := b.emitExpr(ctx, Fun)[0]
 
 		// Emit the goroutine operation.
-		op := mlir.GoCreateGoOperation(b.ctx, F, nil, callArgs, location)
+		op := mlir.GoCreateGoOperation(b.ctx, F, signatureT, "", callArgs, location)
 		appendOperation(ctx, op)
 	case *ast.SelectorExpr:
 		T := b.typeOf(ctx, Fun.X)
-		switch T.Underlying().(type) {
+		switch T := T.Underlying().(type) {
 		case *types.Interface:
 			// Evaluate the interface value.
 			F := b.emitExpr(ctx, Fun.X)[0]
 
+			// Determine the signature of the callee interface method.
+			for i := 0; i < T.NumMethods(); i++ {
+				method := T.Method(i)
+				if method.Name() == Fun.Sel.Name {
+					signatureT = b.createSignatureType(ctx, method.Type().(*types.Signature), true)
+				}
+			}
+
 			// Emit the goroutine operation.
-			op := mlir.GoCreateGoOperation(b.ctx, F, mlir.StringAttrGet(b.ctx, Fun.Sel.Name), callArgs, location)
+			op := mlir.GoCreateGoOperation(b.ctx, F, signatureT, Fun.Sel.Name, callArgs, location)
 			appendOperation(ctx, op)
 			return
 		default:
@@ -401,7 +410,7 @@ func (b *Builder) emitGoStatement(ctx context.Context, stmt *ast.GoStmt) {
 			}
 
 			// Emit the goroutine operation.
-			op := mlir.GoCreateGoOperation(b.ctx, F, nil, callArgs, location)
+			op := mlir.GoCreateGoOperation(b.ctx, F, signatureT, "", callArgs, location)
 			appendOperation(ctx, op)
 		}
 	default:
@@ -427,21 +436,25 @@ func (b *Builder) emitDeferStatement(ctx context.Context, stmt *ast.DeferStmt) {
 
 		if len(data.freeVars) > 0 {
 			// Create the context struct value.
-			contextValue, contextType := data.createContextStructValue(ctx, b, location)
+			if contextValue, contextType := data.createContextStructValue(ctx, b, location); contextValue != nil {
 
-			// Allocate heap for the context value.
-			allocOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, contextType, nil, true, location)
-			appendOperation(ctx, allocOp)
+				// Allocate heap for the context value.
+				allocOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, contextType, nil, true, location)
+				appendOperation(ctx, allocOp)
 
-			// Store the context value at the heap address.
-			storeOp := mlir.GoCreateStoreOperation(b.ctx, contextValue, resultOf(allocOp), location)
-			appendOperation(ctx, storeOp)
+				// Store the context value at the heap address.
+				storeOp := mlir.GoCreateStoreOperation(b.ctx, contextValue, resultOf(allocOp), location)
+				appendOperation(ctx, storeOp)
 
-			// Prepend the context value to the call args.
-			callArgs = append([]mlir.Value{resultOf(allocOp)}, callArgs...)
+				// Prepend the context value to the call args.
+				callArgs = append([]mlir.Value{resultOf(allocOp)}, callArgs...)
+			} else {
+				// Pass nullptr as the context pointer value.
+				contextValue = b.emitZeroValue(ctx, types.Typ[types.UnsafePointer], location)
+			}
 		}
 
-		// Emit the goroutine operation.
+		// Emit the defer operation.
 		op := mlir.GoCreateDeferOperation(b.ctx, F, nil, callArgs, location)
 		appendOperation(ctx, op)
 	case *ast.Ident:

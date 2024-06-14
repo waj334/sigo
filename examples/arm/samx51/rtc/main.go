@@ -54,14 +54,13 @@ func main() {
 	LED.SetDirection(pin.Output)
 	LED.Set(true)
 
-	go func() {
+	go func(LED pin.Pin) {
 		// Blink the LED
 		for {
 			time.Sleep(time.Millisecond * 500)
 			LED.Toggle()
 		}
-	}()
+	}(LED)
 
-	for {
-	}
+	select {}
 }

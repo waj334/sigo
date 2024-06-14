@@ -70,14 +70,14 @@ def GoOp : Go_Op<"call_go"> {
         ```
     }];
     let arguments = (ins
-            AnyTypeOrNamedOf<[Go_Addressable, Go_Interface, Go_Struct]>:$callee,
-            OptionalAttr<StrAttr>:$method_name,
-            Variadic<Go_Type>:$callee_operands);
+            AnyTypeOrNamedOf<[Go_Function, Go_Interface, Go_Struct]>:$callee,
+            Variadic<Go_Type>:$callee_operands,
+            TypeAttr:$signature,
+            OptionalAttr<StrAttr>:$method_name);
     let assemblyFormat = [{
         $callee (`<` $method_name^ `>`)? `(` $callee_operands `)` attr-dict `:` type(operands)
     }];
     let hasVerifier = 1;
-    let hasCanonicalizeMethod = 1;
 }
 
 //===----------------------------------------------------------------------===//

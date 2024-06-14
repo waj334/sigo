@@ -390,14 +390,15 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 	funcPtr := resultOf(op)
 
 	// Create a pointer to a context value.
-	contextValue, contextType := anonData.createContextStructValue(ctx, b, location)
+	var contextPtr mlir.Value
+	if contextValue, contextType := anonData.createContextStructValue(ctx, b, location); contextValue != nil {
+		allocaOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, contextType, nil, false, location)
+		appendOperation(ctx, allocaOp)
+		contextPtr = resultOf(allocaOp)
 
-	allocaOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, contextType, nil, false, location)
-	appendOperation(ctx, allocaOp)
-	contextPtr := resultOf(allocaOp)
-
-	storeOp := mlir.GoCreateStoreOperation(b.ctx, contextValue, contextPtr, location)
-	appendOperation(ctx, storeOp)
+		storeOp := mlir.GoCreateStoreOperation(b.ctx, contextValue, contextPtr, location)
+		appendOperation(ctx, storeOp)
+	}
 
 	// Return a func value.
 	return b.createFunctionValue(ctx, funcPtr, contextPtr, location)

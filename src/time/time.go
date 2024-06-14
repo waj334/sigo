@@ -11,12 +11,19 @@ type Time struct {
 }
 
 const (
-	yearNs   uint64 = 3.154e+16
-	monthNs  uint64 = 2.628e+15
-	dayNs    uint64 = 86399905315173
-	hourNs   uint64 = 3599996054799
-	minuteNs uint64 = 59999934247
-	secondNs uint64 = 999998904
+	secondNs = 1000000000
+	minuteNs = 60 * secondNs
+	hourNs   = 60 * minuteNs
+	dayNs    = 24 * hourNs
+
+	// TODO: These cannot be constant.
+	monthNs = 2.628e+15
+	yearNs  = 3.154e+16
+
+	secondsPerMinute = 60
+	secondsPerHour   = 60 * secondsPerMinute
+	secondsPerDay    = 24 * secondsPerHour
+	secondsPerWeek   = 7 * secondsPerDay
 )
 
 func Now() Time {
@@ -92,6 +99,10 @@ func (t Time) GobEncode() ([]byte, error) {
 	return nil, nil
 }
 
+func (t Time) Hour() int {
+	return int(t.t/hourNs) % 24
+}
+
 func (t Time) In(loc *Location) Time {
 	return Time{}
 }
@@ -101,7 +112,7 @@ func (t Time) IsDST() bool {
 }
 
 func (t Time) IsZero() bool {
-	return false
+	return t.t == 0
 }
 
 func (t Time) Local() Time {
@@ -125,7 +136,7 @@ func (t Time) MarshalText() ([]byte, error) {
 }
 
 func (t Time) Minute() int {
-	return 0
+	return int(t.t/minuteNs) % 60
 }
 
 func (t Time) Month() Month {
@@ -141,7 +152,7 @@ func (t Time) Round() Time {
 }
 
 func (t Time) Second() int {
-	return 0
+	return int(t.t/secondNs) % 60
 }
 
 func (t Time) String() string {

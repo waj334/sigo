@@ -315,7 +315,7 @@ MlirOperation mlirGoCreateCallIndirectOperation(MlirContext context, MlirValue c
 MlirOperation mlirGoCreateDeferOperation(MlirContext context, MlirValue fn, MlirAttribute *method, intptr_t nArgs,
                                          MlirValue *args, MlirLocation location);
 
-MlirOperation mlirGoCreateGoOperation(MlirContext context, MlirValue fn, MlirAttribute *method, intptr_t nArgs,
+MlirOperation mlirGoCreateGoOperation(MlirContext context, MlirValue fn, MlirType signature, MlirStringRef method, intptr_t nArgs,
                                       MlirValue *args, MlirLocation location);
 
 MlirOperation mlirGoCreateInterfaceCall(MlirContext context, MlirStringRef callee, MlirType signature, MlirValue value,

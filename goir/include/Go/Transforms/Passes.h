@@ -10,5 +10,7 @@ namespace mlir::go {
 
     std::unique_ptr<mlir::Pass> createDumpToFilePass(StringRef name, StringRef dir);
 
+    std::unique_ptr<mlir::Pass> createCallPass();
+
 } // namespace mlir::go
 
