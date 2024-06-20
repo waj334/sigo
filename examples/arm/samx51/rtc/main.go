@@ -56,7 +56,12 @@ func init() {
 
 func main() {
 	// Block forever.
-	select {}
+	//select {}
+
+	for {
+		str := "test"
+		print(str)
+	}
 }
 
 func blink() {
