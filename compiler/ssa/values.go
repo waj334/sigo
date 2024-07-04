@@ -311,3 +311,32 @@ func (b *Builder) types(T ...mlir.Type) []mlir.Type {
 func (b *Builder) values(value ...mlir.Value) []mlir.Value {
 	return value
 }
+
+func cacheLoad(ctx context.Context, obj types.Object, value mlir.Value) {
+	if data := currentFuncData(ctx); data != nil {
+		data.mutex.Lock()
+		defer data.mutex.Unlock()
+		if block := currentBlock(ctx); block != nil {
+			loadMap, ok := data.loads[block]
+			if !ok {
+				loadMap = make(map[types.Object]mlir.Value)
+				data.loads[block] = loadMap
+			}
+			loadMap[obj] = value
+		}
+	}
+}
+
+func lookUpLoad(ctx context.Context, obj types.Object) (mlir.Value, bool) {
+	if data := currentFuncData(ctx); data != nil {
+		data.mutex.Lock()
+		defer data.mutex.Unlock()
+		if block := currentBlock(ctx); block != nil {
+			if loadMap, ok := data.loads[block]; ok {
+				result, ok := loadMap[obj]
+				return result, ok
+			}
+		}
+	}
+	return nil, false
+}

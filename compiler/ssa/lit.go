@@ -326,11 +326,11 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 		body:      expr.Body,
 		pos:       expr.Pos(),
 
-		//locals:         map[string]Value{},
 		locals:         map[types.Object]Value{},
 		anonymousFuncs: map[*ast.FuncLit]*funcData{},
 		instances:      map[*types.Signature]*funcData{},
 		typeMap:        map[int]types.Type{},
+		loads:          map[mlir.Block]map[types.Object]mlir.Value{},
 		scope:          scope,
 		info:           info,
 

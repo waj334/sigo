@@ -67,6 +67,9 @@ ABS_SSA_TEST_EXE=$(ABS_BINDIR)/ssa_test$(EXECUTABLE_POSTFIX)
 # Common commandline options:
 DEBUG ?= 0
 
+# Extend PATH variable:
+export PATH := $(LLVM_BUILD_DIR)/bin:$(PATH)
+
 define build-compiler-rt
 	cmake $(ROOT_DIR)/thirdparty/llvm-project/compiler-rt -G "Ninja" -B ./build/compiler-rt-$(1)-$(2) \
 		-DCMAKE_INSTALL_PREFIX=$(ROOT_DIR)/lib/compiler-rt/$(1)/$(2) \

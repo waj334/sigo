@@ -180,7 +180,7 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 			argValues = append([]mlir.Value{contextPtr}, argValues...)
 
 			// Emit the indirect call.
-			callOp := mlir.GoCreateCallIndirectOperation(b.ctx, fnValue, resultTypes, argValues, location)
+			callOp := mlir.GoCreateCallIndirectOperation(b.ctx, fn, resultTypes, argValues, location)
 			appendOperation(ctx, callOp)
 			return resultsOf(callOp)
 		default:
