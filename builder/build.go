@@ -235,7 +235,8 @@ func Build(ctx context.Context, packageDir string) error {
 	passDumpDir = filepath.Dir(passDumpDir)
 	passDumpName := filepath.Base(options.Output)
 	fmt.Print("Optimizing Go IR...")
-	if mlir.LogicalResultIsFailure(mlir.GoOptimizeModule(mlirModule, passDumpName, passDumpDir)) {
+	// TODO: add switch for debug mode.
+	if mlir.LogicalResultIsFailure(mlir.GoOptimizeModule(mlirModule, passDumpName, passDumpDir, false)) {
 		fmt.Println()
 		return errors.Join(ErrCodeGeneratorError, err, errors.New("optimization passes failed"))
 	}

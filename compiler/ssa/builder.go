@@ -603,6 +603,7 @@ func (b *Builder) addFunctionDecl(ctx context.Context, decl *ast.FuncDecl) *func
 		anonymousFuncs: map[*ast.FuncLit]*funcData{},
 		instances:      map[*types.Signature]*funcData{},
 		typeMap:        map[int]types.Type{},
+		loads:          map[mlir.Block]map[types.Object]mlir.Value{},
 		decl:           decl,
 		info:           info,
 		scope:          obj.Scope(),

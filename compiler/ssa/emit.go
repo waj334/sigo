@@ -477,8 +477,16 @@ func (b *Builder) emitIdent(ctx context.Context, expr *ast.Ident) []mlir.Value {
 			panic("value is nil")
 		}
 
+		// Attempt to reuse a previously loaded value of the matching object.
+		result, ok := lookUpLoad(ctx, obj)
+		if !ok {
+			// Evaluate the loaded value.
+			result = value.Load(ctx, location)
+			cacheLoad(ctx, obj, result)
+		}
+
 		// Load the value
-		return []mlir.Value{value.Load(ctx, location)}
+		return []mlir.Value{result}
 	}
 }
 

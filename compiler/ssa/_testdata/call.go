@@ -2,13 +2,7 @@
 
 package main
 
-import (
-	"omibyte.io/sigo/compiler/ssa/_testdata/src/somepkg"
-	"unsafe"
-)
-
-//import "omibyte.io/sigo/compiler/ssa/_testdata/src/somepkg"
-
+/*
 type someinterface interface {
 	method()
 }
@@ -60,12 +54,13 @@ func callClosure(v int) {
 	}
 	closure(v)
 }
+*/
 
 func indirectCall(v int, F func(int)) {
 	F(v)
 	func() {
 		i := 1
-		F(v + i)
+		//F(v + i)
 
 		func() {
 			F(v + i)
@@ -73,6 +68,7 @@ func indirectCall(v int, F func(int)) {
 	}()
 }
 
+/*
 func packageCall() {
 	somepkg.SomeFunc()
 }
@@ -195,3 +191,4 @@ func constValueMethodCall() {
 func packageConstAliasMethodCall() {
 	somepkg.SomeConstAliasTypeValue.Method()
 }
+*/

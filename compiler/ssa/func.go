@@ -36,6 +36,7 @@ type funcData struct {
 	anonymousFuncs map[*ast.FuncLit]*funcData
 	instances      map[*types.Signature]*funcData
 	typeMap        map[int]types.Type
+	loads          map[mlir.Block]map[types.Object]mlir.Value
 
 	decl *ast.FuncDecl
 	info *types.Info
@@ -328,6 +329,7 @@ func (b *Builder) createFuncInstance(ctx context.Context, genericSignature *type
 		body:           data.body,
 		pos:            data.pos,
 		typeMap:        typeMap,
+		loads:          map[mlir.Block]map[types.Object]mlir.Value{},
 		isExported:     data.isExported,
 		isInstance:     true,
 		instance:       instanceNo,

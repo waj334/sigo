@@ -37,7 +37,7 @@ void mlirGoSetTargetTriple(MlirModule module, MlirStringRef triple);
 
 MlirLogicalResult mlirCanonicalizeModule(MlirModule module);
 
-MlirLogicalResult mlirGoOptimizeModule(MlirModule module, MlirStringRef name, MlirStringRef outputDir);
+MlirLogicalResult mlirGoOptimizeModule(MlirModule module, MlirStringRef name, MlirStringRef outputDir, bool debug);
 
 MlirAttribute mlirGetLLVMLinkageAttr(MlirContext context, MlirStringRef linkage);
 
