@@ -14,10 +14,11 @@ func (b *Builder) valueOf(ctx context.Context, node ast.Node) Value {
 	case *ast.IndexExpr:
 		return b.NewTempValue(b.emitIndexAddr(ctx, node))
 	case *ast.Ident:
+		obj := b.objectOf(ctx, node)
+
 		// Look in the current function's locals first.
 		if data := currentFuncData(ctx); data != nil {
 			data.mutex.RLock()
-			obj := b.objectOf(ctx, node)
 			if obj == nil {
 				panic("object is nil")
 			}
@@ -29,7 +30,6 @@ func (b *Builder) valueOf(ctx context.Context, node ast.Node) Value {
 		}
 
 		// Look up the value by object.
-		obj := b.objectOf(ctx, node)
 		return b.lookupValue(obj)
 	default:
 		return nil

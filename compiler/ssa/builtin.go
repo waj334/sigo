@@ -88,6 +88,8 @@ func (b *Builder) emitBuiltinCall(ctx context.Context, expr *ast.CallExpr) []mli
 	// Unsafe builtins:
 	case "unsafe.Add":
 		return b.emitUnsafeAdd(ctx, expr)
+	case "unsafe.Alignof":
+		return b.emitUnsafeAlignOf(ctx, expr)
 	case "unsafe.Sizeof":
 		return b.emitUnsafeSizeof(ctx, expr)
 	case "unsafe.SliceData":
@@ -363,6 +365,13 @@ func (b *Builder) emitUnsafeAdd(ctx context.Context, expr *ast.CallExpr) []mlir.
 	op = mlir.GoCreateIntToPtrOperation(b.ctx, resultValue, b.ptr, location)
 	appendOperation(ctx, op)
 	return resultsOf(op)
+}
+
+func (b *Builder) emitUnsafeAlignOf(ctx context.Context, expr *ast.CallExpr) []mlir.Value {
+	location := b.location(expr.Pos())
+	T := b.GetStoredType(ctx, b.typeOf(ctx, expr.Args[0]))
+	sz := mlir.GoGetTypePreferredAlignmentInBytes(T, b.config.Module)
+	return []mlir.Value{b.emitConstInt(ctx, int64(sz), b.uiptr, location)}
 }
 
 func (b *Builder) emitUnsafeSizeof(ctx context.Context, expr *ast.CallExpr) []mlir.Value {

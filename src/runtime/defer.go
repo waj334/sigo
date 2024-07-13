@@ -40,8 +40,8 @@ func deferRun() {
 			// Pop frame from stack
 			currentTask.deferStack.head = frame.next
 
-			// Dispatch the deferred function
-			_dispatch(frame.fn, frame.ctx)
+			// Execute the deferred function
+			exec(frame.ctx, frame.fn)
 
 			// Check if a panic recovered
 			if lastState == taskPanicking && currentTask.state == taskRecovered {

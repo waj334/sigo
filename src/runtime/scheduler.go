@@ -149,7 +149,7 @@ func addTask(f _func) {
 
 	// Allocate stack for this goroutine
 	stackSize := goroutineStackSize
-	stack := malloc(stackSize)
+	stack := alloc(stackSize)
 
 	// Create the new task
 	headTask = &task{

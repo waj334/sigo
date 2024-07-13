@@ -23,6 +23,8 @@ intptr_t mlirGoGetTypeSizeInBytes(MlirType type, MlirModule module);
 
 intptr_t mlirGoGetTypeSizeInBits(MlirType type, MlirModule module);
 
+intptr_t mlirGoGetTypePreferredAlignmentInBytes(MlirType type, MlirModule module);
+
 MlirType mlirGoCreateArrayType(MlirType elementType, intptr_t length);
 
 MlirType mlirGoCreateChanType(MlirType elementType, enum mlirGoChanDirection direction);

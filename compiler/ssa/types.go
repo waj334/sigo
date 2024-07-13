@@ -177,6 +177,13 @@ func (b *Builder) createTypeDeclaration(ctx context.Context, T types.Type, pos t
 		panic("unhandled type")
 	}
 
+	// Fuse the location with the compile unit if applicable.
+	if file := b.config.Fset.File(pos); file != nil {
+		if compileUnitAttr, ok := b.compileUnits[file]; ok {
+			location = mlir.LocationFusedGet(b.ctx, []mlir.Location{location}, compileUnitAttr)
+		}
+	}
+
 	// Declare this type.
 	extraDataDict := mlir.DictionaryAttrGet(b.ctx, extraData)
 	declareOp := mlir.GoCreateDeclareTypeOperation(b.ctx, b.GetType(ctx, T), extraDataDict, location)

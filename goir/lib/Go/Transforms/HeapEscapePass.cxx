@@ -21,9 +21,11 @@ namespace mlir::go {
                             // A stack allocation is said to escape to the heap if its address is returned from a
                             // function directly. Analyze the returned values for stack allocations.
                             for (auto result: op->getOperands()) {
-                                if (auto allocaOp = mlir::dyn_cast<AllocaOp>(result.getDefiningOp())) {
-                                    // This value escapes the heap.
-                                    allocaOp.setHeap(true);
+                                if (auto definingOp = result.getDefiningOp()) {
+                                    if (auto allocaOp = mlir::dyn_cast<AllocaOp>(definingOp)) {
+                                        // This value escapes the heap.
+                                        allocaOp.setHeap(true);
+                                    }
                                 }
                             }
                         })

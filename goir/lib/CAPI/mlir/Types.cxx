@@ -50,6 +50,15 @@ intptr_t mlirGoGetTypeSizeInBits(MlirType type, MlirModule module) {
     return mlir::go::getDefaultTypeSizeInBits(_type, dataLayout, dataLayoutSpec.getEntries());
 }
 
+intptr_t mlirGoGetTypePreferredAlignmentInBytes(MlirType type, MlirModule module) {
+  auto _type = unwrap(type);
+  auto _module = unwrap(module);
+
+  mlir::DataLayout dataLayout(_module);
+  const auto dataLayoutSpec = _module.getDataLayoutSpec();
+  return mlir::go::getDefaultPreferredAlignment(_type, dataLayout, dataLayoutSpec.getEntries());
+}
+
 MlirType mlirGoCreateArrayType(MlirType elementType, intptr_t length) {
   auto _elementType = unwrap(elementType);
   return wrap(mlir::go::ArrayType::get(_elementType.getContext(), _elementType, length));
