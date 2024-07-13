@@ -1,3 +1,9 @@
+.global runtime.exec
+.type runtime.exec, %function
+runtime.exec:
+    blx r1
+.size runtime.exec, .-runtime.exec
+
 .global runtime.currentStack
 .type runtime.currentStack, %function
 runtime.currentStack:

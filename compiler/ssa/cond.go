@@ -27,6 +27,7 @@ func (b *Builder) emitIfStatement(ctx context.Context, stmt *ast.IfStmt) {
 	}
 
 	// Evaluate the if-statement condition.
+	// TODO: Each condition should be able to short-circuit.
 	condValue := b.emitExpr(ctx, stmt.Cond)[0]
 
 	// Conditionally branch to either the then block of the else block.

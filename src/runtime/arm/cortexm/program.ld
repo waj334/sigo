@@ -27,9 +27,8 @@ SECTIONS
         __stack_bottom = .;
         . += __stack_size;
         . = ALIGN(8);
-        __stack = .;
+        __stack_top = .;
     } >RAM
-    __stack_top = __stack;
 
     .data :
     {
@@ -72,4 +71,5 @@ SECTIONS
 
 __globals_start = __start_data;
 __globals_end = __end_bss;
-_estack = __stack;
+_estack = __stack_top;
+__stack = __stack_top;

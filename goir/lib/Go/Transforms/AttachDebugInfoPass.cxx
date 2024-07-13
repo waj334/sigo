@@ -14,6 +14,7 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
   DenseMap<Type, LLVM::DITypeAttr> m_typeMap;
   DenseMap<Type, DistinctAttr> m_idMap;
   DenseMap<Type, DictionaryAttr> m_typeDataMap;
+  DenseMap<Type, LocationAttr> m_typeDeclareLocationMap;
 
   void runOnOperation() override final {
     MLIRContext *context = &this->getContext();
@@ -29,6 +30,7 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
     module.walk([&](DeclareTypeOp op) {
       const auto T = op.getDeclaredType();
       this->m_typeDataMap[T] = op->getAttrDictionary();
+      this->m_typeDeclareLocationMap[T] = op->getLoc();
     });
 
     // Walk the module and create a subprogram for each function.
@@ -88,7 +90,7 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
           LLVM::DIFileAttr::get(context, filePath.filename().string(), filePath.parent_path().string());
       const auto diGlobalAttr =
           LLVM::DIGlobalVariableAttr::get(context, compileUnitAttr, globalNameAttr, globalNameAttr, fileAttr,
-                                          loc.getLine(), typeAttr, false, true, alignment);
+                                          loc.getLine(), typeAttr, true, true, alignment);
       const auto diGlobalExprAttr =
           LLVM::DIGlobalVariableExpressionAttr::get(context, diGlobalAttr, LLVM::DIExpressionAttr::get(context, {}));
       op->setAttr("llvm.debug.global_expr", diGlobalExprAttr);
@@ -146,9 +148,24 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
     const unsigned align = dataLayout.getTypeABIAlignment(type);
     const auto extraData = this->m_typeDataMap[type];
 
-    // TODO: Create typedef intrinsic operation to pass metadata about types to be lowered to debug information.
-    const auto diScope = LLVM::DIFileAttr::get(context, "<todo>", "<todo>");
-    const auto diFile = LLVM::DIFileAttr::get(context, "<todo>", "<todo>");
+    LLVM::DIScopeAttr diScope;
+    LLVM::DIFileAttr diFile;
+
+    if (const auto it = this->m_typeDeclareLocationMap.find(type); it != this->m_typeDeclareLocationMap.end()) {
+      auto [_, loc ] = *it;
+      const auto lineColLoc = loc.findInstanceOf<FileLineColLoc>();
+      const auto filePath = std::filesystem::path(lineColLoc.getFilename().str());
+      diFile =
+        LLVM::DIFileAttr::get(context, filePath.filename().string(), filePath.parent_path().string());
+
+      if (const auto compileUnitLoc = loc.findInstanceOf<FusedLocWith<LLVM::DICompileUnitAttr>>()) {
+        diScope = compileUnitLoc.getMetadata();
+      }
+    }
+    else {
+      diScope = LLVM::DIFileAttr::get(context, "<unknown>", "<unknown>");
+      diFile = LLVM::DIFileAttr::get(context, "<unknown>", "<unknown>");
+    }
 
     if (const auto namedType = mlir::dyn_cast<NamedType>(type); namedType) {
       const auto underlyingType =

@@ -1,4 +1,7 @@
 #include "Go/Transforms/LowerToCore.h"
+
+#include <llvm/ADT/TypeSwitch.h>
+
 #include "Go/IR/GoOps.h"
 #include "Go/Util.h"
 
@@ -63,11 +66,20 @@ namespace mlir::go {
                 rewriter.setInsertionPointAfter(op->getPrevNode());
 
                 uint64_t allOnes;
-                if (mlir::cast<IntegerType>(go::baseType(op.getRhs().getType())).isSigned()) {
-                    allOnes = INT64_MAX;
-                } else {
-                    allOnes = UINT64_MAX;
-                }
+                TypeSwitch<Type>(go::baseType(op.getRhs().getType()))
+                        .Case<IntegerType>([&](const IntegerType T) {
+                            if (T.isSigned()) {
+                                allOnes = INT64_MAX;
+                            } else {
+                                allOnes = UINT64_MAX;
+                            }
+                        })
+                        .Case<UintType, UintptrType>([&](const auto) {
+                            allOnes = UINT64_MAX;
+                        })
+                        .Default([&](const auto) {
+                            allOnes = INT64_MAX;
+                        });
 
                 // Calculate the complement of the RHS by XOR'ing the RHS and all ones
                 auto allOnesConstOp = rewriter.create<mlir::arith::ConstantIntOp>(loc, allOnes, rhsType);
@@ -625,11 +637,20 @@ namespace mlir::go {
             mlir::LogicalResult matchAndRewrite(ComplementOp op, OpAdaptor adaptor,
                                                 ConversionPatternRewriter &rewriter) const override {
                 uint64_t allOnes;
-                if (mlir::cast<IntegerType>(go::baseType(op.getOperand().getType())).isSigned()) {
-                    allOnes = INT64_MAX;
-                } else {
-                    allOnes = UINT64_MAX;
-                }
+                TypeSwitch<Type>(go::baseType(op.getOperand().getType()))
+                        .Case<IntegerType>([&](const IntegerType T) {
+                            if (T.isSigned()) {
+                                allOnes = INT64_MAX;
+                            } else {
+                                allOnes = UINT64_MAX;
+                            }
+                        })
+                        .Case<UintType, UintptrType>([&](const auto) {
+                            allOnes = UINT64_MAX;
+                        })
+                        .Default([&](const auto) {
+                            allOnes = INT64_MAX;
+                        });
 
                 auto constOp = rewriter.create<mlir::arith::ConstantOp>(
                     op.getLoc(),

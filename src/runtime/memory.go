@@ -7,6 +7,9 @@ import (
 //sigo:extern malloc malloc
 func malloc(size uintptr) unsafe.Pointer
 
+//sigo:extern realloc realloc
+func realloc(ptr unsafe.Pointer, size uintptr) unsafe.Pointer
+
 //sigo:extern free free
 func free(ptr unsafe.Pointer)
 
