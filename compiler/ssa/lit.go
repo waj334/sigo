@@ -48,7 +48,13 @@ func (b *Builder) emitArrayLiteral(ctx context.Context, expr *ast.CompositeLit) 
 		elementT := arrayType.Elem()
 
 		// Evaluate the array element value.
-		elementValue := b.emitExpr(ctx, e)[0]
+		var elementValue mlir.Value
+		switch e := e.(type) {
+		case *ast.KeyValueExpr:
+			elementValue = b.emitExpr(ctx, e.Value)[0]
+		default:
+			elementValue = b.emitExpr(ctx, e)[0]
+		}
 
 		switch baseType(elementT).(type) {
 		case *types.Interface:
@@ -89,6 +95,8 @@ func (b *Builder) emitMapLiteral(ctx context.Context, expr *ast.CompositeLit) ml
 	// Create the map value.
 	makeOp := mlir.GoCreateMakeMapOperation(b.ctx, mapT, capacityVal, location)
 	appendOperation(ctx, makeOp)
+
+	// Spill the map to the stack.
 	mapValue := resultOf(makeOp)
 
 	// Insert each value into the map.
@@ -341,49 +349,53 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 	if enclosingData != nil {
 		// Inherit the enclosing function's type mappings.
 		anonData.typeMap = enclosingData.typeMap
-	}
 
-	// Find all free variables.
-	captures := map[types.Object]*FreeVar{}
-	for scope.Parent() != nil {
-		scope = scope.Parent()
-		for _, name := range scope.Names() {
-			capturedObj := scope.Lookup(name)
-
-			// Skip variables declared after this anonymous function.
-			if capturedObj.Pos() > expr.Pos() {
-				continue
-			}
-
-			varType := b.GetStoredType(ctx, capturedObj.Type())
-			ptrType := mlir.GoCreatePointerType(varType)
-			allocType := mlir.GoCreatePointerType(ptrType)
-
-			// Create an allocation to hold the pointer to the variable in the outer scope.
-			// NOTE: The pointee should reside on the heap.
-			allocaOp := mlir.GoCreateAllocaOperation(b.ctx, allocType, ptrType, nil, false, b.location(scope.Pos()))
-
-			// Create a FreeVar.
-			fv := &FreeVar{
-				obj: capturedObj,
-				ptr: resultOf(allocaOp),
-				T:   varType,
-				b:   b,
-			}
-			captures[capturedObj] = fv
-			anonData.freeVars = append(anonData.freeVars, fv)
-			anonData.locals[capturedObj] = fv
-		}
-
-		if scope == enclosingData.scope {
-			// Stop examining parent scopes.
-			break
-		}
-	}
-
-	// NOTE: A literal function defined at the global scope will NOT have any enclosing function.
-	if enclosingData != nil {
+		// Have the enclosing function track this anonymous function.
 		enclosingData.anonymousFuncs[expr] = anonData
+
+		// Find all free variables.
+		captures := map[types.Object]*FreeVar{}
+		for scope.Parent() != nil {
+			scope = scope.Parent()
+			for _, name := range scope.Names() {
+				capturedObj := scope.Lookup(name)
+
+				// Skip variables declared after this anonymous function.
+				if capturedObj.Pos() > expr.Pos() {
+					continue
+				}
+
+				// Ignore some object types.
+				switch capturedObj.(type) {
+				case *types.PkgName:
+					continue
+				}
+
+				varType := b.GetStoredType(ctx, capturedObj.Type())
+				ptrType := mlir.GoCreatePointerType(varType)
+				allocType := mlir.GoCreatePointerType(ptrType)
+
+				// Create an allocation to hold the pointer to the variable in the outer scope.
+				// NOTE: The pointee should reside on the heap.
+				allocaOp := mlir.GoCreateAllocaOperation(b.ctx, allocType, ptrType, 1, false, b.location(scope.Pos()))
+
+				// Create a FreeVar.
+				fv := &FreeVar{
+					obj: capturedObj,
+					ptr: resultOf(allocaOp),
+					T:   varType,
+					b:   b,
+				}
+				captures[capturedObj] = fv
+				anonData.freeVars = append(anonData.freeVars, fv)
+				anonData.locals[capturedObj] = fv
+			}
+
+			if scope == enclosingData.scope {
+				// Stop examining parent scopes.
+				break
+			}
+		}
 	}
 
 	// Emit the anonymous function.
@@ -397,7 +409,7 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 	// Create a pointer to a context value.
 	var contextPtr mlir.Value
 	if contextValue, contextType := anonData.createContextStructValue(ctx, b, location); contextValue != nil {
-		allocaOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, contextType, nil, false, location)
+		allocaOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, contextType, 1, false, location)
 		appendOperation(ctx, allocaOp)
 		contextPtr = resultOf(allocaOp)
 

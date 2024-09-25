@@ -114,4 +114,17 @@ def RuntimeCallOp : Go_Op<"call_runtime"> {
     }];
 }
 
+//===----------------------------------------------------------------------===//
+// BuiltInCallOp
+//===----------------------------------------------------------------------===//
+
+def BuiltInCallOp : Go_Op<"call_builtin"> {
+    let arguments = (ins StrAttr:$callee, Variadic<Go_Type>:$callee_operands);
+    let results = (outs Variadic<Go_Type>:$callee_results);
+    let assemblyFormat = [{
+        $callee `(` $callee_operands `)` attr-dict `:` functional-type($callee_operands, $callee_results)
+    }];
+    let hasVerifier = 1;
+}
+
 #endif // GO_OPERATIONS_CALL_TD

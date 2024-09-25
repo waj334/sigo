@@ -1,5 +1,6 @@
 add_mlir_dialect_library(GoIR
-        Interface/ReflectTypeInterface.cxx
+        Interpreter/Interpreter.cxx
+        IR/Interfaces/TypeMetadataInterface.cxx
         IR/Operations/BinOps.cxx
         IR/Operations/Builtin.cxx
         IR/Operations/Call.cxx
@@ -13,14 +14,17 @@ add_mlir_dialect_library(GoIR
         IR/Operations/Struct.cxx
         IR/Operations/UnaryOps.cxx
         IR/Operations/Value.cxx
+        IR/Types/Integer.cxx
         IR/Types/Interface.cxx
         IR/Types/Pointer.cxx
+        IR/Types/Struct.cxx
         IR/GoDialect.cxx
         IR/GoOps.cxx
         IR/StructBuilder.cxx
         Transforms/AttachDebugInfoPass.cxx
         Transforms/CallPass.cxx
         Transforms/DumpToFilePass.cxx
+        Transforms/ExtractTypeMetadataPass.cxx
         Transforms/GlobalConstantsPass.cxx
         Transforms/GlobalInitializerPass.cxx
         Transforms/HeapEscapePass.cxx
@@ -30,16 +34,17 @@ add_mlir_dialect_library(GoIR
         Transforms/OptimizeDefersPass.cxx
         Transforms/Passes.cxx
         Transforms/TypeConverter.cxx
+        Transforms/TypeInfo.cxx
         Util.cxx
-ADDITIONAL_HEADER_DIRS
-    ${PROJECT_SOURCE_DIR}/include/Go
+        ADDITIONAL_HEADER_DIRS
+        ${PROJECT_SOURCE_DIR}/include/Go
 
-DEPENDS
-        MLIRReflectTypeInterfaceIncGen
+        DEPENDS
         MLIRGoTypesIncGen
         MLIRGoOpsIncGen
+        MLIRGoInterfacesIncGen
 
-LINK_LIBS PUBLIC
+        LINK_LIBS PUBLIC
         MLIRIR
         MLIRInferTypeOpInterface
 

@@ -8,9 +8,9 @@ namespace mlir::go {
         const auto elemPtrType = PointerType::get(rewriter.getContext(), {op.getValue().getType()});
 
         // Copy the key and element value onto the stack.
-        Value keyPtr = rewriter.create<AllocaOp>(loc, keyPtrType, op.getKey().getType(), Value(), UnitAttr(),
+        Value keyPtr = rewriter.create<AllocaOp>(loc, keyPtrType, op.getKey().getType(), 1, UnitAttr(),
                                                  StringAttr());
-        Value elemPtr = rewriter.create<AllocaOp>(loc, elemPtrType, op.getValue().getType(), Value(), UnitAttr(),
+        Value elemPtr = rewriter.create<AllocaOp>(loc, elemPtrType, op.getValue().getType(), 1, UnitAttr(),
                                                   StringAttr());
 
         rewriter.create<StoreOp>(loc, op.getKey(), keyPtr, UnitAttr(), UnitAttr());
@@ -29,11 +29,11 @@ namespace mlir::go {
         const auto keyType = op.getKey().getType();
         const auto keyPtrType = PointerType::get(rewriter.getContext(), keyType);
         const auto ptrType = PointerType::get(rewriter.getContext(), std::nullopt);
-        const auto boolType = IntegerType::get(rewriter.getContext(), 1);
+        const auto boolType = BooleanType::get(rewriter.getContext());
         const auto resultType = op.getType(0);
 
         // Store the key on the stack.
-        Value keyAddr = rewriter.create<AllocaOp>(loc, keyPtrType, keyType, Value(), UnitAttr(), StringAttr());
+        Value keyAddr = rewriter.create<AllocaOp>(loc, keyPtrType, keyType, 1, UnitAttr(), StringAttr());
         rewriter.create<StoreOp>(loc, op.getKey(), keyAddr, UnitAttr(), UnitAttr());
 
         // Lower to runtime call operation.

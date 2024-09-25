@@ -12,8 +12,10 @@ class GoDialect_Type<string name, string typeMnemonic, list<Trait> traits = []>
 
 include "Go/IR/Types/Array.td"
 include "Go/IR/Types/Chan.td"
+include "Go/IR/Types/Function.td"
 include "Go/IR/Types/Map.td"
 include "Go/IR/Types/Pointer.td"
+include "Go/IR/Types/Primitives.td"
 include "Go/IR/Types/Slice.td"
 include "Go/IR/Types/String.td"
 
@@ -22,7 +24,8 @@ def NamedType : GoDialect_Type<"Named", "named", [
         ]> {
     let parameters = (ins
         "Type":$underlying,
-        "StringAttr":$name
+        "StringAttr":$name,
+        "ArrayAttr":$methods
         );
     let assemblyFormat = "`<` struct(params) `>`";
     let extraClassDefinition = [{
@@ -48,91 +51,9 @@ def NamedType : GoDialect_Type<"Named", "named", [
     }];
 }
 
-def IntType : GoDialect_Type<"Int", "i", [
-            DeclareTypeInterfaceMethods<DataLayoutTypeInterface, ["getTypeSize"]>
-        ]> {
-    let extraClassDefinition = [{
-        ::llvm::TypeSize IntType::getTypeSizeInBits(const DataLayout &dataLayout,
-                                                              DataLayoutEntryListRef params) const {
-            return dataLayout.getTypeSizeInBits(IndexType::get(this->getContext()));
-        }
-
-        ::llvm::TypeSize IntType::getTypeSize(const DataLayout &dataLayout,
-                                            DataLayoutEntryListRef params) const {
-            return dataLayout.getTypeSize(IndexType::get(this->getContext()));
-        }
-
-        uint64_t IntType::getABIAlignment(const DataLayout &dataLayout,
-                                                DataLayoutEntryListRef params) const {
-            return dataLayout.getTypeABIAlignment(IndexType::get(this->getContext()));
-        }
-
-        uint64_t IntType::getPreferredAlignment(const DataLayout &dataLayout,
-                                             DataLayoutEntryListRef params) const {
-            return dataLayout.getTypeSizeInBits(IndexType::get(this->getContext()));
-        }
-    }];
-}
-
-def UintType : GoDialect_Type<"Uint", "ui", [
-            DeclareTypeInterfaceMethods<DataLayoutTypeInterface, ["getTypeSize"]>
-        ]> {
-    let extraClassDefinition = [{
-        ::llvm::TypeSize UintType::getTypeSizeInBits(const DataLayout &dataLayout,
-                                                              DataLayoutEntryListRef params) const {
-            return dataLayout.getTypeSizeInBits(IndexType::get(this->getContext()));
-        }
-
-        ::llvm::TypeSize UintType::getTypeSize(const DataLayout &dataLayout,
-                                            DataLayoutEntryListRef params) const {
-            return dataLayout.getTypeSize(IndexType::get(this->getContext()));
-        }
-
-        uint64_t UintType::getABIAlignment(const DataLayout &dataLayout,
-                                                DataLayoutEntryListRef params) const {
-            return dataLayout.getTypeABIAlignment(IndexType::get(this->getContext()));
-        }
-
-        uint64_t UintType::getPreferredAlignment(const DataLayout &dataLayout,
-                                             DataLayoutEntryListRef params) const {
-            return dataLayout.getTypeSizeInBits(IndexType::get(this->getContext()));
-        }
-    }];
-}
-
-def UintptrType : GoDialect_Type<"Uintptr", "uiptr", [
-            DeclareTypeInterfaceMethods<DataLayoutTypeInterface, ["getTypeSize"]>
-        ]> {
-    let extraClassDefinition = [{
-        ::llvm::TypeSize UintptrType::getTypeSizeInBits(const DataLayout &dataLayout,
-                                                              DataLayoutEntryListRef params) const {
-            return dataLayout.getTypeSizeInBits(IndexType::get(this->getContext()));
-        }
-
-        ::llvm::TypeSize UintptrType::getTypeSize(const DataLayout &dataLayout,
-                                            DataLayoutEntryListRef params) const {
-            return dataLayout.getTypeSize(IndexType::get(this->getContext()));
-        }
-
-        uint64_t UintptrType::getABIAlignment(const DataLayout &dataLayout,
-                                                DataLayoutEntryListRef params) const {
-            return dataLayout.getTypeABIAlignment(IndexType::get(this->getContext()));
-        }
-
-        uint64_t UintptrType::getPreferredAlignment(const DataLayout &dataLayout,
-                                             DataLayoutEntryListRef params) const {
-            return dataLayout.getTypeSizeInBits(IndexType::get(this->getContext()));
-        }
-    }];
-}
-
-def PredIntType : Type<CPred<"$_self.isa<::mlir::go::IntType>()">, "Go Int Type">;
-def PredUintType : Type<CPred<"$_self.isa<::mlir::go::UintType>()">, "Go Uint Type">;
-def PredUintptrType : Type<CPred<"$_self.isa<::mlir::go::UintptrType>()">, "Go Uintptr Type">;
-
-def InterfaceType : Type<CPred<"$_self.isa<::mlir::go::InterfaceType>()">,
+def InterfaceType : Type<CPred<"::mlir::isa<::mlir::go::InterfaceType>($_self)">,
                         "Go Interface Type">;
-def StructType : Type<CPred<"$_self.isa<::mlir::go::StructType>()">,
+def StructType : Type<CPred<"::mlir::isa<::mlir::go::GoStructType>($_self)">,
                         "Go Struct Type">;
 
 // Any type from the given list
@@ -141,8 +62,8 @@ class AnyTypeOrNamedOf<list<Type> allowedTypes, string summary = "",
     // Satisfy any of the allowed types' conditions.
     Or<[
         And<[
-            CPred<"$_self.isa<NamedType>()">,
-            Or<!foreach(type, allowedTypes, SubstLeaves<"$_self", "::llvm::cast<NamedType>(type).getUnderlying()", type.predicate>)>
+            CPred<"::mlir::isa<NamedType>($_self)">,
+            Or<!foreach(type, allowedTypes, SubstLeaves<"$_self", "::mlir::cast<NamedType>(type).getUnderlying()", type.predicate>)>
         ]>,
         Or<!foreach(type, allowedTypes, type.predicate)>
     ]>,
@@ -153,19 +74,19 @@ class AnyTypeOrNamedOf<list<Type> allowedTypes, string summary = "",
 
 
 def Go_Array : AnyTypeOrNamedOf<[ArrayType]>;
-def Go_Bool : AnyTypeOrNamedOf<[I1]>;
+def Go_Bool : AnyTypeOrNamedOf<[BooleanType]>;
 def Go_Complex : AnyTypeOrNamedOf<[Complex<F32>, Complex<F64>]>;
 def Go_Chan : AnyTypeOrNamedOf<[ChanType]>;
 def Go_Float : AnyTypeOrNamedOf<[F32, F64]>;
 def Go_Function : AnyTypeOrNamedOf<[FunctionType]>;
-def Go_Integer : AnyTypeOrNamedOf<[PredIntType, PredUintType, PredUintptrType, AnyI8, AnyI16, AnyI32, AnyI64]>;
-def Go_Integral : AnyTypeOrNamedOf<[PredIntType, PredUintType, PredUintptrType, AnyI1, AnyI8, AnyI16, AnyI32, AnyI64]>;
+def Go_Integer : AnyTypeOrNamedOf<[IntegerType]>;
+def Go_Integral : AnyTypeOrNamedOf<[Go_Integer, Go_Bool]>;
 def Go_String : AnyTypeOrNamedOf<[StringType]>;
 def Go_Slice : AnyTypeOrNamedOf<[SliceType]>;
 def Go_Pointer : AnyTypeOrNamedOf<[PointerType]>;
 def Go_Map : AnyTypeOrNamedOf<[MapType]>;
 def Go_Interface : AnyTypeOrNamedOf<[InterfaceType]>;
-def Go_Struct : AnyTypeOrNamedOf<[LLVM_AnyStruct]>;
+def Go_Struct : AnyTypeOrNamedOf<[StructType]>;
 
 def Go_Numeric : AnyTypeOrNamedOf<[
     Go_Complex,

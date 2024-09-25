@@ -352,10 +352,11 @@ func link(options Options, targetInfo targets.TargetInfo, arch string, float str
 	// Compile all assembly files
 	for _, asm := range append(prog.Files[".s"], prog.Files[".asm"]...) {
 		// Format object file name
+		fname, _ := filepath.EvalSymlinks(asm)
 		objFile := filepath.Join(options.BuildDir, fmt.Sprintf("%s-%d.o", filepath.Base(asm), rand.Int()))
 
 		assemblerArgs := []string{targetTriple,
-			"-c", asm,
+			"-c", fname,
 			func() string {
 				if options.GenerateDebugInfo {
 					return "-g"
@@ -441,24 +442,6 @@ func dumpModule(module llvm.LLVMModuleRef, fname string) error {
 
 	// Finally, dump the module
 	llvm.PrintModuleToFile(module, fname, nil)
-	return nil
-}
-
-func stageGoRoot(stageDir string, env Env) error {
-	// Symlink the "pkg" directory from GOROOT into the staging directory
-	goPkgPath := path.Join(env.Value("GOROOT"), "pkg")
-	stagedPkgPath := path.Join(stageDir, "pkg")
-	if err := os.Symlink(goPkgPath, stagedPkgPath); err != nil {
-		return err
-	}
-
-	// Symlink the standard library from SiGo into the staging directory
-	sigoStlPath := path.Join(env.Value("SIGOROOT"), "src")
-	stagedStlPath := path.Join(stageDir, "src")
-	if err := os.Symlink(sigoStlPath, stagedStlPath); err != nil {
-		return err
-	}
-
 	return nil
 }
 

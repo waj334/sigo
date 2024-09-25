@@ -37,7 +37,6 @@ const (
 type _type struct {
 	kind kind
 	size uint16
-	_    byte
 	data unsafe.Pointer
 	name string
 }
@@ -51,6 +50,10 @@ type _funcData struct {
 	id        uint32
 	funcPtr   unsafe.Pointer
 	signature *_type
+}
+
+type _interfaceData struct {
+	methods []*_interfaceMethodData
 }
 
 type _interfaceMethodData struct {
@@ -84,6 +87,6 @@ type _channelTypeData struct {
 }
 
 type _mapTypeData struct {
-	keyType   *_type
-	valueType *_type
+	keyType     *_type
+	elementType *_type
 }

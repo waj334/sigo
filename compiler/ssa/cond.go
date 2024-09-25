@@ -27,7 +27,6 @@ func (b *Builder) emitIfStatement(ctx context.Context, stmt *ast.IfStmt) {
 	}
 
 	// Evaluate the if-statement condition.
-	// TODO: Each condition should be able to short-circuit.
 	condValue := b.emitExpr(ctx, stmt.Cond)[0]
 
 	// Conditionally branch to either the then block of the else block.
@@ -351,7 +350,7 @@ func (b *Builder) emitRangeStatement(ctx context.Context, stmt *ast.RangeStmt) {
 		if value == nil {
 			// A stack allocation needs to be created so that the array can be addressable.
 			allocType := b.GetStoredType(ctx, T)
-			allocaOp := mlir.GoCreateAllocaOperation(b.ctx, b.pointerOf(ctx, T), allocType, nil, false, location)
+			allocaOp := mlir.GoCreateAllocaOperation(b.ctx, b.pointerOf(ctx, T), allocType, 1, false, location)
 			appendOperation(ctx, allocaOp)
 
 			value = LocalValue{
@@ -437,7 +436,7 @@ func (b *Builder) emitArrayRange(ctx context.Context, key ast.Expr, value ast.Ex
 	if keyVar == nil {
 		// Need to allocate memory for this variable.
 		ptrT := mlir.GoCreatePointerType(keyType)
-		allocaOp := mlir.GoCreateAllocaOperation(b.ctx, ptrT, keyType, nil, false, location)
+		allocaOp := mlir.GoCreateAllocaOperation(b.ctx, ptrT, keyType, 1, false, location)
 		appendOperation(ctx, allocaOp)
 		keyVar = b.NewTempValue(resultOf(allocaOp))
 	}
@@ -454,7 +453,7 @@ func (b *Builder) emitArrayRange(ctx context.Context, key ast.Expr, value ast.Ex
 		if valueVar == nil {
 			// Need to allocate memory for this variable.
 			ptrT := mlir.GoCreatePointerType(elementType)
-			allocaOp := mlir.GoCreateAllocaOperation(b.ctx, ptrT, elementType, nil, false, location)
+			allocaOp := mlir.GoCreateAllocaOperation(b.ctx, ptrT, elementType, 1, false, location)
 			appendOperation(ctx, allocaOp)
 			valueVar = b.NewTempValue(resultOf(allocaOp))
 		}
@@ -662,35 +661,41 @@ func (b *Builder) emitMapRange(ctx context.Context, stmt *ast.RangeStmt) {
 	// Any continue statement should branch to the condition block.
 	ctx = newContextWithPredecessorBlock(ctx, condBlock)
 
+	keyVar := b.valueOf(ctx, stmt.Key)
+	if keyVar == nil {
+		obj := b.objectOf(ctx, stmt.Key)
+		keyT := b.GetStoredType(ctx, obj.Type())
+		keyVar = b.emitLocalVar(ctx, obj, keyT)
+	}
+
+	var elementVar Value
+	if stmt.Value != nil {
+		elementVar = b.valueOf(ctx, stmt.Value)
+		if elementVar == nil {
+			obj := b.objectOf(ctx, stmt.Value)
+			elementT := b.GetStoredType(ctx, obj.Type())
+			elementVar = b.emitLocalVar(ctx, obj, elementT)
+		}
+	}
+
 	// Evaluate the map value that will be iterated over.
 	X := b.emitExpr(ctx, stmt.X)[0]
-	T := b.typeOf(ctx, stmt.X).(*types.Map)
 
 	// Reinterpret the map value as its runtime type.
-	bitcastOp := mlir.GoCreateBitcastOperation(b.ctx, X, b._map, location)
-	appendOperation(ctx, bitcastOp)
-	X = resultOf(bitcastOp)
+	X = b.bitcastTo(ctx, X, b._map, location)
 
 	// Create the map iterator.
 	_itType := b.config.Program.LookupType("runtime", "_mapIterator")
-	iteratorType := b.GetStoredType(ctx, _itType)
-	allocaOp := mlir.GoCreateAllocaOperation(b.ctx, mlir.GoCreatePointerType(iteratorType), iteratorType, nil, false, location)
-	appendOperation(ctx, allocaOp)
-	it := LocalValue{
-		ptr: resultOf(allocaOp),
-		T:   iteratorType,
-		b:   b,
-	}
-
-	// Initialize the iterator.
-	zeroOp := mlir.GoCreateZeroOperation(b.ctx, iteratorType, location)
+	iteratorT := b.GetStoredType(ctx, _itType)
+	zeroOp := mlir.GoCreateZeroOperation(b.ctx, iteratorT, location)
 	appendOperation(ctx, zeroOp)
 	itValue := resultOf(zeroOp)
 
-	insertOp := mlir.GoCreateInsertOperation(b.ctx, 0, X, itValue, iteratorType, location)
+	// Initialize the iterator.
+	insertOp := mlir.GoCreateInsertOperation(b.ctx, 0, X, itValue, iteratorT, location)
 	appendOperation(ctx, insertOp)
 	itValue = resultOf(insertOp)
-	it.Store(ctx, resultOf(insertOp), location)
+	it := b.NewTempValue(b.makeCopyOf(ctx, itValue, location))
 
 	var iterateResults []mlir.Value
 
@@ -698,10 +703,13 @@ func (b *Builder) emitMapRange(ctx context.Context, stmt *ast.RangeStmt) {
 	buildBlock(ctx, condBlock, func() {
 		// Create the runtime call to perform the next iteration over the string.
 		callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.mapRange",
-			[]mlir.Type{b.i1, b.ptr, b.ptr},
-			[]mlir.Value{it.Pointer(ctx, location)}, location)
+			[]mlir.Type{b.i1, iteratorT, b.ptr, b.ptr},
+			[]mlir.Value{it.Load(ctx, location)}, location)
 		appendOperation(ctx, callOp)
 		iterateResults = resultsOf(callOp)
+
+		// Store the updated iterator.
+		it.Store(ctx, iterateResults[1], location)
 
 		// Conditionally branch to the loop body block if the loop condition evaluates to true. Otherwise, branch to the
 		// exit block.
@@ -714,50 +722,25 @@ func (b *Builder) emitMapRange(ctx context.Context, stmt *ast.RangeStmt) {
 		// Set the predecessor block to the post loop iteration block where any continue statement will branch to.
 		ctx = newContextWithPredecessorBlock(ctx, condBlock)
 
-		// Load the key value.
-		keyType := b.GetStoredType(ctx, T.Key())
-		loadOp := mlir.GoCreateLoadOperation(b.ctx, iterateResults[1], keyType, location)
-		appendOperation(ctx, loadOp)
-		keyValue := resultOf(loadOp)
+		keyResultValue := b.bitcastTo(ctx, iterateResults[2], mlir.GoCreatePointerType(keyVar.Type()), location)
+		keyResult := b.NewTempValue(keyResultValue)
 
-		// Assign the key/value values.
-		if keyAddr := b.valueOf(ctx, stmt.Key); keyAddr != nil {
-			keyAddr.Store(ctx, keyValue, location)
+		elementResultValue := b.bitcastTo(ctx, iterateResults[3], mlir.GoCreatePointerType(elementVar.Type()), location)
+		elementResult := b.NewTempValue(elementResultValue)
 
-			if stmt.Tok == token.DEFINE {
-				// Emit a new local variable that is unique to this iteration to store the key into.
-				alloc := b.makeCopyOf(ctx, keyValue, location)
-				iterationKeyVar := b.NewTempValue(alloc)
-				b.setAddr(ctx, stmt.Key.(*ast.Ident), iterationKeyVar)
-			}
-		}
-
-		if stmt.Value != nil {
-			// Load the value value.
-			valueType := b.GetStoredType(ctx, T.Elem())
-			loadOp = mlir.GoCreateLoadOperation(b.ctx, iterateResults[2], valueType, location)
-			appendOperation(ctx, loadOp)
-			value := resultOf(loadOp)
-
-			if valueAddr := b.valueOf(ctx, stmt.Value); valueAddr != nil {
-				valueAddr.Store(ctx, value, location)
-
-				if stmt.Tok == token.DEFINE {
-					// Emit a new local variable that is unique to this iteration to store the key into.
-					alloc := b.makeCopyOf(ctx, value, location)
-					iterationValueVar := b.NewTempValue(alloc)
-					b.setAddr(ctx, stmt.Value.(*ast.Ident), iterationValueVar)
-				}
-			}
+		// Update the loop variables.
+		keyVar.Store(ctx, keyResult.Load(ctx, location), location)
+		if elementVar != nil {
+			elementVar.Store(ctx, elementResult.Load(ctx, location), location)
 		}
 
 		// Emit the loop body
-		for _, stmt := range stmt.Body.List {
-			b.emitStmt(ctx, stmt)
-		}
+		b.emitBlock(ctx, stmt.Body)
+
+		// NOTE: The loop body can either explicitly terminate or falls off.
 
 		if !blockHasTerminator(currentBlock(ctx)) {
-			// Branch to the condition block.
+			// Control has fallen off. Branch to the post iteration block.
 			brOp := mlir.GoCreateBranchOperation(b.ctx, condBlock, nil, location)
 			appendOperation(ctx, brOp)
 		}
@@ -794,13 +777,9 @@ func (b *Builder) emitStringRange(ctx context.Context, stmt *ast.RangeStmt) {
 	// The key variable is either a new one or an existing one.
 	keyVar := b.valueOf(ctx, stmt.Key)
 	if keyVar == nil {
-		// Need to allocate memory for this variable.
-		keyType := b.typeOf(ctx, stmt.Key)
-		keyT := b.GetStoredType(ctx, keyType)
-		ptrT := mlir.GoCreatePointerType(keyT)
-		allocaOp := mlir.GoCreateAllocaOperation(b.ctx, ptrT, keyT, nil, false, location)
-		appendOperation(ctx, allocaOp)
-		keyVar = b.NewTempValue(resultOf(allocaOp))
+		obj := b.objectOf(ctx, stmt.Key)
+		keyT := b.GetStoredType(ctx, obj.Type())
+		keyVar = b.emitLocalVar(ctx, obj, keyT)
 	}
 
 	// The value variable is either a new one or an existing one.
@@ -809,55 +788,49 @@ func (b *Builder) emitStringRange(ctx context.Context, stmt *ast.RangeStmt) {
 	if stmt.Value != nil {
 		valueVar = b.valueOf(ctx, stmt.Value)
 		if valueVar == nil {
-			// Need to allocate memory for this variable.
-			elementType := b.typeOf(ctx, stmt.Value)
-			elementT := b.GetStoredType(ctx, elementType)
-			ptrT := mlir.GoCreatePointerType(elementT)
-			allocaOp := mlir.GoCreateAllocaOperation(b.ctx, ptrT, elementT, nil, false, location)
-			appendOperation(ctx, allocaOp)
-			valueVar = b.NewTempValue(resultOf(allocaOp))
+			obj := b.objectOf(ctx, stmt.Value)
+			elementT := b.GetStoredType(ctx, obj.Type())
+			valueVar = b.emitLocalVar(ctx, obj, elementT)
 		}
 	}
 
 	// Evaluate the string value that will be iterated over.
 	X := b.emitExpr(ctx, stmt.X)[0]
 
-	// Reinterpret the string value as its runtime type.
-	bitcastOp := mlir.GoCreateBitcastOperation(b.ctx, X, b._string, location)
-	appendOperation(ctx, bitcastOp)
-	X = resultOf(bitcastOp)
-
 	// Create the string iterator.
 	_itType := b.config.Program.LookupType("runtime", "_stringIterator")
 	iteratorType := b.GetStoredType(ctx, _itType)
-	allocaOp := mlir.GoCreateAllocaOperation(b.ctx, mlir.GoCreatePointerType(iteratorType), iteratorType, nil, false, location)
-	appendOperation(ctx, allocaOp)
-	it := LocalValue{
-		ptr: resultOf(allocaOp),
-		T:   iteratorType,
-		b:   b,
-	}
-
-	// Initialize the iterator.
 	zeroOp := mlir.GoCreateZeroOperation(b.ctx, iteratorType, location)
 	appendOperation(ctx, zeroOp)
 	itValue := resultOf(zeroOp)
 
+	// Initialize the iterator.
 	insertOp := mlir.GoCreateInsertOperation(b.ctx, 0, X, itValue, iteratorType, location)
 	appendOperation(ctx, insertOp)
 	itValue = resultOf(insertOp)
-	it.Store(ctx, resultOf(insertOp), location)
+	it := b.NewTempValue(b.makeCopyOf(ctx, itValue, location))
 
 	var iterateResults []mlir.Value
 
 	// Build the condition block where the loop condition will continuously be evaluated in.
 	buildBlock(ctx, condBlock, func() {
+		// Extract the index value from the iterator.
+		itValue := it.Load(ctx, location)
+		extractOp := mlir.GoCreateExtractOperation(b.ctx, 1, keyVar.Type(), itValue, location)
+		appendOperation(ctx, extractOp)
+
+		// Store the index value into the key variable.
+		keyVar.Store(ctx, resultOf(extractOp), location)
+
 		// Create the runtime call to perform the next iteration over the string.
 		callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.stringRange",
-			[]mlir.Type{b.i1, b.si, b.si32},
-			[]mlir.Value{it.Pointer(ctx, location)}, location)
+			[]mlir.Type{b.i1, iteratorType, b.si32},
+			[]mlir.Value{itValue}, location)
 		appendOperation(ctx, callOp)
 		iterateResults = resultsOf(callOp)
+
+		// Store the iterator value.
+		it.Store(ctx, iterateResults[1], location)
 
 		// Conditionally branch to the loop body block if the loop condition evaluates to true. Otherwise, branch to the
 		// exit block.
@@ -870,33 +843,16 @@ func (b *Builder) emitStringRange(ctx context.Context, stmt *ast.RangeStmt) {
 		// Set the predecessor block to the post loop iteration block where any continue statement will branch to.
 		ctx = newContextWithPredecessorBlock(ctx, condBlock)
 
-		// Assign the key/value values.
-		// NOTE: Key value may be nil if its identifier is "_"
-		keyVar.Store(ctx, iterateResults[1], location)
-		if stmt.Tok == token.DEFINE {
-			// Emit a new local variable that is unique to this iteration to store the key into.
-			alloc := b.makeCopyOf(ctx, iterateResults[1], location)
-			iterationKeyVar := b.NewTempValue(alloc)
-			b.setAddr(ctx, stmt.Key.(*ast.Ident), iterationKeyVar)
-		}
-
-		if stmt.Value != nil {
+		if valueVar != nil {
 			valueVar.Store(ctx, iterateResults[2], location)
-			if stmt.Tok == token.DEFINE {
-				// Emit a new local variable that is unique to this iteration to store the key into.
-				alloc := b.makeCopyOf(ctx, iterateResults[2], location)
-				iterationValueVar := b.NewTempValue(alloc)
-				b.setAddr(ctx, stmt.Value.(*ast.Ident), iterationValueVar)
-			}
 		}
 
 		// Emit the loop body
-		for _, stmt := range stmt.Body.List {
-			b.emitStmt(ctx, stmt)
-		}
+		b.emitBlock(ctx, stmt.Body)
 
+		// NOTE: The loop body can either explicitly terminate or falls off.
 		if !blockHasTerminator(currentBlock(ctx)) {
-			// Branch to the post iteration block.
+			// Control has fallen off. Branch to the post iteration block.
 			brOp := mlir.GoCreateBranchOperation(b.ctx, condBlock, nil, location)
 			appendOperation(ctx, brOp)
 		}

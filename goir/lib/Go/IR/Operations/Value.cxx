@@ -8,7 +8,7 @@ namespace mlir::go {
         const auto resultType = mlir::cast<ChanType>(op.getType());
 
         // Get the runtime function.
-        auto func = mlir::cast<func::FuncOp>(module.lookupSymbol("runtime.channelMake"));
+        auto func = module.lookupSymbol<FuncOp>("runtime.channelMake");
         const auto argTypes = func.getArgumentTypes();
 
         // The info type pointer is the first argument.
@@ -30,7 +30,7 @@ namespace mlir::go {
         const auto resultType = mlir::cast<MapType>(op.getType());
 
         // Get the runtime function.
-        auto func = mlir::cast<func::FuncOp>(module.lookupSymbol("runtime.mapMake"));
+        auto func = module.lookupSymbol<FuncOp>("runtime.mapMake");
         const auto argTypes = func.getArgumentTypes();
 
         // The info type pointer is the first argument.
@@ -53,7 +53,7 @@ namespace mlir::go {
         const auto resultType = mlir::cast<SliceType>(op.getType());
 
         // Get the runtime function.
-        auto func = mlir::cast<func::FuncOp>(module.lookupSymbol("runtime.sliceMake"));
+        auto func = module.lookupSymbol<FuncOp>("runtime.sliceMake");
         const auto argTypes = func.getArgumentTypes();
 
         // The info type pointer is the first argument.
@@ -75,7 +75,7 @@ namespace mlir::go {
         auto module = op->getParentOfType<ModuleOp>();
 
         // Get the runtime function.
-        auto func = mlir::cast<func::FuncOp>(module.lookupSymbol("runtime.interfaceMake"));
+        auto func = module.lookupSymbol<FuncOp>("runtime.interfaceMake");
         const auto argTypes = func.getArgumentTypes();
 
         // The info type pointer is the second argument.
@@ -87,7 +87,7 @@ namespace mlir::go {
         // Allocate memory to store a copy of the value.
         const auto elementT = op.getValue().getType();
         const auto pointerT = PointerType::get(rewriter.getContext(), elementT);
-        Value addr = rewriter.create<AllocaOp>(loc, pointerT, elementT, Value(), UnitAttr(), StringAttr());
+        Value addr = rewriter.create<AllocaOp>(loc, pointerT, elementT, 1, UnitAttr(), StringAttr());
         rewriter.create<StoreOp>(loc, op.getValue(), addr, UnitAttr(), UnitAttr());
 
         // Lower to runtime call.

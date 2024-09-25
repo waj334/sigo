@@ -355,6 +355,11 @@ func (b *Builder) emitExpr(ctx context.Context, expr ast.Expr) []mlir.Value {
 			line := b.locationString(expr.Pos())
 			fmt.Fprintf(os.Stderr, "failure while emitting %T: %+v\n%s\n\n%s\n\n%s\n",
 				expr, v, fname, line, string(debug.Stack()))
+
+			if currentBlock(ctx) != nil {
+				fmt.Fprint(os.Stderr, "\n\nlast emitted IR: \n\n")
+				mlir.GoBlockDumpTail(currentBlock(ctx), 10)
+			}
 			os.Exit(-1)
 		}
 	}()
@@ -752,7 +757,7 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 		argsValue, argsType := b.createArgumentPack(ctx, ifaceValue, location)
 
 		// Allocate heap to store the argument pack.
-		allocOp := mlir.GoCreateAllocaOperation(b.ctx, mlir.GoCreatePointerType(argsType), argsType, nil, true, location)
+		allocOp := mlir.GoCreateAllocaOperation(b.ctx, mlir.GoCreatePointerType(argsType), argsType, 1, true, location)
 		appendOperation(ctx, allocOp)
 
 		// Store the argument pack value at the heap address.

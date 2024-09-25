@@ -74,6 +74,7 @@ func (b *Builder) GetType(ctx context.Context, T types.Type) (result mlir.Type) 
 	case *types.Struct:
 		result = b.createStructType(ctx, T)
 	case *types.Tuple:
+		println(T.String())
 		panic("unreachable")
 	case *types.TypeParam:
 		// Look up the instantiated type in the data of the current function.
@@ -201,29 +202,29 @@ func (b *Builder) createArrayType(ctx context.Context, T *types.Array) mlir.Type
 func (b *Builder) createBasicType(ctx context.Context, T *types.Basic) mlir.Type {
 	switch T.Kind() {
 	case types.Bool:
-		return mlir.IntegerTypeGet(b.ctx, 1)
+		return mlir.GoCreateBooleanType(b.ctx)
 	case types.Int:
-		return mlir.GoCreateIntType(b.ctx)
+		return mlir.GoCreateSignedIntType(b.ctx, 0)
 	case types.Uint:
-		return mlir.GoCreateUintType(b.ctx)
+		return mlir.GoCreateUnsignedIntType(b.ctx, 0)
 	case types.Uintptr:
 		return mlir.GoCreateUintptrType(b.ctx)
 	case types.Int8:
-		return mlir.IntegerTypeSignedGet(b.ctx, 8)
+		return mlir.GoCreateSignedIntType(b.ctx, 8)
 	case types.Uint8:
-		return mlir.IntegerTypeUnsignedGet(b.ctx, 8)
+		return mlir.GoCreateUnsignedIntType(b.ctx, 8)
 	case types.Int16:
-		return mlir.IntegerTypeSignedGet(b.ctx, 16)
+		return mlir.GoCreateSignedIntType(b.ctx, 16)
 	case types.Uint16:
-		return mlir.IntegerTypeUnsignedGet(b.ctx, 16)
+		return mlir.GoCreateUnsignedIntType(b.ctx, 16)
 	case types.Int32:
-		return mlir.IntegerTypeSignedGet(b.ctx, 32)
+		return mlir.GoCreateSignedIntType(b.ctx, 32)
 	case types.Uint32:
-		return mlir.IntegerTypeUnsignedGet(b.ctx, 32)
+		return mlir.GoCreateUnsignedIntType(b.ctx, 32)
 	case types.Int64:
-		return mlir.IntegerTypeSignedGet(b.ctx, 64)
+		return mlir.GoCreateSignedIntType(b.ctx, 64)
 	case types.Uint64:
-		return mlir.IntegerTypeUnsignedGet(b.ctx, 64)
+		return mlir.GoCreateUnsignedIntType(b.ctx, 64)
 	case types.Float32:
 		return mlir.F32TypeGet(b.ctx)
 	case types.Float64:
@@ -324,8 +325,18 @@ func (b *Builder) createNamedType(ctx context.Context, T *types.Named) mlir.Type
 	// Create the underlying type.
 	underlyingType := b.GetType(ctx, T.Underlying())
 
+	// Collect method symbols.
+	entries := make([]mlir.Attribute, T.NumMethods())
+	for i := 0; i < T.NumMethods(); i++ {
+		method := T.Method(i)
+		symbol := qualifiedFuncName(method)
+		refAttr := mlir.FlatSymbolRefAttrGet(b.ctx, symbol)
+		entries[i] = refAttr
+	}
+	methodSymbols := mlir.ArrayAttrGet(b.ctx, entries)
+
 	// Create the named type now.
-	result := mlir.GoCreateNamedType(underlyingType, identifier)
+	result := mlir.GoCreateNamedType(underlyingType, identifier, methodSymbols)
 
 	// Prevent infinite recursion within metadata and mutually recursive types by mapping the named type now.
 	b.typeCache[T] = result
@@ -363,13 +374,13 @@ func (b *Builder) createSliceType(ctx context.Context, T *types.Slice) mlir.Type
 }
 
 func (b *Builder) createSignatureType(ctx context.Context, T *types.Signature, isInterface bool) mlir.Type {
+	var receiver mlir.Type
 	var inputs []mlir.Type
 	var results []mlir.Type
 
-	if T.Recv() != nil && !isInterface && !typeIs[*types.Interface](baseType(T.Recv().Type())) {
+	if T.Recv() != nil {
 		// The receiver is always the first parameter to a method.
-		// NOTE: The receiver is excluded for interface method signature types.
-		inputs = append(inputs, b.GetStoredType(ctx, T.Recv().Type()))
+		receiver = b.GetStoredType(ctx, T.Recv().Type())
 	}
 
 	for i := 0; i < T.Params().Len(); i++ {
@@ -380,7 +391,7 @@ func (b *Builder) createSignatureType(ctx context.Context, T *types.Signature, i
 		results = append(results, b.GetStoredType(ctx, T.Results().At(i).Type()))
 	}
 
-	return mlir.FunctionTypeGet(b.ctx, inputs, results)
+	return mlir.GoCreateFunctionType(b.ctx, receiver, inputs, results)
 }
 
 func (b *Builder) createStructType(ctx context.Context, T *types.Struct) mlir.Type {
@@ -389,33 +400,33 @@ func (b *Builder) createStructType(ctx context.Context, T *types.Struct) mlir.Ty
 	// Unset the name in a new context
 	ctx = context.WithValue(ctx, identifierKey{}, "")
 
-	if len(identifier) == 0 {
-		// Create the struct field types
-		var fieldTypes []mlir.Type
-		for i := 0; i < T.NumFields(); i++ {
-			fieldTypes = append(fieldTypes, b.GetStoredType(ctx, T.Field(i).Type()))
-		}
+	var structType mlir.Type
+	if len(identifier) > 0 {
+		structType = mlir.GoCreateNamedStructType(b.ctx, identifier)
 
-		// Create a literal struct
-		return mlir.GoCreateLiteralStructType(b.ctx, fieldTypes)
+		// Prevent infinite recursion when mutually recursive types are encountered
+		b.typeCache[T] = structType
 	}
-
-	// Create a named struct
-	result := mlir.GoCreateNamedStructType(b.ctx, identifier)
-
-	// Prevent infinite recursion when mutually recursive types are encountered
-	b.typeCache[T] = result
 
 	// Create the struct field types
+	var fieldNames []mlir.Attribute
+	var fieldTags []mlir.Attribute
 	var fieldTypes []mlir.Type
 	for i := 0; i < T.NumFields(); i++ {
+		fieldNames = append(fieldNames, mlir.StringAttrGet(b.ctx, T.Field(i).Name()))
 		fieldTypes = append(fieldTypes, b.GetStoredType(ctx, T.Field(i).Type()))
+		fieldTags = append(fieldTags, mlir.StringAttrGet(b.ctx, T.Tag(i)))
 	}
 
-	// Set the struct body
-	mlir.GoSetStructTypeBody(result, fieldTypes)
+	if len(identifier) > 0 {
+		// Set the struct body
+		mlir.GoSetStructTypeBody(structType, fieldNames, fieldTypes, fieldTags)
+	} else {
+		// Create a literal struct
+		structType = mlir.GoCreateLiteralStructType(b.ctx, fieldNames, fieldTypes, fieldTags)
+	}
 
-	return result
+	return structType
 }
 
 func (b *Builder) GetStoredType(ctx context.Context, T types.Type) mlir.Type {
@@ -546,10 +557,12 @@ func baseType(T types.Type) types.Type {
 
 func (b *Builder) widthOf(T mlir.Type) int {
 	switch {
-	case mlir.GoTypeIsAIntType(T), mlir.GoTypeIsAUintType(T), mlir.GoTypeIsAUintptrType(T):
-		return int(b.config.Sizes.WordSize * 8)
-	case mlir.TypeIsAInteger(T):
-		return int(mlir.IntegerTypeGetWidth(T))
+	case mlir.GoTypeIsInteger(T):
+		width := mlir.GoIntegerTypeGetWidth(T)
+		if width == 0 {
+			return int(b.config.Sizes.WordSize * 8)
+		}
+		return width
 	case mlir.TypeIsAF32(T):
 		return 32
 	case mlir.TypeIsAF64(T):
@@ -560,29 +573,17 @@ func (b *Builder) widthOf(T mlir.Type) int {
 }
 
 func isSigned(T mlir.Type) bool {
-	switch {
-	case mlir.GoTypeIsAIntType(T):
-		return true
-	case mlir.GoTypeIsAUintType(T), mlir.GoTypeIsAUintptrType(T):
-		return false
-	case mlir.TypeIsAInteger(T):
-		return mlir.IntegerTypeIsSigned(T)
-	default:
+	if !mlir.GoTypeIsInteger(T) {
 		panic("invalid type")
 	}
+	return mlir.GoIntegerTypeIsSigned(T)
 }
 
 func isUnsigned(T mlir.Type) bool {
-	switch {
-	case mlir.GoTypeIsAIntType(T):
-		return false
-	case mlir.GoTypeIsAUintType(T), mlir.GoTypeIsAUintptrType(T):
-		return true
-	case mlir.TypeIsAInteger(T):
-		return mlir.IntegerTypeIsUnsigned(T)
-	default:
+	if !mlir.GoTypeIsInteger(T) {
 		panic("invalid type")
 	}
+	return mlir.GoIntegerTypeIsUnsigned(T)
 }
 
 func resolveType(ctx context.Context, T types.Type) types.Type {

@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"unicode/utf8"
 	"unsafe"
 )
 
@@ -10,12 +11,10 @@ type _string struct {
 }
 
 //sigo:extern strncmp strncmp
-
 func strncmp(str1, str2 unsafe.Pointer, size uintptr) int
 
-func stringLen(descriptor _string) int {
-	str := descriptor
-	return str.len
+func stringLen(s _string) int {
+	return s.len
 }
 
 func stringConcat(lhs _string, rhs _string) _string {
@@ -52,29 +51,19 @@ func stringCompare(lhs, rhs _string) bool {
 }
 
 type _stringIterator struct {
-	str   _string
+	str   string
 	index int
 }
 
-func stringRange(it *_stringIterator) (bool, int, rune) {
-	if it.index >= it.str.len {
-		return false, 0, 0
-	} else {
-		// Get the current position for the iterator. This will be returned.
-		i := it.index
-
-		// TODO: Support unicode characters
-		// Perform an 4-byte aligned read
-		val := *(*rune)(unsafe.Add(it.str.array, 4*(i/4)))
-
-		// Get the rune value at the index in the string's backing array
-		// Shift to access the intended byte
-		val = (val >> (8 * (it.index % 4))) & 0xFF
-
-		// Advance the position for the next iteration and then return
-		it.index++
-		return true, i, val
+func stringRange(it _stringIterator) (bool, _stringIterator, rune) {
+	if len(it.str) > 0 {
+		r, size := utf8.DecodeRuneInString(it.str)
+		return true, _stringIterator{
+			str:   it.str[size:],
+			index: it.index + size,
+		}, r
 	}
+	return false, _stringIterator{}, 0
 }
 
 func stringSlice(str _string, low, high int) _string {
@@ -117,4 +106,15 @@ func sliceToString(s _slice) _string {
 	}
 	memcpy(result.array, s.array, uintptr(s.len))
 	return result
+}
+
+func stringData(str _string) unsafe.Pointer {
+	return str.array
+}
+
+func stringFromPointer(ptr unsafe.Pointer, length int) _string {
+	return _string{
+		array: ptr,
+		len:   length,
+	}
 }

@@ -35,7 +35,7 @@ class Go_ComplexBinOp<string mnemonic, list<Trait> traits = [Pure]> :
 
 class Go_CompareOp<string mnemonic, list<Trait> traits = []> :
         Go_Op<mnemonic, traits # [Pure, AllTypesMatch<["lhs", "rhs"]>,
-            TypesMatchWith<"result type has i1 element type and same shape as operands", "lhs", "result", "::getI1SameShape($_self)">
+            TypesMatchWith<"result type has i1 element type and same shape as operands", "lhs", "result", "::mlir::go::getI1SameShape($_self)">
         ]>{
     let results = (outs Go_Bool:$result);
     let assemblyFormat = "$predicate `,` $lhs `,` $rhs attr-dict-with-keyword `:` type($lhs)";

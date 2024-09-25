@@ -60,16 +60,15 @@ func (b *Builder) emitSelectStatement(ctx context.Context, stmt *ast.SelectStmt)
 	}
 
 	// Create the input slices.
-	constLenValue := b.emitConstInt(ctx, int64(len(stmt.Body.List)), b.si, b.location(stmt.Pos()))
-	chanSliceArrOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, b._chan, constLenValue, false, b.location(stmt.Pos()))
+	chanSliceArrOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, b._chan, len(stmt.Body.List), false, b.location(stmt.Pos()))
 	appendOperation(ctx, chanSliceArrOp)
 	chanSliceValue := b.emitConstSlice(ctx, resultOf(chanSliceArrOp), len(stmt.Body.List), b.location(stmt.Pos()))
 
-	sendSliceArrOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, b.i1, constLenValue, false, b.location(stmt.Pos()))
+	sendSliceArrOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, b.i1, len(stmt.Body.List), false, b.location(stmt.Pos()))
 	appendOperation(ctx, sendSliceArrOp)
 	sendSliceValue := b.emitConstSlice(ctx, resultOf(sendSliceArrOp), len(stmt.Body.List), b.location(stmt.Pos()))
 
-	readySliceArrOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, b.si, constLenValue, false, b.location(stmt.Pos()))
+	readySliceArrOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, b.si, len(stmt.Body.List), false, b.location(stmt.Pos()))
 	appendOperation(ctx, readySliceArrOp)
 	readySliceValue := b.emitConstSlice(ctx, resultOf(readySliceArrOp), len(stmt.Body.List), b.location(stmt.Pos()))
 
@@ -143,7 +142,7 @@ func (b *Builder) emitReceiveExpression(ctx context.Context, expr *ast.UnaryExpr
 	channel := b.emitExpr(ctx, expr.X)[0]
 
 	// Allocate memory on the stack to store the received value to.
-	addrOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, elementType, nil, false, b.location(expr.Pos()))
+	addrOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, elementType, 1, false, b.location(expr.Pos()))
 	appendOperation(ctx, addrOp)
 	addr := resultOf(addrOp)
 

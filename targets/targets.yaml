@@ -40,3 +40,14 @@ targets:
     tags: [ "samx51" ]
     features: [ "armv7-m" ]
     float: "hardfp"
+
+  - series: "qemu_cortexm4"
+    chips: [ "qemu_cortexm4" ]
+    chipPackage: "runtime/arm/cortexm/qemu/cortexm4"
+    architecture: "thumb"
+    alignment: 4
+    triple: "armv7m-none-eabi"
+    tags: [ "qemu", "cortex_m4" ]
+    cpu: "cortex-m4"
+    features: [ "armv7-m" ]
+    float: "hardfp"

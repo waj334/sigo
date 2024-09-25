@@ -43,25 +43,31 @@ var (
 
 			// Check the target CPU string
 			if len(buildOpts.cpu) == 0 {
-				println("no target CPU specified.")
-				println("Example:")
-				println("-cpu=\"atsamd21g18a\"")
-				println(`--cpu=samd21 --tags=atsamd21g18a,other,tags,...`)
+				fmt.Fprintln(os.Stderr, "no target CPU specified.")
+				fmt.Fprintln(os.Stderr, "Example:")
+				fmt.Fprintln(os.Stderr, "-cpu=\"atsamd21g18a\"")
+				fmt.Fprintln(os.Stderr, `--cpu=samd21 --tags=atsamd21g18a,other,tags,...`)
 				cmd.Help()
 				return
 			}
 
 			// Check the float string
 			if buildOpts.float != "softfp" && buildOpts.float != "hardfp" {
-				println("invalid floating-point mode\"", buildOpts.float, "\" specified")
+				fmt.Fprintln(os.Stderr, "invalid floating-point mode\"", buildOpts.float, "\" specified")
 				cmd.Help()
+				return
+			}
+
+			env, err := builder.Environment()
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Toolchain error: %v", err)
 				return
 			}
 
 			builderOptions := builder.Options{
 				Output:      buildOpts.output,
 				DumpIR:      buildOpts.dumpIR,
-				Environment: builder.Environment(),
+				Environment: env,
 				//CompilerVerbosity: compiler.Debug,
 				GenerateDebugInfo: buildOpts.debug,
 				Cpu:               buildOpts.cpu,
@@ -112,10 +118,11 @@ var (
 			// Begin building the packages
 			if err = builder.BuildPackages(context.Background(), builderOptions); err != nil {
 				if errors.Is(err, builder.ErrParserError) {
-					fmt.Println("Build error:", err)
+					fmt.Fprintf(os.Stderr, "Build error: %v", err)
 				} else {
-					fmt.Println("Compiler error:", err)
+					fmt.Fprintf(os.Stderr, "Compiler error: %v", err)
 				}
+				return
 			}
 		},
 	}

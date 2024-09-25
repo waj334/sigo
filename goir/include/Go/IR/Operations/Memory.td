@@ -31,12 +31,12 @@ def AllocaOp : Go_Op<"alloca", [AlwaysSpeculatable]> {
 
     let arguments = (ins
         TypeAttr:$element,
-        Optional<Go_Integer>:$numElements,
+        DefaultValuedAttr<I64Attr, "1">:$numElements,
         OptionalAttr<UnitAttr>:$heap,
         OptionalAttr<StrAttr>:$varName);
     let results = (outs Go_Pointer:$result);
     let assemblyFormat = [{
-        (`heap` $heap^)? $element (`[` $numElements^ `:` type($numElements) `]`)? attr-dict-with-keyword `:` type($result)
+        (`heap` $heap^)? $element (`[` $numElements^ `]`)? attr-dict-with-keyword `:` type($result)
     }];
     let hasVerifier = 1;
 }
@@ -80,7 +80,11 @@ def StoreOp : Go_Op<"store"> {
         ```
     }];
 
-    let arguments = (ins Go_Type:$value, Go_Pointer:$addr, OptionalAttr<UnitAttr>:$isVolatile, OptionalAttr<UnitAttr>:$isAtomic);
+    let arguments = (ins
+            Go_Type:$value,
+            Go_Pointer:$addr,
+            OptionalAttr<UnitAttr>:$isVolatile,
+            OptionalAttr<UnitAttr>:$isAtomic);
     let assemblyFormat = [{
         $value `,` $addr (`volatile` $isVolatile^)? (`atomic` $isAtomic^)? attr-dict-with-keyword `:` functional-type(operands, results)
     }];

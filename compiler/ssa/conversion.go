@@ -35,6 +35,16 @@ func (b *Builder) emitTypeConversion(ctx context.Context, X mlir.Value, src type
 			return b.bitcastTo(ctx, result, destType, location)
 		}
 
+		// Handle interface conversions.
+		if types.IsInterface(dest) {
+			if types.IsInterface(src) {
+				return b.emitChangeType(ctx, dest, X, location)
+			}
+
+			// Convert this value to the requested interface type.
+			return b.emitInterfaceValue(ctx, dest, src, X, location)
+		}
+
 		switch {
 		case typeHasFlags(src, types.IsInteger):
 			switch {
@@ -71,7 +81,7 @@ func (b *Builder) emitTypeConversion(ctx context.Context, X mlir.Value, src type
 				panic("unimplemented")
 			case typeHasFlags(dest, types.IsString): // Rune conversion
 				// Allocate memory to hold the rune.
-				allocOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, srcType, nil, true, location)
+				allocOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, srcType, 1, true, location)
 				appendOperation(ctx, allocOp)
 				storeOp := mlir.GoCreateStoreOperation(b.ctx, X, resultOf(allocOp), location)
 				appendOperation(ctx, storeOp)

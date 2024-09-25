@@ -14,3 +14,8 @@ set(LLVM_TARGET_DEFINITIONS GoOps.td)
 mlir_tablegen(GoTypes.h.inc -gen-typedef-decls -typedefs-dialect=go)
 mlir_tablegen(GoTypes.cpp.inc -gen-typedef-defs -typedefs-dialect=go)
 add_public_tablegen_target(MLIRGoTypesIncGen)
+
+set(LLVM_TARGET_DEFINITIONS GoInterfaces.td)
+mlir_tablegen(GoInterfaces.h.inc -gen-op-interface-decls)
+mlir_tablegen(GoInterfaces.cpp.inc -gen-op-interface-defs)
+add_public_tablegen_target(MLIRGoInterfacesIncGen)

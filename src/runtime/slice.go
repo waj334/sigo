@@ -82,6 +82,19 @@ func sliceCopy(dst, src _slice, elementType *_type) int {
 	return n
 }
 
+func sliceCopyString(dst _slice, src _string) int {
+	n := src.len
+	if n > dst.cap {
+		n = dst.cap
+	}
+
+	// Copy N chars from the src into dst
+	memcpy(dst.array, src.array, uintptr(n))
+
+	// Return the number elements copied
+	return n
+}
+
 func sliceIndexAddr(s _slice, index int, elementType *_type) unsafe.Pointer {
 	// Index MUST not be greater than the length of the slice
 	if index >= s.len {

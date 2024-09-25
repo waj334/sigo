@@ -49,7 +49,7 @@ func (b *Builder) emitLocalVar(ctx context.Context, obj types.Object, T mlir.Typ
 	//       replaced by a heap allocation.
 
 	ptrType := mlir.GoCreatePointerType(T)
-	allocaOp := mlir.GoCreateAllocaOperation(b.config.Ctx, ptrType, T, nil, false, b.location(obj.Pos()))
+	allocaOp := mlir.GoCreateAllocaOperation(b.config.Ctx, ptrType, T, 1, false, b.location(obj.Pos()))
 
 	// NOTE: Omitted identifiers ( `_` )  will not have any debug information attached.
 	if len(obj.Name()) > 0 && obj.Name() != "_" {
@@ -128,7 +128,7 @@ func (b *Builder) makeCopyOf(ctx context.Context, X mlir.Value, location mlir.Lo
 	}
 
 	// Allocate memory on the stack to hold the object.
-	allocaOp := mlir.GoCreateAllocaOperation(b.ctx, ptrType, elementType, nil, isHeap, location)
+	allocaOp := mlir.GoCreateAllocaOperation(b.ctx, ptrType, elementType, 1, isHeap, location)
 	appendOperation(ctx, allocaOp)
 
 	// Store the object at the address.
@@ -144,7 +144,8 @@ func (b *Builder) emitConstBool(ctx context.Context, value bool, location mlir.L
 	if value {
 		v = 1
 	}
-	op := mlir.GoCreateConstantOperation(b.ctx, mlir.IntegerAttrGet(b.i1, v), b.i1, location)
+	boolIntType := mlir.IntegerTypeGet(b.ctx, 1)
+	op := mlir.GoCreateConstantOperation(b.ctx, mlir.IntegerAttrGet(boolIntType, v), b.i1, location)
 	appendOperation(ctx, op)
 	return resultOf(op)
 }

@@ -5,40 +5,40 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 type Env map[string]string
 
-func Environment() Env {
+func Environment() (Env, error) {
 	compilerPath, err := os.Executable()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	// The default root should be back one directory from the compiler
 	sigoRoot, err := filepath.Abs(filepath.Dir(compilerPath) + "/..")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	goRoot := sigoRoot
-
-	// Attempt to get GOROOT from the system Go
+	// Get GOROOT from the system Go
 	cmd := exec.Command("go", "env", "GOROOT")
-	if output, err := cmd.Output(); err != nil {
-		goRoot = string(output)
+	output, err := cmd.Output()
+	if err != nil {
+		return nil, err
 	}
+	goRoot := strings.TrimSpace(string(output))
 
 	cwd, err := os.Getwd()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	// Get the user cache directory
 	cacheDir, err := os.UserCacheDir()
 	if err != nil {
-		println("defaulting cache dir to temp")
-		// Attempt to use the tmp dir
+		// Use the temporary directory of the current operating system.
 		cacheDir = os.TempDir()
 	}
 
@@ -56,7 +56,7 @@ func Environment() Env {
 		"CC":      getenv("CC", ""),
 		"LD":      getenv("LD", ""),
 		"OBJCOPY": getenv("OBJCOPY", ""),
-	}
+	}, nil
 }
 
 func (e Env) Print() {

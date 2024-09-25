@@ -1,7 +1,38 @@
 ﻿---
-BasedOnStyle: LLVM
-ColumnLimit: 120
+BasedOnStyle: Mozilla
+IndentWidth: 2
+ColumnLimit: 100
+---
 Language: Cpp
+Standard: c++20
+
 SortIncludes: CaseSensitive
-TabWidth: 2
-...
+IncludeBlocks: Regroup
+
+FixNamespaceComments: true
+ReflowComments: true
+
+AlignAfterOpenBracket: AlwaysBreak
+AlignOperands: false
+AlwaysBreakAfterReturnType: None
+AlwaysBreakAfterDefinitionReturnType: None
+BreakBeforeBraces: Allman
+IndentPPDirectives: BeforeHash
+
+DerivePointerAlignment: false
+PointerAlignment: Left
+
+IncludeCategories:
+  # Standard Library headers
+  - Regex: '^<[a-zA-Z0-9_]+[^\.]>'
+    Priority: 1
+  # LLVM headers.
+  - Regex: '<llvm'
+    Priority: 2
+  # MLIR headers.
+  - Regex: '<mlir'
+    Priority: 3
+  # All other headers.
+  - Regex: '.*'
+    Priority: 4
+---

@@ -20,8 +20,6 @@ void mlirStringRefDestroy(MlirStringRef *ref);
 
 intptr_t mlirTypeHash(MlirType type);
 
-uint64_t mlirGoGetTypeId(MlirType type);
-
 MlirAttribute mlirGoCreateTypeMetadata(MlirType type, MlirAttribute dict);
 
 MlirStringRef mlirGoGetTypeInfoSymbol(MlirType type, MlirStringRef prefix);
@@ -62,6 +60,8 @@ MlirOperation mlirValueGetDefiningOperation(MlirValue value);
 MlirBlock mlirBlockCreate2(intptr_t nArgs, MlirType *args, intptr_t nLocations, MlirLocation *locations);
 
 MlirAttribute mlirDistinctAttrGet(MlirAttribute attr);
+
+void mlirGoBlockDumpTail(MlirBlock block, intptr_t count);
 
 #ifdef __cplusplus
 }

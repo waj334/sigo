@@ -25,8 +25,12 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 	} else if b.isIntrinsic(ctx, expr) {
 		return b.emitIntrinsic(ctx, expr)
 	} else if tv.IsType() {
+		// Set up type inference.
+		ctx = newContextWithLhsList(ctx, []types.Type{tv.Type})
+
 		// Evaluate the value to convert.
 		X := b.emitExpr(ctx, expr.Args[0])[0]
+
 		// Perform type conversion.
 		srcType := b.typeOf(ctx, expr.Args[0])
 		destType := tv.Type
@@ -125,9 +129,9 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 
 					// Create the expected synthetic signature type.
 					T := b.createSyntheticClosureSignature(ctx, signature)
-					resultTypes := make([]mlir.Type, mlir.FunctionTypeGetNumResults(T))
+					resultTypes := make([]mlir.Type, mlir.GoFunctionTypeGetNumResults(T))
 					for i := range resultTypes {
-						resultTypes[i] = mlir.FunctionTypeGetResult(T, i)
+						resultTypes[i] = mlir.GoFunctionTypeGetResult(T, i)
 					}
 
 					// Extract the callee ptr from the func value struct.
@@ -160,9 +164,9 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 
 			// Create the expected synthetic signature type.
 			T := b.createSyntheticClosureSignature(ctx, signature)
-			resultTypes := make([]mlir.Type, mlir.FunctionTypeGetNumResults(T))
+			resultTypes := make([]mlir.Type, mlir.GoFunctionTypeGetNumResults(T))
 			for i := range resultTypes {
-				resultTypes[i] = mlir.FunctionTypeGetResult(T, i)
+				resultTypes[i] = mlir.GoFunctionTypeGetResult(T, i)
 			}
 
 			// Extract the callee ptr from the func value struct.
@@ -206,7 +210,7 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 				}
 
 				// Create the closure function type
-				closureFnType := mlir.FunctionTypeGet(b.ctx, append(paramTypes, b.ptr), resultTypes)
+				closureFnType := mlir.GoCreateFunctionType(b.ctx, nil, append(paramTypes, b.ptr), resultTypes)
 
 				// Extract the callee ptr from the func value struct.
 				extractOp := mlir.GoCreateExtractOperation(b.ctx, 0, b.ptr, fnValue, location)
@@ -246,7 +250,7 @@ func (b *Builder) createSyntheticClosureSignature(ctx context.Context, signature
 		resultTypes[i] = b.GetStoredType(ctx, signature.Results().At(i).Type())
 	}
 
-	T := mlir.FunctionTypeGet(b.ctx, inputTypes, resultTypes)
+	T := mlir.GoCreateFunctionType(b.ctx, nil, inputTypes, resultTypes)
 	return T
 }
 
@@ -439,7 +443,7 @@ func (b *Builder) emitDeferStatement(ctx context.Context, stmt *ast.DeferStmt) {
 			if contextValue, contextType := data.createContextStructValue(ctx, b, location); contextValue != nil {
 
 				// Allocate heap for the context value.
-				allocOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, contextType, nil, true, location)
+				allocOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, contextType, 1, true, location)
 				appendOperation(ctx, allocOp)
 
 				// Store the context value at the heap address.
@@ -512,10 +516,8 @@ func (b *Builder) emitVariadicArgs(ctx context.Context, signature *types.Signatu
 		}
 
 		// Create the backing array for the slice that will contain the variadic arguments.
-		constLength := b.emitConstInt(ctx, int64(numVariadicArgs), b.si, location)
-		allocaOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, elementT, constLength, false, location)
+		allocaOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, elementT, numVariadicArgs, false, location)
 		appendOperation(ctx, allocaOp)
-		mlir.OperationMoveBefore(mlir.ValueGetDefiningOperation(constLength), allocaOp)
 
 		// Fill the backing array.
 		for i, arg := range args[variadicBegin:] {
@@ -572,7 +574,7 @@ func (b *Builder) createInterfaceCallWrapper(ctx context.Context, symbol string,
 		argTypes = append([]mlir.Type{b.GetStoredType(ctx, iface)}, argTypes...)
 
 		// Create the argument struct type.
-		argPackType := mlir.GoCreateLiteralStructType(b.ctx, argTypes)
+		argPackType := mlir.GoCreateBasicStructType(b.ctx, argTypes)
 
 		// Any argument excluded from the argument pack MUST be passed to the resulting thunk directly.
 		// NOTE: The interface value is added to the parameter count.
@@ -615,8 +617,8 @@ func (b *Builder) createInterfaceCallWrapper(ctx context.Context, symbol string,
 		})
 
 		// Create the function operation for this thunk.
-		thunkFuncType := mlir.FunctionTypeGet(b.ctx, paramTypes, resultTypes)
-		state := mlir.OperationStateGet("func.func", b._noLoc)
+		thunkFuncType := mlir.GoCreateFunctionType(b.ctx, nil, paramTypes, resultTypes)
+		state := mlir.OperationStateGet("go.func", b._noLoc)
 		mlir.OperationStateAddOwnedRegions(state, []mlir.Region{region})
 		mlir.OperationStateAddAttributes(state, []mlir.NamedAttribute{
 			b.namedOf("function_type", mlir.TypeAttrGet(thunkFuncType)),

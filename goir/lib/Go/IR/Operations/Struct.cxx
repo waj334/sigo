@@ -9,8 +9,8 @@ namespace mlir::go {
         uint64_t numElements = -1;
         SmallVector<Type> elements;
         auto result = ::llvm::TypeSwitch<::mlir::Type, ::mlir::LogicalResult>(baseType(this->getAggregate().getType()))
-                .Case([&](LLVM::LLVMStructType T) {
-                    elements = SmallVector<Type>(T.getBody());
+                .Case([&](GoStructType T) {
+                    elements = T.getFieldTypes();
                     numElements = elements.size();
                     return success();
                 })
@@ -46,8 +46,8 @@ namespace mlir::go {
         uint64_t numElements = -1;
         SmallVector<Type> elements;
         auto result = ::llvm::TypeSwitch<::mlir::Type, ::mlir::LogicalResult>(baseType(this->getAggregate().getType()))
-                .Case([&](LLVM::LLVMStructType T) {
-                    elements = SmallVector<Type>(T.getBody());
+                .Case([&](GoStructType T) {
+                    elements = T.getFieldTypes();
                     numElements = elements.size();
                     return success();
                 })

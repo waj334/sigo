@@ -64,6 +64,6 @@ namespace mlir::go {
         }
 
     private:
-        llvm::DenseMap<llvm::hash_code, mlir::Type> m_namedStructMap;
+        llvm::DenseMap<llvm::hash_code, mlir::Type> m_typeMap;
     };
 }

@@ -1,10 +1,4 @@
 #include "Go/Transforms/Passes.h"
-#include "Go/IR/GoDialect.h"
-#include "Go/IR/GoOps.h"
-#include "Go/Transforms/GlobalConstantsPass.h"
-#include "Go/Transforms/LowerToCore.h"
-#include "Go/Transforms/LowerToLLVM.h"
-#include "Go/Transforms/LowerTypeInfoToGo.h"
 
 #include <mlir/Conversion/ArithToLLVM/ArithToLLVM.h>
 #include <mlir/Conversion/ComplexToLLVM/ComplexToLLVM.h>
@@ -14,22 +8,25 @@
 #include <mlir/Conversion/LLVMCommon/ConversionTarget.h>
 #include <mlir/Conversion/LLVMCommon/Pattern.h>
 #include <mlir/Conversion/LLVMCommon/TypeConverter.h>
-
 #include <mlir/Dialect/Arith/IR/Arith.h>
 #include <mlir/Dialect/Complex/IR/Complex.h>
 #include <mlir/Dialect/ControlFlow/IR/ControlFlow.h>
-#include <mlir/Dialect/ControlFlow/IR/ControlFlowOps.h>
 #include <mlir/Dialect/Func/IR/FuncOps.h>
-#include <mlir/Dialect/LLVMIR/LLVMDialect.h>
-
 #include <mlir/Dialect/Func/Transforms/FuncConversions.h>
+#include <mlir/Dialect/LLVMIR/LLVMDialect.h>
 #include <mlir/Transforms/DialectConversion.h>
 
-namespace mlir::go {
-struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>> {
+#include "Go/IR/GoDialect.h"
+#include "Go/IR/GoOps.h"
+
+namespace mlir::go
+{
+struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
+{
   MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(LowerToCorePass)
 
-  void runOnOperation() final {
+  void runOnOperation() final
+  {
     auto module = getOperation();
 
     CoreTypeConverter typeConverter(module);
@@ -49,13 +46,13 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>> {
 
     // Add dynamic legality constraints to apply conversions defined above.
     target.addDynamicallyLegalOp<func::FuncOp>(
-        [&](func::FuncOp op) { return typeConverter.isSignatureLegal(op.getFunctionType()); });
+      [&](func::FuncOp op) { return typeConverter.isSignatureLegal(op.getFunctionType()); });
 
     target.addDynamicallyLegalOp<func::ReturnOp>(
-        [&](func::ReturnOp op) { return typeConverter.isLegal(op.getOperandTypes()); });
+      [&](func::ReturnOp op) { return typeConverter.isLegal(op.getOperandTypes()); });
 
     target.addDynamicallyLegalOp<func::CallOp>(
-        [&](func::CallOp op) { return typeConverter.isSignatureLegal(op.getCalleeType()); });
+      [&](func::CallOp op) { return typeConverter.isSignatureLegal(op.getCalleeType()); });
 
     // Mark illegal operations
     target.addIllegalOp<AddCOp>();
@@ -64,16 +61,29 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>> {
     target.addIllegalOp<AndOp>();
     target.addIllegalOp<AndNotOp>();
 
-    target.addDynamicallyLegalOp<BitcastOp>([](BitcastOp op) {
-      auto operandtype = op.getValue().getType();
+    target.addDynamicallyLegalOp<BitcastOp>(
+      [](BitcastOp op)
+      {
+        auto operandtype = op.getValue().getType();
 
-      // Bitcast is legal when the operand is non-numeric as that operation will be lowered
-      // directly to LLVM.
-      return !go::isa<IntegerType>(operandtype) && !go::isa<FloatType>(operandtype) &&
-             !go::isa<ComplexType>(operandtype);
-    });
+        // Bitcast is legal when the operand is non-numeric as that operation will be lowered
+        // directly to LLVM.
+        return !go::isa<IntegerType>(operandtype) && !go::isa<FloatType>(operandtype) &&
+          !go::isa<ComplexType>(operandtype);
+      });
 
     target.addIllegalOp<BranchOp>();
+
+    target.addDynamicallyLegalOp<BuiltInCallOp>(
+      [](BuiltInCallOp op)
+      {
+        return StringSwitch<bool>(op.getCallee())
+          .Case("complex", false)
+          .Case("imag", false)
+          .Case("real", false)
+          .Default(true);
+      });
+
     target.addIllegalOp<CallIndirectOp>();
     target.addIllegalOp<ComplexOp>();
     target.addIllegalOp<CmpCOp>();
@@ -82,12 +92,14 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>> {
     target.addIllegalOp<ComplementOp>();
     target.addIllegalOp<CondBranchOp>();
 
-    target.addDynamicallyLegalOp<ConstantOp>([](ConstantOp op) {
-      auto resultType = op.getResult().getType();
+    target.addDynamicallyLegalOp<ConstantOp>(
+      [](ConstantOp op)
+      {
+        auto resultType = op.getResult().getType();
 
-      // String constants are lowered by the LLVM pass.
-      return go::isa<StringType>(resultType);
-    });
+        // String constants are lowered by the LLVM pass.
+        return go::isa<StringType>(resultType);
+      });
 
     target.addIllegalOp<DeclareTypeOp>();
     target.addIllegalOp<DivCOp>();
@@ -95,15 +107,18 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>> {
     target.addIllegalOp<DivSIOp>();
     target.addIllegalOp<DivUIOp>();
 
-    target.addDynamicallyLegalOp<GlobalOp>([](GlobalOp op) {
-      if (!op.getInitializerBlock()) {
-        // Globals with no initializer block will be converted in the LLVM pass.
-        return true;
-      }
+    target.addDynamicallyLegalOp<GlobalOp>(
+      [](GlobalOp op)
+      {
+        if (!op.getInitializerBlock())
+        {
+          // Globals with no initializer block will be converted in the LLVM pass.
+          return true;
+        }
 
-      // Globals with invalid initializers will be converted to functions during the this pass.
-      return succeeded(op.hasValidInitializer());
-    });
+        // Globals with invalid initializers will be converted to functions during the this pass.
+        return succeeded(op.hasValidInitializer());
+      });
 
     target.addIllegalOp<FloatExtendOp>();
     target.addIllegalOp<FloatToUnsignedIntOp>();
@@ -137,14 +152,18 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>> {
     target.addIllegalOp<UnsignedIntToFloatOp>();
     target.addIllegalOp<XorOp>();
 
-    target.addDynamicallyLegalOp<YieldOp>([](YieldOp op) {
-      // Only convert a yield op if it belongs to a global with an invalid initializer block.
-      if (auto globalOp = op->getParentOfType<GlobalOp>()) {
-        return succeeded(globalOp.hasValidInitializer());
-      }
-      // Usage of yield outside of a global operation initializer is invalid and won't be converted by this pass.
-      return true;
-    });
+    target.addDynamicallyLegalOp<YieldOp>(
+      [](YieldOp op)
+      {
+        // Only convert a yield op if it belongs to a global with an invalid initializer block.
+        if (auto globalOp = op->getParentOfType<GlobalOp>())
+        {
+          return succeeded(globalOp.hasValidInitializer());
+        }
+        // Usage of yield outside a global operation initializer is invalid and won't be converted
+        // by this pass.
+        return true;
+      });
 
     target.addIllegalOp<ZeroExtendOp>();
 
@@ -183,7 +202,8 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>> {
     populateGoToCoreConversionPatterns(module.getContext(), typeConverter, patterns);
 
     // Partially lower
-    if (failed(applyPartialConversion(module, target, std::move(patterns)))) {
+    if (failed(applyPartialConversion(module, target, std::move(patterns))))
+    {
       signalPassFailure();
     }
   }
@@ -192,7 +212,8 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>> {
 
   StringRef getDescription() const final { return "Lower Go IR to core dialects"; }
 
-  void getDependentDialects(DialectRegistry &registry) const override {
+  void getDependentDialects(DialectRegistry& registry) const override
+  {
     registry.insert<GoDialect>();
     registry.insert<arith::ArithDialect>();
     registry.insert<complex::ComplexDialect>();
@@ -202,16 +223,20 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>> {
   }
 };
 
-struct LowerToLLVMPass : PassWrapper<LowerToLLVMPass, OperationPass<ModuleOp>> {
+struct LowerToLLVMPass : PassWrapper<LowerToLLVMPass, OperationPass<ModuleOp>>
+{
   MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(LowerToLLVMPass)
 
-  void runOnOperation() final {
+  void runOnOperation() final
+  {
     // Get the module that will be lowered to LLVM
     auto module = getOperation();
     auto dataLayout = DataLayout(module);
 
     LowerToLLVMOptions options(&getContext(), dataLayout);
-    if (auto dataLayoutStr = dyn_cast<StringAttr>(module->getAttr("llvm.data_layout")); dataLayoutStr) {
+    if (auto dataLayoutStr = dyn_cast<StringAttr>(module->getAttr("llvm.data_layout"));
+        dataLayoutStr)
+    {
       llvm::DataLayout llvmDataLayout(dataLayoutStr);
       options.dataLayout = llvmDataLayout;
     }
@@ -239,7 +264,8 @@ struct LowerToLLVMPass : PassWrapper<LowerToLLVMPass, OperationPass<ModuleOp>> {
     populateGoToLLVMConversionPatterns(typeConverter, patterns);
 
     // Completely lower
-    if (failed(applyFullConversion(module, target, std::move(patterns)))) {
+    if (failed(applyFullConversion(module, target, std::move(patterns))))
+    {
       signalPassFailure();
     }
   }
@@ -248,7 +274,8 @@ struct LowerToLLVMPass : PassWrapper<LowerToLLVMPass, OperationPass<ModuleOp>> {
 
   StringRef getDescription() const final { return "Lower Go IR to LLVM IR"; }
 
-  void getDependentDialects(DialectRegistry &registry) const override {
+  void getDependentDialects(DialectRegistry& registry) const override
+  {
     registry.insert<GoDialect>();
     registry.insert<arith::ArithDialect>();
     registry.insert<complex::ComplexDialect>();
@@ -258,7 +285,13 @@ struct LowerToLLVMPass : PassWrapper<LowerToLLVMPass, OperationPass<ModuleOp>> {
   }
 };
 
-std::unique_ptr<Pass> createLowerToCorePass() { return std::make_unique<LowerToCorePass>(); }
+std::unique_ptr<Pass> createLowerToCorePass()
+{
+  return std::make_unique<LowerToCorePass>();
+}
 
-std::unique_ptr<Pass> createLowerToLLVMPass() { return std::make_unique<LowerToLLVMPass>(); }
+std::unique_ptr<Pass> createLowerToLLVMPass()
+{
+  return std::make_unique<LowerToLLVMPass>();
+}
 } // namespace mlir::go

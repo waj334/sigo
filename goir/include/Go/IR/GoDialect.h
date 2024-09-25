@@ -11,6 +11,7 @@
 
 #include "Go/IR/GoEnums.h"
 #include "Go/IR/GoAttrs.h"
+#include "GoInterfaces.h"
 
 #include "Go/IR/GoOpsDialect.h.inc"
 

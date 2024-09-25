@@ -8,15 +8,15 @@ const (
 )
 
 type _map struct {
-	data      *mapData
-	size      int
-	capacity  int
+	state     *mapState
 	keyType   *_type
 	valueType *_type
 }
 
-type mapData struct {
-	buckets []*mapEntry
+type mapState struct {
+	size     int
+	capacity int
+	data     []*mapEntry
 }
 
 type mapEntry struct {
@@ -34,33 +34,35 @@ func mapMake(keyType, valueType *_type, capacity int) _map {
 
 	initialBuckets := make([]*mapEntry, numBuckets)
 	initialCapacity := numBuckets * loadFactor
-	initialSize := 0
 
-	return _map{
-		data:      &mapData{buckets: initialBuckets},
-		size:      initialSize,
-		capacity:  initialCapacity,
+	m := _map{
+		state: &mapState{
+			data:     initialBuckets,
+			size:     0,
+			capacity: initialCapacity,
+		},
 		keyType:   keyType,
 		valueType: valueType,
 	}
+	return m
 }
 
-func mapClear(m *_map) {
-	if m.data.buckets == nil {
+func mapClear(m _map) {
+	if m.state.data == nil {
 		return
 	}
 
-	numBuckets := nextPow2(m.capacity)
+	numBuckets := nextPow2(m.state.capacity)
 	if numBuckets < minBuckets {
 		numBuckets = minBuckets
 	}
 
-	m.data.buckets = make([]*mapEntry, numBuckets)
-	m.size = 0
+	m.state.data = make([]*mapEntry, numBuckets)
+	m.state.size = 0
 }
 
 func mapLen(m _map) int {
-	return m.size
+	return m.state.size
 }
 
 func mapUpdate(m _map, key unsafe.Pointer, value unsafe.Pointer) {
@@ -70,7 +72,7 @@ func mapUpdate(m _map, key unsafe.Pointer, value unsafe.Pointer) {
 		memcpy(entry.value, value, uintptr(m.valueType.size))
 	} else {
 		// Resize if necessary
-		if m.size+1 > m.capacity {
+		if m.state.size+1 > m.state.capacity {
 			mapResize(m)
 		}
 
@@ -78,15 +80,15 @@ func mapUpdate(m _map, key unsafe.Pointer, value unsafe.Pointer) {
 		keyHash := mapKeyHash(key, m.keyType)
 
 		// Locate bucket to place value into
-		bucketIdx := keyHash % uint64(len(m.data.buckets))
-		bucket := &m.data.buckets[bucketIdx]
+		bucketIdx := keyHash % uint64(len(m.state.data))
+		bucket := m.state.data[bucketIdx]
 
 		// Insert a new entry into the hash map
 		entry = &mapEntry{
 			hash:  keyHash,
 			key:   alloc(uintptr(m.keyType.size)),
 			value: alloc(uintptr(m.valueType.size)),
-			next:  *bucket,
+			next:  bucket,
 		}
 
 		// Copy the key and value
@@ -94,16 +96,16 @@ func mapUpdate(m _map, key unsafe.Pointer, value unsafe.Pointer) {
 		memcpy(entry.value, value, uintptr(m.valueType.size))
 
 		// Update the head of the map
-		*bucket = entry
+		m.state.data[bucketIdx] = entry
 
 		// Increase the size of the map
-		m.size++
+		m.state.size++
 	}
 }
 
 func mapResize(m _map) {
 	// double the number of buckets
-	oldBuckets := m.data.buckets
+	oldBuckets := m.state.data
 	newBuckets := make([]*mapEntry, 2*len(oldBuckets))
 
 	// rehash the entries
@@ -120,8 +122,8 @@ func mapResize(m _map) {
 	}
 
 	// replace the old bucket slice with the new one
-	m.data.buckets = newBuckets
-	m.capacity = len(newBuckets) * loadFactor
+	m.state.data = newBuckets
+	m.state.capacity = len(newBuckets) * loadFactor
 }
 
 func mapDelete(m _map, key unsafe.Pointer) {
@@ -129,8 +131,8 @@ func mapDelete(m _map, key unsafe.Pointer) {
 	keyHash := mapKeyHash(key, m.keyType)
 
 	// Locate bucket to place value into
-	bucketIdx := keyHash % uint64(len(m.data.buckets))
-	bucket := &m.data.buckets[bucketIdx]
+	bucketIdx := keyHash % uint64(len(m.state.data))
+	bucket := &m.state.data[bucketIdx]
 
 	// Perform key lookup
 	var last *mapEntry
@@ -169,8 +171,8 @@ func mapLookup(m _map, key, result unsafe.Pointer) (unsafe.Pointer, bool) {
 
 func _mapLookup(m _map, K unsafe.Pointer) *mapEntry {
 	keyHash := mapKeyHash(K, m.keyType)
-	bucketIdx := keyHash % uint64(len(m.data.buckets))
-	bucket := m.data.buckets[bucketIdx]
+	bucketIdx := keyHash % uint64(len(m.state.data))
+	bucket := m.state.data[bucketIdx]
 
 	for entry := bucket; entry != nil; entry = entry.next {
 		compareResult := false
@@ -227,11 +229,11 @@ type _mapIterator struct {
 	entry  *mapEntry
 }
 
-func mapRange(it *_mapIterator) (bool, unsafe.Pointer, unsafe.Pointer) {
+func mapRange(it _mapIterator) (bool, _mapIterator, unsafe.Pointer, unsafe.Pointer) {
 	if it.entry == nil {
 		// Initialize the iterator by finding the next non-empty bucket
-		for ; it.bucket < len(it.m.data.buckets); it.bucket++ {
-			it.entry = it.m.data.buckets[it.bucket]
+		for ; it.bucket < len(it.m.state.data); it.bucket++ {
+			it.entry = it.m.state.data[it.bucket]
 			if it.entry != nil {
 				break
 			}
@@ -239,7 +241,7 @@ func mapRange(it *_mapIterator) (bool, unsafe.Pointer, unsafe.Pointer) {
 	}
 
 	if it.entry == nil {
-		return false, nil, nil
+		return false, _mapIterator{}, nil, nil
 	} else {
 		k := it.entry.key
 		v := it.entry.value
@@ -247,14 +249,19 @@ func mapRange(it *_mapIterator) (bool, unsafe.Pointer, unsafe.Pointer) {
 		if it.entry == nil {
 			it.bucket++
 		}
-		return true, k, v
+		return true, it, k, v
 	}
 }
 
 func mapIsNil(m _map) bool {
-	return len(m.data.buckets) == 0
+	return len(m.state.data) == 0
 }
 
 func nextPow2(n int) int {
-	return n + (2 - (n % 2))
+	n--
+	n |= n >> 1
+	n |= n >> 2
+	n |= n >> 4
+	n |= n >> 8
+	return n + 1
 }

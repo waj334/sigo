@@ -47,7 +47,7 @@ MlirOperation mlirGoCreateAndNotOperation(MlirContext context, MlirType resultTy
 MlirOperation mlirGoCreateCmpCOperation(MlirContext context, MlirType resultType, MlirAttribute predicate, MlirValue x,
                                         MlirValue y, MlirLocation location) {
     auto _context = unwrap(context);
-    auto _predicate = unwrap(predicate).dyn_cast<::mlir::go::CmpFPredicateAttr>();
+    auto _predicate = mlir::cast<::mlir::go::CmpFPredicateAttr>(unwrap(predicate));
     auto _x = unwrap(x);
     auto _y = unwrap(y);
     auto _resultType = unwrap(resultType);
@@ -61,7 +61,7 @@ MlirOperation mlirGoCreateCmpCOperation(MlirContext context, MlirType resultType
 MlirOperation mlirGoCreateCmpFOperation(MlirContext context, MlirType resultType, MlirAttribute predicate, MlirValue x,
                                         MlirValue y, MlirLocation location) {
     auto _context = unwrap(context);
-    auto _predicate = unwrap(predicate).dyn_cast<::mlir::go::CmpFPredicateAttr>();
+    auto _predicate = mlir::cast<::mlir::go::CmpFPredicateAttr>(unwrap(predicate));
     auto _x = unwrap(x);
     auto _y = unwrap(y);
     auto _resultType = unwrap(resultType);
@@ -75,7 +75,7 @@ MlirOperation mlirGoCreateCmpFOperation(MlirContext context, MlirType resultType
 MlirOperation mlirGoCreateCmpIOperation(MlirContext context, MlirType resultType, MlirAttribute predicate, MlirValue x,
                                         MlirValue y, MlirLocation location) {
     auto _context = unwrap(context);
-    auto _predicate = unwrap(predicate).dyn_cast<::mlir::go::CmpIPredicateAttr>();
+    auto _predicate = mlir::cast<::mlir::go::CmpIPredicateAttr>(unwrap(predicate));
     auto _x = unwrap(x);
     auto _y = unwrap(y);
     auto _resultType = unwrap(resultType);
@@ -241,7 +241,7 @@ MlirOperation mlirGoCreateMapLookupOperation(MlirContext context, MlirType resul
     auto _key = unwrap(key);
     auto _location = unwrap(location);
 
-    auto boolType = mlir::IntegerType::get(_context, 1);
+    auto boolType = mlir::go::BooleanType::get(_context);
 
     mlir::OpBuilder builder(_context);
     mlir::Operation *op = builder.create<::mlir::go::MapLookupOp>(_location, _resultType,
@@ -255,14 +255,14 @@ MlirOperation mlirGoCreateMapLookupOperation(MlirContext context, MlirType resul
 //===----------------------------------------------------------------------===//
 
 MlirOperation mlirGoCreateAllocaOperation(MlirContext context, MlirType resultType, MlirType elementType,
-                                          MlirValue *numElements, bool isHeap, MlirLocation location) {
+                                          intptr_t numElements, bool isHeap, MlirLocation location) {
     auto _context = unwrap(context);
     auto _resultType = unwrap(resultType);
     auto _elementType = unwrap(elementType);
     auto _location = unwrap(location);
-    mlir::Value _numElements;
-    if (numElements) {
-        _numElements = unwrap(*numElements);
+    intptr_t _numElements = 1;
+    if (numElements > 0) {
+        _numElements = numElements;
     }
     auto _heap = isHeap ? UnitAttr::get(_context) : UnitAttr();
 
@@ -724,7 +724,7 @@ MlirOperation mlirGoCreateTypeAssertOperation(MlirContext context, MlirValue val
     mlir::OpBuilder builder(_context);
     mlir::Operation *op = builder.create<::mlir::go::TypeAssertOp>(_location,
                                                                    _type,
-                                                                   ::mlir::IntegerType::get(_context, 1),
+                                                                   mlir::go::BooleanType::get(_context),
                                                                    _value);
     return wrap(op);
 }
@@ -957,7 +957,7 @@ MlirOperation mlirGoCreateGoOperation(MlirContext context, MlirValue fn, MlirTyp
                                       MlirValue *args, MlirLocation location) {
     auto _context = unwrap(context);
     auto _fn = unwrap(fn);
-    auto _signature = mlir::cast<FunctionType>(unwrap(signature));
+    auto _signature = mlir::cast<mlir::go::FunctionType>(unwrap(signature));
 
     StringAttr _method;
     const auto _methodStr = unwrap(method);
@@ -979,7 +979,7 @@ MlirOperation mlirGoCreateInterfaceCall(MlirContext context, MlirStringRef calle
                                         MlirValue ifaceValue, intptr_t nArgs, MlirValue *args, MlirLocation location) {
     auto _context = unwrap(context);
     auto _callee = unwrap(callee);
-    auto _signature = cast<mlir::FunctionType>(unwrap(signature));
+    auto _signature = mlir::cast<mlir::go::FunctionType>(unwrap(signature));
     auto _ifaceValue = unwrap(ifaceValue);
     auto _location = unwrap(location);
 
@@ -1007,6 +1007,24 @@ MlirOperation mlirGoCreateRuntimeCallOperation(MlirContext context, MlirStringRe
 
     mlir::OpBuilder builder(_context);
     mlir::Operation *op = builder.create<::mlir::go::RuntimeCallOp>(_location, _resultTypes, _callee, _operands);
+    return wrap(op);
+}
+
+MlirOperation mlirGoCreateBuiltInCallOperation(MlirContext context, MlirStringRef identifier, intptr_t nResultTypes,
+                                               MlirType *resultTypes, intptr_t nOperands, MlirValue *operands,
+                                               MlirLocation location) {
+    auto _context = unwrap(context);
+    auto _identifier = unwrap(identifier);
+    auto _location = unwrap(location);
+
+    ::llvm::SmallVector<::mlir::Type> _resultTypes;
+    (void) unwrapList(nResultTypes, resultTypes, _resultTypes);
+
+    ::llvm::SmallVector<::mlir::Value> _operands;
+    (void) unwrapList(nOperands, operands, _operands);
+
+    mlir::OpBuilder builder(_context);
+    mlir::Operation *op = builder.create<::mlir::go::BuiltInCallOp>(_location, _resultTypes, _identifier, _operands);
     return wrap(op);
 }
 

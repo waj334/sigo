@@ -1,17 +1,8 @@
 # -*- Python -*-
 
-import os
-import platform
-import re
-import subprocess
-import tempfile
-
-import lit.formats
 import lit.util
-
+import os
 from lit.llvm import llvm_config
-from lit.llvm.subst import ToolSubst
-from lit.llvm.subst import FindTool
 
 # Configuration file for the 'lit' test runner.
 
@@ -52,7 +43,7 @@ tool_dirs = [config.go_tools_dir, config.llvm_tools_dir]
 tools = [
     'go-capi-test',
     'go-opt',
-    #'go-translate',
+    # 'go-translate',
 ]
 
 llvm_config.add_tool_substitutions(tools, tool_dirs)

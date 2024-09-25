@@ -16,13 +16,14 @@ include "mlir/IR/OpBase.td"
 // FuncOp
 //===----------------------------------------------------------------------===//
 
-def FuncOp : Go_Op<"func", [IsolatedFromAbove]> {
+def FuncOp : Go_Op<"func", [
+        AffineScope, AutomaticAllocationScope,
+        FunctionOpInterface, IsolatedFromAbove, OpAsmOpInterface]> {
     let arguments = (ins
-        TypeAttrOf<FunctionType>:$function_type,
-        OptionalAttr<SymbolNameAttr>:$sym_name,
+        TypeAttrOf<GoFunctionType>:$function_type,
+        SymbolNameAttr:$sym_name,
         OptionalAttr<DictArrayAttr>:$arg_attrs,
         OptionalAttr<DictArrayAttr>:$res_attrs);
-    let results = (outs Optional<FunctionType>:$result);
     let regions = (region AnyRegion:$body);
     let builders = [
         OpBuilder<(ins
@@ -30,6 +31,35 @@ def FuncOp : Go_Op<"func", [IsolatedFromAbove]> {
             "FunctionType":$type,
             CArg<"ArrayRef<NamedAttribute>", "{}">:$attrs)>
     ];
+    let extraClassDeclaration = [{
+        //===------------------------------------------------------------------===//
+        // FunctionOpInterface Methods
+        //===------------------------------------------------------------------===//
+
+        /// Returns the region on the current operation that is callable. This may
+        /// return null in the case of an external callable object, e.g. an external
+        /// function.
+        ::mlir::Region *getCallableRegion() { return isExternal() ? nullptr : &getBody(); }
+
+        /// Returns the argument types of this function.
+        ArrayRef<Type> getArgumentTypes() { return getFunctionType().getInputs(); }
+
+        /// Returns the result types of this function.
+        ArrayRef<Type> getResultTypes() { return getFunctionType().getResults(); }
+
+        //===------------------------------------------------------------------===//
+        // OpAsmOpInterface Methods
+        //===------------------------------------------------------------------===//
+
+        /// Allow the dialect prefix to be omitted.
+        static StringRef getDefaultDialect() { return "go"; }
+
+        //===------------------------------------------------------------------===//
+        // SymbolOpInterface Methods
+        //===------------------------------------------------------------------===//
+
+        bool isDeclaration() { return isExternal(); }
+    }];
     let hasCustomAssemblyFormat = 1;
     let skipDefaultBuilders = 1;
     let hasVerifier = 1;

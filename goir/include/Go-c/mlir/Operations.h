@@ -129,7 +129,7 @@ MlirOperation mlirGoCreateMapLookupOperation(MlirContext context, MlirType resul
 //===----------------------------------------------------------------------===//
 
 MlirOperation mlirGoCreateAllocaOperation(MlirContext context, MlirType resultType, MlirType elementType,
-                                          MlirValue *numElements, bool isHeap, MlirLocation location);
+                                          intptr_t numElements, bool isHeap, MlirLocation location);
 
 void mlirGoAllocaOperationSetName(MlirOperation op, MlirStringRef name);
 
@@ -315,13 +315,18 @@ MlirOperation mlirGoCreateCallIndirectOperation(MlirContext context, MlirValue c
 MlirOperation mlirGoCreateDeferOperation(MlirContext context, MlirValue fn, MlirAttribute *method, intptr_t nArgs,
                                          MlirValue *args, MlirLocation location);
 
-MlirOperation mlirGoCreateGoOperation(MlirContext context, MlirValue fn, MlirType signature, MlirStringRef method, intptr_t nArgs,
+MlirOperation mlirGoCreateGoOperation(MlirContext context, MlirValue fn, MlirType signature, MlirStringRef method,
+                                      intptr_t nArgs,
                                       MlirValue *args, MlirLocation location);
 
 MlirOperation mlirGoCreateInterfaceCall(MlirContext context, MlirStringRef callee, MlirType signature, MlirValue value,
                                         intptr_t nArgs, MlirValue *args, MlirLocation location);
 
 MlirOperation mlirGoCreateRuntimeCallOperation(MlirContext context, MlirStringRef callee, intptr_t nResultTypes,
+                                               MlirType *resultTypes, intptr_t nOperands, MlirValue *operands,
+                                               MlirLocation location);
+
+MlirOperation mlirGoCreateBuiltInCallOperation(MlirContext context, MlirStringRef identifier, intptr_t nResultTypes,
                                                MlirType *resultTypes, intptr_t nOperands, MlirValue *operands,
                                                MlirLocation location);
 

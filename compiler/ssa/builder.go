@@ -170,6 +170,7 @@ func NewBuilder(config Config) *Builder {
 		"func":                "runtime._func",
 		"namedTypeData":       "runtime._namedTypeData",
 		"funcData":            "runtime._funcData",
+		"interfaceData":       "runtime._interfaceData",
 		"interfaceMethodData": "runtime._interfaceMethodData",
 		"signatureTypeData":   "runtime._signatureTypeData",
 		"arrayTypeData":       "runtime._arrayTypeData",
@@ -214,8 +215,8 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 			fname = evalPath
 		}
 
-		nameAttr := mlir.StringAttrGet(b.ctx, filepath.Base(file.Name()))
-		fnameAttr := mlir.StringAttrGet(b.ctx, fname)
+		nameAttr := mlir.StringAttrGet(b.ctx, filepath.Base(fname))
+		fnameAttr := mlir.StringAttrGet(b.ctx, filepath.Dir(fname))
 		diFileAttr := mlir.LLVMDIFileAttrGet(b.ctx, nameAttr, fnameAttr)
 		b.diFiles[file] = diFileAttr
 
@@ -224,12 +225,13 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 		compileUnitAttr := mlir.LLVMDICompileUnitAttrGet(
 			b.ctx,
 			idAttr,
-			uint(llvm.DWARFSourceLanguageGo),
+			uint(llvm.DWARFSourceLanguageC)+1,
 			diFileAttr,
 			producerAttr,
 			false,
 			mlir.LLVMDIEmissionKindFull,
-			mlir.LLVMDINameTableKindDefault,
+			mlir.LLVMDINameTableKindNone,
+			//mlir.LLVMDINameTableKindDefault,
 		)
 		b.compileUnits[file] = compileUnitAttr
 		return true

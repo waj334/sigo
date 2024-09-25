@@ -1,0 +1,10 @@
+# These packages will be included from the Go standard library when staging SiGo standard library.
+include:
+  - internal/bytealg
+  - io
+  - unicode
+  - unicode/utf8
+
+exclude:
+  - io/fs
+  - io/ioutil

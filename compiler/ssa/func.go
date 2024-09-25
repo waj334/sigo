@@ -110,21 +110,26 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 	region := mlir.RegionCreate()
 	ctx = newContextWithRegion(ctx, region)
 
-	// Collect input information.
 	argOffset := 0
-	inputs := make(inputParams, mlir.FunctionTypeGetNumInputs(data.mlirType))
-	for i := 0; i < len(inputs); i++ {
-		inputs[i].t = mlir.FunctionTypeGetInput(data.mlirType, i)
-	}
 
+	// Determine this number of inputs required to call this function.
+	numInputs := mlir.GoFunctionTypeGetNumInputs(data.mlirType)
+	if data.signature.Recv() != nil {
+		numInputs++
+	}
+	inputs := make(inputParams, numInputs)
+
+	// Collect input information.
 	if data.signature.Recv() != nil {
 		// The receiver is the first parameter to this function. So, offset by 1.
 		argOffset = 1
+		inputs[0].t = mlir.GoFunctionTypeGetReceiver(data.mlirType)
 		inputs[0].l = b.location(data.signature.Recv().Pos())
 	}
 
 	for i := 0; i < data.signature.Params().Len(); i++ {
 		param := data.signature.Params().At(i)
+		inputs[argOffset+i].t = mlir.GoFunctionTypeGetInput(data.mlirType, i)
 		inputs[argOffset+i].l = b.location(param.Pos())
 	}
 
@@ -253,7 +258,7 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 	}
 
 	// Create the function operation.
-	state := mlir.OperationStateGet("func.func", loc)
+	state := mlir.OperationStateGet("go.func", loc)
 	mlir.OperationStateAddOwnedRegions(state, []mlir.Region{region})
 	visibility := "public"
 	if !data.isExported || data.body == nil {
@@ -383,7 +388,7 @@ func (b *Builder) createThunk(ctx context.Context, symbol string, callee string,
 	// Look up the thunk in the symbol table first.
 	if _, ok := b.thunks[symbol]; !ok {
 		// Create the argument struct type.
-		argsType := mlir.GoCreateLiteralStructType(b.ctx, argTypes)
+		argsType := mlir.GoCreateBasicStructType(b.ctx, argTypes)
 
 		nArgs := len(argTypes)
 		if hasReceiver {
@@ -430,7 +435,7 @@ func (b *Builder) createThunk(ctx context.Context, symbol string, callee string,
 		})
 
 		// Create the function operation for this thunk.
-		thunkFuncType := mlir.FunctionTypeGet(b.ctx, paramTypes, resultTypes)
+		thunkFuncType := mlir.GoCreateFunctionType(b.ctx, nil, paramTypes, resultTypes)
 		state := mlir.OperationStateGet("func.func", b._noLoc)
 		mlir.OperationStateAddOwnedRegions(state, []mlir.Region{region})
 		mlir.OperationStateAddAttributes(state, []mlir.NamedAttribute{
@@ -461,7 +466,7 @@ func (b *Builder) createArgumentPack(ctx context.Context, args []mlir.Value, loc
 	}
 
 	// Create the argument struct.
-	argsType := mlir.GoCreateLiteralStructType(b.ctx, argTypes)
+	argsType := mlir.GoCreateBasicStructType(b.ctx, argTypes)
 	zeroOp := mlir.GoCreateZeroOperation(b.ctx, argsType, location)
 	appendOperation(ctx, zeroOp)
 	argsValue := resultOf(zeroOp)

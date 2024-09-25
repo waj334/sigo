@@ -206,7 +206,7 @@ var (
 )
 
 func init() {
-	env := builder.Environment()
+	env, _ := builder.Environment()
 	rootCmd.Flags().StringVarP(&sigoRoot, "sigoRoot", "s", env["SIGOROOT"], "SiGo root directory to merge. Default: $SIGOROOT")
 	rootCmd.Flags().StringVarP(&goRoot, "goRoot", "g", env["GOROOT"], "Go root directory to merge. Default: $GOROOT")
 	rootCmd.Flags().StringVarP(&rootDir, "dir", "o", env["SIGOROOT"]+"/root", "Resulting directory. Default: $SIGOROOT/root")

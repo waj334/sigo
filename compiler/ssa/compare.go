@@ -66,7 +66,11 @@ func (b *Builder) cmpFPredicate(tok token.Token) mlir.Attribute {
 
 func (b *Builder) emitIntegerCompare(ctx context.Context, op token.Token, X mlir.Value, Y mlir.Value, location mlir.Location) mlir.Value {
 	baseType := mlir.GoGetBaseType(mlir.ValueGetType(X))
-	predicate := b.cmpIPredicate(op, isUnsigned(baseType))
+	unsigned := true
+	if !mlir.GoTypeIsBoolean(baseType) {
+		unsigned = isUnsigned(baseType)
+	}
+	predicate := b.cmpIPredicate(op, unsigned)
 	cmpOp := mlir.GoCreateCmpIOperation(b.ctx, b.i1, predicate, X, Y, location)
 	appendOperation(ctx, cmpOp)
 	return resultOf(cmpOp)
@@ -336,7 +340,8 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 
 func (b *Builder) emitNegation(ctx context.Context, X mlir.Value, location mlir.Location) mlir.Value {
 	// Negate the input boolean value.
-	trueAttr := mlir.IntegerAttrGet(b.i1, 1)
+	boolIntType := mlir.IntegerTypeGet(b.ctx, 1)
+	trueAttr := mlir.IntegerAttrGet(boolIntType, 1)
 	constTrueOp := mlir.GoCreateConstantOperation(b.ctx, trueAttr, b.i1, location)
 	appendOperation(ctx, constTrueOp)
 
@@ -351,19 +356,30 @@ func (b *Builder) emitLogicalComparison(ctx context.Context, expr *ast.BinaryExp
 	// Create the exit block where execution should continue following the expression.
 	exitBlock := mlir.BlockCreate2([]mlir.Type{b.i1}, []mlir.Location{location})
 
-	// Evaluate X amnd Y in the current block.
+	// Evaluate X the current block.
 	X := b.emitExpr(ctx, expr.X)[0]
-	Y := b.emitExpr(ctx, expr.Y)[0]
+
+	// Create the block in which to evaluate Y.
+	yBlock := mlir.BlockCreate2(nil, nil)
+	buildBlock(ctx, yBlock, func() {
+		// Evaluate Y in the other block.
+		Y := b.emitExpr(ctx, expr.Y)[0]
+
+		// The result of the above expression is the result of the entire logical comparison.
+		brOp := mlir.GoCreateBranchOperation(b.ctx, exitBlock, []mlir.Value{Y}, location)
+		appendOperation(ctx, brOp)
+	})
+	appendBlock(ctx, yBlock)
 
 	switch expr.Op {
 	case token.LAND:
 		// Branch to exit block passing either Y (X = true) or X (X = false) as the block parameter.
-		condBrOp := mlir.GoCreateCondBranchOperation(b.ctx, X, exitBlock, []mlir.Value{Y}, exitBlock, []mlir.Value{X},
+		condBrOp := mlir.GoCreateCondBranchOperation(b.ctx, X, yBlock, []mlir.Value{}, exitBlock, []mlir.Value{X},
 			location)
 		appendOperation(ctx, condBrOp)
 	case token.LOR:
 		// Branch to exit block passing either X (X = true) or Y (X = false) as the block parameter.
-		condBrOp := mlir.GoCreateCondBranchOperation(b.ctx, X, exitBlock, []mlir.Value{X}, exitBlock, []mlir.Value{Y},
+		condBrOp := mlir.GoCreateCondBranchOperation(b.ctx, X, exitBlock, []mlir.Value{X}, yBlock, []mlir.Value{},
 			location)
 		appendOperation(ctx, condBrOp)
 	default:
