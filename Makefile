@@ -183,7 +183,7 @@ clean-tests:
 clean-sigo:
 	rm $(SIGO_EXE)
 
-configure-llvm: $(LLVM_CMAKE_CACHE)
+configure-llvm:
 	@mkdir -p ${LLVM_BUILD_DIR}
 	cmake -G "Ninja" -B ${LLVM_BUILD_DIR} $(ROOT_DIR)/thirdparty/llvm-project/llvm 	\
 		-DCMAKE_C_COMPILER=clang 													\
@@ -209,7 +209,7 @@ configure-llvm: $(LLVM_CMAKE_CACHE)
 build-llvm: configure-llvm
 	cmake --build ${LLVM_BUILD_DIR} -j$(NUM_JOBS)
 
-configure-goir: $(GOIR_CMAKE_CACHE) build-llvm
+configure-goir: build-llvm
 	cmake -G "Ninja" -B ${GOIR_BUILD_DIR} ${GOIR_ROOT}								\
 		-DCMAKE_C_COMPILER_TARGET=${CLANG_TARGET} 									\
 		-DCMAKE_C_COMPILER=clang 													\

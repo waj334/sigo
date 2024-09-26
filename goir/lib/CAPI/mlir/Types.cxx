@@ -480,6 +480,11 @@ bool mlirGoFunctionTypeHasReceiver(MlirType type)
   return false;
 }
 
+bool mlirGoTypeIsAFunctionType(MlirType type) {
+  const auto _type = mlir::go::cast<mlir::go::FunctionType>(unwrap(type));
+  return mlir::go::isa<mlir::go::FunctionType>(_type);
+}
+
 MlirType mlirGoFunctionTypeGetReceiver(MlirType type)
 {
   const auto _type = mlir::go::cast<mlir::go::FunctionType>(unwrap(type));

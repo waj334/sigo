@@ -18,7 +18,7 @@ include "mlir/IR/OpBase.td"
 
 def FuncOp : Go_Op<"func", [
         AffineScope, AutomaticAllocationScope,
-        FunctionOpInterface, IsolatedFromAbove, OpAsmOpInterface]> {
+        DeclareOpInterfaceMethods<FunctionOpInterface, [ "verifyBody" ]>, IsolatedFromAbove, OpAsmOpInterface]> {
     let arguments = (ins
         TypeAttrOf<GoFunctionType>:$function_type,
         SymbolNameAttr:$sym_name,
@@ -60,9 +60,23 @@ def FuncOp : Go_Op<"func", [
 
         bool isDeclaration() { return isExternal(); }
     }];
+
     let hasCustomAssemblyFormat = 1;
     let skipDefaultBuilders = 1;
     let hasVerifier = 1;
+}
+
+//===----------------------------------------------------------------------===//
+// ReturnOp
+//===----------------------------------------------------------------------===//
+
+def ReturnOp : Go_Op<"return", [Pure, HasParent<"FuncOp">, ReturnLike, Terminator]> {
+    let arguments = (ins
+        Variadic<Go_Type>:$operands);
+    let builders = [
+        OpBuilder<(ins), [{build($_builder, $_state, std::nullopt);}]>
+    ];
+    let assemblyFormat = "attr-dict ( $operands^ `:` type($operands) )?";
 }
 
 #endif // GO_OPERATIONS_FUNC_TD

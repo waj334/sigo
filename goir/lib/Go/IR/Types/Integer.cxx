@@ -30,7 +30,7 @@ mlir::Type IntegerType::parse(::mlir::AsmParser& p)
     width = widthValue;
   }
 
-  if (mnemonic == "i")
+  if (mnemonic == "si")
   {
     semantics = SignednessSemantics::Signed;
   }
@@ -56,7 +56,7 @@ void IntegerType::print(::mlir::AsmPrinter& p) const
   switch (this->getSignedness())
   {
     case SignednessSemantics::Signed:
-      p << "i";
+      p << "si";
       break;
     case SignednessSemantics::Unsigned:
       p << "ui";

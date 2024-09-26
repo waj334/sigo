@@ -890,7 +890,7 @@ MlirOperation mlirGoCreateReturnOperation(MlirContext context, intptr_t nOperand
     (void) unwrapList(nOperands, operands, _operands);
 
     mlir::OpBuilder builder(_context);
-    mlir::Operation *op = builder.create<::mlir::func::ReturnOp>(_location, _operands);
+    mlir::Operation *op = builder.create<mlir::go::ReturnOp>(_location, _operands);
     return wrap(op);
 }
 
@@ -912,7 +912,7 @@ MlirOperation mlirGoCreateCallOperation(MlirContext context, MlirStringRef calle
     (void) unwrapList(nOperands, operands, _operands);
 
     mlir::OpBuilder builder(_context);
-    mlir::Operation *op = builder.create<::mlir::func::CallOp>(_location, _resultTypes, _callee, _operands);
+    mlir::Operation *op = builder.create<mlir::go::CallOp>(_location, _resultTypes, _callee, _operands);
     return wrap(op);
 }
 

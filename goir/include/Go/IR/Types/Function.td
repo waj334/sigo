@@ -26,6 +26,10 @@ def GoFunctionType : GoDialect_Type<"Function", "function"> {
         {
             return FunctionType::get(this->getContext(), inputs, results, receiver);
         }
+
+        bool hasReceiver() {
+            return !!this->getReceiver();
+        }
     }];
     let assemblyFormat = [{
         ( `[` $receiver^ `]` )? `(` $inputs `)` `->` `(` $results `)`

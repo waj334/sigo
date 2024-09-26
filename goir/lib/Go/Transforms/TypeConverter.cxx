@@ -26,7 +26,7 @@ CoreTypeConverter::CoreTypeConverter(mlir::ModuleOp module)
   , RuntimeTypeLookUp(module)
 {
   mlir::DataLayout dataLayout(module);
-  const auto indexTypeWidth = dataLayout.getTypeSizeInBits(IndexType::get(module->getContext()));
+  const uint64_t indexTypeWidth = dataLayout.getTypeSizeInBits(IndexType::get(module.getContext()));
 
   // Add Go-specific type conversions
   this->addConversion([&](NamedType T) { return this->convertType(baseType(T)); });
@@ -47,14 +47,11 @@ CoreTypeConverter::CoreTypeConverter(mlir::ModuleOp module)
         FunctionType::get(T.getContext(), result.getConvertedTypes(), newResults));
     });
 
-  this->addConversion([&](BooleanType)
-                      { return mlir::IntegerType::get(module->getContext(), 1); });
-
   this->addConversion([&](BooleanType T)
-                      { return mlir::IntegerType::get(module->getContext(), 1); });
+                      { return mlir::IntegerType::get(T.getContext(), 1); });
 
   this->addConversion(
-    [&](IntegerType T)
+    [indexTypeWidth](IntegerType T)
     {
       if (auto width = T.getWidth(); width.has_value())
       {
@@ -62,6 +59,31 @@ CoreTypeConverter::CoreTypeConverter(mlir::ModuleOp module)
       }
       return mlir::IntegerType::get(T.getContext(), indexTypeWidth);
     });
+
+  this->addConversion([&](FunctionType T) {
+    SmallVector<Type> inputTypes;
+    inputTypes.reserve(T.hasReceiver() ? T.getNumInputs()+1 : T.getNumInputs());
+
+    SmallVector<Type> resultTypes;
+    resultTypes.reserve(T.getNumResults());
+
+    if (T.hasReceiver())
+    {
+      inputTypes.push_back(this->convertType(T.getReceiver()));
+    }
+
+    for (size_t i = 0; i < T.getNumInputs(); ++i)
+    {
+      inputTypes.push_back(this->convertType(T.getInput(i)));
+    }
+
+    for (size_t i = 0; i < T.getNumResults(); ++i)
+    {
+      resultTypes.push_back(this->convertType(T.getResult(i)));
+    }
+
+    return mlir::FunctionType::get(T.getContext(), inputTypes, resultTypes);
+  });
 
   this->ignoreType<FloatType>();
   this->ignoreType<ArrayType>();
@@ -152,8 +174,34 @@ LLVMTypeConverter::LLVMTypeConverter(mlir::ModuleOp module, const mlir::LowerToL
       return structType;
     });
 
-  this->addConversion([&](BooleanType)
-                      { return mlir::IntegerType::get(module->getContext(), 1); });
+  /*
+  this->addConversion([&](FunctionType T) {
+    SmallVector<Type> inputTypes;
+    inputTypes.reserve(T.hasReceiver() ? T.getNumInputs()+1 : T.getNumInputs());
+
+    SmallVector<Type> resultTypes;
+    resultTypes.reserve(T.getNumResults());
+
+    if (T.hasReceiver())
+    {
+      inputTypes.push_back(this->convertType(T.getReceiver()));
+    }
+
+    for (size_t i = 0; i < T.getNumInputs(); ++i)
+    {
+      inputTypes.push_back(this->convertType(T.getInput(i)));
+    }
+
+    for (size_t i = 0; i < T.getNumResults(); ++i)
+    {
+      resultTypes.push_back(this->convertType(T.getResult(i)));
+    }
+
+    return mlir::FunctionType::get(T.getContext(), inputTypes, resultTypes);
+  });*/
+
+  this->addConversion([&](BooleanType T)
+                      { return mlir::IntegerType::get(T.getContext(), 1); });
 
   this->addConversion(
     [&](IntegerType T)

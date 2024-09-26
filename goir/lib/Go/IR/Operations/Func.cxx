@@ -220,4 +220,8 @@ LogicalResult FuncOp::verify()
   return success();
 }
 
+::mlir::LogicalResult FuncOp::verifyBody() {
+  return success();
+}
+
 } // namespace mlir::go
