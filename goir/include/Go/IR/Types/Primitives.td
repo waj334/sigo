@@ -3,7 +3,30 @@
 
 include "Go/IR/GoDialect.td"
 
-def BooleanType : GoDialect_Type<"Boolean", "bool"> {
+def BooleanType : GoDialect_Type<"Boolean", "bool", [
+            DeclareTypeInterfaceMethods<DataLayoutTypeInterface, ["getTypeSize"]>
+        ]> {
+    let extraClassDefinition = [{
+        ::llvm::TypeSize $cppClass::getTypeSizeInBits(const DataLayout &dataLayout,
+                                                                      DataLayoutEntryListRef params) const {
+            return ::llvm::TypeSize::getFixed(8);
+        }
+
+        ::llvm::TypeSize $cppClass::getTypeSize(const DataLayout &dataLayout,
+                                            DataLayoutEntryListRef params) const {
+            return ::llvm::TypeSize::getFixed(1);
+        }
+
+        uint64_t $cppClass::getABIAlignment(const DataLayout &dataLayout,
+                                                DataLayoutEntryListRef params) const {
+            return 1;
+        }
+
+        uint64_t $cppClass::getPreferredAlignment(const DataLayout &dataLayout,
+                                             DataLayoutEntryListRef params) const {
+            return 1;
+        }
+    }];
 }
 
 def IntegerType : GoDialect_Type<"Integer", "integer", [
@@ -52,7 +75,7 @@ def IntegerType : GoDialect_Type<"Integer", "integer", [
             mlir::Type T;
             const auto width = this->getWidth();
             if (width.has_value()) {
-                mlir::IntegerType::get(this->getContext(), *width);
+                T = mlir::IntegerType::get(this->getContext(), *width);
             } else {
                 T = IndexType::get(this->getContext());
             }

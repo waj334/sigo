@@ -28,12 +28,12 @@ def BranchOp : Go_Op<"br", [Terminator, NoMemoryEffect]> {
 
 def CondBranchOp : Go_Op<"cond_br", [Terminator, AttrSizedOperandSegments,
         NoMemoryEffect]> {
-     let arguments = (ins I1:$condition,
+     let arguments = (ins Go_Bool:$condition,
         Variadic<Go_Type>:$trueDestOperands,
         Variadic<Go_Type>:$falseDestOperands);
      let successors = (successor AnySuccessor:$trueDest, AnySuccessor:$falseDest);
      let assemblyFormat = [{
-        $condition `,`
+        $condition `:` type($condition) `,`
         $trueDest (`(` $trueDestOperands^ `:` type($trueDestOperands) `)`)? `,`
         $falseDest (`(` $falseDestOperands^ `:` type($falseDestOperands) `)`)?
         attr-dict

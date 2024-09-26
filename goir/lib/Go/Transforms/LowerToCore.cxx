@@ -73,8 +73,7 @@ struct AndNotOpLowering : public OpConversionPattern<AndNotOp>
     mlir::Location loc = op.getLoc();
 
     auto rhsValue = adaptor.getRhs();
-    const auto rhsType =
-      mlir::dyn_cast<mlir::IntegerType>(typeConverter->convertType(rhsValue.getType()));
+    const auto rhsType = rhsValue.getType();
     rewriter.setInsertionPointAfter(op->getPrevNode());
 
     uint64_t allOnes;

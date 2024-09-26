@@ -11,16 +11,30 @@ include "mlir/IR/BuiltinAttributeInterfaces.td"
 include "mlir/IR/OpBase.td"
 
 //===----------------------------------------------------------------------===//
+// CallOp
+//===----------------------------------------------------------------------===//
+
+def CallOp : Go_Op<"call"> {
+    let arguments = (ins
+        FlatSymbolRefAttr:$callee,
+        Variadic<Go_Type>:$operands);
+    let results = (outs Variadic<Go_Type>);
+    let assemblyFormat = [{
+        $callee `(` $operands `)` attr-dict `:` functional-type($operands, results)
+    }];
+}
+
+//===----------------------------------------------------------------------===//
 // CallIndirectOp
 //===----------------------------------------------------------------------===//
 
 def CallIndirectOp : Go_Op<"call_indirect", [
             TypesMatchWith<"callee input types match argument types",
                          "callee", "callee_operands",
-                         "::mlir::go::cast<FunctionType>($_self).getInputs()">,
+                         "::mlir::go::cast<::mlir::go::FunctionType>($_self).getInputs()">,
             TypesMatchWith<"callee result types match result types",
                          "callee", "results",
-                         "::mlir::go::cast<FunctionType>($_self).getResults()">
+                         "::mlir::go::cast<::mlir::go::FunctionType>($_self).getResults()">
         ]> {
     let arguments = (ins Go_Function:$callee, Variadic<Go_Type>:$callee_operands);
     let results = (outs Variadic<Go_Type>:$results);

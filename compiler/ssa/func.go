@@ -358,7 +358,7 @@ func (b *Builder) createFunctionValue(ctx context.Context, fn mlir.Value, args m
 	zeroOp := mlir.GoCreateZeroOperation(b.ctx, b._func, location)
 	appendOperation(ctx, zeroOp)
 
-	if mlir.TypeIsAFunction(mlir.ValueGetType(fn)) {
+	if mlir.GoTypeIsAFunctionType(mlir.ValueGetType(fn)) {
 		// Bitcast the function value to a pointer.
 		fn = b.bitcastTo(ctx, fn, b.ptr, location)
 	}

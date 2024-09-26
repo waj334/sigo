@@ -111,6 +111,8 @@ extern "C"
     intptr_t nResults,
     MlirType* results);
 
+  bool mlirGoTypeIsAFunctionType(MlirType type);
+
   bool mlirGoFunctionTypeHasReceiver(MlirType type);
 
   MlirType mlirGoFunctionTypeGetReceiver(MlirType type);

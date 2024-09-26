@@ -41,7 +41,7 @@ struct IRPrinterConfig : public mlir::PassManager::IRPrinterConfig {
 
     static auto New(const llvm::StringRef dir) { return std::make_unique<IRPrinterConfig>(dir); }
 
-    void printBeforeIfEnabled(mlir::Pass *pass, mlir::Operation *operation, PrintCallbackFn printCallback) {
+    void printBeforeIfEnabled(mlir::Pass *pass, mlir::Operation *operation, PrintCallbackFn printCallback) override {
         std::string fname = m_dir.str() + "/" + pass->getArgument().str() + ".before.mlir";
         std::ofstream os(fname);
         if (!os.is_open()) {
@@ -54,7 +54,7 @@ struct IRPrinterConfig : public mlir::PassManager::IRPrinterConfig {
         os.close();
     }
 
-    void printAfterIfEnabled(mlir::Pass *pass, mlir::Operation *operation, PrintCallbackFn printCallback) {
+    void printAfterIfEnabled(mlir::Pass *pass, mlir::Operation *operation, PrintCallbackFn printCallback) override {
         std::string fname = m_dir.str() + "/" + pass->getArgument().str() + ".after.mlir";
         std::ofstream os(fname);
         if (!os.is_open()) {
