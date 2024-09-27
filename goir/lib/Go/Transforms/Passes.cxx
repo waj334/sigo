@@ -44,16 +44,6 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
     populateCallOpTypeConversionPattern(patterns, typeConverter);
     populateReturnOpTypeConversionPattern(patterns, typeConverter);
 
-    // Add dynamic legality constraints to apply conversions defined above.
-    target.addDynamicallyLegalOp<func::FuncOp>(
-      [&](func::FuncOp op) { return typeConverter.isSignatureLegal(op.getFunctionType()); });
-
-    target.addDynamicallyLegalOp<func::ReturnOp>(
-      [&](func::ReturnOp op) { return typeConverter.isLegal(op.getOperandTypes()); });
-
-    target.addDynamicallyLegalOp<func::CallOp>(
-      [&](func::CallOp op) { return typeConverter.isSignatureLegal(op.getCalleeType()); });
-
     // Mark illegal operations
     target.addIllegalOp<AddCOp>();
     target.addIllegalOp<AddFOp>();
@@ -68,8 +58,8 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
 
         // Bitcast is legal when the operand is non-numeric as that operation will be lowered
         // directly to LLVM.
-        return !go::isa<IntegerType>(operandtype) && !go::isa<FloatType>(operandtype) &&
-          !go::isa<ComplexType>(operandtype);
+        return !go::isa<mlir::go::IntegerType>(operandtype) && !go::isa<mlir::FloatType>(operandtype) &&
+          !go::isa<mlir::ComplexType>(operandtype);
       });
 
     target.addIllegalOp<BranchOp>();
@@ -124,6 +114,7 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
     target.addIllegalOp<FloatToUnsignedIntOp>();
     target.addIllegalOp<FloatToSignedIntOp>();
     target.addIllegalOp<FloatTruncateOp>();
+    target.addIllegalOp<FuncOp>();
     target.addIllegalOp<GoOp>();
     target.addIllegalOp<ImagOp>();
     target.addIllegalOp<IntTruncateOp>();
@@ -141,6 +132,7 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
     target.addIllegalOp<RemFOp>();
     target.addIllegalOp<RemSIOp>();
     target.addIllegalOp<RemUIOp>();
+    target.addIllegalOp<ReturnOp>();
     target.addIllegalOp<ShlOp>();
     target.addIllegalOp<ShrSIOp>();
     target.addIllegalOp<ShrUIOp>();
@@ -174,7 +166,7 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
     target.addLegalOp<AtomicAddIOp>();
     target.addLegalOp<AtomicCompareAndSwapIOp>();
     target.addLegalOp<AtomicSwapIOp>();
-    target.addLegalOp<BitcastOp>();
+    //target.addLegalOp<BitcastOp>();
     target.addLegalOp<func::CallIndirectOp>();
     target.addLegalOp<ChangeInterfaceOp>();
     target.addLegalOp<func::ConstantOp>();

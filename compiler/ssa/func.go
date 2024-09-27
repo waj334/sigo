@@ -275,7 +275,7 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 	if data.isPackageInit {
 		mlir.OperationStateAddAttributes(state, []mlir.NamedAttribute{
 			b.namedOf("package_initializer", mlir.UnitAttrGet(b.ctx)),
-			b.namedOf("priority", mlir.IntegerAttrGet(mlir.IntegerTypeGet(b.ctx, 32), int64(data.priority))),
+			b.namedOf("priority", b.int32Attr(int32(data.priority))),
 		})
 	}
 

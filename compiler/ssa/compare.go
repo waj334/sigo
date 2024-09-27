@@ -340,9 +340,7 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 
 func (b *Builder) emitNegation(ctx context.Context, X mlir.Value, location mlir.Location) mlir.Value {
 	// Negate the input boolean value.
-	boolIntType := mlir.IntegerTypeGet(b.ctx, 1)
-	trueAttr := mlir.IntegerAttrGet(boolIntType, 1)
-	constTrueOp := mlir.GoCreateConstantOperation(b.ctx, trueAttr, b.i1, location)
+	constTrueOp := mlir.GoCreateConstantOperation(b.ctx, b.boolAttr(true), b.i1, location)
 	appendOperation(ctx, constTrueOp)
 
 	xorOp := mlir.GoCreateXorOperation(b.ctx, b.i1, X, resultOf(constTrueOp), location)

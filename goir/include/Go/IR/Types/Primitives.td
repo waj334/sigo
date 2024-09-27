@@ -29,7 +29,7 @@ def BooleanType : GoDialect_Type<"Boolean", "bool", [
     }];
 }
 
-def IntegerType : GoDialect_Type<"Integer", "integer", [
+def GoIntegerType : GoDialect_Type<"Integer", "integer", [
             DeclareTypeInterfaceMethods<DataLayoutTypeInterface, ["getTypeSize"]>
         ]> {
     let parameters = (ins

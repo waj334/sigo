@@ -140,12 +140,7 @@ func (b *Builder) makeCopyOf(ctx context.Context, X mlir.Value, location mlir.Lo
 }
 
 func (b *Builder) emitConstBool(ctx context.Context, value bool, location mlir.Location) mlir.Value {
-	var v int64 = 0
-	if value {
-		v = 1
-	}
-	boolIntType := mlir.IntegerTypeGet(b.ctx, 1)
-	op := mlir.GoCreateConstantOperation(b.ctx, mlir.IntegerAttrGet(boolIntType, v), b.i1, location)
+	op := mlir.GoCreateConstantOperation(b.ctx, b.boolAttr(value), b.i1, location)
 	appendOperation(ctx, op)
 	return resultOf(op)
 }
@@ -178,8 +173,7 @@ func (b *Builder) emitConstFloat64(ctx context.Context, value float64, location 
 
 func (b *Builder) emitConstInt(ctx context.Context, value int64, T mlir.Type, location mlir.Location) mlir.Value {
 	// NOTE: The integer type used with integer attributes must be signless.
-	attrIntType := mlir.IntegerTypeGet(b.ctx, 64)
-	op := mlir.GoCreateConstantOperation(b.ctx, mlir.IntegerAttrGet(attrIntType, value), T, location)
+	op := mlir.GoCreateConstantOperation(b.ctx, b.intAttr(value), T, location)
 	appendOperation(ctx, op)
 	return resultOf(op)
 }

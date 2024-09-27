@@ -28,7 +28,10 @@ def GoFunctionType : GoDialect_Type<"Function", "function"> {
         }
 
         bool hasReceiver() {
-            return !!this->getReceiver();
+            if (this->getReceiver()) {
+                return true;
+            }
+            return false;
         }
     }];
     let assemblyFormat = [{

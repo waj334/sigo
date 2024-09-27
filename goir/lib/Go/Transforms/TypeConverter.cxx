@@ -47,8 +47,7 @@ CoreTypeConverter::CoreTypeConverter(mlir::ModuleOp module)
         FunctionType::get(T.getContext(), result.getConvertedTypes(), newResults));
     });
 
-  this->addConversion([&](BooleanType T)
-                      { return mlir::IntegerType::get(T.getContext(), 1); });
+  this->addConversion([&](BooleanType T) { return mlir::IntegerType::get(T.getContext(), 1); });
 
   this->addConversion(
     [indexTypeWidth](IntegerType T)
@@ -60,30 +59,32 @@ CoreTypeConverter::CoreTypeConverter(mlir::ModuleOp module)
       return mlir::IntegerType::get(T.getContext(), indexTypeWidth);
     });
 
-  this->addConversion([&](FunctionType T) {
-    SmallVector<Type> inputTypes;
-    inputTypes.reserve(T.hasReceiver() ? T.getNumInputs()+1 : T.getNumInputs());
-
-    SmallVector<Type> resultTypes;
-    resultTypes.reserve(T.getNumResults());
-
-    if (T.hasReceiver())
+  this->addConversion(
+    [&](FunctionType T)
     {
-      inputTypes.push_back(this->convertType(T.getReceiver()));
-    }
+      SmallVector<Type> inputTypes;
+      inputTypes.reserve(T.hasReceiver() ? T.getNumInputs() + 1 : T.getNumInputs());
 
-    for (size_t i = 0; i < T.getNumInputs(); ++i)
-    {
-      inputTypes.push_back(this->convertType(T.getInput(i)));
-    }
+      SmallVector<Type> resultTypes;
+      resultTypes.reserve(T.getNumResults());
 
-    for (size_t i = 0; i < T.getNumResults(); ++i)
-    {
-      resultTypes.push_back(this->convertType(T.getResult(i)));
-    }
+      if (T.hasReceiver())
+      {
+        inputTypes.push_back(this->convertType(T.getReceiver()));
+      }
 
-    return mlir::FunctionType::get(T.getContext(), inputTypes, resultTypes);
-  });
+      for (size_t i = 0; i < T.getNumInputs(); ++i)
+      {
+        inputTypes.push_back(this->convertType(T.getInput(i)));
+      }
+
+      for (size_t i = 0; i < T.getNumResults(); ++i)
+      {
+        resultTypes.push_back(this->convertType(T.getResult(i)));
+      }
+
+      return mlir::FunctionType::get(T.getContext(), inputTypes, resultTypes);
+    });
 
   this->ignoreType<FloatType>();
   this->ignoreType<ArrayType>();
@@ -97,14 +98,45 @@ CoreTypeConverter::CoreTypeConverter(mlir::ModuleOp module)
   this->ignoreType<LLVM::LLVMStructType>();
   this->ignoreType<ComplexType>();
 
-  auto addBitcast = [](OpBuilder& builder, Type type, ValueRange inputs, Location loc)
-  {
-    auto cast = builder.create<mlir::go::BitcastOp>(loc, type, inputs);
-    return std::optional<Value>(cast.getResult());
-  };
+  addSourceMaterialization(
+    [&](
+      OpBuilder& builder, Type resultType, ValueRange inputs, Location loc) -> std::optional<Value>
+    {
+      if (inputs.size() != 1)
+      {
+        return std::nullopt;
+      }
 
-  addSourceMaterialization(addBitcast);
-  addTargetMaterialization(addBitcast);
+      /*
+      if (mlir::isa<mlir::IntegerType>(resultType))
+      {*/
+        // Handle integer type mismatch between dialects.
+        return builder.create<UnrealizedConversionCastOp>(loc, resultType, inputs).getResult(0);
+      /*}
+
+      // Otherwise, this type can be bitcasted using the Go dialect's bitcast operation.
+      return builder.create<mlir::go::BitcastOp>(loc, resultType, inputs);*/
+    });
+
+  addTargetMaterialization(
+    [&](
+      OpBuilder& builder, Type resultType, ValueRange inputs, Location loc) -> std::optional<Value>
+    {
+      if (inputs.size() != 1)
+      {
+        return std::nullopt;
+      }
+
+      /*
+      if (mlir::go::isa<IntegerType>(resultType))
+      {*/
+        // Handle integer type mismatch between dialects.
+        return builder.create<UnrealizedConversionCastOp>(loc, resultType, inputs).getResult(0);
+      /*}
+
+      // Otherwise, this type can be bitcasted using the Go dialect's bitcast operation.
+      return builder.create<mlir::go::BitcastOp>(loc, resultType, inputs);*/
+    });
 }
 
 mlir::Type CoreTypeConverter::convertArray(ArrayType T) const
@@ -200,8 +232,7 @@ LLVMTypeConverter::LLVMTypeConverter(mlir::ModuleOp module, const mlir::LowerToL
     return mlir::FunctionType::get(T.getContext(), inputTypes, resultTypes);
   });*/
 
-  this->addConversion([&](BooleanType T)
-                      { return mlir::IntegerType::get(T.getContext(), 1); });
+  this->addConversion([&](BooleanType T) { return mlir::IntegerType::get(T.getContext(), 1); });
 
   this->addConversion(
     [&](IntegerType T)

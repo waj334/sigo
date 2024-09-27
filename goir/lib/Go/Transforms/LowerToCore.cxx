@@ -532,6 +532,23 @@ struct RemUIOpLowering : public OpConversionPattern<RemUIOp>
   }
 };
 
+struct ReturnOpLowering : public OpConversionPattern<ReturnOp>
+{
+  using OpConversionPattern::OpConversionPattern;
+
+  LogicalResult matchAndRewrite(ReturnOp op, OpAdaptor adaptor, ConversionPatternRewriter& rewriter)
+    const override
+  {
+    SmallVector<mlir::Type> resultTypes;
+    if (failed(this->getTypeConverter()->convertTypes(op->getResultTypes(), resultTypes)))
+    {
+      return rewriter.notifyMatchFailure(op, "failed to convert return types");
+    }
+    rewriter.replaceOpWithNewOp<mlir::func::ReturnOp>(op, resultTypes, adaptor.getOperands());
+    return success();
+  }
+};
+
 struct ShlOpLowering : OpConversionPattern<ShlOp>
 {
   using OpConversionPattern::OpConversionPattern;
@@ -666,6 +683,43 @@ struct FloatTruncateOpLowering : public OpConversionPattern<FloatTruncateOp>
   {
     rewriter.replaceOpWithNewOp<mlir::arith::TruncFOp>(
       op, typeConverter->convertType(op.getResult().getType()), adaptor.getValue());
+    return success();
+  }
+};
+
+struct FuncOpLowering : public OpConversionPattern<FuncOp>
+{
+  using OpConversionPattern::OpConversionPattern;
+
+  mlir::LogicalResult
+  matchAndRewrite(FuncOp op, OpAdaptor adaptor, ConversionPatternRewriter& rewriter) const override
+  {
+    // TypeConverter::SignatureConversion result(op.getNumArguments());
+
+    SmallVector<NamedAttribute> attrs;
+    attrs.reserve(adaptor.getAttributes().size());
+    for (auto attr : adaptor.getAttributes())
+    {
+      if (attr.getName() == "function_type" || attr.getName() == "sym_name")
+      {
+        continue;
+      }
+      attrs.push_back(attr);
+    }
+
+    const auto fnT =
+      mlir::cast<mlir::FunctionType>(this->typeConverter->convertType(adaptor.getFunctionType()));
+    auto newOp =
+      rewriter.replaceOpWithNewOp<mlir::func::FuncOp>(op, adaptor.getSymName(), fnT, attrs);
+
+    // Move the function body to the new function.
+    rewriter.inlineRegionBefore(op.getFunctionBody(), newOp.getBody(), newOp.end());
+
+    // Convert the argument types.
+    if (failed(rewriter.convertRegionTypes(&newOp.getBody(), *this->typeConverter))) //, &result)))
+    {
+      return rewriter.notifyMatchFailure(op, "region types conversion failed");
+    }
     return success();
   }
 };
@@ -910,6 +964,7 @@ void populateGoToCoreConversionPatterns(
             transforms::core::FloatToSignedIntOpLowering,
             transforms::core::FloatToUnsignedIntOpLowering,
             transforms::core::FloatTruncateOpLowering,
+            transforms::core::FuncOpLowering,
             transforms::core::GlobalOpLowering,
             transforms::core::ImagOpLowering,
             transforms::core::IntTruncateOpLowering,
@@ -925,6 +980,7 @@ void populateGoToCoreConversionPatterns(
             transforms::core::RemFOpLowering,
             transforms::core::RemSIOpLowering,
             transforms::core::RemUIOpLowering,
+            transforms::core::ReturnOpLowering,
             transforms::core::ShlOpLowering,
             transforms::core::ShrSIOpLowering,
             transforms::core::ShrUIOpLowering,
