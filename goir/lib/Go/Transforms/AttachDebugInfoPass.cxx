@@ -110,10 +110,10 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
         const auto compileUnitAttr = fusedLocWithCompileUnit.getMetadata();
         const auto linknameAttr = op.getSymNameAttr();
 
-        mlir::StringRef name = op.getSymName().str();
-        if (name.contains("."))
+        std::string name = op.getSymNameAttr().str();
+        if (const auto index = name.find('.'); index != std::string::npos)
         {
-          name = name.substr(name.find_last_of(".") + 1);
+          name = name.substr(index + 1);
         }
         const auto nameAttr = StringAttr::get(context, name);
 
