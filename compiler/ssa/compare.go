@@ -95,7 +95,7 @@ func (b *Builder) emitInterfaceCompare(ctx context.Context, op token.Token, X ml
 	var result mlir.Value
 	if typeIs[*types.Interface](YT) {
 		// Emit the runtime call to compare the two interface types.
-		op := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.interfaceCompare", b.types(b.i1), b.values(X, Y), location)
+		op := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.interfaceCompare"), b.types(b.i1), b.values(X, Y), location)
 		appendOperation(ctx, op)
 		result = resultOf(op)
 	} else {
@@ -110,7 +110,7 @@ func (b *Builder) emitInterfaceCompare(ctx context.Context, op token.Token, X ml
 		Y = b.bitcastTo(ctx, Y, b.ptr, location)
 
 		// Emit the runtime call to compare the interface type against the arbitrary value.
-		op := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.interfaceCompareTo", b.types(b.i1), b.values(X, infoValue, Y), location)
+		op := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.interfaceCompareTo"), b.types(b.i1), b.values(X, infoValue, Y), location)
 		appendOperation(ctx, op)
 		result = resultOf(op)
 	}
@@ -124,7 +124,7 @@ func (b *Builder) emitInterfaceCompare(ctx context.Context, op token.Token, X ml
 }
 
 func (b *Builder) emitStringCompare(ctx context.Context, op token.Token, X mlir.Value, Y mlir.Value, location mlir.Location) mlir.Value {
-	cmpOp := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.stringCompare", b.types(b.i1), b.values(X, Y), location)
+	cmpOp := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.stringCompare"), b.types(b.i1), b.values(X, Y), location)
 	appendOperation(ctx, cmpOp)
 	result := resultOf(cmpOp)
 	if op == token.NEQ {
@@ -326,11 +326,11 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 		X = resultOf(extractOp)
 		return b.emitPointerCompare(ctx, expr.Op, X, Y, location)
 	case typeIs[*types.Slice](XT):
-		op := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.sliceIsNil", b.types(b.i1), b.values(X), location)
+		op := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.sliceIsNil"), b.types(b.i1), b.values(X), location)
 		appendOperation(ctx, op)
 		return resultOf(op)
 	case typeIs[*types.Map](XT):
-		op := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.mapIsNil", b.types(b.i1), b.values(X), location)
+		op := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.mapIsNil"), b.types(b.i1), b.values(X), location)
 		appendOperation(ctx, op)
 		return resultOf(op)
 	default:

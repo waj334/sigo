@@ -6,9 +6,10 @@ namespace mlir::go {
         const auto loc = op.getLoc();
         auto module = op->getParentOfType<ModuleOp>();
         const auto resultType = mlir::cast<ChanType>(op.getType());
+        const auto calleeSymbol = formatPackageSymbol("runtime", "channelMake");
 
         // Get the runtime function.
-        auto func = module.lookupSymbol<FuncOp>("runtime.channelMake");
+        auto func = module.lookupSymbol<FuncOp>(calleeSymbol);
         const auto argTypes = func.getArgumentTypes();
 
         // The info type pointer is the first argument.
@@ -20,7 +21,7 @@ namespace mlir::go {
         // Lower to runtime call.
         const SmallVector<Type> results = {op.getType()};
         const SmallVector<Value> args = {info, op.getCapacity()};
-        rewriter.replaceOpWithNewOp<RuntimeCallOp>(op, results, "runtime.channelMake", args);
+        rewriter.replaceOpWithNewOp<RuntimeCallOp>(op, results, calleeSymbol, args);
         return success();
     }
 
@@ -28,9 +29,10 @@ namespace mlir::go {
         const auto loc = op.getLoc();
         auto module = op->getParentOfType<ModuleOp>();
         const auto resultType = mlir::cast<MapType>(op.getType());
+        const auto calleeSymbol = formatPackageSymbol("runtime", "mapMake");
 
         // Get the runtime function.
-        auto func = module.lookupSymbol<FuncOp>("runtime.mapMake");
+        auto func = module.lookupSymbol<FuncOp>(calleeSymbol);
         const auto argTypes = func.getArgumentTypes();
 
         // The info type pointer is the first argument.
@@ -43,7 +45,7 @@ namespace mlir::go {
         // Lower to runtime call.
         const SmallVector<Type> results = {op.getType()};
         const SmallVector<Value> args = {keyInfo, elementInfo, op.getCapacity()};
-        rewriter.replaceOpWithNewOp<RuntimeCallOp>(op, results, "runtime.mapMake", args);
+        rewriter.replaceOpWithNewOp<RuntimeCallOp>(op, results, calleeSymbol, args);
         return success();
     }
 
@@ -51,9 +53,10 @@ namespace mlir::go {
         const auto loc = op.getLoc();
         auto module = op->getParentOfType<ModuleOp>();
         const auto resultType = mlir::cast<SliceType>(op.getType());
+        const auto calleeSymbol = formatPackageSymbol("runtime", "sliceMake");
 
         // Get the runtime function.
-        auto func = module.lookupSymbol<FuncOp>("runtime.sliceMake");
+        auto func = module.lookupSymbol<FuncOp>(calleeSymbol);
         const auto argTypes = func.getArgumentTypes();
 
         // The info type pointer is the first argument.
@@ -66,16 +69,17 @@ namespace mlir::go {
         const SmallVector<Type, 1> results = {op.getType()};
         const SmallVector<Value, 3> args = {info, op.getLength(), op.getCapacity() ? op.getCapacity() : op.getLength()};
 
-        rewriter.replaceOpWithNewOp<RuntimeCallOp>(op, results, "runtime.sliceMake", args);
+        rewriter.replaceOpWithNewOp<RuntimeCallOp>(op, results, calleeSymbol, args);
         return success();
     }
 
     LogicalResult MakeInterfaceOp::canonicalize(MakeInterfaceOp op, PatternRewriter &rewriter) {
         const auto loc = op.getLoc();
         auto module = op->getParentOfType<ModuleOp>();
+        const auto calleeSymbol = formatPackageSymbol("runtime", "interfaceMake");
 
         // Get the runtime function.
-        auto func = module.lookupSymbol<FuncOp>("runtime.interfaceMake");
+        auto func = module.lookupSymbol<FuncOp>(calleeSymbol);
         const auto argTypes = func.getArgumentTypes();
 
         // The info type pointer is the second argument.
@@ -93,7 +97,7 @@ namespace mlir::go {
         // Lower to runtime call.
         const SmallVector<Type> results = {op.getType()};
         const SmallVector<Value> args = {addr, info};
-        rewriter.replaceOpWithNewOp<RuntimeCallOp>(op, results, "runtime.interfaceMake", args);
+        rewriter.replaceOpWithNewOp<RuntimeCallOp>(op, results, calleeSymbol, args);
         return success();
     }
 }

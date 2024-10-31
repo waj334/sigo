@@ -3,7 +3,9 @@
 
 include "Go/IR/GoDialect.td"
 
-def GoFunctionType : GoDialect_Type<"Function", "function"> {
+def GoFunctionType : GoDialect_Type<"Function", "function", [
+            DeclareTypeInterfaceMethods<DataLayoutTypeInterface, ["getTypeSize"]>
+        ]> {
     let parameters = (ins
         OptionalParameter<"::mlir::Type">:$receiver,
         ArrayRefParameter<"::mlir::Type">:$inputs,
@@ -32,6 +34,24 @@ def GoFunctionType : GoDialect_Type<"Function", "function"> {
                 return true;
             }
             return false;
+        }
+    }];
+    let extraClassDefinition = [{
+        ::llvm::TypeSize FunctionType::getTypeSizeInBits(const DataLayout &dataLayout,
+                                                              DataLayoutEntryListRef params) const {
+            return dataLayout.getTypeSizeInBits(IndexType::get(this->getContext()));
+        }
+        ::llvm::TypeSize FunctionType::getTypeSize(const DataLayout &dataLayout,
+                                            DataLayoutEntryListRef params) const {
+            return dataLayout.getTypeSize(IndexType::get(this->getContext()));
+        }
+        uint64_t FunctionType::getABIAlignment(const DataLayout &dataLayout,
+                                                DataLayoutEntryListRef params) const {
+            return dataLayout.getTypeABIAlignment(IndexType::get(this->getContext()));
+        }
+        uint64_t FunctionType::getPreferredAlignment(const DataLayout &dataLayout,
+                                             DataLayoutEntryListRef params) const {
+            return dataLayout.getTypeSizeInBits(IndexType::get(this->getContext()));
         }
     }];
     let assemblyFormat = [{

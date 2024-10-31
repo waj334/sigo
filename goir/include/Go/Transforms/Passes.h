@@ -8,6 +8,8 @@ namespace mlir::go
 {
 std::unique_ptr<Pass> createAttachDebugInfoPass();
 
+std::unique_ptr<Pass> createExtractTypeMetadataPass();
+
 std::unique_ptr<mlir::Pass> createGlobalConstantsPass();
 
 std::unique_ptr<Pass> createGlobalInitializerPass();

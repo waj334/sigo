@@ -74,7 +74,7 @@ func (b *Builder) emitSelectStatement(ctx context.Context, stmt *ast.SelectStmt)
 
 	// Create the runtime call to select a ready channel.
 	hasDefaultValue := b.emitConstBool(ctx, defaultIdx != -1, b.location(stmt.Pos()))
-	callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.channelSelect", []mlir.Type{b.si},
+	callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.channelSelect"), []mlir.Type{b.si},
 		[]mlir.Value{chanSliceValue, sendSliceValue, readySliceValue, hasDefaultValue}, b.location(stmt.Pos()))
 	appendOperation(ctx, callOp)
 	caseIdxValue := resultOf(callOp)
@@ -147,7 +147,7 @@ func (b *Builder) emitReceiveExpression(ctx context.Context, expr *ast.UnaryExpr
 	addr := resultOf(addrOp)
 
 	// Emit the runtime call to perform the channel receive.
-	op := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.channelReceive", []mlir.Type{b.i1}, []mlir.Value{channel, addr}, b.location(expr.Pos()))
+	op := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.channelReceive"), []mlir.Type{b.i1}, []mlir.Value{channel, addr}, b.location(expr.Pos()))
 	appendOperation(ctx, op)
 	okValue := resultOf(op)
 
@@ -169,6 +169,6 @@ func (b *Builder) emitSendStatement(ctx context.Context, stmt *ast.SendStmt) {
 	valueAddr := b.makeCopyOf(ctx, value, b.location(stmt.Pos()))
 
 	// Emit the runtime call to perform the channel send.
-	op := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.channelSend", nil, []mlir.Value{channel, valueAddr}, b.location(stmt.Pos()))
+	op := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.channelSend"), nil, []mlir.Value{channel, valueAddr}, b.location(stmt.Pos()))
 	appendOperation(ctx, op)
 }

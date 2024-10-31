@@ -38,11 +38,12 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
     target.addLegalDialect<arith::ArithDialect>();
     target.addLegalDialect<complex::ComplexDialect>();
     target.addLegalDialect<cf::ControlFlowDialect>();
+    target.addLegalDialect<func::FuncDialect>();
     target.addLegalDialect<LLVM::LLVMDialect>();
 
-    populateFunctionOpInterfaceTypeConversionPattern<func::FuncOp>(patterns, typeConverter);
-    populateCallOpTypeConversionPattern(patterns, typeConverter);
-    populateReturnOpTypeConversionPattern(patterns, typeConverter);
+    // populateFunctionOpInterfaceTypeConversionPattern<func::FuncOp>(patterns, typeConverter);
+    // populateCallOpTypeConversionPattern(patterns, typeConverter);
+    // populateReturnOpTypeConversionPattern(patterns, typeConverter);
 
     // Mark illegal operations
     target.addIllegalOp<AddCOp>();
@@ -54,12 +55,14 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
     target.addDynamicallyLegalOp<BitcastOp>(
       [](BitcastOp op)
       {
-        auto operandtype = op.getValue().getType();
-
-        // Bitcast is legal when the operand is non-numeric as that operation will be lowered
-        // directly to LLVM.
-        return !go::isa<mlir::go::IntegerType>(operandtype) && !go::isa<mlir::FloatType>(operandtype) &&
-          !go::isa<mlir::ComplexType>(operandtype);
+        if (const Type operandType = mlir::go::baseType(op.getValue().getType());
+            mlir::go::isa<mlir::go::IntegerType>(operandType) ||
+            mlir::go::isa<mlir::FloatType>(operandType) ||
+            mlir::go::isa<mlir::ComplexType>(operandType))
+        {
+          return false;
+        }
+        return true;
       });
 
     target.addIllegalOp<BranchOp>();
@@ -74,7 +77,7 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
           .Default(true);
       });
 
-    target.addIllegalOp<CallIndirectOp>();
+    target.addIllegalOp<CallOp>();
     target.addIllegalOp<ComplexOp>();
     target.addIllegalOp<CmpCOp>();
     target.addIllegalOp<CmpFOp>();
@@ -114,7 +117,7 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
     target.addIllegalOp<FloatToUnsignedIntOp>();
     target.addIllegalOp<FloatToSignedIntOp>();
     target.addIllegalOp<FloatTruncateOp>();
-    target.addIllegalOp<FuncOp>();
+    target.addIllegalOp<mlir::go::FuncOp>();
     target.addIllegalOp<GoOp>();
     target.addIllegalOp<ImagOp>();
     target.addIllegalOp<IntTruncateOp>();
@@ -166,8 +169,8 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
     target.addLegalOp<AtomicAddIOp>();
     target.addLegalOp<AtomicCompareAndSwapIOp>();
     target.addLegalOp<AtomicSwapIOp>();
-    //target.addLegalOp<BitcastOp>();
     target.addLegalOp<func::CallIndirectOp>();
+    target.addLegalOp<CallIndirectOp>();
     target.addLegalOp<ChangeInterfaceOp>();
     target.addLegalOp<func::ConstantOp>();
     target.addLegalOp<DeferOp>();

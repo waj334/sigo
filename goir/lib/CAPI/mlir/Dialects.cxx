@@ -2,7 +2,7 @@
 
 #include "Go/IR/GoAttrs.h"
 #include "Go/IR/GoDialect.h"
-#include "Go/IR/GoTypes.h"
+#include "Go/IR/GoOps.h"
 #include "Go/Transforms/TypeInfo.h"
 #include "Go/Transforms/Passes.h"
 
@@ -18,7 +18,6 @@
 #include <llvm/IR/DataLayout.h>
 #include <mlir/Dialect/DLTI/DLTI.h>
 #include <mlir/Dialect/LLVMIR/Transforms/Passes.h>
-#include <mlir/Dialect/Func/IR/FuncOps.h>
 #include <mlir/Dialect/Transform/IR/TransformDialect.h>
 #include <mlir/Target/LLVMIR/Dialect/Builtin/BuiltinToLLVMIRTranslation.h>
 #include <mlir/Target/LLVMIR/Dialect/LLVMIR/LLVMToLLVMIRTranslation.h>
@@ -70,6 +69,13 @@ struct IRPrinterConfig : public mlir::PassManager::IRPrinterConfig {
 private:
     const llvm::StringRef m_dir;
 };
+
+void mlirGoInitializeContext(MlirContext context)
+{
+  mlir::MLIRContext* _context = unwrap(context);
+
+  // TODO: Initialize any module-level interfaces here.
+}
 
 MlirStringRef mlirModuleDump(MlirModule module) {
     auto _module = unwrap(module);
@@ -211,14 +217,16 @@ MlirLogicalResult mlirGoOptimizeModule(MlirModule module, MlirStringRef name, Ml
         pm.enableTiming();
     }
 
-    pm.addPass(mlir::createCanonicalizerPass());
-    pm.addNestedPass<mlir::func::FuncOp>(mlir::go::createOptimizeDefersPass());
+    pm.addNestedPass<mlir::go::FuncOp>(mlir::go::createOptimizeDefersPass());
     pm.addPass(mlir::go::createCallPass());
     pm.addPass(mlir::go::createAttachDebugInfoPass());
-    //pm.addPass(mlir::go::createLowerTypeInfoPass());
     pm.addPass(mlir::go::createGlobalConstantsPass());
     pm.addPass(mlir::go::createGlobalInitializerPass());
-    pm.addNestedPass<mlir::func::FuncOp>(mlir::go::createHeapEscapePass());
+    pm.addNestedPass<mlir::go::FuncOp>(mlir::go::createHeapEscapePass());
+
+    // Run the canonicalizer pass after Go-centric passes so no context is lost.
+    pm.addPass(mlir::createCanonicalizerPass());
+
     pm.addPass(mlir::go::createLowerToCorePass());
     pm.addPass(mlir::go::createLowerToLLVMPass());
     pm.addNestedPass<mlir::LLVM::LLVMFuncOp>(mlir::LLVM::createLegalizeForExportPass());

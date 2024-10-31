@@ -71,7 +71,7 @@ LogicalResult InterfaceTypeStorage::mutate(
   }
 
   // Check methods.
-  for (const auto [_, methodType] : methods)
+  for (const auto& [_, methodType] : methods)
   {
     if (!mlir::isa<FunctionType>(methodType))
     {

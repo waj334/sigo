@@ -90,9 +90,7 @@ func (b *Builder) emitTypeConversion(ctx context.Context, X mlir.Value, src type
 				value := b.emitStringValue(ctx, resultOf(allocOp), b.emitConstInt(ctx, 1, b.si, location), location)
 
 				// Reinterpret as !go.string type.
-				bitcastOp := mlir.GoCreateBitcastOperation(b.ctx, value, destType, location)
-				appendOperation(ctx, bitcastOp)
-				result = resultOf(bitcastOp)
+				result = b.bitcastTo(ctx, value, destType, location)
 			case isUnsafePointer(dest):
 				op := mlir.GoCreateIntToPtrOperation(b.ctx, X, destType, location)
 				appendOperation(ctx, op)
@@ -143,35 +141,29 @@ func (b *Builder) emitTypeConversion(ctx context.Context, X mlir.Value, src type
 		case typeHasFlags(src, types.IsString):
 			switch {
 			case typeIs[*types.Slice](dest):
-				op := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.stringToSlice", []mlir.Type{b._slice}, []mlir.Value{X}, location)
+				op := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.stringToSlice"), []mlir.Type{b._slice}, []mlir.Value{X}, location)
 				appendOperation(ctx, op)
 
 				// Reinterpret as !go.slice type.
-				bitcastOp := mlir.GoCreateBitcastOperation(b.ctx, resultOf(op), destType, location)
-				appendOperation(ctx, bitcastOp)
-				result = resultOf(bitcastOp)
+				result = b.bitcastTo(ctx, resultOf(op), destType, location)
 			default:
 				panic("unhandled")
 			}
 		case typeIs[*types.Pointer](src):
 			switch {
 			case isUnsafePointer(dest), typeIs[*types.Pointer](src):
-				op := mlir.GoCreateBitcastOperation(b.ctx, X, destType, location)
-				appendOperation(ctx, op)
-				result = resultOf(op)
+				result = b.bitcastTo(ctx, X, destType, location)
 			default:
 				panic("unhandled")
 			}
 		case typeIs[*types.Slice](src):
 			switch {
 			case typeHasFlags(dest, types.IsString):
-				op := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.sliceToString", []mlir.Type{b._string}, []mlir.Value{X}, location)
+				op := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.sliceToString"), []mlir.Type{b._string}, []mlir.Value{X}, location)
 				appendOperation(ctx, op)
 
 				// Reinterpret as !go.string type.
-				bitcastOp := mlir.GoCreateBitcastOperation(b.ctx, resultOf(op), destType, location)
-				appendOperation(ctx, bitcastOp)
-				result = resultOf(bitcastOp)
+				result = b.bitcastTo(ctx, resultOf(op), destType, location)
 			default:
 				panic("unhandled")
 			}
@@ -182,9 +174,7 @@ func (b *Builder) emitTypeConversion(ctx context.Context, X mlir.Value, src type
 				appendOperation(ctx, op)
 				result = resultOf(op)
 			case typeIs[*types.Pointer](dest):
-				op := mlir.GoCreateBitcastOperation(b.ctx, X, destType, location)
-				appendOperation(ctx, op)
-				result = resultOf(op)
+				result = b.bitcastTo(ctx, X, destType, location)
 			default:
 				panic("unhandled")
 			}

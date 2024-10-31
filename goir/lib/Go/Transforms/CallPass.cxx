@@ -180,17 +180,17 @@ struct CallPass : public mlir::PassWrapper<CallPass, mlir::OperationPass<mlir::M
         IRRewriter rewriter(op);
 
         const auto loc = op.getLoc();
-        const auto calleeType = go::baseType(op.getCallee().getType());
+        const auto calleeType = mlir::go::baseType(op.getCallee().getType());
         const auto callArgs = op.getCalleeOperands();
         const auto signature = mlir::cast<FunctionType>(op.getSignature());
 
         Value funcValue;
 
         TypeSwitch<Type>(calleeType)
-          .Case(
-            [&](const FunctionType T)
+          .Case<FunctionType, PointerType>(
+            [&](const Type&)
             {
-              if (T.getNumInputs() > 0)
+              if (signature.getNumInputs() > 0)
               {
                 // Collect the expected argument pack struct member types.
                 // NOTE: The pointer to the callee is the first argument.
@@ -218,7 +218,12 @@ struct CallPass : public mlir::PassWrapper<CallPass, mlir::OperationPass<mlir::M
                 {
                   auto arg = callArgs[i];
                   Value addr = rewriter.create<GetElementPointerOp>(
-                    loc, ptrType, args, argPackType, ValueRange{}, SmallVector<int32_t>{ 0, i + 1 });
+                    loc,
+                    ptrType,
+                    args,
+                    argPackType,
+                    ValueRange{},
+                    SmallVector<int32_t>{ 0, i + 1 });
                   rewriter.create<StoreOp>(loc, arg, addr, UnitAttr(), UnitAttr());
                 }
 
@@ -284,7 +289,12 @@ struct CallPass : public mlir::PassWrapper<CallPass, mlir::OperationPass<mlir::M
                 {
                   auto arg = callArgs[i];
                   addr = rewriter.create<GetElementPointerOp>(
-                    loc, ptrType, args, argPackType, ValueRange{}, SmallVector<int32_t>{ 0, i + 2 });
+                    loc,
+                    ptrType,
+                    args,
+                    argPackType,
+                    ValueRange{},
+                    SmallVector<int32_t>{ 0, i + 2 });
                   rewriter.create<StoreOp>(loc, arg, addr, UnitAttr(), UnitAttr());
                 }
 
@@ -340,7 +350,7 @@ struct CallPass : public mlir::PassWrapper<CallPass, mlir::OperationPass<mlir::M
 
         // Replace the call operation with a runtime call to the scheduler.
         rewriter.replaceOpWithNewOp<RuntimeCallOp>(
-          op, SmallVector<Type>{}, "runtime.addTask", SmallVector<Value>{ funcValue });
+          op, SmallVector<Type>{}, formatPackageSymbol("runtime", "addTask"), SmallVector<Value>{ funcValue });
       });
   }
 };

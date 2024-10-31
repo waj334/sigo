@@ -13,6 +13,36 @@ namespace mlir::go
 {
 namespace transforms::core
 {
+
+SmallVector<Value> convertBlockArgs(
+  ConversionPatternRewriter& rewriter,
+  mlir::Location loc,
+  mlir::ValueRange inputs,
+  Block* dest)
+{
+  SmallVector<Value> result;
+  result.reserve(inputs.size());
+
+  for (size_t i = 0; i < inputs.size(); ++i)
+  {
+    Value operand = inputs[i];
+    if (dest)
+    {
+      const Type blockArgType = dest->getArgument(i).getType();
+      if (operand.getType() != blockArgType)
+      {
+        auto castOp = rewriter.create<mlir::UnrealizedConversionCastOp>(
+          loc, SmallVector<Type>{ blockArgType }, SmallVector<Value>{ operand });
+        result.push_back(castOp.getResult(0));
+        continue;
+      }
+    }
+    result.push_back(operand);
+  }
+
+  return result;
+}
+
 struct AddCOpLowering : public OpConversionPattern<AddCOp>
 {
   using OpConversionPattern::OpConversionPattern;
@@ -108,16 +138,24 @@ struct BitcastOpLowering : public OpConversionPattern<BitcastOp>
     OpAdaptor adaptor,
     ConversionPatternRewriter& rewriter) const override
   {
-    auto resultType = typeConverter->convertType(op.getType());
-    if (mlir::isa<ComplexType>(op.getType()))
-    {
-      rewriter.replaceOpWithNewOp<complex::BitcastOp>(op, resultType, adaptor.getValue());
-    }
-    else
-    {
-      rewriter.replaceOpWithNewOp<mlir::arith::BitcastOp>(op, resultType, adaptor.getValue());
-    }
-    return success();
+    const Type operandType = mlir::go::baseType(op.getValue().getType());
+    const auto resultType = typeConverter->convertType(op.getType());
+    return mlir::TypeSwitch<mlir::Type, mlir::LogicalResult>(operandType)
+      .Case<mlir::go::IntegerType, mlir::FloatType>(
+        [&](auto)
+        {
+          rewriter.replaceOpWithNewOp<mlir::arith::BitcastOp>(op, resultType, adaptor.getValue());
+          return success();
+        })
+      .Case(
+        [&](mlir::ComplexType)
+        {
+          rewriter.replaceOpWithNewOp<complex::BitcastOp>(op, resultType, adaptor.getValue());
+          return success();
+        })
+      .Default(
+        [&](auto) -> mlir::LogicalResult
+        { return rewriter.notifyMatchFailure(op, "incompatible bitcast operation"); });
   }
 };
 
@@ -163,24 +201,21 @@ struct BuiltInCallOpLowering : public OpConversionPattern<BuiltInCallOp>
   }
 };
 
-struct CallIndirectOpLowering : public OpConversionPattern<CallIndirectOp>
+struct CallOpLowering : public OpConversionPattern<CallOp>
 {
   using OpConversionPattern::OpConversionPattern;
 
-  mlir::LogicalResult matchAndRewrite(
-    CallIndirectOp op,
-    OpAdaptor adaptor,
-    ConversionPatternRewriter& rewriter) const override
+  mlir::LogicalResult
+  matchAndRewrite(CallOp op, OpAdaptor adaptor, ConversionPatternRewriter& rewriter) const override
   {
-    SmallVector<Type, 1> newResults;
-    if (failed(typeConverter->convertTypes(op.getResultTypes(), newResults)))
+    SmallVector<Type> resultTypes;
+    if (failed(this->getTypeConverter()->convertTypes(op.getResultTypes(), resultTypes)))
     {
-      return failure();
+      return op->emitError("failed to convert result types");
     }
 
-    auto callOp = rewriter.create<func::CallIndirectOp>(
-      op.getLoc(), adaptor.getCallee(), adaptor.getCalleeOperands());
-    rewriter.replaceOp(op, callOp);
+    rewriter.replaceOpWithNewOp<func::CallOp>(
+      op, op.getCallee(), resultTypes, adaptor.getOperands());
     return success();
   }
 };
@@ -328,13 +363,14 @@ struct CondBrOpLowering : public OpConversionPattern<CondBranchOp>
     OpAdaptor adaptor,
     ConversionPatternRewriter& rewriter) const override
   {
+    const auto loc = op.getLoc();
+    SmallVector<Value> trueOperands =
+      convertBlockArgs(rewriter, loc, adaptor.getTrueDestOperands(), op.getTrueDest());
+    SmallVector<Value> falseOperands =
+      convertBlockArgs(rewriter, loc, adaptor.getFalseDestOperands(), op.getFalseDest());
+
     rewriter.replaceOpWithNewOp<cf::CondBranchOp>(
-      op,
-      adaptor.getCondition(),
-      op.getTrueDest(),
-      adaptor.getTrueDestOperands(),
-      op.getFalseDest(),
-      op.getFalseDestOperands());
+      op, adaptor.getCondition(), op.getTrueDest(), trueOperands, op.getFalseDest(), falseOperands);
     return success();
   }
 };
@@ -687,39 +723,43 @@ struct FloatTruncateOpLowering : public OpConversionPattern<FloatTruncateOp>
   }
 };
 
-struct FuncOpLowering : public OpConversionPattern<FuncOp>
+struct FuncOpLowering : public OpConversionPattern<mlir::go::FuncOp>
 {
   using OpConversionPattern::OpConversionPattern;
 
-  mlir::LogicalResult
-  matchAndRewrite(FuncOp op, OpAdaptor adaptor, ConversionPatternRewriter& rewriter) const override
+  mlir::LogicalResult matchAndRewrite(
+    mlir::go::FuncOp op,
+    OpAdaptor adaptor,
+    ConversionPatternRewriter& rewriter) const override
   {
-    // TypeConverter::SignatureConversion result(op.getNumArguments());
+    const auto loc = op.getLoc();
 
     SmallVector<NamedAttribute> attrs;
     attrs.reserve(adaptor.getAttributes().size());
     for (auto attr : adaptor.getAttributes())
     {
-      if (attr.getName() == "function_type" || attr.getName() == "sym_name")
-      {
-        continue;
-      }
       attrs.push_back(attr);
     }
 
+    // Store the Go function type as a type attribute for generating metadata later.
+    attrs.emplace_back(
+      rewriter.getStringAttr("originalType"), mlir::TypeAttr::get(op.getFunctionType()));
+
     const auto fnT =
       mlir::cast<mlir::FunctionType>(this->typeConverter->convertType(adaptor.getFunctionType()));
-    auto newOp =
-      rewriter.replaceOpWithNewOp<mlir::func::FuncOp>(op, adaptor.getSymName(), fnT, attrs);
+    auto newOp = rewriter.create<mlir::func::FuncOp>(loc, adaptor.getSymName(), fnT, attrs);
 
     // Move the function body to the new function.
     rewriter.inlineRegionBefore(op.getFunctionBody(), newOp.getBody(), newOp.end());
 
     // Convert the argument types.
-    if (failed(rewriter.convertRegionTypes(&newOp.getBody(), *this->typeConverter))) //, &result)))
+    if (failed(rewriter.convertRegionTypes(&newOp.getBody(), *this->getTypeConverter())))
     {
       return rewriter.notifyMatchFailure(op, "region types conversion failed");
     }
+
+    // Finally, erase the old function.
+    rewriter.eraseOp(op);
     return success();
   }
 };
@@ -947,7 +987,7 @@ void populateGoToCoreConversionPatterns(
             transforms::core::BitcastOpLowering,
             transforms::core::BrOpLowering,
             transforms::core::BuiltInCallOpLowering,
-            transforms::core::CallIndirectOpLowering,
+            transforms::core::CallOpLowering,
             transforms::core::ComplexOpLowering,
             transforms::core::CmpCOpLowering,
             transforms::core::CmpFOpLowering,

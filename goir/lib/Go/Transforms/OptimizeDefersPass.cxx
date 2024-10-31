@@ -7,12 +7,12 @@
 namespace mlir::go
 {
 struct OptimizeDefersPass
-  : public mlir::PassWrapper<OptimizeDefersPass, mlir::OperationPass<mlir::func::FuncOp>>
+  : public mlir::PassWrapper<OptimizeDefersPass, mlir::OperationPass<mlir::go::FuncOp>>
 {
 public:
   void runOnOperation() final
   {
-    mlir::func::FuncOp func = getOperation();
+    mlir::go::FuncOp func = getOperation();
     SmallVector<mlir::Operation*, 16> operationsToRemove;
     bool hasDefer = false;
 
@@ -31,8 +31,8 @@ public:
           if (auto callee = callOp.getCalleeAttr(); callee)
           {
             if (
-              callee.getValue() == "runtime.deferStartStack" ||
-              callee.getValue() == "runtime.deferRun")
+              callee.getValue() == formatPackageSymbol("runtime", "deferStartStack") ||
+              callee.getValue() == formatPackageSymbol("runtime", "deferRun"))
             {
               operationsToRemove.push_back(&op);
             }
@@ -52,7 +52,7 @@ public:
 
   StringRef getArgument() const final { return "go-optimize-defers-pass"; }
 
-  StringRef getDescription() const final { return "Eliminate unneccessary defers"; }
+  StringRef getDescription() const final { return "Eliminate unnecessary defers"; }
 
   void getDependentDialects(DialectRegistry& registry) const override
   {

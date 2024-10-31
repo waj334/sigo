@@ -12,6 +12,8 @@ extern "C" {
 
 MLIR_DECLARE_CAPI_DIALECT_REGISTRATION(Go, go);
 
+void mlirGoInitializeContext(MlirContext context);
+
 MlirStringRef mlirModuleDump(MlirModule module);
 
 bool mlirModuleDumpToFile(MlirModule module, MlirStringRef fname);

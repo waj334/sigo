@@ -43,13 +43,17 @@ func (b *Builder) lookupValue(obj types.Object) Value {
 	return b.valueCache[obj]
 }
 
-func (b *Builder) emitLocalVar(ctx context.Context, obj types.Object, T mlir.Type) *LocalValue {
+func (b *Builder) emitLocalVar(ctx context.Context, obj types.Object, T mlir.Type, isArg bool) *LocalValue {
 	// Allocate memory for this local variable on the stack.
 	// NOTE: It may be determined later that this variable escapes to the heap and the following operation will be
 	//       replaced by a heap allocation.
 
 	ptrType := mlir.GoCreatePointerType(T)
 	allocaOp := mlir.GoCreateAllocaOperation(b.config.Ctx, ptrType, T, 1, false, b.location(obj.Pos()))
+
+	if isArg {
+		mlir.OperationSetAttributeByName(allocaOp, "isArgument", mlir.UnitAttrGet(b.ctx))
+	}
 
 	// NOTE: Omitted identifiers ( `_` )  will not have any debug information attached.
 	if len(obj.Name()) > 0 && obj.Name() != "_" {
@@ -70,7 +74,7 @@ func (b *Builder) emitLocalVar(ctx context.Context, obj types.Object, T mlir.Typ
 
 func (b *Builder) emitGlobalVar(ctx context.Context, ident *ast.Ident) *GlobalValue {
 	obj := b.objectOf(ctx, ident).(*types.Var)
-	symbol := qualifiedName(obj.Name(), obj.Pkg())
+	symbol := mangleSymbol(qualifiedName(obj.Name(), obj.Pkg()))
 	info := b.config.Program.Symbols.GetSymbolInfo(symbol)
 	T := b.GetStoredType(ctx, obj.Type())
 

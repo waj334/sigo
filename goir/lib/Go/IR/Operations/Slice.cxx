@@ -58,9 +58,11 @@ LogicalResult SliceAddrOp::canonicalize(SliceAddrOp op, PatternRewriter& rewrite
   auto module = op->getParentOfType<ModuleOp>();
   auto elemT = mlir::cast<SliceType>(op.getSlice().getType()).getElementType();
   Value index = op.getIndex();
+  const auto sliceIndexAddrSymbol = formatPackageSymbol("runtime", "sliceIndexAddr");
+
 
   // Get the runtime function.
-  auto func = module.lookupSymbol<FuncOp>("runtime.sliceIndexAddr");
+  auto func = module.lookupSymbol<FuncOp>(sliceIndexAddrSymbol);
   const auto argTypes = func.getArgumentTypes();
 
   // The info type pointer is the third argument.
@@ -76,7 +78,7 @@ LogicalResult SliceAddrOp::canonicalize(SliceAddrOp op, PatternRewriter& rewrite
   // Lower to runtime call.
   const SmallVector<Type> results = { op.getType() };
   const SmallVector<Value> args = { op.getSlice(), index, info };
-  rewriter.replaceOpWithNewOp<RuntimeCallOp>(op, results, "runtime.sliceIndexAddr", args);
+  rewriter.replaceOpWithNewOp<RuntimeCallOp>(op, results, sliceIndexAddrSymbol, args);
   return success();
 }
 
@@ -103,13 +105,16 @@ LogicalResult SliceOp::canonicalize(SliceOp op, PatternRewriter& rewriter)
   const auto inputType = op.getInput().getType();
   const auto intT = IntegerType::get(rewriter.getContext(), IntegerType::Signed);
   const auto uintptrT = IntegerType::get(rewriter.getContext(), IntegerType::Unsigned);
+  const auto sliceAddrSymbol = formatPackageSymbol("runtime", "sliceAddr");
+  const auto sliceResliceSymbol = formatPackageSymbol("runtime", "sliceReslice");
+  const auto stringSliceSymbol = formatPackageSymbol("runtime", "stringSlice");
 
   TypeSwitch<Type>(inputType)
     .Case(
       [&](SliceType T)
       {
         // Get the runtime function.
-        auto func = module.lookupSymbol<FuncOp>("runtime.sliceReslice");
+        auto func = module.lookupSymbol<FuncOp>(sliceResliceSymbol);
         const auto argTypes = func.getArgumentTypes();
         const auto infoType = argTypes[1];
 
@@ -133,7 +138,7 @@ LogicalResult SliceOp::canonicalize(SliceOp op, PatternRewriter& rewriter)
 
         // Replace the operation with the respective runtime call.
         rewriter.replaceOpWithNewOp<RuntimeCallOp>(
-          op, op->getResults().getTypes(), "runtime.sliceReslice", args);
+          op, op->getResults().getTypes(), sliceResliceSymbol, args);
       })
     .Case(
       [&](StringType T)
@@ -151,7 +156,7 @@ LogicalResult SliceOp::canonicalize(SliceOp op, PatternRewriter& rewriter)
 
         // Replace the operation with the respective runtime call.
         rewriter.replaceOpWithNewOp<RuntimeCallOp>(
-          op, op->getResults().getTypes(), "runtime.stringSlice", args);
+          op, op->getResults().getTypes(), stringSliceSymbol, args);
       })
     .Case(
       [&](PointerType T)
@@ -177,7 +182,7 @@ LogicalResult SliceOp::canonicalize(SliceOp op, PatternRewriter& rewriter)
 
         // Replace the operation with the respective runtime call.
         rewriter.replaceOpWithNewOp<RuntimeCallOp>(
-          op, op->getResults().getTypes(), "runtime.sliceAddr", args);
+          op, op->getResults().getTypes(), sliceAddrSymbol, args);
       });
   return success();
 }

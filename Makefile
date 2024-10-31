@@ -11,6 +11,8 @@ else
 	CGO_LDFLAGS += -fuse-ld=lld -lrt -ldl -lpthread -lm -lz -ltinfo
 endif
 
+GOFLAGS +=
+
 SIGO_BUILD_RELEASE ?= 0
 ifeq ($(SIGO_BUILD_RELEASE),0)
 	CGO_LDFLAGS += -g
@@ -150,9 +152,9 @@ clean: clean-sigo clean-llvm-bindings clean-clang-bindings clean-mlir-bindings c
 $(SIGO_EXE): build-goir generate-llvm-bindings generate-mlir-bindings $(GO_SRCS) $(LIBS)
 	rm -f $(SIGO_EXE)
 	@if [ $(SIGO_BUILD_RELEASE) -eq 1 ]; then \
-  		CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" go build -o $(SIGO_EXE) -ldflags="-linkmode external" $(ROOT_DIR)/cmd/sigoc; \
+  		GOFLAGS="$(GOFLAGS)" CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" go build -o $(SIGO_EXE) -ldflags="-linkmode external" $(ROOT_DIR)/cmd/sigoc; \
   	else \
-		CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" go build -o $(SIGO_EXE) -gcflags "all=-N -l" -ldflags="-linkmode external" $(ROOT_DIR)/cmd/sigoc; \
+		GOFLAGS="$(GOFLAGS)" CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" go build -o $(SIGO_EXE) -gcflags "all=-N -l" -ldflags="-linkmode external" $(ROOT_DIR)/cmd/sigoc; \
   	fi
 
 sigo: $(SIGO_EXE)
@@ -183,7 +185,7 @@ clean-tests:
 clean-sigo:
 	rm $(SIGO_EXE)
 
-configure-llvm:
+$(LLVM_CMAKE_CACHE):
 	@mkdir -p ${LLVM_BUILD_DIR}
 	cmake -G "Ninja" -B ${LLVM_BUILD_DIR} $(ROOT_DIR)/thirdparty/llvm-project/llvm 	\
 		-DCMAKE_C_COMPILER=clang 													\
@@ -206,10 +208,12 @@ configure-llvm:
 		-DCOMPILER_RT_INCLUDE_TESTS=OFF 											\
 		-DCLANG_INCLUDE_TESTS=OFF
 
+configure-llvm: $(LLVM_CMAKE_CACHE)
+
 build-llvm: configure-llvm
 	cmake --build ${LLVM_BUILD_DIR} -j$(NUM_JOBS)
 
-configure-goir: build-llvm
+$(GOIR_CMAKE_CACHE):
 	cmake -G "Ninja" -B ${GOIR_BUILD_DIR} ${GOIR_ROOT}								\
 		-DCMAKE_C_COMPILER_TARGET=${CLANG_TARGET} 									\
 		-DCMAKE_C_COMPILER=clang 													\
@@ -222,6 +226,8 @@ configure-goir: build-llvm
 		-DCMAKE_LINKER_TYPE=LLD 													\
 		-DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) 										\
 		-DCMAKE_PREFIX_PATH=${LLVM_BUILD_DIR}/lib/cmake
+
+configure-goir: build-llvm $(GOIR_CMAKE_CACHE)
 
 build-goir: configure-goir ./mlir/mlir.go
 	cmake --build ${GOIR_BUILD_DIR} -j$(NUM_JOBS)

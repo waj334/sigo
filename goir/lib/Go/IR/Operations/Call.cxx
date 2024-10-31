@@ -5,6 +5,8 @@
 #include "Go/IR/GoOps.h"
 #include "Go/Util.h"
 
+constexpr std::string_view runtimeFuncTypeName = "runtime._func";
+
 namespace mlir::go
 {
 ::mlir::LogicalResult DeferOp::verify()
@@ -48,16 +50,30 @@ namespace mlir::go
           return this->emitOpError() << "interface has no method " << this->getMethodNameAttr();
         })
       .Case(
+        [&](PointerType T) -> LogicalResult
+        {
+          if (auto elementType = T.getElementType())
+          {
+            // Must be a pointer to a function.
+            if (mlir::go::isa<FunctionType>(*elementType))
+            {
+              Fn = mlir::go::dyn_cast<mlir::go::FunctionType>(*elementType);
+              return success();
+            }
+          }
+          return this->emitOpError() << "pointer must be to a function. got " << T;
+        })
+      .Case(
         [&](GoStructType) -> LogicalResult
         {
           // The struct must be the "func" struct type.
           auto namedType = mlir::dyn_cast<NamedType>(this->getCallee().getType());
-          if (namedType && namedType.getName() == "runtime._func")
+          if (namedType && namedType.getName() == "runtime.func")
           {
             return success();
           }
           return this->emitOpError()
-            << "expected \"runtime._func\" struct type, but got " << namedType;
+            << "expected \"runtime.func\" struct type, but got " << namedType;
         })
       .Default([&](auto T) { return this->emitOpError() << "unsupported callee type " << T; });
 
@@ -93,7 +109,8 @@ namespace mlir::go
 
   auto result =
     llvm::TypeSwitch<mlir::Type, LogicalResult>(baseType(this->getCallee().getType()))
-      .Case([&](FunctionType T) -> LogicalResult
+      .Case(
+        [&](FunctionType T) -> LogicalResult
         {
           if (this->getMethodNameAttr())
           {
@@ -104,7 +121,8 @@ namespace mlir::go
           Fn = T;
           return success();
         })
-      .Case([&](InterfaceType T) -> LogicalResult
+      .Case(
+        [&](InterfaceType T) -> LogicalResult
         {
           if (!this->getMethodNameAttr())
           {
@@ -125,15 +143,29 @@ namespace mlir::go
           return this->emitOpError() << "interface has no method " << this->getMethodNameAttr();
         })
       .Case(
+        [&](PointerType T) -> LogicalResult
+        {
+          if (auto elementType = T.getElementType())
+          {
+            // Must be a pointer to a function.
+            if (mlir::go::isa<FunctionType>(*elementType))
+            {
+              Fn = mlir::go::dyn_cast<mlir::go::FunctionType>(*elementType);
+              return success();
+            }
+          }
+          return this->emitOpError() << "pointer must be to a function. got " << T;
+        })
+      .Case(
         [&](GoStructType) -> LogicalResult
         {
           // The struct must be the "func" struct type.
           auto namedType = mlir::dyn_cast<NamedType>(this->getCallee().getType());
-          if (namedType && namedType.getName() == "runtime._func")
+          if (namedType && namedType.getName() == runtimeFuncTypeName)
           {
             return success();
           }
-          return this->emitOpError() << "expected \"runtime._func\" struct type.";
+          return this->emitOpError() << "expected \"" << runtimeFuncTypeName << "\" struct type, but got " << namedType;
         })
       .Default([&](auto T) { return this->emitOpError() << "unsupported callee type " << T; });
 

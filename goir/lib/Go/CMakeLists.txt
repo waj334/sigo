@@ -1,6 +1,4 @@
 add_mlir_dialect_library(GoIR
-        Interpreter/Interpreter.cxx
-        IR/Interfaces/TypeMetadataInterface.cxx
         IR/Operations/BinOps.cxx
         IR/Operations/Builtin.cxx
         IR/Operations/Call.cxx
@@ -24,13 +22,11 @@ add_mlir_dialect_library(GoIR
         Transforms/AttachDebugInfoPass.cxx
         Transforms/CallPass.cxx
         Transforms/DumpToFilePass.cxx
-        Transforms/ExtractTypeMetadataPass.cxx
         Transforms/GlobalConstantsPass.cxx
         Transforms/GlobalInitializerPass.cxx
         Transforms/HeapEscapePass.cxx
         Transforms/LowerToCore.cxx
         Transforms/LowerToLLVM.cxx
-        Transforms/LowerTypeInfoToGo.cxx
         Transforms/OptimizeDefersPass.cxx
         Transforms/Passes.cxx
         Transforms/TypeConverter.cxx

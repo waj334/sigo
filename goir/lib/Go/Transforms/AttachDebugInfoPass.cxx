@@ -11,6 +11,7 @@
 
 namespace mlir::go
 {
+
 struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<ModuleOp>>
 {
   DenseMap<Type, LLVM::DITypeAttr> m_typeMap;
@@ -40,7 +41,7 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
 
     // Walk the module and create a subprogram for each function.
     module.walk(
-      [&](func::FuncOp op)
+      [&](mlir::go::FuncOp op)
       {
         if (op.getBody().empty())
         {
@@ -55,7 +56,7 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
             fusedLocWithCompileUnit)
         {
           const auto compileUnitAttr = fusedLocWithCompileUnit.getMetadata();
-          const auto funcNameAttr = op.getNameAttr();
+          const auto funcNameAttr = op.getSymNameAttr();
 
           auto baseFuncName = funcNameAttr.strref();
           if (baseFuncName.contains("."))
@@ -67,8 +68,8 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
 
           const auto loc = op->getLoc()->findInstanceOf<FileLineColLoc>();
           const auto filePath = std::filesystem::path(loc.getFilename().str());
-          const auto fileName = filePath.filename().string();
-          const auto fileDir = filePath.parent_path().string();
+          const auto fileName = filePath.filename().generic_string();
+          const auto fileDir = filePath.parent_path().generic_string();
           const auto fileAttr = LLVM::DIFileAttr::get(context, fileName, fileDir);
           const auto subprogramIdAttr = DistinctAttr::create(UnitAttr::get(context));
           const auto subroutineTypeAttr =
@@ -107,17 +108,25 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
 
         const auto alignment = dataLayout.getTypePreferredAlignment(elementT);
         const auto compileUnitAttr = fusedLocWithCompileUnit.getMetadata();
-        const auto globalNameAttr = op.getSymNameAttr();
+        const auto linknameAttr = op.getSymNameAttr();
+
+        mlir::StringRef name = op.getSymName().str();
+        if (name.contains("."))
+        {
+          name = name.substr(name.find_last_of(".") + 1);
+        }
+        const auto nameAttr = StringAttr::get(context, name);
+
         const auto fileLoc = op->getLoc()->findInstanceOf<FileLineColLoc>();
         const auto filePath = std::filesystem::path(fileLoc.getFilename().str());
-        const auto fileName = filePath.filename().string();
-        const auto fileDir = filePath.parent_path().string();
+        const auto fileName = filePath.filename().generic_string();
+        const auto fileDir = filePath.parent_path().generic_string();
         const auto fileAttr = LLVM::DIFileAttr::get(context, fileName, fileDir);
         const auto diGlobalAttr = LLVM::DIGlobalVariableAttr::get(
           context,
           compileUnitAttr,
-          globalNameAttr,
-          globalNameAttr,
+          nameAttr,
+          linknameAttr,
           fileAttr,
           fileLoc.getLine(),
           typeAttr,
@@ -441,7 +450,7 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
           const auto [fieldName, fieldType, fieldTags] = fields[i];
           const uint64_t fieldsSizeInBits = dataLayout.getTypeSizeInBits(fieldType);
           const uint64_t alignmentInBits = dataLayout.getTypeABIAlignment(fieldType) * 8;
-          const auto offsetInBits = structT.getFieldOffset(dataLayout, i);
+          const auto offsetInBits = structT.getFieldOffset(dataLayout, i) * 8;
 
           auto fieldNameAttr = fieldName;
           if (!fieldNameAttr)

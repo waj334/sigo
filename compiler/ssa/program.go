@@ -156,7 +156,7 @@ func (p *Program) Parse(ctx context.Context) error {
 					if decl, ok := decl.(*ast.FuncDecl); ok {
 						if decl.Name.Name == "main" {
 							// Set the main function symbol. This symbol will be mapped to "main.main" during linking.
-							p.MainFunc = qualifiedName("main", pkg.Types)
+							p.MainFunc = mangleSymbol(qualifiedName("main", pkg.Types))
 
 							// Stop searching.
 							goto done
@@ -336,18 +336,18 @@ func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) {
 				switch parts[0] {
 				case "//sigo:extern":
 					if count == 3 {
-						_symbolName := qualifiedName(parts[1], pkg)
+						_symbolName := mangleSymbol(qualifiedName(parts[1], pkg))
 						info := p.Symbols.GetSymbolInfo(_symbolName)
-						info.LinkName = parts[2]
+						info.LinkName = mangleSymbol(parts[2])
 						info.ExternalLinkage = true
 					} else {
 						// TODO: Return syntax error
 					}
 				case "//sigo:interrupt":
 					if count == 3 {
-						funcName := qualifiedName(parts[1], pkg)
+						funcName := mangleSymbol(qualifiedName(parts[1], pkg))
 						info := p.Symbols.GetSymbolInfo(funcName)
-						info.LinkName = parts[2]
+						info.LinkName = mangleSymbol(parts[2])
 						info.IsInterrupt = true
 						info.Exported = true
 					} else {
@@ -361,32 +361,32 @@ func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) {
 					}
 				case "//go:linkname", "//sigo:linkname":
 					if count == 3 {
-						_symbolName := qualifiedName(parts[1], pkg)
+						_symbolName := mangleSymbol(qualifiedName(parts[1], pkg))
 						info := p.Symbols.GetSymbolInfo(_symbolName)
 
 						// NOTE: Allow multiple functions to use the same linkname. The compiler will assert
 						//       that there is only one definition of it
-						info.LinkName = parts[2]
+						info.LinkName = mangleSymbol(parts[2])
 					} else {
 						// TODO: Return syntax error
 					}
 				case "//go:export", "//sigo:export":
 					if count == 3 {
-						funcName := qualifiedName(parts[1], pkg)
+						funcName := mangleSymbol(qualifiedName(parts[1], pkg))
 						info := p.Symbols.GetSymbolInfo(funcName)
-						info.LinkName = parts[2]
+						info.LinkName = mangleSymbol(parts[2])
 						info.Exported = true
 					} else {
 						// TODO: Return syntax error
 					}
 				case "//sigo:linkage":
 					if count == 3 {
-						funcName := qualifiedName(parts[1], pkg)
+						funcName := mangleSymbol(qualifiedName(parts[1], pkg))
 						info := p.Symbols.GetSymbolInfo(funcName)
 						info.Linkage = strings.ToLower(parts[2])
 					}
 				case "//sigo:required":
-					funcName := qualifiedName(parts[1], pkg)
+					funcName := mangleSymbol(qualifiedName(parts[1], pkg))
 					info := p.Symbols.GetSymbolInfo(funcName)
 					info.IsRequired = true
 				}

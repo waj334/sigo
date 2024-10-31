@@ -3,17 +3,17 @@
 
 #include <optional>
 
+#include <llvm/ADT/TypeSwitch.h>
+#include <llvm/Support/TypeSize.h>
+
 #include <mlir/IR/BuiltinTypes.h>
 #include <mlir/Interfaces/DataLayoutInterfaces.h>
 
 #include "Go/IR/GoDialect.h"
 #include "Go/IR/Types/Interface.h"
 #include "Go/IR/Types/Struct.h"
-#include "llvm/Support/TypeSize.h"
 
 #define GET_TYPEDEF_CLASSES
-#include <llvm/ADT/TypeSwitch.h>
-
 #include "Go/IR/GoTypes.h.inc"
 
 namespace mlir::go

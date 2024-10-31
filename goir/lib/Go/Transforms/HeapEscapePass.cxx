@@ -5,7 +5,7 @@
 
 namespace mlir::go
 {
-struct HeapEscapePass : public PassWrapper<HeapEscapePass, OperationPass<func::FuncOp>>
+struct HeapEscapePass : public PassWrapper<HeapEscapePass, OperationPass<mlir::go::FuncOp>>
 {
   enum class Result
   {
@@ -22,6 +22,9 @@ struct HeapEscapePass : public PassWrapper<HeapEscapePass, OperationPass<func::F
 
     // Lower "new" built-in calls to alloca operations.
     OpBuilder builder(&this->getContext());
+    SmallVector<Operation*> opsToRemove;
+    opsToRemove.reserve(64);
+
     funcOp->walk(
       [&](BuiltInCallOp op)
       {
@@ -38,16 +41,29 @@ struct HeapEscapePass : public PassWrapper<HeapEscapePass, OperationPass<func::F
             loc, ptrType, elementType, 1, mlir::UnitAttr(), mlir::StringAttr());
           op.replaceAllUsesWith(allocaOp);
 
-          // Remove the built-in call.
-          op.erase();
+          // Remove the built-in call later.
+          opsToRemove.push_back(op);
         }
       });
+
+    // Now actually remove any operations.
+    for (auto op : opsToRemove)
+    {
+      op->erase();
+    }
 
     // Analyze all top level allocations.
     funcOp.walk(
       [&](AllocaOp allocaOp)
       {
-        if (analyzeOperation(allocaOp) == Result::EscapesToHeap)
+        if (allocaOp->hasAttr("isArgument"))
+        {
+          // Skip function arguments.
+          return;
+        }
+
+        DenseSet<Operation*> visited;
+        if (analyzeOperation(allocaOp, visited) == Result::EscapesToHeap)
         {
           // This stack allocation has been determined to escape from the heap.
           allocaOp.setHeap(true);
@@ -55,322 +71,114 @@ struct HeapEscapePass : public PassWrapper<HeapEscapePass, OperationPass<func::F
       });
   }
 
-  Result analyzeOperation(Operation* op, bool considerLoads = false, bool ignoreCache = false)
+  Result analyzeOperation(Operation* op, DenseSet<Operation*>& visited, bool considerLoads = false)
   {
-    if (!ignoreCache)
+    if (visited.contains(op))
     {
-      // Look up in the cache first.
-      if (const auto it = this->results.find(op); it != this->results.end())
-      {
-        // Return the cached result.
-        return it->second;
-      }
+      return Result::DoesNotEscape;
     }
 
-    // Update visited set.
-    this->visited.insert(op);
+    visited.insert(op);
 
-    const Result result =
-      llvm::TypeSwitch<Operation*, Result>(op)
-        .Case(
-          [&](AllocaOp nestedAllocaOp)
-          {
-            for (auto nestedAllocaUser : nestedAllocaOp->getUsers())
+    // Analyze this operation's users.
+    for (auto user : op->getUsers())
+    {
+      const Result result =
+        mlir::TypeSwitch<Operation*, Result>(user)
+          .Case(
+            [&](AllocaOp allocaOp)
             {
-              // Skip operations that were already visited.
-              if (this->visited.find(nestedAllocaUser) != this->visited.end())
+              if (allocaOp->hasAttr("isArgument"))
               {
-                continue;
-              }
-
-              // Analyze the user.
-              if (analyzeOperation(nestedAllocaUser) == Result::EscapesToHeap)
-              {
-                // Stop analyzing uses.
+                // This alloca represents a function parameter, handle accordingly.
                 return Result::EscapesToHeap;
               }
-            }
-            return Result::DoesNotEscape;
-          })
-        .Case(
-          [&](func::CallOp)
-          {
-            // Pointers passed to functions should be assumed to escape.
-            return Result::EscapesToHeap;
-          })
-        .Case(
-          [&](func::CallIndirectOp)
-          {
-            // The actual callee is unknown, so this allocation should be moved to the heap
-            // conservatively.
-            return Result::EscapesToHeap;
-          })
-        .Case(
-          [&](InsertOp insertOp)
-          {
-            /*auto definingOp = insertOp.getAggregate().getDefiningOp();
-            if (auto loadOp = mlir::dyn_cast<LoadOp>(definingOp)) {
-                // Analyze the address being loaded from.
-                if (auto loadedAllocation =
-            mlir::dyn_cast<AllocaOp>(loadOp.getOperand().getDefiningOp())) { return
-            this->analyzeOperation(loadedAllocation);
-                }
-            }
-
-            // Check if the defining operation of the aggregate does not escape.
-            if (analyzeOperation(definingOp) == Result::DoesNotEscape) {
-                // Check if any user of the insert operation value should cause an escape.
-                for (auto user: insertOp->getUsers()) {
-                    // Skip operations that were already visited.
-                    if (this->visited.find(user) != this->visited.end()) {
-                        continue;
-                    }
-
-                    if (this->analyzeOperation(user) == Result::EscapesToHeap) {
-                        return Result::EscapesToHeap;
-                    }
-                }
-            }
-            */
-
-            /*
-        // Follow the chain of subsequent inserts taking load operations into account.
-        for (auto user: insertOp->getUsers()) {
-            // Skip operations that were already visited.
-            //if (this->visited.find(user) != this->visited.end()) {
-            //    continue;
-            //}
-
-            if (this->analyzeOperation(user, true, true) == Result::EscapesToHeap) {
-                return Result::EscapesToHeap;
-            }
-        }
-        return Result::DoesNotEscape;
-        */
-
-            // Assume stack pointers inserted into some struct should escape to the heap.
-            // TODO: Need to check if the struct value is actually returned from the current
-            // function.
-            return Result::EscapesToHeap;
-          })
-        .Case(
-          [&](InterfaceCallOp)
-          {
-            // The actual callee is unknown, so this allocation should be moved to the heap
-            // conservatively.
-            return Result::EscapesToHeap;
-          })
-        .Case(
-          [&](LoadOp loadOp)
+              return Result::DoesNotEscape;
+            })
+          .Case([&](AddressOfOp) { return Result::EscapesToHeap; })
+          .Case([&](CallOp) { return Result::EscapesToHeap; })
+          .Case([&](GetElementPointerOp gepOp)
+                { return this->analyzeOperation(gepOp.getValue().getDefiningOp(), visited); })
+          .Case(
+            [&](InsertOp insertOp)
+            {
+              return this->analyzeOperation(insertOp, visited);
+            })
+          .Case([&](LoadOp loadOp)
           {
             if (considerLoads)
             {
-              // Check if the loaded value escapes.
-              for (auto user : loadOp->getUsers())
-              {
-                // Skip operations that were already visited.
-                if (this->visited.find(user) != this->visited.end())
-                {
-                  continue;
-                }
-
-                if (this->analyzeOperation(user) == Result::EscapesToHeap)
-                {
-                  return Result::EscapesToHeap;
-                }
-              }
+              return this->analyzeOperation(loadOp, visited);
             }
             return Result::DoesNotEscape;
           })
-        .Case(
-          [&](func::ReturnOp)
-          {
-            // The address is returned from the current function.
-            return Result::EscapesToHeap;
-          })
-        .Case(
-          [&](StoreOp storeOp)
-          {
-            return llvm::TypeSwitch<Operation*, Result>(storeOp.getAddr().getDefiningOp())
-              .Case(
-                [&](AddressOfOp)
-                {
-                  // The address of the allocation is being stored in a global variable, so it
-                  // escapes to the heap.
-                  return Result::EscapesToHeap;
-                })
-              .Case(
-                [&](AllocaOp nestedAllocaOp)
-                {
-                  // The allocation escapes if the address it is being stored to escapes.
-                  return analyzeOperation(nestedAllocaOp);
-                })
-              .Default([&](Operation*) { return Result::DoesNotEscape; });
-          })
-        .Default([&](Operation*) { return Result::DoesNotEscape; });
-
-    // Cache the result and then return.
-    this->results[op] = result;
-    return result;
-  }
-
-  /*
-  using Use = std::pair<Operation *, AllocaOp>;
-  using WorkQueue = std::queue<Use>;
-  using VisitedSet = std::unordered_set<Operation *>;
-  using ParameterResultMap = std::unordered_map<unsigned, Result>;
-  using FunctionParameterMap = std::unordered_map<FuncOp, ParameterResultMap>;
-
-  WorkQueue queue;
-  VisitedSet visited;
-
-  void runOnOperation() override {
-      auto funcOp = getOperation();
-      auto module = funcOp->getParentOfType<ModuleOp>();
-
-
-      // Process the work queue.
-      while (!queue.empty()) {
-          // Pop the use off of the queue.
-          auto [user, allocaOp] = queue.front();
-          queue.pop();
-
-          if (auto [_, ok] = visited.insert(user); !ok) {
-              // This operation has already been analyzed.
-              continue;
-          }
-
-          // Analyze the user.
-          if (analyzeUser(module, allocaOp, user) == Result::EscapesToHeap) {
-              // This stack allocation has been determined to escape from the heap.
-              allocaOp.setHeap(true);
-          }
-      }
-  }
-
-  Result analyzeFunction(ModuleOp module, func::FuncOp funcOp) {
-      // First, analyze function parameters that are pointers.
-      for (size_t arg = 0; arg < funcOp.getNumArguments(); arg++) {
-          auto argValue = funcOp.getArgument(arg);
-          const auto argType = argValue.getType();
-          if (go::isa<PointerType>(argType)) {
-              // The only use of the argument value should be an alloca.
-              for (auto user: argValue.getUsers()) {
-                  if (auto allocaOp = mlir::dyn_cast<AllocaOp>(user)) {
-                      for (auto allocaUser: allocaOp->getUsers()) {
-                          queue.emplace(allocaUser, allocaOp);
-                      }
-                  }
+          .Case([&](ReturnOp) { return Result::EscapesToHeap; })
+          .Case([&](SliceAddrOp sliceAddrOp)
+                { return this->analyzeOperation(sliceAddrOp.getSlice().getDefiningOp(), visited); })
+          .Case(
+            [&](StoreOp storeOp)
+            {
+              // Evaluate whether the address being stored to will cause the value to escape the
+              // current function.
+              auto [escapes, baseAddrOp] = this->isEscapingAddress(storeOp.getAddr());
+              if (escapes)
+              {
+                // The address is known to cause an escape.
+                return Result::EscapesToHeap;
               }
-          }
+
+              if (baseAddrOp)
+              {
+                // Evaluate if the value of the address being stored to escapes through another
+                // operation. Load operations should be examined to determine if the base address
+                // is derived from a value that already escapes.
+                return this->analyzeOperation(baseAddrOp, visited, true);
+              }
+
+              return Result::DoesNotEscape;
+            })
+          .Default([&](auto) { return Result::DoesNotEscape; });
+      if (result == Result::EscapesToHeap)
+      {
+        return result;
       }
+    }
+    return Result::DoesNotEscape;
+  }
 
-      // Push all users of an alloca's value to the work queue.
-      funcOp.walk([&](AllocaOp allocaOp) {
-          for (auto user: allocaOp->getUsers()) {
-              queue.emplace(user, allocaOp);
+  std::pair<bool, Operation*> isEscapingAddress(const mlir::Value addr) const
+  {
+    return mlir::TypeSwitch<Operation*, std::pair<bool, Operation*>>(addr.getDefiningOp())
+      .Case(
+        [&](GetElementPointerOp gepOp) -> std::pair<bool, Operation*>
+        {
+          // Analyze the base address.
+          return this->isEscapingAddress(gepOp.getValue());
+        })
+      .Case(
+        [&](AddressOfOp addressOp) -> std::pair<bool, Operation*>
+        {
+          // This is a global.
+          return { true, nullptr };
+        })
+      .Case(
+        [&](SliceAddrOp sliceAddrOp) -> std::pair<bool, Operation*>
+        { return this->isEscapingAddress(sliceAddrOp.getSlice()); })
+      .Case(
+        [&](LoadOp loadOp) -> std::pair<bool, Operation*>
+        { return this->isEscapingAddress(loadOp.getOperand()); })
+      .Case(
+        [&](AllocaOp allocaOp) -> std::pair<bool, Operation*>
+        {
+          if (allocaOp->hasAttr("isArgument"))
+          {
+            // The address is derived from a function argument.
+            return { true, nullptr };
           }
-      });
+          return { false, allocaOp };
+        })
+      .Default([&](auto op) -> std::pair<bool, Operation*> { return { false, nullptr }; });
   }
-
-  Result analyzeUser(ModuleOp module, AllocaOp allocaOp, Operation *user) {
-      return llvm::TypeSwitch<Operation *, Result>(user)
-              .Case([&](func::CallOp callOp) {
-                  const auto sym = callOp.getCallee();
-                  auto fnOp = module.lookupSymbol<func::FuncOp>(sym);
-                  const auto callArgs = callOp.getArgOperands();
-
-                  // NOTE: This analysis only is applicable for functions that are called in exactly
-  one location
-                  //       in the program. Otherwise, it
-
-                  // Determine which argument is the pointer.
-                  for (size_t i = 0; i < callArgs.size(); i++) {
-                      if (callArgs[i].getDefiningOp() == allocaOp) {
-                          // Analyze the usage of this argument.
-                          if (this->analyzeCalleeArg(module, allocaOp, fnOp, i) ==
-  Result::EscapesToHeap) { return Result::EscapesToHeap;
-                          }
-                      }
-                  }
-                  return Result::DoesNotEscape;
-              })
-              .Case([&](func::CallIndirectOp callIndirectOp) {
-                  // The actual callee is unknown, so this allocation should be moved to the heap
-                  // conservatively.
-                  return Result::EscapesToHeap;
-              })
-              .Case([&](InterfaceCallOp) {
-                  // The actual callee is unknown, so this allocation should be moved to the heap
-                  // conservatively.
-                  return Result::EscapesToHeap;
-              })
-              .Case([&](func::ReturnOp) {
-                  // The address is returned from the current function.
-                  return Result::EscapesToHeap;
-              })
-              .Case([&](StoreOp storeOp) {
-                  return this->analyzeStoreOp(module, allocaOp, storeOp);
-              }).Default([&](Operation *) {
-                  return Result::DoesNotEscape;
-              });
-  }
-
-  Result analyzeStoreOp(ModuleOp module, AllocaOp allocaOp, StoreOp storeOp) {
-      // The value being stored must be a pointer type.
-      if (!go::isa<PointerType>(storeOp.getValue().getType())) {
-          return Result::DoesNotEscape;
-      }
-
-      // Analyze where the value is being stored to. This function should cause the location being
-  stored to be
-      // analyzed to determine if it escapes to the heap (I.E. storing to globals).
-      return llvm::TypeSwitch<Operation *, Result>(storeOp.getAddr().getDefiningOp())
-              .Case([&](AddressOfOp) {
-                  // The storage location is a global value.
-                   // var myGlobal *int
-                   // func fn() {
-                   //    var value int
-                   //    myGlobal = &value
-                   //
-                  return Result::EscapesToHeap;
-              })
-              .Case([&](AllocaOp op) {
-                  // The allocation may escape to the heap indirectly. Analyze the users of this
-  alloca op.
-                  // func fn() {
-                  //     var x int
-                  //     var p *int = &x
-                  //     var pp **int = &p  // Indirect heap escape
-                  //     return pp  // This would be handled in analyzeReturnOp
-                  // }
-                  for (auto user: op->getUsers()) {
-                      if (user == storeOp || visited.find(user) != visited.end()) {
-                          // Skip current store operation.
-                          continue;
-                      }
-                      queue.emplace(user, allocaOp);
-                  }
-                  return Result::DoesNotEscape;
-              })
-              .Default([&](Operation *) {
-                  return Result::DoesNotEscape;
-              });
-  }
-
-  Result analyzeCalleeArg(ModuleOp module, AllocaOp allocaOp, func::FuncOp fnOp, uintptr_t arg) {
-      // First the block argument value representing the function parameter.
-      auto argValue = fnOp.getArgument(arg);
-
-      // Analyze the uses of the argument value.
-      for (auto user: argValue.getUsers()) {
-          if (this->analyzeUser(module, allocaOp, user) == Result::EscapesToHeap) {
-              return Result::EscapesToHeap;
-          }
-      }
-      return Result::DoesNotEscape;
-  }
-  */
 
   StringRef getArgument() const final { return "go-heap-escape-pass"; }
 

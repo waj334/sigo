@@ -57,6 +57,7 @@ type Builder struct {
 
 	thunkMutex sync.Mutex
 	thunks     map[string]struct{}
+	thunkTypes map[string]mlir.Type
 
 	// Misc:
 	generateQueue      chan *funcData
@@ -113,6 +114,7 @@ func NewBuilder(config Config) *Builder {
 		symbols:       mlir.SymbolTableCreate(mlir.ModuleGetOperation(config.Module)),
 		generateQueue: make(chan *funcData),
 		thunks:        map[string]struct{}{},
+		thunkTypes:    map[string]mlir.Type{},
 		genericFuncs:  map[string]*funcData{},
 
 		declaredTypes: map[types.Type]struct{}{},
@@ -259,7 +261,7 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 			for _, decl := range file.Decls {
 				if decl, ok := decl.(*ast.FuncDecl); ok {
 					obj := b.objectOf(ctx, decl.Name).(*types.Func)
-					symbol := qualifiedFuncName(obj)
+					symbol := mangleSymbol(qualifiedFuncName(obj))
 					if symbol == b.config.Program.MainFunc {
 						symbol = "main.main"
 					}
@@ -299,6 +301,11 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 						for _, spec := range decl.Specs {
 							spec := spec.(*ast.ValueSpec)
 							for _, ident := range spec.Names {
+								if ident.Name == "_" {
+									// Don't actually emit a global that does not have name. These are commonly used
+									// to enforce a type check during parsing.
+									continue
+								}
 								gvar := b.emitGlobalVar(ctx, ident)
 								gvars[b.objectOf(ctx, ident)] = gvar
 							}
@@ -320,6 +327,12 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 		for _, initializer := range pkg.TypesInfo.InitOrder {
 			if len(initializer.Lhs) == 1 {
 				lhs := initializer.Lhs[0]
+				if lhs.Name() == "_" {
+					// Don't actually emit a global that does not have name. These are commonly used
+					// to enforce a type check during parsing.
+					continue
+				}
+
 				gv := gvars[lhs]
 				location := b.location(lhs.Pos())
 
@@ -372,7 +385,7 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 			location := b.location(obj.Pos())
 
 			// Get the symbol information.
-			symbol := qualifiedName(obj.Name(), obj.Pkg())
+			symbol := mangleSymbol(qualifiedName(obj.Name(), obj.Pkg()))
 			info := b.config.Program.Symbols.GetSymbolInfo(symbol)
 
 			// Is this global NOT externally linked?
@@ -395,10 +408,10 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 			for _, decl := range file.Decls {
 				if decl, ok := decl.(*ast.FuncDecl); ok {
 					obj := b.objectOf(ctx, decl.Name).(*types.Func)
-					symbol := qualifiedFuncName(obj)
+					symbol := mangleSymbol(qualifiedFuncName(obj))
 					isMain := false
 					if symbol == b.config.Program.MainFunc {
-						symbol = "main.main"
+						symbol = mangleSymbol("main.main")
 						isMain = true
 					}
 
@@ -550,7 +563,7 @@ func (b *Builder) lookUpUngeneratedJob(symbol string) *ast.FuncDecl {
 func (b *Builder) queueNamedTypeJobs(ctx context.Context, T *types.Named) {
 	for i := 0; i < T.NumMethods(); i++ {
 		// Need to generate methods for this named type in order for interfaces to function correctly.
-		symbol := qualifiedFuncName(T.Method(i))
+		symbol := mangleSymbol(qualifiedFuncName(T.Method(i)))
 		b.queueJob(ctx, symbol)
 	}
 }
@@ -578,9 +591,9 @@ func (b *Builder) addFunctionDecl(ctx context.Context, decl *ast.FuncDecl) *func
 	}
 
 	obj := b.objectOf(ctx, decl.Name).(*types.Func)
-	symbol := qualifiedFuncName(obj)
+	symbol := mangleSymbol(qualifiedFuncName(obj))
 	if symbol == b.config.Program.MainFunc {
-		symbol = "main.main"
+		symbol = mangleSymbol("main.main")
 	}
 
 	signature := obj.Type().Underlying().(*types.Signature)

@@ -383,9 +383,7 @@ func (b *Builder) emitRangeStatement(ctx context.Context, stmt *ast.RangeStmt) {
 		elementType := b.GetStoredType(ctx, valueType.Elem())
 
 		// Bitcast the slice value to its runtime representation.
-		bitcastOp := mlir.GoCreateBitcastOperation(b.ctx, value, b._slice, location)
-		appendOperation(ctx, bitcastOp)
-		value = resultOf(bitcastOp)
+		value = b.bitcastTo(ctx, value, b._slice, location)
 
 		// Extract the array value from the slice.
 		extractOp := mlir.GoCreateExtractOperation(b.ctx, 0, b.ptr, value, location)
@@ -576,9 +574,7 @@ func (b *Builder) emitChanRange(ctx context.Context, stmt *ast.RangeStmt) {
 	X := b.emitExpr(ctx, stmt.X)[0]
 
 	// Reinterpret the chan value as its runtime type.
-	bitcastOp := mlir.GoCreateBitcastOperation(b.ctx, X, b._chan, location)
-	appendOperation(ctx, bitcastOp)
-	X = resultOf(bitcastOp)
+	X = b.bitcastTo(ctx, X, b._chan, location)
 
 	// Get the memory address to receive a value from the channel in.
 	var receiveValue Value
@@ -596,7 +592,7 @@ func (b *Builder) emitChanRange(ctx context.Context, stmt *ast.RangeStmt) {
 	// Build the condition block where the loop condition will continuously be evaluated in.
 	buildBlock(ctx, condBlock, func() {
 		// Create the runtime call to perform a receive on the channel.
-		callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.channelReceive",
+		callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.channelReceive"),
 			[]mlir.Type{b.i1},
 			[]mlir.Value{X, receiveAddr, b.emitConstBool(ctx, true, location)},
 			location)
@@ -665,7 +661,7 @@ func (b *Builder) emitMapRange(ctx context.Context, stmt *ast.RangeStmt) {
 	if keyVar == nil {
 		obj := b.objectOf(ctx, stmt.Key)
 		keyT := b.GetStoredType(ctx, obj.Type())
-		keyVar = b.emitLocalVar(ctx, obj, keyT)
+		keyVar = b.emitLocalVar(ctx, obj, keyT, false)
 	}
 
 	var elementVar Value
@@ -674,7 +670,7 @@ func (b *Builder) emitMapRange(ctx context.Context, stmt *ast.RangeStmt) {
 		if elementVar == nil {
 			obj := b.objectOf(ctx, stmt.Value)
 			elementT := b.GetStoredType(ctx, obj.Type())
-			elementVar = b.emitLocalVar(ctx, obj, elementT)
+			elementVar = b.emitLocalVar(ctx, obj, elementT, false)
 		}
 	}
 
@@ -702,7 +698,7 @@ func (b *Builder) emitMapRange(ctx context.Context, stmt *ast.RangeStmt) {
 	// Build the condition block where the loop condition will continuously be evaluated in.
 	buildBlock(ctx, condBlock, func() {
 		// Create the runtime call to perform the next iteration over the string.
-		callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.mapRange",
+		callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.mapRange"),
 			[]mlir.Type{b.i1, iteratorT, b.ptr, b.ptr},
 			[]mlir.Value{it.Load(ctx, location)}, location)
 		appendOperation(ctx, callOp)
@@ -779,7 +775,7 @@ func (b *Builder) emitStringRange(ctx context.Context, stmt *ast.RangeStmt) {
 	if keyVar == nil {
 		obj := b.objectOf(ctx, stmt.Key)
 		keyT := b.GetStoredType(ctx, obj.Type())
-		keyVar = b.emitLocalVar(ctx, obj, keyT)
+		keyVar = b.emitLocalVar(ctx, obj, keyT, false)
 	}
 
 	// The value variable is either a new one or an existing one.
@@ -790,7 +786,7 @@ func (b *Builder) emitStringRange(ctx context.Context, stmt *ast.RangeStmt) {
 		if valueVar == nil {
 			obj := b.objectOf(ctx, stmt.Value)
 			elementT := b.GetStoredType(ctx, obj.Type())
-			valueVar = b.emitLocalVar(ctx, obj, elementT)
+			valueVar = b.emitLocalVar(ctx, obj, elementT, false)
 		}
 	}
 
@@ -823,7 +819,7 @@ func (b *Builder) emitStringRange(ctx context.Context, stmt *ast.RangeStmt) {
 		keyVar.Store(ctx, resultOf(extractOp), location)
 
 		// Create the runtime call to perform the next iteration over the string.
-		callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.stringRange",
+		callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.stringRange"),
 			[]mlir.Type{b.i1, iteratorType, b.si32},
 			[]mlir.Value{itValue}, location)
 		appendOperation(ctx, callOp)
@@ -918,7 +914,7 @@ func (b *Builder) emitTypeSwitchStatement(ctx context.Context, stmt *ast.TypeSwi
 					appendOperation(ctx, loadOp)
 
 					// Allocate local storage for the asserted value.
-					local = b.emitLocalVar(ctx, obj, assertedType)
+					local = b.emitLocalVar(ctx, obj, assertedType, false)
 
 					// Store the asserted value.
 					local.Store(ctx, value, location)
@@ -927,7 +923,7 @@ func (b *Builder) emitTypeSwitchStatement(ctx context.Context, stmt *ast.TypeSwi
 					value = b.bitcastTo(ctx, value, b._any, location)
 
 					// Allocate local storage for the interface value.
-					local = b.emitLocalVar(ctx, obj, b._any)
+					local = b.emitLocalVar(ctx, obj, b._any, false)
 
 					// Store the interface value.
 					local.Store(ctx, value, location)
@@ -973,7 +969,7 @@ func (b *Builder) emitTypeSwitchStatement(ctx context.Context, stmt *ast.TypeSwi
 			// Create the runtime call to perform the type assertion.
 			// TODO: Replace this runtime call with an explicit operation for type assertion.
 			trueValue := b.emitConstBool(ctx, true, b.location(stmt.Pos()))
-			callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.interfaceAssert", []mlir.Type{b._interface, b.i1},
+			callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.interfaceAssert"), []mlir.Type{b._interface, b.i1},
 				[]mlir.Value{ifaceValue, info, trueValue}, b.location(expr.Pos()))
 			appendOperation(ctx, callOp)
 			results := resultsOf(callOp)
