@@ -495,7 +495,7 @@ func addConstantGlobals(module llvm.LLVMModuleRef, options Options, dataLayout l
 	intPtrType := llvm.IntPtrTypeInContext(llvm.GetModuleContext(module), dataLayout)
 
 	// Stack size for goroutines
-	globalGoroutineStackSize := findOrCreateGlobal(module, intPtrType, "runtime._goroutineStackSize")
+	globalGoroutineStackSize := findOrCreateGlobal(module, intPtrType, ssa.MangleSymbol("runtime._goroutineStackSize"))
 	alignment := llvm.PreferredAlignmentOfGlobal(dataLayout, globalGoroutineStackSize)
 	constGoroutineStackSize := llvm.ConstInt(intPtrType, uint64(align(uint(options.StackSize), alignment)), false)
 	llvm.SetAlignment(globalGoroutineStackSize, alignment)

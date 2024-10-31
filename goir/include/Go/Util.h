@@ -50,4 +50,7 @@ llvm::hash_code computeMethodHash(const StringRef name, const FunctionType func,
 
 inline uint64_t alignTo(uint64_t value, uint64_t alignment) { return (value + alignment - 1) / alignment * alignment; }
 
+void stringReplaceAll(std::string& input, const std::string& substr, const std::string& str);
+std::string formatPackageSymbol(const std::string& pkg, const std::string& symbol);
+
 } // namespace mlir::go

@@ -86,7 +86,7 @@ def StoreOp : Go_Op<"store"> {
             OptionalAttr<UnitAttr>:$isVolatile,
             OptionalAttr<UnitAttr>:$isAtomic);
     let assemblyFormat = [{
-        $value `,` $addr (`volatile` $isVolatile^)? (`atomic` $isAtomic^)? attr-dict-with-keyword `:` functional-type(operands, results)
+        $value `into` $addr (`volatile` $isVolatile^)? (`atomic` $isAtomic^)? attr-dict-with-keyword `:` functional-type(operands, results)
     }];
     let hasVerifier = 1;
 }
@@ -135,8 +135,7 @@ def YieldOp : Go_Op<"yield", [Pure, ReturnLike, Terminator, ParentOneOf<["Global
 // GlobalOp
 //===----------------------------------------------------------------------===//
 
-def GlobalOp : Go_Op<"global", [IsolatedFromAbove,
-        SingleBlockImplicitTerminator<"YieldOp">, Symbol]> {
+def GlobalOp : Go_Op<"global", [IsolatedFromAbove, Symbol]> {
     let summary = "Global variable operation";
     let description = [{
         The `go.global` operation creates a named global variable.

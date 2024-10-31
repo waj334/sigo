@@ -22,7 +22,7 @@ static SmallVector<Value> createRuntimeCall(
   const ArrayRef<Value>& args)
 {
   // Format the fully qualified function name
-  const std::string qualifiedFuncName = "runtime." + funcName;
+  const std::string qualifiedFuncName = formatPackageSymbol("runtime", funcName);
   const auto callee = FlatSymbolRefAttr::get(rewriter.getContext(), qualifiedFuncName);
   const auto numResults = results.size();
   SmallVector<Value, 4> resultValues;
@@ -316,19 +316,66 @@ struct BitcastOpLowering : ConvertOpToLLVMPattern<BitcastOp>
     OpAdaptor adaptor,
     ConversionPatternRewriter& rewriter) const override
   {
-    auto resultType = typeConverter->convertType(op.getType());
+    const auto inputType = op.getValue().getType();
+    const auto resultType = op.getType();
+
+    const auto convertedInputType = this->getTypeConverter()->convertType(inputType);
+    const auto convertedResultType = this->getTypeConverter()->convertType(resultType);
+    Value inputValue = adaptor.getValue();
+
     if (
-      mlir::isa<mlir::LLVM::LLVMStructType>(resultType) ||
-      adaptor.getValue().getType() == resultType)
+      mlir::go::baseType(inputType) == mlir::go::baseType(resultType) ||
+      convertedInputType == convertedResultType)
     {
-      // Primitive to runtime type conversion.
-      rewriter.replaceOp(op, adaptor.getValue());
+      // This is likely a type assertion.
+      rewriter.replaceOp(op, inputValue);
+      return success();
     }
-    else
-    {
-      rewriter.replaceOpWithNewOp<mlir::LLVM::BitcastOp>(op, resultType, adaptor.getValue());
-    }
-    return success();
+
+    return mlir::TypeSwitch<Type, LogicalResult>(mlir::go::baseType(inputType))
+      .Case<ChanType, InterfaceType, MapType, SliceType, StringType>(
+        [&](auto t) -> LogicalResult
+        {
+          if (mlir::go::isa<GoStructType>(resultType))
+          {
+            rewriter.replaceOp(op, inputValue);
+            return success();
+          }
+          return failure();
+        })
+      .Case(
+        [&](FunctionType) -> LogicalResult
+        {
+          if (mlir::go::isa<PointerType>(resultType))
+          {
+            rewriter.replaceOp(op, inputValue);
+            return success();
+          }
+          return failure();
+        })
+      .Case(
+        [&](PointerType)
+        {
+          if (mlir::go::isa<FunctionType>(resultType))
+          {
+            rewriter.replaceOp(op, inputValue);
+            return success();
+          }
+
+          if (mlir::go::isa<PointerType>(resultType))
+          {
+            rewriter.replaceOpWithNewOp<mlir::LLVM::BitcastOp>(
+              op, convertedResultType, inputValue);
+            return success();
+          }
+          return failure();
+        })
+      .Default(
+        [&](Type) -> LogicalResult
+        {
+          // This bitcast is not valid in the Go dialect.
+          return failure();
+        });
   }
 };
 
@@ -345,7 +392,8 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
     const auto loc = op.getLoc();
     const auto callee = op.getCallee();
     const ValueRange operands = adaptor.getOperands();
-    const auto intType = mlir::IntegerType::get(this->getContext(), this->getTypeConverter()->getPointerBitwidth());
+    const auto intType =
+      mlir::IntegerType::get(this->getContext(), this->getTypeConverter()->getPointerBitwidth());
     const auto ptrType = mlir::LLVM::LLVMPointerType::get(this->getContext());
     const auto boolType = mlir::IntegerType::get(this->getContext(), 1);
     mlir::DataLayout dataLayout(module);
@@ -423,8 +471,12 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
         .Case(
           [&](SliceType type)
           {
+            auto elementTypeInfoGlobalOp =
+              createTypeInfo(rewriter, module, loc, type.getElementType());
+            Value elementTypeInfoValue =
+              rewriter.create<mlir::LLVM::AddressOfOp>(loc, elementTypeInfoGlobalOp);
             const auto runtimeCallResults = createRuntimeCall(
-              rewriter, loc, "sliceCopy", resultTypes, { operands[0], operands[1] });
+              rewriter, loc, "sliceCopy", resultTypes, { operands[0], operands[1], elementTypeInfoValue });
             rewriter.replaceOp(op, runtimeCallResults);
           })
         .Case(
@@ -794,6 +846,34 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
     {
       return failure();
     }
+    return success();
+  }
+};
+
+struct CallIndirectOpLowering : public ConvertOpToLLVMPattern<CallIndirectOp>
+{
+  using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
+
+  mlir::LogicalResult matchAndRewrite(
+    CallIndirectOp op,
+    OpAdaptor adaptor,
+    ConversionPatternRewriter& rewriter) const override
+  {
+    SmallVector<Type, 1> convertedResultTypes;
+    if (failed(typeConverter->convertTypes(op.getResultTypes(), convertedResultTypes)))
+    {
+      return failure();
+    }
+
+    SmallVector<Value> operands;
+    operands.reserve(op.getNumOperands());
+
+    operands.push_back(adaptor.getCallee());
+    llvm::append_range(operands, adaptor.getCalleeOperands());
+
+    auto callOp = rewriter.create<mlir::LLVM::CallOp>(
+      op.getLoc(), convertedResultTypes, operands);
+    rewriter.replaceOp(op, callOp);
     return success();
   }
 };
@@ -1329,8 +1409,8 @@ struct RecvOpLowering : ConvertOpToLLVMPattern<RecvOp>
     const auto loc = op.getLoc();
     auto type = typeConverter->convertType(op.getType());
     // Allocate stack to receive the value into
-    auto arrSizeConstOp =
-      rewriter.create<mlir::LLVM::ConstantOp>(loc, mlir::IntegerType::get(rewriter.getContext(), 64), 1);
+    auto arrSizeConstOp = rewriter.create<mlir::LLVM::ConstantOp>(
+      loc, mlir::IntegerType::get(rewriter.getContext(), 64), 1);
     auto allocaOp = rewriter.create<mlir::LLVM::AllocaOp>(loc, type, arrSizeConstOp.getResult());
 
     // Create the runtime call to receive a value from the channel
@@ -1509,12 +1589,15 @@ void populateGoToLLVMConversionPatterns(
             transforms::LLVM::AtomicSwapIOpLowering,
             transforms::LLVM::BitcastOpLowering,
             transforms::LLVM::BuiltInCallOpLowering,
+            transforms::LLVM::CallIndirectOpLowering,
             transforms::LLVM::ChangeInterfaceOpLowering,
             transforms::LLVM::ConstantOpLowering,
             transforms::LLVM::DeferOpLowering,
+            transforms::LLVM::ExtractOpLowering,
             transforms::LLVM::GetElementPointerOpLowering,
             transforms::LLVM::GlobalOpLowering,
             transforms::LLVM::GlobalCtorsOpLowering,
+            transforms::LLVM::InsertOpLowering,
             transforms::LLVM::InterfaceCallOpLowering,
             transforms::LLVM::IntToPtrOpLowering,
             transforms::LLVM::LoadOpLowering,
@@ -1526,8 +1609,6 @@ void populateGoToLLVMConversionPatterns(
             transforms::LLVM::RecvOpLowering,
             transforms::LLVM::RuntimeCallOpLowering,
             transforms::LLVM::StoreOpLowering,
-            transforms::LLVM::ExtractOpLowering,
-            transforms::LLVM::InsertOpLowering,
             transforms::LLVM::TypeInfoOpLowering,
             transforms::LLVM::YieldOpLowering,
             transforms::LLVM::ZeroOpLowering

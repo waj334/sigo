@@ -98,4 +98,25 @@ computeMethodHash(const StringRef name, const FunctionType func, bool isInterfac
   }
   return result;
 }
+
+void stringReplaceAll(std::string& input, const std::string& substr, const std::string& str)
+{
+  for (size_t pos = input.find(substr); pos != std::string::npos; pos = input.find(substr))
+  {
+    input.replace(pos, substr.size(), str);
+  }
+}
+
+//std::string formatPackageSymbol(std::string pkg, std::string symbol)
+std::string formatPackageSymbol(const std::string& pkg, const std::string& symbol)
+{
+  /*
+  // NOTE: Name mangling is disabled for now.
+  stringReplaceAll(pkg, "/", "$");
+  stringReplaceAll(symbol, ".", "@");
+  return  pkg + "@" + symbol;
+  */
+  return pkg + "." + symbol;
+}
+
 } // namespace mlir::go

@@ -248,6 +248,11 @@ namespace mlir::go {
             // Add the size of the member to the offset value.
             offset += dataLayout.getTypeSize(memberType);
         }
+
+        // Apply final alignment.
+        const auto fieldT = this->getFieldType(idx);
+        const llvm::Align fieldAlignment(dataLayout.getTypeABIAlignment(fieldT));
+        offset = llvm::alignTo(offset, fieldAlignment);
         return offset;
     }
 }

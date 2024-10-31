@@ -54,7 +54,7 @@ func (b *Builder) emitAssign(ctx context.Context, stmt *ast.AssignStmt) {
 
 			if stmt.Tok == token.DEFINE {
 				// Local variables need to be emitted into the current block.
-				lval = b.emitLocalVar(ctx, b.objectOf(ctx, lhs), b.GetStoredType(ctx, lhsTypes[i]))
+				lval = b.emitLocalVar(ctx, b.objectOf(ctx, lhs), b.GetStoredType(ctx, lhsTypes[i]), false)
 			} else {
 				// Memory to hold the value should have already been created. Acquire the address of the memory
 				// location.
@@ -429,7 +429,7 @@ func (b *Builder) emitGenericDecl(ctx context.Context, decl *ast.GenDecl) {
 
 			// Local variables need to be emitted into the current block.
 			for i, ident := range spec.Names {
-				vars[i] = b.emitLocalVar(ctx, b.objectOf(ctx, ident), b.GetStoredType(ctx, b.typeOf(ctx, ident)))
+				vars[i] = b.emitLocalVar(ctx, b.objectOf(ctx, ident), b.GetStoredType(ctx, b.typeOf(ctx, ident)), false)
 			}
 
 			// Assign initial value (if any).
@@ -456,12 +456,10 @@ func (b *Builder) emitIdent(ctx context.Context, expr *ast.Ident) []mlir.Value {
 		val := b.emitConstantValue(ctx, obj.Val(), T, location)
 		return []mlir.Value{val}
 	case *types.Func:
-		symbol := b.resolveSymbol(qualifiedFuncName(obj))
+		symbol := b.resolveSymbol(mangleSymbol(qualifiedFuncName(obj)))
 		b.queueJob(ctx, symbol)
-		signatureType := b.createSignatureType(ctx, obj.Type().Underlying().(*types.Signature), false)
-		op := mlir.GoCreateAddressOfOperation(b.ctx, symbol, signatureType, location)
-		appendOperation(ctx, op)
-		return resultsOf(op)
+		fptrType := b.funcPointerOf(ctx, obj.Signature())
+		return []mlir.Value{b.addressOfSymbol(ctx, symbol, fptrType, location)}
 	case *types.Nil:
 		var T mlir.Type
 		if typeHasFlags(obj.Type(), types.IsUntyped) {
@@ -600,7 +598,7 @@ func (b *Builder) emitIndexAddr(ctx context.Context, expr *ast.IndexExpr) mlir.V
 		X = b.bitcastTo(ctx, X, b._string, location)
 
 		// Get the address of the byte.
-		callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, "runtime.stringIndexAddr",
+		callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.stringIndexAddr"),
 			[]mlir.Type{b.ptr}, []mlir.Value{X, index}, location)
 		appendOperation(ctx, callOp)
 		return resultOf(callOp)
@@ -731,9 +729,9 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 		// This is actually a qualified identifier.
 		switch obj := b.objectOf(ctx, expr.Sel).(type) {
 		case *types.Func:
-			T := b.GetType(ctx, obj.Type())
-			symbol := qualifiedFuncName(obj)
-			return b.values(b.addressOfSymbol(ctx, symbol, T, location))
+			symbol := mangleSymbol(qualifiedFuncName(obj))
+			fptrType := b.funcPointerOf(ctx, obj.Signature())
+			return b.values(b.addressOfSymbol(ctx, symbol, fptrType, location))
 		default:
 			value := b.valueOf(ctx, expr.Sel)
 			return b.values(value.Load(ctx, location))
@@ -769,10 +767,11 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 		wrapperSymbol := fmt.Sprintf("%s.%s$wrapper$2", sel.Obj().Id(), expr.Sel.Name)
 
 		// Create an interface call wrapper.
-		b.createInterfaceCallWrapper(ctx, wrapperSymbol, expr.Sel.Name, recvType, signature, argTypes)
+		fnT := b.createInterfaceCallWrapper(ctx, wrapperSymbol, expr.Sel.Name, recvType, signature, argTypes)
 
 		// Get the address of the thunk.
-		wrapperAddr := b.addressOfSymbol(ctx, wrapperSymbol, b.ptr, b._noLoc)
+		fptrType := mlir.GoCreatePointerType(fnT)
+		wrapperAddr := b.addressOfSymbol(ctx, wrapperSymbol, fptrType, b._noLoc)
 
 		// Create the function value.
 		return []mlir.Value{b.createFunctionValue(ctx, wrapperAddr, argsValue, location)}
@@ -780,11 +779,11 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 		switch obj := sel.Obj().(type) {
 		case *types.Func:
 			// Return the address of the selected method.
-			symbol := b.resolveSymbol(qualifiedFuncName(obj))
+			symbol := b.resolveSymbol(mangleSymbol(qualifiedFuncName(obj)))
+			fptrType := b.funcPointerOf(ctx, obj.Signature())
 			b.queueJob(ctx, symbol)
-			T := b.GetType(ctx, obj.Type())
 			return []mlir.Value{
-				b.addressOfSymbol(ctx, symbol, T, location),
+				b.addressOfSymbol(ctx, symbol, fptrType, location),
 			}
 		case *types.Var:
 			// Evaluate the address of the selected member.
@@ -808,9 +807,10 @@ func (b *Builder) emitSelectAddr(ctx context.Context, expr *ast.SelectorExpr) ml
 	// Handle declared functions separately.
 	if _, isFunc := selectedType.(*types.Signature); isFunc {
 		if funcObj, ok := info.ObjectOf(expr.Sel).(*types.Func); ok {
-			symbol := b.resolveSymbol(qualifiedFuncName(funcObj))
+			symbol := b.resolveSymbol(mangleSymbol(qualifiedFuncName(funcObj)))
 			b.queueJob(ctx, symbol)
-			return b.addressOfSymbol(ctx, symbol, b.GetType(ctx, funcObj.Type()), location)
+			fptrType := b.funcPointerOf(ctx, funcObj.Signature())
+			return b.addressOfSymbol(ctx, symbol, fptrType, location)
 		}
 	}
 
@@ -876,7 +876,7 @@ func (b *Builder) baseAddressOf(ctx context.Context, expr *ast.SelectorExpr, loc
 		case *types.Var:
 			return b.valueOf(ctx, X).Pointer(ctx, location)
 		case *types.PkgName:
-			symbol := baseObj.Imported().Path() + "." + expr.Sel.Name
+			symbol := mangleSymbol(qualifiedName2(baseObj.Imported().Path(), expr.Sel.Name))
 			globalT := b.typeOf(ctx, expr)
 			addressOfOp := mlir.GoCreateAddressOfOperation(b.ctx, symbol, b.pointerOf(ctx, globalT), location)
 			appendOperation(ctx, addressOfOp)

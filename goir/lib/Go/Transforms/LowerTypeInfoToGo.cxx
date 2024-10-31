@@ -1,6 +1,5 @@
 #include <llvm/ADT/TypeSwitch.h>
 
-#include <mlir/Conversion/LLVMCommon/Pattern.h>
 #include <mlir/Dialect/Arith/IR/Arith.h>
 #include <mlir/Dialect/Complex/IR/Complex.h>
 #include <mlir/Dialect/ControlFlow/IR/ControlFlow.h>

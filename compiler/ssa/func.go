@@ -185,7 +185,7 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 					recvVal := mlir.BlockGetArgument(entryBlock, 0)
 
 					// Emit a local variable allocation to hold the argument value.
-					addr := b.emitLocalVar(ctx, recvVar, mlir.ValueGetType(recvVal))
+					addr := b.emitLocalVar(ctx, recvVar, mlir.ValueGetType(recvVal), true)
 
 					// Store the parameter value at the address.
 					addr.Store(ctx, recvVal, loc)
@@ -203,7 +203,7 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 					arg++
 
 					// Emit a local variable allocation to hold the argument value.
-					addr := b.emitLocalVar(ctx, argVar, b.GetStoredType(ctx, argVar.Type()))
+					addr := b.emitLocalVar(ctx, argVar, b.GetStoredType(ctx, argVar.Type()), true)
 
 					// Store the parameter value at the address.
 					addr.Store(ctx, argVal, loc)
@@ -218,7 +218,7 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 				for _, name := range field.Names {
 					resultVar := b.objectOf(ctx, name)
 					result++
-					b.emitLocalVar(ctx, resultVar, b.GetStoredType(ctx, resultVar.Type()))
+					b.emitLocalVar(ctx, resultVar, b.GetStoredType(ctx, resultVar.Type()), false)
 				}
 			}
 		}
@@ -275,7 +275,7 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 	if data.isPackageInit {
 		mlir.OperationStateAddAttributes(state, []mlir.NamedAttribute{
 			b.namedOf("package_initializer", mlir.UnitAttrGet(b.ctx)),
-			b.namedOf("priority", mlir.IntegerAttrGet(mlir.IntegerTypeGet(b.ctx, 32), int64(data.priority))),
+			b.namedOf("priority", b.int32Attr(int32(data.priority))),
 		})
 	}
 
@@ -354,14 +354,21 @@ func (b *Builder) createFuncInstance(ctx context.Context, genericSignature *type
 }
 
 func (b *Builder) createFunctionValue(ctx context.Context, fn mlir.Value, args mlir.Value, location mlir.Location) mlir.Value {
+	// Examine the input function value.
+	fnT := mlir.ValueGetType(fn)
+	if mlir.GoTypeIsAPointer(fnT) {
+		elementT := mlir.GoPointerTypeGetElementType(fnT)
+		if !mlir.TypeIsNull(elementT) && mlir.GoTypeIsAFunctionType(elementT) {
+			// Cast to an opaque pointer.
+			fn = b.bitcastTo(ctx, fn, b.ptr, location)
+		}
+	} else {
+		panic("function value is not a pointer")
+	}
+
 	// Create the function value.
 	zeroOp := mlir.GoCreateZeroOperation(b.ctx, b._func, location)
 	appendOperation(ctx, zeroOp)
-
-	if mlir.GoTypeIsAFunctionType(mlir.ValueGetType(fn)) {
-		// Bitcast the function value to a pointer.
-		fn = b.bitcastTo(ctx, fn, b.ptr, location)
-	}
 
 	// Insert the function pointer.
 	insertOp := mlir.GoCreateInsertOperation(b.ctx, 0, fn, resultOf(zeroOp), b._func, location)
@@ -436,7 +443,7 @@ func (b *Builder) createThunk(ctx context.Context, symbol string, callee string,
 
 		// Create the function operation for this thunk.
 		thunkFuncType := mlir.GoCreateFunctionType(b.ctx, nil, paramTypes, resultTypes)
-		state := mlir.OperationStateGet("func.func", b._noLoc)
+		state := mlir.OperationStateGet("go.func", b._noLoc)
 		mlir.OperationStateAddOwnedRegions(state, []mlir.Region{region})
 		mlir.OperationStateAddAttributes(state, []mlir.NamedAttribute{
 			b.namedOf("function_type", mlir.TypeAttrGet(thunkFuncType)),

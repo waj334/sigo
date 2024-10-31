@@ -402,9 +402,7 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 	b.emitFunc(ctx, anonData)
 
 	// Get and return the address of the function.
-	op := mlir.GoCreateAddressOfOperation(b.ctx, anonData.symbol, anonData.mlirType, location)
-	appendOperation(ctx, op)
-	funcPtr := resultOf(op)
+	funcPtr := b.addressOfSymbol(ctx, anonData.symbol, b.ptr, location)
 
 	// Create a pointer to a context value.
 	var contextPtr mlir.Value

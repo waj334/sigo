@@ -216,8 +216,7 @@ mlir::LLVM::GlobalOp createSignatureDataGlobal(
   mlir::OpBuilder& builder,
   mlir::ModuleOp module,
   const mlir::Location& loc,
-  const mlir::LLVM::LLVMFunctionType type,
-  bool isMethod)
+  const mlir::go::FunctionType type)
 {
   auto converter = getLLVMTypeConverter(module);
   const auto ptrType = mlir::LLVM::LLVMPointerType::get(builder.getContext());
@@ -243,27 +242,24 @@ mlir::LLVM::GlobalOp createSignatureDataGlobal(
       Value dataValue = builder.create<mlir::LLVM::ZeroOp>(loc, dataType);
 
       // Insert the receiver type data if present.
-      size_t offset = 0;
-      if (isMethod)
+      if (const auto receiverType = type.getReceiver())
       {
-        const auto receiverType = type.getParams()[0];
         auto receiverTypeDataGlobalOp = createTypeInfo(builder, module, loc, receiverType);
         Value receiverTypeDataValue =
           builder.create<mlir::LLVM::AddressOfOp>(loc, receiverTypeDataGlobalOp);
         dataValue =
           builder.create<mlir::LLVM::InsertValueOp>(loc, dataValue, receiverTypeDataValue, 0);
-        offset = 1;
       }
 
-      const uint64_t numInputs = type.getNumParams() - offset;
+      const uint64_t numInputs = type.getNumInputs();
       auto inputGeneratorFn = [&](OpBuilder& builder)
       {
         SmallVector<Value> inputTypeDataValues;
         inputTypeDataValues.reserve(numInputs);
-        for (auto i = offset; i < type.getNumParams(); i++)
+        for (auto i = 0; i < type.getNumInputs(); i++)
         {
           // Create the type info for the input type.
-          auto inputTypeInfoGlobalOp = createTypeInfo(builder, module, loc, type.getParams()[i]);
+          auto inputTypeInfoGlobalOp = createTypeInfo(builder, module, loc, type.getInput(i));
 
           // Get the address of the input type info.
           Value inputTypeInfoValue =
@@ -281,12 +277,11 @@ mlir::LLVM::GlobalOp createSignatureDataGlobal(
       auto resultGeneratorFn = [&](OpBuilder& builder)
       {
         SmallVector<Value> resultTypeDataValues;
-        resultTypeDataValues.reserve(type.getReturnTypes().size());
-        for (size_t i = 0; i < type.getReturnTypes().size(); i++)
+        resultTypeDataValues.reserve(type.getNumResults());
+        for (size_t i = 0; i < type.getNumResults(); i++)
         {
           // Create the type info for the result type.
-          auto resultTypeInfoGlobalOp =
-            createTypeInfo(builder, module, loc, type.getReturnTypes()[i]);
+          auto resultTypeInfoGlobalOp = createTypeInfo(builder, module, loc, type.getResult(i));
 
           // Get the address of the result type info.
           Value resultTypeInfoValue =
@@ -303,7 +298,7 @@ mlir::LLVM::GlobalOp createSignatureDataGlobal(
         converter,
         symbol + "_results",
         ptrType,
-        type.getReturnTypes().size(),
+        type.getNumResults(),
         resultGeneratorFn,
         loc);
       dataValue = builder.create<mlir::LLVM::InsertValueOp>(loc, dataValue, resultsSliceValue, 2);
@@ -419,15 +414,8 @@ mlir::LLVM::GlobalOp createTypeInfo(
               builder.create<mlir::LLVM::ReturnOp>(loc, dataValue);
             });
         })
-      .Case(
-        [&](mlir::FunctionType type)
-        {
-          mlir::LLVMTypeConverter::SignatureConversion result(type.getNumInputs());
-          return createTypeInfo(
-            builder, module, loc, converter.convertFunctionSignature(type, false, false, result));
-        })
-      .Case([&](mlir::LLVM::LLVMFunctionType type)
-            { return createSignatureDataGlobal(builder, module, loc, type, false); })
+      .Case([&](mlir::go::FunctionType type)
+            { return createSignatureDataGlobal(builder, module, loc, type); })
       .Case<InterfaceType>(
         [&](InterfaceType type)
         {
@@ -539,6 +527,7 @@ mlir::LLVM::GlobalOp createTypeInfo(
           {
             const auto funcSymbol = cast<mlir::FlatSymbolRefAttr>(methodSymbol);
 
+            mlir::go::FunctionType fnT;
             // Look up the function in the current module.
             auto funcOp = cast_or_null<mlir::FunctionOpInterface>(module.lookupSymbol(funcSymbol));
 
@@ -549,28 +538,22 @@ mlir::LLVM::GlobalOp createTypeInfo(
               continue;
             }
 
-            // Compute the hash id for the type method.
-            // TODO: An earlier pass is needed to accurately compute method hashes since LLVM uses
-            // signless
-            //       integers.
-            mlir::LLVM::LLVMFunctionType funcType;
-            llvm::TypeSwitch<Type>(funcOp.getFunctionType())
-              .Case(
-                [&](mlir::FunctionType type)
-                {
-                  mlir::LLVMTypeConverter::SignatureConversion result(type.getNumInputs());
-                  funcType = mlir::cast<mlir::LLVM::LLVMFunctionType>(
-                    converter.convertFunctionSignature(type, false, false, result));
-                })
-              .Case([&](mlir::LLVM::LLVMFunctionType type) { funcType = type; });
+            if (
+              mlir::TypeAttr originalTypeAttr =
+                funcOp->getAttrOfType<mlir::TypeAttr>("originalType"))
+            {
+              fnT = mlir::dyn_cast<mlir::go::FunctionType>(originalTypeAttr.getValue());
+            }
 
+            assert(fnT && "function type is unknown");
+
+            // Compute the hash id for the type method.
             auto methodName = funcSymbol.getValue();
             methodName = methodName.substr(methodName.find_last_of(".") + 1);
-            const auto methodHashId = computeLLVMFunctionHash(methodName, funcType, false);
+            const auto methodHashId = computeMethodHash(methodName, fnT, false);
 
             // Create the type info for this function's signature.
-            auto signatureTypeDataGlobalOp =
-              createSignatureDataGlobal(builder, module, loc, funcType, true);
+            auto signatureTypeDataGlobalOp = createSignatureDataGlobal(builder, module, loc, fnT);
 
             // Create the function data.
             const auto funcDataSymbol =

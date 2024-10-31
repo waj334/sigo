@@ -54,6 +54,11 @@ namespace mlir::go {
 
     ::mlir::LogicalResult YieldOp::verify() {
         auto globalOp = this->getParentOp<GlobalOp>();
+        if (!globalOp)
+        {
+          return this->emitOpError() << "yield op must have global op as a parent";
+        }
+
         const auto expectedType = globalOp.getGlobalType();
         const auto actualType = this->getInitializerValue().getType();
         if (actualType != expectedType) {

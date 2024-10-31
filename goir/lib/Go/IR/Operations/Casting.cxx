@@ -13,151 +13,152 @@ namespace mlir::go
 
   // Verify that primitive types are only cast between their MLIR and runtime representations and
   // that pointers are only cast to and from unsafe.Pointer.
-  if (failed(llvm::TypeSwitch<mlir::Type, LogicalResult>(this->getValue().getType())
-               .Case(
-                 [&](ChanType T)
-                 {
-                   if (auto resultType = mlir::dyn_cast<NamedType>(this->getType()))
-                   {
-                     return success(resultType.getName() == "runtime._channel");
-                   }
-                   return failure();
-                 })
-               .Case(
-                 [&](ComplexType T)
-                 {
-                   // Allow bitcast from one complex type to another.
-                   return success(go::isa<mlir::ComplexType>(this->getType()));
-                 })
-               .Case(
-                 [&](InterfaceType T)
-                 {
-                   if (auto resultType = mlir::dyn_cast<NamedType>(this->getType()))
-                   {
-                     return success(resultType.getName() == "runtime._interface");
-                   }
-                   return failure();
-                 })
-               .Case(
-                 [&](MapType T)
-                 {
-                   if (auto resultType = mlir::dyn_cast<NamedType>(this->getType()))
-                   {
-                     return success(resultType.getName() == "runtime._map");
-                   }
-                   return failure();
-                 })
-               .Case(
-                 [&](SliceType T)
-                 {
-                   if (auto resultType = mlir::dyn_cast<NamedType>(this->getType()))
-                   {
-                     return success(resultType.getName() == "runtime._slice");
-                   }
-                   return failure();
-                 })
-               .Case(
-                 [&](StringType T)
-                 {
-                   if (auto resultType = mlir::dyn_cast<NamedType>(this->getType()))
-                   {
-                     return success(resultType.getName() == "runtime._string");
-                   }
-                   return failure();
-                 })
-               .Case(
-                 [&](NamedType T)
-                 {
-                   bool isSuccess =
-                     llvm::StringSwitch<bool>(T.getName().getValue())
-                       .Case("runtime._channel", go::isa<ChanType>(this->getType()))
-                       .Case("runtime._interface", go::isa<InterfaceType>(this->getType()))
-                       .Case("runtime._map", go::isa<MapType>(this->getType()))
-                       .Case("runtime._slice", go::isa<SliceType>(this->getType()))
-                       .Case("runtime._string", go::isa<StringType>(this->getType()))
-                       .Default(false);
+  if (failed(
+        llvm::TypeSwitch<mlir::Type, LogicalResult>(this->getValue().getType())
+          .Case(
+            [&](ChanType T)
+            {
+              if (auto resultType = mlir::dyn_cast<NamedType>(this->getType()))
+              {
+                return success(resultType.getName() == "runtime._channel");
+              }
+              return failure();
+            })
+          .Case(
+            [&](ComplexType T)
+            {
+              // Allow bitcast from one complex type to another.
+              return success(go::isa<mlir::ComplexType>(this->getType()));
+            })
+          .Case(
+            [&](InterfaceType T)
+            {
+              if (auto resultType = mlir::dyn_cast<NamedType>(this->getType()))
+              {
+                return success(resultType.getName() == "runtime._interface");
+              }
+              return failure();
+            })
+          .Case(
+            [&](MapType T)
+            {
+              if (auto resultType = mlir::dyn_cast<NamedType>(this->getType()))
+              {
+                return success(resultType.getName() == "runtime._map");
+              }
+              return failure();
+            })
+          .Case(
+            [&](SliceType T)
+            {
+              if (auto resultType = mlir::dyn_cast<NamedType>(this->getType()))
+              {
+                return success(resultType.getName() == "runtime._slice");
+              }
+              return failure();
+            })
+          .Case(
+            [&](StringType T)
+            {
+              if (auto resultType = mlir::dyn_cast<NamedType>(this->getType()))
+              {
+                return success(resultType.getName() == "runtime._string");
+              }
+              return failure();
+            })
+          .Case(
+            [&](NamedType T)
+            {
+              bool isSuccess =
+                llvm::StringSwitch<bool>(T.getName().getValue())
+                  .Case("runtime._channel", go::isa<ChanType>(this->getType()))
+                  .Case("runtime._interface", go::isa<InterfaceType>(this->getType()))
+                  .Case("runtime._map", go::isa<MapType>(this->getType()))
+                  .Case("runtime._slice", go::isa<SliceType>(this->getType()))
+                  .Case("runtime._string", go::isa<StringType>(this->getType()))
+                  .Default(false);
 
-                   if (!isSuccess)
-                   {
-                     {
-                       auto fromType = go::dyn_cast<IntegerType>(T);
-                       auto toType = go::dyn_cast<IntegerType>(this->getType());
-                       if (fromType && toType)
-                       {
-                         return success(fromType.getWidth() == toType.getWidth());
-                       }
-                     }
-                     {
-                       auto fromType = go::dyn_cast<FloatType>(T);
-                       auto toType = go::dyn_cast<FloatType>(this->getType());
-                       if (fromType && toType)
-                       {
-                         return success(fromType.getWidth() == toType.getWidth());
-                       }
-                     }
-                     {
-                       auto fromType = go::dyn_cast<ComplexType>(T);
-                       auto toType = go::dyn_cast<ComplexType>(this->getType());
-                       if (fromType && toType)
-                       {
-                         auto fromFType = mlir::cast<FloatType>(fromType.getElementType());
-                         auto toFType = mlir::cast<FloatType>(toType.getElementType());
-                         return success(fromFType.getWidth() == toFType.getWidth());
-                       }
-                     }
+              if (!isSuccess)
+              {
+                {
+                  auto fromType = go::dyn_cast<IntegerType>(T);
+                  auto toType = go::dyn_cast<IntegerType>(this->getType());
+                  if (fromType && toType)
+                  {
+                    return success(fromType.getWidth() == toType.getWidth());
+                  }
+                }
+                {
+                  auto fromType = go::dyn_cast<FloatType>(T);
+                  auto toType = go::dyn_cast<FloatType>(this->getType());
+                  if (fromType && toType)
+                  {
+                    return success(fromType.getWidth() == toType.getWidth());
+                  }
+                }
+                {
+                  auto fromType = go::dyn_cast<ComplexType>(T);
+                  auto toType = go::dyn_cast<ComplexType>(this->getType());
+                  if (fromType && toType)
+                  {
+                    auto fromFType = mlir::cast<FloatType>(fromType.getElementType());
+                    auto toFType = mlir::cast<FloatType>(toType.getElementType());
+                    return success(fromFType.getWidth() == toFType.getWidth());
+                  }
+                }
 
-                     // The conversion is valid if both types have the same underlying type.
-                     return success(baseType(this->getType()) == baseType(T));
-                   }
+                // The conversion is valid if both types have the same underlying type.
+                return success(baseType(this->getType()) == baseType(T));
+              }
 
-                   return success(isSuccess);
-                 })
-               .Case(
-                 [&](PointerType T)
-                 {
-                   if (auto resultType = mlir::dyn_cast<PointerType>(this->getType()))
-                   {
-                     if (T.getElementType().has_value())
-                     {
-                       if (!resultType.getElementType().has_value())
-                       {
-                         // *T -> unsafe.Pointer.
-                         return success(true);
-                       }
-                       else if (baseType(*T.getElementType()) == this->getType())
-                       {
-                         // Alias -> underlying type.
-                         return success(true);
-                       }
-                     }
-                     // unsafe.Pointer -> *T is always acceptable.
-                     return success();
-                   }
-                   else if (!T.getElementType().has_value())
-                   {
-                     if (go::isa<FunctionType>(this->getType()))
-                     {
-                       // unsafe.Pointer -> func
-                       return success();
-                     }
-                   }
-                   return failure();
-                 })
-               .Case(
-                 [&](IntegerType T)
-                 {
-                   if (auto resultType = mlir::dyn_cast<IntegerType>(baseType(this->getType())))
-                   {
-                     return success(T.getWidth() == resultType.getWidth());
-                   }
-                   return failure();
-                 })
-               .Default(
-                 [&](mlir::Type T)
-                 {
-                   // The conversion is valid if both types have the same underlying type.
-                   return success(baseType(this->getType()) == baseType(T));
-                 })))
+              return success(isSuccess);
+            })
+          .Case(
+            [&](PointerType T)
+            {
+              if (auto resultType = mlir::dyn_cast<PointerType>(this->getType()))
+              {
+                if (T.getElementType().has_value())
+                {
+                  if (!resultType.getElementType().has_value())
+                  {
+                    // *T -> unsafe.Pointer.
+                    return success(true);
+                  }
+                  else if (baseType(*T.getElementType()) == this->getType())
+                  {
+                    // Alias -> underlying type.
+                    return success(true);
+                  }
+                }
+                // unsafe.Pointer -> *T is always acceptable.
+                return success();
+              }
+              else if (!T.getElementType().has_value())
+              {
+                if (go::isa<FunctionType>(this->getType()))
+                {
+                  // unsafe.Pointer -> func
+                  return success();
+                }
+              }
+              return failure();
+            })
+          .Case(
+            [&](IntegerType T)
+            {
+              if (auto resultType = mlir::dyn_cast<IntegerType>(baseType(this->getType())))
+              {
+                return success(T.getWidth() == resultType.getWidth());
+              }
+              return failure();
+            })
+          .Default(
+            [&](mlir::Type T)
+            {
+              // The conversion is valid if both types have the same underlying type.
+              return success(baseType(this->getType()) == baseType(T));
+            })))
   {
     return this->emitOpError() << "invalid cast from " << this->getValue().getType() << " to "
                                << this->getType();
@@ -239,9 +240,11 @@ LogicalResult TypeAssertOp::canonicalize(TypeAssertOp op, PatternRewriter& rewri
   const auto i1Type = mlir::IntegerType::get(rewriter.getContext(), 1);
   auto originalAssertedValue = op->getOpResult(0);
   auto originalOkValue = op->getOpResult(1);
+  const auto interfaceAssertSymbol = formatPackageSymbol("runtime", "interfaceAssert");
+  const auto interfaceValueSymbol = formatPackageSymbol("runtime", "interfaceValue");
 
   // Get the runtime function.
-  auto func = module.lookupSymbol<FuncOp>("runtime.interfaceAssert");
+  auto func = module.lookupSymbol<FuncOp>(interfaceAssertSymbol);
   const auto argTypes = func.getArgumentTypes();
 
   // The info type pointer is the second argument.
@@ -257,7 +260,7 @@ LogicalResult TypeAssertOp::canonicalize(TypeAssertOp op, PatternRewriter& rewri
   // Lower to runtime call.
   const SmallVector<Type> results = { anyType, boolType };
   const SmallVector<Value> args = { op.getValue(), info, hasOk };
-  auto assertCallOp = rewriter.create<RuntimeCallOp>(loc, results, "runtime.interfaceAssert", args);
+  auto assertCallOp = rewriter.create<RuntimeCallOp>(loc, results, interfaceAssertSymbol, args);
   Value assertedValue = assertCallOp.getResult(0);
   Value okValue = assertCallOp.getResult(1);
 
@@ -291,7 +294,7 @@ LogicalResult TypeAssertOp::canonicalize(TypeAssertOp op, PatternRewriter& rewri
       const SmallVector<Type> results = { PointerType::get(rewriter.getContext(), std::nullopt) };
       const SmallVector<Value> args = { assertedValue };
       auto interfaceValueCallOp =
-        rewriter.create<RuntimeCallOp>(loc, results, "runtime.interfaceValue", args);
+        rewriter.create<RuntimeCallOp>(loc, results, interfaceValueSymbol, args);
       Value underlyingValuePtr = interfaceValueCallOp->getResult(0);
 
       // Load the value.

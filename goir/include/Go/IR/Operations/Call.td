@@ -28,18 +28,11 @@ def CallOp : Go_Op<"call"> {
 // CallIndirectOp
 //===----------------------------------------------------------------------===//
 
-def CallIndirectOp : Go_Op<"call_indirect", [
-            TypesMatchWith<"callee input types match argument types",
-                         "callee", "callee_operands",
-                         "::mlir::go::cast<::mlir::go::FunctionType>($_self).getInputs()">,
-            TypesMatchWith<"callee result types match result types",
-                         "callee", "results",
-                         "::mlir::go::cast<::mlir::go::FunctionType>($_self).getResults()">
-        ]> {
-    let arguments = (ins Go_Function:$callee, Variadic<Go_Type>:$callee_operands);
+def CallIndirectOp : Go_Op<"call_indirect"> {
+    let arguments = (ins Go_Addressable:$callee, Variadic<Go_Type>:$callee_operands);
     let results = (outs Variadic<Go_Type>:$results);
     let assemblyFormat = [{
-        $callee `(` $callee_operands `)` attr-dict `:` type($callee)
+        $callee `<` type($callee) `>` `(` $callee_operands `)` attr-dict `:` functional-type($callee_operands, results)
     }];
 }
 
@@ -84,7 +77,7 @@ def GoOp : Go_Op<"call_go"> {
         ```
     }];
     let arguments = (ins
-            AnyTypeOrNamedOf<[Go_Function, Go_Interface, Go_Struct]>:$callee,
+            AnyTypeOrNamedOf<[Go_Addressable, Go_Interface, Go_Struct]>:$callee,
             Variadic<Go_Type>:$callee_operands,
             TypeAttr:$signature,
             OptionalAttr<StrAttr>:$method_name);

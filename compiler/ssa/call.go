@@ -211,12 +211,13 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 
 				// Create the closure function type
 				closureFnType := mlir.GoCreateFunctionType(b.ctx, nil, append(paramTypes, b.ptr), resultTypes)
+				fptrType := mlir.GoCreatePointerType(closureFnType)
 
 				// Extract the callee ptr from the func value struct.
 				extractOp := mlir.GoCreateExtractOperation(b.ctx, 0, b.ptr, fnValue, location)
 				appendOperation(ctx, extractOp)
 				funcPtr := resultOf(extractOp)
-				funcPtr = b.bitcastTo(ctx, funcPtr, closureFnType, location)
+				funcPtr = b.bitcastTo(ctx, funcPtr, fptrType, location)
 
 				// Extract the environment pointer from the func value struct.
 				extractOp = mlir.GoCreateExtractOperation(b.ctx, 1, b.ptr, fnValue, location)
@@ -304,7 +305,7 @@ func (b *Builder) emitCallArgs(ctx context.Context, signature *types.Signature, 
 }
 
 func (b *Builder) emitGeneralCall(ctx context.Context, ident *ast.Ident, obj *types.Func, args []mlir.Value, location mlir.Location) []mlir.Value {
-	callee := qualifiedFuncName(obj)
+	callee := mangleSymbol(qualifiedFuncName(obj))
 	signature := obj.Type().Underlying().(*types.Signature)
 	info := currentInfo(ctx)
 
@@ -318,7 +319,7 @@ func (b *Builder) emitGeneralCall(ctx context.Context, ident *ast.Ident, obj *ty
 		}
 
 		// Format the callee.
-		callee = qualifiedName(typename+"."+obj.Name(), obj.Pkg())
+		callee = mangleSymbol(qualifiedName(typename+"."+obj.Name(), obj.Pkg()))
 	}
 
 	// Is the callee a generic function?
@@ -564,7 +565,7 @@ func (b *Builder) emitVariadicArgs(ctx context.Context, signature *types.Signatu
 	return args
 }
 
-func (b *Builder) createInterfaceCallWrapper(ctx context.Context, symbol string, callee string, iface *types.Interface, signature *types.Signature, argTypes []mlir.Type) {
+func (b *Builder) createInterfaceCallWrapper(ctx context.Context, symbol string, callee string, iface *types.Interface, signature *types.Signature, argTypes []mlir.Type) mlir.Type {
 	b.thunkMutex.Lock()
 	defer b.thunkMutex.Unlock()
 
@@ -634,5 +635,9 @@ func (b *Builder) createInterfaceCallWrapper(ctx context.Context, symbol string,
 		b.addToModuleMutex.Unlock()
 
 		b.thunks[symbol] = struct{}{}
+		b.thunkTypes[symbol] = thunkFuncType
+		return thunkFuncType
 	}
+
+	return b.thunkTypes[symbol]
 }

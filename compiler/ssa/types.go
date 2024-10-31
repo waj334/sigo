@@ -134,7 +134,7 @@ func (b *Builder) createTypeDeclaration(ctx context.Context, T types.Type, pos t
 			entries := make([]mlir.Attribute, T.NumMethods())
 			for i := 0; i < T.NumMethods(); i++ {
 				method := T.Method(i)
-				symbol := qualifiedFuncName(method)
+				symbol := mangleSymbol(qualifiedFuncName(method))
 				refAttr := mlir.FlatSymbolRefAttrGet(b.ctx, symbol)
 				entries[i] = refAttr
 
@@ -329,7 +329,7 @@ func (b *Builder) createNamedType(ctx context.Context, T *types.Named) mlir.Type
 	entries := make([]mlir.Attribute, T.NumMethods())
 	for i := 0; i < T.NumMethods(); i++ {
 		method := T.Method(i)
-		symbol := qualifiedFuncName(method)
+		symbol := mangleSymbol(qualifiedFuncName(method))
 		refAttr := mlir.FlatSymbolRefAttrGet(b.ctx, symbol)
 		entries[i] = refAttr
 	}
@@ -363,6 +363,11 @@ func (b *Builder) createPointerType(ctx context.Context, T *types.Pointer) mlir.
 func (b *Builder) pointerOf(ctx context.Context, T types.Type) mlir.Type {
 	ptrType := types.NewPointer(T)
 	return b.GetStoredType(ctx, ptrType)
+}
+
+func (b *Builder) funcPointerOf(ctx context.Context, T *types.Signature) mlir.Type {
+	fnT := b.GetType(ctx, T)
+	return mlir.GoCreatePointerType(fnT)
 }
 
 func (b *Builder) createSliceType(ctx context.Context, T *types.Slice) mlir.Type {

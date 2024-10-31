@@ -10,7 +10,7 @@ namespace detail
 {
 struct InterfaceTypeStorage : public ::mlir::TypeStorage
 {
-  using FunctionMap = std::map<std::string, Type>;
+  using FunctionMap = std::map<std::string, mlir::Type>;
 
   struct Key
   {

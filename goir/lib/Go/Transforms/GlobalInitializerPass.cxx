@@ -53,10 +53,10 @@ struct GlobalInitializerPass : PassWrapper<GlobalInitializerPass, OperationPass<
         builder.setInsertionPoint(globalOp);
 
         auto ctorSymbol = globalOp.getSymName().str() + "_ctor";
-        auto fnT = builder.getFunctionType({}, {});
+        auto fnT = mlir::go::FunctionType::get(builder.getContext(), {}, {});
 
         // Create a constructor function from this global.
-        auto ctorFn = builder.create<func::FuncOp>(globalOp.getLoc(), ctorSymbol.c_str(), fnT);
+        auto ctorFn = builder.create<mlir::go::FuncOp>(globalOp.getLoc(), ctorSymbol.c_str(), fnT);
         int priority = 0;
         if (auto priorityAttr = globalOp->getAttrOfType<IntegerAttr>("go.ctor.priority"))
         {
@@ -91,7 +91,7 @@ struct GlobalInitializerPass : PassWrapper<GlobalInitializerPass, OperationPass<
             globalOp.getLoc(), yieldOp.getInitializerValue(), addr, UnitAttr(), UnitAttr());
 
           // Insert a void return.
-          builder.create<mlir::func::ReturnOp>(globalOp->getLoc());
+          builder.create<mlir::go::ReturnOp>(globalOp->getLoc());
 
           // Remove the yield operation.
           yieldOp.erase();
@@ -115,7 +115,7 @@ struct GlobalInitializerPass : PassWrapper<GlobalInitializerPass, OperationPass<
 
     // Add all package initializers to the global ctors.
     module.walk(
-      [&](func::FuncOp funcOp)
+      [&](mlir::go::FuncOp funcOp)
       {
         if (funcOp->hasAttr("package_initializer"))
         {

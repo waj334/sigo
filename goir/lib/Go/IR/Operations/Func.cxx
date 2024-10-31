@@ -158,7 +158,7 @@ void FuncOp::print(::mlir::OpAsmPrinter& p)
   // Print optional receiver.
   if (fnT.getReceiver())
   {
-    p << "[";
+    p << " [";
 
     if (isExternal)
     {
@@ -171,6 +171,10 @@ void FuncOp::print(::mlir::OpAsmPrinter& p)
     }
 
     p << "] ";
+  }
+  else
+  {
+    p << " ";
   }
 
   p << symbolName << "(";

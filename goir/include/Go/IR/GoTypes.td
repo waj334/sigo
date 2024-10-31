@@ -79,7 +79,7 @@ def Go_Complex : AnyTypeOrNamedOf<[Complex<F32>, Complex<F64>]>;
 def Go_Chan : AnyTypeOrNamedOf<[ChanType]>;
 def Go_Float : AnyTypeOrNamedOf<[F32, F64]>;
 def Go_Function : AnyTypeOrNamedOf<[GoFunctionType]>;
-def Go_Integer : AnyTypeOrNamedOf<[IntegerType]>;
+def Go_Integer : AnyTypeOrNamedOf<[GoIntegerType]>;
 def Go_Integral : AnyTypeOrNamedOf<[Go_Integer, Go_Bool]>;
 def Go_String : AnyTypeOrNamedOf<[StringType]>;
 def Go_Slice : AnyTypeOrNamedOf<[SliceType]>;

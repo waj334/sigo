@@ -15,7 +15,7 @@ func (b *Builder) isIntrinsic(ctx context.Context, expr *ast.CallExpr) bool {
 }
 
 func isIntrinsic(symbol string) bool {
-	switch symbol {
+	switch demangleSymbol(symbol) {
 	case "sync/atomic.AddUint32",
 		"sync/atomic.AddInt32",
 		"sync/atomic.AddUint64",
