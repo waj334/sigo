@@ -8,7 +8,8 @@ include "Go/IR/GoDialect.td"
 //===----------------------------------------------------------------------===//
 
 def StringType : GoDialect_Type<"String", "string", [
-            DeclareTypeInterfaceMethods<DataLayoutTypeInterface, ["getTypeSize"]>
+            RuntimeTypeInterface,
+            DeclareTypeInterfaceMethods<DataLayoutTypeInterface, ["getTypeSize", "getTypeSizeInBits", "getABIAlignment", "getPreferredAlignment"]>
         ]> {
     let summary = "String type";
     let description = [{
@@ -20,25 +21,30 @@ def StringType : GoDialect_Type<"String", "string", [
         ```
     }];
     let extraClassDefinition = [{
-        ::llvm::TypeSize StringType::getTypeSizeInBits(const DataLayout &dataLayout,
-                                                              DataLayoutEntryListRef params) const {
-            return this->getTypeSize(dataLayout, params) * 8;
+        auto $cppClass::getTypeSize(const DataLayout& dataLayout, DataLayoutEntryListRef params)
+          const -> ::llvm::TypeSize
+        {
+          return dataLayout.getTypeSize(this->getRuntimeType(params));
         }
 
-        ::llvm::TypeSize StringType::getTypeSize(const DataLayout &dataLayout,
-                                            DataLayoutEntryListRef params) const {
-            // String type consists of a pointer and a integer (int is 32 or 64 bits)
-            return dataLayout.getTypeSize(IndexType::get(getContext())) * 2;
+        auto $cppClass::getTypeSizeInBits(
+          const DataLayout& dataLayout,
+          DataLayoutEntryListRef params) const -> ::llvm::TypeSize
+        {
+          return dataLayout.getTypeSizeInBits(this->getRuntimeType(params));
         }
 
-        uint64_t StringType::getABIAlignment(const DataLayout &dataLayout,
-                                                DataLayoutEntryListRef params) const {
-            return dataLayout.getTypeABIAlignment(IndexType::get(getContext()));
+        auto $cppClass::getABIAlignment(const DataLayout& dataLayout, DataLayoutEntryListRef params)
+          const -> uint64_t
+        {
+          return dataLayout.getTypeABIAlignment(this->getRuntimeType(params));
         }
 
-        uint64_t StringType::getPreferredAlignment(const DataLayout &dataLayout,
-                                             DataLayoutEntryListRef params) const {
-            return dataLayout.getTypePreferredAlignment(IndexType::get(getContext()));
+        auto $cppClass::getPreferredAlignment(
+          const DataLayout& dataLayout,
+          DataLayoutEntryListRef params) const -> uint64_t
+        {
+          return this->getABIAlignment(dataLayout, params);
         }
     }];
 }

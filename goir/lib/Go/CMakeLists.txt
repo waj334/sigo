@@ -3,6 +3,7 @@ add_mlir_dialect_library(GoIR
         IR/Operations/Builtin.cxx
         IR/Operations/Call.cxx
         IR/Operations/Casting.cxx
+        IR/Operations/Chan.cxx
         IR/Operations/Constant.cxx
         IR/Operations/Func.cxx
         IR/Operations/Intrinsics.cxx
@@ -12,6 +13,7 @@ add_mlir_dialect_library(GoIR
         IR/Operations/Struct.cxx
         IR/Operations/UnaryOps.cxx
         IR/Operations/Value.cxx
+        IR/Types/Chan.cxx
         IR/Types/Integer.cxx
         IR/Types/Interface.cxx
         IR/Types/Pointer.cxx

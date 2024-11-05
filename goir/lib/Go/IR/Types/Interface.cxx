@@ -312,34 +312,32 @@ std::string InterfaceType::getName() const
   return getImpl()->getName();
 }
 
-::llvm::TypeSize InterfaceType::getTypeSizeInBits(
-  const DataLayout& dataLayout,
-  DataLayoutEntryListRef params) const
+auto InterfaceType::getTypeSize(const DataLayout& dataLayout, DataLayoutEntryListRef params)
+  const -> ::llvm::TypeSize
 {
-  // The interface type consists of two pointers
-  return dataLayout.getTypeSizeInBits(IndexType::get(getContext())) * 2;
+  return dataLayout.getTypeSize(this->getRuntimeType(params));
 }
 
-::llvm::TypeSize InterfaceType::getTypeSize(
+auto InterfaceType::getTypeSizeInBits(
   const DataLayout& dataLayout,
-  DataLayoutEntryListRef params) const
+  DataLayoutEntryListRef params) const -> ::llvm::TypeSize
 {
-  // The interface type consists of two pointers
-  return dataLayout.getTypeSize(IndexType::get(getContext())) * 2;
+  return dataLayout.getTypeSizeInBits(this->getRuntimeType(params));
 }
 
-uint64_t InterfaceType::getABIAlignment(const DataLayout& dataLayout, DataLayoutEntryListRef params)
-  const
+auto InterfaceType::getABIAlignment(const DataLayout& dataLayout, DataLayoutEntryListRef params)
+  const -> uint64_t
 {
-  return dataLayout.getTypeABIAlignment(IndexType::get(getContext()));
+  return dataLayout.getTypeABIAlignment(this->getRuntimeType(params));
 }
 
-uint64_t InterfaceType::getPreferredAlignment(
+auto InterfaceType::getPreferredAlignment(
   const DataLayout& dataLayout,
-  DataLayoutEntryListRef params) const
+  DataLayoutEntryListRef params) const -> uint64_t
 {
-  return dataLayout.getTypePreferredAlignment(IndexType::get(getContext()));
+  return this->getABIAlignment(dataLayout, params);
 }
+
 } // namespace mlir::go
 
 MLIR_DEFINE_EXPLICIT_TYPE_ID(::mlir::go::InterfaceType)

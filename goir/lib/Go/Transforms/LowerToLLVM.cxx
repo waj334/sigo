@@ -14,44 +14,61 @@
 namespace mlir::go
 {
 
-static SmallVector<Value> createRuntimeCall(
-  PatternRewriter& rewriter,
-  const Location location,
+mlir::Type lookUpRuntimeType(mlir::ModuleOp module, mlir::StringRef name)
+{
+  auto moduleOp = module.getOperation();
+  assert(
+    moduleOp->hasAttr("go.runtimeTypes") &&
+    "module MUST have the go.runtimeTypes dictionary attribute");
+  auto typeMap = ::mlir::dyn_cast<mlir::DictionaryAttr>(moduleOp->getAttr("go.runtimeTypes"));
+  const ::mlir::TypeAttr result = typeMap.template getAs<::mlir::TypeAttr>(name);
+  if (!result)
+  {
+    return ::mlir::Type();
+  }
+  return result.getValue();
+}
+
+static mlir::SmallVector<Value> createRuntimeCall(
+  mlir::PatternRewriter& rewriter,
+  const mlir::Location location,
   const std::string& funcName,
-  const ArrayRef<Type>& results,
-  const ArrayRef<Value>& args)
+  const mlir::LLVMTypeConverter* typeConverter,
+  const mlir::ArrayRef<mlir::Value>& args)
 {
   // Format the fully qualified function name
   const std::string qualifiedFuncName = formatPackageSymbol("runtime", funcName);
   const auto callee = FlatSymbolRefAttr::get(rewriter.getContext(), qualifiedFuncName);
-  const auto numResults = results.size();
   SmallVector<Value, 4> resultValues;
 
-  // Build the expected function signature.
-  Type returnType;
-  if (numResults == 0)
-  {
-    returnType = LLVM::LLVMVoidType::get(rewriter.getContext());
-  }
-  else if (results.size() == 1)
-  {
-    returnType = results[0];
-  }
-  else if (results.size() > 1)
-  {
-    returnType = LLVM::LLVMStructType::getLiteral(rewriter.getContext(), results, false);
-  }
+  // Look up the function in the module.
+  auto module = rewriter.getBlock()->getParentOp()->getParentOfType<mlir::ModuleOp>();
+  auto funcOp = mlir::dyn_cast<mlir::FunctionOpInterface>(module.lookupSymbol(qualifiedFuncName));
 
-  SmallVector<Type> argTypes(args.size());
-  for (size_t i = 0; i < args.size(); ++i)
+  // Get the function type.
+  mlir::LLVM::LLVMFunctionType funcType;
+  size_t numResults = 0;
+  if (mlir::isa<mlir::func::FuncOp>(funcOp))
   {
-    argTypes[i] = args[i].getType();
-  }
+    const auto _funcType = mlir::dyn_cast<mlir::FunctionType>(funcOp.getFunctionType());
+    numResults = _funcType.getNumResults();
 
-  auto fnType = LLVM::LLVMFunctionType::get(rewriter.getContext(), returnType, argTypes, false);
+    mlir::TypeConverter::SignatureConversion result(_funcType.getNumInputs());
+    const auto convertedType =
+      typeConverter->convertFunctionSignature(_funcType, false, false, result);
+    funcType = mlir::dyn_cast<mlir::LLVM::LLVMFunctionType>(convertedType);
+  }
+  else
+  {
+    // This function has already been lowered.
+    funcType = mlir::dyn_cast<mlir::LLVM::LLVMFunctionType>(funcOp.getFunctionType());
+    const auto originalFuncType = mlir::dyn_cast<mlir::go::FunctionType>(
+      funcOp->getAttrOfType<mlir::TypeAttr>("originalType").getValue());
+    numResults = originalFuncType.getNumResults();
+  }
 
   // Create the call.
-  auto callOp = rewriter.create<LLVM::CallOp>(location, fnType, callee, args);
+  auto callOp = rewriter.create<LLVM::CallOp>(location, funcType, callee, args);
 
   // Handle the call results.
   if (numResults < 2)
@@ -158,9 +175,12 @@ struct AddStrOpLowering : ConvertOpToLLVMPattern<AddStrOp>
     const override
   {
     const auto loc = op.getLoc();
-    auto type = typeConverter->convertType(op.getType());
     auto runtimeCallResults = createRuntimeCall(
-      rewriter, loc, "stringConcat", { type }, { adaptor.getLhs(), adaptor.getRhs() });
+      rewriter,
+      loc,
+      "stringConcat",
+      this->getTypeConverter(),
+      { adaptor.getLhs(), adaptor.getRhs() });
     rewriter.replaceOp(op, runtimeCallResults);
     return success();
   }
@@ -175,7 +195,7 @@ class AllocaOpLowering : public ConvertOpToLLVMPattern<AllocaOp>
   {
     OpBuilder::InsertionGuard guard(rewriter);
     const Location loc = op.getLoc();
-    auto elementType = this->typeConverter->convertType(adaptor.getElement());
+    auto elementType = this->getTypeConverter()->convertType(adaptor.getElement());
     auto parentFunc = op->getParentOfType<mlir::LLVM::LLVMFuncOp>();
     Block& entryBlock = *parentFunc.getBody().begin();
     Value allocValue;
@@ -194,7 +214,7 @@ class AllocaOpLowering : public ConvertOpToLLVMPattern<AllocaOp>
 
       // Create the runtime call to allocate memory on the heap
       const auto runtimeCallResults =
-        createRuntimeCall(rewriter, loc, "alloc", { getVoidPtrType() }, { sizeValue });
+        createRuntimeCall(rewriter, loc, "alloc", this->getTypeConverter(), { sizeValue });
       // Replace the original operation.
       rewriter.replaceOp(op, runtimeCallResults);
       allocValue = runtimeCallResults[0];
@@ -364,8 +384,7 @@ struct BitcastOpLowering : ConvertOpToLLVMPattern<BitcastOp>
 
           if (mlir::go::isa<PointerType>(resultType))
           {
-            rewriter.replaceOpWithNewOp<mlir::LLVM::BitcastOp>(
-              op, convertedResultType, inputValue);
+            rewriter.replaceOpWithNewOp<mlir::LLVM::BitcastOp>(op, convertedResultType, inputValue);
             return success();
           }
           return failure();
@@ -399,7 +418,7 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
     mlir::DataLayout dataLayout(module);
 
     SmallVector<Type> resultTypes;
-    if (failed(this->typeConverter->convertTypes(op.getResultTypes(), resultTypes)))
+    if (failed(this->getTypeConverter()->convertTypes(op.getResultTypes(), resultTypes)))
     {
       return failure();
     }
@@ -414,7 +433,7 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
         rewriter,
         loc,
         "sliceAppend",
-        resultTypes,
+        this->getTypeConverter(),
         { operands[0], operands[1], elementTypeInfoValue });
       rewriter.replaceOp(op, runtimeCallResults);
     }
@@ -428,15 +447,15 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
         .Case(
           [&](ChanType type)
           {
-            const auto runtimeCallResults =
-              createRuntimeCall(rewriter, loc, "channelCap", resultTypes, { operands[0] });
+            const auto runtimeCallResults = createRuntimeCall(
+              rewriter, loc, "channelCap", this->getTypeConverter(), { operands[0] });
             rewriter.replaceOp(op, runtimeCallResults);
           })
         .Case(
           [&](SliceType type)
           {
-            const auto runtimeCallResults =
-              createRuntimeCall(rewriter, loc, "sliceCap", resultTypes, { operands[0] });
+            const auto runtimeCallResults = createRuntimeCall(
+              rewriter, loc, "sliceCap", this->getTypeConverter(), { operands[0] });
             rewriter.replaceOp(op, runtimeCallResults);
           });
     }
@@ -447,21 +466,21 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
         .Case(
           [&](MapType type)
           {
-            const auto runtimeCallResults =
-              createRuntimeCall(rewriter, loc, "mapClear", resultTypes, { operands[0] });
+            const auto runtimeCallResults = createRuntimeCall(
+              rewriter, loc, "mapClear", this->getTypeConverter(), { operands[0] });
             rewriter.replaceOp(op, runtimeCallResults);
           })
         .Case(
           [&](SliceType type)
           {
-            const auto runtimeCallResults =
-              createRuntimeCall(rewriter, loc, "sliceClear", resultTypes, { operands[0] });
+            const auto runtimeCallResults = createRuntimeCall(
+              rewriter, loc, "sliceClear", this->getTypeConverter(), { operands[0] });
             rewriter.replaceOp(op, runtimeCallResults);
           });
     }
     else if (callee == "close")
     {
-      createRuntimeCall(rewriter, loc, "channelClose", resultTypes, { operands[0] });
+      createRuntimeCall(rewriter, loc, "channelClose", this->getTypeConverter(), { operands[0] });
       rewriter.eraseOp(op);
     }
     else if (callee == "copy")
@@ -476,14 +495,22 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
             Value elementTypeInfoValue =
               rewriter.create<mlir::LLVM::AddressOfOp>(loc, elementTypeInfoGlobalOp);
             const auto runtimeCallResults = createRuntimeCall(
-              rewriter, loc, "sliceCopy", resultTypes, { operands[0], operands[1], elementTypeInfoValue });
+              rewriter,
+              loc,
+              "sliceCopy",
+              this->getTypeConverter(),
+              { operands[0], operands[1], elementTypeInfoValue });
             rewriter.replaceOp(op, runtimeCallResults);
           })
         .Case(
           [&](StringType type)
           {
             const auto runtimeCallResults = createRuntimeCall(
-              rewriter, loc, "sliceCopyString", resultTypes, { operands[0], operands[1] });
+              rewriter,
+              loc,
+              "sliceCopyString",
+              this->getTypeConverter(),
+              { operands[0], operands[1] });
             rewriter.replaceOp(op, runtimeCallResults);
           });
     }
@@ -494,7 +521,8 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
       Value keyValue =
         rewriter.create<mlir::LLVM::AllocaOp>(loc, ptrType, operands[1].getType(), sizeValue);
       rewriter.create<mlir::LLVM::StoreOp>(loc, operands[1], keyValue);
-      createRuntimeCall(rewriter, loc, "mapDelete", resultTypes, { operands[0], keyValue });
+      createRuntimeCall(
+        rewriter, loc, "mapDelete", this->getTypeConverter(), { operands[0], keyValue });
       rewriter.eraseOp(op);
     }
     else if (callee == "len")
@@ -507,29 +535,29 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
         .Case(
           [&](ChanType type)
           {
-            const auto runtimeCallResults =
-              createRuntimeCall(rewriter, loc, "channelLen", resultTypes, { operands[0] });
+            const auto runtimeCallResults = createRuntimeCall(
+              rewriter, loc, "channelLen", this->getTypeConverter(), { operands[0] });
             rewriter.replaceOp(op, runtimeCallResults);
           })
         .Case(
           [&](MapType type)
           {
             const auto runtimeCallResults =
-              createRuntimeCall(rewriter, loc, "mapLen", resultTypes, { operands[0] });
+              createRuntimeCall(rewriter, loc, "mapLen", this->getTypeConverter(), { operands[0] });
             rewriter.replaceOp(op, runtimeCallResults);
           })
         .Case(
           [&](SliceType type)
           {
-            const auto runtimeCallResults =
-              createRuntimeCall(rewriter, loc, "sliceLen", resultTypes, { operands[0] });
+            const auto runtimeCallResults = createRuntimeCall(
+              rewriter, loc, "sliceLen", this->getTypeConverter(), { operands[0] });
             rewriter.replaceOp(op, runtimeCallResults);
           })
         .Case(
           [&](StringType type)
           {
-            const auto runtimeCallResults =
-              createRuntimeCall(rewriter, loc, "stringLen", resultTypes, { operands[0] });
+            const auto runtimeCallResults = createRuntimeCall(
+              rewriter, loc, "stringLen", this->getTypeConverter(), { operands[0] });
             rewriter.replaceOp(op, runtimeCallResults);
           });
     }
@@ -559,7 +587,7 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
             }
 
             const auto runtimeCallResults =
-              createRuntimeCall(rewriter, loc, "channelMake", resultTypes, args);
+              createRuntimeCall(rewriter, loc, "channelMake", this->getTypeConverter(), args);
             rewriter.replaceOp(op, runtimeCallResults);
           })
         .Case(
@@ -589,7 +617,7 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
             }
 
             const auto runtimeCallResults =
-              createRuntimeCall(rewriter, loc, "mapMake", resultTypes, args);
+              createRuntimeCall(rewriter, loc, "mapMake", this->getTypeConverter(), args);
             rewriter.replaceOp(op, runtimeCallResults);
           })
         .Case(
@@ -614,7 +642,7 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
             }
 
             const auto runtimeCallResults =
-              createRuntimeCall(rewriter, loc, "sliceMake", resultTypes, args);
+              createRuntimeCall(rewriter, loc, "sliceMake", this->getTypeConverter(), args);
             rewriter.replaceOp(op, runtimeCallResults);
           });
     }
@@ -777,22 +805,25 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
     }
     else if (callee == "panic")
     {
-      createRuntimeCall(rewriter, loc, "_panic", resultTypes, { operands[0] });
+      createRuntimeCall(rewriter, loc, "_panic", this->getTypeConverter(), { operands[0] });
       rewriter.eraseOp(op);
     }
     else if (callee == "print")
     {
-      createRuntimeCall(rewriter, loc, "_print", resultTypes, SmallVector<Value>(operands));
+      createRuntimeCall(
+        rewriter, loc, "_print", this->getTypeConverter(), SmallVector<Value>(operands));
       rewriter.eraseOp(op);
     }
     else if (callee == "println")
     {
-      createRuntimeCall(rewriter, loc, "_println", resultTypes, SmallVector<Value>(operands));
+      createRuntimeCall(
+        rewriter, loc, "_println", this->getTypeConverter(), SmallVector<Value>(operands));
       rewriter.eraseOp(op);
     }
     else if (callee == "recover")
     {
-      const auto runtimeCallResults = createRuntimeCall(rewriter, loc, "_recover", resultTypes, {});
+      const auto runtimeCallResults =
+        createRuntimeCall(rewriter, loc, "_recover", this->getTypeConverter(), {});
       rewriter.replaceAllUsesWith(op.getResults(), runtimeCallResults);
     }
     else if (callee == "unsafe.Add")
@@ -820,26 +851,26 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
     }
     else if (callee == "unsafe.Slice")
     {
-      const auto runtimeCallResults =
-        createRuntimeCall(rewriter, loc, "slice", resultTypes, { operands[0], operands[1] });
+      const auto runtimeCallResults = createRuntimeCall(
+        rewriter, loc, "slice", this->getTypeConverter(), { operands[0], operands[1] });
       rewriter.replaceOp(op, runtimeCallResults);
     }
     else if (callee == "unsafe.SliceData")
     {
       const auto runtimeCallResults =
-        createRuntimeCall(rewriter, loc, "sliceData", resultTypes, { operands[0] });
+        createRuntimeCall(rewriter, loc, "sliceData", this->getTypeConverter(), { operands[0] });
       rewriter.replaceOp(op, runtimeCallResults);
     }
     else if (callee == "unsafe.String")
     {
       const auto runtimeCallResults = createRuntimeCall(
-        rewriter, loc, "stringFromPointer", resultTypes, { operands[0], operands[1] });
+        rewriter, loc, "stringFromPointer", this->getTypeConverter(), { operands[0], operands[1] });
       rewriter.replaceOp(op, runtimeCallResults);
     }
     else if (callee == "unsafe.StringData")
     {
       const auto runtimeCallResults =
-        createRuntimeCall(rewriter, loc, "stringData", resultTypes, { operands[0] });
+        createRuntimeCall(rewriter, loc, "stringData", this->getTypeConverter(), { operands[0] });
       rewriter.replaceOp(op, runtimeCallResults);
     }
     else
@@ -871,8 +902,7 @@ struct CallIndirectOpLowering : public ConvertOpToLLVMPattern<CallIndirectOp>
     operands.push_back(adaptor.getCallee());
     llvm::append_range(operands, adaptor.getCalleeOperands());
 
-    auto callOp = rewriter.create<mlir::LLVM::CallOp>(
-      op.getLoc(), convertedResultTypes, operands);
+    auto callOp = rewriter.create<mlir::LLVM::CallOp>(op.getLoc(), convertedResultTypes, operands);
     rewriter.replaceOp(op, callOp);
     return success();
   }
@@ -889,7 +919,7 @@ struct ChangeInterfaceOpLowering : ConvertOpToLLVMPattern<ChangeInterfaceOp>
   {
     auto module = op->getParentOfType<ModuleOp>();
     const auto loc = op.getLoc();
-    auto resultType = this->typeConverter->convertType(op.getType());
+    auto resultType = this->getTypeConverter()->convertType(op.getType());
 
     // Create the type information for the interface's new type
     auto typeInfoGlobalOp = createTypeInfo(rewriter, module, op.getLoc(), op.getType());
@@ -919,6 +949,265 @@ struct ChangeInterfaceOpLowering : ConvertOpToLLVMPattern<ChangeInterfaceOp>
   }
 };
 
+struct ChanRangeOpLowering : public ConvertOpToLLVMPattern<ChanRangeOp>
+{
+  using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
+
+  mlir::LogicalResult matchAndRewrite(
+    ChanRangeOp op,
+    OpAdaptor adaptor,
+    ConversionPatternRewriter& rewriter) const override
+  {
+    const auto loc = op.getLoc();
+    const auto ptrType = this->getVoidPtrType();
+    const auto block = op->getBlock();
+    const auto chanType = mlir::go::dyn_cast<ChanType>(op.getChannel().getType());
+    const auto elementType = this->getTypeConverter()->convertType(chanType.getElementType());
+
+    // Replace the range op with the respective runtime call.
+    auto results = createRuntimeCall(
+      rewriter, loc, "channelRange", this->getTypeConverter(), { adaptor.getChannel() });
+    rewriter.eraseOp(op);
+
+    mlir::Value addrVal = results[0];
+    mlir::Value okValue = results[1];
+
+    // Build the load block.
+    mlir::Block* loadBlock;
+    {
+      mlir::OpBuilder::InsertionGuard guard(rewriter);
+      loadBlock = rewriter.createBlock(
+        block->getParent(),
+        std::next(block->getIterator()),
+        mlir::SmallVector<mlir::Type>{ ptrType },
+        mlir::SmallVector<mlir::Location>{ loc });
+      Value value =
+        rewriter.create<mlir::LLVM::LoadOp>(loc, elementType, loadBlock->getArgument(0));
+      rewriter.create<mlir::LLVM::BrOp>(loc, SmallVector<mlir::Value>{ value }, op.getBodyBlock());
+    }
+
+    // Conditionally branch to the load block if the range iteration was successful. Otherwise,
+    // branch to the exit block.
+    rewriter.create<mlir::LLVM::CondBrOp>(
+      loc,
+      okValue,
+      loadBlock,
+      SmallVector<mlir::Value>{ addrVal },
+      op.getExitBlock(),
+      SmallVector<mlir::Value>{});
+
+    return success();
+  }
+};
+
+struct ChanSelectOpLowering : ConvertOpToLLVMPattern<ChanSelectOp>
+{
+  using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
+
+  LogicalResult matchAndRewrite(
+    ChanSelectOp op,
+    OpAdaptor adaptor,
+    ConversionPatternRewriter& rewriter) const override
+  {
+    const auto loc = op.getLoc();
+    auto module = op->getParentOfType<ModuleOp>();
+
+    const auto chanType = this->getTypeConverter()->convertType(lookUpRuntimeType(module, "chan"));
+    const auto ptrType = this->getVoidPtrType();
+    const auto intType = this->getTypeConverter()->convertType(
+      mlir::go::IntegerType::get(this->getContext(), mlir::go::IntegerType::Signed));
+    const auto boolType = rewriter.getI1Type();
+
+    const mlir::Value zeroValue = rewriter.create<mlir::LLVM::ConstantOp>(loc, intType, 0);
+
+    // Prepare input arrays.
+    mlir::Value arrSize;
+    mlir::Value chanArr;
+    mlir::Value sendArr;
+    mlir::Value readyArr;
+
+    {
+      mlir::OpBuilder::InsertionGuard guard(rewriter);
+      rewriter.setInsertionPointToStart(&op->getParentRegion()->front());
+      arrSize = rewriter.create<mlir::LLVM::ConstantOp>(loc, intType, op.getChannel().size());
+      chanArr = rewriter.create<mlir::LLVM::AllocaOp>(loc, ptrType, chanType, arrSize);
+      sendArr = rewriter.create<mlir::LLVM::AllocaOp>(loc, ptrType, boolType, arrSize);
+      readyArr = rewriter.create<mlir::LLVM::AllocaOp>(loc, ptrType, intType, arrSize);
+    }
+
+    for (size_t i = 0; i < op.getChannel().size(); ++i)
+    {
+      const mlir::Value chanAddr = rewriter.create<mlir::LLVM::GEPOp>(
+        loc, ptrType, chanType, chanArr, mlir::SmallVector<mlir::LLVM::GEPArg>{ i });
+      rewriter.create<mlir::LLVM::StoreOp>(loc, adaptor.getChannel()[i], chanAddr);
+
+      const mlir::Value sendAddr = rewriter.create<mlir::LLVM::GEPOp>(
+        loc, ptrType, boolType, sendArr, mlir::SmallVector<mlir::LLVM::GEPArg>{ i });
+      const mlir::Value constValue =
+        rewriter.create<mlir::LLVM::ConstantOp>(loc, boolType, op.getSend()[i] ? 1 : 0);
+      rewriter.create<mlir::LLVM::StoreOp>(loc, constValue, sendAddr);
+
+      const mlir::Value readyAddr = rewriter.create<mlir::LLVM::GEPOp>(
+        loc, ptrType, intType, readyArr, mlir::SmallVector<mlir::LLVM::GEPArg>{ i });
+      rewriter.create<mlir::LLVM::StoreOp>(loc, zeroValue, readyAddr);
+    }
+
+    // Replace the operation with the channel select runtime call.
+    const mlir::Value hasDefault =
+      rewriter.create<mlir::LLVM::ConstantOp>(loc, boolType, op.getHasDefault() ? 1 : 0);
+    const auto result = createRuntimeCall(
+      rewriter,
+      loc,
+      "channelSelect",
+      this->getTypeConverter(),
+      { chanArr, sendArr, readyArr, arrSize, hasDefault })[0];
+    rewriter.eraseOp(op);
+
+    // Create a compare block for each case.
+    SmallVector<mlir::Block*> caseCmpBlocks;
+    caseCmpBlocks.reserve(op.getCaseDests().size());
+    for (const auto& caseDest : op.getCaseDests())
+    {
+      mlir::OpBuilder::InsertionGuard guard(rewriter);
+      auto block = rewriter.createBlock(caseDest);
+      caseCmpBlocks.push_back(block);
+    }
+
+    if (op.getHasDefault())
+    {
+      mlir::Block* defaultCmpBlock;
+      {
+        mlir::OpBuilder::InsertionGuard guard(rewriter);
+        mlir::Block* successor = op.getExitDest();
+        if (caseCmpBlocks.size() > 0)
+        {
+          successor = caseCmpBlocks[0];
+        }
+
+        // A negative result means branch to the default block.
+        defaultCmpBlock =
+          rewriter.createBlock(op->getParentRegion(), std::next(op->getBlock()->getIterator()));
+        constexpr auto predicate = mlir::LLVM::ICmpPredicate::slt;
+        const mlir::Value condition =
+          rewriter.create<mlir::LLVM::ICmpOp>(loc, boolType, predicate, result, zeroValue);
+        rewriter.create<mlir::LLVM::CondBrOp>(loc, condition, op.getDefaultDest(), successor);
+      }
+      rewriter.create<mlir::LLVM::BrOp>(loc, defaultCmpBlock);
+    }
+    else if (op.getCaseDests().size() > 0)
+    {
+      // Branch to the first case index compare block.
+      rewriter.create<mlir::LLVM::BrOp>(loc, caseCmpBlocks[0]);
+    }
+    else
+    {
+      // This should be unreachable, but a terminator is required.
+      rewriter.create<mlir::LLVM::BrOp>(loc, op.getExitDest());
+    }
+
+    for (size_t i = 0; i < op.getCaseDests().size(); i++)
+    {
+      mlir::Block* dest = op.getCaseDests()[i];
+      mlir::Block* successor = op.getExitDest();
+      if (i + 1 < caseCmpBlocks.size())
+      {
+        successor = caseCmpBlocks[i + 1];
+      }
+
+      mlir::OpBuilder::InsertionGuard guard(rewriter);
+      rewriter.setInsertionPointToStart(caseCmpBlocks[i]);
+      const mlir::Value caseIndex = rewriter.create<mlir::LLVM::ConstantOp>(loc, intType, i);
+      constexpr auto predicate = mlir::LLVM::ICmpPredicate::eq;
+      const mlir::Value condition =
+        rewriter.create<mlir::LLVM::ICmpOp>(loc, boolType, predicate, result, caseIndex);
+      rewriter.create<mlir::LLVM::CondBrOp>(loc, condition, dest, successor);
+    }
+
+    return success();
+  }
+};
+
+struct ChanSendOpLowering : ConvertOpToLLVMPattern<ChanSendOp>
+{
+  using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
+
+  LogicalResult matchAndRewrite(
+    ChanSendOp op,
+    OpAdaptor adaptor,
+    ConversionPatternRewriter& rewriter) const override
+  {
+    const auto loc = op.getLoc();
+    const auto ptrType = this->getVoidPtrType();
+    const auto elementType = adaptor.getValue().getType();
+
+    // Copy the value into a new stack allocation.
+    mlir::Value sendValuePtr;
+    {
+      mlir::OpBuilder::InsertionGuard guard(rewriter);
+      rewriter.setInsertionPointToStart(&op->getParentRegion()->front());
+      const mlir::Value oneValue =
+        rewriter.create<mlir::LLVM::ConstantOp>(loc, rewriter.getI64Type(), 1);
+
+      // TODO: Eliminate this copy be requiring a pointer value be passed to the send operation.
+      sendValuePtr = rewriter.create<mlir::LLVM::AllocaOp>(loc, ptrType, elementType, oneValue);
+    }
+
+    rewriter.create<mlir::LLVM::StoreOp>(loc, adaptor.getValue(), sendValuePtr);
+
+    // Replace the operation with the channel send runtime call.
+    const auto result = createRuntimeCall(
+      rewriter,
+      loc,
+      "channelSend",
+      this->getTypeConverter(),
+      { adaptor.getChannel(), sendValuePtr });
+    rewriter.eraseOp(op);
+
+    return success();
+  }
+};
+
+struct ChanRecvOpLowering : ConvertOpToLLVMPattern<ChanRecvOp>
+{
+  using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
+
+  LogicalResult matchAndRewrite(
+    ChanRecvOp op,
+    OpAdaptor adaptor,
+    ConversionPatternRewriter& rewriter) const override
+  {
+    const auto loc = op.getLoc();
+    const auto chanType = mlir::cast<mlir::go::ChanType>(op.getChannel().getType());
+    const auto elementType = this->getTypeConverter()->convertType(chanType.getElementType());
+    const auto boolType = rewriter.getI1Type();
+
+    const mlir::Value blockValue =
+      rewriter.create<mlir::LLVM::ConstantOp>(loc, boolType, op.getNumResults() == 2 ? 0 : 1);
+
+    // Replace the operation with the channel receive runtime call.
+    auto runtimeCallResults = createRuntimeCall(
+      rewriter,
+      loc,
+      "channelReceive",
+      this->getTypeConverter(),
+      { adaptor.getChannel(), blockValue });
+
+    // Load the value from the address returned by the runtime call.
+    runtimeCallResults[0] =
+      rewriter.create<mlir::LLVM::LoadOp>(loc, elementType, runtimeCallResults[0]);
+
+    SmallVector<mlir::Value, 4> results;
+    for (auto i = 0; i < op.getNumResults(); i++)
+    {
+      results.push_back(runtimeCallResults[i]);
+    }
+
+    rewriter.replaceOp(op, results);
+
+    return success();
+  }
+};
+
 struct ConstantOpLowering : ConvertOpToLLVMPattern<ConstantOp>
 {
   using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
@@ -929,7 +1218,7 @@ struct ConstantOpLowering : ConvertOpToLLVMPattern<ConstantOp>
     ConversionPatternRewriter& rewriter) const override
   {
     const auto loc = op.getLoc();
-    auto resultType = this->typeConverter->convertType(op.getType());
+    auto resultType = this->getTypeConverter()->convertType(op.getType());
 
     if (go::isa<StringType>(op.getType()))
     {
@@ -972,7 +1261,7 @@ struct ZeroOpLowering : ConvertOpToLLVMPattern<ZeroOp>
   LogicalResult matchAndRewrite(ZeroOp op, OpAdaptor adaptor, ConversionPatternRewriter& rewriter)
     const override
   {
-    auto resultType = this->typeConverter->convertType(op.getType());
+    auto resultType = this->getTypeConverter()->convertType(op.getType());
     rewriter.replaceOpWithNewOp<mlir::LLVM::ZeroOp>(op, resultType);
     return success();
   }
@@ -1006,11 +1295,7 @@ struct DeferOpLowering : ConvertOpToLLVMPattern<DeferOp>
     // Allocate memory on the heap to store the parameter pack into
     auto constantIntOp = rewriter.create<mlir::LLVM::ConstantOp>(loc, wordType, packSize);
     auto runtimeCallResults = createRuntimeCall(
-      rewriter,
-      loc,
-      "alloc",
-      { mlir::LLVM::LLVMPointerType::get(rewriter.getContext()) },
-      { constantIntOp.getResult() });
+      rewriter, loc, "alloc", this->getTypeConverter(), { constantIntOp.getResult() });
 
     // Store the parameter pack into the allocated memory
     rewriter.create<mlir::LLVM::StoreOp>(loc, pack, runtimeCallResults[0]);
@@ -1069,7 +1354,7 @@ struct GlobalOpLowering : ConvertOpToLLVMPattern<GlobalOp>
       linkage = mlir::LLVM::LinkageAttr::get(this->getContext(), mlir::LLVM::Linkage::External);
     }
 
-    auto elemT = this->typeConverter->convertType(adaptor.getGlobalType());
+    auto elemT = this->getTypeConverter()->convertType(adaptor.getGlobalType());
 
     mlir::LLVM::DIGlobalVariableExpressionAttr diGlobalExprAttr;
     if (
@@ -1159,12 +1444,12 @@ struct InterfaceCallOpLowering : ConvertOpToLLVMPattern<InterfaceCallOp>
     for (size_t i = 0; i < adaptor.getCalleeOperands().size(); ++i)
     {
       auto arg = adaptor.getCalleeOperands()[i];
-      argTypes.push_back(this->typeConverter->convertType(arg.getType()));
+      argTypes.push_back(this->getTypeConverter()->convertType(arg.getType()));
     }
 
     for (auto result : op->getResults())
     {
-      resultTypes.push_back(this->typeConverter->convertType(result.getType()));
+      resultTypes.push_back(this->getTypeConverter()->convertType(result.getType()));
     }
 
     // Create a constant int value for the hash
@@ -1174,7 +1459,7 @@ struct InterfaceCallOpLowering : ConvertOpToLLVMPattern<InterfaceCallOp>
 
     // Perform vtable lookup
     auto runtimeCallResults = createRuntimeCall(
-      rewriter, loc, "interfaceLookUp", { ptrType, ptrType }, { ifaceValue, constHashValue });
+      rewriter, loc, "interfaceLookUp", this->getTypeConverter(), { ifaceValue, constHashValue });
 
     const Value receiverValue = runtimeCallResults[0];
     const Value fnPtrValue = runtimeCallResults[1];
@@ -1265,7 +1550,6 @@ struct MakeOpLowering : ConvertOpToLLVMPattern<MakeOp>
   {
     const auto loc = op.getLoc();
     auto baseType = underlyingType(op.getType());
-    auto type = typeConverter->convertType(op.getType());
     SmallVector<mlir::Value> runtimeCallResults;
 
     if (mlir::isa<ChanType>(baseType))
@@ -1281,12 +1565,14 @@ struct MakeOpLowering : ConvertOpToLLVMPattern<MakeOp>
           loc, mlir::IntegerType::get(rewriter.getContext(), 32), 0);
         args = { constantIntOp.getResult() };
       }
-      runtimeCallResults = createRuntimeCall(rewriter, loc, "chanMake", type, args);
+      runtimeCallResults =
+        createRuntimeCall(rewriter, loc, "chanMake", this->getTypeConverter(), args);
     }
     else if (mlir::isa<SliceType>(baseType))
     {
       SmallVector<Value> args = adaptor.getOperands();
-      runtimeCallResults = createRuntimeCall(rewriter, loc, "sliceMake", type, args);
+      runtimeCallResults =
+        createRuntimeCall(rewriter, loc, "sliceMake", this->getTypeConverter(), args);
     }
     else if (mlir::isa<MapType>(baseType))
     {
@@ -1301,12 +1587,14 @@ struct MakeOpLowering : ConvertOpToLLVMPattern<MakeOp>
           loc, mlir::IntegerType::get(rewriter.getContext(), 32), 0);
         args = { constantIntOp.getResult() };
       }
-      runtimeCallResults = createRuntimeCall(rewriter, loc, "mapMake", type, args);
+      runtimeCallResults =
+        createRuntimeCall(rewriter, loc, "mapMake", this->getTypeConverter(), args);
     }
     else if (mlir::isa<InterfaceType>(baseType))
     {
       SmallVector<Value> args = adaptor.getOperands();
-      runtimeCallResults = createRuntimeCall(rewriter, loc, "interfaceMake", type, args);
+      runtimeCallResults =
+        createRuntimeCall(rewriter, loc, "interfaceMake", this->getTypeConverter(), args);
     }
     else
     {
@@ -1314,6 +1602,31 @@ struct MakeOpLowering : ConvertOpToLLVMPattern<MakeOp>
     }
 
     rewriter.replaceOp(op, runtimeCallResults);
+    return success();
+  }
+};
+
+struct MakeInterfaceOpLowering : ConvertOpToLLVMPattern<MakeInterfaceOp>
+{
+  using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
+
+  LogicalResult matchAndRewrite(
+    MakeInterfaceOp op,
+    OpAdaptor adaptor,
+    ConversionPatternRewriter& rewriter) const override
+  {
+    const auto loc = op.getLoc();
+    const auto module = op->getParentOfType<ModuleOp>();
+
+    // Get information about the dynamic type.
+    auto typeInfoGlobalOp = createTypeInfo(rewriter, module, op.getLoc(), op.getDynamicType());
+    const Value infoValue = rewriter.create<mlir::LLVM::AddressOfOp>(loc, typeInfoGlobalOp);
+
+    // Lower to runtime call.
+    const SmallVector<Value> args = { adaptor.getValue(), infoValue };
+    const auto results =
+      createRuntimeCall(rewriter, loc, "interfaceMake", this->getTypeConverter(), args);
+    rewriter.replaceOp(op, results);
     return success();
   }
 };
@@ -1340,8 +1653,8 @@ struct PanicOpLowering : ConvertOpToLLVMPattern<PanicOp>
     else
     {
       SmallVector<Type> resultTypes;
-      if (failed(
-            this->typeConverter->convertTypes(op->getParentOp()->getResultTypes(), resultTypes)))
+      if (failed(this->getTypeConverter()->convertTypes(
+            op->getParentOp()->getResultTypes(), resultTypes)))
       {
         return failure();
       }
@@ -1420,7 +1733,7 @@ struct RecvOpLowering : ConvertOpToLLVMPattern<RecvOp>
       rewriter,
       loc,
       "_channelReceive",
-      { mlir::IntegerType::get(rewriter.getContext(), 1) },
+      this->getTypeConverter(),
       {
         op.getOperand(),
         allocaOp.getResult(),
@@ -1591,6 +1904,10 @@ void populateGoToLLVMConversionPatterns(
             transforms::LLVM::BuiltInCallOpLowering,
             transforms::LLVM::CallIndirectOpLowering,
             transforms::LLVM::ChangeInterfaceOpLowering,
+            transforms::LLVM::ChanRangeOpLowering,
+            transforms::LLVM::ChanSelectOpLowering,
+            transforms::LLVM::ChanSendOpLowering,
+            transforms::LLVM::ChanRecvOpLowering,
             transforms::LLVM::ConstantOpLowering,
             transforms::LLVM::DeferOpLowering,
             transforms::LLVM::ExtractOpLowering,
@@ -1602,6 +1919,7 @@ void populateGoToLLVMConversionPatterns(
             transforms::LLVM::IntToPtrOpLowering,
             transforms::LLVM::LoadOpLowering,
             transforms::LLVM::MakeOpLowering,
+            transforms::LLVM::MakeInterfaceOpLowering,
             transforms::LLVM::PanicOpLowering,
             transforms::LLVM::PointerToFunctionOpLowering,
             transforms::LLVM::PtrToIntOpLowering,

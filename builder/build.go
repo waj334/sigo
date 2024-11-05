@@ -192,6 +192,11 @@ func Build(ctx context.Context, packageDir string) error {
 	// Create the MLIR module.
 	mlirModule := mlir.ModuleCreateEmpty(mlir.LocationUnknownGet(mlirCtx))
 
+	// Set module attributes before creating the SSA builder.
+	dataLayout := llvm.CreateTargetDataLayout(targetMachine)
+	mlir.GoSetTargetDataLayout(mlirModule, dataLayout)
+	mlir.GoSetTargetTriple(mlirModule, targetInfo.Triple)
+
 	// Create the SSA builder.
 	builder := ssa.NewBuilder(ssa.Config{
 		NumWorkers: options.NumJobs,
@@ -201,11 +206,6 @@ func Build(ctx context.Context, packageDir string) error {
 		Module:     mlirModule,
 		Program:    program,
 	})
-
-	// Set module attributes
-	dataLayout := llvm.CreateTargetDataLayout(targetMachine)
-	mlir.GoSetTargetDataLayout(mlirModule, dataLayout)
-	mlir.GoSetTargetTriple(mlirModule, targetInfo.Triple)
 
 	// Generate the SSA.
 	fmt.Print("Building Go IR...")

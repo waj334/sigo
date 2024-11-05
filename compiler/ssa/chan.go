@@ -11,10 +11,12 @@ import (
 )
 
 func (b *Builder) emitSelectStatement(ctx context.Context, stmt *ast.SelectStmt) {
-	defaultIdx := -1
-	bodyBlocks := make([]mlir.Block, len(stmt.Body.List))
-	chans := make([]*ast.Ident, len(stmt.Body.List))
-	isSend := make([]bool, len(stmt.Body.List))
+	bodyBlocks := make([]mlir.Block, 0, len(stmt.Body.List))
+	chans := make([]mlir.Value, 0, len(stmt.Body.List))
+	isSend := make([]int, 0, len(stmt.Body.List))
+
+	var defaultBlock mlir.Block
+	hasDefault := false
 
 	// Create the successor block for this statement.
 	successor := mlir.BlockCreate2(nil, nil)
@@ -23,26 +25,35 @@ func (b *Builder) emitSelectStatement(ctx context.Context, stmt *ast.SelectStmt)
 	ctx = newContextWithSuccessorBlock(ctx, successor)
 
 	// Create the clause blocks.
-	for i, clause := range stmt.Body.List {
+	for _, clause := range stmt.Body.List {
 		clause := clause.(*ast.CommClause)
+		var block mlir.Block
 		if clause.Comm == nil {
-			defaultIdx = i
+			hasDefault = true
+			defaultBlock = mlir.BlockCreate2(nil, nil)
+			block = defaultBlock
 		} else {
 			// Extract the specific channel involved in the case clause.
+			var value mlir.Value
+			send := 0
 			switch stmt := clause.Comm.(type) {
 			case *ast.AssignStmt:
-				chans[i] = stmt.Rhs[0].(*ast.UnaryExpr).X.(*ast.Ident)
+				value = b.emitExpr(ctx, ast.Unparen(stmt.Rhs[0]).(*ast.UnaryExpr).X.(*ast.Ident))[0]
 			case *ast.ExprStmt:
-				chans[i] = stmt.X.(*ast.UnaryExpr).X.(*ast.Ident)
+				value = b.emitExpr(ctx, ast.Unparen(stmt.X).(*ast.UnaryExpr).X.(*ast.Ident))[0]
 			case *ast.SendStmt:
-				chans[i] = stmt.Chan.(*ast.Ident)
-				isSend[i] = true
+				value = b.emitExpr(ctx, ast.Unparen(stmt.Chan).(*ast.Ident))[0]
+				send = 1
 			}
+
+			chans = append(chans, value)
+			isSend = append(isSend, send)
+			block = mlir.BlockCreate2(nil, nil)
+			bodyBlocks = append(bodyBlocks, block)
 		}
 
 		// Create the body block
-		bodyBlocks[i] = mlir.BlockCreate2(nil, nil)
-		buildBlock(ctx, bodyBlocks[i], func() {
+		buildBlock(ctx, block, func() {
 			if clause.Comm != nil {
 				// Emit the clause statement.
 				b.emitStmt(ctx, clause.Comm)
@@ -53,78 +64,30 @@ func (b *Builder) emitSelectStatement(ctx context.Context, stmt *ast.SelectStmt)
 				b.emitStmt(ctx, stmt)
 			}
 
+			if !blockHasTerminator(currentBlock(ctx)) {
+				// Branch to the successor block.
+				brOp := mlir.GoCreateBranchOperation(b.ctx, successor, nil, b.location(clause.End()))
+				appendOperation(ctx, brOp)
+			}
+		})
+		appendBlock(ctx, block)
+	}
+
+	sendArr := mlir.DenseBoolArrayGet(b.ctx, isSend)
+	if !hasDefault {
+		// Create a dummy block for the non-existent default case. It'll just get optimized out later.
+		defaultBlock = mlir.BlockCreate2(nil, nil)
+		buildBlock(ctx, defaultBlock, func() {
 			// Branch to the successor block.
-			brOp := mlir.GoCreateBranchOperation(b.ctx, successor, nil, b.location(clause.End()))
+			brOp := mlir.GoCreateBranchOperation(b.ctx, successor, nil, b._noLoc)
 			appendOperation(ctx, brOp)
 		})
+		appendBlock(ctx, defaultBlock)
 	}
 
-	// Create the input slices.
-	chanSliceArrOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, b._chan, len(stmt.Body.List), false, b.location(stmt.Pos()))
-	appendOperation(ctx, chanSliceArrOp)
-	chanSliceValue := b.emitConstSlice(ctx, resultOf(chanSliceArrOp), len(stmt.Body.List), b.location(stmt.Pos()))
-
-	sendSliceArrOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, b.i1, len(stmt.Body.List), false, b.location(stmt.Pos()))
-	appendOperation(ctx, sendSliceArrOp)
-	sendSliceValue := b.emitConstSlice(ctx, resultOf(sendSliceArrOp), len(stmt.Body.List), b.location(stmt.Pos()))
-
-	readySliceArrOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, b.si, len(stmt.Body.List), false, b.location(stmt.Pos()))
-	appendOperation(ctx, readySliceArrOp)
-	readySliceValue := b.emitConstSlice(ctx, resultOf(readySliceArrOp), len(stmt.Body.List), b.location(stmt.Pos()))
-
-	// Create the runtime call to select a ready channel.
-	hasDefaultValue := b.emitConstBool(ctx, defaultIdx != -1, b.location(stmt.Pos()))
-	callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.channelSelect"), []mlir.Type{b.si},
-		[]mlir.Value{chanSliceValue, sendSliceValue, readySliceValue, hasDefaultValue}, b.location(stmt.Pos()))
-	appendOperation(ctx, callOp)
-	caseIdxValue := resultOf(callOp)
-
-	// Create the clause evaluator blocks.
-	lastCaseLoc := b.location(stmt.Pos())
-	for i, clause := range stmt.Body.List {
-		// Append the body block.
-		appendBlock(ctx, bodyBlocks[i])
-
-		// Skip creating a conditional branch for the default block.
-		if i == defaultIdx {
-			continue
-		}
-
-		lastCaseLoc = b.location(clause.Pos())
-
-		// Create the successor block in which will compute the next case comparison.
-		exprSuccessor := mlir.BlockCreate2(nil, nil)
-
-		// Create a constant integer value representing the index for the current case.
-		idxValue := b.emitConstInt(ctx, int64(i), b.si, b.location(clause.Pos()))
-
-		// Compare the case index value against the integer value of the current case.
-		cmpIOp := mlir.GoCreateCmpIOperation(b.ctx, b.i1, b.cmpIPredicate(token.EQL, false), caseIdxValue, idxValue,
-			b.location(clause.Pos()))
-		appendOperation(ctx, cmpIOp)
-
-		// Conditionally branch to the case block if the values are equal. Otherwise, branch to the next expression
-		// successor block.
-		condBrOp := mlir.GoCreateCondBranchOperation(b.ctx, resultOf(cmpIOp), bodyBlocks[i], nil, exprSuccessor, nil,
-			b.location(clause.Pos()))
-		appendOperation(ctx, condBrOp)
-
-		// Continue emission in the expression successor block.
-		setCurrentBlock(ctx, exprSuccessor)
-
-		// Append the expression successor block.
-		appendBlock(ctx, exprSuccessor)
-	}
-
-	// NOTE: Should be at the empty final expression successor block.
-	// Branch to the default case body or the successor block if there is no default.
-	if defaultIdx != -1 {
-		brOp := mlir.GoCreateBranchOperation(b.ctx, bodyBlocks[defaultIdx], nil, lastCaseLoc)
-		appendOperation(ctx, brOp)
-	} else {
-		brOp := mlir.GoCreateBranchOperation(b.ctx, successor, nil, lastCaseLoc)
-		appendOperation(ctx, brOp)
-	}
+	// Create the select operation.
+	op := mlir.GoCreateChanSelectOp(b.ctx, hasDefault, sendArr, chans, defaultBlock, successor, bodyBlocks, b.location(stmt.Pos()))
+	appendOperation(ctx, op)
 
 	// Continue emission in the successor block.
 	appendBlock(ctx, successor)
@@ -132,6 +95,8 @@ func (b *Builder) emitSelectStatement(ctx context.Context, stmt *ast.SelectStmt)
 }
 
 func (b *Builder) emitReceiveExpression(ctx context.Context, expr *ast.UnaryExpr) []mlir.Value {
+	loc := b.location(expr.Pos())
+
 	// Get the channel type.
 	chanType := b.typeOf(ctx, expr.X).(*types.Chan)
 
@@ -141,34 +106,113 @@ func (b *Builder) emitReceiveExpression(ctx context.Context, expr *ast.UnaryExpr
 	// Evaluate the channel over which the value will be sent.
 	channel := b.emitExpr(ctx, expr.X)[0]
 
-	// Allocate memory on the stack to store the received value to.
-	addrOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, elementType, 1, false, b.location(expr.Pos()))
-	appendOperation(ctx, addrOp)
-	addr := resultOf(addrOp)
+	var resultT []mlir.Type
+	resultType := b.typeOf(ctx, expr)
+	if _, ok := resultType.(*types.Tuple); ok {
+		resultT = b.types(elementType, b.i1)
+	} else {
+		resultT = b.types(elementType)
+	}
 
-	// Emit the runtime call to perform the channel receive.
-	op := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.channelReceive"), []mlir.Type{b.i1}, []mlir.Value{channel, addr}, b.location(expr.Pos()))
+	// Emit the channel receive operation.
+	op := mlir.GoCreateChanRecvOp(b.ctx, resultT, channel, loc)
 	appendOperation(ctx, op)
-	okValue := resultOf(op)
-
-	// Load the received value.
-	op = mlir.GoCreateLoadOperation(b.ctx, addr, elementType, b.location(expr.Pos()))
-	appendOperation(ctx, op)
-	value := resultOf(op)
-	return []mlir.Value{value, okValue}
+	return resultsOf(op)
 }
 
 func (b *Builder) emitSendStatement(ctx context.Context, stmt *ast.SendStmt) {
+	loc := b.location(stmt.Pos())
+
 	// Evaluate the channel over which the value will be sent.
 	channel := b.emitExpr(ctx, stmt.Chan)[0]
 
 	// Evaluate the value to send.
 	value := b.emitExpr(ctx, stmt.Value)[0]
 
-	// Take the address of the value since the runtime expects a pointer.
-	valueAddr := b.makeCopyOf(ctx, value, b.location(stmt.Pos()))
-
-	// Emit the runtime call to perform the channel send.
-	op := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.channelSend"), nil, []mlir.Value{channel, valueAddr}, b.location(stmt.Pos()))
+	// Emit the channel send operation.
+	op := mlir.GoCreateChanSendOp(b.ctx, channel, value, loc)
 	appendOperation(ctx, op)
+}
+
+func (b *Builder) emitChanRange(ctx context.Context, stmt *ast.RangeStmt) {
+	location := b.location(stmt.Pos())
+	endLocation := b.location(stmt.End())
+	chanType := b.typeOf(ctx, stmt.X).(*types.Chan)
+	elementType := b.GetStoredType(ctx, chanType.Elem())
+	//elementPtrType := b.pointerOf(ctx, chanType.Elem())
+
+	// Create the exit block where execution will continue following the range statement.
+	exitBlock := mlir.BlockCreate2(nil, nil)
+
+	// Create all blocks involved with the for loop.
+	rangeBlock := mlir.BlockCreate2(nil, nil)
+	appendBlock(ctx, rangeBlock)
+
+	bodyBlock := mlir.BlockCreate2(b.types(elementType), b.locations(b._noLoc))
+	appendBlock(ctx, bodyBlock)
+
+	// Any break statement immediately branch to the exit block.
+	ctx = newContextWithSuccessorBlock(ctx, exitBlock)
+
+	// Any continue statement should branch to the condition block.
+	ctx = newContextWithPredecessorBlock(ctx, rangeBlock)
+
+	// Evaluate the chan value that will be iterated over.
+	X := b.emitExpr(ctx, stmt.X)[0]
+
+	// Branch to the condition block from the current block.
+	brOp := mlir.GoCreateBranchOperation(b.ctx, rangeBlock, nil, location)
+	appendOperation(ctx, brOp)
+
+	// The range operation must be emitted into a block by itself.
+	buildBlock(ctx, rangeBlock, func() {
+		// Emit the channel range operation.
+		op := mlir.GoCreateChanRangeOp(b.ctx, X, bodyBlock, exitBlock, location)
+		appendOperation(ctx, op)
+	})
+
+	// Build the loop body block.
+	buildBlock(ctx, bodyBlock, func() {
+		// The received value is passed through the first block argument.
+		value := mlir.BlockGetArgument(bodyBlock, 0)
+
+		// TODO: A load here might make more sense if the block argument can always be a pointer. Implement the other
+		//       ranges this way first.
+		/*
+			// Load the element from the pointer returned by the range operation.
+			loadOp := mlir.GoCreateLoadOperation(b.ctx, value, elementType, location)
+			appendOperation(ctx, loadOp)
+			value = resultOf(loadOp)
+		*/
+
+		if stmt.Value != nil {
+			var recvValue Value
+			if stmt.Tok == token.DEFINE {
+				// A copy should be emitted into this block. Heap escape analysis should handle converting the stack
+				// allocation to a heap allocation in the event that the loop variable escapes the current scope.
+				copyAddr := b.makeCopyOf(ctx, value, b.location(stmt.Body.Pos()))
+				recvValue = b.NewTempValue(copyAddr)
+				b.setAddr(ctx, stmt.Value.(*ast.Ident), recvValue)
+			} else {
+				// Store the received value into the receiver var.
+				recvValue = b.valueOf(ctx, stmt.Value)
+				recvValue.Store(ctx, value, b.location(stmt.Body.Pos()))
+			}
+		}
+
+		// Emit the loop body
+		for _, stmt := range stmt.Body.List {
+			b.emitStmt(ctx, stmt)
+		}
+
+		if !blockHasTerminator(currentBlock(ctx)) {
+			// Branch to the post iteration block.
+			brOp := mlir.GoCreateBranchOperation(b.ctx, rangeBlock, nil, endLocation)
+			appendOperation(ctx, brOp)
+		}
+	})
+
+	// Continue emission in the successor block.
+	appendBlock(ctx, exitBlock)
+	setCurrentBlock(ctx, exitBlock)
 }

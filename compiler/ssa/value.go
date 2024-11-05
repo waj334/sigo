@@ -166,8 +166,9 @@ func (f FreeVar) Type() mlir.Type {
 }
 
 type TempValue struct {
-	ptr mlir.Value
-	b   *Builder
+	ptr       mlir.Value
+	b         *Builder
+	valueType mlir.Type
 }
 
 func (t *TempValue) Load(ctx context.Context, location mlir.Location) mlir.Value {
@@ -186,7 +187,10 @@ func (t *TempValue) Pointer(ctx context.Context, location mlir.Location) mlir.Va
 }
 
 func (t *TempValue) Type() mlir.Type {
-	return mlir.GoPointerTypeGetElementType(mlir.ValueGetType(t.ptr))
+	if t.valueType == nil {
+		return mlir.GoPointerTypeGetElementType(mlir.ValueGetType(t.ptr))
+	}
+	return t.valueType
 }
 
 func (b *Builder) NewTempValue(ptr mlir.Value) *TempValue {
@@ -194,5 +198,13 @@ func (b *Builder) NewTempValue(ptr mlir.Value) *TempValue {
 	return &TempValue{
 		ptr: ptr,
 		b:   b,
+	}
+}
+
+func (b *Builder) NewTempValueWithType(ptr mlir.Value, valueType mlir.Type) *TempValue {
+	return &TempValue{
+		ptr:       ptr,
+		b:         b,
+		valueType: valueType,
 	}
 }

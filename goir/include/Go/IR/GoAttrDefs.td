@@ -2,7 +2,9 @@
 #define GO_ATTR_TD
 
 include "Go/IR/GoDialect.td"
+
 include "mlir/IR/AttrTypeBase.td"
+include "mlir/Interfaces/DataLayoutInterfaces.td"
 
 class GoDialect_Attr<string name, string attrMnemonic,
                 list<Trait> traits = [],
@@ -76,6 +78,24 @@ def ComplexNumberAttr : GoDialect_Attr<"ComplexNumber", "complex_number"> {
         "FloatAttr":$real,
         "FloatAttr":$imag
     );
+    let assemblyFormat = "`<` params `>`";
+}
+
+//===----------------------------------------------------------------------===//
+// RuntimeTypeEntryAttr
+//===----------------------------------------------------------------------===//
+
+def RuntimeTypeEntryAttr : GoDialect_Attr<"RuntimeTypeEntry", "runtime_type_entry", [
+            DeclareAttrInterfaceMethods<DataLayoutEntryInterface, ["getKey", "getValue"]>
+        ]> {
+    let parameters = (ins
+        "::mlir::TypeAttr":$primitiveType,
+        "::mlir::TypeAttr":$runtimeType
+    );
+    let extraClassDefinition = [{
+        ::mlir::DataLayoutEntryKey RuntimeTypeEntryAttr::getKey() const { return ::mlir::DataLayoutEntryKey(this->getPrimitiveType().getValue()); }
+        ::mlir::Attribute RuntimeTypeEntryAttr::getValue() const { return this->getRuntimeType(); }
+    }];
     let assemblyFormat = "`<` params `>`";
 }
 

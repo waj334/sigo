@@ -395,8 +395,10 @@ func (b *Builder) emitRangeStatement(ctx context.Context, stmt *ast.RangeStmt) {
 		appendOperation(ctx, extractOp)
 		lenValue := resultOf(extractOp)
 
-		// Convert the slice length type to the expected key type.
-		lenValue = b.emitTypeConversion(ctx, lenValue, types.Typ[types.Int], keyType, location)
+		if keyType != nil {
+			// Convert the slice length type to the expected key type.
+			lenValue = b.emitTypeConversion(ctx, lenValue, types.Typ[types.Int], keyType, location)
+		}
 
 		// Range over the slice
 		b.emitArrayRange(ctx, stmt.Key, stmt.Value, stmt.Tok, arrValue, elementType, lenValue, stmt.Body, location)
@@ -427,20 +429,23 @@ func (b *Builder) emitArrayRange(ctx context.Context, key ast.Expr, value ast.Ex
 	ctx = newContextWithPredecessorBlock(ctx, postIterBlock)
 
 	// Create or evaluate the loop variables.
-	keyType := b.GetStoredType(ctx, b.typeOf(ctx, key))
+	keyT := b.si
+	if keyType := b.typeOf(ctx, key); keyType != nil {
+		keyT = b.GetStoredType(ctx, keyType)
+	}
 
 	// The key variable is either a new one or an existing one.
 	keyVar := b.valueOf(ctx, key)
 	if keyVar == nil {
 		// Need to allocate memory for this variable.
-		ptrT := mlir.GoCreatePointerType(keyType)
-		allocaOp := mlir.GoCreateAllocaOperation(b.ctx, ptrT, keyType, 1, false, location)
+		ptrT := mlir.GoCreatePointerType(keyT)
+		allocaOp := mlir.GoCreateAllocaOperation(b.ctx, ptrT, keyT, 1, false, location)
 		appendOperation(ctx, allocaOp)
 		keyVar = b.NewTempValue(resultOf(allocaOp))
 	}
 
 	// Initialize the iterator to zero.
-	zeroValue := b.emitConstInt(ctx, 0, keyType, location)
+	zeroValue := b.emitConstInt(ctx, 0, keyT, location)
 	keyVar.Store(ctx, zeroValue, location)
 
 	// The value variable is either a new one or an existing one.
@@ -463,8 +468,8 @@ func (b *Builder) emitArrayRange(ctx context.Context, key ast.Expr, value ast.Ex
 		itValue := keyVar.Load(ctx, location)
 
 		// Increment the iterator value by one.
-		oneValue := b.emitConstInt(ctx, 1, keyType, location)
-		addOp := mlir.GoCreateAddIOperation(b.ctx, keyType, itValue, oneValue, location)
+		oneValue := b.emitConstInt(ctx, 1, keyT, location)
+		addOp := mlir.GoCreateAddIOperation(b.ctx, keyT, itValue, oneValue, location)
 		appendOperation(ctx, addOp)
 
 		// Store the new iterator value at the stack address.
@@ -481,7 +486,7 @@ func (b *Builder) emitArrayRange(ctx context.Context, key ast.Expr, value ast.Ex
 		itValue := keyVar.Load(ctx, location)
 
 		// Compare the iterator value against the array length value.
-		cmpOp := mlir.GoCreateCmpIOperation(b.ctx, b.i1, b.cmpIPredicate(token.LSS, isUnsigned(keyType)), itValue, lenValue, location)
+		cmpOp := mlir.GoCreateCmpIOperation(b.ctx, b.i1, b.cmpIPredicate(token.LSS, isUnsigned(keyT)), itValue, lenValue, location)
 		appendOperation(ctx, cmpOp)
 		cond := resultOf(cmpOp)
 
@@ -538,93 +543,6 @@ func (b *Builder) emitArrayRange(ctx context.Context, key ast.Expr, value ast.Ex
 		if !blockHasTerminator(currentBlock(ctx)) {
 			// Branch to the post iteration block.
 			brOp := mlir.GoCreateBranchOperation(b.ctx, postIterBlock, nil, location)
-			appendOperation(ctx, brOp)
-		}
-	})
-
-	// Branch to the condition block from the current block.
-	brOp := mlir.GoCreateBranchOperation(b.ctx, condBlock, nil, location)
-	appendOperation(ctx, brOp)
-
-	// Continue emission in the successor block.
-	appendBlock(ctx, exitBlock)
-	setCurrentBlock(ctx, exitBlock)
-}
-
-func (b *Builder) emitChanRange(ctx context.Context, stmt *ast.RangeStmt) {
-	location := b.location(stmt.Pos())
-
-	// Create the exit block where execution will continue following the range statement.
-	exitBlock := mlir.BlockCreate2(nil, nil)
-
-	// Create all blocks involved with the for loop.
-	condBlock := mlir.BlockCreate2(nil, nil)
-	appendBlock(ctx, condBlock)
-
-	bodyBlock := mlir.BlockCreate2(nil, nil)
-	appendBlock(ctx, bodyBlock)
-
-	// Any break statement immediately branch to the exit block.
-	ctx = newContextWithSuccessorBlock(ctx, exitBlock)
-
-	// Any continue statement should branch to the condition block.
-	ctx = newContextWithPredecessorBlock(ctx, condBlock)
-
-	// Evaluate the chan value that will be iterated over.
-	X := b.emitExpr(ctx, stmt.X)[0]
-
-	// Reinterpret the chan value as its runtime type.
-	X = b.bitcastTo(ctx, X, b._chan, location)
-
-	// Get the memory address to receive a value from the channel in.
-	var receiveValue Value
-	var receiveAddr mlir.Value
-	if receiveValue = b.valueOf(ctx, stmt.Value); receiveValue != nil && stmt.Value != nil {
-		receiveAddr = receiveValue.Pointer(ctx, location)
-	}
-
-	if receiveAddr == nil {
-		zeroOp := mlir.GoCreateZeroOperation(b.ctx, b.ptr, location)
-		appendOperation(ctx, zeroOp)
-		receiveAddr = resultOf(zeroOp)
-	}
-
-	// Build the condition block where the loop condition will continuously be evaluated in.
-	buildBlock(ctx, condBlock, func() {
-		// Create the runtime call to perform a receive on the channel.
-		callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.channelReceive"),
-			[]mlir.Type{b.i1},
-			[]mlir.Value{X, receiveAddr, b.emitConstBool(ctx, true, location)},
-			location)
-		appendOperation(ctx, callOp)
-		okValue := resultOf(callOp)
-
-		// Conditionally branch to the loop body block if the loop condition evaluates to true. Otherwise, branch to the
-		// exit block.
-		condBrOp := mlir.GoCreateCondBranchOperation(b.ctx, okValue, bodyBlock, nil, exitBlock, nil, location)
-		appendOperation(ctx, condBrOp)
-	})
-
-	// Build the loop body block.
-	buildBlock(ctx, bodyBlock, func() {
-		// Set the predecessor block to the post loop iteration block where any continue statement will branch to.
-		ctx = newContextWithPredecessorBlock(ctx, condBlock)
-
-		if stmt.Tok == token.DEFINE && receiveValue != nil {
-			// Emit a new local variable that is unique to this iteration to store the value into.
-			alloc := b.makeCopyOf(ctx, receiveValue.Load(ctx, location), location)
-			iterationReceiveValue := b.NewTempValue(alloc)
-			b.setAddr(ctx, stmt.Value.(*ast.Ident), iterationReceiveValue)
-		}
-
-		// Emit the loop body
-		for _, stmt := range stmt.Body.List {
-			b.emitStmt(ctx, stmt)
-		}
-
-		if !blockHasTerminator(currentBlock(ctx)) {
-			// Branch to the post iteration block.
-			brOp := mlir.GoCreateBranchOperation(b.ctx, condBlock, nil, location)
 			appendOperation(ctx, brOp)
 		}
 	})

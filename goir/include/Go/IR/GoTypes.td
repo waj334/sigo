@@ -4,6 +4,7 @@
 include "mlir/Dialect/LLVMIR/LLVMOpBase.td"
 
 include "Go/IR/GoDialect.td"
+include "Go/IR/GoInterfaces.td"
 
 class GoDialect_Type<string name, string typeMnemonic, list<Trait> traits = []>
         : TypeDef<Go_Dialect, name, traits> {
@@ -31,22 +32,22 @@ def NamedType : GoDialect_Type<"Named", "named", [
     let extraClassDefinition = [{
         ::llvm::TypeSize NamedType::getTypeSizeInBits(const DataLayout &dataLayout,
                                                               DataLayoutEntryListRef params) const {
-            return ::llvm::TypeSize::getFixed(8 * getTypeSize(dataLayout, params));
+            return dataLayout.getTypeSizeInBits(this->getUnderlying());
         }
 
         ::llvm::TypeSize NamedType::getTypeSize(const DataLayout &dataLayout,
                                             DataLayoutEntryListRef params) const {
-            return ::llvm::TypeSize::getFixed(go::getDefaultTypeSize(getUnderlying(), dataLayout, params));
+            return dataLayout.getTypeSize(this->getUnderlying());
         }
 
         uint64_t NamedType::getABIAlignment(const DataLayout &dataLayout,
                                                 DataLayoutEntryListRef params) const {
-            return go::getDefaultABIAlignment(getUnderlying(), dataLayout, params);
+            return dataLayout.getTypeABIAlignment(this->getUnderlying());
         }
 
         uint64_t NamedType::getPreferredAlignment(const DataLayout &dataLayout,
                                              DataLayoutEntryListRef params) const {
-            return go::getDefaultPreferredAlignment(getUnderlying(), dataLayout, params);
+            return dataLayout.getTypeABIAlignment(this->getUnderlying());
         }
     }];
 }

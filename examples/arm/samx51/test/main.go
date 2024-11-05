@@ -34,19 +34,42 @@ func init() {
 	LED.Set(true)
 }
 
-func main() {
-	m := map[int]int{
-		0: 10,
-		1: 11,
-		2: 12,
-		3: 13,
-	}
-
-	for k, v := range m {
-		use(k, v)
-	}
+func f() int {
+	return 0
 }
 
-func use(k, v int) {
-	// Does nothing
+func main() {
+	var a []int
+	var c, c1, c2, c3, c4 chan int
+	var i1, i2 int
+	select {
+	case i1 = <-c1:
+		use(i1)
+	case c2 <- i2:
+	case i3, ok := (<-c3): // same as: i3, ok := <-c3
+		if ok {
+			use(i3)
+		} else {
+
+		}
+	case a[f()] = <-c4:
+		// same as:
+		// case t := <-c4
+		//	a[f()] = t
+	default:
+
+	}
+
+	for { // send random sequence of bits to c
+		select {
+		case c <- 0: // note: no statement, no fallthrough, no folding of cases
+		case c <- 1:
+		}
+	}
+
+	select {} // block forever
+}
+
+func use(v int) {
+
 }

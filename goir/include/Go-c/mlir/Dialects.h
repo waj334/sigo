@@ -1,69 +1,83 @@
 #ifndef GO_C_DIALECTS_H
 #define GO_C_DIALECTS_H
 
-#include "Enums.h"
-
 #include <llvm-c/Target.h>
+
 #include <mlir-c/IR.h>
 
+#include "Enums.h"
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-MLIR_DECLARE_CAPI_DIALECT_REGISTRATION(Go, go);
+  MLIR_DECLARE_CAPI_DIALECT_REGISTRATION(Go, go);
 
-void mlirGoInitializeContext(MlirContext context);
+  void mlirGoInitializeContext(MlirContext context);
 
-MlirStringRef mlirModuleDump(MlirModule module);
+  MlirStringRef mlirModuleDump(MlirModule module);
 
-bool mlirModuleDumpToFile(MlirModule module, MlirStringRef fname);
+  bool mlirModuleDumpToFile(MlirModule module, MlirStringRef fname);
 
-void mlirStringRefDestroy(MlirStringRef *ref);
+  void mlirStringRefDestroy(MlirStringRef* ref);
 
-intptr_t mlirTypeHash(MlirType type);
+  intptr_t mlirTypeHash(MlirType type);
 
-MlirAttribute mlirGoCreateTypeMetadata(MlirType type, MlirAttribute dict);
+  MlirAttribute mlirGoCreateTypeMetadata(MlirType type, MlirAttribute dict);
 
-MlirStringRef mlirGoGetTypeInfoSymbol(MlirType type, MlirStringRef prefix);
+  MlirStringRef mlirGoGetTypeInfoSymbol(MlirType type, MlirStringRef prefix);
 
-MlirOperation mlirCreateUnrealizedConversionCastOp(MlirContext context, MlirType type, MlirValue value,
-                                                   MlirLocation location);
+  MlirOperation mlirCreateUnrealizedConversionCastOp(
+    MlirContext context,
+    MlirType type,
+    MlirValue value,
+    MlirLocation location);
 
-void mlirGoBindRuntimeType(MlirModule module, MlirStringRef mnemonic, MlirType runtimeType);
+  void mlirGoBindRuntimeType(MlirModule module, MlirStringRef mnemonic, MlirType runtimeType);
 
-void mlirGoSetTargetDataLayout(MlirModule module, LLVMTargetDataRef layout);
+  void mlirGoBindRuntimeTypeToType(MlirModule module, MlirType primitiveType, MlirType runtimeType);
 
-void mlirGoSetTargetTriple(MlirModule module, MlirStringRef triple);
+  void mlirGoSetTargetDataLayout(MlirModule module, LLVMTargetDataRef layout);
 
-MlirLogicalResult mlirCanonicalizeModule(MlirModule module);
+  void mlirGoSetTargetTriple(MlirModule module, MlirStringRef triple);
 
-MlirLogicalResult mlirGoOptimizeModule(MlirModule module, MlirStringRef name, MlirStringRef outputDir, bool debug);
+  MlirLogicalResult mlirCanonicalizeModule(MlirModule module);
 
-MlirAttribute mlirGetLLVMLinkageAttr(MlirContext context, MlirStringRef linkage);
+  MlirLogicalResult
+  mlirGoOptimizeModule(MlirModule module, MlirStringRef name, MlirStringRef outputDir, bool debug);
 
-void mlirInitModuleTranslation(MlirContext context);
+  MlirAttribute mlirGetLLVMLinkageAttr(MlirContext context, MlirStringRef linkage);
 
-LLVMModuleRef mlirTranslateModuleToLLVMIR(MlirModule module, LLVMContextRef llvmContext, MlirStringRef name);
+  void mlirInitModuleTranslation(MlirContext context);
 
-MlirAttribute mlirGoCreateTypeMetadataEntryAttr(MlirType type, MlirAttribute dict);
+  LLVMModuleRef
+  mlirTranslateModuleToLLVMIR(MlirModule module, LLVMContextRef llvmContext, MlirStringRef name);
 
-MlirAttribute mlirGoCreateTypeMetadataDictionaryAttr(MlirContext context, intptr_t nEntries, MlirAttribute *entries);
+  MlirAttribute mlirGoCreateTypeMetadataEntryAttr(MlirType type, MlirAttribute dict);
 
-MlirBlock mlirRegionGetLastBlock(MlirRegion region);
+  MlirAttribute mlirGoCreateTypeMetadataDictionaryAttr(
+    MlirContext context,
+    intptr_t nEntries,
+    MlirAttribute* entries);
 
-MlirLogicalResult mlirVerifyModule(MlirModule module);
+  MlirBlock mlirRegionGetLastBlock(MlirRegion region);
 
-MlirAttribute mlirGoCreateComplexNumberAttr(MlirContext context, MlirType type, double real, double imag);
+  MlirLogicalResult mlirVerifyModule(MlirModule module);
 
-bool mlirOperationHasNoMemoryEffect(MlirOperation op);
+  MlirAttribute
+  mlirGoCreateComplexNumberAttr(MlirContext context, MlirType type, double real, double imag);
 
-MlirOperation mlirValueGetDefiningOperation(MlirValue value);
+  bool mlirOperationHasNoMemoryEffect(MlirOperation op);
 
-MlirBlock mlirBlockCreate2(intptr_t nArgs, MlirType *args, intptr_t nLocations, MlirLocation *locations);
+  MlirOperation mlirValueGetDefiningOperation(MlirValue value);
 
-MlirAttribute mlirDistinctAttrGet(MlirAttribute attr);
+  MlirBlock
+  mlirBlockCreate2(intptr_t nArgs, MlirType* args, intptr_t nLocations, MlirLocation* locations);
 
-void mlirGoBlockDumpTail(MlirBlock block, intptr_t count);
+  MlirAttribute mlirDistinctAttrGet(MlirAttribute attr);
+
+  void mlirGoBlockDumpTail(MlirBlock block, intptr_t count);
 
 #ifdef __cplusplus
 }

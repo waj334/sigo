@@ -7,12 +7,10 @@
 #include <mlir/Interfaces/FunctionInterfaces.h>
 #include <mlir/Interfaces/SideEffectInterfaces.h>
 
-#include <llvm/IR/DataLayout.h>
-
-#include "Go/IR/GoEnums.h"
-#include "Go/IR/GoAttrs.h"
-#include "GoInterfaces.h"
-
-#include "Go/IR/GoOpsDialect.h.inc"
+// clang-format off
+#include <Go/IR/GoEnums.h>
+#include <Go/IR/GoAttrs.h>
+#include <Go/IR/GoOpsDialect.h.inc>
+// clang-format on
 
 #endif // GO_GODIALECT_H

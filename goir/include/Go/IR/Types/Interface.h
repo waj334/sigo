@@ -8,6 +8,7 @@
 #include <mlir/Interfaces/DataLayoutInterfaces.h>
 #include <mlir/Support/TypeID.h>
 
+#include "Go/IR/GoInterfaces.h"
 #include "Go/IR/Types/InterfaceDetail.h"
 
 namespace mlir::go
@@ -18,6 +19,7 @@ class InterfaceType
       InterfaceType,
       ::mlir::Type,
       detail::InterfaceTypeStorage,
+      RuntimeTypeInterface::Trait,
       ::mlir::DataLayoutTypeInterface::Trait,
       TypeTrait::IsMutable>
 {

@@ -176,6 +176,7 @@ MLIR_SLICE_TYPEMAP(MlirAttribute, Attribute, nTags, tags)
 MLIR_SLICE_TYPEMAP(MlirAttribute, Attribute, numReferences, references)
 
 MLIR_SLICE_TYPEMAP(MlirBlock, Block, n, successors)
+MLIR_SLICE_TYPEMAP(MlirBlock, Block, nCases, cases)
 
 MLIR_SLICE_TYPEMAP(MlirNamedAttribute, NamedAttribute, n, attributes)
 MLIR_SLICE_TYPEMAP(MlirNamedAttribute, NamedAttribute, nAttributes, attributes)
@@ -209,6 +210,7 @@ MLIR_SLICE_TYPEMAP(MlirValue, Value, nIndices, indices)
 MLIR_SLICE_TYPEMAP(MlirValue, Value, nDynamicIndices, dynamicIndices)
 MLIR_SLICE_TYPEMAP(MlirValue, Value, nValues, values)
 MLIR_SLICE_TYPEMAP(MlirValue, Value, nArgs, args)
+MLIR_SLICE_TYPEMAP(MlirValue, Value, nChans, chans)
 
 %define MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, N_PARAM, ARR_PARAM)
 %typemap(gotype) (intptr_t N_PARAM, TYPE *ARR_PARAM) "[]GOTYPE";
@@ -247,6 +249,7 @@ MLIR_PRIMITIVE_SLICE_TYPEMAP(int8_t, int8, size, values)
 MLIR_PRIMITIVE_SLICE_TYPEMAP(int16_t, int16, size, values)
 MLIR_PRIMITIVE_SLICE_TYPEMAP(int32_t, int32, size, values)
 MLIR_PRIMITIVE_SLICE_TYPEMAP(int64_t, int64, size, values)
+MLIR_PRIMITIVE_SLICE_TYPEMAP(int, int, size, values)
 MLIR_PRIMITIVE_SLICE_TYPEMAP(float, float32, size, values)
 MLIR_PRIMITIVE_SLICE_TYPEMAP(double, float64, size, values)
 MLIR_PRIMITIVE_SLICE_TYPEMAP(int32_t, int32, nConstIndices, constIndices)

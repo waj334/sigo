@@ -73,31 +73,4 @@ namespace mlir::go {
         return success();
     }
 
-    LogicalResult MakeInterfaceOp::canonicalize(MakeInterfaceOp op, PatternRewriter &rewriter) {
-        const auto loc = op.getLoc();
-        auto module = op->getParentOfType<ModuleOp>();
-        const auto calleeSymbol = formatPackageSymbol("runtime", "interfaceMake");
-
-        // Get the runtime function.
-        auto func = module.lookupSymbol<FuncOp>(calleeSymbol);
-        const auto argTypes = func.getArgumentTypes();
-
-        // The info type pointer is the second argument.
-        const auto infoType = argTypes[1];
-
-        // Get information about the dynamic type.
-        Value info = rewriter.create<TypeInfoOp>(loc, infoType, op.getDynamicType());
-
-        // Allocate memory to store a copy of the value.
-        const auto elementT = op.getValue().getType();
-        const auto pointerT = PointerType::get(rewriter.getContext(), elementT);
-        Value addr = rewriter.create<AllocaOp>(loc, pointerT, elementT, 1, UnitAttr(), StringAttr());
-        rewriter.create<StoreOp>(loc, op.getValue(), addr, UnitAttr(), UnitAttr());
-
-        // Lower to runtime call.
-        const SmallVector<Type> results = {op.getType()};
-        const SmallVector<Value> args = {addr, info};
-        rewriter.replaceOpWithNewOp<RuntimeCallOp>(op, results, calleeSymbol, args);
-        return success();
-    }
 }
