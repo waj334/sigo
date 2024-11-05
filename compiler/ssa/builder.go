@@ -150,14 +150,23 @@ func NewBuilder(config Config) *Builder {
 	builder.typeInfoPtr = builder.GetType(context.Background(), types.NewPointer(config.Program.LookupType("runtime", "_type")))
 
 	builder._chan = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_channel"))
+	builder._interface = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_interface"))
 	builder._map = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_map"))
 	builder._slice = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_slice"))
 	builder._string = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_string"))
-	builder._interface = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_interface"))
 	builder._func = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_func"))
 
 	builder.anyType = types.NewInterfaceType(nil, nil).Complete()
 	builder._any = builder.GetType(context.Background(), builder.anyType)
+
+	// Bind the runtime type representations to the dialect's primitive type representation.
+	// NOTE: The specific type does not matter since DLTI relies on a type's type ID which is the same each variation of
+	//       a specific type in MLIR.
+	mlir.GoBindRuntimeTypeToType(config.Module, mlir.GoCreateChanType(builder.i1, mlir.GoChanDirection_RecvOnly), builder._chan)
+	mlir.GoBindRuntimeTypeToType(config.Module, builder._any, builder._interface)
+	mlir.GoBindRuntimeTypeToType(config.Module, mlir.GoCreateMapType(builder.i1, builder.i1), builder._map)
+	mlir.GoBindRuntimeTypeToType(config.Module, mlir.GoCreateSliceType(builder.i1), builder._slice)
+	mlir.GoBindRuntimeTypeToType(config.Module, builder.str, builder._string)
 
 	builder._noLoc = builder.location(0)
 

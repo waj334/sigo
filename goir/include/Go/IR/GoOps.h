@@ -13,6 +13,7 @@
 #include "Go/IR/GoDialect.h"
 #include "Go/IR/GoTypes.h"
 #include "Go/Util.h"
+#include "Go/IR/GoInterfaces.h"
 
 #define GET_OP_CLASSES
 

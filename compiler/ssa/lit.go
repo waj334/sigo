@@ -222,6 +222,7 @@ func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit)
 
 	// Set the struct elements.
 	for i, e := range expr.Elts {
+		elementLoc := b.location(e.Pos())
 		var index int
 		var valueExpr ast.Expr
 
@@ -257,7 +258,7 @@ func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit)
 		case *types.Signature:
 			if mlir.TypeIsAFunction(mlir.ValueGetType(elementValue)) {
 				// Convert the function pointer to a func value.
-				elementValue = b.createFunctionValue(ctx, elementValue, nil, location)
+				elementValue = b.createFunctionValue(ctx, elementValue, nil, elementLoc)
 			}
 		case *types.Interface:
 			// Handle interface conversion.
@@ -265,7 +266,7 @@ func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit)
 			if !isNil(valueT) && !types.Identical(fieldT, valueT) {
 				if types.IsInterface(baseType(valueT)) {
 					// Convert from interface A to interface B.
-					elementValue = b.emitChangeType(ctx, fieldT, elementValue, location)
+					elementValue = b.emitChangeType(ctx, fieldT, elementValue, elementLoc)
 				} else {
 					// Generate methods for named types.
 					if T, ok := valueT.(*types.Named); ok {
@@ -273,13 +274,13 @@ func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit)
 					}
 
 					// Create an interface value from the value expression.
-					elementValue = b.emitInterfaceValue(ctx, fieldT, valueT, elementValue, location)
+					elementValue = b.emitInterfaceValue(ctx, fieldT, valueT, elementValue, elementLoc)
 				}
 			}
 		}
 
 		// Insert the value into the struct.
-		insertOp := mlir.GoCreateInsertOperation(b.ctx, uint64(index), elementValue, value, structT, location)
+		insertOp := mlir.GoCreateInsertOperation(b.ctx, uint64(index), elementValue, value, structT, elementLoc)
 		appendOperation(ctx, insertOp)
 		value = resultOf(insertOp)
 	}

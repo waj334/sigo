@@ -1,9 +1,7 @@
 #pragma once
 
-#include <mutex>
+#include <mlir/Interfaces/ControlFlowInterfaces.h>
 
-#include <llvm/Support/Mutex.h>
-#include <llvm/Support/RWMutex.h>
-
-#include "Go/IR/GoInterfaces.h.inc"
-#include "GoTypes.h"
+#include <Go/IR/GoAttrInterfaces.h.inc>
+#include <Go/IR/GoOpInterfaces.h.inc>
+#include <Go/IR/GoTypeInterfaces.h.inc>

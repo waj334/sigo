@@ -20,8 +20,10 @@ func (b *Builder) valueOf(ctx context.Context, node ast.Node) Value {
 		if data := currentFuncData(ctx); data != nil {
 			data.mutex.RLock()
 			if obj == nil {
-				panic("object is nil")
+				data.mutex.RUnlock()
+				return nil
 			}
+
 			if value, ok := data.locals[obj]; ok {
 				data.mutex.RUnlock()
 				return value
@@ -309,6 +311,10 @@ func (b *Builder) types(T ...mlir.Type) []mlir.Type {
 
 func (b *Builder) values(value ...mlir.Value) []mlir.Value {
 	return value
+}
+
+func (b *Builder) locations(locs ...mlir.Location) []mlir.Location {
+	return locs
 }
 
 func cacheLoad(ctx context.Context, obj types.Object, value mlir.Value) {

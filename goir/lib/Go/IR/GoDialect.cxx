@@ -15,6 +15,7 @@
 
 #include "Go/IR/GoAttrs.h"
 #include "Go/IR/GoEnums.cpp.inc"
+#include "Go/IR/GoInterfaces.h"
 #include "Go/IR/GoOps.h"
 #include "Go/IR/GoOpsDialect.cpp.inc"
 #include "Go/IR/GoTypes.h"
@@ -29,6 +30,9 @@
 #include <stack>
 
 #include "Go/IR/GoAttrDefs.cpp.inc"
+#include "Go/IR/GoAttrInterfaces.cpp.inc"
+#include "Go/IR/GoOpInterfaces.cpp.inc"
+#include "Go/IR/GoTypeInterfaces.cpp.inc"
 
 //===----------------------------------------------------------------------===//
 // Go dialect.
@@ -146,6 +150,9 @@ void GoDialect::initialize()
 
   // Print type aliases.
   addInterface<GoOpAsmDialectInterface>();
+
+  this->declarePromisedInterface<RuntimeTypeModuleOpInterface, mlir::ModuleOp>();
+  mlir::ModuleOp::attachInterface<mlir::go::RuntimeTypeModuleOpInterface>(*this->getContext());
 }
 
 ::mlir::Type GoDialect::parseType(::mlir::DialectAsmParser& parser) const
@@ -190,34 +197,6 @@ void GoDialect::initialize()
   parser.emitError(typeLoc) << "unknown  type `" << mnemonic << "` in dialect `" << getNamespace()
                             << "`";
   return {};
-
-  /*
-  // NOTE: No result is returned if the type does not exist in the dialect. Attempt to parse any
-  non-tablegen
-  //       defined types.
-  if (!parseResult.has_value()) {
-      parseResult = ::mlir::AsmParser::KeywordSwitch<::mlir::OptionalParseResult>(
-                  parser, &mnemonic)
-              .Case(InterfaceType::getMnemonic(), [&](llvm::StringRef, llvm::SMLoc) {
-                  value = InterfaceType::parse(parser);
-                  return success(!!value);
-              })
-              .Case(GoStructType::getMnemonic(), [&](llvm::StringRef, llvm::SMLoc) {
-                  value = GoStructType::parse(parser);
-                  return success(!!value);
-              })
-              .Default([&](llvm::StringRef, llvm::SMLoc) {
-                  return std::nullopt;
-              });
-  }
-
-  if (parseResult.has_value())
-      return value;
-
-  parser.emitError(typeLoc) << "unknown  type `"
-          << mnemonic << "` in dialect `" << getNamespace() << "`";
-  return {};
-   */
 }
 
 /// Print a type registered to this dialect.

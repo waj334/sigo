@@ -31,12 +31,11 @@ struct HeapEscapePass : public PassWrapper<HeapEscapePass, OperationPass<mlir::g
         if (op.getCallee() == "new")
         {
           const auto loc = op.getLoc();
-          const auto elementType =
-            *go::cast<PointerType>(op.getResult(0).getType()).getElementType();
+          const auto ptrType = mlir::go::cast<mlir::go::PointerType>(op.getResult(0).getType());
+          const auto elementType = *ptrType.getElementType();
 
           // Create the replacement alloca operation.
           builder.setInsertionPoint(op);
-          const auto ptrType = PointerType::get(funcOp.getContext(), elementType);
           auto allocaOp = builder.create<AllocaOp>(
             loc, ptrType, elementType, 1, mlir::UnitAttr(), mlir::StringAttr());
           op.replaceAllUsesWith(allocaOp);
@@ -99,19 +98,17 @@ struct HeapEscapePass : public PassWrapper<HeapEscapePass, OperationPass<mlir::g
           .Case([&](CallOp) { return Result::EscapesToHeap; })
           .Case([&](GetElementPointerOp gepOp)
                 { return this->analyzeOperation(gepOp.getValue().getDefiningOp(), visited); })
+          .Case([&](InsertOp insertOp) { return this->analyzeOperation(insertOp, visited); })
           .Case(
-            [&](InsertOp insertOp)
+            [&](LoadOp loadOp)
             {
-              return this->analyzeOperation(insertOp, visited);
+              if (considerLoads)
+              {
+                return this->analyzeOperation(loadOp, visited);
+              }
+              return Result::DoesNotEscape;
             })
-          .Case([&](LoadOp loadOp)
-          {
-            if (considerLoads)
-            {
-              return this->analyzeOperation(loadOp, visited);
-            }
-            return Result::DoesNotEscape;
-          })
+          .Case([&](MakeInterfaceOp) { return Result::EscapesToHeap; })
           .Case([&](ReturnOp) { return Result::EscapesToHeap; })
           .Case([&](SliceAddrOp sliceAddrOp)
                 { return this->analyzeOperation(sliceAddrOp.getSlice().getDefiningOp(), visited); })

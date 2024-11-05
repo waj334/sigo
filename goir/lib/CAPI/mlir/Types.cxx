@@ -40,36 +40,6 @@ bool mlirGoTypeIsAPointer(MlirType type)
   return mlir::go::isa<mlir::go::PointerType>(_type);
 }
 
-intptr_t mlirGoGetTypeSizeInBytes(MlirType type, MlirModule module)
-{
-  auto _type = unwrap(type);
-  auto _module = unwrap(module);
-
-  mlir::DataLayout dataLayout(_module);
-  const auto dataLayoutSpec = _module.getDataLayoutSpec();
-  return mlir::go::getDefaultTypeSize(_type, dataLayout, dataLayoutSpec.getEntries());
-}
-
-intptr_t mlirGoGetTypeSizeInBits(MlirType type, MlirModule module)
-{
-  auto _type = unwrap(type);
-  auto _module = unwrap(module);
-
-  mlir::DataLayout dataLayout(_module);
-  const auto dataLayoutSpec = _module.getDataLayoutSpec();
-  return mlir::go::getDefaultTypeSizeInBits(_type, dataLayout, dataLayoutSpec.getEntries());
-}
-
-intptr_t mlirGoGetTypePreferredAlignmentInBytes(MlirType type, MlirModule module)
-{
-  auto _type = unwrap(type);
-  auto _module = unwrap(module);
-
-  mlir::DataLayout dataLayout(_module);
-  const auto dataLayoutSpec = _module.getDataLayoutSpec();
-  return mlir::go::getDefaultPreferredAlignment(_type, dataLayout, dataLayoutSpec.getEntries());
-}
-
 MlirType mlirGoCreateArrayType(MlirType elementType, intptr_t length)
 {
   auto _elementType = unwrap(elementType);

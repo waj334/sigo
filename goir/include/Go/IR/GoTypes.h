@@ -10,6 +10,7 @@
 #include <mlir/Interfaces/DataLayoutInterfaces.h>
 
 #include "Go/IR/GoDialect.h"
+#include "Go/IR/GoInterfaces.h"
 #include "Go/IR/Types/Interface.h"
 #include "Go/IR/Types/Struct.h"
 
@@ -95,54 +96,6 @@ inline bool isUnsafePointer(Type type)
   }
   const auto pointerType = go::dyn_cast<::mlir::go::PointerType>(type);
   return pointerType.getElementType() == std::nullopt;
-}
-
-inline llvm::TypeSize
-getDefaultTypeSize(Type type, const DataLayout& dataLayout, DataLayoutEntryListRef params)
-{
-  if (mlir::isa<FunctionType>(type))
-  {
-    return mlir::detail::getDefaultTypeSize(
-      PointerType::get(type.getContext(), {}), dataLayout, params);
-  }
-  return ::mlir::detail::getDefaultTypeSize(type, dataLayout, params);
-}
-
-inline llvm::TypeSize
-getDefaultTypeSizeInBits(Type type, const DataLayout& dataLayout, DataLayoutEntryListRef params)
-{
-  if (mlir::isa<FunctionType>(type))
-  {
-    return mlir::detail::getDefaultTypeSizeInBits(
-      PointerType::get(type.getContext(), {}), dataLayout, params);
-  }
-  return ::mlir::detail::getDefaultTypeSizeInBits(type, dataLayout, params);
-}
-
-inline uint64_t getDefaultABIAlignment(
-  Type type,
-  const DataLayout& dataLayout,
-  ArrayRef<DataLayoutEntryInterface> params)
-{
-  if (mlir::isa<FunctionType>(type))
-  {
-    return mlir::detail::getDefaultABIAlignment(
-      PointerType::get(type.getContext(), {}), dataLayout, params);
-  }
-  return ::mlir::detail::getDefaultABIAlignment(type, dataLayout, params);
-}
-
-inline uint64_t getDefaultPreferredAlignment(
-  Type type,
-  const DataLayout& dataLayout,
-  ArrayRef<DataLayoutEntryInterface> params)
-{
-  if (mlir::isa<FunctionType>(type))
-  {
-    return mlir::detail::getDefaultPreferredAlignment(
-      PointerType::get(type.getContext(), {}), dataLayout, params);
-  }
-  return ::mlir::detail::getDefaultPreferredAlignment(type, dataLayout, params);
 }
 
 } // namespace mlir::go

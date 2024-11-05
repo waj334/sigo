@@ -2,6 +2,7 @@
 #define GO_OP_BASE_TD
 
 include "Go/IR/GoAttrDefs.td"
+include "Go/IR/GoInterfaces.td"
 
 include "mlir/IR/OpBase.td"
 include "mlir/Interfaces/SideEffectInterfaces.td"

@@ -99,18 +99,15 @@ func interfaceLookUp(i _interface, id uint32) (receiver, result unsafe.Pointer) 
 
 	// Locate the method matching the id
 	elementType := (*_namedTypeData)(T.data)
-	for _, method := range elementType.methods {
+	var method *_funcData
+	for _, method = range elementType.methods {
 		methodId := method.id
 		if id == methodId {
-			signature := (*_signatureTypeData)(method.signature.data)
+			signature := method.signature
 			receiver = i.value
-			if i.valueT.kind == Pointer {
-				// Load the receiver pointer value.
+			if i.valueT.kind == Pointer && signature.receiverType.kind != Pointer {
+				// Load the value.
 				receiver = *(*unsafe.Pointer)(receiver)
-				if signature.receiverType.kind != Pointer {
-					// Load the value.
-					receiver = *(*unsafe.Pointer)(receiver)
-				}
 			} else {
 				if signature.receiverType.kind == Pointer {
 					// Pass the address of the underlying value.

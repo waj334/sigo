@@ -1,7 +1,4 @@
-#include <llvm/Support/CommandLine.h>
-#include <llvm/Support/SourceMgr.h>
-#include <llvm/Support/ToolOutputFile.h>
-
+// clang-format off
 #include <mlir/Dialect/Arith/IR/Arith.h>
 #include <mlir/IR/Dialect.h>
 #include <mlir/InitAllDialects.h>
@@ -13,6 +10,7 @@
 
 #include "Go/IR/GoDialect.h"
 #include "Go/Transforms/Passes.h"
+// clang-format on
 
 int main(int argc, char** argv)
 {

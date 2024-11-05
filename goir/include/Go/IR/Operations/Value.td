@@ -160,7 +160,7 @@ def MakeSliceOp : Go_Op<"make.slice", [AlwaysSpeculatable]> {
 def MakeInterfaceOp : Go_Op<"make.interface", [AlwaysSpeculatable]> {
     let arguments = (ins
         TypeAttr:$dynamic_type,
-        Go_Type:$value
+        Go_Pointer:$value
     );
     let results = (outs
         Go_Interface:$result
@@ -168,7 +168,6 @@ def MakeInterfaceOp : Go_Op<"make.interface", [AlwaysSpeculatable]> {
     let assemblyFormat = [{
         $value attr-dict `:` functional-type(operands, results)
     }];
-    let hasCanonicalizeMethod = 1;
 }
 
 #endif // GO_OPERATIONS_VALUE_TD

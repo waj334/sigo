@@ -49,7 +49,7 @@ type _namedTypeData struct {
 type _funcData struct {
 	id        uint32
 	funcPtr   unsafe.Pointer
-	signature *_type
+	signature *_signatureTypeData
 }
 
 type _interfaceData struct {
