@@ -82,6 +82,13 @@ extern "C"
     MlirValue y,
     MlirLocation location);
 
+  MlirOperation mlirGoCreateCmpInterfaceOperation(
+    MlirContext context,
+    MlirType resultType,
+    MlirValue x,
+    MlirValue y,
+    MlirLocation location);
+
   MlirOperation mlirGoCreateDivCOperation(
     MlirContext context,
     MlirType resultType,

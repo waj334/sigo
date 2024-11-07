@@ -108,7 +108,7 @@ struct HeapEscapePass : public PassWrapper<HeapEscapePass, OperationPass<mlir::g
               }
               return Result::DoesNotEscape;
             })
-          .Case([&](MakeInterfaceOp) { return Result::EscapesToHeap; })
+          .Case([&](MakeInterfaceOp makeOp) { return this->analyzeOperation(makeOp, visited); })
           .Case([&](ReturnOp) { return Result::EscapesToHeap; })
           .Case([&](SliceAddrOp sliceAddrOp)
                 { return this->analyzeOperation(sliceAddrOp.getSlice().getDefiningOp(), visited); })

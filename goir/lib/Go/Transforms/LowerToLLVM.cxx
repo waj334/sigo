@@ -1254,6 +1254,85 @@ struct ConstantOpLowering : ConvertOpToLLVMPattern<ConstantOp>
   }
 };
 
+struct CmpInterfaceOpLowering : ConvertOpToLLVMPattern<CmpInterfaceOp>
+{
+  using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
+
+  LogicalResult matchAndRewrite(
+    CmpInterfaceOp op,
+    OpAdaptor adaptor,
+    ConversionPatternRewriter& rewriter) const override
+  {
+    const auto loc = op->getLoc();
+    const auto module = op->getParentOfType<mlir::ModuleOp>();
+
+    // Determine which operand is the interface value.
+    mlir::Value interfaceValue;
+    mlir::Value otherValue;
+    mlir::Type otherType;
+
+    if (mlir::go::isa<mlir::go::InterfaceType>(op.getLhs().getType()))
+    {
+      interfaceValue = adaptor.getLhs();
+      otherValue = adaptor.getRhs();
+      otherType = op.getRhs().getType();
+    }
+    else
+    {
+      interfaceValue = adaptor.getRhs();
+      otherValue = adaptor.getLhs();
+      otherType = op.getLhs().getType();
+    }
+
+    // Create the runtime call to compare the interface value depending on the type of the "other"
+    // value.
+    mlir::Value result;
+    if (mlir::go::isa<mlir::go::InterfaceType>(otherType))
+    {
+      // Emit the runtime call to do an interface to interface comparison.
+      result = createRuntimeCall(
+        rewriter,
+        op.getLoc(),
+        "interfaceCompare",
+        this->getTypeConverter(),
+        { interfaceValue, otherValue })[0];
+    }
+    else
+    {
+      mlir::Value addr;
+      {
+        mlir::OpBuilder::InsertionGuard guard(rewriter);
+        rewriter.setInsertionPointToStart(op->getBlock());
+        const mlir::Value oneValue =
+          rewriter.create<mlir::LLVM::ConstantOp>(loc, rewriter.getI64Type(), 1);
+        addr = rewriter.create<mlir::LLVM::AllocaOp>(
+          loc, this->getVoidPtrType(), otherValue.getType(), oneValue);
+      }
+
+      // Store a copy of the other value.
+      // TODO: Need a slick way of getting the allocation associated with this value.
+      rewriter.create<mlir::LLVM::StoreOp>(loc, otherValue, addr);
+
+      // Get information about the other type.
+      auto typeInfoGlobalOp = createTypeInfo(rewriter, module, loc, otherType);
+      const Value infoValue = rewriter.create<mlir::LLVM::AddressOfOp>(loc, typeInfoGlobalOp);
+
+      // Emit the runtime call to do an interface to arbitrary value comparison.
+      result = createRuntimeCall(
+        rewriter,
+        loc,
+        "interfaceCompareTo",
+        this->getTypeConverter(),
+        { interfaceValue, infoValue, addr })[0];
+    }
+
+    // Replace the operation.
+    rewriter.replaceOp(op, result);
+
+    return success();
+  }
+};
+
 struct ZeroOpLowering : ConvertOpToLLVMPattern<ZeroOp>
 {
   using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
@@ -1909,6 +1988,7 @@ void populateGoToLLVMConversionPatterns(
             transforms::LLVM::ChanSendOpLowering,
             transforms::LLVM::ChanRecvOpLowering,
             transforms::LLVM::ConstantOpLowering,
+            transforms::LLVM::CmpInterfaceOpLowering,
             transforms::LLVM::DeferOpLowering,
             transforms::LLVM::ExtractOpLowering,
             transforms::LLVM::GetElementPointerOpLowering,

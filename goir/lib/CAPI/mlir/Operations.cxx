@@ -138,6 +138,25 @@ MlirOperation mlirGoCreateCmpIOperation(
   return wrap(op);
 }
 
+MlirOperation mlirGoCreateCmpInterfaceOperation(
+    MlirContext context,
+    MlirType resultType,
+    MlirValue x,
+    MlirValue y,
+    MlirLocation location)
+{
+  auto _context = unwrap(context);
+  auto _x = unwrap(x);
+  auto _y = unwrap(y);
+  auto _resultType = unwrap(resultType);
+  auto _location = unwrap(location);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op =
+    builder.create<::mlir::go::CmpInterfaceOp>(_location, _resultType, _x, _y);
+  return wrap(op);
+}
+
 MlirOperation mlirGoCreateDivCOperation(
   MlirContext context,
   MlirType resultType,

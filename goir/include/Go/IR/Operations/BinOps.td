@@ -12,7 +12,7 @@ include "mlir/IR/OpBase.td"
 
 class Go_BinOp<string mnemonic, list<Trait> traits = []> :
         Go_Op<mnemonic, traits # []> {
-    let assemblyFormat = "$lhs `,` $rhs attr-dict-with-keyword `:` type($result)";
+    let assemblyFormat = "$lhs `,` $rhs attr-dict-with-keyword `:` functional-type(operands, results)";
 }
 
 class Go_IntBinOp<string mnemonic, list<Trait> traits = []> :
@@ -216,6 +216,21 @@ def CmpIOp : Go_CompareOp<"cmpi", [NoMemoryEffect]> {
     let arguments = (ins Go_CmpIPredicate:$predicate,
                                Go_Integral:$lhs,
                                Go_Integral:$rhs);
+}
+
+//===----------------------------------------------------------------------===//
+// cmp.interface
+//===----------------------------------------------------------------------===//
+
+def CmpInterfaceOp : Go_BinOp<"cmp.interface", [NoMemoryEffect, Commutative]> {
+    let arguments = (ins
+        Go_Type:$lhs,
+        Go_Type:$rhs
+    );
+    let results = (outs
+        Go_Bool:$result
+    );
+    let hasVerifier = 1;
 }
 
 //===----------------------------------------------------------------------===//
