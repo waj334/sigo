@@ -426,6 +426,7 @@ func (b *Builder) emitGenericDecl(ctx context.Context, decl *ast.GenDecl) {
 		for _, spec := range decl.Specs {
 			spec := spec.(*ast.ValueSpec)
 			vars := make([]Value, len(spec.Names))
+			location := b.location(decl.Pos())
 
 			// Local variables need to be emitted into the current block.
 			for i, ident := range spec.Names {
@@ -437,8 +438,26 @@ func (b *Builder) emitGenericDecl(ctx context.Context, decl *ast.GenDecl) {
 				// Evaluate the initial value.
 				result := b.emitExpr(ctx, expr)[0]
 
+				// Handle interface type conversion.
+				lhsType := b.typeOf(ctx, spec.Names[i])
+				rhsType := b.typeOf(ctx, expr)
+				if !isNil(rhsType) && !types.Identical(lhsType, rhsType) {
+					if types.IsInterface(baseType(rhsType)) {
+						// Convert from interface A to interface B.
+						result = b.emitChangeType(ctx, lhsType, result, location)
+					} else {
+						// Generate methods for named types.
+						if T, ok := rhsType.(*types.Named); ok {
+							b.queueNamedTypeJobs(ctx, T)
+						}
+
+						// Create an interface value from the value expression.
+						result = b.emitInterfaceValue(ctx, lhsType, rhsType, result, location)
+					}
+				}
+
 				// Store the initial value at the address of the variable.
-				vars[i].Store(ctx, result, b.location(decl.Pos()))
+				vars[i].Store(ctx, result, location)
 			}
 		}
 	default:

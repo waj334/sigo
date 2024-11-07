@@ -91,31 +91,12 @@ func (b *Builder) emitComplexCompare(ctx context.Context, op token.Token, X mlir
 	return resultOf(cmpOp)
 }
 
-func (b *Builder) emitInterfaceCompare(ctx context.Context, op token.Token, X mlir.Value, Y mlir.Value, YT types.Type, location mlir.Location) mlir.Value {
-	var result mlir.Value
-	if typeIs[*types.Interface](YT) {
-		// Emit the runtime call to compare the two interface types.
-		op := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.interfaceCompare"), b.types(b.i1), b.values(X, Y), location)
-		appendOperation(ctx, op)
-		result = resultOf(op)
-	} else {
-		typeInfoOp := mlir.GoCreateTypeInfoOperation(b.ctx, b.typeInfoPtr, b.GetType(ctx, YT), location)
-		appendOperation(ctx, typeInfoOp)
-		infoValue := resultOf(typeInfoOp)
+func (b *Builder) emitInterfaceCompare(ctx context.Context, predicate token.Token, X mlir.Value, Y mlir.Value, YT types.Type, location mlir.Location) mlir.Value {
+	op := mlir.GoCreateCmpInterfaceOperation(b.ctx, b.i1, X, Y, location)
+	appendOperation(ctx, op)
+	result := resultOf(op)
 
-		// Take the address of the RHS value.
-		Y = b.makeCopyOf(ctx, Y, location)
-
-		// Reinterpret the pointer as an unsafe.Pointer.
-		Y = b.bitcastTo(ctx, Y, b.ptr, location)
-
-		// Emit the runtime call to compare the interface type against the arbitrary value.
-		op := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.interfaceCompareTo"), b.types(b.i1), b.values(X, infoValue, Y), location)
-		appendOperation(ctx, op)
-		result = resultOf(op)
-	}
-
-	if op == token.NEQ {
+	if predicate == token.NEQ {
 		// Negate the result.
 		result = b.emitNegation(ctx, result, location)
 	}
