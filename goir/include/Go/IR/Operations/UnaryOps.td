@@ -147,4 +147,18 @@ def RecvOp : Go_Op<"recv", [AlwaysSpeculatable]>,
     let hasCustomAssemblyFormat = 1;
 }
 
+//===----------------------------------------------------------------------===//
+// cmp.nil
+//===----------------------------------------------------------------------===//
+
+def CmpNilOp : Go_Op<"cmp.nil", [AlwaysSpeculatable]> {
+    let arguments = (ins
+        AnyTypeOf<[Go_Slice, Go_Map]>:$value
+    );
+    let results = (outs
+        Go_Bool:$result
+    );
+    let assemblyFormat = "$value  attr-dict `:` functional-type(operands, results)";
+}
+
 #endif // GO_OPERATIONS_UNARYOPS_TD

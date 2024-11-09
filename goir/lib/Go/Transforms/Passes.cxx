@@ -121,7 +121,6 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
     target.addIllegalOp<GoOp>();
     target.addIllegalOp<ImagOp>();
     target.addIllegalOp<IntTruncateOp>();
-    target.addIllegalOp<MapUpdateOp>();
     target.addIllegalOp<MakeInterfaceOp>();
     target.addIllegalOp<MulCOp>();
     target.addIllegalOp<MulFOp>();
@@ -174,13 +173,18 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
     target.addLegalOp<ChangeInterfaceOp>();
     target.addLegalOp<func::ConstantOp>();
     target.addLegalOp<DeferOp>();
+    target.addLegalOp<ExtractOp>();
     target.addLegalOp<FunctionToPointerOp>();
     target.addLegalOp<GetElementPointerOp>();
+    target.addLegalOp<InsertOp>();
     target.addLegalOp<InterfaceCallOp>();
     target.addLegalOp<IntToPtrOp>();
     target.addLegalOp<LoadOp>();
-    target.addLegalOp<MakeOp>();
     target.addLegalOp<MakeInterfaceOp>();
+    target.addLegalOp<MakeMapOp>();
+    target.addLegalOp<MakeSliceOp>();
+    target.addLegalOp<MapLookupOp>();
+    target.addLegalOp<MapUpdateOp>();
     target.addLegalOp<PanicOp>();
     target.addLegalOp<PointerToFunctionOp>();
     target.addLegalOp<PtrToIntOp>();
@@ -188,9 +192,11 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
     target.addLegalOp<RecvOp>();
     target.addLegalOp<RuntimeCallOp>();
     target.addLegalOp<SliceOp>();
+    target.addLegalOp<SliceToStringOp>();
+    target.addLegalOp<SliceAddrOp>();
+    target.addLegalOp<StringAddrOp>();
+    target.addLegalOp<StringToSliceOp>();
     target.addLegalOp<StoreOp>();
-    target.addLegalOp<ExtractOp>();
-    target.addLegalOp<InsertOp>();
     target.addLegalOp<TypeInfoOp>();
     target.addLegalOp<ZeroOp>();
 

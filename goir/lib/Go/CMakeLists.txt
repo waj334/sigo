@@ -10,6 +10,7 @@ add_mlir_dialect_library(GoIR
         IR/Operations/Map.cxx
         IR/Operations/Memory.cxx
         IR/Operations/Slice.cxx
+        IR/Operations/String.cxx
         IR/Operations/Struct.cxx
         IR/Operations/UnaryOps.cxx
         IR/Operations/Value.cxx

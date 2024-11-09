@@ -14,19 +14,16 @@ func interfaceMake(value unsafe.Pointer, valueType *_type) _interface {
 	}
 }
 
-func interfaceAssert(X _interface, T *_type, hasOk bool) (result _interface, ok bool) {
+func interfaceAssert(X _interface, T *_type, hasOk bool) (result unsafe.Pointer, ok bool) {
 	err := interfaceIsAssignable(X.valueT, T)
 	if err != nil {
 		if hasOk {
-			return _interface{}, false
+			return nil, false
 		} else {
 			panic(err)
 		}
 	}
-	return _interface{
-		value:  X.value,
-		valueT: T,
-	}, true
+	return X.value, true
 }
 
 func interfaceValue(X _interface) unsafe.Pointer {
@@ -121,6 +118,15 @@ func interfaceLookUp(i _interface, id uint32) (receiver, result unsafe.Pointer) 
 }
 
 func interfaceIsAssignable(src *_type, dest *_type) error {
+	// Fast path.
+	if dest.kind == Interface {
+		destMethods := *(*[]_interfaceMethodData)(dest.data)
+		if len(destMethods) == 0 {
+			// This is the `any` type.
+			return nil
+		}
+	}
+
 	if len(src.name) > 0 && dest.kind == Interface {
 		// The destination methods must be defined on the source named type.
 		srcMethods := ((*_namedTypeData)(src.data)).methods

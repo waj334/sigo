@@ -55,15 +55,22 @@ type _stringIterator struct {
 	index int
 }
 
-func stringRange(it _stringIterator) (bool, _stringIterator, rune) {
+func stringRangeInit(str string) _stringIterator {
+	return _stringIterator{
+		str:   str,
+		index: 0,
+	}
+}
+
+func stringRange(it *_stringIterator) (int, rune, bool) {
+	i := it.index
 	if len(it.str) > 0 {
 		r, size := utf8.DecodeRuneInString(it.str)
-		return true, _stringIterator{
-			str:   it.str[size:],
-			index: it.index + size,
-		}, r
+		it.str = it.str[size:]
+		it.index += size
+		return i, r, true
 	}
-	return false, _stringIterator{}, 0
+	return -1, 0, false
 }
 
 func stringSlice(str _string, low, high int) _string {

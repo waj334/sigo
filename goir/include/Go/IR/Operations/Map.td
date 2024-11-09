@@ -24,8 +24,11 @@ def MapUpdateOp : Go_Op<"map.update"> {
     let assemblyFormat = [{
         `(` $map `:` type($map) `)` `` `[` $key  `:` type($key) `]` `=` `(` $value `:` type($value) `)` attr-dict-with-keyword
     }];
-    let hasCanonicalizeMethod = 1;
 }
+
+//===----------------------------------------------------------------------===//
+// MapLookupOp
+//===----------------------------------------------------------------------===//
 
 def MapLookupOp : Go_Op<"map.lookup", [AlwaysSpeculatable]> {
     let arguments = (ins
@@ -39,7 +42,27 @@ def MapLookupOp : Go_Op<"map.lookup", [AlwaysSpeculatable]> {
     let assemblyFormat = [{
         $map```[` $key `]` attr-dict-with-keyword `:` functional-type(operands, results)
     }];
-    let hasCanonicalizeMethod = 1;
+}
+
+//===----------------------------------------------------------------------===//
+// MapRangeOp
+//===----------------------------------------------------------------------===//
+
+def MapRangeOp : Go_Op<"map.range", [
+        DeclareOpInterfaceMethods<RangeOpInterface, [
+            "getBodyBlock", "getExitBlock", "getValue", "verifyBodyBlockArgs"]>,
+        Pure, Terminator]> {
+    let arguments = (ins
+        Go_Map:$map
+    );
+    let successors = (successor AnySuccessor:$bodyDest, AnySuccessor:$exitDest);
+    let assemblyFormat = [{
+        $map `,` $bodyDest `,` $exitDest attr-dict `:` functional-type(operands, results)
+    }];
+    let extraClassDefinition = [{
+        ::mlir::Block* MapRangeOp::getBodyBlock() { return this->getBodyDest(); }
+        ::mlir::Block* MapRangeOp::getExitBlock() { return this->getExitDest(); }
+    }];
 }
 
 #endif // GO_OPERATIONS_MAP_TD

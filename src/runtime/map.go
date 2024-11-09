@@ -229,32 +229,43 @@ type _mapIterator struct {
 	entry  *mapEntry
 }
 
-func mapRange(it _mapIterator) (bool, _mapIterator, unsafe.Pointer, unsafe.Pointer) {
-	if it.entry == nil {
-		// Initialize the iterator by finding the next non-empty bucket
-		for ; it.bucket < len(it.m.state.data); it.bucket++ {
-			it.entry = it.m.state.data[it.bucket]
-			if it.entry != nil {
-				break
-			}
+func mapRangeInit(m _map) _mapIterator {
+	var it _mapIterator
+	it.m = m
+
+	// Initialize the iterator by finding the next non-empty bucket
+	mapRangeNext(&it)
+	return it
+}
+
+func mapRangeNext(it *_mapIterator) {
+	for ; it.bucket < len(it.m.state.data); it.bucket++ {
+		it.entry = it.m.state.data[it.bucket]
+		if it.entry != nil {
+			break
 		}
 	}
+}
 
+func mapRange(it *_mapIterator) (unsafe.Pointer, unsafe.Pointer, bool) {
 	if it.entry == nil {
-		return false, _mapIterator{}, nil, nil
+		return nil, nil, false
 	} else {
 		k := it.entry.key
 		v := it.entry.value
 		it.entry = it.entry.next
 		if it.entry == nil {
 			it.bucket++
+
+			// Find the next non-empty bucket.
+			mapRangeNext(it)
 		}
-		return true, it, k, v
+		return k, v, true
 	}
 }
 
 func mapIsNil(m _map) bool {
-	return len(m.state.data) == 0
+	return m.state == nil
 }
 
 func nextPow2(n int) int {

@@ -67,58 +67,6 @@ def RealOp : Go_Op<"real", [Pure, NoMemoryEffect]> {
 }
 
 //===----------------------------------------------------------------------===//
-// MakeOp
-//===----------------------------------------------------------------------===//
-
-def MakeOp : Go_Op<"make"> {
-    let summary = "Make operation";
-    let description = [{
-        The `go.make` operation creates a value of !go.chan, !go.interface,
-        !go.map or !go.slice using the operands. Interfaces are a special case
-        in order to abstract away the underlying runtime struct from the IR.
-
-        Example:
-        ```mlir
-            %0 = go.make : !go.channel<i32>         ; Unbuffered
-            %0 = go.make %1 : !go.channel<i32>      ; Buffered
-
-            %0 = go.make %1 : !go.slice<i32>        ; With length
-            %0 = go.make %1, %2 : !go.slice<i32>    ; With length and capacity
-
-            %0 = go.make : !go.map<i32,i32>
-            %0 = go.make %1 : !go.map<i32,i32>      ; With initial capacity
-
-            %0 = go.make %1 : !go.interface<any>    ; Special case for interfaces
-    }];
-    let arguments = (ins Variadic<Go_Type>:$args);
-    let results = (outs AnyTypeOrNamedOf<[ChanType,
-                            SliceType,
-                            MapType,
-                            InterfaceType]>:$result);
-    let assemblyFormat = [{
-        $args attr-dict `:` functional-type($args, $result)
-    }];
-    //let hasVerifier = 1;
-}
-
-//===----------------------------------------------------------------------===//
-// MakeChanOp
-//===----------------------------------------------------------------------===//
-
-def MakeChanOp : Go_Op<"make.chan", [AlwaysSpeculatable]> {
-    let arguments = (ins
-        Optional<Go_Integer>:$capacity
-    );
-    let results = (outs
-        Go_Chan:$result
-    );
-    let assemblyFormat = [{
-       ( $capacity^ `:` type($capacity) )? attr-dict `:` type($result)
-    }];
-    let hasCanonicalizeMethod = 1;
-}
-
-//===----------------------------------------------------------------------===//
 // MakeMapOp
 //===----------------------------------------------------------------------===//
 
@@ -132,7 +80,6 @@ def MakeMapOp : Go_Op<"make.map", [AlwaysSpeculatable]> {
     let assemblyFormat = [{
         ( $capacity^ `:` type($capacity) )? attr-dict `:` type($result)
     }];
-    let hasCanonicalizeMethod = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -150,7 +97,6 @@ def MakeSliceOp : Go_Op<"make.slice", [AlwaysSpeculatable]> {
     let assemblyFormat = [{
         `(` $length `:` type($length) (`,` $capacity^ `:` type($capacity))? `)` attr-dict `:` type($result)
     }];
-    let hasCanonicalizeMethod = 1;
 }
 
 //===----------------------------------------------------------------------===//

@@ -222,7 +222,7 @@ def CmpIOp : Go_CompareOp<"cmpi", [NoMemoryEffect]> {
 // cmp.interface
 //===----------------------------------------------------------------------===//
 
-def CmpInterfaceOp : Go_BinOp<"cmp.interface", [NoMemoryEffect, Commutative]> {
+def CmpInterfaceOp : Go_BinOp<"cmp.interface", [Commutative]> {
     let arguments = (ins
         Go_Type:$lhs,
         Go_Type:$rhs
@@ -231,6 +231,20 @@ def CmpInterfaceOp : Go_BinOp<"cmp.interface", [NoMemoryEffect, Commutative]> {
         Go_Bool:$result
     );
     let hasVerifier = 1;
+}
+
+//===----------------------------------------------------------------------===//
+// cmp.string
+//===----------------------------------------------------------------------===//
+
+def CmpStringOp : Go_BinOp<"cmp.string", [Commutative]> {
+    let arguments = (ins
+        Go_String:$lhs,
+        Go_String:$rhs
+    );
+    let results = (outs
+        Go_Bool:$result
+    );
 }
 
 //===----------------------------------------------------------------------===//

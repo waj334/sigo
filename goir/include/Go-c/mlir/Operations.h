@@ -89,6 +89,19 @@ extern "C"
     MlirValue y,
     MlirLocation location);
 
+  MlirOperation mlirGoCreateCmpStringOperation(
+    MlirContext context,
+    MlirType resultType,
+    MlirValue x,
+    MlirValue y,
+    MlirLocation location);
+
+  MlirOperation mlirGoCreateCmpNilOperation(
+    MlirContext context,
+    MlirType resultType,
+    MlirValue x,
+    MlirLocation location);
+
   MlirOperation mlirGoCreateDivCOperation(
     MlirContext context,
     MlirType resultType,
@@ -249,6 +262,13 @@ extern "C"
     bool hasOk,
     MlirLocation location);
 
+  MlirOperation mlirGoCreateMapRangeOp(
+    MlirContext context,
+    MlirValue value,
+    MlirBlock bodyDest,
+    MlirBlock exitDest,
+    MlirLocation location);
+
   //===----------------------------------------------------------------------===//
   // Memory Operations
   //===----------------------------------------------------------------------===//
@@ -347,6 +367,24 @@ extern "C"
     MlirValue slice,
     MlirValue index,
     MlirLocation location);
+
+  //===----------------------------------------------------------------------===//
+  // String Operations
+  //===----------------------------------------------------------------------===//
+
+  MlirOperation mlirGoCreateStringAddrOperation(
+    MlirContext context,
+    MlirType resultType,
+    MlirValue slice,
+    MlirValue index,
+    MlirLocation location);
+
+  MlirOperation mlirGoCreateStringRangeOp(
+  MlirContext context,
+  MlirValue value,
+  MlirBlock bodyDest,
+  MlirBlock exitDest,
+  MlirLocation location);
 
   //===----------------------------------------------------------------------===//
   // Struct Operations
@@ -484,6 +522,19 @@ extern "C"
     MlirLocation location);
 
   MlirOperation mlirGoCreateTypeAssertOperation(
+    MlirContext context,
+    MlirValue value,
+    intptr_t nResults,
+    MlirType* results,
+    MlirLocation location);
+
+  MlirOperation mlirGoCreateStringToSliceOperation(
+    MlirContext context,
+    MlirValue value,
+    MlirType type,
+    MlirLocation location);
+
+  MlirOperation mlirGoCreateSliceToStringOperation(
     MlirContext context,
     MlirValue value,
     MlirType type,
@@ -674,12 +725,6 @@ extern "C"
     MlirValue value,
     MlirLocation location);
 
-  MlirOperation mlirGoCreateMakeChanOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue* capacity,
-    MlirLocation location);
-
   MlirOperation mlirGoCreateMakeMapOperation(
     MlirContext context,
     MlirType resultType,
@@ -717,6 +762,7 @@ extern "C"
     MlirValue value,
 
     MlirLocation location);
+
   MlirOperation mlirGoCreateChanRangeOp(
     MlirContext context,
     MlirValue channel,

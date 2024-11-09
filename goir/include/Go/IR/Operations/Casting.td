@@ -357,7 +357,6 @@ def TypeAssertOp : Go_Op<"type.assert", [AlwaysSpeculatable]> {
     let assemblyFormat = [{
         `(` $value `:` type($value) `)` attr-dict `:` type(results)
     }];
-    let hasCanonicalizeMethod = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -379,6 +378,30 @@ def ComplexExtendOp : Go_Op<"cext", [Pure]> {
 def ComplexTruncateOp : Go_Op<"ctrunc", [Pure]> {
     let arguments = (ins Go_Complex:$value);
     let results = (outs Go_Complex:$result);
+    let assemblyFormat = [{
+        `(` $value `:` type($value) `)` attr-dict `:` type($result)
+    }];
+}
+
+//===----------------------------------------------------------------------===//
+// StringToSliceOp
+//===----------------------------------------------------------------------===//
+
+def StringToSliceOp : Go_Op<"strtoslice", [Pure]> {
+    let arguments = (ins Go_String:$value);
+    let results = (outs Go_Slice:$result);
+    let assemblyFormat = [{
+        `(` $value `:` type($value) `)` attr-dict `:` type($result)
+    }];
+}
+
+//===----------------------------------------------------------------------===//
+// SliceToStringOp
+//===----------------------------------------------------------------------===//
+
+def SliceToStringOp : Go_Op<"slicetostr", [Pure]> {
+    let arguments = (ins Go_Slice:$value);
+    let results = (outs Go_String:$result);
     let assemblyFormat = [{
         `(` $value `:` type($value) `)` attr-dict `:` type($result)
     }];
