@@ -23,7 +23,6 @@ def SliceAddrOp : Go_Op<"slice.addr", [AlwaysSpeculatable]> {
     let assemblyFormat = [{
         `(` $slice `:` type($slice) `)` `` `[` $index  `:` type($index) `]` attr-dict-with-keyword `:` type($result)
     }];
-    let hasCanonicalizeMethod = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -47,7 +46,7 @@ def SliceOp : Go_Op<"slice", [DeclareOpInterfaceMethods<InferIntRangeInterface>,
         ```
     }];
     let arguments = (ins
-        AnyTypeOrNamedOf<[Go_Array,Go_Slice,Go_String,Go_Pointer]>:$input,
+        AnyTypeOrNamedOf<[Go_Slice,Go_String,Go_Pointer]>:$input,
         Optional<Go_Integer>:$low,
         Optional<Go_Integer>:$high,
         Optional<Go_Integer>:$max);
@@ -55,9 +54,7 @@ def SliceOp : Go_Op<"slice", [DeclareOpInterfaceMethods<InferIntRangeInterface>,
     let assemblyFormat = [{
         `(` $input `:` type($input) `)````[```( `(` $low^`:` type($low) `)` )?```:```( `(` $high^ `:` type($high) `)` )? (```:````(` $max^ `:` type($max) `)` )?```]` attr-dict-with-keyword `:` type($result)
     }];
-    //let hasCustomAssemblyFormat = 1;
     let hasVerifier = 1;
-    let hasCanonicalizeMethod = 1;
 }
 
 #endif // GO_OPERATIONS_SLICE_TD

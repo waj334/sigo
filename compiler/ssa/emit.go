@@ -612,15 +612,9 @@ func (b *Builder) emitIndexAddr(ctx context.Context, expr *ast.IndexExpr) mlir.V
 	case *types.Basic:
 		// This is a string.
 		X := b.emitExpr(ctx, expr.X)[0]
-
-		// Reinterpret the string value as its runtime representation.
-		X = b.bitcastTo(ctx, X, b._string, location)
-
-		// Get the address of the byte.
-		callOp := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.stringIndexAddr"),
-			[]mlir.Type{b.ptr}, []mlir.Value{X, index}, location)
-		appendOperation(ctx, callOp)
-		return resultOf(callOp)
+		addrOp := mlir.GoCreateStringAddrOperation(b.ctx, pointerT, X, index, location)
+		appendOperation(ctx, addrOp)
+		return resultOf(addrOp)
 	case *types.Pointer:
 		// This is a pointer to an array.
 		X := b.emitExpr(ctx, expr.X)[0]
@@ -1016,11 +1010,11 @@ func (b *Builder) emitTypeAssertExpr(ctx context.Context, expr *ast.TypeAssertEx
 	// Evaluate the interface value to type assert on.
 	X := b.emitExpr(ctx, expr.X)[0]
 
-	// Get the information of the type to assert.
-	T := b.GetType(ctx, b.typeOf(ctx, expr.Type))
+	// Get the type to assert.
+	//T := b.GetType(ctx, b.typeOf(ctx, expr.Type))
 
 	// Create the type assertion operation.
-	op := mlir.GoCreateTypeAssertOperation(b.ctx, X, T, location)
+	op := mlir.GoCreateTypeAssertOperation(b.ctx, X, b.exprTypes(ctx, expr), location)
 	appendOperation(ctx, op)
 	return resultsOf(op)
 }

@@ -141,11 +141,9 @@ func (b *Builder) emitTypeConversion(ctx context.Context, X mlir.Value, src type
 		case typeHasFlags(src, types.IsString):
 			switch {
 			case typeIs[*types.Slice](dest):
-				op := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.stringToSlice"), []mlir.Type{b._slice}, []mlir.Value{X}, location)
+				op := mlir.GoCreateStringToSliceOperation(b.ctx, X, destType, location)
 				appendOperation(ctx, op)
-
-				// Reinterpret as !go.slice type.
-				result = b.bitcastTo(ctx, resultOf(op), destType, location)
+				result = resultOf(op)
 			default:
 				panic("unhandled")
 			}
@@ -159,11 +157,9 @@ func (b *Builder) emitTypeConversion(ctx context.Context, X mlir.Value, src type
 		case typeIs[*types.Slice](src):
 			switch {
 			case typeHasFlags(dest, types.IsString):
-				op := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.sliceToString"), []mlir.Type{b._string}, []mlir.Value{X}, location)
+				op := mlir.GoCreateSliceToStringOperation(b.ctx, X, destType, location)
 				appendOperation(ctx, op)
-
-				// Reinterpret as !go.string type.
-				result = b.bitcastTo(ctx, resultOf(op), destType, location)
+				result = resultOf(op)
 			default:
 				panic("unhandled")
 			}

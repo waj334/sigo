@@ -104,11 +104,11 @@ func (b *Builder) emitInterfaceCompare(ctx context.Context, predicate token.Toke
 	return result
 }
 
-func (b *Builder) emitStringCompare(ctx context.Context, op token.Token, X mlir.Value, Y mlir.Value, location mlir.Location) mlir.Value {
-	cmpOp := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.stringCompare"), b.types(b.i1), b.values(X, Y), location)
-	appendOperation(ctx, cmpOp)
-	result := resultOf(cmpOp)
-	if op == token.NEQ {
+func (b *Builder) emitStringCompare(ctx context.Context, predicate token.Token, X mlir.Value, Y mlir.Value, location mlir.Location) mlir.Value {
+	op := mlir.GoCreateCmpStringOperation(b.ctx, b.i1, X, Y, location)
+	appendOperation(ctx, op)
+	result := resultOf(op)
+	if predicate == token.NEQ {
 		// Negate the result.
 		result = b.emitNegation(ctx, result, location)
 	}
@@ -306,12 +306,8 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 		appendOperation(ctx, extractOp)
 		X = resultOf(extractOp)
 		return b.emitPointerCompare(ctx, expr.Op, X, Y, location)
-	case typeIs[*types.Slice](XT):
-		op := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.sliceIsNil"), b.types(b.i1), b.values(X), location)
-		appendOperation(ctx, op)
-		return resultOf(op)
-	case typeIs[*types.Map](XT):
-		op := mlir.GoCreateRuntimeCallOperation(b.ctx, mangleSymbol("runtime.mapIsNil"), b.types(b.i1), b.values(X), location)
+	case typeIs[*types.Slice](XT), typeIs[*types.Map](XT):
+		op := mlir.GoCreateCmpNilOperation(b.ctx, b.i1, X, location)
 		appendOperation(ctx, op)
 		return resultOf(op)
 	default:

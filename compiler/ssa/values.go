@@ -286,7 +286,14 @@ func (b *Builder) addressOf(ctx context.Context, expr ast.Expr, location mlir.Lo
 func (b *Builder) exprTypes(ctx context.Context, expr ...ast.Expr) []mlir.Type {
 	var result []mlir.Type
 	for _, expr := range expr {
-		result = append(result, b.GetStoredType(ctx, b.typeOf(ctx, expr)))
+		switch t := b.typeOf(ctx, expr).(type) {
+		case *types.Tuple:
+			for i := range t.Len() {
+				result = append(result, b.GetStoredType(ctx, t.At(i).Type()))
+			}
+		default:
+			result = append(result, b.GetStoredType(ctx, t))
+		}
 	}
 	return result
 }

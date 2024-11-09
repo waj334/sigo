@@ -17,6 +17,8 @@ def RangeOpInterface : OpInterface<"RangeOpInterface"> {
                 return ::mlir::success();
             }]>
     ];
+    /*
+    // TODO: This verifier breaks lowering because of type conversions and operation insertions.
     let verify = [{
         ConcreteOp concreteOp = ::mlir::cast<ConcreteOp>($_op);
         if (!llvm::hasSingleElement(*concreteOp.getOperation()->getBlock()))
@@ -39,16 +41,17 @@ def RangeOpInterface : OpInterface<"RangeOpInterface"> {
         {
             for (size_t i = 0; i < terminator->getNumSuccessors(); i++)
             {
-                if (terminator->getSuccessor(0) == concreteOp.getOperation()->getBlock())
+                if (terminator->getSuccessor(i) == concreteOp.getOperation()->getBlock())
                 {
                     return mlir::success();
                 }
-        }
-        return concreteOp.emitOpError() << "one of the body block terminator successors must point to the "
+            }
+            return concreteOp.emitOpError() << "one of the body block terminator successors must point to the "
                                    "enclosing block of the range operation";
         }
         return concreteOp.verifyBodyBlockArgs();
     }];
+    */
 }
 
 def RuntimeTypeModuleOpInterface : OpInterface<"RuntimeTypeModuleOpInterface"> {

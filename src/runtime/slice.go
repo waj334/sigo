@@ -104,9 +104,7 @@ func sliceIndexAddr(s _slice, index int, elementType *_type) unsafe.Pointer {
 	return unsafe.Add(s.array, uintptr(index)*uintptr(elementType.size))
 }
 
-func sliceReslice(s _slice, info *_type, low, high, max int) _slice {
-	elementType := (*_type)(info.data)
-
+func sliceReslice(s _slice, elementType *_type, low, high, max int) _slice {
 	if low == -1 {
 		low = 0
 	}

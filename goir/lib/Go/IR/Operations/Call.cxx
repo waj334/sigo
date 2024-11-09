@@ -511,10 +511,10 @@ mlir::LogicalResult BuiltInCallOp::verify()
   else if (callee == "delete")
   {
     // Must have EXACTLY 1 arguments to be valid.
-    if (this->getNumOperands() != 1)
+    if (this->getNumOperands() != 2)
     {
       return this->emitOpError() << callee << ": "
-                                 << "expected exactly 1 operand";
+                                 << "expected exactly 2 operands";
     }
 
     // Must return exactly ZERO values.

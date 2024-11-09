@@ -139,11 +139,11 @@ MlirOperation mlirGoCreateCmpIOperation(
 }
 
 MlirOperation mlirGoCreateCmpInterfaceOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location)
+  MlirContext context,
+  MlirType resultType,
+  MlirValue x,
+  MlirValue y,
+  MlirLocation location)
 {
   auto _context = unwrap(context);
   auto _x = unwrap(x);
@@ -152,8 +152,41 @@ MlirOperation mlirGoCreateCmpInterfaceOperation(
   auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op =
-    builder.create<::mlir::go::CmpInterfaceOp>(_location, _resultType, _x, _y);
+  mlir::Operation* op = builder.create<::mlir::go::CmpInterfaceOp>(_location, _resultType, _x, _y);
+  return wrap(op);
+}
+
+MlirOperation mlirGoCreateCmpStringOperation(
+  MlirContext context,
+  MlirType resultType,
+  MlirValue x,
+  MlirValue y,
+  MlirLocation location)
+{
+  auto _context = unwrap(context);
+  auto _x = unwrap(x);
+  auto _y = unwrap(y);
+  auto _resultType = unwrap(resultType);
+  auto _location = unwrap(location);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op = builder.create<::mlir::go::CmpStringOp>(_location, _resultType, _x, _y);
+  return wrap(op);
+}
+
+MlirOperation mlirGoCreateCmpNilOperation(
+  MlirContext context,
+  MlirType resultType,
+  MlirValue x,
+  MlirLocation location)
+{
+  auto _context = unwrap(context);
+  auto _x = unwrap(x);
+  auto _resultType = unwrap(resultType);
+  auto _location = unwrap(location);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op = builder.create<::mlir::go::CmpNilOp>(_location, _resultType, _x);
   return wrap(op);
 }
 
@@ -408,6 +441,25 @@ MlirOperation mlirGoCreateMapLookupOperation(
   mlir::OpBuilder builder(_context);
   mlir::Operation* op = builder.create<::mlir::go::MapLookupOp>(
     _location, _resultType, hasOk ? boolType : Type(), _map, _key);
+  return wrap(op);
+}
+
+MlirOperation mlirGoCreateMapRangeOp(
+  MlirContext context,
+  MlirValue value,
+  MlirBlock bodyDest,
+  MlirBlock exitDest,
+  MlirLocation location)
+{
+  auto _context = unwrap(context);
+  auto _value = unwrap(value);
+  auto _bodyDest = unwrap(bodyDest);
+  auto _exitDest = unwrap(exitDest);
+  auto _location = unwrap(location);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op =
+    builder.create<mlir::go::MapRangeOp>(_location, _value, _bodyDest, _exitDest);
   return wrap(op);
 }
 
@@ -683,6 +735,48 @@ MlirOperation mlirGoCreateSliceAddrOperation(
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
     builder.create<::mlir::go::SliceAddrOp>(_location, _resultType, _slice, _index);
+  return wrap(op);
+}
+
+//===----------------------------------------------------------------------===//
+// String Operations
+//===----------------------------------------------------------------------===//
+
+MlirOperation mlirGoCreateStringAddrOperation(
+  MlirContext context,
+  MlirType resultType,
+  MlirValue slice,
+  MlirValue index,
+  MlirLocation location)
+{
+  auto _context = unwrap(context);
+  auto _resultType = unwrap(resultType);
+  auto _slice = unwrap(slice);
+  auto _index = unwrap(index);
+  auto _location = unwrap(location);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op =
+    builder.create<::mlir::go::StringAddrOp>(_location, _resultType, _slice, _index);
+  return wrap(op);
+}
+
+MlirOperation mlirGoCreateStringRangeOp(
+  MlirContext context,
+  MlirValue value,
+  MlirBlock bodyDest,
+  MlirBlock exitDest,
+  MlirLocation location)
+{
+  auto _context = unwrap(context);
+  auto _value = unwrap(value);
+  auto _bodyDest = unwrap(bodyDest);
+  auto _exitDest = unwrap(exitDest);
+  auto _location = unwrap(location);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op =
+    builder.create<mlir::go::StringRangeOp>(_location, _value, _bodyDest, _exitDest);
   return wrap(op);
 }
 
@@ -1027,6 +1121,26 @@ MlirOperation mlirGoCreateChangeInterfaceOperation(
 MlirOperation mlirGoCreateTypeAssertOperation(
   MlirContext context,
   MlirValue value,
+  intptr_t nResults,
+  MlirType* results,
+  MlirLocation location)
+{
+  const auto _context = unwrap(context);
+  auto _value = unwrap(value);
+
+  SmallVector<mlir::Type> _results;
+  (void)unwrapList(nResults, results, _results);
+
+  const auto _location = unwrap(location);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op = builder.create<::mlir::go::TypeAssertOp>(_location, _results, _value);
+  return wrap(op);
+}
+
+MlirOperation mlirGoCreateStringToSliceOperation(
+  MlirContext context,
+  MlirValue value,
   MlirType type,
   MlirLocation location)
 {
@@ -1036,8 +1150,23 @@ MlirOperation mlirGoCreateTypeAssertOperation(
   auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::TypeAssertOp>(
-    _location, _type, mlir::go::BooleanType::get(_context), _value);
+  mlir::Operation* op = builder.create<::mlir::go::StringToSliceOp>(_location, _type, _value);
+  return wrap(op);
+}
+
+MlirOperation mlirGoCreateSliceToStringOperation(
+  MlirContext context,
+  MlirValue value,
+  MlirType type,
+  MlirLocation location)
+{
+  auto _context = unwrap(context);
+  auto _value = unwrap(value);
+  auto _type = unwrap(type);
+  auto _location = unwrap(location);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op = builder.create<::mlir::go::SliceToStringOp>(_location, _type, _value);
   return wrap(op);
 }
 
@@ -1501,27 +1630,6 @@ MlirOperation mlirGoCreateRealOperation(
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op = builder.create<::mlir::go::RealOp>(_location, _type, _value);
-  return wrap(op);
-}
-
-MlirOperation mlirGoCreateMakeChanOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue* capacity,
-  MlirLocation location)
-{
-  auto _context = unwrap(context);
-  auto _resultType = unwrap(resultType);
-  auto _location = unwrap(location);
-
-  mlir::Value _capacity;
-  if (capacity)
-  {
-    _capacity = unwrap(*capacity);
-  }
-
-  mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::MakeChanOp>(_location, _resultType, _capacity);
   return wrap(op);
 }
 
