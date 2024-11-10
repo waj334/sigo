@@ -1518,31 +1518,6 @@ MlirOperation mlirGoCreateInterfaceCall(
   return wrap(op);
 }
 
-MlirOperation mlirGoCreateRuntimeCallOperation(
-  MlirContext context,
-  MlirStringRef callee,
-  intptr_t nResultTypes,
-  MlirType* resultTypes,
-  intptr_t nOperands,
-  MlirValue* operands,
-  MlirLocation location)
-{
-  auto _context = unwrap(context);
-  auto _callee = unwrap(callee);
-  auto _location = unwrap(location);
-
-  ::llvm::SmallVector<::mlir::Type> _resultTypes;
-  (void)unwrapList(nResultTypes, resultTypes, _resultTypes);
-
-  ::llvm::SmallVector<::mlir::Value> _operands;
-  (void)unwrapList(nOperands, operands, _operands);
-
-  mlir::OpBuilder builder(_context);
-  mlir::Operation* op =
-    builder.create<::mlir::go::RuntimeCallOp>(_location, _resultTypes, _callee, _operands);
-  return wrap(op);
-}
-
 MlirOperation mlirGoCreateBuiltInCallOperation(
   MlirContext context,
   MlirStringRef identifier,
