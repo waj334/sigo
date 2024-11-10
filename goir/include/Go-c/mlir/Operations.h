@@ -681,15 +681,6 @@ extern "C"
     MlirValue* args,
     MlirLocation location);
 
-  MlirOperation mlirGoCreateRuntimeCallOperation(
-    MlirContext context,
-    MlirStringRef callee,
-    intptr_t nResultTypes,
-    MlirType* resultTypes,
-    intptr_t nOperands,
-    MlirValue* operands,
-    MlirLocation location);
-
   MlirOperation mlirGoCreateBuiltInCallOperation(
     MlirContext context,
     MlirStringRef identifier,
