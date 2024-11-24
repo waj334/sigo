@@ -50,9 +50,13 @@ func Environment() (Env, error) {
 
 		"GOROOT": getenv("GOROOT", goRoot),
 		//"GOPATH":   getenv("SIGOPATH", getenv("GOPATH", cwd)),
-		"GOCACHE":  getenv("SIGOCACHE", getenv("GOCACHE", filepath.Join(cacheDir, "go-build"))),
-		"GOTMPDIR": getenv("SIGOTMPDIR", filepath.Join(cacheDir, "sigo")),
+		"GOCACHE":     getenv("SIGOCACHE", getenv("GOCACHE", filepath.Join(cacheDir, "go-build"))),
+		"GOTMPDIR":    getenv("SIGOTMPDIR", filepath.Join(cacheDir, "sigo")),
+		"CGO_CFLAGS":  getenv("CGO_CFLAGS", ""),
+		"CGO_LDFLAGS": getenv("CGO_LDFLAGS", ""),
+
 		//"PATH":     os.Getenv("PATH"),
+
 		"CC":      getenv("CC", ""),
 		"LD":      getenv("LD", ""),
 		"OBJCOPY": getenv("OBJCOPY", ""),

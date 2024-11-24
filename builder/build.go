@@ -135,6 +135,18 @@ func Build(ctx context.Context, packageDir string) error {
 
 	// TODO: Detect the target architecture by some other means
 	options.Environment["GOARCH"] = "arm"
+	options.Environment["CGO_ENABLED"] = "1"
+
+	// Get the toolchain.
+	toolchain, err := findToolchain(options.Environment)
+	if err != nil {
+		return err
+	}
+
+	options.Environment["CC"] = toolchain.CC
+	options.Environment["LD"] = toolchain.LD
+	options.Environment["OBJCOPY"] = toolchain.ObjCopy
+
 	arch := strings.Split(targetInfo.Triple, "-")[0]
 	float := "nofp"
 	switch targetInfo.Float {
@@ -174,6 +186,13 @@ func Build(ctx context.Context, packageDir string) error {
 		PackagePath:        packageDir,
 		GoRoot:             options.Environment.Value("GOROOT"),
 		Sizes:              &sizes,
+		IncludesFunc: func() []string {
+			paths, err := toolchain.includePaths(options.Environment)
+			if err != nil {
+				panic(err)
+			}
+			return paths
+		},
 	})
 
 	// Parse the package.

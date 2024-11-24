@@ -1,4 +1,5 @@
 add_mlir_dialect_library(GoIR
+        CGo/Importer.cxx
         IR/Operations/BinOps.cxx
         IR/Operations/Builtin.cxx
         IR/Operations/Call.cxx
@@ -39,17 +40,29 @@ add_mlir_dialect_library(GoIR
         ${PROJECT_SOURCE_DIR}/include/Go
 
         DEPENDS
-        MLIRGoTypesIncGen
-        MLIRGoOpsIncGen
-        MLIRGoInterfacesIncGen
+            MLIRGoTypesIncGen
+            MLIRGoOpsIncGen
+            MLIRGoInterfacesIncGen
 
         LINK_LIBS PUBLIC
-        MLIRIR
-        MLIRInferTypeOpInterface
+            MLIRIR
+            MLIRInferTypeOpInterface
 
-        MLIRArithDialect
-        MLIRComplexDialect
-        MLIRControlFlowDialect
-        MLIRFuncDialect
-        MLIRLLVMDialect
+            MLIRArithDialect
+            MLIRComplexDialect
+            MLIRControlFlowDialect
+            MLIRFuncDialect
+            MLIRLLVMDialect
+
+            clangAST
+            clangBasic
+            clangDriver
+            clangExtractAPI
+            clangFrontend
+            clangIndex
+            clangLex
+            clangRewrite
+            clangSema
+            clangSerialization
+            clangTooling
 )

@@ -3,19 +3,28 @@ package ssa
 import (
 	"context"
 	"errors"
+	"fmt"
 	"go/ast"
 	"go/importer"
+	"go/parser"
 	"go/token"
 	"go/types"
 	"gonum.org/v1/gonum/graph/multi"
 	"gonum.org/v1/gonum/graph/topo"
 	"hash/fnv"
 	"io/fs"
+	"log"
+	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"golang.org/x/tools/go/packages"
 )
+
+type importerFunc func(path string) (*types.Package, error)
+
+func (f importerFunc) Import(path string) (*types.Package, error) { return f(path) }
 
 type ProgramConfig struct {
 	Tags               []string
@@ -24,6 +33,7 @@ type ProgramConfig struct {
 	PackagePath        string
 	GoRoot             string
 	Sizes              types.Sizes
+	IncludesFunc       func() []string
 }
 
 type Program struct {
@@ -95,9 +105,22 @@ func (p *Program) makeNode(pkg *packages.Package) *packageNode {
 }
 
 func (p *Program) Parse(ctx context.Context) error {
+	// Get the include paths from the compiler toolchain.
+	includePaths := p.Config.IncludesFunc()
+
 	// Create the parser configuration.
 	parserConfig := packages.Config{
-		Mode:    packages.NeedName | packages.NeedFiles | packages.NeedImports | packages.NeedDeps | packages.NeedTypes | packages.NeedSyntax | packages.NeedTypesInfo | packages.NeedModule | packages.NeedEmbedFiles | packages.NeedEmbedPatterns | packages.NeedCompiledGoFiles,
+		Mode: packages.NeedName |
+			packages.NeedFiles |
+			packages.NeedImports |
+			packages.NeedDeps |
+			packages.NeedTypes |
+			packages.NeedSyntax |
+			//packages.NeedTypesInfo |
+			packages.NeedModule |
+			packages.NeedEmbedFiles |
+			packages.NeedEmbedPatterns |
+			packages.NeedCompiledGoFiles,
 		Context: ctx,
 		Logf:    nil,
 		Dir:     "",
@@ -108,6 +131,53 @@ func (p *Program) Parse(ctx context.Context) error {
 		Fset:    p.FileSet,
 		Tests:   false,
 		Overlay: nil,
+		ParseFile: func(fset *token.FileSet, filename string, src []byte) (*ast.File, error) {
+			const mode = parser.AllErrors | parser.ParseComments
+			syntax, err := parser.ParseFile(fset, filename, src, mode)
+
+			for i := 0; i < len(syntax.Imports); i++ {
+				spec := syntax.Imports[i]
+				if spec.Path.Value == "\"C\"" {
+					var headers []string
+					includeRegex := regexp.MustCompile(`#include\s+(["<])(.*?)[">]`)
+					// Parse the top-level comments for includes.
+					for _, commentGroup := range syntax.Comments {
+						for _, comment := range commentGroup.List {
+							if comment.Pos() < spec.Pos() {
+								matches := includeRegex.FindStringSubmatch(comment.Text)
+								if len(matches) == 3 {
+									fname := matches[2]
+									if matches[1] == "<" {
+										// Resolve the file path using the global include search paths.
+										for _, basePath := range includePaths {
+											absFname := filepath.Join(basePath, fname)
+											if _, err := os.Stat(absFname); errors.Is(err, os.ErrNotExist) {
+												continue
+											}
+											headers = append(headers, absFname)
+										}
+									} else {
+										// Resolve the file path using the directory of the current .go file.
+										absFname := filepath.Join(filepath.Dir(filename), fname)
+										if _, err := os.Stat(absFname); errors.Is(err, os.ErrNotExist) {
+											return nil, errors.New("included header file does not exist in package")
+										}
+										headers = append(headers, absFname)
+									}
+								}
+							}
+						}
+					}
+
+					// Process the includes.
+					//for _, header := range headers {
+					//	// TODO: Call C wrapper for processing this header file
+					//}
+				}
+			}
+
+			return syntax, err
+		},
 	}
 
 	// Collect the packages to be parsed.
@@ -120,7 +190,52 @@ func (p *Program) Parse(ctx context.Context) error {
 		return err
 	}
 
-	// Add all parse packages (including their imported packages).
+	// TODO: Generate the "C" package here.
+
+	// Type check each package.
+	for _, pkg := range pkgs {
+		//pkg.Types = types.NewPackage(pkg.PkgPath, pkg.Name)
+		pkg.TypesSizes = p.Config.Sizes
+		pkg.TypesInfo = &types.Info{
+			Types:        make(map[ast.Expr]types.TypeAndValue),
+			Defs:         make(map[*ast.Ident]types.Object),
+			Uses:         make(map[*ast.Ident]types.Object),
+			Implicits:    make(map[ast.Node]types.Object),
+			Instances:    make(map[*ast.Ident]types.Instance),
+			Scopes:       make(map[ast.Node]*types.Scope),
+			Selections:   make(map[*ast.SelectorExpr]*types.Selection),
+			FileVersions: make(map[*ast.File]string),
+		}
+
+		importer := importerFunc(func(path string) (*types.Package, error) {
+			if path == "unsafe" {
+				return types.Unsafe, nil
+			}
+
+			ipkg := pkg.Imports[path]
+			if ipkg == nil {
+				return nil, fmt.Errorf("no metadata for %s", path)
+			}
+
+			if ipkg.Types != nil && ipkg.Types.Complete() {
+				return ipkg.Types, nil
+			}
+			log.Fatalf("internal error: package %q without types was imported from %q", path, pkg)
+			panic("unreachable")
+		})
+
+		tc := &types.Config{
+			Importer: importer,
+			Sizes:    p.Config.Sizes,
+		}
+
+		typErr := types.NewChecker(tc, pkg.Fset, pkg.Types, pkg.TypesInfo).Files(pkg.Syntax)
+		if typErr != nil {
+			err = errors.Join(err, typErr)
+		}
+	}
+
+	// Add all parsed packages (including their imported packages).
 	for _, pkg := range pkgs {
 		// Add the package to the program.
 		if pkgErr := p.AddPackage(pkg); pkgErr != nil {
@@ -218,31 +333,34 @@ func (p *Program) AddPackage(pkg *packages.Package) (err error) {
 	}()
 
 	// Fail early by returning errors (if any).
-	if len(pkg.Errors) > 0 {
-		for _, pkgErr := range pkg.Errors {
-			pos := strings.Split(pkgErr.Pos, ":")
-			if strings.Index(pkgErr.Pos, ":") == 1 {
-				// This is a Windoze path. Merge the first 2 elements.
-				newPos := []string{pos[0] + ":" + pos[1]}
-				if len(pos) > 2 {
-					pos = append(newPos, pos[2:]...)
-				} else {
-					pos = newPos
-				}
-			}
-
-			for i := 0; i < len(pos); i++ {
-				evalPkgDir, symlinkErr := filepath.EvalSymlinks(pos[i])
-				if symlinkErr == nil {
-					pos[i] = evalPkgDir
-				}
-			}
-
-			pkgErr.Pos = strings.Join(pos, ":")
-			err = errors.Join(err, pkgErr)
+	for _, pkgErr := range pkg.Errors {
+		// Skip CGo errors.
+		if strings.Contains(pkgErr.Msg, "could not import C") {
+			continue
 		}
-		return err
+
+		pos := strings.Split(pkgErr.Pos, ":")
+		if strings.Index(pkgErr.Pos, ":") == 1 {
+			// This is a Windoze path. Merge the first 2 elements.
+			newPos := []string{pos[0] + ":" + pos[1]}
+			if len(pos) > 2 {
+				pos = append(newPos, pos[2:]...)
+			} else {
+				pos = newPos
+			}
+		}
+
+		for i := 0; i < len(pos); i++ {
+			evalPkgDir, symlinkErr := filepath.EvalSymlinks(pos[i])
+			if symlinkErr == nil {
+				pos[i] = evalPkgDir
+			}
+		}
+
+		pkgErr.Pos = strings.Join(pos, ":")
+		err = errors.Join(err, pkgErr)
 	}
+	return err
 
 	// Locate this package on the filesystem.
 	pkgDir := pkg.PkgPath

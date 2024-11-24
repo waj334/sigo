@@ -1,14 +1,59 @@
 package builder
 
 import (
+	"bufio"
 	"os/exec"
 	"path/filepath"
+	"runtime"
+	"strings"
 )
 
 type Toolchain struct {
 	CC      string
 	LD      string
 	ObjCopy string
+}
+
+func (t *Toolchain) includePaths(env Env) ([]string, error) {
+	// TODO: Detect the compiler more intelligently by parsing its version text.
+	var args []string
+	cc := filepath.Base(t.CC)
+	if strings.Contains(cc, "clang") && runtime.GOOS == "windows" {
+		args = append(args, "--target=x86_64-pc-windows-gnu")
+	}
+
+	cgoArgs := strings.Split(env.Value("CGO_FLAGS"), " ")
+	if len(cgoArgs) > 0 {
+		args = append(args, cgoArgs...)
+	}
+	args = append(args, "-v", "-E", "-x", "c", "nul")
+
+	cmd := exec.Command(t.CC, args...)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, err
+	}
+
+	var paths []string
+	scanner := bufio.NewScanner(strings.NewReader(string(output)))
+	capture := false
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.Contains(line, "#include <...> search starts here:") {
+			capture = true
+			continue
+		}
+
+		if strings.Contains(line, "End of search list.") {
+			break
+		}
+
+		if capture {
+			paths = append(paths, strings.TrimSpace(line))
+		}
+	}
+
+	return paths, nil
 }
 
 func findToolchain(env Env) (Toolchain, error) {
