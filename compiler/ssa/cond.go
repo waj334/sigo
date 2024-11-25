@@ -6,8 +6,6 @@ import (
 	"go/token"
 	"go/types"
 
-	"golang.org/x/tools/go/ast/astutil"
-
 	"omibyte.io/sigo/mlir"
 )
 
@@ -103,9 +101,6 @@ func (b *Builder) emitExpressionSwitchStatement(ctx context.Context, stmt *ast.S
 	// Create the done block where control flow will either branch to the default block body or the exit block.
 	doneBlock := mlir.BlockCreate2(nil, nil)
 
-	// Any break statement should immediately branch to the exit block.
-	ctx = newContextWithSuccessorBlock(ctx, exitBlock)
-
 	// Create all the case clause condition and body blocks.
 	defaultBlock := -1
 	bodyMap := map[int]int{}
@@ -170,7 +165,7 @@ func (b *Builder) emitExpressionSwitchStatement(ctx context.Context, stmt *ast.S
 				case isPointer(T):
 					value = b.emitPointerCompare(ctx, token.EQL, value, tagValue, location)
 				case typeIs[*types.Interface](T):
-					value = b.emitInterfaceCompare(ctx, token.EQL, value, tagValue, baseType(T), location)
+					value = b.emitInterfaceCompare(ctx, token.EQL, value, tagValue, location)
 				case typeIs[*types.Struct](T):
 					value = b.emitStructCompare(ctx, token.EQL, value, tagValue, baseType(T).(*types.Struct), location)
 				default:
@@ -212,32 +207,24 @@ func (b *Builder) emitExpressionSwitchStatement(ctx context.Context, stmt *ast.S
 
 	// Emit all body blocks.
 	for i, clause := range stmt.Body.List {
+		// Any break statement should immediately branch to the exit block.
+		ctx = newContextWithSuccessorBlock(ctx, exitBlock, nil)
+
+		if i+1 < len(stmt.Body.List) {
+			// Fallthrough should go the next block.
+			ctx = newContextWithFallthroughBlock(ctx, bodyBlocks[i+1], nil)
+		}
+
 		clause := clause.(*ast.CaseClause)
 		bodyBlock := bodyBlocks[i]
 
 		// Append the body block.
 		appendBlock(ctx, bodyBlock)
 
-		// Emit clause body statements.
+		// Build the body block.
 		buildBlock(ctx, bodyBlock, func() {
-			for _, stmt := range clause.Body {
-				switch stmt := stmt.(type) {
-				case *ast.BranchStmt:
-					if stmt.Tok == token.FALLTHROUGH {
-						// Immediately go to the next clause block.
-						// NOTE: The checker does not allow the last clause to fallthrough, so that doesn't need to be
-						//       accounted for here.
-						// NOTE: Default clause is allowed to fallthrough to the next clause block, but the note above
-						//       still applies.
-						brOp := mlir.GoCreateBranchOperation(b.ctx, bodyBlocks[i+1], nil, b.location(stmt.Pos()))
-						appendOperation(ctx, brOp)
-						continue
-					}
-				}
-
-				// All other statements get emitted normally.
-				b.emitStmt(ctx, stmt)
-			}
+			// Emit clause body statements.
+			b.emitStatements(ctx, clause.Body)
 
 			// Some statement could have created a different terminator (IE panic, etc...)
 			if !blockHasTerminator(currentBlock(ctx)) {
@@ -271,14 +258,6 @@ func (b *Builder) emitForStatement(ctx context.Context, stmt *ast.ForStmt) {
 	// Create the exit block where execution should continue following the loop.
 	exitBlock := mlir.BlockCreate2(nil, nil)
 
-	// The continue statement should immediately branch to the post iteration block.
-	// NOTE: The post iteration block may be a dedicated block or the header block if no post-iteration expression is
-	//       present.
-	ctx = newContextWithPredecessorBlock(ctx, postIterationBlock)
-
-	// The break statement should immediately branch to the exit block.
-	ctx = newContextWithSuccessorBlock(ctx, exitBlock)
-
 	// Evaluate the init statement first.
 	if stmt.Init != nil {
 		b.emitStmt(ctx, stmt.Init)
@@ -310,6 +289,14 @@ func (b *Builder) emitForStatement(ctx context.Context, stmt *ast.ForStmt) {
 	// Emit the loop body block.
 	appendBlock(ctx, bodyBlock)
 	buildBlock(ctx, bodyBlock, func() {
+		// The continue statement should immediately branch to the post iteration block.
+		// NOTE: The post iteration block may be a dedicated block or the header block if no post-iteration expression is
+		//       present.
+		ctx = newContextWithPredecessorBlock(ctx, postIterationBlock, nil)
+
+		// The break statement should immediately branch to the exit block.
+		ctx = newContextWithSuccessorBlock(ctx, exitBlock, nil)
+
 		b.emitBlock(ctx, stmt.Body)
 		if !blockHasTerminator(currentBlock(ctx)) {
 			// Branch to the post-iteration block.
@@ -340,37 +327,10 @@ func (b *Builder) emitForStatement(ctx context.Context, stmt *ast.ForStmt) {
 }
 
 func (b *Builder) emitRangeStatement(ctx context.Context, stmt *ast.RangeStmt) {
-	location := b.location(stmt.Pos())
 	T := b.typeOf(ctx, stmt.X)
-
-	switch valueType := T.(type) {
+	switch T.(type) {
 	case *types.Array:
-		// Get the allocation for the array being ranged over.
-		value := b.valueOf(ctx, stmt.X)
-		if value == nil {
-			// A stack allocation needs to be created so that the array can be addressable.
-			allocType := b.GetStoredType(ctx, T)
-			allocaOp := mlir.GoCreateAllocaOperation(b.ctx, b.pointerOf(ctx, T), allocType, 1, false, location)
-			appendOperation(ctx, allocaOp)
-
-			value = LocalValue{
-				ptr: resultOf(allocaOp),
-				T:   allocType,
-				b:   b,
-			}
-
-			// Evaluate the expression and store its result at the allocation address.
-			v := b.emitExpr(ctx, stmt.X)[0]
-			value.Store(ctx, v, location)
-		}
-
-		// The base address of the array is at the beginning of its memory allocation.
-		ptr := value.Pointer(ctx, location)
-
-		keyType := b.GetStoredType(ctx, b.typeOf(ctx, stmt.Key))
-		elementType := b.GetStoredType(ctx, valueType.Elem())
-		lenValue := b.emitConstInt(ctx, valueType.Len(), keyType, location)
-		b.emitArrayRange(ctx, stmt.Key, stmt.Value, stmt.Tok, ptr, elementType, lenValue, stmt.Body, location)
+		b.emitArrayRange(ctx, stmt)
 	case *types.Basic:
 		b.emitStringRange(ctx, stmt)
 	case *types.Chan:
@@ -378,182 +338,10 @@ func (b *Builder) emitRangeStatement(ctx context.Context, stmt *ast.RangeStmt) {
 	case *types.Map:
 		b.emitMapRange(ctx, stmt)
 	case *types.Slice:
-		value := b.emitExpr(ctx, stmt.X)[0]
-		keyType := b.typeOf(ctx, stmt.Key)
-		elementType := b.GetStoredType(ctx, valueType.Elem())
-
-		// Bitcast the slice value to its runtime representation.
-		value = b.bitcastTo(ctx, value, b._slice, location)
-
-		// Extract the array value from the slice.
-		extractOp := mlir.GoCreateExtractOperation(b.ctx, 0, b.ptr, value, location)
-		appendOperation(ctx, extractOp)
-		arrValue := resultOf(extractOp)
-
-		// Extract the array length value from the slice.
-		extractOp = mlir.GoCreateExtractOperation(b.ctx, 1, b.si, value, location)
-		appendOperation(ctx, extractOp)
-		lenValue := resultOf(extractOp)
-
-		if keyType != nil {
-			// Convert the slice length type to the expected key type.
-			lenValue = b.emitTypeConversion(ctx, lenValue, types.Typ[types.Int], keyType, location)
-		}
-
-		// Range over the slice
-		b.emitArrayRange(ctx, stmt.Key, stmt.Value, stmt.Tok, arrValue, elementType, lenValue, stmt.Body, location)
+		b.emitSliceRange(ctx, stmt)
 	default:
 		panic("unhandled")
 	}
-}
-
-func (b *Builder) emitArrayRange(ctx context.Context, key ast.Expr, value ast.Expr, tok token.Token, arrValue mlir.Value,
-	elementType mlir.Type, lenValue mlir.Value, body *ast.BlockStmt, location mlir.Location) {
-	// Create the exit block where execution will continue following the range statement.
-	exitBlock := mlir.BlockCreate2(nil, nil)
-
-	// Create all blocks involved with the for loop.
-	condBlock := mlir.BlockCreate2(nil, nil)
-	appendBlock(ctx, condBlock)
-
-	bodyBlock := mlir.BlockCreate2(nil, nil)
-	appendBlock(ctx, bodyBlock)
-
-	postIterBlock := mlir.BlockCreate2(nil, nil)
-	appendBlock(ctx, postIterBlock)
-
-	// Any break statement immediately branch to the exit block.
-	ctx = newContextWithSuccessorBlock(ctx, exitBlock)
-
-	// Any continue statement should branch to the post iteration block.
-	ctx = newContextWithPredecessorBlock(ctx, postIterBlock)
-
-	// Create or evaluate the loop variables.
-	keyT := b.si
-	if keyType := b.typeOf(ctx, key); keyType != nil {
-		keyT = b.GetStoredType(ctx, keyType)
-	}
-
-	// The key variable is either a new one or an existing one.
-	keyVar := b.valueOf(ctx, key)
-	if keyVar == nil {
-		// Need to allocate memory for this variable.
-		ptrT := mlir.GoCreatePointerType(keyT)
-		allocaOp := mlir.GoCreateAllocaOperation(b.ctx, ptrT, keyT, 1, false, location)
-		appendOperation(ctx, allocaOp)
-		keyVar = b.NewTempValue(resultOf(allocaOp))
-	}
-
-	// Initialize the iterator to zero.
-	zeroValue := b.emitConstInt(ctx, 0, keyT, location)
-	keyVar.Store(ctx, zeroValue, location)
-
-	// The value variable is either a new one or an existing one.
-	// NOTE: The value variable can be omitted from the range statement.
-	var valueVar Value
-	if value != nil {
-		valueVar = b.valueOf(ctx, value)
-		if valueVar == nil {
-			// Need to allocate memory for this variable.
-			ptrT := mlir.GoCreatePointerType(elementType)
-			allocaOp := mlir.GoCreateAllocaOperation(b.ctx, ptrT, elementType, 1, false, location)
-			appendOperation(ctx, allocaOp)
-			valueVar = b.NewTempValue(resultOf(allocaOp))
-		}
-	}
-
-	// Build the post iteration block.
-	buildBlock(ctx, postIterBlock, func() {
-		// Load the current iterator value to increment.
-		itValue := keyVar.Load(ctx, location)
-
-		// Increment the iterator value by one.
-		oneValue := b.emitConstInt(ctx, 1, keyT, location)
-		addOp := mlir.GoCreateAddIOperation(b.ctx, keyT, itValue, oneValue, location)
-		appendOperation(ctx, addOp)
-
-		// Store the new iterator value at the stack address.
-		keyVar.Store(ctx, resultOf(addOp), location)
-
-		// branch to the condition block.
-		brOp := mlir.GoCreateBranchOperation(b.ctx, condBlock, nil, location)
-		appendOperation(ctx, brOp)
-	})
-
-	// Build the condition block where the loop condition will continuously be evaluated in.
-	buildBlock(ctx, condBlock, func() {
-		// Load the current iterator value to compare.
-		itValue := keyVar.Load(ctx, location)
-
-		// Compare the iterator value against the array length value.
-		cmpOp := mlir.GoCreateCmpIOperation(b.ctx, b.i1, b.cmpIPredicate(token.LSS, isUnsigned(keyT)), itValue, lenValue, location)
-		appendOperation(ctx, cmpOp)
-		cond := resultOf(cmpOp)
-
-		// Conditionally branch to the loop body block if the loop condition evaluates to true. Otherwise, branch to the
-		// exit block.
-		condBrOp := mlir.GoCreateCondBranchOperation(b.ctx, cond, bodyBlock, nil, exitBlock, nil, location)
-		appendOperation(ctx, condBrOp)
-	})
-
-	// Build the loop body block.
-	buildBlock(ctx, bodyBlock, func() {
-		// Set the predecessor block to the post loop iteration block where any continue statement will branch to.
-		ctx = newContextWithPredecessorBlock(ctx, postIterBlock)
-
-		iterationKeyVar := keyVar
-		iterationValueVar := valueVar
-
-		// TODO: Need to check if the iterator was actually omitted "_".
-		if tok == token.DEFINE && iterationKeyVar != nil {
-			// Emit a new local variable that is unique to this iteration to store the key into.
-			alloc := b.makeCopyOf(ctx, iterationKeyVar.Load(ctx, location), location)
-			iterationKeyVar = b.NewTempValue(alloc)
-			b.setAddr(ctx, key.(*ast.Ident), iterationKeyVar)
-		}
-
-		// NOTE: No store should be performed when the value var is omitted in the range statement.
-		if iterationValueVar != nil {
-			if tok == token.DEFINE {
-				// Emit a new local variable that is unique to this iteration to store the value into.
-				// TODO: Need to set the allocation name to that of the local variable definition.
-				alloc := b.makeCopyOf(ctx, iterationValueVar.Load(ctx, location), location)
-				iterationValueVar = b.NewTempValue(alloc)
-				b.setAddr(ctx, value.(*ast.Ident), iterationValueVar)
-			}
-
-			// Load the current iterator value to store into the key address.
-			itValue := iterationKeyVar.Load(ctx, location)
-
-			// Get the address of the array element at the current iterator index.
-			gepOp := mlir.GoCreateGepOperation2(b.ctx, arrValue, elementType, []any{itValue}, mlir.GoCreatePointerType(elementType), location)
-			appendOperation(ctx, gepOp)
-
-			// Load the value from the array and store it at the value address.
-			loadOp := mlir.GoCreateLoadOperation(b.ctx, resultOf(gepOp), elementType, location)
-			appendOperation(ctx, loadOp)
-			iterationValueVar.Store(ctx, resultOf(loadOp), location)
-		}
-
-		// Emit the loop body.
-		for _, stmt := range body.List {
-			b.emitStmt(ctx, stmt)
-		}
-
-		if !blockHasTerminator(currentBlock(ctx)) {
-			// Branch to the post iteration block.
-			brOp := mlir.GoCreateBranchOperation(b.ctx, postIterBlock, nil, location)
-			appendOperation(ctx, brOp)
-		}
-	})
-
-	// Branch to the condition block from the current block.
-	brOp := mlir.GoCreateBranchOperation(b.ctx, condBlock, nil, location)
-	appendOperation(ctx, brOp)
-
-	// Continue emission in the successor block.
-	appendBlock(ctx, exitBlock)
-	setCurrentBlock(ctx, exitBlock)
 }
 
 func (b *Builder) emitTypeSwitchStatement(ctx context.Context, stmt *ast.TypeSwitchStmt) {
@@ -570,9 +358,9 @@ func (b *Builder) emitTypeSwitchStatement(ctx context.Context, stmt *ast.TypeSwi
 	var typeAssertExpr *ast.TypeAssertExpr
 	switch assign := stmt.Assign.(type) {
 	case *ast.ExprStmt:
-		typeAssertExpr = astutil.Unparen(assign.X).(*ast.TypeAssertExpr)
+		typeAssertExpr = ast.Unparen(assign.X).(*ast.TypeAssertExpr)
 	case *ast.AssignStmt:
-		typeAssertExpr = astutil.Unparen(assign.Rhs[0]).(*ast.TypeAssertExpr)
+		typeAssertExpr = ast.Unparen(assign.Rhs[0]).(*ast.TypeAssertExpr)
 	}
 
 	ifaceValue = b.emitExpr(ctx, typeAssertExpr.X)[0]
@@ -624,9 +412,7 @@ func (b *Builder) emitTypeSwitchStatement(ctx context.Context, stmt *ast.TypeSwi
 			}
 
 			// Emit the body block statements.
-			for _, stmt := range clause.Body {
-				b.emitStmt(ctx, stmt)
-			}
+			b.emitStatements(ctx, clause.Body)
 
 			// Branch to the successor block.
 			brOp := mlir.GoCreateBranchOperation(b.ctx, successor, nil, b.location(clause.End()))

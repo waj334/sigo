@@ -94,7 +94,6 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
         return go::isa<StringType>(resultType);
       });
 
-    target.addIllegalOp<DeclareTypeOp>();
     target.addIllegalOp<DivCOp>();
     target.addIllegalOp<DivFOp>();
     target.addIllegalOp<DivSIOp>();
@@ -197,7 +196,6 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
     target.addLegalOp<StringAddrOp>();
     target.addLegalOp<StringToSliceOp>();
     target.addLegalOp<StoreOp>();
-    target.addLegalOp<TypeInfoOp>();
     target.addLegalOp<ZeroOp>();
 
     populateGoToCoreConversionPatterns(module.getContext(), typeConverter, patterns);

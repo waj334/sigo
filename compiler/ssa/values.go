@@ -8,6 +8,10 @@ import (
 )
 
 func (b *Builder) valueOf(ctx context.Context, node ast.Node) Value {
+	if node == nil {
+		return nil
+	}
+
 	switch node := node.(type) {
 	case *ast.SelectorExpr:
 		return b.NewTempValue(b.emitSelectAddr(ctx, node))
@@ -49,21 +53,15 @@ func (b *Builder) emitLocalVar(ctx context.Context, obj types.Object, T mlir.Typ
 	// Allocate memory for this local variable on the stack.
 	// NOTE: It may be determined later that this variable escapes to the heap and the following operation will be
 	//       replaced by a heap allocation.
-
-	ptrType := mlir.GoCreatePointerType(T)
-	allocaOp := mlir.GoCreateAllocaOperation(b.config.Ctx, ptrType, T, 1, false, b.location(obj.Pos()))
-
+	location := b.location(obj.Pos())
+	ptrValue := b.emitNamedAlloca(ctx, obj.Name(), T, location)
+	op := mlir.ValueGetDefiningOperation(ptrValue)
 	if isArg {
-		mlir.OperationSetAttributeByName(allocaOp, "isArgument", mlir.UnitAttrGet(b.ctx))
+		mlir.OperationSetAttributeByName(op, "isArgument", mlir.UnitAttrGet(b.ctx))
 	}
 
-	// NOTE: Omitted identifiers ( `_` )  will not have any debug information attached.
-	if len(obj.Name()) > 0 && obj.Name() != "_" {
-		mlir.GoAllocaOperationSetName(allocaOp, obj.Name())
-	}
-	appendOperation(ctx, allocaOp)
 	value := &LocalValue{
-		ptr: resultOf(allocaOp),
+		ptr: ptrValue,
 		T:   T,
 		b:   b,
 	}
@@ -140,6 +138,22 @@ func (b *Builder) makeCopyOf(ctx context.Context, X mlir.Value, location mlir.Lo
 	// Store the object at the address.
 	storeOp := mlir.GoCreateStoreOperation(b.ctx, X, resultOf(allocaOp), location)
 	appendOperation(ctx, storeOp)
+
+	// Return the address.
+	return resultOf(allocaOp)
+}
+
+func (b *Builder) emitNamedAlloca(ctx context.Context, name string, T mlir.Type, location mlir.Location) mlir.Value {
+	PT := mlir.GoCreatePointerType(T)
+
+	// Allocate memory on the stack to hold the object.
+	allocaOp := mlir.GoCreateAllocaOperation(b.ctx, PT, T, 1, false, location)
+	appendOperation(ctx, allocaOp)
+
+	// NOTE: Omitted identifiers ( `_` )  will not have any debug information attached.
+	if len(name) > 0 && name != "_" {
+		mlir.GoAllocaOperationSetName(allocaOp, name)
+	}
 
 	// Return the address.
 	return resultOf(allocaOp)
@@ -304,12 +318,6 @@ func (b *Builder) exprValues(ctx context.Context, expr ...ast.Expr) []mlir.Value
 		result = append(result, b.emitExpr(ctx, expr)...)
 	}
 	return result
-}
-
-func (b *Builder) typeInfoOf(ctx context.Context, T types.Type, location mlir.Location) mlir.Value {
-	op := mlir.GoCreateTypeInfoOperation(b.ctx, b.typeInfoPtr, b.GetType(ctx, T), location)
-	appendOperation(ctx, op)
-	return resultOf(op)
 }
 
 func (b *Builder) types(T ...mlir.Type) []mlir.Type {

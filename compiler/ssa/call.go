@@ -349,7 +349,7 @@ func (b *Builder) emitGeneralCall(ctx context.Context, ident *ast.Ident, obj *ty
 
 func (b *Builder) emitInterfaceCall(ctx context.Context, X mlir.Value, obj *types.Func, args []mlir.Value, location mlir.Location) []mlir.Value {
 	method := obj.Name()
-	T := b.createSignatureType(ctx, obj.Type().(*types.Signature), false)
+	T := b.createSignatureType(ctx, obj.Type().(*types.Signature))
 
 	// Create the interface call operation
 	op := mlir.GoCreateInterfaceCall(b.ctx, method, T, X, args, location)
@@ -392,7 +392,7 @@ func (b *Builder) emitGoStatement(ctx context.Context, stmt *ast.GoStmt) {
 			for i := 0; i < T.NumMethods(); i++ {
 				method := T.Method(i)
 				if method.Name() == Fun.Sel.Name {
-					signatureT = b.createSignatureType(ctx, method.Type().(*types.Signature), true)
+					signatureT = b.createSignatureType(ctx, method.Type().(*types.Signature))
 				}
 			}
 
@@ -608,7 +608,7 @@ func (b *Builder) createInterfaceCallWrapper(ctx context.Context, symbol string,
 			}
 
 			// Call the method.
-			signatureType := b.createSignatureType(ctx, signature, true)
+			signatureType := b.createSignatureType(ctx, signature)
 			callOp := mlir.GoCreateInterfaceCall(b.ctx, callee, signatureType, args[0], args[1:], b._noLoc)
 			appendOperation(ctx, callOp)
 

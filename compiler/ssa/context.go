@@ -11,6 +11,7 @@ type (
 	blockKey            struct{}
 	successorBlockKey   struct{}
 	predecessorBlockKey struct{}
+	fallthroughBlockKey struct{}
 	labeledBlocksKey    struct{}
 	identifierKey       struct{}
 	lhsListKey          struct{}
@@ -20,6 +21,11 @@ type (
 	jobQueueKey         struct{}
 	infoKey             struct{}
 )
+
+type blockWithArgs struct {
+	block mlir.Block
+	args  []mlir.Value
+}
 
 func newGlobalContext(ctx context.Context) context.Context {
 	return context.WithValue(ctx, globalKey{}, true)
@@ -90,15 +96,40 @@ func setCurrentBlock(ctx context.Context, target mlir.Block) {
 	panic("No block pointer in context")
 }
 
-func newContextWithSuccessorBlock(ctx context.Context, block mlir.Block) context.Context {
-	return context.WithValue(ctx, successorBlockKey{}, block)
+func newContextWithSuccessorBlock(ctx context.Context, block mlir.Block, args []mlir.Value) context.Context {
+	return context.WithValue(ctx, successorBlockKey{}, blockWithArgs{block, args})
 }
 
-func currentSuccessorBlock(ctx context.Context) mlir.Block {
+func currentSuccessorBlock(ctx context.Context) (mlir.Block, []mlir.Value) {
 	if val := ctx.Value(successorBlockKey{}); val != nil {
-		return val.(mlir.Block)
+		b := val.(blockWithArgs)
+		return b.block, b.args
 	}
-	return nil
+	return nil, nil
+}
+
+func newContextWithPredecessorBlock(ctx context.Context, block mlir.Block, args []mlir.Value) context.Context {
+	return context.WithValue(ctx, predecessorBlockKey{}, blockWithArgs{block, args})
+}
+
+func currentPredecessorBlock(ctx context.Context) (mlir.Block, []mlir.Value) {
+	if val := ctx.Value(predecessorBlockKey{}); val != nil {
+		b := val.(blockWithArgs)
+		return b.block, b.args
+	}
+	return nil, nil
+}
+
+func newContextWithFallthroughBlock(ctx context.Context, block mlir.Block, args []mlir.Value) context.Context {
+	return context.WithValue(ctx, fallthroughBlockKey{}, blockWithArgs{block, args})
+}
+
+func currentFallthroughBlock(ctx context.Context) (mlir.Block, []mlir.Value) {
+	if val := ctx.Value(fallthroughBlockKey{}); val != nil {
+		b := val.(blockWithArgs)
+		return b.block, b.args
+	}
+	return nil, nil
 }
 
 func newContextWithLabeledBlocks(ctx context.Context, block map[string]mlir.Block) context.Context {
@@ -108,17 +139,6 @@ func newContextWithLabeledBlocks(ctx context.Context, block map[string]mlir.Bloc
 func currentLabeledBlocks(ctx context.Context) map[string]mlir.Block {
 	if val := ctx.Value(labeledBlocksKey{}); val != nil {
 		return val.(map[string]mlir.Block)
-	}
-	return nil
-}
-
-func newContextWithPredecessorBlock(ctx context.Context, block mlir.Block) context.Context {
-	return context.WithValue(ctx, predecessorBlockKey{}, block)
-}
-
-func currentPredecessorBlock(ctx context.Context) mlir.Block {
-	if val := ctx.Value(predecessorBlockKey{}); val != nil {
-		return val.(mlir.Block)
 	}
 	return nil
 }

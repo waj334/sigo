@@ -2703,22 +2703,6 @@ struct InsertOpLowering : ConvertOpToLLVMPattern<InsertOp>
   }
 };
 
-struct TypeInfoOpLowering : ConvertOpToLLVMPattern<TypeInfoOp>
-{
-  using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
-
-  LogicalResult matchAndRewrite(
-    TypeInfoOp op,
-    OpAdaptor adaptor,
-    ConversionPatternRewriter& rewriter) const override
-  {
-    auto module = op->getParentOfType<ModuleOp>();
-    auto typeInfoGlobalOp = createTypeInfo(rewriter, module, op.getLoc(), op.getT());
-    rewriter.replaceOpWithNewOp<mlir::LLVM::AddressOfOp>(op, typeInfoGlobalOp);
-    return success();
-  }
-};
-
 struct YieldOpLowering : ConvertOpToLLVMPattern<YieldOp>
 {
   using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
@@ -2785,7 +2769,6 @@ void populateGoToLLVMConversionPatterns(
             transforms::LLVM::StringToSliceOpLowering,
             transforms::LLVM::StoreOpLowering,
             transforms::LLVM::TypeAssertOpLowering,
-            transforms::LLVM::TypeInfoOpLowering,
             transforms::LLVM::YieldOpLowering,
             transforms::LLVM::ZeroOpLowering
         >(converter);

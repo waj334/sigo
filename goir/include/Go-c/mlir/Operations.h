@@ -551,22 +551,6 @@ extern "C"
     MlirLocation location);
 
   //===----------------------------------------------------------------------===//
-  // Intrinsic Operations
-  //===----------------------------------------------------------------------===//
-
-  MlirOperation mlirGoCreateDeclareTypeOperation(
-    MlirContext context,
-    MlirType type,
-    MlirAttribute attributes,
-    MlirLocation location);
-
-  MlirOperation mlirGoCreateTypeInfoOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirType type,
-    MlirLocation location);
-
-  //===----------------------------------------------------------------------===//
   // Builtin Operations
   //===----------------------------------------------------------------------===//
 

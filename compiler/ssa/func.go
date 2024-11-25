@@ -343,7 +343,7 @@ func (b *Builder) createFuncInstance(ctx context.Context, genericSignature *type
 
 	// Create the instantiated function type.
 	ctx = newContextWithFuncData(ctx, instanceData)
-	instanceData.mlirType = b.createSignatureType(ctx, signature, false)
+	instanceData.mlirType = b.createSignatureType(ctx, signature)
 
 	// Emit the instance.
 	b.emitFunc(ctx, instanceData)

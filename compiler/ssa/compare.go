@@ -91,7 +91,7 @@ func (b *Builder) emitComplexCompare(ctx context.Context, op token.Token, X mlir
 	return resultOf(cmpOp)
 }
 
-func (b *Builder) emitInterfaceCompare(ctx context.Context, predicate token.Token, X mlir.Value, Y mlir.Value, YT types.Type, location mlir.Location) mlir.Value {
+func (b *Builder) emitInterfaceCompare(ctx context.Context, predicate token.Token, X mlir.Value, Y mlir.Value, location mlir.Location) mlir.Value {
 	op := mlir.GoCreateCmpInterfaceOperation(b.ctx, b.i1, X, Y, location)
 	appendOperation(ctx, op)
 	result := resultOf(op)
@@ -176,7 +176,7 @@ func (b *Builder) emitStructCompare(ctx context.Context, op token.Token, X mlir.
 		case isPointer(field.Type()):
 			cond = b.emitPointerCompare(ctx, token.EQL, X, Y, location)
 		case typeIs[*types.Interface](field.Type()):
-			cond = b.emitInterfaceCompare(ctx, token.EQL, X, Y, field.Type().Underlying(), location)
+			cond = b.emitInterfaceCompare(ctx, token.EQL, X, Y, location)
 		case typeIs[*types.Signature](field.Type()):
 			return b.emitFuncCompare(ctx, token.EQL, X, Y, location)
 		case typeIs[*types.Struct](field.Type()):
@@ -274,7 +274,7 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 		} else {
 			Y = b.emitExpr(ctx, expr.Y)[0]
 		}
-		return b.emitInterfaceCompare(ctx, expr.Op, X, Y, YT, location)
+		return b.emitInterfaceCompare(ctx, expr.Op, X, Y, location)
 	case typeIs[*types.Struct](XT):
 		var Y mlir.Value
 		if isNil(YT) {

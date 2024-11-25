@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"go/ast"
-	"go/token"
 	"go/types"
 	"hash/fnv"
 
@@ -52,7 +51,7 @@ func (b *Builder) GetType(ctx context.Context, T types.Type) (result mlir.Type) 
 	case *types.Array:
 		result = b.createArrayType(ctx, T)
 	case *types.Basic:
-		result = b.createBasicType(ctx, T)
+		result = b.createBasicType(T)
 		if typeHasFlags(T, types.IsUntyped) {
 			// Do not cache untyped types.
 			return result
@@ -68,7 +67,7 @@ func (b *Builder) GetType(ctx context.Context, T types.Type) (result mlir.Type) 
 	case *types.Pointer:
 		result = b.createPointerType(ctx, T)
 	case *types.Signature:
-		result = b.createSignatureType(ctx, T, false)
+		result = b.createSignatureType(ctx, T)
 	case *types.Slice:
 		result = b.createSliceType(ctx, T)
 	case *types.Struct:
@@ -98,99 +97,6 @@ func (b *Builder) GetType(ctx context.Context, T types.Type) (result mlir.Type) 
 	return result
 }
 
-func (b *Builder) createTypeDeclaration(ctx context.Context, T types.Type, pos token.Pos) {
-	if _, ok := b.declaredTypes[T]; ok {
-		// Do not create the operation more than once for an individual type.
-		return
-	}
-
-	// Mark the type now to prevent infinite recursion with recursive types.
-	b.declaredTypes[T] = struct{}{}
-
-	location := b.location(pos)
-	var extraData []mlir.NamedAttribute
-
-	switch T := T.(type) {
-	case *types.Array:
-		// Create the data for the element type.
-		b.createTypeDeclaration(ctx, T.Elem(), pos)
-	case *types.Basic:
-
-	case *types.Chan:
-		// Create the data for the element type.
-		b.createTypeDeclaration(ctx, T.Elem(), pos)
-	case *types.Interface:
-
-	case *types.Map:
-		// Create the data for the key type.
-		b.createTypeDeclaration(ctx, T.Key(), pos)
-
-		// Create the data for the element type.
-		b.createTypeDeclaration(ctx, T.Elem(), pos)
-	case *types.Named:
-		// Create the methods dictionary if this named type has methods.
-		var methodSymbols mlir.Attribute
-		if T.NumMethods() > 0 {
-			entries := make([]mlir.Attribute, T.NumMethods())
-			for i := 0; i < T.NumMethods(); i++ {
-				method := T.Method(i)
-				symbol := mangleSymbol(qualifiedFuncName(method))
-				refAttr := mlir.FlatSymbolRefAttrGet(b.ctx, symbol)
-				entries[i] = refAttr
-
-				// Create type information for the signature.
-				b.createTypeDeclaration(ctx, method.Type(), pos)
-			}
-			methodSymbols = mlir.ArrayAttrGet(b.ctx, entries)
-			extraData = append(extraData, b.namedOf("methods", methodSymbols))
-		}
-		// Create the data for the underlying type.
-		b.createTypeDeclaration(ctx, T.Underlying(), pos)
-	case *types.Pointer:
-		// Create the data for the element type.
-		b.createTypeDeclaration(ctx, T.Elem(), pos)
-	case *types.Signature:
-		if T.Recv() != nil {
-			extraData = append(extraData, b.namedOf("receiver", mlir.BoolAttrGet(b.ctx, 1)))
-		} else {
-			extraData = append(extraData, b.namedOf("receiver", mlir.BoolAttrGet(b.ctx, 0)))
-		}
-	case *types.Slice:
-		// Create the data for the element type.
-		b.createTypeDeclaration(ctx, T.Elem(), pos)
-	case *types.Struct:
-		fields := make([]mlir.Attribute, T.NumFields())
-		tags := make([]mlir.Attribute, T.NumFields())
-		for i := 0; i < T.NumFields(); i++ {
-			field := T.Field(i)
-			fields[i] = mlir.StringAttrGet(b.ctx, field.Name())
-			tags[i] = mlir.StringAttrGet(b.ctx, T.Tag(i))
-
-			b.createTypeDeclaration(ctx, field.Type(), pos)
-		}
-		extraData = append(extraData, b.namedOf("fields", mlir.ArrayAttrGet(b.ctx, fields)))
-		extraData = append(extraData, b.namedOf("tags", mlir.ArrayAttrGet(b.ctx, tags)))
-	case *types.Tuple:
-		panic("unreachable")
-	case *types.TypeParam:
-
-	default:
-		panic("unhandled type")
-	}
-
-	// Fuse the location with the compile unit if applicable.
-	if file := b.config.Fset.File(pos); file != nil {
-		if compileUnitAttr, ok := b.compileUnits[file]; ok {
-			location = mlir.LocationFusedGet(b.ctx, []mlir.Location{location}, compileUnitAttr)
-		}
-	}
-
-	// Declare this type.
-	extraDataDict := mlir.DictionaryAttrGet(b.ctx, extraData)
-	declareOp := mlir.GoCreateDeclareTypeOperation(b.ctx, b.GetType(ctx, T), extraDataDict, location)
-	b.appendToModule(declareOp)
-}
-
 func (b *Builder) createArrayType(ctx context.Context, T *types.Array) mlir.Type {
 	// Create the element type.
 	elementType := b.GetStoredType(ctx, T.Elem())
@@ -199,7 +105,7 @@ func (b *Builder) createArrayType(ctx context.Context, T *types.Array) mlir.Type
 	return mlir.GoCreateArrayType(elementType, int(T.Len()))
 }
 
-func (b *Builder) createBasicType(ctx context.Context, T *types.Basic) mlir.Type {
+func (b *Builder) createBasicType(T *types.Basic) mlir.Type {
 	switch T.Kind() {
 	case types.Bool:
 		return mlir.GoCreateBooleanType(b.ctx)
@@ -281,7 +187,7 @@ func (b *Builder) createInterfaceType(ctx context.Context, T *types.Interface) m
 		// Create the function signatures.
 		for i := 0; i < T.NumMethods(); i++ {
 			method := T.Method(i)
-			MT := b.createSignatureType(ctx, method.Type().(*types.Signature), true)
+			MT := b.createSignatureType(ctx, method.Type().(*types.Signature))
 			methodNames = append(methodNames, method.Name())
 			methods = append(methods, MT)
 		}
@@ -295,7 +201,7 @@ func (b *Builder) createInterfaceType(ctx context.Context, T *types.Interface) m
 		// Create the function signatures
 		for i := 0; i < T.NumMethods(); i++ {
 			method := T.Method(i)
-			MT := b.createSignatureType(ctx, method.Type().(*types.Signature), true)
+			MT := b.createSignatureType(ctx, method.Type().(*types.Signature))
 			methodNames = append(methodNames, method.Name())
 			methods = append(methods, MT)
 		}
@@ -378,7 +284,7 @@ func (b *Builder) createSliceType(ctx context.Context, T *types.Slice) mlir.Type
 	return mlir.GoCreateSliceType(elementType)
 }
 
-func (b *Builder) createSignatureType(ctx context.Context, T *types.Signature, isInterface bool) mlir.Type {
+func (b *Builder) createSignatureType(ctx context.Context, T *types.Signature) mlir.Type {
 	var receiver mlir.Type
 	var inputs []mlir.Type
 	var results []mlir.Type
@@ -509,13 +415,6 @@ func isPointer(T types.Type) bool {
 		if T.Kind() == types.UnsafePointer {
 			return true
 		}
-	}
-	return false
-}
-
-func isGeneric(T types.Type) bool {
-	if T, ok := T.(*types.Named); ok {
-		return T.TypeParams().Len() > 0
 	}
 	return false
 }

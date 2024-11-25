@@ -1189,43 +1189,6 @@ mlirGoGetFunction(MlirContext context, MlirStringRef symbol, MlirType type, Mlir
 }
 
 //===----------------------------------------------------------------------===//
-// Intrinsic Operations
-//===----------------------------------------------------------------------===//
-
-MlirOperation mlirGoCreateDeclareTypeOperation(
-  MlirContext context,
-  MlirType type,
-  MlirAttribute attributes,
-  MlirLocation location)
-{
-  auto _context = unwrap(context);
-  auto _type = unwrap(type);
-  auto _attributes = mlir::cast<DictionaryAttr>(unwrap(attributes));
-  auto _location = unwrap(location);
-
-  mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::DeclareTypeOp>(_location, _type);
-  op->setAttrs(_attributes);
-  return wrap(op);
-}
-
-MlirOperation mlirGoCreateTypeInfoOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirType type,
-  MlirLocation location)
-{
-  auto _context = unwrap(context);
-  auto _resultType = unwrap(resultType);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
-
-  mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::TypeInfoOp>(_location, _resultType, _type);
-  return wrap(op);
-}
-
-//===----------------------------------------------------------------------===//
 // Builtin Operations
 //===----------------------------------------------------------------------===//
 

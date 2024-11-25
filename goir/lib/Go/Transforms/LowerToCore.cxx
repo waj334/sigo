@@ -387,21 +387,6 @@ struct DivCOpLowering : public OpConversionPattern<DivCOp>
   }
 };
 
-struct DeclareTypeOpLowering : public OpConversionPattern<DeclareTypeOp>
-{
-  using OpConversionPattern::OpConversionPattern;
-
-  mlir::LogicalResult matchAndRewrite(
-    DeclareTypeOp op,
-    OpAdaptor adaptor,
-    ConversionPatternRewriter& rewriter) const override
-  {
-    // Drop this operation.
-    rewriter.eraseOp(op);
-    return success();
-  }
-};
-
 struct DivFOpLowering : public OpConversionPattern<DivFOp>
 {
   using OpConversionPattern::OpConversionPattern;
@@ -995,7 +980,6 @@ void populateGoToCoreConversionPatterns(
             transforms::core::ComplementOpLowering,
             transforms::core::CondBrOpLowering,
             transforms::core::ConstantOpLowering,
-            transforms::core::DeclareTypeOpLowering,
             transforms::core::DivCOpLowering,
             transforms::core::DivFOpLowering,
             transforms::core::DivSIOpLowering,

@@ -291,14 +291,10 @@ func (p *Program) AddPackage(pkg *packages.Package) (err error) {
 
 		// Collect all declared types in this package.
 		for _, decl := range file.Decls {
-			switch decl := decl.(type) {
-			case *ast.GenDecl:
-				switch decl.Tok {
-				case token.TYPE:
-					for _, spec := range decl.Specs {
-						id := spec.(*ast.TypeSpec).Name
-						p.Types[pkg][id.Name] = pkg.TypesInfo.Defs[id].Type()
-					}
+			if decl, ok := decl.(*ast.GenDecl); ok && decl.Tok == token.TYPE {
+				for _, spec := range decl.Specs {
+					id := spec.(*ast.TypeSpec).Name
+					p.Types[pkg][id.Name] = pkg.TypesInfo.Defs[id].Type()
 				}
 			}
 		}

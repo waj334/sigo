@@ -21,9 +21,6 @@ func (b *Builder) emitSelectStatement(ctx context.Context, stmt *ast.SelectStmt)
 	// Create the successor block for this statement.
 	successor := mlir.BlockCreate2(nil, nil)
 
-	// Break statements should branch to this statement's immediate successor.
-	ctx = newContextWithSuccessorBlock(ctx, successor)
-
 	// Create the clause blocks.
 	for _, clause := range stmt.Body.List {
 		clause := clause.(*ast.CommClause)
@@ -54,6 +51,9 @@ func (b *Builder) emitSelectStatement(ctx context.Context, stmt *ast.SelectStmt)
 
 		// Create the body block
 		buildBlock(ctx, block, func() {
+			// Break statements should branch to this statement's immediate successor.
+			ctx = newContextWithSuccessorBlock(ctx, successor, nil)
+
 			if clause.Comm != nil {
 				// Emit the clause statement.
 				b.emitStmt(ctx, clause.Comm)
@@ -137,9 +137,10 @@ func (b *Builder) emitSendStatement(ctx context.Context, stmt *ast.SendStmt) {
 func (b *Builder) emitChanRange(ctx context.Context, stmt *ast.RangeStmt) {
 	location := b.location(stmt.Pos())
 	endLocation := b.location(stmt.End())
+	tokLocation := b.location(stmt.TokPos)
+
 	chanType := b.typeOf(ctx, stmt.X).(*types.Chan)
-	elementType := b.GetStoredType(ctx, chanType.Elem())
-	//elementPtrType := b.pointerOf(ctx, chanType.Elem())
+	elementT := b.GetStoredType(ctx, chanType.Elem())
 
 	// Create the exit block where execution will continue following the range statement.
 	exitBlock := mlir.BlockCreate2(nil, nil)
@@ -148,17 +149,13 @@ func (b *Builder) emitChanRange(ctx context.Context, stmt *ast.RangeStmt) {
 	rangeBlock := mlir.BlockCreate2(nil, nil)
 	appendBlock(ctx, rangeBlock)
 
-	bodyBlock := mlir.BlockCreate2(b.types(elementType), b.locations(b._noLoc))
+	bodyBlock := mlir.BlockCreate2(b.types(elementT), b.locations(b._noLoc))
 	appendBlock(ctx, bodyBlock)
-
-	// Any break statement immediately branch to the exit block.
-	ctx = newContextWithSuccessorBlock(ctx, exitBlock)
-
-	// Any continue statement should branch to the condition block.
-	ctx = newContextWithPredecessorBlock(ctx, rangeBlock)
 
 	// Evaluate the chan value that will be iterated over.
 	X := b.emitExpr(ctx, stmt.X)[0]
+
+	elementVar := b.valueOf(ctx, stmt.Value)
 
 	// Branch to the condition block from the current block.
 	brOp := mlir.GoCreateBranchOperation(b.ctx, rangeBlock, nil, location)
@@ -173,37 +170,32 @@ func (b *Builder) emitChanRange(ctx context.Context, stmt *ast.RangeStmt) {
 
 	// Build the loop body block.
 	buildBlock(ctx, bodyBlock, func() {
-		// The received value is passed through the first block argument.
 		value := mlir.BlockGetArgument(bodyBlock, 0)
 
-		// TODO: A load here might make more sense if the block argument can always be a pointer. Implement the other
-		//       ranges this way first.
-		/*
-			// Load the element from the pointer returned by the range operation.
-			loadOp := mlir.GoCreateLoadOperation(b.ctx, value, elementType, location)
-			appendOperation(ctx, loadOp)
-			value = resultOf(loadOp)
-		*/
+		// Any break statement immediately branch to the exit block.
+		ctx = newContextWithSuccessorBlock(ctx, exitBlock, nil)
 
-		if stmt.Value != nil {
-			var recvValue Value
-			if stmt.Tok == token.DEFINE {
+		// Any continue statement should branch to the condition block.
+		ctx = newContextWithPredecessorBlock(ctx, rangeBlock, nil)
+
+		if stmt.Tok == token.DEFINE && stmt.Value != nil {
+			ident := stmt.Value.(*ast.Ident)
+			if identIsValid(ident) {
 				// A copy should be emitted into this block. Heap escape analysis should handle converting the stack
 				// allocation to a heap allocation in the event that the loop variable escapes the current scope.
-				copyAddr := b.makeCopyOf(ctx, value, b.location(stmt.Body.Pos()))
-				recvValue = b.NewTempValue(copyAddr)
-				b.setAddr(ctx, stmt.Value.(*ast.Ident), recvValue)
-			} else {
-				// Store the received value into the receiver var.
-				recvValue = b.valueOf(ctx, stmt.Value)
-				recvValue.Store(ctx, value, b.location(stmt.Body.Pos()))
+				copyAddr := b.emitNamedAlloca(ctx, ident.Name, elementT, b.location(stmt.Value.Pos()))
+				elementVar = b.NewTempValue(copyAddr)
+				b.setAddr(ctx, ident, elementVar)
 			}
 		}
 
-		// Emit the loop body
-		for _, stmt := range stmt.Body.List {
-			b.emitStmt(ctx, stmt)
+		if elementVar != nil {
+			// Store it at the element variable address.
+			elementVar.Store(ctx, value, tokLocation)
 		}
+
+		// Emit the loop body.
+		b.emitBlock(ctx, stmt.Body)
 
 		if !blockHasTerminator(currentBlock(ctx)) {
 			// Branch to the post iteration block.

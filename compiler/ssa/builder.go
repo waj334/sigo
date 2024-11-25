@@ -18,8 +18,7 @@ import (
 )
 
 type Config struct {
-	Fset *token.FileSet
-	//Info               *types.Info
+	Fset               *token.FileSet
 	Ctx                mlir.Context
 	Module             mlir.Module
 	Sizes              *types.StdSizes
@@ -81,8 +80,6 @@ type Builder struct {
 	uiptr mlir.Type
 	str   mlir.Type
 
-	typeInfoPtr mlir.Type
-
 	_chan      mlir.Type
 	_map       mlir.Type
 	_slice     mlir.Type
@@ -91,11 +88,7 @@ type Builder struct {
 	_any       mlir.Type
 	_func      mlir.Type
 
-	anyType *types.Interface
-
 	_noLoc mlir.Location
-
-	syntheticSignatures map[string]*types.Signature
 
 	initPackageCounter map[*packages.Package]*atomic.Uint32
 }
@@ -147,17 +140,13 @@ func NewBuilder(config Config) *Builder {
 	builder.uiptr = builder.GetType(context.Background(), types.Typ[types.Uintptr])
 	builder.str = builder.GetType(context.Background(), types.Typ[types.String])
 
-	builder.typeInfoPtr = builder.GetType(context.Background(), types.NewPointer(config.Program.LookupType("runtime", "_type")))
-
 	builder._chan = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_channel"))
 	builder._interface = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_interface"))
 	builder._map = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_map"))
 	builder._slice = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_slice"))
 	builder._string = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_string"))
 	builder._func = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_func"))
-
-	builder.anyType = types.NewInterfaceType(nil, nil).Complete()
-	builder._any = builder.GetType(context.Background(), builder.anyType)
+	builder._any = builder.GetType(context.Background(), types.NewInterfaceType(nil, nil).Complete())
 
 	// Bind the runtime type representations to the dialect's primitive type representation.
 	// NOTE: The specific type does not matter since DLTI relies on a type's type ID which is the same each variation of
@@ -197,16 +186,6 @@ func NewBuilder(config Config) *Builder {
 		mlir.GoBindRuntimeType(config.Module, k, builder.GetType(context.Background(), T))
 	}
 
-	// Synthetic builtin function signatures.
-	synthetics := map[string]*types.Signature{}
-	printArgs := types.NewTuple(types.NewVar(0, nil, "values", types.NewSlice(builder.anyType)))
-	synthetics["print"] = types.NewSignatureType(nil, nil, nil, printArgs, nil, true)
-	synthetics["println"] = types.NewSignatureType(nil, nil, nil, printArgs, nil, true)
-
-	panicArgs := types.NewTuple(types.NewVar(0, nil, "value", builder.anyType))
-	synthetics["panic"] = types.NewSignatureType(nil, nil, nil, panicArgs, nil, false)
-
-	builder.syntheticSignatures = synthetics
 	return builder
 }
 
@@ -298,14 +277,6 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 				switch decl := decl.(type) {
 				case *ast.GenDecl:
 					switch decl.Tok {
-					case token.TYPE:
-						for _, spec := range decl.Specs {
-							spec := spec.(*ast.TypeSpec)
-							obj := b.objectOf(ctx, spec.Name)
-							if !isGeneric(obj.Type()) {
-								b.createTypeDeclaration(ctx, obj.Type(), obj.Pos())
-							}
-						}
 					case token.VAR:
 						for _, spec := range decl.Specs {
 							spec := spec.(*ast.ValueSpec)
