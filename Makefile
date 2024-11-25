@@ -78,9 +78,6 @@ ABS_SSA_TEST_EXE=$(ABS_BINDIR)/ssa_test$(EXECUTABLE_POSTFIX)
 # Common commandline options:
 DEBUG ?= 0
 
-# Extend PATH variable:
-export PATH := $(LLVM_BUILD_DIR)/bin:$(PATH)
-
 define build-compiler-rt
 	cmake $(ROOT_DIR)/thirdparty/llvm-project/compiler-rt -G "Ninja" -B ./build/compiler-rt-$(1)-$(2) \
 		-DCMAKE_INSTALL_PREFIX=$(ROOT_DIR)/lib/compiler-rt/$(1)/$(2) \
@@ -198,7 +195,7 @@ $(LLVM_CMAKE_CACHE):
         -DCMAKE_CXX_STANDARD_LIBRARIES="${CMAKE_CXX_STANDARD_LIBRARIES}"			\
         -DCMAKE_LINKER_TYPE=LLD 													\
 		-DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) 										\
-		-DLLVM_ENABLE_PROJECTS="llvm;mlir" 											\
+		-DLLVM_ENABLE_PROJECTS="llvm;mlir;clang" 											\
 		-DLLVM_ENABLE_ASSERTIONS=ON 												\
 		-DLLVM_ENABLE_EXPENSIVE_CHECKS=ON 											\
 		-DLLVM_ENABLE_BACKTRACES=ON 												\
@@ -231,6 +228,12 @@ configure-goir: build-llvm $(GOIR_CMAKE_CACHE)
 
 build-goir: configure-goir ./mlir/mlir.go
 	cmake --build ${GOIR_BUILD_DIR} -j$(NUM_JOBS)
+
+configure: configure-llvm configure-goir
+
+reconfigure:
+	rm -f $(LLVM_CMAKE_CACHE) $(GOIR_CMAKE_CACHE)
+	$(MAKE) configure
 
 generate-llvm-bindings: ./llvm/llvm.go
 ./llvm/llvm.go: ./llvm/llvm.i

@@ -79,3 +79,7 @@ func tupleTypes(tuple *types.Tuple) []types.Type {
 func (b *Builder) namedOf(name string, attr mlir.Attribute) mlir.NamedAttribute {
 	return mlir.NamedAttributeGet(mlir.IdentifierGet(b.ctx, name), attr)
 }
+
+func identIsValid(ident *ast.Ident) bool {
+	return len(ident.Name) > 0 && ident.Name != "_"
+}

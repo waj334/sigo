@@ -35,36 +35,45 @@ func init() {
 }
 
 func main() {
-	s0 := []int{0, 1, 2, 3}
-	s1 := s0[1:]
-	s2 := s0[:1]
-	s3 := s0[0:2]
-	s4 := s0[0:2:3]
-	s5 := s0[:]
+	s0 := [4]int{0, 1, 2, 3}
+	//s0 := "test"
 
-	str0 := "test"
-	str1 := str0[1:]
-	str2 := str0[:1]
-	str3 := str0[0:2]
-	str4 := str0[:]
+	var i int
+	//var e rune
+	var e int
 
-	e0 := s0[2]
-	e1 := str0[2]
+	for _, _ = range s0 {
+	}
 
-	ptr0 := &s0[1]
+	for i = range s0 {
+		use(i)
+	}
 
-	use(s1)
-	use(s2)
-	use(s3)
-	use(s4)
-	use(s5)
-	use(str1)
-	use(str2)
-	use(str3)
-	use(str4)
-	use(e0)
-	use(e1)
-	use(ptr0)
+	for i, e = range s0 {
+		use(i)
+		use(e)
+	}
+
+	for i, e = range s0 {
+		use(i)
+		continue
+		use(e)
+	}
+
+	for i, e = range s0 {
+		break
+		use(i)
+		use(e)
+	}
+
+	for ii := range s0 {
+		use(ii)
+	}
+
+	for iii, ee := range s0 {
+		use(iii)
+		use(ee)
+	}
 }
 
 func use(v any) {

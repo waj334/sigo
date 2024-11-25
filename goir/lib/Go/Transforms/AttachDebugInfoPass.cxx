@@ -30,15 +30,6 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
     // Create the builder.
     OpBuilder builder(module.getBodyRegion());
 
-    // Collect all information about type declarations.
-    module.walk(
-      [&](DeclareTypeOp op)
-      {
-        const auto T = op.getDeclaredType();
-        this->m_typeDataMap[T] = op->getAttrDictionary();
-        this->m_typeDeclareLocationMap[T] = op->getLoc();
-      });
-
     // Walk the module and create a subprogram for each function.
     module.walk(
       [&](mlir::go::FuncOp op)
@@ -205,31 +196,6 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
     const auto kind = GetGoTypeId(baseType(type));
     const unsigned size = dataLayout.getTypeSizeInBits(type);
     const unsigned align = dataLayout.getTypeABIAlignment(type);
-    const auto extraData = this->m_typeDataMap[type];
-
-    LLVM::DIScopeAttr diScope;
-    LLVM::DIFileAttr diFile;
-
-    if (const auto it = this->m_typeDeclareLocationMap.find(type);
-        it != this->m_typeDeclareLocationMap.end())
-    {
-      auto [_, loc] = *it;
-      const auto lineColLoc = loc.findInstanceOf<FileLineColLoc>();
-      const auto filePath = std::filesystem::path(lineColLoc.getFilename().str());
-      const auto fileName = filePath.filename().string();
-      const auto fileDir = filePath.parent_path().string();
-      diFile = LLVM::DIFileAttr::get(context, fileName, fileDir);
-
-      if (const auto compileUnitLoc = loc.findInstanceOf<FusedLocWith<LLVM::DICompileUnitAttr>>())
-      {
-        diScope = compileUnitLoc.getMetadata();
-      }
-    }
-    else
-    {
-      diScope = LLVM::DIFileAttr::get(context, "<unknown>", "<unknown>");
-      diFile = LLVM::DIFileAttr::get(context, "<unknown>", "<unknown>");
-    }
 
     if (const auto namedType = mlir::dyn_cast<NamedType>(type); namedType)
     {
@@ -365,9 +331,9 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
           llvm::dwarf::DW_TAG_array_type,
           recId,
           StringAttr::get(context, name),
-          diFile,
+          nullptr,
           0, // LINE
-          diScope,
+          nullptr,
           getDITypeAttr(context, arrayType.getElementType(), dataLayout, runtimeTypes),
           LLVM::DIFlags::Zero,
           size,
@@ -489,9 +455,9 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
           llvm::dwarf::DW_TAG_structure_type,
           recId,
           nameAttr,
-          diFile,
+          nullptr,
           0, // LINE
-          diScope,
+          nullptr,
           LLVM::DINullTypeAttr::get(context),
           LLVM::DIFlags::Zero,
           structSizeInBits,

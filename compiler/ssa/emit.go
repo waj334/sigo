@@ -282,7 +282,11 @@ func (b *Builder) emitBlock(ctx context.Context, stmt *ast.BlockStmt) {
 	}
 
 	// Emit operations for every statement in the input block.
-	for _, stmt := range stmt.List {
+	b.emitStatements(ctx, stmt.List)
+}
+
+func (b *Builder) emitStatements(ctx context.Context, list []ast.Stmt) {
+	for _, stmt := range list {
 		// Do not continue emission if the current block is already terminated.
 		if blockHasTerminator(currentBlock(ctx)) {
 			return
@@ -293,8 +297,8 @@ func (b *Builder) emitBlock(ctx context.Context, stmt *ast.BlockStmt) {
 }
 
 func (b *Builder) emitBranchStatement(ctx context.Context, stmt *ast.BranchStmt) {
-	predecessor := currentPredecessorBlock(ctx)
-	successor := currentSuccessorBlock(ctx)
+	predecessor, predArgs := currentPredecessorBlock(ctx)
+	successor, succArgs := currentSuccessorBlock(ctx)
 	switch stmt.Tok {
 	case token.BREAK:
 		block := successor
@@ -302,7 +306,7 @@ func (b *Builder) emitBranchStatement(ctx context.Context, stmt *ast.BranchStmt)
 			// Immediately branch to the specified predecessor block.
 			block = currentLabeledBlocks(ctx)[stmt.Label.Name]
 		} // Otherwise, branch to the successor block.
-		brOp := mlir.GoCreateBranchOperation(b.ctx, block, nil, b.location(stmt.Pos()))
+		brOp := mlir.GoCreateBranchOperation(b.ctx, block, succArgs, b.location(stmt.Pos()))
 		appendOperation(ctx, brOp)
 		return
 	case token.GOTO:
@@ -311,12 +315,12 @@ func (b *Builder) emitBranchStatement(ctx context.Context, stmt *ast.BranchStmt)
 		appendOperation(ctx, brOp)
 		return
 	case token.FALLTHROUGH:
-		// The checker does not allow the fallthrough statement to appear in any block nested in a switch clause
-		// body block.
-		panic("unreachable")
+		block, args := currentFallthroughBlock(ctx)
+		brOp := mlir.GoCreateBranchOperation(b.ctx, block, args, b.location(stmt.Pos()))
+		appendOperation(ctx, brOp)
 	case token.CONTINUE:
 		// Immediately branch to the predecessor block.
-		brOp := mlir.GoCreateBranchOperation(b.ctx, predecessor, nil, b.location(stmt.Pos()))
+		brOp := mlir.GoCreateBranchOperation(b.ctx, predecessor, predArgs, b.location(stmt.Pos()))
 		appendOperation(ctx, brOp)
 	default:
 		panic("unhandled switch branch statement")
@@ -403,11 +407,6 @@ func (b *Builder) emitExpr(ctx context.Context, expr ast.Expr) []mlir.Value {
 		return b.emitTypeAssertExpr(ctx, expr)
 	case *ast.UnaryExpr:
 		return b.emitUnaryExpr(ctx, expr)
-	case *ast.ArrayType, *ast.ChanType, *ast.StructType, *ast.FuncType, *ast.InterfaceType, *ast.MapType:
-		T := b.GetStoredType(ctx, b.typeOf(ctx, expr))
-		op := mlir.GoCreateTypeInfoOperation(b.ctx, b.typeInfoPtr, T, b.location(expr.Pos()))
-		appendOperation(ctx, op)
-		return []mlir.Value{resultOf(op)}
 	default:
 		panic("unhandled expression statement")
 	}

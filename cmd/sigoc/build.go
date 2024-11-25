@@ -132,7 +132,7 @@ func init() {
 	buildCmd.Flags().StringVarP(&buildOpts.output, "output", "o", ".", "output file")
 	buildCmd.Flags().StringVarP(&buildOpts.verbose, "verbose", "v", "", "verbosity level")
 	buildCmd.Flags().StringVar(&buildOpts.cpu, "cpu", "", "target cpu")
-	buildCmd.Flags().StringVar(&buildOpts.float, "float", "softfp", "floating-point mode (=softfp, =hardfp")
+	buildCmd.Flags().StringVar(&buildOpts.float, "float", "softfp", "floating-point mode (softfp, hardfp)")
 	buildCmd.Flags().BoolVarP(&buildOpts.debug, "debug", "g", false, "generate debug information")
 	buildCmd.Flags().BoolVar(&buildOpts.dumpIR, "dump-ir", false, "dump the IR")
 	buildCmd.Flags().StringVarP(&buildOpts.tags, "tags", "t", "", "build tags")
