@@ -328,11 +328,15 @@ func (b *Builder) emitForStatement(ctx context.Context, stmt *ast.ForStmt) {
 
 func (b *Builder) emitRangeStatement(ctx context.Context, stmt *ast.RangeStmt) {
 	T := b.typeOf(ctx, stmt.X)
-	switch T.(type) {
+	switch T := T.(type) {
 	case *types.Array:
 		b.emitArrayRange(ctx, stmt)
 	case *types.Basic:
-		b.emitStringRange(ctx, stmt)
+		if T.Kind() == types.String {
+			b.emitStringRange(ctx, stmt)
+		} else {
+			b.emitIntRange(ctx, stmt)
+		}
 	case *types.Chan:
 		b.emitChanRange(ctx, stmt)
 	case *types.Map:
@@ -342,6 +346,110 @@ func (b *Builder) emitRangeStatement(ctx context.Context, stmt *ast.RangeStmt) {
 	default:
 		panic("unhandled")
 	}
+}
+
+func (b *Builder) emitIntRange(ctx context.Context, stmt *ast.RangeStmt) {
+	location := b.location(stmt.Pos())
+	endLocation := b.location(stmt.End())
+	tokLocation := b.location(stmt.TokPos)
+
+	elementType := b.typeOf(ctx, stmt.X).(*types.Basic)
+	elementT := b.GetStoredType(ctx, elementType)
+
+	// Create the exit block where execution will continue following the range statement.
+	exitBlock := mlir.BlockCreate2(nil, nil)
+
+	// Create all blocks involved with the for loop.
+	condBlock := mlir.BlockCreate2(b.types(b.si), b.locations(b._noLoc))
+	appendBlock(ctx, condBlock)
+
+	bodyBlock := mlir.BlockCreate2(b.types(elementT), b.locations(b._noLoc))
+	appendBlock(ctx, bodyBlock)
+
+	postIterBlock := mlir.BlockCreate2(b.types(elementT), b.locations(b._noLoc))
+	appendBlock(ctx, postIterBlock)
+
+	// Evaluate the upper limit of the range.
+	X := b.emitExpr(ctx, stmt.X)[0]
+
+	// NOTE: The value variable can be omitted from the range statement. There is no need to even consider the element
+	//       value if no identifier to hold it is specified.
+	valueVar := b.valueOf(ctx, stmt.Key)
+
+	// Branch to the condition block from the current block.
+	zeroValue := b.emitConstInt(ctx, 0, elementT, location)
+	brOp := mlir.GoCreateBranchOperation(b.ctx, condBlock, b.values(zeroValue), location)
+	appendOperation(ctx, brOp)
+
+	// Build the condition block where the loop condition will continuously be evaluated in.
+	buildBlock(ctx, condBlock, func() {
+		value := mlir.BlockGetArgument(condBlock, 0)
+
+		// Compare the iterator value against the array length value.
+		cmpOp := mlir.GoCreateCmpIOperation(b.ctx, b.i1, b.cmpIPredicate(token.LSS, isUnsigned(elementT)), value, X, location)
+		appendOperation(ctx, cmpOp)
+		cond := resultOf(cmpOp)
+
+		// Conditionally branch to the loop body block if the loop condition evaluates to true. Otherwise, branch to the
+		// exit block.
+		condBrOp := mlir.GoCreateCondBranchOperation(b.ctx, cond, bodyBlock, b.values(value), exitBlock, nil, location)
+		appendOperation(ctx, condBrOp)
+	})
+
+	// Build the loop body block.
+	buildBlock(ctx, bodyBlock, func() {
+		value := mlir.BlockGetArgument(bodyBlock, 0)
+
+		// Any break statement immediately branch to the exit block.
+		ctx = newContextWithSuccessorBlock(ctx, exitBlock, nil)
+
+		// Set the predecessor block to the post loop iteration block where any continue statement will branch to.
+		ctx = newContextWithPredecessorBlock(ctx, postIterBlock, b.values(value))
+
+		if stmt.Tok == token.DEFINE {
+			ident := stmt.Key.(*ast.Ident)
+			if identIsValid(ident) {
+				// A copy should be emitted into this block. Heap escape analysis should handle converting the stack
+				// allocation to a heap allocation in the event that the loop variable escapes the current scope.
+				copyAddr := b.emitNamedAlloca(ctx, ident.Name, elementT, b.location(stmt.Key.Pos()))
+				valueVar = b.NewTempValue(copyAddr)
+				b.setAddr(ctx, ident, valueVar)
+			}
+		}
+
+		// Store the loop variable values before executing the loop body.
+		if valueVar != nil {
+			// Store it at the element variable address.
+			valueVar.Store(ctx, value, tokLocation)
+		}
+
+		// Emit the loop body.
+		b.emitBlock(ctx, stmt.Body)
+
+		if !blockHasTerminator(currentBlock(ctx)) {
+			// Branch to the post iteration block.
+			brOp := mlir.GoCreateBranchOperation(b.ctx, postIterBlock, b.values(value), endLocation)
+			appendOperation(ctx, brOp)
+		}
+	})
+
+	// Build the post iteration block.
+	buildBlock(ctx, postIterBlock, func() {
+		value := mlir.BlockGetArgument(postIterBlock, 0)
+
+		// Increment the iterator value by one.
+		oneValue := b.emitConstInt(ctx, 1, elementT, endLocation)
+		addOp := mlir.GoCreateAddIOperation(b.ctx, elementT, value, oneValue, endLocation)
+		appendOperation(ctx, addOp)
+
+		// branch to the condition block.
+		brOp := mlir.GoCreateBranchOperation(b.ctx, condBlock, resultsOf(addOp), endLocation)
+		appendOperation(ctx, brOp)
+	})
+
+	// Continue emission in the successor block.
+	appendBlock(ctx, exitBlock)
+	setCurrentBlock(ctx, exitBlock)
 }
 
 func (b *Builder) emitTypeSwitchStatement(ctx context.Context, stmt *ast.TypeSwitchStmt) {
