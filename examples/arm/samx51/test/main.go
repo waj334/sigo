@@ -35,45 +35,66 @@ func init() {
 }
 
 func main() {
-	s0 := [4]int{0, 1, 2, 3}
-	//s0 := "test"
-
 	var i int
-	//var e rune
-	var e int
+	d := 5
 
-	for _, _ = range s0 {
+	for i = range 10 {
+
 	}
 
-	for i = range s0 {
-		use(i)
-	}
-
-	for i, e = range s0 {
-		use(i)
-		use(e)
-	}
-
-	for i, e = range s0 {
-		use(i)
-		continue
-		use(e)
-	}
-
-	for i, e = range s0 {
-		break
-		use(i)
-		use(e)
-	}
-
-	for ii := range s0 {
+	for ii := range 10 {
 		use(ii)
 	}
 
-	for iii, ee := range s0 {
-		use(iii)
-		use(ee)
+	for i = range d {
+		use(i)
 	}
+
+	for iii := range d {
+		use(iii)
+	}
+
+	/*
+		s0 := [4]int{0, 1, 2, 3}
+		//s0 := "test"
+
+		var i int
+		//var e rune
+		var e int
+
+		for _, _ = range s0 {
+		}
+
+		for i = range s0 {
+			use(i)
+		}
+
+		for i, e = range s0 {
+			use(i)
+			use(e)
+		}
+
+		for i, e = range s0 {
+			use(i)
+			continue
+			use(e)
+		}
+
+		for i, e = range s0 {
+			break
+			use(i)
+			use(e)
+		}
+
+		for ii := range s0 {
+			use(ii)
+		}
+
+		for iii, ee := range s0 {
+			use(iii)
+			use(ee)
+		}
+	*/
 }
 
 func use(v any) {
