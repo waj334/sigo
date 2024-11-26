@@ -2,7 +2,7 @@ ROOT_DIR := $(patsubst %/,%,$(dir $(realpath $(lastword $(MAKEFILE_LIST)))))
 
 ifeq ($(OS),Windows_NT)
 	EXECUTABLE_POSTFIX=.exe
-	CGO_LDFLAGS += -lole32 -luuid -lpsapi -lshell32 -ladvapi32
+	CGO_LDFLAGS += -lole32 -luuid -lpsapi -lshell32 -ladvapi32 -lntdll
 	CMAKE_CXX_FLAGS += -pthread -femulated-tls
 	CMAKE_CXX_STANDARD_LIBRARIES += -lpthread
 	CLANG_TARGET := x86_64-pc-windows-gnu
@@ -195,7 +195,7 @@ $(LLVM_CMAKE_CACHE):
         -DCMAKE_CXX_STANDARD_LIBRARIES="${CMAKE_CXX_STANDARD_LIBRARIES}"			\
         -DCMAKE_LINKER_TYPE=LLD 													\
 		-DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) 										\
-		-DLLVM_ENABLE_PROJECTS="llvm;mlir;clang" 											\
+		-DLLVM_ENABLE_PROJECTS="llvm;mlir" 											\
 		-DLLVM_ENABLE_ASSERTIONS=ON 												\
 		-DLLVM_ENABLE_EXPENSIVE_CHECKS=ON 											\
 		-DLLVM_ENABLE_BACKTRACES=ON 												\

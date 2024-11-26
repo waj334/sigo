@@ -100,12 +100,11 @@ CoreTypeConverter::CoreTypeConverter(mlir::ModuleOp module)
   this->ignoreType<mlir::IntegerType>();
 
   addSourceMaterialization(
-    [&](
-      OpBuilder& builder, Type resultType, ValueRange inputs, Location loc) -> std::optional<Value>
+    [&](OpBuilder& builder, Type resultType, ValueRange inputs, Location loc) -> mlir::Value
     {
       if (inputs.size() != 1)
       {
-        return std::nullopt;
+        return {};
       }
 
       // Handle integer type mismatch between dialects.
@@ -113,12 +112,11 @@ CoreTypeConverter::CoreTypeConverter(mlir::ModuleOp module)
     });
 
   addTargetMaterialization(
-    [&](
-      OpBuilder& builder, Type resultType, ValueRange inputs, Location loc) -> std::optional<Value>
+    [&](OpBuilder& builder, Type resultType, ValueRange inputs, Location loc) -> mlir::Value
     {
       if (inputs.size() != 1)
       {
-        return std::nullopt;
+        return {};
       }
 
       // Handle integer type mismatch between dialects.

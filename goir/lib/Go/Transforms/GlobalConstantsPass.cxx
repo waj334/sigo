@@ -146,7 +146,8 @@ struct GlobalConstantsPass
       {
         auto globalExpr =
           mlir::cast<LLVM::DIGlobalVariableExpressionAttr>(op->getAttr("llvm.debug.global_expr"));
-        globalOp.setDbgExprAttr(globalExpr);
+        globalOp.setDbgExprsAttr(
+          mlir::ArrayAttr::get(module->getContext(), SmallVector<mlir::Attribute>{ globalExpr }));
       }
 
       bool shouldInitialize = true;

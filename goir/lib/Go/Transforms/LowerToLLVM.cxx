@@ -123,6 +123,10 @@ static mlir::SmallVector<Value> createRuntimeCall(
 
   // Create the call.
   auto callOp = rewriter.create<LLVM::CallOp>(location, funcType, callee, args);
+  callOp.getProperties().operandSegmentSizes = {
+    { static_cast<int32_t>(args.size()), 0 }
+  };
+  callOp.getProperties().op_bundle_sizes = rewriter.getDenseI32ArrayAttr({});
 
   // Handle the call results.
   if (numResults < 2)
@@ -957,6 +961,11 @@ struct CallIndirectOpLowering : public ConvertOpToLLVMPattern<CallIndirectOp>
     llvm::append_range(operands, adaptor.getCalleeOperands());
 
     auto callOp = rewriter.create<mlir::LLVM::CallOp>(op.getLoc(), convertedResultTypes, operands);
+    callOp.getProperties().operandSegmentSizes = {
+      { static_cast<int32_t>(operands.size()), 0 }
+    };
+    callOp.getProperties().op_bundle_sizes = rewriter.getDenseI32ArrayAttr({});
+
     rewriter.replaceOp(op, callOp);
     return success();
   }
@@ -1682,6 +1691,10 @@ struct InterfaceCallOpLowering : ConvertOpToLLVMPattern<InterfaceCallOp>
 
     auto newCallOp =
       rewriter.create<mlir::LLVM::CallOp>(loc, llvmFnT, FlatSymbolRefAttr(), operands);
+    newCallOp.getProperties().operandSegmentSizes = {
+      { static_cast<int32_t>(operands.size()), 0 }
+    };
+    newCallOp.getProperties().op_bundle_sizes = rewriter.getDenseI32ArrayAttr({});
 
     SmallVector<Value, 4> results;
     if (resultTypes.size() < 2)
@@ -1733,7 +1746,7 @@ struct LoadOpLowering : ConvertOpToLLVMPattern<LoadOp>
 
     auto operand = adaptor.getOperand();
     rewriter.replaceOpWithNewOp<mlir::LLVM::LoadOp>(
-      op, type, operand, alignment, isVolatile, false, false, ordering);
+      op, type, operand, alignment, isVolatile, false, false, false, ordering);
     return success();
   }
 };
@@ -2209,6 +2222,10 @@ struct RuntimeCallOpLowering : ConvertOpToLLVMPattern<RuntimeCallOp>
       packedResult ? TypeRange(packedResult) : TypeRange(),
       adaptor.getCalleeOperands(),
       op->getAttrs());
+    callOp.getProperties().operandSegmentSizes = {
+      { static_cast<int32_t>(adaptor.getCalleeOperands().size()), 0 }
+    };
+    callOp.getProperties().op_bundle_sizes = rewriter.getDenseI32ArrayAttr({});
 
     SmallVector<Value, 4> results;
     if (numResults < 2)
@@ -2566,7 +2583,7 @@ struct StoreOpLowering : ConvertOpToLLVMPattern<StoreOp>
     }
 
     rewriter.replaceOpWithNewOp<mlir::LLVM::StoreOp>(
-      op, value, addr, alignment, isVolatile, false, ordering);
+      op, value, addr, alignment, isVolatile, false, false, ordering);
     return success();
   }
 };
