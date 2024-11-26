@@ -17,7 +17,9 @@ class Go_BinOp<string mnemonic, list<Trait> traits = []> :
 
 class Go_IntBinOp<string mnemonic, list<Trait> traits = []> :
         Go_BinOp<mnemonic, traits #
-            [DeclareOpInterfaceMethods<InferIntRangeInterface>]>,
+            [
+                DeclareOpInterfaceMethods<InferIntRangeInterface, ["inferResultRanges"]>
+            ]>,
         Arguments<(ins Go_Integer:$lhs, Go_Integer:$rhs)>,
         Results<(outs Go_Integer:$result)>;
 

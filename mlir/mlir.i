@@ -38,7 +38,6 @@
 //#include "mlir-c/RegisterEverything.h"
 //#include "mlir-c/Transforms.h"
 
-#include "Go-c/llvm/Passes.h"
 #include "Go-c/mlir/Dialects.h"
 #include "Go-c/mlir/Enums.h"
 #include "Go-c/mlir/Operations.h"
@@ -79,7 +78,6 @@
 #include "mlir-c/Support.h"
 //#include "mlir-c/Transforms.h"
 
-#include "Go-c/llvm/Passes.h"
 #include "Go-c/mlir/Dialects.h"
 #include "Go-c/mlir/Enums.h"
 #include "Go-c/mlir/Operations.h"
@@ -332,7 +330,6 @@ LLVM_TYPEMAP(LLVMErrorRef)
 //%include "mlir-c/Dialect/Tensor.h"
 //%include "mlir-c/Dialect/Transform.h"
 
-%include "Go-c/llvm/Passes.h"
 %include "Go-c/mlir/Dialects.h"
 %include "Go-c/mlir/Enums.h"
 %include "Go-c/mlir/Operations.h"

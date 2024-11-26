@@ -76,7 +76,9 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
             /*line=*/loc.getLine(),
             /*scopeline=*/loc.getLine(),
             LLVM::DISubprogramFlags::Definition | LLVM::DISubprogramFlags::Optimized,
-            subroutineTypeAttr);
+            subroutineTypeAttr,
+            {},
+            {});
           op->setLoc(FusedLoc::get(context, { op.getLoc() }, subprogramAttr));
         }
       });
@@ -171,7 +173,8 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
         loc.getLine(),                  // LINE
         0,                              // ARG,
         dataLayout.getStackAlignment(), // ALIGN
-        diType);
+        diType,
+        mlir::LLVM::DIFlags::Zero);
 
       // Attach the debug information to the operation. The LLVM lowering pass
       // will actually create the required operations.
@@ -328,8 +331,9 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
           LLVM::DISubrangeAttr::get(context, lengthAttr, 0, IntegerAttr(), sizeAttr);
         result = LLVM::DICompositeTypeAttr::get(
           context,
-          llvm::dwarf::DW_TAG_array_type,
           recId,
+          false,
+          llvm::dwarf::DW_TAG_array_type,
           StringAttr::get(context, name),
           nullptr,
           0, // LINE
@@ -338,7 +342,11 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
           LLVM::DIFlags::Zero,
           size,
           align,
-          { diSubrange });
+          { diSubrange },
+          nullptr,
+          nullptr,
+          nullptr,
+          nullptr);
         break;
       }
       case GoTypeId::Chan:
@@ -452,8 +460,9 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
         const auto nameAttr = StringAttr::get(context, name);
         result = LLVM::DICompositeTypeAttr::get(
           context,
-          llvm::dwarf::DW_TAG_structure_type,
           recId,
+          false,
+          llvm::dwarf::DW_TAG_structure_type,
           nameAttr,
           nullptr,
           0, // LINE
@@ -462,7 +471,11 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
           LLVM::DIFlags::Zero,
           structSizeInBits,
           structAlignmentInBits,
-          elementAttrs);
+          elementAttrs,
+          nullptr,
+          nullptr,
+          nullptr,
+          nullptr);
       }
       break;
       case GoTypeId::UnsafePointer:

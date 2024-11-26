@@ -29,7 +29,9 @@ def SliceAddrOp : Go_Op<"slice.addr", [AlwaysSpeculatable]> {
 // SliceOp
 //===----------------------------------------------------------------------===//
 
-def SliceOp : Go_Op<"slice", [DeclareOpInterfaceMethods<InferIntRangeInterface>, AttrSizedOperandSegments]> {
+def SliceOp : Go_Op<"slice", [
+        DeclareOpInterfaceMethods<InferIntRangeInterface, ["inferResultRanges"]>,
+        AttrSizedOperandSegments]> {
     let summary = "Slice operation";
     let description = [{
         The `go.slice` operation yields a slice of an existing string, slice

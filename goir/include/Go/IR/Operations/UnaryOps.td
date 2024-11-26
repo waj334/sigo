@@ -17,13 +17,13 @@ class Go_UnaryOp<string mnemonic, list<Trait> traits = []> :
 
 class Go_BoolUnaryOp<string mnemonic, list<Trait> traits = []> :
     Go_UnaryOp<mnemonic, traits #
-        [DeclareOpInterfaceMethods<InferIntRangeInterface>]>,
+        [DeclareOpInterfaceMethods<InferIntRangeInterface, ["inferResultRanges"]>]>,
     Arguments<(ins Go_Bool:$operand)>,
     Results<(outs Go_Bool:$result)>;
 
 class Go_IntUnaryOp<string mnemonic, list<Trait> traits = []> :
     Go_UnaryOp<mnemonic, traits #
-        [DeclareOpInterfaceMethods<InferIntRangeInterface>]>,
+        [DeclareOpInterfaceMethods<InferIntRangeInterface, ["inferResultRanges"]>]>,
     Arguments<(ins Go_Integer:$operand)>,
     Results<(outs Go_Integer:$result)>;
 
