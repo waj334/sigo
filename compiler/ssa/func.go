@@ -6,6 +6,7 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
+	"slices"
 	"sync"
 
 	"omibyte.io/sigo/mlir"
@@ -496,4 +497,73 @@ func (b *Builder) unpackArgPack(ctx context.Context, argTypes []mlir.Type, pack 
 		result[i] = resultOf(loadOp)
 	}
 	return result
+}
+
+func (b *Builder) emitYieldFunction(ctx context.Context, key Value, value Value, location mlir.Location) mlir.Value {
+	var itVarTypes []mlir.Type
+	var itVarLocs []mlir.Location
+	var itVarPtrs []mlir.Value
+	if key != nil {
+		itVarTypes = append(itVarTypes, key.Type())
+		itVarLocs = append(itVarLocs, b._noLoc)
+		itVarPtrs = append(itVarPtrs, key.Pointer(ctx, location))
+	}
+
+	if value != nil {
+		itVarTypes = append(itVarTypes, value.Type())
+		itVarLocs = append(itVarLocs, b._noLoc)
+		itVarPtrs = append(itVarPtrs, value.Pointer(ctx, location))
+	}
+
+	// Create the argument pack value that will hold the pointers to the iteration variables.
+	var itValue mlir.Value
+	var itType mlir.Type
+	if len(itVarPtrs) > 0 {
+		itValue, itType = b.createArgumentPack(ctx, itVarPtrs, location)
+
+		// Allocate heap to store the argument pack.
+		allocOp := mlir.GoCreateAllocaOperation(b.ctx, mlir.GoCreatePointerType(itType), itType, 1, true, location)
+		appendOperation(ctx, allocOp)
+
+		// Store the argument pack value at the heap address.
+		storeOp := mlir.GoCreateStoreOperation(b.ctx, itValue, resultOf(allocOp), location)
+		appendOperation(ctx, storeOp)
+		itValue = resultOf(allocOp)
+	}
+
+	// Generate the yield function.
+	region := mlir.RegionCreate()
+	ctx = newContextWithRegion(ctx, region)
+
+	entryBlock := mlir.BlockCreate2(itVarTypes, itVarLocs)
+	mlir.RegionAppendOwnedBlock(region, entryBlock)
+	buildBlock(ctx, entryBlock, func() {
+		argPackPtrValue := mlir.BlockGetArgument(entryBlock, 0)
+		itPtrArgs := b.unpackArgPack(ctx, itVarTypes, argPackPtrValue, b._noLoc)
+
+		// Gather the remaining arguments
+		var itArgs []mlir.Value
+		for i := 1; i < mlir.BlockGetNumArguments(entryBlock); i++ {
+			itArgs = append(itArgs, mlir.BlockGetArgument(entryBlock, i))
+		}
+
+		// Store the iterator values at the respective addresses.
+		for i := range itPtrArgs {
+			storeOp := mlir.GoCreateStoreOperation(b.ctx, itArgs[i], itPtrArgs[i], b._noLoc)
+			appendOperation(ctx, storeOp)
+		}
+
+		returnOp := mlir.GoCreateReturnOperation(b.ctx, nil, b._noLoc)
+		appendOperation(ctx, returnOp)
+	})
+
+	// Create the function operation for this thunk.
+	thunkFuncType := mlir.GoCreateFunctionType(b.ctx, nil, paramTypes, resultTypes)
+	state := mlir.OperationStateGet("go.func", b._noLoc)
+	mlir.OperationStateAddOwnedRegions(state, []mlir.Region{region})
+	mlir.OperationStateAddAttributes(state, []mlir.NamedAttribute{
+		b.namedOf("function_type", mlir.TypeAttrGet(thunkFuncType)),
+		b.namedOf("sym_name", mlir.StringAttrGet(b.ctx, symbol)),
+		b.namedOf("sym_visibility", mlir.StringAttrGet(b.ctx, "private")),
+	})
 }
