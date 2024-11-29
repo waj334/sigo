@@ -1,9 +1,9 @@
 .global _task_start
 .type _task_start, %function
 _task_start:
-    push {r2}                       // Save the task pointer on the stack
+    mov r4, r2                      // Save the task pointer in R4 save so that it is preserved cross
     blx r1                          // Start the goroutine. The parameters are already on R0
-    pop {r0}                        // Pop the task pointer into R0 as the parameter to removeTask
+    mov r2, r4                      // Move the task pointer back into R0 as the parameter to removeTask
     bl runtime.removeTask           // Remove this task from the scheduler
     bl runtime.schedulerPause       // Run another task for the remainder of this SysTick
 .loop:                              // ---------------------------

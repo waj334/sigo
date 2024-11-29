@@ -8,7 +8,6 @@ import (
 	"math/rand"
 	"os"
 	"os/exec"
-	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -212,22 +211,17 @@ func Build(ctx context.Context, packageDir string) error {
 	builder.GeneratePackages(ctx, program.OrderedPackages)
 	fmt.Println("done")
 
-	// dump the module to a string
-	fname, _ := filepath.Abs(options.Output + ".dump.mlir")
+	// Create the output directory.
+	outputDir := filepath.Dir(options.Output)
+	if _, err := os.Stat(outputDir); errors.Is(err, os.ErrNotExist) {
+		if err := os.MkdirAll(outputDir, 0750); err != nil {
+			return err
+		}
+	}
 
 	// Post IR generation:
 	if options.DumpIR {
-
-		// The path to the output must exist. Create it if it doesn't
-		if stat, err := os.Stat(path.Dir(fname)); errors.Is(err, os.ErrNotExist) {
-			if err := os.MkdirAll(path.Dir(fname), 0750); err != nil {
-				return err
-			}
-		} else if !stat.IsDir() {
-			return os.ErrInvalid
-		}
-
-		mlir.ModuleDumpToFile(mlirModule, fname)
+		mlir.ModuleDumpToFile(mlirModule, options.Output+".dump.mlir")
 	}
 
 	// Run the optimization passes
@@ -235,7 +229,6 @@ func Build(ctx context.Context, packageDir string) error {
 	passDumpDir = filepath.Dir(passDumpDir)
 	passDumpName := filepath.Base(options.Output)
 	fmt.Print("Optimizing Go IR...")
-	// TODO: add switch for debug mode.
 	if mlir.LogicalResultIsFailure(mlir.GoOptimizeModule(mlirModule, passDumpName, passDumpDir, false)) {
 		fmt.Println()
 		return errors.Join(ErrCodeGeneratorError, err, errors.New("optimization passes failed"))
@@ -243,19 +236,7 @@ func Build(ctx context.Context, packageDir string) error {
 	fmt.Println("done")
 
 	if options.DumpIR {
-		// dump the module to a string
-		fname := options.Output + ".dump.llvm.mlir"
-
-		// The path to the output must exist. Create it if it doesn't
-		if stat, err := os.Stat(path.Dir(fname)); errors.Is(err, os.ErrNotExist) {
-			if err := os.MkdirAll(path.Dir(fname), 0750); err != nil {
-				return err
-			}
-		} else if !stat.IsDir() {
-			return os.ErrInvalid
-		}
-
-		mlir.ModuleDumpToFile(mlirModule, fname)
+		mlir.ModuleDumpToFile(mlirModule, options.Output+".dump.llvm.mlir")
 	}
 
 	// Initialize the LLVMIR translator
@@ -431,16 +412,6 @@ func link(options Options, targetInfo targets.TargetInfo, arch string, float str
 }
 
 func dumpModule(module llvm.LLVMModuleRef, fname string) error {
-	// The path to the output must exist. Create it if it doesn't
-	if stat, err := os.Stat(path.Dir(fname)); errors.Is(err, os.ErrNotExist) {
-		if err := os.MkdirAll(path.Dir(fname), 0750); err != nil {
-			return err
-		}
-	} else if !stat.IsDir() {
-		return os.ErrInvalid
-	}
-
-	// Finally, dump the module
 	llvm.PrintModuleToFile(module, fname, nil)
 	return nil
 }

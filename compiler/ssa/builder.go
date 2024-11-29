@@ -327,10 +327,6 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 					result := b.emitExpr(ctx, initializer.Rhs)[0]
 
 					if rhsType != nil {
-						if T, ok := rhsType.(*types.Named); ok {
-							b.queueNamedTypeJobs(ctx, T)
-						}
-
 						switch baseType(lhs.Type()).(type) {
 						case *types.Interface:
 							if !types.Identical(lhs.Type(), rhsType) {

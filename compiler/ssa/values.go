@@ -252,6 +252,16 @@ func (b *Builder) emitInterfaceValue(ctx context.Context, T types.Type, valueTyp
 		addr = b.makeCopyOf(ctx, value, location)
 	}
 
+	// Generate methods for named types.
+	switch valueType := valueType.(type) {
+	case *types.Named:
+		b.queueNamedTypeJobs(ctx, valueType)
+	case *types.Pointer:
+		if T, ok := valueType.Elem().(*types.Named); ok {
+			b.queueNamedTypeJobs(ctx, T)
+		}
+	}
+
 	// Create the interface value.
 	interfaceT := b.GetType(ctx, T)
 	dynamicT := b.GetType(ctx, valueType)

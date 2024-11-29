@@ -71,31 +71,22 @@ std::string typeStr(const mlir::Type& T)
 }
 
 llvm::hash_code
-computeMethodHash(const StringRef name, const FunctionType func, bool isInterface)
+computeMethodHash(const StringRef name, const mlir::TypeRange inputs, const mlir::TypeRange outputs)
 {
   llvm::hash_code result = llvm::hash_value(name);
-  size_t offset = 0;
-  if (!isInterface)
-  {
-    // Skip the receiver for named-type methods.
-    offset = 1;
-  }
 
-  // Hash the input types starting at the offset.
-  for (size_t i = offset; i < func.getNumInputs(); i++)
+  // Hash the input types.
+  for (const auto& t : inputs)
   {
-    std::string str;
-    llvm::raw_string_ostream(str) << func.getInput(i);
-    result = llvm::hash_combine(result, str);
+    result = llvm::hash_combine(result, t.getImpl());
   }
 
   // Hash the result types
-  for (auto t : func.getResults())
+  for (auto t : outputs)
   {
-    std::string str;
-    llvm::raw_string_ostream(str) << t;
-    result = llvm::hash_combine(result, str);
+    result = llvm::hash_combine(result, t);
   }
+
   return result;
 }
 

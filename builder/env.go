@@ -23,12 +23,9 @@ func Environment() (Env, error) {
 	}
 
 	// Get GOROOT from the system Go
-	cmd := exec.Command("go", "env", "GOROOT")
-	output, err := cmd.Output()
-	if err != nil {
-		return nil, err
-	}
-	goRoot := strings.TrimSpace(string(output))
+	goRoot := getgoenv("GOROOT", "")
+	goProxy := getgoenv("GOPROXY", "")
+	goModCache := getgoenv("GOMODCACHE", "")
 
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -48,7 +45,9 @@ func Environment() (Env, error) {
 		"SIGOPATH":  getenv("SIGOPATH", getenv("GOPATH", cwd)),
 		"SIGOCACHE": getenv("SIGOCACHE", getenv("GOCACHE", filepath.Join(cacheDir, "go-build"))),
 
-		"GOROOT": getenv("GOROOT", goRoot),
+		"GOROOT":     getenv("GOROOT", goRoot),
+		"GOPROXY":    getenv("GOROOT", goProxy),
+		"GOMODCACHE": getenv("GOMODCACHE", goModCache),
 		//"GOPATH":   getenv("SIGOPATH", getenv("GOPATH", cwd)),
 		"GOCACHE":  getenv("SIGOCACHE", getenv("GOCACHE", filepath.Join(cacheDir, "go-build"))),
 		"GOTMPDIR": getenv("SIGOTMPDIR", filepath.Join(cacheDir, "sigo")),
@@ -86,4 +85,17 @@ func getenv(key, _default string) (value string) {
 		value = _default
 	}
 	return value
+}
+
+func getgoenv(key, _default string) (value string) {
+	cmd := exec.Command("go", "env", key)
+	output, err := cmd.Output()
+	if err != nil {
+		panic(err)
+	}
+	value = strings.TrimSpace(string(output))
+	if len(value) == 0 {
+		value = _default
+	}
+	return
 }

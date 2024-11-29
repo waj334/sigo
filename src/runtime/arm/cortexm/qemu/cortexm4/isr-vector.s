@@ -1,3 +1,6 @@
+.syntax unified
+
+// This is the default handler for interrupts, if triggered but not defined.
 .section .text.Default_Handler
 .global  Default_Handler
 .type    Default_Handler, %function
@@ -22,30 +25,30 @@ __isr_vector:
     // On reset, SP is initialized with *0x0 and PC is loaded with *0x4, loading
     // _stack_top and Reset_Handler.
     .long __stack
-	.long Reset_Handler
-	.long NonMaskableInt_Handler
-	.long HardFault_Handler
-	.long 0
-	.long 0
-	.long 0
-	.long 0
-	.long 0
-	.long 0
-	.long 0
-	.long SVCall_Handler
-	.long 0
-	.long 0
-	.long PendSV_Handler
-	.long SysTick_Handler
-	.long SYSTEM_Handler
-	.long WDT_Handler
+	.word  Reset_Handler
+    .word  NMI_Handler
+    .word  HardFault_Handler
+    .word  MemManage_Handler
+    .word  BusFault_Handler
+    .word  UsageFault_Handler
+    .word  0
+    .word  0
+    .word  0
+    .word  0
+    .word  SVCall_Handler
+    .word  DebugMonitor_Handler
+    .word  0
+    .word  PendSV_Handler
+    .word  SysTick_Handler
 
 	IRQ Reset_Handler
-    IRQ NonMaskableInt_Handler
+    IRQ NMI_Handler
     IRQ HardFault_Handler
+    IRQ MemManage_Handler
+    IRQ BusFault_Handler
+    IRQ UsageFault_Handler
     IRQ SVCall_Handler
+    IRQ DebugMonitor_Handler
     IRQ PendSV_Handler
     IRQ SysTick_Handler
-    IRQ SYSTEM_Handler
-    IRQ WDT_Handler
 

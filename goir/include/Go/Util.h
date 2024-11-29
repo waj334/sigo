@@ -46,7 +46,7 @@ GoTypeId GetGoTypeId(const mlir::Type& type);
 
 std::string typeStr(const mlir::Type &T);
 
-llvm::hash_code computeMethodHash(const StringRef name, const FunctionType func, bool isInterface);
+llvm::hash_code computeMethodHash(const StringRef name, const mlir::TypeRange inputs, const mlir::TypeRange outputs);
 
 inline uint64_t alignTo(uint64_t value, uint64_t alignment) { return (value + alignment - 1) / alignment * alignment; }
 
