@@ -1,60 +1,77 @@
 package runtime
 
-import (
-	"unsafe"
-)
-
 type deferStack struct {
 	head *deferFrame
 	next *deferStack
+	jb   jmp_buf
 }
 
 type deferFrame struct {
-	fn   unsafe.Pointer
-	ctx  unsafe.Pointer
+	fn   _func
 	next *deferFrame
 }
 
-func deferStartStack() {
-	currentTask.deferStack = &deferStack{
-		head: nil,
-		next: currentTask.deferStack,
-	}
+type jmp_buf [16]int
+
+//sigo:extern setjmp setjmp
+func setjmp(*jmp_buf) int
+
+//sigo:extern longjmp longjmp
+func longjmp(*jmp_buf, int)
+
+func deferStackCreate() deferStack {
+	return deferStack{}
 }
 
-func deferPush(fn unsafe.Pointer, ctx unsafe.Pointer) {
-	// Push the defer frame to the top of the defer stack for the current function
-	currentTask.deferStack.head = &deferFrame{
-		fn:   fn,
-		ctx:  ctx,
-		next: currentTask.deferStack.head,
-	}
-}
+func deferInit(isLongjmp int, stack *deferStack) bool {
+	if isLongjmp != 0 {
+		nextStack := currentTask.deferStack.next
 
-func deferRun() {
-	lastState := currentTask.state
-	for currentTask.deferStack != nil {
-		for currentTask.deferStack.head != nil {
-			frame := currentTask.deferStack.head
+		// Execute the defers.
+		deferRun(currentTask.deferStack)
 
-			// Pop frame from stack
-			currentTask.deferStack.head = frame.next
-
-			// Execute the deferred function
-			exec(frame.ctx, frame.fn)
-
-			// Check if a panic recovered
-			if lastState == taskPanicking && currentTask.state == taskRecovered {
-				// Transition this task back to the running state
-				currentTask.state = taskRunning
+		// Unwind the stack.
+		if currentTask.state == taskPanicking {
+			if nextStack != nil {
+				longjmp(&nextStack.jb, 1)
+			} else {
+				// Unrecovered panic
+				abort()
 			}
 		}
+		return true
+	} else {
+		stack.next = currentTask.deferStack
+		currentTask.deferStack = stack
+		return false
+	}
+}
 
-		if currentTask.state == taskPanicking {
-			// Begin executing the next defer stack
-			currentTask.deferStack = currentTask.deferStack.next
-		} else {
-			break
+func deferPush(s *deferStack, fn _func) {
+	// Push the defer frame to the top of the defer stack for the current function
+	s.head = &deferFrame{
+		fn:   fn,
+		next: s.head,
+	}
+}
+
+func deferRun(s *deferStack) {
+	lastState := currentTask.state
+	for s.head != nil {
+		// Pop frame from stack
+		frame := s.head
+		s.head = frame.next
+
+		// Execute the deferred function
+		exec(frame.fn.args, frame.fn.f)
+
+		// Check if a panic recovered
+		if lastState == taskPanicking && currentTask.state == taskRecovered {
+			// Transition this task back to the running state
+			currentTask.state = taskRunning
 		}
 	}
+
+	// Pop this defer stack.
+	currentTask.deferStack = s.next
 }

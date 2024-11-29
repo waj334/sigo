@@ -83,6 +83,35 @@ mlir::Type lookUpRuntimeType(mlir::ModuleOp module, mlir::StringRef name)
   return result.getValue();
 }
 
+static mlir::LLVM::LLVMFunctionType lookupFunctionType(
+  mlir::ModuleOp module,
+  const mlir::LLVMTypeConverter* typeConverter,
+  const mlir::StringRef name)
+{
+  // Look up the function in the module.
+  auto funcOp = mlir::dyn_cast<mlir::FunctionOpInterface>(module.lookupSymbol(name));
+
+  // Get the function type.
+  mlir::LLVM::LLVMFunctionType funcType;
+  if (mlir::isa<mlir::func::FuncOp>(funcOp))
+  {
+    const auto _funcType = mlir::dyn_cast<mlir::FunctionType>(funcOp.getFunctionType());
+    mlir::TypeConverter::SignatureConversion result(_funcType.getNumInputs());
+    const auto convertedType =
+      typeConverter->convertFunctionSignature(_funcType, false, false, result);
+    funcType = mlir::dyn_cast<mlir::LLVM::LLVMFunctionType>(convertedType);
+  }
+  else
+  {
+    // This function has already been lowered.
+    funcType = mlir::dyn_cast<mlir::LLVM::LLVMFunctionType>(funcOp.getFunctionType());
+    const auto originalFuncType = mlir::dyn_cast<mlir::go::FunctionType>(
+      funcOp->getAttrOfType<mlir::TypeAttr>("originalType").getValue());
+  }
+
+  return funcType;
+}
+
 static mlir::SmallVector<Value> createRuntimeCall(
   mlir::PatternRewriter& rewriter,
   const mlir::Location location,
@@ -123,9 +152,7 @@ static mlir::SmallVector<Value> createRuntimeCall(
 
   // Create the call.
   auto callOp = rewriter.create<LLVM::CallOp>(location, funcType, callee, args);
-  callOp.getProperties().operandSegmentSizes = {
-    { static_cast<int32_t>(args.size()), 0 }
-  };
+  callOp.getProperties().operandSegmentSizes = { { static_cast<int32_t>(args.size()), 0 } };
   callOp.getProperties().op_bundle_sizes = rewriter.getDenseI32ArrayAttr({});
 
   // Handle the call results.
@@ -206,6 +233,88 @@ static Value createParameterPack(
   size = (intptr_t)layout.getTypeSize(packType);
 
   return packContainerValue;
+}
+
+// Locate or create the defer stack
+Value locateOrCreateDeferStack(
+  Operation* op,
+  const mlir::LLVMTypeConverter* typeConverter,
+  ConversionPatternRewriter& rewriter)
+{
+  const auto voidPtrType = rewriter.getType<mlir::LLVM::LLVMPointerType>();
+  const auto deferFrameType = LLVM::LLVMStructType::getLiteral(
+    rewriter.getContext(), SmallVector<Type>{ voidPtrType, voidPtrType });
+
+  // Check if the defer stack already exists in the parent function
+  auto parentFunc = op->getParentOfType<LLVM::LLVMFuncOp>();
+  const auto loc = parentFunc->getLoc();
+  for (Block& block : parentFunc.getBody().getBlocks())
+  {
+    for (Operation& innerOp : block.getOperations())
+    {
+      if (auto allocaOp = dyn_cast<LLVM::AllocaOp>(&innerOp))
+      {
+        if (allocaOp->hasAttrOfType<UnitAttr>("deferStack"))
+        {
+          return allocaOp.getResult();
+        }
+      }
+    }
+  }
+
+  OpBuilder::InsertionGuard guard(rewriter);
+  Block& entryBlock = *parentFunc.getBody().begin();
+  rewriter.createBlock(&entryBlock);
+
+  Value deferStackValue =
+    createRuntimeCall(rewriter, loc, "deferStackCreate", typeConverter, {})[0];
+  const auto deferStackType = deferStackValue.getType();
+
+  Value sizeValue =
+    rewriter.create<LLVM::ConstantOp>(loc, rewriter.getI64Type(), rewriter.getI32IntegerAttr(1));
+  Value deferStackPtr =
+    rewriter.create<LLVM::AllocaOp>(loc, voidPtrType, deferStackType, sizeValue);
+
+  deferStackPtr.getDefiningOp()->setAttr("deferStack", rewriter.getUnitAttr());
+
+  // Initialize the defer stack.
+  rewriter.create<LLVM::StoreOp>(loc, deferStackValue, deferStackPtr);
+  mlir::Value envPtr = rewriter.create<mlir::LLVM::GEPOp>(
+    loc, voidPtrType, deferStackType, deferStackPtr, mlir::SmallVector<mlir::LLVM::GEPArg>{ 0, 2 });
+  mlir::Value setjmpResult = rewriter
+                               .create<mlir::LLVM::CallOp>(
+                                 loc,
+                                 mlir::SmallVector<mlir::Type>{ rewriter.getI32Type() },
+                                 rewriter.getStringAttr("setjmp"),
+                                 mlir::SmallVector<mlir::Value>{ envPtr })
+                               .getResult();
+  mlir::Value result = createRuntimeCall(
+    rewriter, loc, "deferInit", typeConverter, { setjmpResult, deferStackPtr })[0];
+
+  mlir::Block* recoverBlock;
+  {
+    OpBuilder::InsertionGuard guard(rewriter);
+    recoverBlock = rewriter.createBlock(&parentFunc.getBody(), parentFunc.getFunctionBody().end());
+
+    if (const auto returnType = parentFunc.getFunctionType().getReturnType();
+        !mlir::isa<mlir::LLVM::LLVMVoidType>(returnType))
+    {
+      // Return the zero value of the result type of the current function.
+      mlir::Value zeroValue = rewriter.create<mlir::LLVM::ZeroOp>(loc, returnType);
+      rewriter.create<mlir::LLVM::ReturnOp>(loc, zeroValue);
+    }
+    else
+    {
+      rewriter.create<mlir::LLVM::ReturnOp>(loc, mlir::Value());
+    }
+  }
+
+  // Insert a conditional branch after the init defer call to branch to the normal block if not
+  // panicking or to the recover block upon recovering from a panic.
+  rewriter.setInsertionPointAfter(result.getDefiningOp());
+  rewriter.create<mlir::LLVM::CondBrOp>(loc, result, recoverBlock, &entryBlock);
+
+  return deferStackPtr;
 }
 
 namespace transforms::LLVM
@@ -961,9 +1070,7 @@ struct CallIndirectOpLowering : public ConvertOpToLLVMPattern<CallIndirectOp>
     llvm::append_range(operands, adaptor.getCalleeOperands());
 
     auto callOp = rewriter.create<mlir::LLVM::CallOp>(op.getLoc(), convertedResultTypes, operands);
-    callOp.getProperties().operandSegmentSizes = {
-      { static_cast<int32_t>(operands.size()), 0 }
-    };
+    callOp.getProperties().operandSegmentSizes = { { static_cast<int32_t>(operands.size()), 0 } };
     callOp.getProperties().op_bundle_sizes = rewriter.getDenseI32ArrayAttr({});
 
     rewriter.replaceOp(op, callOp);
@@ -1487,7 +1594,14 @@ struct DeferOpLowering : ConvertOpToLLVMPattern<DeferOp>
     auto dataLayout = mlir::DataLayout(module);
     auto wordType =
       mlir::IntegerType::get(rewriter.getContext(), getTypeConverter()->getPointerBitwidth());
+    const auto deferFrameType = mlir::LLVM::LLVMStructType::getLiteral(
+      this->getContext(),
+      SmallVector<mlir::Type>{ this->getVoidPtrType(), this->getVoidPtrType() });
 
+    auto parentFunc = op->getParentOfType<mlir::LLVM::LLVMFuncOp>();
+    Block& entryBlock = *parentFunc.getBody().begin();
+
+    /*
     // Create the parameter pack holding the arguments
     intptr_t packSize;
     auto pack = createParameterPack(
@@ -1505,12 +1619,22 @@ struct DeferOpLowering : ConvertOpToLLVMPattern<DeferOp>
 
     // Store the parameter pack into the allocated memory
     rewriter.create<mlir::LLVM::StoreOp>(loc, pack, runtimeCallResults[0]);
+*/
+
+    mlir::Value fnValue =
+      llvm::TypeSwitch<mlir::Type, mlir::Value>(mlir::go::baseType(op.getCallee().getType()))
+        .Case([&](mlir::go::GoStructType) -> mlir::Value { return adaptor.getCallee(); });
+    assert(fnValue && "func value is invalid");
+
+    // Locate the head of the defer frame list for this function.
+    mlir::Value deferStackPtrValue =
+      locateOrCreateDeferStack(op, this->getTypeConverter(), rewriter);
 
     // Create the runtime call to push the defer frame to the defer stack
     createRuntimeCall(
-      rewriter, loc, "deferPush", {}, { adaptor.getCallee(), runtimeCallResults[0] });
-
+      rewriter, loc, "deferPush", this->getTypeConverter(), { deferStackPtrValue, fnValue });
     rewriter.eraseOp(op);
+
     return success();
   }
 };
@@ -1691,9 +1815,8 @@ struct InterfaceCallOpLowering : ConvertOpToLLVMPattern<InterfaceCallOp>
 
     auto newCallOp =
       rewriter.create<mlir::LLVM::CallOp>(loc, llvmFnT, FlatSymbolRefAttr(), operands);
-    newCallOp.getProperties().operandSegmentSizes = {
-      { static_cast<int32_t>(operands.size()), 0 }
-    };
+    newCallOp.getProperties().operandSegmentSizes = { { static_cast<int32_t>(operands.size()),
+                                                        0 } };
     newCallOp.getProperties().op_bundle_sizes = rewriter.getDenseI32ArrayAttr({});
 
     SmallVector<Value, 4> results;
@@ -2089,27 +2212,11 @@ struct PanicOpLowering : ConvertOpToLLVMPattern<PanicOp>
     const auto loc = op.getLoc();
 
     // Create the runtime call to schedule this function call
-    createRuntimeCall(rewriter, loc, "_panic", {}, { adaptor.getValue() });
+    createRuntimeCall(rewriter, loc, "_panic", this->getTypeConverter(), { adaptor.getValue() });
 
-    // The panic operation may or may not branch to the parent function's recover block if it
-    // exists.
-    if (op->hasSuccessors())
-    {
-      // Branch to the recover block
-      rewriter.replaceOpWithNewOp<mlir::LLVM::BrOp>(op, op->getSuccessor(0));
-    }
-    else
-    {
-      SmallVector<Type> resultTypes;
-      if (failed(this->getTypeConverter()->convertTypes(
-            op->getParentOp()->getResultTypes(), resultTypes)))
-      {
-        return failure();
-      }
+    // The end of the function should be unreachable
+    rewriter.replaceOpWithNewOp<mlir::LLVM::UnreachableOp>(op);
 
-      // The end of the function should be unreachable
-      rewriter.replaceOpWithNewOp<mlir::LLVM::UnreachableOp>(op, resultTypes);
-    }
     return success();
   }
 };
@@ -2154,7 +2261,8 @@ struct RecoverOpLowering : ConvertOpToLLVMPattern<RecoverOp>
     ConversionPatternRewriter& rewriter) const override
   {
     const auto loc = op.getLoc();
-    const auto runtimeCallResults = createRuntimeCall(rewriter, loc, "_recover", {}, {});
+    const auto runtimeCallResults =
+      createRuntimeCall(rewriter, loc, "_recover", this->getTypeConverter(), {});
     rewriter.replaceOp(op, runtimeCallResults);
     return success();
   }
@@ -2190,6 +2298,37 @@ struct RecvOpLowering : ConvertOpToLLVMPattern<RecvOp>
     // Load the value
     auto loadOp = rewriter.create<mlir::LLVM::LoadOp>(loc, type, allocaOp.getResult());
     rewriter.replaceOp(op, loadOp->getResults());
+    return success();
+  }
+};
+
+struct RunDefersLowering : ConvertOpToLLVMPattern<RunDefersOp>
+{
+  using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
+
+  LogicalResult matchAndRewrite(
+    RunDefersOp op,
+    OpAdaptor adaptor,
+    ConversionPatternRewriter& rewriter) const override
+  {
+    const auto loc = op.getLoc();
+    const auto deferFrameType = mlir::LLVM::LLVMStructType::getLiteral(
+      this->getContext(),
+      SmallVector<mlir::Type>{ this->getVoidPtrType(), this->getVoidPtrType() });
+
+    auto parentFunc = op->getParentOfType<mlir::LLVM::LLVMFuncOp>();
+    Block& entryBlock = *parentFunc.getBody().begin();
+
+    // Locate the head of the defer frame list for this function.
+    mlir::Value deferStackPtrValue =
+      locateOrCreateDeferStack(op, this->getTypeConverter(), rewriter);
+
+    // Create the runtime call to run the defer stack.
+    createRuntimeCall(rewriter, loc, "deferRun", this->getTypeConverter(), { deferStackPtrValue });
+
+    // Erase the original operation.
+    rewriter.eraseOp(op);
+
     return success();
   }
 };
@@ -2777,6 +2916,7 @@ void populateGoToLLVMConversionPatterns(
             transforms::LLVM::PtrToIntOpLowering,
             transforms::LLVM::RecoverOpLowering,
             transforms::LLVM::RecvOpLowering,
+            transforms::LLVM::RunDefersLowering,
             transforms::LLVM::RuntimeCallOpLowering,
             transforms::LLVM::SliceOpLowering,
             transforms::LLVM::SliceAddrOpLowering,

@@ -27,9 +27,8 @@ def PanicOp : Go_Op<"panic", [Terminator]> {
         ```
     }];
     let arguments = (ins Go_Interface:$value);
-    let successors = (successor VariadicSuccessor<AnySuccessor>:$dest);
     let assemblyFormat = [{
-        `(`$value `:` type($value)`)` attr-dict `->` $dest
+        `(` $value `:` type($value) `)` attr-dict
     }];
 }
 

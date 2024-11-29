@@ -173,6 +173,28 @@ struct CallPass : public mlir::PassWrapper<CallPass, mlir::OperationPass<mlir::M
       return funcSymbolName;
     };
 
+    // Walk all defer calls and make sure all return paths in the parent function run defers before
+    // exiting.
+    mlir::DenseSet<mlir::Operation*> visitedFuncs;
+    module.walk(
+      [&](DeferOp deferOp)
+      {
+        auto parentFunction = deferOp->getParentOfType<mlir::go::FuncOp>();
+        if (visitedFuncs.contains(parentFunction))
+        {
+          return mlir::WalkResult::skip();
+        }
+
+        parentFunction.walk(
+          [&](mlir::go::ReturnOp returnOp)
+          {
+            OpBuilder builder(returnOp);
+            builder.create<mlir::go::RunDefersOp>(returnOp.getLoc());
+          });
+
+        return mlir::WalkResult::advance();
+      });
+
     // Walk all `go` operations and generate thunks.
     module.walk(
       [&](GoOp op)
@@ -350,7 +372,10 @@ struct CallPass : public mlir::PassWrapper<CallPass, mlir::OperationPass<mlir::M
 
         // Replace the call operation with a runtime call to the scheduler.
         rewriter.replaceOpWithNewOp<RuntimeCallOp>(
-          op, SmallVector<Type>{}, formatPackageSymbol("runtime", "addTask"), SmallVector<Value>{ funcValue });
+          op,
+          SmallVector<Type>{},
+          formatPackageSymbol("runtime", "addTask"),
+          SmallVector<Value>{ funcValue });
       });
   }
 };

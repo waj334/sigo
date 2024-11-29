@@ -1,7 +1,10 @@
 .global runtime.exec
 .type runtime.exec, %function
 runtime.exec:
+		mov r4, lr
     blx r1
+		mov lr, r4
+		bx lr
 .size runtime.exec, .-runtime.exec
 
 .global runtime.currentStack

@@ -29,7 +29,7 @@ func (b *Builder) emitIfStatement(ctx context.Context, stmt *ast.IfStmt) {
 
 	// Conditionally branch to either the then block of the else block.
 	condBrOp := mlir.GoCreateCondBranchOperation(b.ctx, condValue, thenBlock, nil, elseBlock, nil,
-		b.location(stmt.Pos()))
+		b.location(stmt.Cond.Pos()))
 	appendOperation(ctx, condBrOp)
 
 	// Build the then block.
@@ -277,7 +277,7 @@ func (b *Builder) emitForStatement(ctx context.Context, stmt *ast.ForStmt) {
 
 			// Conditionally branch to either the body block or the exit block.
 			condBrOp := mlir.GoCreateCondBranchOperation(b.config.Ctx, condValue, bodyBlock, nil, exitBlock, nil,
-				b.location(stmt.Pos()))
+				b.location(stmt.Cond.Pos()))
 			appendOperation(ctx, condBrOp)
 		} else {
 			// Unconditionally branch to the body block.
