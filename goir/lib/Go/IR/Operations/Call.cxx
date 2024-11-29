@@ -68,12 +68,12 @@ namespace mlir::go
         {
           // The struct must be the "func" struct type.
           auto namedType = mlir::dyn_cast<NamedType>(this->getCallee().getType());
-          if (namedType && namedType.getName() == "runtime.func")
+          if (namedType && namedType.getName() == "runtime._func")
           {
             return success();
           }
           return this->emitOpError()
-            << "expected \"runtime.func\" struct type, but got " << namedType;
+            << "expected \"runtime._func\" struct type, but got " << namedType;
         })
       .Default([&](auto T) { return this->emitOpError() << "unsupported callee type " << T; });
 

@@ -557,7 +557,6 @@ extern "C"
   MlirOperation mlirGoCreatePanicOperation(
     MlirContext context,
     MlirValue value,
-    MlirBlock* recoverBlock,
     MlirLocation location);
 
   MlirOperation

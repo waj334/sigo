@@ -10,6 +10,7 @@ import (
 func (b *Builder) emitBuiltinCall(ctx context.Context, expr *ast.CallExpr) []mlir.Value {
 	location := b.location(expr.Pos())
 	signature := b.typeOf(ctx, expr.Fun).(*types.Signature)
+	anyType := types.NewInterfaceType(nil, nil)
 
 	// Determine the built-in function name.
 	var name string
@@ -26,11 +27,23 @@ func (b *Builder) emitBuiltinCall(ctx context.Context, expr *ast.CallExpr) []mli
 	var results []mlir.Type
 
 	offset := 0
-	if name == "new" || name == "make" {
+	switch name {
+	case "new", "make":
 		// First argument is a type.
 		results = append(results, b.GetStoredType(ctx, b.typeOf(ctx, expr)))
 		offset = 1
-	} else {
+	case "panic":
+		valueType := b.typeOf(ctx, expr.Args[0])
+		value := b.emitExpr(ctx, expr.Args[0])[0]
+		value = b.emitInterfaceValue(ctx, anyType, valueType, value, location)
+		op := mlir.GoCreatePanicOperation(b.ctx, value, location)
+		appendOperation(ctx, op)
+		return nil
+	case "recover":
+		op := mlir.GoCreateRecoverOperation(b.ctx, b._any, location)
+		appendOperation(ctx, op)
+		return resultsOf(op)
+	default:
 		resultType := b.typeOf(ctx, expr)
 		if resultType != nil {
 			switch resultType := resultType.(type) {

@@ -1,0 +1,188 @@
+## Supported Language Features
+- [x] **Constants**
+    - [x] Constant declarations
+        - [x] `const` keyword
+        - [x] Multiple constant declarations (parenthesized)
+        - [x] Iota enumerator
+    - [x] Typed constants
+    - [x] Untyped constants
+    - [x] Constant expressions
+        - [x] Numeric constants
+        - [x] String constants
+        - [x] Boolean constants
+
+- [x] **Variables**
+    - [x] Variable declarations
+        - [x] `var` keyword
+        - [x] Multiple variable declarations (parenthesized)
+        - [x] Variable initialization
+    - [x] Short variable declarations (`:=`)
+    - [x] Variables and pointers
+        - [x] Address operator (`&`)
+        - [x] Pointer indirection (`*`)
+
+- [x] **Types**
+    - [x] Type declarations
+        - [x] `type` keyword
+        - [x] Type definitions
+        - [x] Type aliases
+    - [x] **Basic Types**
+        - [x] Boolean types (`bool`)
+        - [x] Numeric types
+            - [x] Integer types (`int`, `int8`, `int16`, `int32`, `int64`, `uint`, `uint8`, `uint16`, `uint32`, `uint64`, `uintptr`)
+            - [x] Floating-point types (`float32`, `float64`)
+            - [x] Complex types (`complex64`, `complex128`)
+        - [x] String types (`string`)
+    - [x] **Composite Types**
+        - [x] Array types
+            - [x] Fixed-length arrays
+            - [x] Multidimensional arrays
+        - [x] Slice types
+            - [x] Slice literals
+            - [x] Slicing operations
+        - [x] Struct types
+            - [x] Field declarations
+            - [x] Anonymous fields (embedding)
+            - [x] Struct literals
+        - [x] Pointer types
+        - [x] Function types
+            - [x] Function signatures
+            - [x] Variadic functions
+        - [x] Interface types
+            - [x] Method sets
+            - [x] Empty interface (`interface{}`)
+        - [x] Map types
+            - [x] Map literals
+            - [x] Key and value types
+        - [x] Channel types
+            - [x] Unidirectional channels
+            - [x] Bidirectional channels
+
+- [x] **Conversions**
+    - [x] Type conversions
+    - [x] Explicit conversions
+
+- [x] **Declarations and Scope**
+    - [x] Declaration statements
+        - [x] `const` declarations
+        - [x] `var` declarations
+        - [x] `type` declarations
+    - [x] Scope of declarations
+        - [x] Package scope
+        - [x] File scope
+        - [x] Function scope
+        - [x] Block scope
+    - [x] Label scopes
+
+- [ ] **Statements**
+    - [x] Empty statements
+    - [x] Labeled statements
+    - [x] Simple statements
+        - [x] Expression statements
+        - [x] Send statements (`channel <- value`)
+        - [x] IncDec statements (`++`, `--`)
+        - [x] Assignment statements (`=`, `+=`, `-=`, etc.)
+        - [x] Short variable declarations (`:=`)
+    - [x] Control flow statements
+        - [x] If statements
+            - [x] Optional short statement
+            - [x] Else clause
+        - [x] Switch statements
+            - [x] Expression switches
+            - [x] Type switches
+            - [x] Switch cases
+        - [x] Select statements
+            - [x] Communication cases
+            - [x] Default case
+        - [ ] For statements
+            - [x] For clause (`initialization; condition; post`)
+            - [ ] Range clause
+                - [x] Array range
+                - [x] Channel range
+                - [x] Integer range
+                - [ ] Iterator range
+                - [x] Map range
+                - [x] Slice range
+                - [x] String range
+    - [x] Go statements
+        - [x] Goroutine creation (`go` keyword)
+    - [ ] Defer statements
+        - [x] Deferred function calls (`defer` keyword)
+    - [x] Return statements
+    - [x] Break statements
+    - [x] Continue statements
+    - [x] Goto statements
+    - [x] Fallthrough statements
+
+- [x] **Functions**
+    - [x] Function declarations
+        - [x] Function names
+        - [x] Parameters and results
+    - [x] Function literals (anonymous functions)
+    - [x] Methods
+        - [x] Method declarations
+        - [x] Method receivers
+        - [x] Pointer and value receivers
+
+- [x] **Expressions**
+    - [x] Operands
+        - [x] Literal operands
+        - [x] Operand names (variables, constants)
+        - [x] Function literals
+        - [x] Composite literals
+    - [x] Qualified identifiers
+    - [x] Composite literals
+        - [x] Array literals
+        - [x] Map literals
+        - [x] Slice literals
+        - [x] Struct literals
+    - [x] Primary expressions
+        - [x] Selector expressions (`.` operator)
+        - [x] Index expressions (`[ ]`)
+        - [x] Slice expressions (`[ : ]`)
+        - [x] Type assertions (`.(Type)`)
+        - [x] Calls
+            - [x] Function calls
+            - [x] Method calls
+    - [x] Operators
+        - [x] Arithmetic operators (`+`, `-`, `*`, `/`, `%`)
+        - [x] Relational operators (`==`, `!=`, `<`, `<=`, `>`, `>=`)
+        - [x] Logical operators (`&&`, `||`, `!`)
+        - [x] Bitwise operators (`&`, `|`, `^`, `&^`)
+        - [x] Shift operators (`<<`, `>>`)
+        - [x] Receive operator (`<-`)
+        - [x] Address operators (`&`, `*`)
+        - [x] Operator precedence and associativity
+
+- [x] **Built-in Functions**
+    - [x] `append`
+    - [x] `cap`
+    - [x] `close`
+    - [x] `complex`
+    - [x] `copy`
+    - [x] `delete`
+    - [x] `imag`
+    - [x] `len`
+    - [x] `make`
+        - [x] Channels
+        - [x] Maps
+        - [x] Slices
+    - [x] `new`
+    - [x] `panic`
+    - [ ] `print`
+    - [ ] `println`
+    - [x] `real`
+    - [x] `recover`
+
+- [x] **Program Initialization and Execution**
+    - [x] Package initialization
+        - [x] Initialization order
+        - [x] `init` functions
+    - [x] Program execution
+        - [x] `main` package
+            - [x] `main` function
+
+- [ ] **Errors**
+    - [x] `error` type
+    - [ ] Error handling mechanisms
+    - [x] Stack unwinding upon panic

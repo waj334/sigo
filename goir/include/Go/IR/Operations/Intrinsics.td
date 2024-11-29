@@ -10,4 +10,14 @@ include "mlir/Interfaces/InferTypeOpInterface.td"
 include "mlir/IR/BuiltinAttributeInterfaces.td"
 include "mlir/IR/OpBase.td"
 
+//===----------------------------------------------------------------------===//
+// RunDefersOp
+//===----------------------------------------------------------------------===//
+
+def RunDefersOp : Go_Op<"intrinsic.run_defers"> {
+    let assemblyFormat = [{
+        attr-dict
+    }];
+}
+
 #endif // GO_OPERATIONS_INTRINSICS_TD

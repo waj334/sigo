@@ -1195,23 +1195,15 @@ mlirGoGetFunction(MlirContext context, MlirStringRef symbol, MlirType type, Mlir
 MlirOperation mlirGoCreatePanicOperation(
   MlirContext context,
   MlirValue value,
-  MlirBlock* recoverBlock,
   MlirLocation location)
 {
   auto _context = unwrap(context);
   auto _location = unwrap(location);
   auto _value = unwrap(value);
 
-  mlir::SmallVector<mlir::Block*> successors{};
-  if (recoverBlock)
-  {
-    auto _recoverBlock = unwrap(*recoverBlock);
-    successors.push_back(_recoverBlock);
-  }
-
   mlir::Operation* op;
   mlir::OpBuilder builder(_context);
-  op = builder.create<::mlir::go::PanicOp>(_location, _value, successors);
+  op = builder.create<::mlir::go::PanicOp>(_location, _value);
   return wrap(op);
 }
 

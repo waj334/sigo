@@ -189,6 +189,7 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
     target.addLegalOp<PtrToIntOp>();
     target.addLegalOp<RecoverOp>();
     target.addLegalOp<RecvOp>();
+    target.addLegalOp<RunDefersOp>();
     target.addLegalOp<RuntimeCallOp>();
     target.addLegalOp<SliceOp>();
     target.addLegalOp<SliceToStringOp>();
