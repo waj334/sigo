@@ -459,7 +459,24 @@ func (b *Builder) emitDeferStatement(ctx context.Context, stmt *ast.DeferStmt) {
 		appendOperation(ctx, op)
 	case *ast.Ident:
 		// Evaluate the callee.
-		F := b.emitExpr(ctx, Fun)[0]
+		var F mlir.Value
+		switch Fun := stmt.Call.Fun.(type) {
+		case *ast.Ident:
+			info := currentInfo(ctx)
+			tv := info.Types[Fun]
+			if tv.IsBuiltin() {
+				symbol := b.emitBuiltinCallWrapper(ctx, Fun)
+
+				// Get the address of the builtin wrapper function.
+				signature := b.typeOf(ctx, Fun).(*types.Signature)
+				fptrType := b.funcPointerOf(ctx, signature)
+				F = b.addressOfSymbol(ctx, symbol, fptrType, location)
+			} else {
+				panic("unhandled")
+			}
+		default:
+			F = b.emitExpr(ctx, Fun)[0]
+		}
 
 		// Emit the goroutine operation.
 		op := mlir.GoCreateDeferOperation(b.ctx, F, nil, callArgs, location)
