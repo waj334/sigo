@@ -58,6 +58,9 @@ type Builder struct {
 	thunks     map[string]struct{}
 	thunkTypes map[string]mlir.Type
 
+	builtinWrapperMutex sync.Mutex
+	builtinWrappers     map[string]string
+
 	// Misc:
 	generateQueue      chan *funcData
 	work               atomic.Int32
@@ -99,16 +102,17 @@ type jobQueue struct {
 
 func NewBuilder(config Config) *Builder {
 	builder := &Builder{
-		config:        config,
-		typeCache:     map[types.Type]mlir.Type{},
-		valueCache:    map[types.Object]Value{},
-		ctx:           config.Ctx,
-		program:       config.Program,
-		symbols:       mlir.SymbolTableCreate(mlir.ModuleGetOperation(config.Module)),
-		generateQueue: make(chan *funcData),
-		thunks:        map[string]struct{}{},
-		thunkTypes:    map[string]mlir.Type{},
-		genericFuncs:  map[string]*funcData{},
+		config:          config,
+		typeCache:       map[types.Type]mlir.Type{},
+		valueCache:      map[types.Object]Value{},
+		ctx:             config.Ctx,
+		program:         config.Program,
+		symbols:         mlir.SymbolTableCreate(mlir.ModuleGetOperation(config.Module)),
+		generateQueue:   make(chan *funcData),
+		thunks:          map[string]struct{}{},
+		thunkTypes:      map[string]mlir.Type{},
+		genericFuncs:    map[string]*funcData{},
+		builtinWrappers: map[string]string{},
 
 		declaredTypes: map[types.Type]struct{}{},
 

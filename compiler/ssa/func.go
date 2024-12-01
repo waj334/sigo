@@ -497,3 +497,71 @@ func (b *Builder) unpackArgPack(ctx context.Context, argTypes []mlir.Type, pack 
 	}
 	return result
 }
+
+func (b *Builder) emitBuiltinCallWrapper(ctx context.Context, ident *ast.Ident) string {
+	b.builtinWrapperMutex.Lock()
+	defer b.builtinWrapperMutex.Unlock()
+
+	if symbol, ok := b.builtinWrappers[ident.Name]; ok {
+		return symbol
+	}
+
+	// Emit a wrapper function for this builtin.
+	signature := b.typeOf(ctx, ident).(*types.Signature)
+
+	// Collect the argument types.
+	paramTypes := make([]mlir.Type, signature.Params().Len())
+	for i := 0; i < signature.Params().Len(); i++ {
+		paramTypes[i] = b.GetStoredType(ctx, signature.Params().At(i).Type())
+	}
+
+	paramLocs := make([]mlir.Location, len(paramTypes))
+	fill(paramLocs, b._noLoc)
+
+	// Collect the result types.
+	resultTypes := make([]mlir.Type, signature.Results().Len())
+	for i := 0; i < signature.Results().Len(); i++ {
+		resultTypes[i] = b.GetStoredType(ctx, signature.Results().At(i).Type())
+	}
+
+	// Create the wrapper function body.
+	region := mlir.RegionCreate()
+	ctx = newContextWithRegion(ctx, region)
+
+	entryBlock := mlir.BlockCreate2(paramTypes, paramLocs)
+	mlir.RegionAppendOwnedBlock(region, entryBlock)
+	buildBlock(ctx, entryBlock, func() {
+		args := make([]mlir.Value, signature.Params().Len())
+		for i := 0; i < signature.Params().Len(); i++ {
+			args[i] = mlir.BlockGetArgument(entryBlock, i)
+		}
+
+		// Emit the builtin call into the wrapper function.
+		op := mlir.GoCreateBuiltInCallOperation(b.ctx, ident.Name, resultTypes, args, b._noLoc)
+		appendOperation(ctx, op)
+
+		// Return the results.
+		returnOp := mlir.GoCreateReturnOperation(b.ctx, resultsOf(op), b._noLoc)
+		appendOperation(ctx, returnOp)
+	})
+
+	// Create the function operation.
+	symbol := fmt.Sprintf("_builtin_wrapper_%s", ident.Name)
+	wrapperFuncT := b.createSignatureType(ctx, signature)
+	state := mlir.OperationStateGet("go.func", b._noLoc)
+	mlir.OperationStateAddOwnedRegions(state, []mlir.Region{region})
+	mlir.OperationStateAddAttributes(state, []mlir.NamedAttribute{
+		b.namedOf("function_type", mlir.TypeAttrGet(wrapperFuncT)),
+		b.namedOf("sym_name", mlir.StringAttrGet(b.ctx, symbol)),
+		b.namedOf("sym_visibility", mlir.StringAttrGet(b.ctx, "private")),
+	})
+
+	funcOp := mlir.OperationCreate(state)
+
+	// This operation will be added later safely.
+	b.addToModuleMutex.Lock()
+	b.addToModule[symbol] = funcOp
+	b.addToModuleMutex.Unlock()
+	b.builtinWrappers[ident.Name] = symbol
+	return symbol
+}
