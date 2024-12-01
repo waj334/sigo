@@ -1770,7 +1770,8 @@ struct InterfaceCallOpLowering : ConvertOpToLLVMPattern<InterfaceCallOp>
     // Compute method hash (method name, args types, result types)
     const auto signature = mlir::cast<FunctionType>(
       cast<InterfaceType>(op.getIface().getType()).getMethods().at(adaptor.getCallee().str()));
-    auto methodHash = uint32_t(computeMethodHash(adaptor.getCallee(), signature, true));
+    auto methodHash = static_cast<uint32_t>(
+      computeMethodHash(adaptor.getCallee(), signature.getInputs(), signature.getResults()));
     for (size_t i = 0; i < adaptor.getCalleeOperands().size(); ++i)
     {
       auto arg = adaptor.getCalleeOperands()[i];

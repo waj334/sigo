@@ -111,11 +111,6 @@ func (b *Builder) emitAssign(ctx context.Context, stmt *ast.AssignStmt) {
 							// Convert from interface A to interface B.
 							rhs = b.emitChangeType(ctx, lhsType, rhs, location)
 						} else {
-							// Generate methods for named types.
-							if T, ok := rhsType.(*types.Named); ok {
-								b.queueNamedTypeJobs(ctx, T)
-							}
-
 							// Create an interface value from the value expression.
 							rhs = b.emitInterfaceValue(ctx, lhsType, rhsType, rhs, location)
 						}
@@ -445,11 +440,6 @@ func (b *Builder) emitGenericDecl(ctx context.Context, decl *ast.GenDecl) {
 						// Convert from interface A to interface B.
 						result = b.emitChangeType(ctx, lhsType, result, location)
 					} else {
-						// Generate methods for named types.
-						if T, ok := rhsType.(*types.Named); ok {
-							b.queueNamedTypeJobs(ctx, T)
-						}
-
 						// Create an interface value from the value expression.
 						result = b.emitInterfaceValue(ctx, lhsType, rhsType, result, location)
 					}
@@ -682,11 +672,6 @@ func (b *Builder) emitReturn(ctx context.Context, stmt *ast.ReturnStmt) {
 							// Convert from interface A to interface B.
 							v[ii] = b.emitChangeType(ctx, returnType, v[ii], location)
 						} else {
-							// Generate methods for named types.
-							if T, ok := valueType.(*types.Named); ok {
-								b.queueNamedTypeJobs(ctx, T)
-							}
-
 							// Create an interface value from the value expression.
 							v[ii] = b.emitInterfaceValue(ctx, returnType, valueType, v[ii], location)
 						}

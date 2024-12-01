@@ -289,11 +289,6 @@ func (b *Builder) emitCallArgs(ctx context.Context, signature *types.Signature, 
 					// Convert from interface A to interface B.
 					argValues[i] = b.emitChangeType(ctx, paramT, argValues[i], location)
 				} else {
-					// Generate methods for named types.
-					if T, ok := argT.(*types.Named); ok {
-						b.queueNamedTypeJobs(ctx, T)
-					}
-
 					// Create an interface value from the value expression.
 					argValues[i] = b.emitInterfaceValue(ctx, paramT, argT, argValues[i], location)
 				}
@@ -536,11 +531,6 @@ func (b *Builder) emitVariadicArgs(ctx context.Context, signature *types.Signatu
 						// Convert from interface A to interface B.
 						arg = b.emitChangeType(ctx, elementType, arg, location)
 					} else {
-						// Generate methods for named types.
-						if T, ok := argT.(*types.Named); ok {
-							b.queueNamedTypeJobs(ctx, T)
-						}
-
 						// Create an interface value from the value expression.
 						arg = b.emitInterfaceValue(ctx, elementType, argT, arg, location)
 					}

@@ -181,37 +181,6 @@ mlir::go::LLVMTypeConverter getLLVMTypeConverter(mlir::ModuleOp module)
   return mlir::go::LLVMTypeConverter(module, options);
 }
 
-llvm::hash_code computeLLVMFunctionHash(
-  const StringRef name,
-  const mlir::LLVM::LLVMFunctionType func,
-  bool isInterface)
-{
-  llvm::hash_code result = llvm::hash_value(name);
-  size_t offset = 0;
-  if (!isInterface)
-  {
-    // Skip the receiver for named-type methods.
-    offset = 1;
-  }
-
-  // Hash the input types starting at the offset.
-  for (size_t i = offset; i < func.getNumParams(); i++)
-  {
-    std::string str;
-    llvm::raw_string_ostream(str) << func.getParams()[i];
-    result = llvm::hash_combine(result, str);
-  }
-
-  // Hash the result types
-  for (auto t : func.getReturnTypes())
-  {
-    std::string str;
-    llvm::raw_string_ostream(str) << t;
-    result = llvm::hash_combine(result, str);
-  }
-  return result;
-}
-
 mlir::LLVM::GlobalOp createSignatureDataGlobal(
   mlir::OpBuilder& builder,
   mlir::ModuleOp module,
@@ -437,7 +406,7 @@ mlir::LLVM::GlobalOp createTypeInfo(
               for (auto [name, _func] : methods)
               {
                 const auto func = mlir::cast<FunctionType>(_func);
-                const auto id = computeMethodHash(name, func, true);
+                const auto id = computeMethodHash(name, func.getInputs(), func.getResults());
                 const auto interfaceMethodSymbol =
                   typeInfoSymbol(type, "_interface_method_" + name + "_" + std::to_string(id));
                 const auto interfaceMethodDataType =
@@ -538,9 +507,7 @@ mlir::LLVM::GlobalOp createTypeInfo(
               continue;
             }
 
-            if (
-              mlir::TypeAttr originalTypeAttr =
-                funcOp->getAttrOfType<mlir::TypeAttr>("originalType"))
+            if (auto originalTypeAttr = funcOp->getAttrOfType<mlir::TypeAttr>("originalType"))
             {
               fnT = mlir::dyn_cast<mlir::go::FunctionType>(originalTypeAttr.getValue());
             }
@@ -550,7 +517,8 @@ mlir::LLVM::GlobalOp createTypeInfo(
             // Compute the hash id for the type method.
             auto methodName = funcSymbol.getValue();
             methodName = methodName.substr(methodName.find_last_of(".") + 1);
-            const auto methodHashId = computeMethodHash(methodName, fnT, false);
+            const auto methodHashId =
+              computeMethodHash(methodName, fnT.getInputs(), fnT.getResults());
 
             // Create the type info for this function's signature.
             auto signatureTypeDataGlobalOp = createSignatureDataGlobal(builder, module, loc, fnT);

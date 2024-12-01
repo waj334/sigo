@@ -116,10 +116,10 @@ bool mlirModuleDumpToFile(MlirModule module, MlirStringRef fname)
   auto _fname = unwrap(fname);
 
   std::error_code EC;
-  ::llvm::raw_fd_ostream dest(_fname, EC, llvm::sys::fs::OF_TextWithCRLF);
+  ::llvm::raw_fd_ostream dest(_fname, EC, llvm::sys::fs::OF_Text);
   if (EC)
   {
-    //*ErrorMessage = strdup(EC.message().c_str());
+    llvm::errs() << EC.message() << "\n";
     return false;
   }
 
@@ -129,8 +129,7 @@ bool mlirModuleDumpToFile(MlirModule module, MlirStringRef fname)
 
   if (dest.has_error())
   {
-    // std::string E = "Error printing to file: " + dest.error().message();
-    //*ErrorMessage = strdup(E.c_str());
+    llvm::errs() << EC.message() << "\n";
     return false;
   }
 

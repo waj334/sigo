@@ -233,7 +233,7 @@ configure: configure-llvm configure-goir
 
 reconfigure:
 	rm -f $(LLVM_CMAKE_CACHE) $(GOIR_CMAKE_CACHE)
-	$(MAKE) configure
+	"$(MAKE)" configure
 
 generate-llvm-bindings: ./llvm/llvm.go
 ./llvm/llvm.go: ./llvm/llvm.i

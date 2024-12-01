@@ -52,10 +52,10 @@ namespace mlir::go
       .Case(
         [&](PointerType T) -> LogicalResult
         {
-          if (auto elementType = T.getElementType())
+          if (auto elementType = T.getElementType(); elementType.has_value())
           {
             // Must be a pointer to a function.
-            if (mlir::go::isa<FunctionType>(*elementType))
+            if (mlir::go::isa<mlir::go::FunctionType>(*elementType))
             {
               Fn = mlir::go::dyn_cast<mlir::go::FunctionType>(*elementType);
               return success();
