@@ -298,7 +298,6 @@ mlirGoOptimizeModule(MlirModule module, MlirStringRef name, MlirStringRef output
     pm.enableTiming();
   }
 
-  pm.addNestedPass<mlir::go::FuncOp>(mlir::go::createOptimizeDefersPass());
   pm.addPass(mlir::go::createCallPass());
   pm.addPass(mlir::go::createAttachDebugInfoPass());
   pm.addPass(mlir::go::createGlobalConstantsPass());

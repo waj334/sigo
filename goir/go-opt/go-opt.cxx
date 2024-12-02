@@ -20,7 +20,6 @@ int main(int argc, char** argv)
   mlir::registerPass(mlir::go::createGlobalConstantsPass);
   mlir::registerPass(mlir::go::createGlobalInitializerPass);
   mlir::registerPass(mlir::go::createLowerToLLVMPass);
-  mlir::registerPass(mlir::go::createOptimizeDefersPass);
   mlir::registerPass(mlir::go::createHeapEscapePass);
 
   mlir::DialectRegistry registry;

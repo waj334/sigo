@@ -37,7 +37,7 @@ def CallIndirectOp : Go_Op<"call_indirect"> {
 }
 
 //===----------------------------------------------------------------------===//
-// defer
+// DeferOp
 //===----------------------------------------------------------------------===//
 
 def DeferOp : Go_Op<"call_defer"> {
@@ -78,9 +78,8 @@ def GoOp : Go_Op<"call_go"> {
     }];
     let arguments = (ins
             AnyTypeOrNamedOf<[Go_Interface, Go_Struct, Go_Pointer]>:$callee,
-            Variadic<Go_Type>:$callee_operands,
-            TypeAttr:$signature,
-            OptionalAttr<StrAttr>:$method_name);
+            OptionalAttr<StrAttr>:$method_name,
+            Variadic<Go_Type>:$callee_operands);
     let assemblyFormat = [{
         $callee (`<` $method_name^ `>`)? `(` $callee_operands `)` attr-dict `:` type(operands)
     }];
@@ -107,18 +106,6 @@ def InterfaceCallOp : Go_Op<"call_interface"> {
          $callee `<`$iface `:` type($iface) `>` `(` $callee_operands `)` attr-dict `:` functional-type($callee_operands, results)
     }];
     let hasVerifier = 1;
-}
-
-//===----------------------------------------------------------------------===//
-// RuntimeCallOp
-//===----------------------------------------------------------------------===//
-
-def RuntimeCallOp : Go_Op<"call_runtime"> {
-    let arguments = (ins FlatSymbolRefAttr:$callee, Variadic<Go_Type>:$callee_operands);
-    let results = (outs Variadic<Go_Type>:$callee_results);
-    let assemblyFormat = [{
-        $callee `(` $callee_operands `)` attr-dict `:` functional-type($callee_operands, $callee_results)
-    }];
 }
 
 //===----------------------------------------------------------------------===//

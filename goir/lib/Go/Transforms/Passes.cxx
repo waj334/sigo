@@ -117,7 +117,6 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
     target.addIllegalOp<FloatToSignedIntOp>();
     target.addIllegalOp<FloatTruncateOp>();
     target.addIllegalOp<mlir::go::FuncOp>();
-    target.addIllegalOp<GoOp>();
     target.addIllegalOp<ImagOp>();
     target.addIllegalOp<IntTruncateOp>();
     target.addIllegalOp<MakeInterfaceOp>();
@@ -175,6 +174,7 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
     target.addLegalOp<ExtractOp>();
     target.addLegalOp<FunctionToPointerOp>();
     target.addLegalOp<GetElementPointerOp>();
+    target.addLegalOp<GoOp>();
     target.addLegalOp<InsertOp>();
     target.addLegalOp<InterfaceCallOp>();
     target.addLegalOp<IntToPtrOp>();
@@ -190,7 +190,6 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
     target.addLegalOp<RecoverOp>();
     target.addLegalOp<RecvOp>();
     target.addLegalOp<RunDefersOp>();
-    target.addLegalOp<RuntimeCallOp>();
     target.addLegalOp<SliceOp>();
     target.addLegalOp<SliceToStringOp>();
     target.addLegalOp<SliceAddrOp>();

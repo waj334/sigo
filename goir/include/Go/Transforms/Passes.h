@@ -24,8 +24,6 @@ std::unique_ptr<mlir::Pass> createLowerTypeInfoPass();
 
 std::unique_ptr<mlir::Pass> createDumpToFilePass(StringRef name, StringRef dir);
 
-std::unique_ptr<mlir::Pass> createOptimizeDefersPass();
-
 std::unique_ptr<mlir::Pass> createCallPass();
 
 void populateGoToCoreConversionPatterns(
