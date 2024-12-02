@@ -75,41 +75,12 @@ mlir::Type lookUpRuntimeType(mlir::ModuleOp module, mlir::StringRef name)
     moduleOp->hasAttr("go.runtimeTypes") &&
     "module MUST have the go.runtimeTypes dictionary attribute");
   auto typeMap = ::mlir::dyn_cast<mlir::DictionaryAttr>(moduleOp->getAttr("go.runtimeTypes"));
-  const ::mlir::TypeAttr result = typeMap.template getAs<::mlir::TypeAttr>(name);
+  const auto result = typeMap.template getAs<::mlir::TypeAttr>(name);
   if (!result)
   {
-    return ::mlir::Type();
+    return {};
   }
   return result.getValue();
-}
-
-static mlir::LLVM::LLVMFunctionType lookupFunctionType(
-  mlir::ModuleOp module,
-  const mlir::LLVMTypeConverter* typeConverter,
-  const mlir::StringRef name)
-{
-  // Look up the function in the module.
-  auto funcOp = mlir::dyn_cast<mlir::FunctionOpInterface>(module.lookupSymbol(name));
-
-  // Get the function type.
-  mlir::LLVM::LLVMFunctionType funcType;
-  if (mlir::isa<mlir::func::FuncOp>(funcOp))
-  {
-    const auto _funcType = mlir::dyn_cast<mlir::FunctionType>(funcOp.getFunctionType());
-    mlir::TypeConverter::SignatureConversion result(_funcType.getNumInputs());
-    const auto convertedType =
-      typeConverter->convertFunctionSignature(_funcType, false, false, result);
-    funcType = mlir::dyn_cast<mlir::LLVM::LLVMFunctionType>(convertedType);
-  }
-  else
-  {
-    // This function has already been lowered.
-    funcType = mlir::dyn_cast<mlir::LLVM::LLVMFunctionType>(funcOp.getFunctionType());
-    const auto originalFuncType = mlir::dyn_cast<mlir::go::FunctionType>(
-      funcOp->getAttrOfType<mlir::TypeAttr>("originalType").getValue());
-  }
-
-  return funcType;
 }
 
 static mlir::SmallVector<Value> createRuntimeCall(
@@ -174,67 +145,6 @@ static mlir::SmallVector<Value> createRuntimeCall(
   return resultValues;
 }
 
-static Value createParameterPack(
-  PatternRewriter& rewriter,
-  const Location location,
-  const ArrayRef<Value>& params,
-  intptr_t& size,
-  const DataLayout& layout,
-  const mlir::LLVMTypeConverter* converter)
-{
-  auto wordType = mlir::IntegerType::get(rewriter.getContext(), converter->getPointerBitwidth());
-
-  /*
-  {
-      intptr_t numArgs
-      intptr_t SIZEOF(ARG0)
-      [ARG0]
-      ...
-      intptr_t SIZEOF(ARGN)
-      [ARGN]
-  }
-  */
-
-  // Create the context struct type
-  SmallVector<Type> elementTypes = { wordType };
-
-  // Append parameter types
-  for (auto param : params)
-  {
-    elementTypes.push_back(wordType);
-    elementTypes.push_back(param.getType());
-  }
-  auto packType = LLVM::LLVMStructType::getLiteral(rewriter.getContext(), elementTypes);
-
-  // Create an undef of the parameter pack struct type
-  Value packContainerValue = rewriter.create<LLVM::UndefOp>(location, packType);
-
-  // Set the argument count in the parameter pack
-  auto constantIntOp = rewriter.create<LLVM::ConstantOp>(location, wordType, params.size());
-  packContainerValue = rewriter.create<LLVM::InsertValueOp>(
-    location, packContainerValue, constantIntOp.getResult(), 0);
-
-  // Populate the arguments parameter pack struct
-  int64_t index = 1;
-  for (auto param : params)
-  {
-    // Insert the size value
-    const auto paramSize = layout.getTypeSize(param.getType());
-    constantIntOp = rewriter.create<LLVM::ConstantOp>(location, wordType, paramSize);
-    packContainerValue = rewriter.create<LLVM::InsertValueOp>(
-      location, packContainerValue, constantIntOp.getResult(), index++);
-
-    // Insert the argument value
-    packContainerValue =
-      rewriter.create<LLVM::InsertValueOp>(location, packContainerValue, param, index++);
-  }
-
-  // Get the allocated size of the parameter pack struct
-  size = (intptr_t)layout.getTypeSize(packType);
-
-  return packContainerValue;
-}
-
 // Locate or create the defer stack
 Value locateOrCreateDeferStack(
   Operation* op,
@@ -242,8 +152,6 @@ Value locateOrCreateDeferStack(
   ConversionPatternRewriter& rewriter)
 {
   const auto voidPtrType = rewriter.getType<mlir::LLVM::LLVMPointerType>();
-  const auto deferFrameType = LLVM::LLVMStructType::getLiteral(
-    rewriter.getContext(), SmallVector<Type>{ voidPtrType, voidPtrType });
 
   // Check if the defer stack already exists in the parent function
   auto parentFunc = op->getParentOfType<LLVM::LLVMFuncOp>();
@@ -1588,38 +1496,7 @@ struct DeferOpLowering : ConvertOpToLLVMPattern<DeferOp>
     const override
   {
     OpBuilder::InsertionGuard guard(rewriter);
-    Location loc = op.getLoc();
-
-    const auto module = op->getParentOfType<ModuleOp>();
-    auto dataLayout = mlir::DataLayout(module);
-    auto wordType =
-      mlir::IntegerType::get(rewriter.getContext(), getTypeConverter()->getPointerBitwidth());
-    const auto deferFrameType = mlir::LLVM::LLVMStructType::getLiteral(
-      this->getContext(),
-      SmallVector<mlir::Type>{ this->getVoidPtrType(), this->getVoidPtrType() });
-
-    auto parentFunc = op->getParentOfType<mlir::LLVM::LLVMFuncOp>();
-    Block& entryBlock = *parentFunc.getBody().begin();
-
-    /*
-    // Create the parameter pack holding the arguments
-    intptr_t packSize;
-    auto pack = createParameterPack(
-      rewriter,
-      loc,
-      llvm::SmallVector<mlir::Value>(adaptor.getCalleeOperands()),
-      packSize,
-      dataLayout,
-      getTypeConverter());
-
-    // Allocate memory on the heap to store the parameter pack into
-    auto constantIntOp = rewriter.create<mlir::LLVM::ConstantOp>(loc, wordType, packSize);
-    auto runtimeCallResults = createRuntimeCall(
-      rewriter, loc, "alloc", this->getTypeConverter(), { constantIntOp.getResult() });
-
-    // Store the parameter pack into the allocated memory
-    rewriter.create<mlir::LLVM::StoreOp>(loc, pack, runtimeCallResults[0]);
-*/
+    const Location loc = op.getLoc();
 
     mlir::Value fnValue =
       llvm::TypeSwitch<mlir::Type, mlir::Value>(mlir::go::baseType(op.getCallee().getType()))
@@ -1732,6 +1609,29 @@ struct GlobalCtorsOpLowering : ConvertOpToLLVMPattern<GlobalCtorsOp>
   {
     rewriter.replaceOpWithNewOp<mlir::LLVM::GlobalCtorsOp>(
       op, adaptor.getCtors(), adaptor.getPriorities());
+    return success();
+  }
+};
+
+struct GoOpLowering : ConvertOpToLLVMPattern<GoOp>
+{
+  using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
+
+  LogicalResult matchAndRewrite(GoOp op, OpAdaptor adaptor, ConversionPatternRewriter& rewriter)
+    const override
+  {
+    OpBuilder::InsertionGuard guard(rewriter);
+    const mlir::Location loc = op.getLoc();
+
+    mlir::Value fnValue =
+      llvm::TypeSwitch<mlir::Type, mlir::Value>(mlir::go::baseType(op.getCallee().getType()))
+        .Case([&](mlir::go::GoStructType) -> mlir::Value { return adaptor.getCallee(); });
+    assert(fnValue && "func value is invalid");
+
+    // Create the runtime call to push the defer frame to the defer stack
+    createRuntimeCall(
+      rewriter, loc, "addTask", this->getTypeConverter(), { fnValue });
+    rewriter.eraseOp(op);
     return success();
   }
 };
@@ -2313,12 +2213,6 @@ struct RunDefersLowering : ConvertOpToLLVMPattern<RunDefersOp>
     ConversionPatternRewriter& rewriter) const override
   {
     const auto loc = op.getLoc();
-    const auto deferFrameType = mlir::LLVM::LLVMStructType::getLiteral(
-      this->getContext(),
-      SmallVector<mlir::Type>{ this->getVoidPtrType(), this->getVoidPtrType() });
-
-    auto parentFunc = op->getParentOfType<mlir::LLVM::LLVMFuncOp>();
-    Block& entryBlock = *parentFunc.getBody().begin();
 
     // Locate the head of the defer frame list for this function.
     mlir::Value deferStackPtrValue =
@@ -2330,60 +2224,6 @@ struct RunDefersLowering : ConvertOpToLLVMPattern<RunDefersOp>
     // Erase the original operation.
     rewriter.eraseOp(op);
 
-    return success();
-  }
-};
-
-struct RuntimeCallOpLowering : ConvertOpToLLVMPattern<RuntimeCallOp>
-{
-  using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
-
-  LogicalResult matchAndRewrite(
-    RuntimeCallOp op,
-    OpAdaptor adaptor,
-    ConversionPatternRewriter& rewriter) const override
-  {
-    Type packedResult = nullptr;
-    unsigned numResults = op.getNumResults();
-    auto resultTypes = llvm::to_vector<4>(op.getResultTypes());
-    auto useBarePtrCallConv = getTypeConverter()->getOptions().useBarePtrCallConv;
-
-    if (numResults != 0)
-    {
-      packedResult = this->getTypeConverter()->packFunctionResults(resultTypes, useBarePtrCallConv);
-      if (!packedResult)
-      {
-        return failure();
-      }
-    }
-
-    auto callOp = rewriter.create<mlir::LLVM::CallOp>(
-      op.getLoc(),
-      packedResult ? TypeRange(packedResult) : TypeRange(),
-      adaptor.getCalleeOperands(),
-      op->getAttrs());
-    callOp.getProperties().operandSegmentSizes = {
-      { static_cast<int32_t>(adaptor.getCalleeOperands().size()), 0 }
-    };
-    callOp.getProperties().op_bundle_sizes = rewriter.getDenseI32ArrayAttr({});
-
-    SmallVector<Value, 4> results;
-    if (numResults < 2)
-    {
-      // Return directly
-      results.append(callOp.result_begin(), callOp.result_end());
-    }
-    else
-    {
-      // Unpack result struct
-      results.reserve(numResults);
-      for (unsigned i = 0; i < numResults; ++i)
-      {
-        results.push_back(
-          rewriter.create<mlir::LLVM::ExtractValueOp>(callOp.getLoc(), callOp->getResult(0), i));
-      }
-    }
-    rewriter.replaceOp(op, results);
     return success();
   }
 };
@@ -2902,6 +2742,7 @@ void populateGoToLLVMConversionPatterns(
             transforms::LLVM::GetElementPointerOpLowering,
             transforms::LLVM::GlobalOpLowering,
             transforms::LLVM::GlobalCtorsOpLowering,
+            transforms::LLVM::GoOpLowering,
             transforms::LLVM::InsertOpLowering,
             transforms::LLVM::InterfaceCallOpLowering,
             transforms::LLVM::IntToPtrOpLowering,
@@ -2918,7 +2759,6 @@ void populateGoToLLVMConversionPatterns(
             transforms::LLVM::RecoverOpLowering,
             transforms::LLVM::RecvOpLowering,
             transforms::LLVM::RunDefersLowering,
-            transforms::LLVM::RuntimeCallOpLowering,
             transforms::LLVM::SliceOpLowering,
             transforms::LLVM::SliceAddrOpLowering,
             transforms::LLVM::SliceToStringOpLowering,

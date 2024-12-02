@@ -30,7 +30,6 @@ add_mlir_dialect_library(GoIR
         Transforms/HeapEscapePass.cxx
         Transforms/LowerToCore.cxx
         Transforms/LowerToLLVM.cxx
-        Transforms/OptimizeDefersPass.cxx
         Transforms/Passes.cxx
         Transforms/TypeConverter.cxx
         Transforms/TypeInfo.cxx

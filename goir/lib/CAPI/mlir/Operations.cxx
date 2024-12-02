@@ -1421,7 +1421,6 @@ MlirOperation mlirGoCreateDeferOperation(
 MlirOperation mlirGoCreateGoOperation(
   MlirContext context,
   MlirValue fn,
-  MlirType signature,
   MlirStringRef method,
   intptr_t nArgs,
   MlirValue* args,
@@ -1429,7 +1428,6 @@ MlirOperation mlirGoCreateGoOperation(
 {
   auto _context = unwrap(context);
   auto _fn = unwrap(fn);
-  auto _signature = mlir::cast<mlir::go::FunctionType>(unwrap(signature));
 
   StringAttr _method;
   const auto _methodStr = unwrap(method);
@@ -1445,7 +1443,7 @@ MlirOperation mlirGoCreateGoOperation(
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<::mlir::go::GoOp>(_location, _fn, _args, _signature, _method);
+    builder.create<::mlir::go::GoOp>(_location, _fn, _method, _args);
   return wrap(op);
 }
 

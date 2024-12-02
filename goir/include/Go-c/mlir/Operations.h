@@ -649,7 +649,6 @@ extern "C"
   MlirOperation mlirGoCreateGoOperation(
     MlirContext context,
     MlirValue fn,
-    MlirType signature,
     MlirStringRef method,
     intptr_t nArgs,
     MlirValue* args,
