@@ -322,9 +322,9 @@ func (s *samgen) generatePeripheral(periph svd.PeripheralElement, w *strings.Bui
 		registerImpls = append(registerImpls, rimpls...)
 		clusterImpls = append(clusterImpls, cimpls...)
 		if hasPointers {
-			fmt.Fprintf(w, "type Peripheral%s %s\n", periph.Group, strImpl)
+			fmt.Fprintf(w, "type Register%s %s\n", periph.Group, strImpl)
 			fmt.Fprintln(w, "var (")
-			fmt.Fprintf(w, "%s = [%d]Peripheral%s{\n", periph.Group, len(periphSeries), periph.Group)
+			fmt.Fprintf(w, "%s = [%d]Register%s{\n", periph.Group, len(periphSeries), periph.Group)
 			for _, p := range periphSeries {
 				fmt.Fprintf(w, "{\n")
 				for _, cluster := range periph.Registers.ClusterElements {
@@ -336,11 +336,11 @@ func (s *samgen) generatePeripheral(periph svd.PeripheralElement, w *strings.Bui
 			fmt.Fprintln(w, "}")
 			fmt.Fprintln(w, ")")
 		} else {
-			fmt.Fprintf(w, "type Peripheral%s %s\n", periph.Group, strImpl)
+			fmt.Fprintf(w, "type Register%s %s\n", periph.Group, strImpl)
 			fmt.Fprintln(w, "var (")
-			fmt.Fprintf(w, "%s = [%d]*Peripheral%s{\n", periph.Group, len(periphSeries), periph.Group)
+			fmt.Fprintf(w, "%s = [%d]*Register%s{\n", periph.Group, len(periphSeries), periph.Group)
 			for _, p := range periphSeries {
-				fmt.Fprintf(w, "(*Peripheral%s)(unsafe.Pointer(uintptr(%#x))),\n", periph.Group, p.BaseAddress)
+				fmt.Fprintf(w, "(*Register%s)(unsafe.Pointer(uintptr(%#x))),\n", periph.Group, p.BaseAddress)
 			}
 			fmt.Fprintln(w, "}")
 			fmt.Fprintln(w, ")")
@@ -351,9 +351,9 @@ func (s *samgen) generatePeripheral(periph svd.PeripheralElement, w *strings.Bui
 		clusterImpls = append(clusterImpls, cimpls...)
 
 		if hasPointers {
-			fmt.Fprintf(w, "type Peripheral%s %s\n", periph.Group, strImpl)
+			fmt.Fprintf(w, "type Register%s %s\n", periph.Group, strImpl)
 			fmt.Fprintln(w, "var (")
-			fmt.Fprintf(w, "%s = Peripheral%s{\n", periph.Group, periph.Group)
+			fmt.Fprintf(w, "%s = Register%s{\n", periph.Group, periph.Group)
 			for _, cluster := range periph.Registers.ClusterElements {
 				fmt.Fprintf(w, "%s: (%s)(unsafe.Pointer(uintptr(%#x))),\n", cluster.Name, peripheralName+cluster.Name, periph.BaseAddress+cluster.AddressOffset)
 			}
@@ -376,7 +376,7 @@ func (s *samgen) generatePeripheral(periph svd.PeripheralElement, w *strings.Bui
 		fmt.Fprintf(w, "%s\n", impl)
 	}
 
-	/*for _, register := range periph.Registers.RegisterElements {
+	/*for _, register := range periph.Fields.RegisterElements {
 		_, impl := s.generateRegisterType(periph.Group, len(register.Alternative) > 0, register)
 		fmt.Fprintln(w, impl)
 	}*/
