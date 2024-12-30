@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/format"
 	"io"
+	"slices"
 	"strings"
 
 	"omibyte.io/sigo/targets/device"
@@ -28,11 +29,14 @@ func writePeripheralsApi(output io.StringWriter, peripheral device.Peripheral) (
 
 	writePeripheralTypeDeclaration(&builder, peripheral)
 	builder.WriteString("\n\n")
-	for _, register := range peripheral.Registers {
-		writeRegisterTypeDeclaration(&builder, register)
-		builder.WriteString("\n\n")
+	for _, registerGroup := range peripheral.RegisterGroups {
+		writeRegisterGroupTypeDeclaration(&builder, registerGroup)
+		for _, register := range registerGroup.Registers {
+			writeRegisterTypeDeclaration(&builder, register)
+			builder.WriteString("\n\n")
 
-		writeRegisterMethods(&builder, register)
+			writeRegisterMethods(&builder, register)
+		}
 	}
 
 	srcStr := builder.String()
@@ -51,28 +55,68 @@ func writePeripheralTypeDeclaration(output io.StringWriter, p device.Peripheral)
 		fmt.Fprintf(&builder, "// %s %s\n", typeName(p), p.Description)
 	}
 
-	offset := p.Registers[0].Offset
+	excluded := map[string]struct{}{}
 
-	fmt.Fprintf(&builder, "type %[1]s struct {\n", typeName(p))
-	for i, r := range p.Registers {
-		if i > 0 {
-			// Calculate padding required if there is a gap
-			padding := r.Offset - (p.Registers[i-1].Offset + p.Registers[i-1].TotalWidth()/8)
-			if padding > 0 {
-				// Write padding bytes
-				fmt.Fprintf(&builder, "_ [%d]uint8\n", padding)
-				offset += padding
+	// Visit each top-level group and find any subgroup that refers to a top-level group. These will NOT be instantiated
+	// at the top of the struct directly.
+	for _, group := range p.RegisterGroups {
+		for _, subgroup := range group.Groups {
+			if len(subgroup.Reference) > 0 {
+				excluded[subgroup.Reference] = struct{}{}
 			}
 		}
+	}
 
-		offset += r.TotalWidth() / 8
+	var groups []device.RegisterGroup
+	for _, group := range p.RegisterGroups {
+		if _, ok := excluded[group.Identifier]; ok {
+			continue
+		}
+		groups = append(groups, group)
+	}
 
-		if r.Count > 1 {
-			fmt.Fprintf(&builder, "%s [%d]%s\n", varName(r), r.Count, typeName(r))
-		} else {
-			fmt.Fprintf(&builder, "%s %s\n", varName(r), typeName(r))
+	fmt.Fprintf(&builder, "type %[1]s struct {\n", typeName(p))
+
+	merge := false
+	if len(groups) == 1 {
+		if groups[0].Count == 1 {
+			merge = true
 		}
 	}
+
+	if merge {
+		// Embed the register group type.
+		fmt.Fprintf(&builder, "%[1]s\n", typeName(groups[0]))
+	} else {
+
+		// Sort the groups by offset.
+		slices.SortFunc(groups, func(a, b device.RegisterGroup) int {
+			return int(a.Offset - b.Offset)
+		})
+
+		offset := groups[0].Offset
+
+		for i, group := range groups {
+
+			if i > 0 {
+				// Calculate padding required if there is a gap
+				padding := group.Offset - (groups[i-1].Offset + groups[i-1].TotalWidth()/8)
+				if padding > 0 {
+					// Write padding bytes
+					fmt.Fprintf(&builder, "_ [%d]uint8\n", padding)
+					offset += padding
+				}
+			}
+
+			if group.Count == 1 {
+				fmt.Fprintf(&builder, "%s %s\n", varName(group), typeName(group))
+			} else {
+				fmt.Fprintf(&builder, "%s [%d]%s\n", varName(group), group.Count, typeName(group))
+			}
+			offset += group.TotalWidth() / 8
+		}
+	}
+
 	fmt.Fprintln(&builder, "}")
 
 	return output.WriteString(builder.String())
@@ -93,6 +137,74 @@ func writePeripheralConstants(output io.StringWriter, p device.Peripheral) (int,
 		}
 		fmt.Fprintf(&builder, "}\n")
 	}
+	return output.WriteString(builder.String())
+}
+
+func writeRegisterGroupTypeDeclaration(output io.StringWriter, group device.RegisterGroup) (int, error) {
+	var builder strings.Builder
+
+	if len(group.Description) > 0 {
+		fmt.Fprintf(&builder, "// %s %s\n", typeName(group), group.Description)
+	}
+
+	fmt.Fprintf(&builder, "type %[1]s struct {\n", typeName(group))
+	if len(group.Groups) > 0 {
+		offset := group.Groups[0].Offset
+		for i, subgroup := range group.Groups {
+
+			if i > 0 {
+				// Calculate padding required if there is a gap
+				padding := subgroup.Offset - (group.Groups[i-1].Offset + group.Groups[i-1].TotalWidth()/8)
+				if padding > 0 {
+					// Write padding bytes
+					fmt.Fprintf(&builder, "_ [%d]uint8\n", padding)
+					offset += padding
+				}
+			}
+
+			// TODO: Need to look up the actual register group within the module!
+
+			if subgroup.Count == 1 {
+				fmt.Fprintf(&builder, "%s %s\n", varName(subgroup), typeName(subgroup))
+			} else {
+				fmt.Fprintf(&builder, "%s [%d]%s\n", varName(subgroup), subgroup.Count, typeName(subgroup))
+			}
+			offset += subgroup.TotalWidth() / 8
+		}
+
+		if offset < group.TotalWidth() {
+			// Add tail padding.
+			fmt.Fprintf(&builder, "_ [%d]uint8\n", group.TotalWidth()-offset)
+		}
+	} else if len(group.Registers) > 0 {
+		offset := group.Registers[0].Offset
+		for i, r := range group.Registers {
+			if i > 0 {
+				// Calculate padding required if there is a gap
+				padding := r.Offset - (group.Registers[i-1].Offset + group.Registers[i-1].TotalWidth()/8)
+				if padding > 0 {
+					// Write padding bytes
+					fmt.Fprintf(&builder, "_ [%d]uint8\n", padding)
+					offset += padding
+				}
+			}
+
+			offset += r.TotalWidth() / 8
+
+			if r.Count > 1 {
+				fmt.Fprintf(&builder, "%s [%d]%s\n", varName(r), r.Count, typeName(r))
+			} else {
+				fmt.Fprintf(&builder, "%s %s\n", varName(r), typeName(r))
+			}
+		}
+
+		if offset < group.TotalWidth() {
+			// Add tail padding.
+			fmt.Fprintf(&builder, "_ [%d]uint8\n", group.TotalWidth()-offset)
+		}
+	}
+	fmt.Fprintln(&builder, "}")
+
 	return output.WriteString(builder.String())
 }
 
@@ -176,23 +288,35 @@ func writeFieldMethods(output io.StringWriter, f device.Field) (int, error) {
 }
 
 func boolGetter(f device.Field) string {
+	dataType := "bool"
+	if f.Constants != nil {
+		dataType = typeName(f.Constants)
+	}
+
 	register := f.Register()
-	return fmt.Sprintf(`func (reg *%[1]s) Get%[2]s() bool {
-	return volatile.LoadUint%[3]d((*uint%[3]d)(reg))&(1<<%[4]d) != 0
+	registerWidth := max(8, device.NextPow2(register.Width))
+	return fmt.Sprintf(`func (reg *%[1]s) Get%[2]s() %[5]s {
+	return %[5]s(volatile.LoadUint%[3]d((*uint%[3]d)(reg))&(1<<%[4]d) != 0)
 }`,
-		typeName(register), formatSymbol(f.Identifier, true), register.Width, f.Offset)
+		typeName(register), formatSymbol(f.Identifier, true), registerWidth, f.Offset, dataType)
 }
 
 func boolSetter(f device.Field) string {
+	dataType := "bool"
+	if f.Constants != nil {
+		dataType = typeName(f.Constants)
+	}
+
 	register := f.Register()
-	return fmt.Sprintf(`func (reg *%[1]s) Set%[2]s(enable bool) {
+	registerWidth := max(8, device.NextPow2(register.Width))
+	return fmt.Sprintf(`func (reg *%[1]s) Set%[2]s(enable %[5]s) {
 	if enable {
 		volatile.StoreUint%[3]d((*uint%[3]d)(reg), volatile.LoadUint%[3]d((*uint%[3]d)(reg))|(1<<%[4]d))
 	} else {
 		volatile.StoreUint%[3]d((*uint%[3]d)(reg), volatile.LoadUint%[3]d((*uint%[3]d)(reg))&^(1<<%[4]d))
 	}
 }`,
-		typeName(register), formatSymbol(f.Identifier, true), f.Register().Width, f.Offset)
+		typeName(register), formatSymbol(f.Identifier, true), registerWidth, f.Offset, dataType)
 }
 
 func intGetter(f device.Field) string {
@@ -200,14 +324,15 @@ func intGetter(f device.Field) string {
 	if f.Constants != nil {
 		returnType = typeName(f.Constants)
 	} else {
-		returnType = fmt.Sprintf("uint%d", device.NextPow2(f.Width))
+		returnType = fmt.Sprintf("uint%d", max(8, device.NextPow2(f.Width)))
 	}
 
 	register := f.Register()
+	registerWidth := max(8, device.NextPow2(register.Width))
 	return fmt.Sprintf(`func (reg *%[1]s) Get%[2]s() %[3]s {
-	return %[3]s(volatile.LoadUint%[4]d((*uint32)(reg))&%#[5]x) >> %[6]d
+	return %[3]s(volatile.LoadUint%[4]d((*uint%[4]d)(reg))&%#[5]x) >> %[6]d
 }`,
-		typeName(register), formatSymbol(f.Identifier, true), returnType, f.Register().Width, device.Mask(f.Width, f.Offset), f.Offset)
+		typeName(register), formatSymbol(f.Identifier, true), returnType, registerWidth, device.Mask(f.Width, f.Offset), f.Offset)
 }
 
 func intSetter(f device.Field) string {
@@ -215,14 +340,15 @@ func intSetter(f device.Field) string {
 	if f.Constants != nil {
 		returnType = typeName(f.Constants)
 	} else {
-		returnType = fmt.Sprintf("uint%d", device.NextPow2(f.Width))
+		returnType = fmt.Sprintf("uint%d", max(8, device.NextPow2(f.Width)))
 	}
 
 	register := f.Register()
+	registerWidth := max(8, device.NextPow2(register.Width))
 	return fmt.Sprintf(`func (reg *%[1]s) Set%[2]s(value %[3]s) {
 	volatile.StoreUint%[4]d((*uint%[4]d)(reg), (volatile.LoadUint%[4]d((*uint%[4]d)(reg))&^%#[5]x)|(uint%[4]d(value)<<%[6]d))
 }`,
-		typeName(register), formatSymbol(f.Identifier, true), returnType, f.Register().Width, device.Mask(f.Width, f.Offset), f.Offset)
+		typeName(register), formatSymbol(f.Identifier, true), returnType, registerWidth, device.Mask(f.Width, f.Offset), f.Offset)
 }
 
 func varName(v any) string {
@@ -238,6 +364,8 @@ func varName(v any) string {
 		return formatSymbol(v.Identifier, true)
 	case device.Register:
 		return formatSymbol(v.Identifier, true)
+	case device.RegisterGroup:
+		return formatSymbol(v.Identifier, true)
 	default:
 		panic("unreachable")
 	}
@@ -246,13 +374,15 @@ func varName(v any) string {
 func typeName(v any) string {
 	switch v := v.(type) {
 	case device.ConstantGroup:
-		return fmt.Sprintf("%sType", formatSymbol(v.Identifier, true))
+		return fmt.Sprintf("Constant%sType", formatSymbol(v.Identifier, true))
 	case *device.ConstantGroup:
-		return fmt.Sprintf("%sType", formatSymbol(v.Identifier, true))
+		return fmt.Sprintf("Constant%sType", formatSymbol(v.Identifier, true))
 	case device.Peripheral:
-		return fmt.Sprintf("%sType", formatSymbol(v.Identifier, true))
+		return fmt.Sprintf("Peripheral%sType", formatSymbol(v.Identifier, true))
 	case device.Register:
-		return fmt.Sprintf("%sType", formatSymbol(v.Identifier, true))
+		return fmt.Sprintf("Register%sType", formatSymbol(v.Identifier, true))
+	case device.RegisterGroup:
+		return fmt.Sprintf("RegisterGroup%sType", formatSymbol(v.Identifier, true))
 	default:
 		panic("unreachable")
 	}

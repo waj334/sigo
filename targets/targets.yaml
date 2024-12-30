@@ -32,7 +32,7 @@ targets:
     alignment: 4
     triple: "armv7m-none-eabi"
     cpu: "cortex-m4"
-    tags: [ "samx5x", "samx51" ]
+    tags: [ "atsamx5x", "samx5x", "samx51" ]
     features: [ "armv7-m" ]
     float: "hardfp"
 
@@ -42,12 +42,12 @@ targets:
     chipPackage: "runtime/arm/cortexm/sam/samx5x/support"
     additionalPackages:
       - "runtime/arm/cortexm"
-      - "runtime/arm/cortexm/sam/samx5x/support"
+      - "runtime/arm/cortexm/sam/atsamx5x/support"
     architecture: "thumb"
     alignment: 4
     triple: "armv7m-none-eabi"
     cpu: "cortex-m4"
-    tags: [ "samx5x", "samx51" ]
+    tags: [ "atsamx5x", "samx5x", "samx51" ]
     features: [ "armv7-m" ]
     float: "hardfp"
 

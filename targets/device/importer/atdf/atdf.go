@@ -179,6 +179,8 @@ func translateRegisterGroup(ctx context.Context, element atdf.ModuleRegisterGrou
 		Reference:   element.NameInModule,
 		Description: device.CleanDescription(element.Caption),
 		Count:       max(1, int(element.Count)),
+		Size:        uintptr(element.Size),
+		Offset:      uintptr(element.Offset()),
 	}
 
 	for _, subregisterGroup := range element.Groups {

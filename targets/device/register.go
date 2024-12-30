@@ -8,12 +8,22 @@ type RegisterGroup struct {
 	Identifier  string          `json:"identifier"`
 	Reference   string          `json:"reference,omitempty"`
 	Description string          `json:"description,omitempty"`
+	Offset      uintptr         `json:"offset"`
+	Size        uintptr         `json:"size"`
 	Count       int             `json:"count"`
 	Groups      []RegisterGroup `json:"groups,omitempty"`
 	Registers   []Register      `json:"registers,omitempty"`
 
 	peripheral *Peripheral
 	finalized  bool
+}
+
+func (r *RegisterGroup) Peripheral() *Peripheral {
+	return r.peripheral
+}
+
+func (r *RegisterGroup) TotalWidth() uintptr {
+	return r.Size * uintptr(max(1, r.Count))
 }
 
 func (r *RegisterGroup) Finalize() {
