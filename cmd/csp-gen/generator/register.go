@@ -8,7 +8,7 @@ import (
 
 type Register struct {
 	// Identifier is the name of this register.
-	Identifier string
+	Identifier string `json:"identifier"`
 
 	// Width is the total size of the register in bits.
 	Width uintptr `json:"width"`
@@ -19,18 +19,14 @@ type Register struct {
 	// Description is the text that will go into the API documentation comment.
 	Description string `json:"description"`
 
-	// Instances is the list of base addresses for this register type.
-	Instances []uintptr `json:"instances"`
+	// Flags describes the characteristics of the register (r, w, rw, etc...)
+	Flags AttributeFlag `json:"flags"`
 
 	finalized bool
 }
 
-func (r *Register) VarName() string {
-	return r.Identifier
-}
-
 func (r *Register) TypeName() string {
-	return fmt.Sprintf("%sType", r.Identifier)
+	return fmt.Sprintf("Reg%sType", r.Identifier)
 }
 
 func (r *Register) WriteTypeDeclaration(output io.StringWriter) (int, error) {
@@ -44,21 +40,6 @@ func (r *Register) WriteTypeDeclaration(output io.StringWriter) (int, error) {
 
 	fmt.Fprintf(&builder, "}")
 
-	return output.WriteString(builder.String())
-}
-
-func (r *Register) WriteConstants(output io.StringWriter) (int, error) {
-	var builder strings.Builder
-	if len(r.Instances) == 1 {
-		fmt.Fprintf(&builder, "%s = (*%s)(unsafe.Pointer(uintptr(%#x)))\n",
-			r.VarName(), r.TypeName(), r.Instances[0])
-	} else {
-		fmt.Fprintf(&builder, "%s = [%d]*%s{\n", r.VarName(), len(r.Instances), r.TypeName())
-		for _, instance := range r.Instances {
-			fmt.Fprintf(&builder, "(*%s)(unsafe.Pointer(uintptr(%#x))),\n", r.TypeName(), instance)
-		}
-		fmt.Fprintf(&builder, "}\n")
-	}
 	return output.WriteString(builder.String())
 }
 
@@ -91,11 +72,11 @@ func (r *Register) Finalize() {
 	if !r.finalized {
 		for i := range r.Fields {
 			f := &r.Fields[i]
-			f.Register = r
+			f.register = r
 			if len(f.Constants.Values) > 0 {
-				f.Constants.Field = &r.Fields[i]
+				f.Constants.field = &r.Fields[i]
 				for j := range f.Constants.Values {
-					f.Constants.Values[j].ConstantGroup = &f.Constants
+					f.Constants.Values[j].ConstantGroup = f.Constants
 				}
 			}
 		}

@@ -241,7 +241,11 @@ __isr_vector:
 	interrupts := map[types.Integer]svd.InterruptElement{}
 	irqMaxValue := types.Integer(0)
 	for _, periph := range s.device.Peripherals.Elements {
-		for _, irq := range periph.Interrupts {
+		if periph.Interrupts == nil {
+			continue
+		}
+
+		for _, irq := range *periph.Interrupts {
 			interrupts[irq.Value] = irq
 			if irq.Value > irqMaxValue {
 				irqMaxValue = irq.Value
@@ -282,12 +286,12 @@ __isr_vector:
 
 func (s *samgen) generatePeripheral(periph svd.PeripheralElement, w *strings.Builder) (err error) {
 	// Don't create an implementation for derived peripherals
-	if len(periph.DerivedFrom) > 0 {
+	if periph.DerivedFrom != nil {
 		return nil
 	}
 
 	// Count the number of derived peripherals
-	peripheralName := periph.Name
+	peripheralName := *periph.Name
 	var periphSeries []svd.PeripheralElement
 	for _, p := range s.device.Peripherals.Elements {
 		if p.DerivedFrom == periph.Name {
@@ -300,7 +304,7 @@ func (s *samgen) generatePeripheral(periph svd.PeripheralElement, w *strings.Bui
 		periphSeries = append([]svd.PeripheralElement{periph}, periphSeries...)
 
 		// Clean the name after determining the derived peripherals
-		peripheralName = cleanIdentifier(periph.Name)
+		peripheralName = cleanIdentifier(*periph.Name)
 	} else {
 		// Parse the name of the current peripheral to see if it is part of some series.
 		re := regexp.MustCompile(`^([a-zA-Z]+)[0-9]+$`)
@@ -329,7 +333,7 @@ func (s *samgen) generatePeripheral(periph svd.PeripheralElement, w *strings.Bui
 				fmt.Fprintf(w, "{\n")
 				for _, cluster := range periph.Registers.ClusterElements {
 					clusterName := strings.ReplaceAll(cluster.Name, "[%s]", "")
-					fmt.Fprintf(w, "%s: %s(unsafe.Pointer(uintptr(%#x))),\n", clusterName, periph.Group+clusterName, p.BaseAddress+cluster.AddressOffset)
+					fmt.Fprintf(w, "%s: %s(unsafe.Pointer(uintptr(%#x))),\n", clusterName, *periph.Group+clusterName, *p.BaseAddress+cluster.AddressOffset)
 				}
 				fmt.Fprintf(w, "},\n")
 			}
@@ -355,7 +359,7 @@ func (s *samgen) generatePeripheral(periph svd.PeripheralElement, w *strings.Bui
 			fmt.Fprintln(w, "var (")
 			fmt.Fprintf(w, "%s = Register%s{\n", periph.Group, periph.Group)
 			for _, cluster := range periph.Registers.ClusterElements {
-				fmt.Fprintf(w, "%s: (%s)(unsafe.Pointer(uintptr(%#x))),\n", cluster.Name, peripheralName+cluster.Name, periph.BaseAddress+cluster.AddressOffset)
+				fmt.Fprintf(w, "%s: (%s)(unsafe.Pointer(uintptr(%#x))),\n", cluster.Name, peripheralName+cluster.Name, *periph.BaseAddress+cluster.AddressOffset)
 			}
 			fmt.Fprintln(w, "}")
 			fmt.Fprintln(w, ")")
@@ -472,11 +476,11 @@ func (s *samgen) generatePeripheralStruct(periph svd.PeripheralElement) (string,
 			for _, register := range obj.Registers {
 				// Append to existing type for alternative registers
 				if len(register.Alternative) > 0 {
-					_, registerImpl := s.generateRegisterType(periph.Group+clusterName, true, register)
+					_, registerImpl := s.generateRegisterType(*periph.Group+clusterName, true, register)
 					registerImpls = append(registerImpls, registerImpl)
 				} else {
 					registerName := cleanIdentifier(register.Name)
-					registerTypename, registerImpl := s.generateRegisterType(periph.Group+clusterName, false, register)
+					registerTypename, registerImpl := s.generateRegisterType(*periph.Group+clusterName, false, register)
 
 					if register.AddressOffset > nestedOffset {
 						// insert padding bytes
@@ -517,7 +521,7 @@ func (s *samgen) generatePeripheralStruct(periph svd.PeripheralElement) (string,
 			clusterImpls = append(clusterImpls, clusterBuf.String())
 		case svd.RegisterElement:
 			if obj.Alternative != "" {
-				_, registerImpl := s.generateRegisterType(periph.Group, true, obj)
+				_, registerImpl := s.generateRegisterType(*periph.Group, true, obj)
 				registerImpls = append(registerImpls, registerImpl)
 			} else {
 				registerName := cleanIdentifier(obj.Name)
@@ -526,7 +530,7 @@ func (s *samgen) generatePeripheralStruct(periph svd.PeripheralElement) (string,
 					count = obj.Count
 				}
 
-				typename, registerImpl := s.generateRegisterType(periph.Group, false, obj)
+				typename, registerImpl := s.generateRegisterType(*periph.Group, false, obj)
 				registerImpls = append(registerImpls, registerImpl)
 
 				if count > 1 {

@@ -105,7 +105,7 @@ func main() {
 			fmt.Printf("Addressable Width:\t%v-bit\n", def.AddressableWidth)
 			fmt.Printf("FPU:\t\t%v\n", def.CPU.FPUPresent)
 
-			switch def.Series {
+			switch *def.Series {
 			case "SAMD21", "SAMD51", "SAME51", "SAME70", "SAML11", "SAML22", "SAMR21", "SAMS70", "SAMV70", "SAMV71":
 				gen = sam_svd.NewGenerator(def)
 

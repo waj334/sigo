@@ -7,7 +7,7 @@ import (
 )
 
 type ConstantGroup struct {
-	Field      *Field
+	field      *Field
 	Identifier string          `json:"identifier"`
 	Values     []ConstantValue `json:"values"`
 }
@@ -20,14 +20,14 @@ type ConstantValue struct {
 }
 
 func (c ConstantGroup) TypeName() string {
-	r := c.Field.Register
-	f := c.Field
+	r := c.field.register
+	f := c.field
 	return fmt.Sprintf("Reg%s%s%sType",
 		r.Identifier, f.Identifier, c.Identifier)
 }
 
 func (c ConstantGroup) WriteTypeDeclaration(output io.Writer) (int, error) {
-	return fmt.Fprintf(output, "type %s %s", c.TypeName(), DataType(c.Field.Width))
+	return fmt.Fprintf(output, "type %s %s", c.TypeName(), DataType(c.field.Width))
 }
 
 func (c ConstantGroup) WriteConstantValues(output io.StringWriter) (int, error) {

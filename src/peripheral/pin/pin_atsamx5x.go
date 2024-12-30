@@ -5,7 +5,8 @@ package pin
 import (
 	"runtime/arm/cortexm"
 	"runtime/arm/cortexm/sam/chip"
-	"runtime/arm/cortexm/sam/samx51"
+	"runtime/arm/cortexm/sam/samx5x"
+	"runtime/arm/cortexm/sam/samx5x/support/port"
 )
 
 type Pin uint32
@@ -233,37 +234,37 @@ var (
 )
 
 func (p Pin) High() {
-	portgroup := &chip.PORT.GROUP[0xFF&(p>>8)]
-	portgroup.OUTSET.SetOUTSET(1 << (p & 0xFF))
+	portgroup := &port.Port.Group[0xFF&(p>>8)]
+	portgroup.Outset.SetOutset(1 << (p & 0xFF))
 }
 
 func (p Pin) Low() {
-	portgroup := &chip.PORT.GROUP[0xFF&(p>>8)]
-	portgroup.OUTCLR.SetOUTCLR(1 << (p & 0xFF))
+	portgroup := &port.Port.Group[0xFF&(p>>8)]
+	portgroup.Outclr.SetOutclr(1 << (p & 0xFF))
 }
 
 func (p Pin) Toggle() {
-	portgroup := &chip.PORT.GROUP[0xFF&(p>>8)]
-	portgroup.OUTTGL.SetOUTTGL(1 << (p & 0xFF))
+	portgroup := &port.Port.Group[0xFF&(p>>8)]
+	portgroup.Outtgl.SetOuttgl(1 << (p & 0xFF))
 }
 
 func (p Pin) Set(on bool) {
-	portgroup := &chip.PORT.GROUP[0xFF&(p>>8)]
+	portgroup := &port.Port.Group[0xFF&(p>>8)]
 	if on {
-		portgroup.OUTSET.SetOUTSET(1 << (p & 0xFF))
+		portgroup.Outset.SetOutset(1 << (p & 0xFF))
 	} else {
-		portgroup.OUTCLR.SetOUTCLR(1 << (p & 0xFF))
+		portgroup.Outclr.SetOutclr(1 << (p & 0xFF))
 	}
 }
 
 func (p Pin) Get() bool {
-	portgroup := &chip.PORT.GROUP[0xFF&(p>>8)]
-	if (1<<(p&0xFF))&portgroup.DIR.GetDIR() == 0 {
+	portgroup := &port.Port.Group[0xFF&(p>>8)]
+	if (1<<(p&0xFF))&portgroup.Dir.GetDir() == 0 {
 		// Is input. Return the input value.
-		return portgroup.IN.GetIN()&(1<<(p&0xFF)) != 0
+		return portgroup.In.GetIn()&(1<<(p&0xFF)) != 0
 	} else {
 		// Is output. Return the asserted state.
-		return portgroup.OUT.GetOUT()&(1<<(p&0xFF)) != 0
+		return portgroup.Out.GetOut()&(1<<(p&0xFF)) != 0
 	}
 }
 
@@ -279,11 +280,11 @@ func (p Pin) SetInterrupt(mode IRQMode, handler func(Pin)) {
 	}
 
 	// Set up PMUX
-	portgroup := &chip.PORT.GROUP[0xFF&(p>>8)]
+	portgroup := &port.Port.Group[0xFF&(p>>8)]
 	pmux := int(p&0xFF) / 2
 	if (p&0xFF)%2 == 0 {
 		// Pin is odd numbered
-		portgroup.PMUX[pmux].SetPMUXE(0)
+		portgroup.Pmux[pmux].SetPMUXE(0)
 	} else {
 		portgroup.PMUX[pmux].SetPMUXO(0)
 	}

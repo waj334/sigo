@@ -39,7 +39,7 @@ func fieldParams(f Field) format.Values {
 		"type":       f.TypeName(),
 		"return":     returnType,
 		"identifier": f.Identifier,
-		"width":      f.Register.Width,
+		"width":      f.register.Width,
 		"mask":       fmt.Sprintf("%#x", Mask(f.Width, f.Offset)),
 		"offset":     f.Offset,
 	}

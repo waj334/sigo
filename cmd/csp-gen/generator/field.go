@@ -8,7 +8,7 @@ import (
 )
 
 type Field struct {
-	Register *Register
+	register *Register
 
 	// Identifier is the identifier of the register.
 	Identifier string `json:"name"`
@@ -26,7 +26,7 @@ type Field struct {
 	Description string `json:"description"`
 
 	// Constants are the predefined values that this field accepts.
-	Constants ConstantGroup `json:"constants"`
+	Constants *ConstantGroup `json:"constants,omitempty"`
 }
 
 func (f *Field) TypeName() string {
@@ -69,5 +69,5 @@ func (f *Field) WriteMethods(output io.StringWriter) (int, error) {
 
 func (f *Field) String() string {
 	return fmt.Sprintf("Field{Register %s, Identifier: %s, Width: %d, Offset: %d, Flags: %s, Description: %s}",
-		f.Register.Identifier, f.Identifier, f.Width, f.Offset, f.Flags, f.Description)
+		f.register.Identifier, f.Identifier, f.Width, f.Offset, f.Flags, f.Description)
 }

@@ -1,4 +1,4 @@
-package generator
+package device
 
 type Interrupt struct {
 	Identifier  string `json:"identifier"`

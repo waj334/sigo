@@ -10,7 +10,12 @@ type Integer int64
 
 func (i *Integer) UnmarshalXML(d *xml.Decoder, start xml.StartElement) (err error) {
 	var v string
-	d.DecodeElement(&v, &start)
+	err = d.DecodeElement(&v, &start)
+	if err != nil {
+		return err
+	}
+
+	v = strings.ReplaceAll(v, "X", "x")
 
 	var value int64
 	if strings.Contains(v, "0x") {
@@ -43,11 +48,14 @@ func (i *Integer) UnmarshalXMLAttr(attr xml.Attr) (err error) {
 	return nil
 }
 
-type UInteger int64
+type UInteger uint64
 
 func (i *UInteger) UnmarshalXML(d *xml.Decoder, start xml.StartElement) (err error) {
 	var v string
-	d.DecodeElement(&v, &start)
+	err = d.DecodeElement(&v, &start)
+	if err != nil {
+		return err
+	}
 
 	var value uint64
 	if strings.Contains(v, "0x") {

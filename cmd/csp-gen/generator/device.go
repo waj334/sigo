@@ -1,10 +1,21 @@
 package generator
 
 type Device struct {
-	Peripherals []Register  `json:"peripherals"`
-	Interrupts  []Interrupt `json:"interrupts"`
+	Series      string        `json:"series"`
+	Flags       AttributeFlag `json:"flags"`
+	Variants    []Variant     `json:"variants"`
+	Peripherals []Peripheral  `json:"peripherals"`
 }
 
-/*type Register struct {
-	Fields []Register `json:"registers"`
-}*/
+type Variant struct {
+	Identifier string      `json:"identifier"`
+	Memories   []Memory    `json:"memories"`
+	Interrupts []Interrupt `json:"interrupts"`
+}
+
+type Memory struct {
+	Identifier string        `json:"identifier"`
+	Start      uintptr       `json:"start"`
+	Size       uintptr       `json:"size"`
+	Flags      AttributeFlag `json:"flags"`
+}

@@ -3,6 +3,7 @@ package generator
 type AttributeFlag uint8
 
 const (
+	NotSet    AttributeFlag = 0
 	Read      AttributeFlag = 0b0000_0001
 	Write     AttributeFlag = 0b0000_0010
 	ReadWrite AttributeFlag = Read | Write
