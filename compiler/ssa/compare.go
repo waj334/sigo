@@ -190,7 +190,7 @@ func (b *Builder) emitStructCompare(ctx context.Context, op token.Token, X mlir.
 
 		// Conditionally branch to the successor block passing false if the fields don't match. Otherwise, branch to the
 		// next block in order to evaluate the comparison of the next field.
-		falseValue := b.emitConstBool(ctx, false, location)
+		falseValue := b.emitConstBool(ctx, false, b.i1, location)
 		condBrOp := mlir.GoCreateCondBranchOperation(b.ctx, cond, nextBlock, nil, successor, []mlir.Value{falseValue}, location)
 		appendOperation(ctx, condBrOp)
 
@@ -200,7 +200,7 @@ func (b *Builder) emitStructCompare(ctx context.Context, op token.Token, X mlir.
 	}
 
 	// Branch to the successor block passing true.
-	trueValue := b.emitConstBool(ctx, true, location)
+	trueValue := b.emitConstBool(ctx, true, b.i1, location)
 	brOp := mlir.GoCreateBranchOperation(b.ctx, successor, []mlir.Value{trueValue}, location)
 	appendOperation(ctx, brOp)
 

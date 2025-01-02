@@ -37288,7 +37288,7 @@
               "count": 1,
               "fields": [
                 {
-                  "name": "CHKINIT",
+                  "name": "CRC_CHKINIT",
                   "width": 32,
                   "offset": 0,
                   "flags": [
@@ -37298,7 +37298,7 @@
                   "description": "CRC Checksum Initial Value"
                 },
                 {
-                  "name": "DSTADDR",
+                  "name": "DEFAULT_DSTADDR",
                   "width": 32,
                   "offset": 0,
                   "flags": [
@@ -58254,7 +58254,7 @@
       ],
       "registerGroups": [
         {
-          "identifier": "RTC",
+          "identifier": "MODE0",
           "description": "Real-Time Counter",
           "offset": 0,
           "size": 0,
@@ -59821,7 +59821,7 @@
       ],
       "registerGroups": [
         {
-          "identifier": "RTC",
+          "identifier": "MODE1",
           "description": "Real-Time Counter",
           "offset": 0,
           "size": 0,
@@ -61508,7 +61508,7 @@
       ],
       "registerGroups": [
         {
-          "identifier": "RTC",
+          "identifier": "MODE2",
           "description": "Real-Time Counter",
           "offset": 0,
           "size": 0,
@@ -63520,7 +63520,7 @@
               "count": 1,
               "fields": [
                 {
-                  "name": "ADDR",
+                  "name": "DEFAULT_ADDR",
                   "width": 32,
                   "offset": 0,
                   "flags": [
@@ -63530,7 +63530,7 @@
                   "description": "SDMA System Address"
                 },
                 {
-                  "name": "ARG2",
+                  "name": "CMD23_ARG2",
                   "width": 32,
                   "offset": 0,
                   "flags": [
@@ -64350,7 +64350,7 @@
               "count": 1,
               "fields": [
                 {
-                  "name": "LEDCTRL",
+                  "name": "DEFAULT_LEDCTRL",
                   "width": 1,
                   "offset": 0,
                   "flags": [
@@ -64450,7 +64450,7 @@
                   }
                 },
                 {
-                  "name": "CARDDTL",
+                  "name": "DEFAULT_CARDDTL",
                   "width": 1,
                   "offset": 6,
                   "flags": [
@@ -64475,7 +64475,7 @@
                   }
                 },
                 {
-                  "name": "CARDDSEL",
+                  "name": "DEFAULT_CARDDSEL",
                   "width": 1,
                   "offset": 7,
                   "flags": [
@@ -64631,7 +64631,7 @@
                   }
                 },
                 {
-                  "name": "RWCTRL",
+                  "name": "DEFAULT_RWCTRL",
                   "width": 1,
                   "offset": 2,
                   "flags": [
@@ -64656,7 +64656,7 @@
                   }
                 },
                 {
-                  "name": "INTBG",
+                  "name": "DEFAULT_INTBG",
                   "width": 1,
                   "offset": 3,
                   "flags": [
@@ -65176,7 +65176,7 @@
                   }
                 },
                 {
-                  "name": "CINS",
+                  "name": "DEFAULT_CINS",
                   "width": 1,
                   "offset": 6,
                   "flags": [
@@ -65201,7 +65201,7 @@
                   }
                 },
                 {
-                  "name": "CREM",
+                  "name": "DEFAULT_CREM",
                   "width": 1,
                   "offset": 7,
                   "flags": [
@@ -65226,7 +65226,7 @@
                   }
                 },
                 {
-                  "name": "CINT",
+                  "name": "DEFAULT_CINT",
                   "width": 1,
                   "offset": 8,
                   "flags": [
@@ -65251,7 +65251,7 @@
                   }
                 },
                 {
-                  "name": "BOOTAR",
+                  "name": "EMMC_BOOTAR",
                   "width": 1,
                   "offset": 14,
                   "flags": [
@@ -65549,7 +65549,7 @@
                   }
                 },
                 {
-                  "name": "BOOTAE",
+                  "name": "EMMC_BOOTAE",
                   "width": 1,
                   "offset": 12,
                   "flags": [
@@ -65737,7 +65737,7 @@
                   }
                 },
                 {
-                  "name": "CINS",
+                  "name": "DEFAULT_CINS",
                   "width": 1,
                   "offset": 6,
                   "flags": [
@@ -65762,7 +65762,7 @@
                   }
                 },
                 {
-                  "name": "CREM",
+                  "name": "DEFAULT_CREM",
                   "width": 1,
                   "offset": 7,
                   "flags": [
@@ -65787,7 +65787,7 @@
                   }
                 },
                 {
-                  "name": "CINT",
+                  "name": "DEFAULT_CINT",
                   "width": 1,
                   "offset": 8,
                   "flags": [
@@ -65812,7 +65812,7 @@
                   }
                 },
                 {
-                  "name": "BOOTAR",
+                  "name": "EMMC_BOOTAR",
                   "width": 1,
                   "offset": 14,
                   "flags": [
@@ -66085,7 +66085,7 @@
                   }
                 },
                 {
-                  "name": "BOOTAE",
+                  "name": "EMMC_BOOTAE",
                   "width": 1,
                   "offset": 12,
                   "flags": [
@@ -66258,7 +66258,7 @@
                   }
                 },
                 {
-                  "name": "CINS",
+                  "name": "DEFAULT_CINS",
                   "width": 1,
                   "offset": 6,
                   "flags": [
@@ -66283,7 +66283,7 @@
                   }
                 },
                 {
-                  "name": "CREM",
+                  "name": "DEFAULT_CREM",
                   "width": 1,
                   "offset": 7,
                   "flags": [
@@ -66308,7 +66308,7 @@
                   }
                 },
                 {
-                  "name": "CINT",
+                  "name": "DEFAULT_CINT",
                   "width": 1,
                   "offset": 8,
                   "flags": [
@@ -66333,7 +66333,7 @@
                   }
                 },
                 {
-                  "name": "BOOTAR",
+                  "name": "EMMC_BOOTAR",
                   "width": 1,
                   "offset": 14,
                   "flags": [
@@ -66606,7 +66606,7 @@
                   }
                 },
                 {
-                  "name": "BOOTAE",
+                  "name": "EMMC_BOOTAE",
                   "width": 1,
                   "offset": 12,
                   "flags": [
@@ -66785,7 +66785,7 @@
               "count": 1,
               "fields": [
                 {
-                  "name": "UHSMS",
+                  "name": "DEFAULT_UHSMS",
                   "width": 3,
                   "offset": 0,
                   "flags": [
@@ -66825,7 +66825,7 @@
                   }
                 },
                 {
-                  "name": "VS18EN",
+                  "name": "DEFAULT_VS18EN",
                   "width": 1,
                   "offset": 3,
                   "flags": [
@@ -66850,7 +66850,7 @@
                   }
                 },
                 {
-                  "name": "HS200EN",
+                  "name": "EMMC_HS200EN",
                   "width": 4,
                   "offset": 0,
                   "flags": [
@@ -66975,7 +66975,7 @@
                   }
                 },
                 {
-                  "name": "ASINTEN",
+                  "name": "DEFAULT_ASINTEN",
                   "width": 1,
                   "offset": 14,
                   "flags": [
@@ -68734,6 +68734,2474 @@
       ]
     },
     {
+      "identifier": "USART_EXT",
+      "group": "SERCOM",
+      "description": "Serial Communication Interface - USART EXTERNAL CLOCK Mode",
+      "flags": [
+        "W",
+        "R"
+      ],
+      "instances": [
+        1073754112,
+        1073755136,
+        1090592768,
+        1090600960,
+        1124073472,
+        1124074496,
+        1124075520,
+        1124076544
+      ],
+      "registerGroups": [
+        {
+          "identifier": "USART_EXT",
+          "description": "Serial Communication Interface",
+          "offset": 0,
+          "size": 0,
+          "count": 1,
+          "registers": [
+            {
+              "identifier": "CTRLA",
+              "width": 32,
+              "offset": 0,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "SWRST",
+                  "width": 1,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Software Reset"
+                },
+                {
+                  "name": "ENABLE",
+                  "width": 1,
+                  "offset": 1,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Enable"
+                },
+                {
+                  "name": "MODE",
+                  "width": 3,
+                  "offset": 2,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Operating Mode",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLA_MODE",
+                    "values": [
+                      {
+                        "identifier": "USART_EXT_CLK",
+                        "description": "USART with external clock",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "USART_INT_CLK",
+                        "description": "USART with internal clock",
+                        "value": 1
+                      },
+                      {
+                        "identifier": "SPI_SLAVE",
+                        "description": "SPI in slave operation",
+                        "value": 2
+                      },
+                      {
+                        "identifier": "SPI_MASTER",
+                        "description": "SPI in master operation",
+                        "value": 3
+                      },
+                      {
+                        "identifier": "I2C_SLAVE",
+                        "description": "I2C slave operation",
+                        "value": 4
+                      },
+                      {
+                        "identifier": "I2C_MASTER",
+                        "description": "I2C master operation",
+                        "value": 5
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "RUNSTDBY",
+                  "width": 1,
+                  "offset": 7,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Run during Standby"
+                },
+                {
+                  "name": "IBON",
+                  "width": 1,
+                  "offset": 8,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Immediate Buffer Overflow Notification"
+                },
+                {
+                  "name": "TXINV",
+                  "width": 1,
+                  "offset": 9,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Transmit Data Invert"
+                },
+                {
+                  "name": "RXINV",
+                  "width": 1,
+                  "offset": 10,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Receive Data Invert"
+                },
+                {
+                  "name": "SAMPR",
+                  "width": 3,
+                  "offset": 13,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Sample",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLA_SAMPR",
+                    "values": [
+                      {
+                        "identifier": "16X_ARITHMETIC",
+                        "description": "16x over-sampling using arithmetic baudrate generation",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "16X_FRACTIONAL",
+                        "description": "16x over-sampling using fractional baudrate generation",
+                        "value": 1
+                      },
+                      {
+                        "identifier": "8X_ARITHMETIC",
+                        "description": "8x over-sampling using arithmetic baudrate generation",
+                        "value": 2
+                      },
+                      {
+                        "identifier": "8X_FRACTIONAL",
+                        "description": "8x over-sampling using fractional baudrate generation",
+                        "value": 3
+                      },
+                      {
+                        "identifier": "3X_ARITHMETIC",
+                        "description": "3x over-sampling using arithmetic baudrate generation",
+                        "value": 4
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "TXPO",
+                  "width": 2,
+                  "offset": 16,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Transmit Data Pinout",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLA_TXPO",
+                    "values": [
+                      {
+                        "identifier": "PAD0",
+                        "description": "SERCOM PAD[0] is used for data transmission",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "PAD3",
+                        "description": "SERCOM_PAD[0] is used for data transmission",
+                        "value": 3
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "RXPO",
+                  "width": 2,
+                  "offset": 20,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Receive Data Pinout",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLA_RXPO",
+                    "values": [
+                      {
+                        "identifier": "PAD0",
+                        "description": "SERCOM PAD[0] is used for data reception",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "PAD1",
+                        "description": "SERCOM PAD[1] is used for data reception",
+                        "value": 1
+                      },
+                      {
+                        "identifier": "PAD2",
+                        "description": "SERCOM PAD[2] is used for data reception",
+                        "value": 2
+                      },
+                      {
+                        "identifier": "PAD3",
+                        "description": "SERCOM PAD[3] is used for data reception",
+                        "value": 3
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "SAMPA",
+                  "width": 2,
+                  "offset": 22,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Sample Adjustment"
+                },
+                {
+                  "name": "FORM",
+                  "width": 4,
+                  "offset": 24,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Frame Format",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLA_FORM",
+                    "values": [
+                      {
+                        "identifier": "USART_FRAME_NO_PARITY",
+                        "description": "USART frame",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "USART_FRAME_WITH_PARITY",
+                        "description": "USART frame with parity",
+                        "value": 1
+                      },
+                      {
+                        "identifier": "USART_FRAME_LIN_MASTER_MODE",
+                        "description": "LIN Master - Break and sync generation",
+                        "value": 2
+                      },
+                      {
+                        "identifier": "USART_FRAME_AUTO_BAUD_NO_PARITY",
+                        "description": "Auto-baud - break detection and auto-baud",
+                        "value": 4
+                      },
+                      {
+                        "identifier": "USART_FRAME_AUTO_BAUD_WITH_PARITY",
+                        "description": "Auto-baud - break detection and auto-baud with parity",
+                        "value": 5
+                      },
+                      {
+                        "identifier": "USART_FRAME_ISO_7816",
+                        "description": "ISO 7816",
+                        "value": 7
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "CMODE",
+                  "width": 1,
+                  "offset": 28,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Communication Mode",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLA_CMODE",
+                    "values": [
+                      {
+                        "identifier": "ASYNC",
+                        "description": "Asynchronous Communication",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "SYNC",
+                        "description": "Synchronous Communication",
+                        "value": 1
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "CPOL",
+                  "width": 1,
+                  "offset": 29,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Clock Polarity",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLA_CPOL",
+                    "values": [
+                      {
+                        "identifier": "IDLE_LOW",
+                        "description": "TxD Change:- Rising XCK edge, RxD Sample:- Falling XCK edge",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "IDLE_HIGH",
+                        "description": "TxD Change:- Falling XCK edge, RxD Sample:- Rising XCK edge",
+                        "value": 1
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "DORD",
+                  "width": 1,
+                  "offset": 30,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Data Order",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLA_DORD",
+                    "values": [
+                      {
+                        "identifier": "MSB",
+                        "description": "MSB is transmitted first",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "LSB",
+                        "description": "LSB is transmitted first",
+                        "value": 1
+                      }
+                    ]
+                  }
+                }
+              ],
+              "description": "USART_EXT Control A",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "CTRLB",
+              "width": 32,
+              "offset": 4,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "CHSIZE",
+                  "width": 3,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Character Size",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLB_CHSIZE",
+                    "values": [
+                      {
+                        "identifier": "8_BIT",
+                        "description": "8 Bits",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "9_BIT",
+                        "description": "9 Bits",
+                        "value": 1
+                      },
+                      {
+                        "identifier": "5_BIT",
+                        "description": "5 Bits",
+                        "value": 5
+                      },
+                      {
+                        "identifier": "6_BIT",
+                        "description": "6 Bits",
+                        "value": 6
+                      },
+                      {
+                        "identifier": "7_BIT",
+                        "description": "7 Bits",
+                        "value": 7
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "SBMODE",
+                  "width": 1,
+                  "offset": 6,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Stop Bit Mode",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLB_SBMODE",
+                    "values": [
+                      {
+                        "identifier": "1_BIT",
+                        "description": "One Stop Bit",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "2_BIT",
+                        "description": "Two Stop Bits",
+                        "value": 1
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "COLDEN",
+                  "width": 1,
+                  "offset": 8,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Collision Detection Enable"
+                },
+                {
+                  "name": "SFDE",
+                  "width": 1,
+                  "offset": 9,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Start of Frame Detection Enable"
+                },
+                {
+                  "name": "ENC",
+                  "width": 1,
+                  "offset": 10,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Encoding Format"
+                },
+                {
+                  "name": "PMODE",
+                  "width": 1,
+                  "offset": 13,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Parity Mode",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLB_PMODE",
+                    "values": [
+                      {
+                        "identifier": "EVEN",
+                        "description": "Even Parity",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "ODD",
+                        "description": "Odd Parity",
+                        "value": 1
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "TXEN",
+                  "width": 1,
+                  "offset": 16,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Transmitter Enable"
+                },
+                {
+                  "name": "RXEN",
+                  "width": 1,
+                  "offset": 17,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Receiver Enable"
+                },
+                {
+                  "name": "LINCMD",
+                  "width": 2,
+                  "offset": 24,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "LIN Command"
+                }
+              ],
+              "description": "USART_EXT Control B",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "CTRLC",
+              "width": 32,
+              "offset": 8,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "GTIME",
+                  "width": 3,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Guard Time"
+                },
+                {
+                  "name": "BRKLEN",
+                  "width": 2,
+                  "offset": 8,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "LIN Master Break Length"
+                },
+                {
+                  "name": "HDRDLY",
+                  "width": 2,
+                  "offset": 10,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "LIN Master Header Delay"
+                },
+                {
+                  "name": "INACK",
+                  "width": 1,
+                  "offset": 16,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Inhibit Not Acknowledge"
+                },
+                {
+                  "name": "DSNACK",
+                  "width": 1,
+                  "offset": 17,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Disable Successive NACK"
+                },
+                {
+                  "name": "MAXITER",
+                  "width": 3,
+                  "offset": 20,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Maximum Iterations"
+                },
+                {
+                  "name": "DATA32B",
+                  "width": 2,
+                  "offset": 24,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Data 32 Bit",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLC_DATA32B",
+                    "values": [
+                      {
+                        "identifier": "DATA_READ_WRITE_CHSIZE",
+                        "description": "Data reads and writes according CTRLB.CHSIZE",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "DATA_READ_CHSIZE_WRITE_32BIT",
+                        "description": "Data reads according CTRLB.CHSIZE and writes according 32-bit extension",
+                        "value": 1
+                      },
+                      {
+                        "identifier": "DATA_READ_32BIT_WRITE_CHSIZE",
+                        "description": "Data reads according 32-bit extension and writes according CTRLB.CHSIZE",
+                        "value": 2
+                      },
+                      {
+                        "identifier": "DATA_READ_WRITE_32BIT",
+                        "description": "Data reads and writes according 32-bit extension",
+                        "value": 3
+                      }
+                    ]
+                  }
+                }
+              ],
+              "description": "USART_EXT Control C",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "BAUD",
+              "width": 16,
+              "offset": 12,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "FRAC_BAUD",
+                  "width": 13,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Baud Rate Value"
+                },
+                {
+                  "name": "FRACFP_BAUD",
+                  "width": 13,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Baud Rate Value"
+                },
+                {
+                  "name": "FRAC_FP",
+                  "width": 3,
+                  "offset": 13,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Fractional Part"
+                },
+                {
+                  "name": "FRACFP_FP",
+                  "width": 3,
+                  "offset": 13,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Fractional Part"
+                },
+                {
+                  "name": "DEFAULT_BAUD",
+                  "width": 16,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Baud Rate Value"
+                },
+                {
+                  "name": "USARTFP_BAUD",
+                  "width": 16,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Baud Rate Value"
+                }
+              ],
+              "description": "USART_EXT Baud Rate",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "RXPL",
+              "width": 8,
+              "offset": 14,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "RXPL",
+                  "width": 8,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Receive Pulse Length"
+                }
+              ],
+              "description": "USART_EXT Receive Pulse Length",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "INTENCLR",
+              "width": 8,
+              "offset": 20,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "DRE",
+                  "width": 1,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Data Register Empty Interrupt Disable"
+                },
+                {
+                  "name": "TXC",
+                  "width": 1,
+                  "offset": 1,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Transmit Complete Interrupt Disable"
+                },
+                {
+                  "name": "RXC",
+                  "width": 1,
+                  "offset": 2,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Receive Complete Interrupt Disable"
+                },
+                {
+                  "name": "RXS",
+                  "width": 1,
+                  "offset": 3,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Receive Start Interrupt Disable"
+                },
+                {
+                  "name": "CTSIC",
+                  "width": 1,
+                  "offset": 4,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Clear To Send Input Change Interrupt Disable"
+                },
+                {
+                  "name": "RXBRK",
+                  "width": 1,
+                  "offset": 5,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Break Received Interrupt Disable"
+                },
+                {
+                  "name": "ERROR",
+                  "width": 1,
+                  "offset": 7,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Combined Error Interrupt Disable"
+                }
+              ],
+              "description": "USART_EXT Interrupt Enable Clear",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "INTENSET",
+              "width": 8,
+              "offset": 22,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "DRE",
+                  "width": 1,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Data Register Empty Interrupt Enable"
+                },
+                {
+                  "name": "TXC",
+                  "width": 1,
+                  "offset": 1,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Transmit Complete Interrupt Enable"
+                },
+                {
+                  "name": "RXC",
+                  "width": 1,
+                  "offset": 2,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Receive Complete Interrupt Enable"
+                },
+                {
+                  "name": "RXS",
+                  "width": 1,
+                  "offset": 3,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Receive Start Interrupt Enable"
+                },
+                {
+                  "name": "CTSIC",
+                  "width": 1,
+                  "offset": 4,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Clear To Send Input Change Interrupt Enable"
+                },
+                {
+                  "name": "RXBRK",
+                  "width": 1,
+                  "offset": 5,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Break Received Interrupt Enable"
+                },
+                {
+                  "name": "ERROR",
+                  "width": 1,
+                  "offset": 7,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Combined Error Interrupt Enable"
+                }
+              ],
+              "description": "USART_EXT Interrupt Enable Set",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "INTFLAG",
+              "width": 8,
+              "offset": 24,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "DRE",
+                  "width": 1,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Data Register Empty Interrupt"
+                },
+                {
+                  "name": "TXC",
+                  "width": 1,
+                  "offset": 1,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Transmit Complete Interrupt"
+                },
+                {
+                  "name": "RXC",
+                  "width": 1,
+                  "offset": 2,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Receive Complete Interrupt"
+                },
+                {
+                  "name": "RXS",
+                  "width": 1,
+                  "offset": 3,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Receive Start Interrupt"
+                },
+                {
+                  "name": "CTSIC",
+                  "width": 1,
+                  "offset": 4,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Clear To Send Input Change Interrupt"
+                },
+                {
+                  "name": "RXBRK",
+                  "width": 1,
+                  "offset": 5,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Break Received Interrupt"
+                },
+                {
+                  "name": "ERROR",
+                  "width": 1,
+                  "offset": 7,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Combined Error Interrupt"
+                }
+              ],
+              "description": "USART_EXT Interrupt Flag Status and Clear",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "STATUS",
+              "width": 16,
+              "offset": 26,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "PERR",
+                  "width": 1,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Parity Error"
+                },
+                {
+                  "name": "FERR",
+                  "width": 1,
+                  "offset": 1,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Frame Error"
+                },
+                {
+                  "name": "BUFOVF",
+                  "width": 1,
+                  "offset": 2,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Buffer Overflow"
+                },
+                {
+                  "name": "CTS",
+                  "width": 1,
+                  "offset": 3,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Clear To Send"
+                },
+                {
+                  "name": "ISF",
+                  "width": 1,
+                  "offset": 4,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Inconsistent Sync Field"
+                },
+                {
+                  "name": "COLL",
+                  "width": 1,
+                  "offset": 5,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Collision Detected"
+                },
+                {
+                  "name": "TXE",
+                  "width": 1,
+                  "offset": 6,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Transmitter Empty"
+                },
+                {
+                  "name": "ITER",
+                  "width": 1,
+                  "offset": 7,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Maximum Number of Repetitions Reached"
+                }
+              ],
+              "description": "USART_EXT Status",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "SYNCBUSY",
+              "width": 32,
+              "offset": 28,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "SWRST",
+                  "width": 1,
+                  "offset": 0,
+                  "flags": [
+                    "R"
+                  ],
+                  "description": "Software Reset Synchronization Busy"
+                },
+                {
+                  "name": "ENABLE",
+                  "width": 1,
+                  "offset": 1,
+                  "flags": [
+                    "R"
+                  ],
+                  "description": "SERCOM Enable Synchronization Busy"
+                },
+                {
+                  "name": "CTRLB",
+                  "width": 1,
+                  "offset": 2,
+                  "flags": [
+                    "R"
+                  ],
+                  "description": "CTRLB Synchronization Busy"
+                },
+                {
+                  "name": "RXERRCNT",
+                  "width": 1,
+                  "offset": 3,
+                  "flags": [
+                    "R"
+                  ],
+                  "description": "RXERRCNT Synchronization Busy"
+                },
+                {
+                  "name": "LENGTH",
+                  "width": 1,
+                  "offset": 4,
+                  "flags": [
+                    "R"
+                  ],
+                  "description": "LENGTH Synchronization Busy"
+                }
+              ],
+              "description": "USART_EXT Synchronization Busy",
+              "flags": [
+                "R"
+              ]
+            },
+            {
+              "identifier": "RXERRCNT",
+              "width": 8,
+              "offset": 32,
+              "count": 1,
+              "fields": [],
+              "description": "USART_EXT Receive Error Count",
+              "flags": [
+                "R"
+              ]
+            },
+            {
+              "identifier": "LENGTH",
+              "width": 16,
+              "offset": 34,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "LEN",
+                  "width": 8,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Data Length"
+                },
+                {
+                  "name": "LENEN",
+                  "width": 2,
+                  "offset": 8,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Data Length Enable"
+                }
+              ],
+              "description": "USART_EXT Length",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "DATA",
+              "width": 32,
+              "offset": 40,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "DATA",
+                  "width": 32,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Data Value"
+                }
+              ],
+              "description": "USART_EXT Data",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "DBGCTRL",
+              "width": 8,
+              "offset": 48,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "DBGSTOP",
+                  "width": 1,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Debug Mode"
+                }
+              ],
+              "description": "USART_EXT Debug Control",
+              "flags": [
+                "R",
+                "W"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "identifier": "USART_INT",
+      "group": "SERCOM",
+      "description": "Serial Communication Interface - USART INTERNAL CLOCK Mode",
+      "flags": [
+        "W",
+        "R"
+      ],
+      "instances": [
+        1073754112,
+        1073755136,
+        1090592768,
+        1090600960,
+        1124073472,
+        1124074496,
+        1124075520,
+        1124076544
+      ],
+      "registerGroups": [
+        {
+          "identifier": "USART_INT",
+          "description": "Serial Communication Interface",
+          "offset": 0,
+          "size": 0,
+          "count": 1,
+          "registers": [
+            {
+              "identifier": "CTRLA",
+              "width": 32,
+              "offset": 0,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "SWRST",
+                  "width": 1,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Software Reset"
+                },
+                {
+                  "name": "ENABLE",
+                  "width": 1,
+                  "offset": 1,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Enable"
+                },
+                {
+                  "name": "MODE",
+                  "width": 3,
+                  "offset": 2,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Operating Mode",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLA_MODE",
+                    "values": [
+                      {
+                        "identifier": "USART_EXT_CLK",
+                        "description": "USART with external clock",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "USART_INT_CLK",
+                        "description": "USART with internal clock",
+                        "value": 1
+                      },
+                      {
+                        "identifier": "SPI_SLAVE",
+                        "description": "SPI in slave operation",
+                        "value": 2
+                      },
+                      {
+                        "identifier": "SPI_MASTER",
+                        "description": "SPI in master operation",
+                        "value": 3
+                      },
+                      {
+                        "identifier": "I2C_SLAVE",
+                        "description": "I2C slave operation",
+                        "value": 4
+                      },
+                      {
+                        "identifier": "I2C_MASTER",
+                        "description": "I2C master operation",
+                        "value": 5
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "RUNSTDBY",
+                  "width": 1,
+                  "offset": 7,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Run during Standby"
+                },
+                {
+                  "name": "IBON",
+                  "width": 1,
+                  "offset": 8,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Immediate Buffer Overflow Notification"
+                },
+                {
+                  "name": "TXINV",
+                  "width": 1,
+                  "offset": 9,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Transmit Data Invert"
+                },
+                {
+                  "name": "RXINV",
+                  "width": 1,
+                  "offset": 10,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Receive Data Invert"
+                },
+                {
+                  "name": "SAMPR",
+                  "width": 3,
+                  "offset": 13,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Sample",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLA_SAMPR",
+                    "values": [
+                      {
+                        "identifier": "16X_ARITHMETIC",
+                        "description": "16x over-sampling using arithmetic baudrate generation",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "16X_FRACTIONAL",
+                        "description": "16x over-sampling using fractional baudrate generation",
+                        "value": 1
+                      },
+                      {
+                        "identifier": "8X_ARITHMETIC",
+                        "description": "8x over-sampling using arithmetic baudrate generation",
+                        "value": 2
+                      },
+                      {
+                        "identifier": "8X_FRACTIONAL",
+                        "description": "8x over-sampling using fractional baudrate generation",
+                        "value": 3
+                      },
+                      {
+                        "identifier": "3X_ARITHMETIC",
+                        "description": "3x over-sampling using arithmetic baudrate generation",
+                        "value": 4
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "TXPO",
+                  "width": 2,
+                  "offset": 16,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Transmit Data Pinout",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLA_TXPO",
+                    "values": [
+                      {
+                        "identifier": "PAD0",
+                        "description": "SERCOM PAD[0] is used for data transmission",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "PAD3",
+                        "description": "SERCOM_PAD[0] is used for data transmission",
+                        "value": 3
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "RXPO",
+                  "width": 2,
+                  "offset": 20,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Receive Data Pinout",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLA_RXPO",
+                    "values": [
+                      {
+                        "identifier": "PAD0",
+                        "description": "SERCOM PAD[0] is used for data reception",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "PAD1",
+                        "description": "SERCOM PAD[1] is used for data reception",
+                        "value": 1
+                      },
+                      {
+                        "identifier": "PAD2",
+                        "description": "SERCOM PAD[2] is used for data reception",
+                        "value": 2
+                      },
+                      {
+                        "identifier": "PAD3",
+                        "description": "SERCOM PAD[3] is used for data reception",
+                        "value": 3
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "SAMPA",
+                  "width": 2,
+                  "offset": 22,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Sample Adjustment"
+                },
+                {
+                  "name": "FORM",
+                  "width": 4,
+                  "offset": 24,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Frame Format",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLA_FORM",
+                    "values": [
+                      {
+                        "identifier": "USART_FRAME_NO_PARITY",
+                        "description": "USART frame",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "USART_FRAME_WITH_PARITY",
+                        "description": "USART frame with parity",
+                        "value": 1
+                      },
+                      {
+                        "identifier": "USART_FRAME_LIN_MASTER_MODE",
+                        "description": "LIN Master - Break and sync generation",
+                        "value": 2
+                      },
+                      {
+                        "identifier": "USART_FRAME_AUTO_BAUD_NO_PARITY",
+                        "description": "Auto-baud - break detection and auto-baud",
+                        "value": 4
+                      },
+                      {
+                        "identifier": "USART_FRAME_AUTO_BAUD_WITH_PARITY",
+                        "description": "Auto-baud - break detection and auto-baud with parity",
+                        "value": 5
+                      },
+                      {
+                        "identifier": "USART_FRAME_ISO_7816",
+                        "description": "ISO 7816",
+                        "value": 7
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "CMODE",
+                  "width": 1,
+                  "offset": 28,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Communication Mode",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLA_CMODE",
+                    "values": [
+                      {
+                        "identifier": "ASYNC",
+                        "description": "Asynchronous Communication",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "SYNC",
+                        "description": "Synchronous Communication",
+                        "value": 1
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "CPOL",
+                  "width": 1,
+                  "offset": 29,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Clock Polarity",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLA_CPOL",
+                    "values": [
+                      {
+                        "identifier": "IDLE_LOW",
+                        "description": "TxD Change:- Rising XCK edge, RxD Sample:- Falling XCK edge",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "IDLE_HIGH",
+                        "description": "TxD Change:- Falling XCK edge, RxD Sample:- Rising XCK edge",
+                        "value": 1
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "DORD",
+                  "width": 1,
+                  "offset": 30,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Data Order",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLA_DORD",
+                    "values": [
+                      {
+                        "identifier": "MSB",
+                        "description": "MSB is transmitted first",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "LSB",
+                        "description": "LSB is transmitted first",
+                        "value": 1
+                      }
+                    ]
+                  }
+                }
+              ],
+              "description": "USART_INT Control A",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "CTRLB",
+              "width": 32,
+              "offset": 4,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "CHSIZE",
+                  "width": 3,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Character Size",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLB_CHSIZE",
+                    "values": [
+                      {
+                        "identifier": "8_BIT",
+                        "description": "8 Bits",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "9_BIT",
+                        "description": "9 Bits",
+                        "value": 1
+                      },
+                      {
+                        "identifier": "5_BIT",
+                        "description": "5 Bits",
+                        "value": 5
+                      },
+                      {
+                        "identifier": "6_BIT",
+                        "description": "6 Bits",
+                        "value": 6
+                      },
+                      {
+                        "identifier": "7_BIT",
+                        "description": "7 Bits",
+                        "value": 7
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "SBMODE",
+                  "width": 1,
+                  "offset": 6,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Stop Bit Mode",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLB_SBMODE",
+                    "values": [
+                      {
+                        "identifier": "1_BIT",
+                        "description": "One Stop Bit",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "2_BIT",
+                        "description": "Two Stop Bits",
+                        "value": 1
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "COLDEN",
+                  "width": 1,
+                  "offset": 8,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Collision Detection Enable"
+                },
+                {
+                  "name": "SFDE",
+                  "width": 1,
+                  "offset": 9,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Start of Frame Detection Enable"
+                },
+                {
+                  "name": "ENC",
+                  "width": 1,
+                  "offset": 10,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Encoding Format"
+                },
+                {
+                  "name": "PMODE",
+                  "width": 1,
+                  "offset": 13,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Parity Mode",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLB_PMODE",
+                    "values": [
+                      {
+                        "identifier": "EVEN",
+                        "description": "Even Parity",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "ODD",
+                        "description": "Odd Parity",
+                        "value": 1
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "TXEN",
+                  "width": 1,
+                  "offset": 16,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Transmitter Enable"
+                },
+                {
+                  "name": "RXEN",
+                  "width": 1,
+                  "offset": 17,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Receiver Enable"
+                },
+                {
+                  "name": "LINCMD",
+                  "width": 2,
+                  "offset": 24,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "LIN Command"
+                }
+              ],
+              "description": "USART_INT Control B",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "CTRLC",
+              "width": 32,
+              "offset": 8,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "GTIME",
+                  "width": 3,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Guard Time"
+                },
+                {
+                  "name": "BRKLEN",
+                  "width": 2,
+                  "offset": 8,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "LIN Master Break Length"
+                },
+                {
+                  "name": "HDRDLY",
+                  "width": 2,
+                  "offset": 10,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "LIN Master Header Delay"
+                },
+                {
+                  "name": "INACK",
+                  "width": 1,
+                  "offset": 16,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Inhibit Not Acknowledge"
+                },
+                {
+                  "name": "DSNACK",
+                  "width": 1,
+                  "offset": 17,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Disable Successive NACK"
+                },
+                {
+                  "name": "MAXITER",
+                  "width": 3,
+                  "offset": 20,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Maximum Iterations"
+                },
+                {
+                  "name": "DATA32B",
+                  "width": 2,
+                  "offset": 24,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Data 32 Bit",
+                  "constants": {
+                    "identifier": "SERCOM_USART_CTRLC_DATA32B",
+                    "values": [
+                      {
+                        "identifier": "DATA_READ_WRITE_CHSIZE",
+                        "description": "Data reads and writes according CTRLB.CHSIZE",
+                        "value": 0
+                      },
+                      {
+                        "identifier": "DATA_READ_CHSIZE_WRITE_32BIT",
+                        "description": "Data reads according CTRLB.CHSIZE and writes according 32-bit extension",
+                        "value": 1
+                      },
+                      {
+                        "identifier": "DATA_READ_32BIT_WRITE_CHSIZE",
+                        "description": "Data reads according 32-bit extension and writes according CTRLB.CHSIZE",
+                        "value": 2
+                      },
+                      {
+                        "identifier": "DATA_READ_WRITE_32BIT",
+                        "description": "Data reads and writes according 32-bit extension",
+                        "value": 3
+                      }
+                    ]
+                  }
+                }
+              ],
+              "description": "USART_INT Control C",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "BAUD",
+              "width": 16,
+              "offset": 12,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "FRAC_BAUD",
+                  "width": 13,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Baud Rate Value"
+                },
+                {
+                  "name": "FRACFP_BAUD",
+                  "width": 13,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Baud Rate Value"
+                },
+                {
+                  "name": "FRAC_FP",
+                  "width": 3,
+                  "offset": 13,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Fractional Part"
+                },
+                {
+                  "name": "FRACFP_FP",
+                  "width": 3,
+                  "offset": 13,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Fractional Part"
+                },
+                {
+                  "name": "DEFAULT_BAUD",
+                  "width": 16,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Baud Rate Value"
+                },
+                {
+                  "name": "USARTFP_BAUD",
+                  "width": 16,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Baud Rate Value"
+                }
+              ],
+              "description": "USART_INT Baud Rate",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "RXPL",
+              "width": 8,
+              "offset": 14,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "RXPL",
+                  "width": 8,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Receive Pulse Length"
+                }
+              ],
+              "description": "USART_INT Receive Pulse Length",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "INTENCLR",
+              "width": 8,
+              "offset": 20,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "DRE",
+                  "width": 1,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Data Register Empty Interrupt Disable"
+                },
+                {
+                  "name": "TXC",
+                  "width": 1,
+                  "offset": 1,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Transmit Complete Interrupt Disable"
+                },
+                {
+                  "name": "RXC",
+                  "width": 1,
+                  "offset": 2,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Receive Complete Interrupt Disable"
+                },
+                {
+                  "name": "RXS",
+                  "width": 1,
+                  "offset": 3,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Receive Start Interrupt Disable"
+                },
+                {
+                  "name": "CTSIC",
+                  "width": 1,
+                  "offset": 4,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Clear To Send Input Change Interrupt Disable"
+                },
+                {
+                  "name": "RXBRK",
+                  "width": 1,
+                  "offset": 5,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Break Received Interrupt Disable"
+                },
+                {
+                  "name": "ERROR",
+                  "width": 1,
+                  "offset": 7,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Combined Error Interrupt Disable"
+                }
+              ],
+              "description": "USART_INT Interrupt Enable Clear",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "INTENSET",
+              "width": 8,
+              "offset": 22,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "DRE",
+                  "width": 1,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Data Register Empty Interrupt Enable"
+                },
+                {
+                  "name": "TXC",
+                  "width": 1,
+                  "offset": 1,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Transmit Complete Interrupt Enable"
+                },
+                {
+                  "name": "RXC",
+                  "width": 1,
+                  "offset": 2,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Receive Complete Interrupt Enable"
+                },
+                {
+                  "name": "RXS",
+                  "width": 1,
+                  "offset": 3,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Receive Start Interrupt Enable"
+                },
+                {
+                  "name": "CTSIC",
+                  "width": 1,
+                  "offset": 4,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Clear To Send Input Change Interrupt Enable"
+                },
+                {
+                  "name": "RXBRK",
+                  "width": 1,
+                  "offset": 5,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Break Received Interrupt Enable"
+                },
+                {
+                  "name": "ERROR",
+                  "width": 1,
+                  "offset": 7,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Combined Error Interrupt Enable"
+                }
+              ],
+              "description": "USART_INT Interrupt Enable Set",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "INTFLAG",
+              "width": 8,
+              "offset": 24,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "DRE",
+                  "width": 1,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Data Register Empty Interrupt"
+                },
+                {
+                  "name": "TXC",
+                  "width": 1,
+                  "offset": 1,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Transmit Complete Interrupt"
+                },
+                {
+                  "name": "RXC",
+                  "width": 1,
+                  "offset": 2,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Receive Complete Interrupt"
+                },
+                {
+                  "name": "RXS",
+                  "width": 1,
+                  "offset": 3,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Receive Start Interrupt"
+                },
+                {
+                  "name": "CTSIC",
+                  "width": 1,
+                  "offset": 4,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Clear To Send Input Change Interrupt"
+                },
+                {
+                  "name": "RXBRK",
+                  "width": 1,
+                  "offset": 5,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Break Received Interrupt"
+                },
+                {
+                  "name": "ERROR",
+                  "width": 1,
+                  "offset": 7,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Combined Error Interrupt"
+                }
+              ],
+              "description": "USART_INT Interrupt Flag Status and Clear",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "STATUS",
+              "width": 16,
+              "offset": 26,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "PERR",
+                  "width": 1,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Parity Error"
+                },
+                {
+                  "name": "FERR",
+                  "width": 1,
+                  "offset": 1,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Frame Error"
+                },
+                {
+                  "name": "BUFOVF",
+                  "width": 1,
+                  "offset": 2,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Buffer Overflow"
+                },
+                {
+                  "name": "CTS",
+                  "width": 1,
+                  "offset": 3,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Clear To Send"
+                },
+                {
+                  "name": "ISF",
+                  "width": 1,
+                  "offset": 4,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Inconsistent Sync Field"
+                },
+                {
+                  "name": "COLL",
+                  "width": 1,
+                  "offset": 5,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Collision Detected"
+                },
+                {
+                  "name": "TXE",
+                  "width": 1,
+                  "offset": 6,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Transmitter Empty"
+                },
+                {
+                  "name": "ITER",
+                  "width": 1,
+                  "offset": 7,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Maximum Number of Repetitions Reached"
+                }
+              ],
+              "description": "USART_INT Status",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "SYNCBUSY",
+              "width": 32,
+              "offset": 28,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "SWRST",
+                  "width": 1,
+                  "offset": 0,
+                  "flags": [
+                    "R"
+                  ],
+                  "description": "Software Reset Synchronization Busy"
+                },
+                {
+                  "name": "ENABLE",
+                  "width": 1,
+                  "offset": 1,
+                  "flags": [
+                    "R"
+                  ],
+                  "description": "SERCOM Enable Synchronization Busy"
+                },
+                {
+                  "name": "CTRLB",
+                  "width": 1,
+                  "offset": 2,
+                  "flags": [
+                    "R"
+                  ],
+                  "description": "CTRLB Synchronization Busy"
+                },
+                {
+                  "name": "RXERRCNT",
+                  "width": 1,
+                  "offset": 3,
+                  "flags": [
+                    "R"
+                  ],
+                  "description": "RXERRCNT Synchronization Busy"
+                },
+                {
+                  "name": "LENGTH",
+                  "width": 1,
+                  "offset": 4,
+                  "flags": [
+                    "R"
+                  ],
+                  "description": "LENGTH Synchronization Busy"
+                }
+              ],
+              "description": "USART_INT Synchronization Busy",
+              "flags": [
+                "R"
+              ]
+            },
+            {
+              "identifier": "RXERRCNT",
+              "width": 8,
+              "offset": 32,
+              "count": 1,
+              "fields": [],
+              "description": "USART_INT Receive Error Count",
+              "flags": [
+                "R"
+              ]
+            },
+            {
+              "identifier": "LENGTH",
+              "width": 16,
+              "offset": 34,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "LEN",
+                  "width": 8,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Data Length"
+                },
+                {
+                  "name": "LENEN",
+                  "width": 2,
+                  "offset": 8,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Data Length Enable"
+                }
+              ],
+              "description": "USART_INT Length",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "DATA",
+              "width": 32,
+              "offset": 40,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "DATA",
+                  "width": 32,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Data Value"
+                }
+              ],
+              "description": "USART_INT Data",
+              "flags": [
+                "R",
+                "W"
+              ]
+            },
+            {
+              "identifier": "DBGCTRL",
+              "width": 8,
+              "offset": 48,
+              "count": 1,
+              "fields": [
+                {
+                  "name": "DBGSTOP",
+                  "width": 1,
+                  "offset": 0,
+                  "flags": [
+                    "R",
+                    "W"
+                  ],
+                  "description": "Debug Mode"
+                }
+              ],
+              "description": "USART_INT Debug Control",
+              "flags": [
+                "R",
+                "W"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
       "identifier": "I2CM",
       "group": "SERCOM",
       "description": "Serial Communication Interface - I2C Master Mode",
@@ -68753,7 +71221,7 @@
       ],
       "registerGroups": [
         {
-          "identifier": "SERCOM",
+          "identifier": "I2CM",
           "description": "Serial Communication Interface",
           "offset": 0,
           "size": 0,
@@ -69554,7 +72022,7 @@
       ],
       "registerGroups": [
         {
-          "identifier": "SERCOM",
+          "identifier": "I2CS",
           "description": "Serial Communication Interface",
           "offset": 0,
           "size": 0,
@@ -70318,7 +72786,7 @@
       ],
       "registerGroups": [
         {
-          "identifier": "SERCOM",
+          "identifier": "SPIS",
           "description": "Serial Communication Interface",
           "offset": 0,
           "size": 0,
@@ -71167,7 +73635,7 @@
       ],
       "registerGroups": [
         {
-          "identifier": "SERCOM",
+          "identifier": "SPIM",
           "description": "Serial Communication Interface",
           "offset": 0,
           "size": 0,
@@ -71987,2414 +74455,6 @@
                 }
               ],
               "description": "SPIM Debug Control",
-              "flags": [
-                "R",
-                "W"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "identifier": "USART_EXT",
-      "group": "SERCOM",
-      "description": "Serial Communication Interface - USART EXTERNAL CLOCK Mode",
-      "flags": [
-        "W",
-        "R"
-      ],
-      "instances": [
-        1073754112,
-        1073755136,
-        1090592768,
-        1090600960,
-        1124073472,
-        1124074496,
-        1124075520,
-        1124076544
-      ],
-      "registerGroups": [
-        {
-          "identifier": "SERCOM",
-          "description": "Serial Communication Interface",
-          "offset": 0,
-          "size": 0,
-          "count": 1,
-          "registers": [
-            {
-              "identifier": "CTRLA",
-              "width": 32,
-              "offset": 0,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "SWRST",
-                  "width": 1,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Software Reset"
-                },
-                {
-                  "name": "ENABLE",
-                  "width": 1,
-                  "offset": 1,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Enable"
-                },
-                {
-                  "name": "MODE",
-                  "width": 3,
-                  "offset": 2,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Operating Mode",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLA_MODE",
-                    "values": [
-                      {
-                        "identifier": "USART_EXT_CLK",
-                        "description": "USART with external clock",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "USART_INT_CLK",
-                        "description": "USART with internal clock",
-                        "value": 1
-                      },
-                      {
-                        "identifier": "SPI_SLAVE",
-                        "description": "SPI in slave operation",
-                        "value": 2
-                      },
-                      {
-                        "identifier": "SPI_MASTER",
-                        "description": "SPI in master operation",
-                        "value": 3
-                      },
-                      {
-                        "identifier": "I2C_SLAVE",
-                        "description": "I2C slave operation",
-                        "value": 4
-                      },
-                      {
-                        "identifier": "I2C_MASTER",
-                        "description": "I2C master operation",
-                        "value": 5
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "RUNSTDBY",
-                  "width": 1,
-                  "offset": 7,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Run during Standby"
-                },
-                {
-                  "name": "IBON",
-                  "width": 1,
-                  "offset": 8,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Immediate Buffer Overflow Notification"
-                },
-                {
-                  "name": "TXINV",
-                  "width": 1,
-                  "offset": 9,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Transmit Data Invert"
-                },
-                {
-                  "name": "RXINV",
-                  "width": 1,
-                  "offset": 10,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Receive Data Invert"
-                },
-                {
-                  "name": "SAMPR",
-                  "width": 3,
-                  "offset": 13,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Sample",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLA_SAMPR",
-                    "values": [
-                      {
-                        "identifier": "16X_ARITHMETIC",
-                        "description": "16x over-sampling using arithmetic baudrate generation",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "16X_FRACTIONAL",
-                        "description": "16x over-sampling using fractional baudrate generation",
-                        "value": 1
-                      },
-                      {
-                        "identifier": "8X_ARITHMETIC",
-                        "description": "8x over-sampling using arithmetic baudrate generation",
-                        "value": 2
-                      },
-                      {
-                        "identifier": "8X_FRACTIONAL",
-                        "description": "8x over-sampling using fractional baudrate generation",
-                        "value": 3
-                      },
-                      {
-                        "identifier": "3X_ARITHMETIC",
-                        "description": "3x over-sampling using arithmetic baudrate generation",
-                        "value": 4
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "TXPO",
-                  "width": 2,
-                  "offset": 16,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Transmit Data Pinout",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLA_TXPO",
-                    "values": [
-                      {
-                        "identifier": "PAD0",
-                        "description": "SERCOM PAD[0] is used for data transmission",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "PAD3",
-                        "description": "SERCOM_PAD[0] is used for data transmission",
-                        "value": 3
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "RXPO",
-                  "width": 2,
-                  "offset": 20,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Receive Data Pinout",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLA_RXPO",
-                    "values": [
-                      {
-                        "identifier": "PAD0",
-                        "description": "SERCOM PAD[0] is used for data reception",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "PAD1",
-                        "description": "SERCOM PAD[1] is used for data reception",
-                        "value": 1
-                      },
-                      {
-                        "identifier": "PAD2",
-                        "description": "SERCOM PAD[2] is used for data reception",
-                        "value": 2
-                      },
-                      {
-                        "identifier": "PAD3",
-                        "description": "SERCOM PAD[3] is used for data reception",
-                        "value": 3
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "SAMPA",
-                  "width": 2,
-                  "offset": 22,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Sample Adjustment"
-                },
-                {
-                  "name": "FORM",
-                  "width": 4,
-                  "offset": 24,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Frame Format",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLA_FORM",
-                    "values": [
-                      {
-                        "identifier": "USART_FRAME_NO_PARITY",
-                        "description": "USART frame",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "USART_FRAME_WITH_PARITY",
-                        "description": "USART frame with parity",
-                        "value": 1
-                      },
-                      {
-                        "identifier": "USART_FRAME_LIN_MASTER_MODE",
-                        "description": "LIN Master - Break and sync generation",
-                        "value": 2
-                      },
-                      {
-                        "identifier": "USART_FRAME_AUTO_BAUD_NO_PARITY",
-                        "description": "Auto-baud - break detection and auto-baud",
-                        "value": 4
-                      },
-                      {
-                        "identifier": "USART_FRAME_AUTO_BAUD_WITH_PARITY",
-                        "description": "Auto-baud - break detection and auto-baud with parity",
-                        "value": 5
-                      },
-                      {
-                        "identifier": "USART_FRAME_ISO_7816",
-                        "description": "ISO 7816",
-                        "value": 7
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "CMODE",
-                  "width": 1,
-                  "offset": 28,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Communication Mode",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLA_CMODE",
-                    "values": [
-                      {
-                        "identifier": "ASYNC",
-                        "description": "Asynchronous Communication",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "SYNC",
-                        "description": "Synchronous Communication",
-                        "value": 1
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "CPOL",
-                  "width": 1,
-                  "offset": 29,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Clock Polarity",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLA_CPOL",
-                    "values": [
-                      {
-                        "identifier": "IDLE_LOW",
-                        "description": "TxD Change:- Rising XCK edge, RxD Sample:- Falling XCK edge",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "IDLE_HIGH",
-                        "description": "TxD Change:- Falling XCK edge, RxD Sample:- Rising XCK edge",
-                        "value": 1
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "DORD",
-                  "width": 1,
-                  "offset": 30,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Data Order",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLA_DORD",
-                    "values": [
-                      {
-                        "identifier": "MSB",
-                        "description": "MSB is transmitted first",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "LSB",
-                        "description": "LSB is transmitted first",
-                        "value": 1
-                      }
-                    ]
-                  }
-                }
-              ],
-              "description": "USART_EXT Control A",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "CTRLB",
-              "width": 32,
-              "offset": 4,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "CHSIZE",
-                  "width": 3,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Character Size",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLB_CHSIZE",
-                    "values": [
-                      {
-                        "identifier": "8_BIT",
-                        "description": "8 Bits",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "9_BIT",
-                        "description": "9 Bits",
-                        "value": 1
-                      },
-                      {
-                        "identifier": "5_BIT",
-                        "description": "5 Bits",
-                        "value": 5
-                      },
-                      {
-                        "identifier": "6_BIT",
-                        "description": "6 Bits",
-                        "value": 6
-                      },
-                      {
-                        "identifier": "7_BIT",
-                        "description": "7 Bits",
-                        "value": 7
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "SBMODE",
-                  "width": 1,
-                  "offset": 6,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Stop Bit Mode",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLB_SBMODE",
-                    "values": [
-                      {
-                        "identifier": "1_BIT",
-                        "description": "One Stop Bit",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "2_BIT",
-                        "description": "Two Stop Bits",
-                        "value": 1
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "COLDEN",
-                  "width": 1,
-                  "offset": 8,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Collision Detection Enable"
-                },
-                {
-                  "name": "SFDE",
-                  "width": 1,
-                  "offset": 9,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Start of Frame Detection Enable"
-                },
-                {
-                  "name": "ENC",
-                  "width": 1,
-                  "offset": 10,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Encoding Format"
-                },
-                {
-                  "name": "PMODE",
-                  "width": 1,
-                  "offset": 13,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Parity Mode",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLB_PMODE",
-                    "values": [
-                      {
-                        "identifier": "EVEN",
-                        "description": "Even Parity",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "ODD",
-                        "description": "Odd Parity",
-                        "value": 1
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "TXEN",
-                  "width": 1,
-                  "offset": 16,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Transmitter Enable"
-                },
-                {
-                  "name": "RXEN",
-                  "width": 1,
-                  "offset": 17,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Receiver Enable"
-                },
-                {
-                  "name": "LINCMD",
-                  "width": 2,
-                  "offset": 24,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "LIN Command"
-                }
-              ],
-              "description": "USART_EXT Control B",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "CTRLC",
-              "width": 32,
-              "offset": 8,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "GTIME",
-                  "width": 3,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Guard Time"
-                },
-                {
-                  "name": "BRKLEN",
-                  "width": 2,
-                  "offset": 8,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "LIN Master Break Length"
-                },
-                {
-                  "name": "HDRDLY",
-                  "width": 2,
-                  "offset": 10,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "LIN Master Header Delay"
-                },
-                {
-                  "name": "INACK",
-                  "width": 1,
-                  "offset": 16,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Inhibit Not Acknowledge"
-                },
-                {
-                  "name": "DSNACK",
-                  "width": 1,
-                  "offset": 17,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Disable Successive NACK"
-                },
-                {
-                  "name": "MAXITER",
-                  "width": 3,
-                  "offset": 20,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Maximum Iterations"
-                },
-                {
-                  "name": "DATA32B",
-                  "width": 2,
-                  "offset": 24,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Data 32 Bit",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLC_DATA32B",
-                    "values": [
-                      {
-                        "identifier": "DATA_READ_WRITE_CHSIZE",
-                        "description": "Data reads and writes according CTRLB.CHSIZE",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "DATA_READ_CHSIZE_WRITE_32BIT",
-                        "description": "Data reads according CTRLB.CHSIZE and writes according 32-bit extension",
-                        "value": 1
-                      },
-                      {
-                        "identifier": "DATA_READ_32BIT_WRITE_CHSIZE",
-                        "description": "Data reads according 32-bit extension and writes according CTRLB.CHSIZE",
-                        "value": 2
-                      },
-                      {
-                        "identifier": "DATA_READ_WRITE_32BIT",
-                        "description": "Data reads and writes according 32-bit extension",
-                        "value": 3
-                      }
-                    ]
-                  }
-                }
-              ],
-              "description": "USART_EXT Control C",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "BAUD",
-              "width": 16,
-              "offset": 12,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "BAUD",
-                  "width": 13,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Baud Rate Value"
-                },
-                {
-                  "name": "FP",
-                  "width": 3,
-                  "offset": 13,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Fractional Part"
-                },
-                {
-                  "name": "BAUD",
-                  "width": 16,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Baud Rate Value"
-                }
-              ],
-              "description": "USART_EXT Baud Rate",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "RXPL",
-              "width": 8,
-              "offset": 14,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "RXPL",
-                  "width": 8,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Receive Pulse Length"
-                }
-              ],
-              "description": "USART_EXT Receive Pulse Length",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "INTENCLR",
-              "width": 8,
-              "offset": 20,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "DRE",
-                  "width": 1,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Data Register Empty Interrupt Disable"
-                },
-                {
-                  "name": "TXC",
-                  "width": 1,
-                  "offset": 1,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Transmit Complete Interrupt Disable"
-                },
-                {
-                  "name": "RXC",
-                  "width": 1,
-                  "offset": 2,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Receive Complete Interrupt Disable"
-                },
-                {
-                  "name": "RXS",
-                  "width": 1,
-                  "offset": 3,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Receive Start Interrupt Disable"
-                },
-                {
-                  "name": "CTSIC",
-                  "width": 1,
-                  "offset": 4,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Clear To Send Input Change Interrupt Disable"
-                },
-                {
-                  "name": "RXBRK",
-                  "width": 1,
-                  "offset": 5,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Break Received Interrupt Disable"
-                },
-                {
-                  "name": "ERROR",
-                  "width": 1,
-                  "offset": 7,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Combined Error Interrupt Disable"
-                }
-              ],
-              "description": "USART_EXT Interrupt Enable Clear",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "INTENSET",
-              "width": 8,
-              "offset": 22,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "DRE",
-                  "width": 1,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Data Register Empty Interrupt Enable"
-                },
-                {
-                  "name": "TXC",
-                  "width": 1,
-                  "offset": 1,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Transmit Complete Interrupt Enable"
-                },
-                {
-                  "name": "RXC",
-                  "width": 1,
-                  "offset": 2,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Receive Complete Interrupt Enable"
-                },
-                {
-                  "name": "RXS",
-                  "width": 1,
-                  "offset": 3,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Receive Start Interrupt Enable"
-                },
-                {
-                  "name": "CTSIC",
-                  "width": 1,
-                  "offset": 4,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Clear To Send Input Change Interrupt Enable"
-                },
-                {
-                  "name": "RXBRK",
-                  "width": 1,
-                  "offset": 5,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Break Received Interrupt Enable"
-                },
-                {
-                  "name": "ERROR",
-                  "width": 1,
-                  "offset": 7,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Combined Error Interrupt Enable"
-                }
-              ],
-              "description": "USART_EXT Interrupt Enable Set",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "INTFLAG",
-              "width": 8,
-              "offset": 24,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "DRE",
-                  "width": 1,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Data Register Empty Interrupt"
-                },
-                {
-                  "name": "TXC",
-                  "width": 1,
-                  "offset": 1,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Transmit Complete Interrupt"
-                },
-                {
-                  "name": "RXC",
-                  "width": 1,
-                  "offset": 2,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Receive Complete Interrupt"
-                },
-                {
-                  "name": "RXS",
-                  "width": 1,
-                  "offset": 3,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Receive Start Interrupt"
-                },
-                {
-                  "name": "CTSIC",
-                  "width": 1,
-                  "offset": 4,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Clear To Send Input Change Interrupt"
-                },
-                {
-                  "name": "RXBRK",
-                  "width": 1,
-                  "offset": 5,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Break Received Interrupt"
-                },
-                {
-                  "name": "ERROR",
-                  "width": 1,
-                  "offset": 7,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Combined Error Interrupt"
-                }
-              ],
-              "description": "USART_EXT Interrupt Flag Status and Clear",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "STATUS",
-              "width": 16,
-              "offset": 26,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "PERR",
-                  "width": 1,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Parity Error"
-                },
-                {
-                  "name": "FERR",
-                  "width": 1,
-                  "offset": 1,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Frame Error"
-                },
-                {
-                  "name": "BUFOVF",
-                  "width": 1,
-                  "offset": 2,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Buffer Overflow"
-                },
-                {
-                  "name": "CTS",
-                  "width": 1,
-                  "offset": 3,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Clear To Send"
-                },
-                {
-                  "name": "ISF",
-                  "width": 1,
-                  "offset": 4,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Inconsistent Sync Field"
-                },
-                {
-                  "name": "COLL",
-                  "width": 1,
-                  "offset": 5,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Collision Detected"
-                },
-                {
-                  "name": "TXE",
-                  "width": 1,
-                  "offset": 6,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Transmitter Empty"
-                },
-                {
-                  "name": "ITER",
-                  "width": 1,
-                  "offset": 7,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Maximum Number of Repetitions Reached"
-                }
-              ],
-              "description": "USART_EXT Status",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "SYNCBUSY",
-              "width": 32,
-              "offset": 28,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "SWRST",
-                  "width": 1,
-                  "offset": 0,
-                  "flags": [
-                    "R"
-                  ],
-                  "description": "Software Reset Synchronization Busy"
-                },
-                {
-                  "name": "ENABLE",
-                  "width": 1,
-                  "offset": 1,
-                  "flags": [
-                    "R"
-                  ],
-                  "description": "SERCOM Enable Synchronization Busy"
-                },
-                {
-                  "name": "CTRLB",
-                  "width": 1,
-                  "offset": 2,
-                  "flags": [
-                    "R"
-                  ],
-                  "description": "CTRLB Synchronization Busy"
-                },
-                {
-                  "name": "RXERRCNT",
-                  "width": 1,
-                  "offset": 3,
-                  "flags": [
-                    "R"
-                  ],
-                  "description": "RXERRCNT Synchronization Busy"
-                },
-                {
-                  "name": "LENGTH",
-                  "width": 1,
-                  "offset": 4,
-                  "flags": [
-                    "R"
-                  ],
-                  "description": "LENGTH Synchronization Busy"
-                }
-              ],
-              "description": "USART_EXT Synchronization Busy",
-              "flags": [
-                "R"
-              ]
-            },
-            {
-              "identifier": "RXERRCNT",
-              "width": 8,
-              "offset": 32,
-              "count": 1,
-              "fields": [],
-              "description": "USART_EXT Receive Error Count",
-              "flags": [
-                "R"
-              ]
-            },
-            {
-              "identifier": "LENGTH",
-              "width": 16,
-              "offset": 34,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "LEN",
-                  "width": 8,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Data Length"
-                },
-                {
-                  "name": "LENEN",
-                  "width": 2,
-                  "offset": 8,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Data Length Enable"
-                }
-              ],
-              "description": "USART_EXT Length",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "DATA",
-              "width": 32,
-              "offset": 40,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "DATA",
-                  "width": 32,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Data Value"
-                }
-              ],
-              "description": "USART_EXT Data",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "DBGCTRL",
-              "width": 8,
-              "offset": 48,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "DBGSTOP",
-                  "width": 1,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Debug Mode"
-                }
-              ],
-              "description": "USART_EXT Debug Control",
-              "flags": [
-                "R",
-                "W"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "identifier": "USART_INT",
-      "group": "SERCOM",
-      "description": "Serial Communication Interface - USART INTERNAL CLOCK Mode",
-      "flags": [
-        "W",
-        "R"
-      ],
-      "instances": [
-        1073754112,
-        1073755136,
-        1090592768,
-        1090600960,
-        1124073472,
-        1124074496,
-        1124075520,
-        1124076544
-      ],
-      "registerGroups": [
-        {
-          "identifier": "SERCOM",
-          "description": "Serial Communication Interface",
-          "offset": 0,
-          "size": 0,
-          "count": 1,
-          "registers": [
-            {
-              "identifier": "CTRLA",
-              "width": 32,
-              "offset": 0,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "SWRST",
-                  "width": 1,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Software Reset"
-                },
-                {
-                  "name": "ENABLE",
-                  "width": 1,
-                  "offset": 1,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Enable"
-                },
-                {
-                  "name": "MODE",
-                  "width": 3,
-                  "offset": 2,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Operating Mode",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLA_MODE",
-                    "values": [
-                      {
-                        "identifier": "USART_EXT_CLK",
-                        "description": "USART with external clock",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "USART_INT_CLK",
-                        "description": "USART with internal clock",
-                        "value": 1
-                      },
-                      {
-                        "identifier": "SPI_SLAVE",
-                        "description": "SPI in slave operation",
-                        "value": 2
-                      },
-                      {
-                        "identifier": "SPI_MASTER",
-                        "description": "SPI in master operation",
-                        "value": 3
-                      },
-                      {
-                        "identifier": "I2C_SLAVE",
-                        "description": "I2C slave operation",
-                        "value": 4
-                      },
-                      {
-                        "identifier": "I2C_MASTER",
-                        "description": "I2C master operation",
-                        "value": 5
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "RUNSTDBY",
-                  "width": 1,
-                  "offset": 7,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Run during Standby"
-                },
-                {
-                  "name": "IBON",
-                  "width": 1,
-                  "offset": 8,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Immediate Buffer Overflow Notification"
-                },
-                {
-                  "name": "TXINV",
-                  "width": 1,
-                  "offset": 9,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Transmit Data Invert"
-                },
-                {
-                  "name": "RXINV",
-                  "width": 1,
-                  "offset": 10,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Receive Data Invert"
-                },
-                {
-                  "name": "SAMPR",
-                  "width": 3,
-                  "offset": 13,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Sample",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLA_SAMPR",
-                    "values": [
-                      {
-                        "identifier": "16X_ARITHMETIC",
-                        "description": "16x over-sampling using arithmetic baudrate generation",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "16X_FRACTIONAL",
-                        "description": "16x over-sampling using fractional baudrate generation",
-                        "value": 1
-                      },
-                      {
-                        "identifier": "8X_ARITHMETIC",
-                        "description": "8x over-sampling using arithmetic baudrate generation",
-                        "value": 2
-                      },
-                      {
-                        "identifier": "8X_FRACTIONAL",
-                        "description": "8x over-sampling using fractional baudrate generation",
-                        "value": 3
-                      },
-                      {
-                        "identifier": "3X_ARITHMETIC",
-                        "description": "3x over-sampling using arithmetic baudrate generation",
-                        "value": 4
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "TXPO",
-                  "width": 2,
-                  "offset": 16,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Transmit Data Pinout",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLA_TXPO",
-                    "values": [
-                      {
-                        "identifier": "PAD0",
-                        "description": "SERCOM PAD[0] is used for data transmission",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "PAD3",
-                        "description": "SERCOM_PAD[0] is used for data transmission",
-                        "value": 3
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "RXPO",
-                  "width": 2,
-                  "offset": 20,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Receive Data Pinout",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLA_RXPO",
-                    "values": [
-                      {
-                        "identifier": "PAD0",
-                        "description": "SERCOM PAD[0] is used for data reception",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "PAD1",
-                        "description": "SERCOM PAD[1] is used for data reception",
-                        "value": 1
-                      },
-                      {
-                        "identifier": "PAD2",
-                        "description": "SERCOM PAD[2] is used for data reception",
-                        "value": 2
-                      },
-                      {
-                        "identifier": "PAD3",
-                        "description": "SERCOM PAD[3] is used for data reception",
-                        "value": 3
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "SAMPA",
-                  "width": 2,
-                  "offset": 22,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Sample Adjustment"
-                },
-                {
-                  "name": "FORM",
-                  "width": 4,
-                  "offset": 24,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Frame Format",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLA_FORM",
-                    "values": [
-                      {
-                        "identifier": "USART_FRAME_NO_PARITY",
-                        "description": "USART frame",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "USART_FRAME_WITH_PARITY",
-                        "description": "USART frame with parity",
-                        "value": 1
-                      },
-                      {
-                        "identifier": "USART_FRAME_LIN_MASTER_MODE",
-                        "description": "LIN Master - Break and sync generation",
-                        "value": 2
-                      },
-                      {
-                        "identifier": "USART_FRAME_AUTO_BAUD_NO_PARITY",
-                        "description": "Auto-baud - break detection and auto-baud",
-                        "value": 4
-                      },
-                      {
-                        "identifier": "USART_FRAME_AUTO_BAUD_WITH_PARITY",
-                        "description": "Auto-baud - break detection and auto-baud with parity",
-                        "value": 5
-                      },
-                      {
-                        "identifier": "USART_FRAME_ISO_7816",
-                        "description": "ISO 7816",
-                        "value": 7
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "CMODE",
-                  "width": 1,
-                  "offset": 28,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Communication Mode",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLA_CMODE",
-                    "values": [
-                      {
-                        "identifier": "ASYNC",
-                        "description": "Asynchronous Communication",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "SYNC",
-                        "description": "Synchronous Communication",
-                        "value": 1
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "CPOL",
-                  "width": 1,
-                  "offset": 29,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Clock Polarity",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLA_CPOL",
-                    "values": [
-                      {
-                        "identifier": "IDLE_LOW",
-                        "description": "TxD Change:- Rising XCK edge, RxD Sample:- Falling XCK edge",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "IDLE_HIGH",
-                        "description": "TxD Change:- Falling XCK edge, RxD Sample:- Rising XCK edge",
-                        "value": 1
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "DORD",
-                  "width": 1,
-                  "offset": 30,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Data Order",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLA_DORD",
-                    "values": [
-                      {
-                        "identifier": "MSB",
-                        "description": "MSB is transmitted first",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "LSB",
-                        "description": "LSB is transmitted first",
-                        "value": 1
-                      }
-                    ]
-                  }
-                }
-              ],
-              "description": "USART_INT Control A",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "CTRLB",
-              "width": 32,
-              "offset": 4,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "CHSIZE",
-                  "width": 3,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Character Size",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLB_CHSIZE",
-                    "values": [
-                      {
-                        "identifier": "8_BIT",
-                        "description": "8 Bits",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "9_BIT",
-                        "description": "9 Bits",
-                        "value": 1
-                      },
-                      {
-                        "identifier": "5_BIT",
-                        "description": "5 Bits",
-                        "value": 5
-                      },
-                      {
-                        "identifier": "6_BIT",
-                        "description": "6 Bits",
-                        "value": 6
-                      },
-                      {
-                        "identifier": "7_BIT",
-                        "description": "7 Bits",
-                        "value": 7
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "SBMODE",
-                  "width": 1,
-                  "offset": 6,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Stop Bit Mode",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLB_SBMODE",
-                    "values": [
-                      {
-                        "identifier": "1_BIT",
-                        "description": "One Stop Bit",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "2_BIT",
-                        "description": "Two Stop Bits",
-                        "value": 1
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "COLDEN",
-                  "width": 1,
-                  "offset": 8,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Collision Detection Enable"
-                },
-                {
-                  "name": "SFDE",
-                  "width": 1,
-                  "offset": 9,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Start of Frame Detection Enable"
-                },
-                {
-                  "name": "ENC",
-                  "width": 1,
-                  "offset": 10,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Encoding Format"
-                },
-                {
-                  "name": "PMODE",
-                  "width": 1,
-                  "offset": 13,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Parity Mode",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLB_PMODE",
-                    "values": [
-                      {
-                        "identifier": "EVEN",
-                        "description": "Even Parity",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "ODD",
-                        "description": "Odd Parity",
-                        "value": 1
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "TXEN",
-                  "width": 1,
-                  "offset": 16,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Transmitter Enable"
-                },
-                {
-                  "name": "RXEN",
-                  "width": 1,
-                  "offset": 17,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Receiver Enable"
-                },
-                {
-                  "name": "LINCMD",
-                  "width": 2,
-                  "offset": 24,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "LIN Command"
-                }
-              ],
-              "description": "USART_INT Control B",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "CTRLC",
-              "width": 32,
-              "offset": 8,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "GTIME",
-                  "width": 3,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Guard Time"
-                },
-                {
-                  "name": "BRKLEN",
-                  "width": 2,
-                  "offset": 8,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "LIN Master Break Length"
-                },
-                {
-                  "name": "HDRDLY",
-                  "width": 2,
-                  "offset": 10,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "LIN Master Header Delay"
-                },
-                {
-                  "name": "INACK",
-                  "width": 1,
-                  "offset": 16,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Inhibit Not Acknowledge"
-                },
-                {
-                  "name": "DSNACK",
-                  "width": 1,
-                  "offset": 17,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Disable Successive NACK"
-                },
-                {
-                  "name": "MAXITER",
-                  "width": 3,
-                  "offset": 20,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Maximum Iterations"
-                },
-                {
-                  "name": "DATA32B",
-                  "width": 2,
-                  "offset": 24,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Data 32 Bit",
-                  "constants": {
-                    "identifier": "SERCOM_USART_CTRLC_DATA32B",
-                    "values": [
-                      {
-                        "identifier": "DATA_READ_WRITE_CHSIZE",
-                        "description": "Data reads and writes according CTRLB.CHSIZE",
-                        "value": 0
-                      },
-                      {
-                        "identifier": "DATA_READ_CHSIZE_WRITE_32BIT",
-                        "description": "Data reads according CTRLB.CHSIZE and writes according 32-bit extension",
-                        "value": 1
-                      },
-                      {
-                        "identifier": "DATA_READ_32BIT_WRITE_CHSIZE",
-                        "description": "Data reads according 32-bit extension and writes according CTRLB.CHSIZE",
-                        "value": 2
-                      },
-                      {
-                        "identifier": "DATA_READ_WRITE_32BIT",
-                        "description": "Data reads and writes according 32-bit extension",
-                        "value": 3
-                      }
-                    ]
-                  }
-                }
-              ],
-              "description": "USART_INT Control C",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "BAUD",
-              "width": 16,
-              "offset": 12,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "BAUD",
-                  "width": 13,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Baud Rate Value"
-                },
-                {
-                  "name": "FP",
-                  "width": 3,
-                  "offset": 13,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Fractional Part"
-                },
-                {
-                  "name": "BAUD",
-                  "width": 16,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Baud Rate Value"
-                }
-              ],
-              "description": "USART_INT Baud Rate",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "RXPL",
-              "width": 8,
-              "offset": 14,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "RXPL",
-                  "width": 8,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Receive Pulse Length"
-                }
-              ],
-              "description": "USART_INT Receive Pulse Length",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "INTENCLR",
-              "width": 8,
-              "offset": 20,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "DRE",
-                  "width": 1,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Data Register Empty Interrupt Disable"
-                },
-                {
-                  "name": "TXC",
-                  "width": 1,
-                  "offset": 1,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Transmit Complete Interrupt Disable"
-                },
-                {
-                  "name": "RXC",
-                  "width": 1,
-                  "offset": 2,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Receive Complete Interrupt Disable"
-                },
-                {
-                  "name": "RXS",
-                  "width": 1,
-                  "offset": 3,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Receive Start Interrupt Disable"
-                },
-                {
-                  "name": "CTSIC",
-                  "width": 1,
-                  "offset": 4,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Clear To Send Input Change Interrupt Disable"
-                },
-                {
-                  "name": "RXBRK",
-                  "width": 1,
-                  "offset": 5,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Break Received Interrupt Disable"
-                },
-                {
-                  "name": "ERROR",
-                  "width": 1,
-                  "offset": 7,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Combined Error Interrupt Disable"
-                }
-              ],
-              "description": "USART_INT Interrupt Enable Clear",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "INTENSET",
-              "width": 8,
-              "offset": 22,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "DRE",
-                  "width": 1,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Data Register Empty Interrupt Enable"
-                },
-                {
-                  "name": "TXC",
-                  "width": 1,
-                  "offset": 1,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Transmit Complete Interrupt Enable"
-                },
-                {
-                  "name": "RXC",
-                  "width": 1,
-                  "offset": 2,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Receive Complete Interrupt Enable"
-                },
-                {
-                  "name": "RXS",
-                  "width": 1,
-                  "offset": 3,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Receive Start Interrupt Enable"
-                },
-                {
-                  "name": "CTSIC",
-                  "width": 1,
-                  "offset": 4,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Clear To Send Input Change Interrupt Enable"
-                },
-                {
-                  "name": "RXBRK",
-                  "width": 1,
-                  "offset": 5,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Break Received Interrupt Enable"
-                },
-                {
-                  "name": "ERROR",
-                  "width": 1,
-                  "offset": 7,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Combined Error Interrupt Enable"
-                }
-              ],
-              "description": "USART_INT Interrupt Enable Set",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "INTFLAG",
-              "width": 8,
-              "offset": 24,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "DRE",
-                  "width": 1,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Data Register Empty Interrupt"
-                },
-                {
-                  "name": "TXC",
-                  "width": 1,
-                  "offset": 1,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Transmit Complete Interrupt"
-                },
-                {
-                  "name": "RXC",
-                  "width": 1,
-                  "offset": 2,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Receive Complete Interrupt"
-                },
-                {
-                  "name": "RXS",
-                  "width": 1,
-                  "offset": 3,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Receive Start Interrupt"
-                },
-                {
-                  "name": "CTSIC",
-                  "width": 1,
-                  "offset": 4,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Clear To Send Input Change Interrupt"
-                },
-                {
-                  "name": "RXBRK",
-                  "width": 1,
-                  "offset": 5,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Break Received Interrupt"
-                },
-                {
-                  "name": "ERROR",
-                  "width": 1,
-                  "offset": 7,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Combined Error Interrupt"
-                }
-              ],
-              "description": "USART_INT Interrupt Flag Status and Clear",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "STATUS",
-              "width": 16,
-              "offset": 26,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "PERR",
-                  "width": 1,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Parity Error"
-                },
-                {
-                  "name": "FERR",
-                  "width": 1,
-                  "offset": 1,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Frame Error"
-                },
-                {
-                  "name": "BUFOVF",
-                  "width": 1,
-                  "offset": 2,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Buffer Overflow"
-                },
-                {
-                  "name": "CTS",
-                  "width": 1,
-                  "offset": 3,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Clear To Send"
-                },
-                {
-                  "name": "ISF",
-                  "width": 1,
-                  "offset": 4,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Inconsistent Sync Field"
-                },
-                {
-                  "name": "COLL",
-                  "width": 1,
-                  "offset": 5,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Collision Detected"
-                },
-                {
-                  "name": "TXE",
-                  "width": 1,
-                  "offset": 6,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Transmitter Empty"
-                },
-                {
-                  "name": "ITER",
-                  "width": 1,
-                  "offset": 7,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Maximum Number of Repetitions Reached"
-                }
-              ],
-              "description": "USART_INT Status",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "SYNCBUSY",
-              "width": 32,
-              "offset": 28,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "SWRST",
-                  "width": 1,
-                  "offset": 0,
-                  "flags": [
-                    "R"
-                  ],
-                  "description": "Software Reset Synchronization Busy"
-                },
-                {
-                  "name": "ENABLE",
-                  "width": 1,
-                  "offset": 1,
-                  "flags": [
-                    "R"
-                  ],
-                  "description": "SERCOM Enable Synchronization Busy"
-                },
-                {
-                  "name": "CTRLB",
-                  "width": 1,
-                  "offset": 2,
-                  "flags": [
-                    "R"
-                  ],
-                  "description": "CTRLB Synchronization Busy"
-                },
-                {
-                  "name": "RXERRCNT",
-                  "width": 1,
-                  "offset": 3,
-                  "flags": [
-                    "R"
-                  ],
-                  "description": "RXERRCNT Synchronization Busy"
-                },
-                {
-                  "name": "LENGTH",
-                  "width": 1,
-                  "offset": 4,
-                  "flags": [
-                    "R"
-                  ],
-                  "description": "LENGTH Synchronization Busy"
-                }
-              ],
-              "description": "USART_INT Synchronization Busy",
-              "flags": [
-                "R"
-              ]
-            },
-            {
-              "identifier": "RXERRCNT",
-              "width": 8,
-              "offset": 32,
-              "count": 1,
-              "fields": [],
-              "description": "USART_INT Receive Error Count",
-              "flags": [
-                "R"
-              ]
-            },
-            {
-              "identifier": "LENGTH",
-              "width": 16,
-              "offset": 34,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "LEN",
-                  "width": 8,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Data Length"
-                },
-                {
-                  "name": "LENEN",
-                  "width": 2,
-                  "offset": 8,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Data Length Enable"
-                }
-              ],
-              "description": "USART_INT Length",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "DATA",
-              "width": 32,
-              "offset": 40,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "DATA",
-                  "width": 32,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Data Value"
-                }
-              ],
-              "description": "USART_INT Data",
-              "flags": [
-                "R",
-                "W"
-              ]
-            },
-            {
-              "identifier": "DBGCTRL",
-              "width": 8,
-              "offset": 48,
-              "count": 1,
-              "fields": [
-                {
-                  "name": "DBGSTOP",
-                  "width": 1,
-                  "offset": 0,
-                  "flags": [
-                    "R",
-                    "W"
-                  ],
-                  "description": "Debug Mode"
-                }
-              ],
-              "description": "USART_INT Debug Control",
               "flags": [
                 "R",
                 "W"
@@ -75242,7 +75302,7 @@
       ],
       "registerGroups": [
         {
-          "identifier": "TC",
+          "identifier": "COUNT8",
           "description": "Basic Timer Counter",
           "offset": 0,
           "size": 0,
@@ -76369,7 +76429,7 @@
       ],
       "registerGroups": [
         {
-          "identifier": "TC",
+          "identifier": "COUNT16",
           "description": "Basic Timer Counter",
           "offset": 0,
           "size": 0,
@@ -77450,7 +77510,7 @@
       ],
       "registerGroups": [
         {
-          "identifier": "TC",
+          "identifier": "COUNT32",
           "description": "Basic Timer Counter",
           "offset": 0,
           "size": 0,
@@ -81252,7 +81312,7 @@
               "count": 1,
               "fields": [
                 {
-                  "name": "COUNT",
+                  "name": "DITH6_COUNT",
                   "width": 18,
                   "offset": 6,
                   "flags": [
@@ -81262,7 +81322,7 @@
                   "description": "Counter Value"
                 },
                 {
-                  "name": "COUNT",
+                  "name": "DITH5_COUNT",
                   "width": 19,
                   "offset": 5,
                   "flags": [
@@ -81272,7 +81332,7 @@
                   "description": "Counter Value"
                 },
                 {
-                  "name": "COUNT",
+                  "name": "DITH4_COUNT",
                   "width": 20,
                   "offset": 4,
                   "flags": [
@@ -81282,7 +81342,7 @@
                   "description": "Counter Value"
                 },
                 {
-                  "name": "COUNT",
+                  "name": "DEFAULT_COUNT",
                   "width": 24,
                   "offset": 0,
                   "flags": [
@@ -81726,7 +81786,7 @@
               "count": 1,
               "fields": [
                 {
-                  "name": "DITHER",
+                  "name": "DITH4_DITHER",
                   "width": 4,
                   "offset": 0,
                   "flags": [
@@ -81736,7 +81796,7 @@
                   "description": "Dithering Cycle Number"
                 },
                 {
-                  "name": "DITHER",
+                  "name": "DITH5_DITHER",
                   "width": 5,
                   "offset": 0,
                   "flags": [
@@ -81746,7 +81806,7 @@
                   "description": "Dithering Cycle Number"
                 },
                 {
-                  "name": "DITHER",
+                  "name": "DITH6_DITHER",
                   "width": 6,
                   "offset": 0,
                   "flags": [
@@ -81756,7 +81816,7 @@
                   "description": "Dithering Cycle Number"
                 },
                 {
-                  "name": "PER",
+                  "name": "DITH6_PER",
                   "width": 18,
                   "offset": 6,
                   "flags": [
@@ -81766,7 +81826,7 @@
                   "description": "Period Value"
                 },
                 {
-                  "name": "PER",
+                  "name": "DITH5_PER",
                   "width": 19,
                   "offset": 5,
                   "flags": [
@@ -81776,7 +81836,7 @@
                   "description": "Period Value"
                 },
                 {
-                  "name": "PER",
+                  "name": "DITH4_PER",
                   "width": 20,
                   "offset": 4,
                   "flags": [
@@ -81786,7 +81846,7 @@
                   "description": "Period Value"
                 },
                 {
-                  "name": "PER",
+                  "name": "DEFAULT_PER",
                   "width": 24,
                   "offset": 0,
                   "flags": [
@@ -81809,7 +81869,7 @@
               "count": 6,
               "fields": [
                 {
-                  "name": "DITHER",
+                  "name": "DITH4_DITHER",
                   "width": 4,
                   "offset": 0,
                   "flags": [
@@ -81819,7 +81879,7 @@
                   "description": "Dithering Cycle Number"
                 },
                 {
-                  "name": "DITHER",
+                  "name": "DITH5_DITHER",
                   "width": 5,
                   "offset": 0,
                   "flags": [
@@ -81829,7 +81889,7 @@
                   "description": "Dithering Cycle Number"
                 },
                 {
-                  "name": "DITHER",
+                  "name": "DITH6_DITHER",
                   "width": 6,
                   "offset": 0,
                   "flags": [
@@ -81839,7 +81899,7 @@
                   "description": "Dithering Cycle Number"
                 },
                 {
-                  "name": "CC",
+                  "name": "DITH6_CC",
                   "width": 18,
                   "offset": 6,
                   "flags": [
@@ -81849,7 +81909,7 @@
                   "description": "Channel Compare/Capture Value"
                 },
                 {
-                  "name": "CC",
+                  "name": "DITH5_CC",
                   "width": 19,
                   "offset": 5,
                   "flags": [
@@ -81859,7 +81919,7 @@
                   "description": "Channel Compare/Capture Value"
                 },
                 {
-                  "name": "CC",
+                  "name": "DITH4_CC",
                   "width": 20,
                   "offset": 4,
                   "flags": [
@@ -81869,7 +81929,7 @@
                   "description": "Channel Compare/Capture Value"
                 },
                 {
-                  "name": "CC",
+                  "name": "DEFAULT_CC",
                   "width": 24,
                   "offset": 0,
                   "flags": [
@@ -82065,7 +82125,7 @@
               "count": 1,
               "fields": [
                 {
-                  "name": "DITHERBUF",
+                  "name": "DITH4_DITHERBUF",
                   "width": 4,
                   "offset": 0,
                   "flags": [
@@ -82075,7 +82135,7 @@
                   "description": "Dithering Buffer Cycle Number"
                 },
                 {
-                  "name": "DITHERBUF",
+                  "name": "DITH5_DITHERBUF",
                   "width": 5,
                   "offset": 0,
                   "flags": [
@@ -82085,7 +82145,7 @@
                   "description": "Dithering Buffer Cycle Number"
                 },
                 {
-                  "name": "DITHERBUF",
+                  "name": "DITH6_DITHERBUF",
                   "width": 6,
                   "offset": 0,
                   "flags": [
@@ -82095,7 +82155,7 @@
                   "description": "Dithering Buffer Cycle Number"
                 },
                 {
-                  "name": "PERBUF",
+                  "name": "DITH6_PERBUF",
                   "width": 18,
                   "offset": 6,
                   "flags": [
@@ -82105,7 +82165,7 @@
                   "description": "Period Buffer Value"
                 },
                 {
-                  "name": "PERBUF",
+                  "name": "DITH5_PERBUF",
                   "width": 19,
                   "offset": 5,
                   "flags": [
@@ -82115,7 +82175,7 @@
                   "description": "Period Buffer Value"
                 },
                 {
-                  "name": "PERBUF",
+                  "name": "DITH4_PERBUF",
                   "width": 20,
                   "offset": 4,
                   "flags": [
@@ -82125,7 +82185,7 @@
                   "description": "Period Buffer Value"
                 },
                 {
-                  "name": "PERBUF",
+                  "name": "DEFAULT_PERBUF",
                   "width": 24,
                   "offset": 0,
                   "flags": [
@@ -82148,7 +82208,7 @@
               "count": 6,
               "fields": [
                 {
-                  "name": "CCBUF",
+                  "name": "DITH4_CCBUF",
                   "width": 4,
                   "offset": 0,
                   "flags": [
@@ -82158,7 +82218,7 @@
                   "description": "Channel Compare/Capture Buffer Value"
                 },
                 {
-                  "name": "DITHERBUF",
+                  "name": "DITH5_DITHERBUF",
                   "width": 5,
                   "offset": 0,
                   "flags": [
@@ -82168,7 +82228,7 @@
                   "description": "Dithering Buffer Cycle Number"
                 },
                 {
-                  "name": "DITHERBUF",
+                  "name": "DITH6_DITHERBUF",
                   "width": 6,
                   "offset": 0,
                   "flags": [
@@ -82178,7 +82238,7 @@
                   "description": "Dithering Buffer Cycle Number"
                 },
                 {
-                  "name": "CCBUF",
+                  "name": "DITH6_CCBUF",
                   "width": 18,
                   "offset": 6,
                   "flags": [
@@ -82188,7 +82248,7 @@
                   "description": "Channel Compare/Capture Buffer Value"
                 },
                 {
-                  "name": "CCBUF",
+                  "name": "DITH5_CCBUF",
                   "width": 19,
                   "offset": 5,
                   "flags": [
@@ -82198,7 +82258,7 @@
                   "description": "Channel Compare/Capture Buffer Value"
                 },
                 {
-                  "name": "DITHERBUF",
+                  "name": "DITH4_DITHERBUF",
                   "width": 20,
                   "offset": 4,
                   "flags": [
@@ -82208,7 +82268,7 @@
                   "description": "Dithering Buffer Cycle Number"
                 },
                 {
-                  "name": "CCBUF",
+                  "name": "DEFAULT_CCBUF",
                   "width": 24,
                   "offset": 0,
                   "flags": [
@@ -82409,7 +82469,7 @@
       ],
       "registerGroups": [
         {
-          "identifier": "DEVICE_DESC_BANK",
+          "identifier": "DEVICE",
           "offset": 0,
           "size": 16,
           "count": 1,
@@ -82559,13 +82619,13 @@
           ]
         },
         {
-          "identifier": "HOST_DESC_BANK",
+          "identifier": "DEVICE",
           "offset": 0,
           "size": 16,
           "count": 1
         },
         {
-          "identifier": "DEVICE_ENDPOINT",
+          "identifier": "DEVICE",
           "offset": 0,
           "size": 32,
           "count": 1,
@@ -83090,27 +83150,27 @@
           ]
         },
         {
-          "identifier": "HOST_PIPE",
+          "identifier": "DEVICE",
           "offset": 0,
           "size": 32,
           "count": 1
         },
         {
-          "identifier": "USB",
+          "identifier": "DEVICE",
           "description": "Universal Serial Bus",
           "offset": 0,
           "size": 0,
           "count": 1,
           "groups": [
             {
-              "identifier": "DEVICE_ENDPOINT",
+              "identifier": "DEVICE",
               "reference": "DEVICE_ENDPOINT",
               "offset": 256,
               "size": 32,
               "count": 8
             },
             {
-              "identifier": "HOST_PIPE",
+              "identifier": "DEVICE",
               "reference": "HOST_PIPE",
               "offset": 256,
               "size": 32,
@@ -84107,21 +84167,21 @@
           ]
         },
         {
-          "identifier": "USB_DESCRIPTOR",
+          "identifier": "DEVICE",
           "description": "Universal Serial Bus",
           "offset": 0,
           "size": 0,
           "count": 1,
           "groups": [
             {
-              "identifier": "DEVICE_DESC_BANK",
+              "identifier": "DEVICE",
               "reference": "DEVICE_DESC_BANK",
               "offset": 0,
               "size": 16,
               "count": 2
             },
             {
-              "identifier": "HOST_DESC_BANK",
+              "identifier": "DEVICE",
               "reference": "HOST_DESC_BANK",
               "offset": 0,
               "size": 16,
@@ -84144,13 +84204,13 @@
       ],
       "registerGroups": [
         {
-          "identifier": "DEVICE_DESC_BANK",
+          "identifier": "HOST",
           "offset": 0,
           "size": 16,
           "count": 1
         },
         {
-          "identifier": "HOST_DESC_BANK",
+          "identifier": "HOST",
           "offset": 0,
           "size": 16,
           "count": 1,
@@ -84416,13 +84476,13 @@
           ]
         },
         {
-          "identifier": "DEVICE_ENDPOINT",
+          "identifier": "HOST",
           "offset": 0,
           "size": 32,
           "count": 1
         },
         {
-          "identifier": "HOST_PIPE",
+          "identifier": "HOST",
           "offset": 0,
           "size": 32,
           "count": 1,
@@ -84886,21 +84946,21 @@
           ]
         },
         {
-          "identifier": "USB",
+          "identifier": "HOST",
           "description": "Universal Serial Bus",
           "offset": 0,
           "size": 0,
           "count": 1,
           "groups": [
             {
-              "identifier": "DEVICE_ENDPOINT",
+              "identifier": "HOST",
               "reference": "DEVICE_ENDPOINT",
               "offset": 256,
               "size": 32,
               "count": 8
             },
             {
-              "identifier": "HOST_PIPE",
+              "identifier": "HOST",
               "reference": "HOST_PIPE",
               "offset": 256,
               "size": 32,
@@ -85770,21 +85830,21 @@
           ]
         },
         {
-          "identifier": "USB_DESCRIPTOR",
+          "identifier": "HOST",
           "description": "Universal Serial Bus",
           "offset": 0,
           "size": 0,
           "count": 1,
           "groups": [
             {
-              "identifier": "DEVICE_DESC_BANK",
+              "identifier": "HOST",
               "reference": "DEVICE_DESC_BANK",
               "offset": 0,
               "size": 16,
               "count": 2
             },
             {
-              "identifier": "HOST_DESC_BANK",
+              "identifier": "HOST",
               "reference": "HOST_DESC_BANK",
               "offset": 0,
               "size": 16,
@@ -88472,7 +88532,7 @@
               "count": 32,
               "fields": [
                 {
-                  "name": "PORT",
+                  "name": "BYTE_PORT",
                   "width": 8,
                   "offset": 0,
                   "flags": [
@@ -88481,7 +88541,7 @@
                   "description": ""
                 },
                 {
-                  "name": "PORT",
+                  "name": "HWORD_PORT",
                   "width": 16,
                   "offset": 0,
                   "flags": [
@@ -88490,7 +88550,7 @@
                   "description": ""
                 },
                 {
-                  "name": "PORT",
+                  "name": "WORD_PORT",
                   "width": 32,
                   "offset": 0,
                   "flags": [

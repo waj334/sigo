@@ -1,12 +1,12 @@
-//go:build samx51 && !generic
+//go:build atsamx5x && !generic
 
 package pin
 
 import (
 	"runtime/arm/cortexm"
-	"runtime/arm/cortexm/sam/chip"
-	"runtime/arm/cortexm/sam/samx5x"
-	"runtime/arm/cortexm/sam/samx5x/support/port"
+	"runtime/arm/cortexm/sam/atsamx5x"
+	"runtime/arm/cortexm/sam/atsamx5x/support/eic"
+	"runtime/arm/cortexm/sam/atsamx5x/support/port"
 )
 
 type Pin uint32
@@ -284,11 +284,11 @@ func (p Pin) SetInterrupt(mode IRQMode, handler func(Pin)) {
 	pmux := int(p&0xFF) / 2
 	if (p&0xFF)%2 == 0 {
 		// Pin is odd numbered
-		portgroup.Pmux[pmux].SetPMUXE(0)
+		portgroup.Pmux[pmux].SetPmuxe(0)
 	} else {
-		portgroup.PMUX[pmux].SetPMUXO(0)
+		portgroup.Pmux[pmux].SetPmuxo(0)
 	}
-	portgroup.PINCFG[p&0xFF].SetPMUXEN(true)
+	portgroup.Pincfg[p&0xFF].SetPmuxen(true)
 
 	// Determine the EXTINT from the pin number
 	exint := int((p & 0xFF) % 16)
@@ -301,15 +301,14 @@ func (p Pin) SetInterrupt(mode IRQMode, handler func(Pin)) {
 	pos := exint * 4
 	mask := (0x07 << (3 * (exint % 2))) << pos
 	configVal := (mode << (3 * (exint % 2))) << pos
-
-	chip.EIC.CONFIG[config] = (chip.EIC.CONFIG[config] & (^chip.EIC_CONFIG_REG(mask))) | chip.EIC_CONFIG_REG(configVal)
+	eic.Eic.Config[config] = eic.Eic.Config[config]&^eic.RegisterConfigType(mask) | eic.RegisterConfigType(configVal)
 
 	// Enable the interrupt
-	chip.EIC.INTENSET |= 1 << exint
+	eic.Eic.Intenset |= 1 << exint
 
 	// Enable EIC
-	chip.EIC.CTRLA.SetENABLE(true)
-	for chip.EIC.SYNCBUSY.GetENABLE() {
+	eic.Eic.Ctrla.SetEnable(true)
+	for eic.Eic.Syncbusy.GetEnable() {
 	}
 
 	// Enable the interrupt in NVIC
@@ -320,27 +319,27 @@ func (p Pin) SetInterrupt(mode IRQMode, handler func(Pin)) {
 
 func (p Pin) SetPMUX(mode PMUXFunction, enabled bool) {
 	// Set up PMUX
-	portgroup := &chip.PORT.GROUP[0xFF&(p>>8)]
+	portgroup := &port.Port.Group[0xFF&(p>>8)]
 	pmux := int(p&0xFF) / 2
 	if (p&0xFF)%2 == 0 {
 		// Pin is odd numbered
-		portgroup.PMUX[pmux].SetPMUXE(chip.PORT_PMUX_REG_PMUXE(mode))
+		portgroup.Pmux[pmux].SetPmuxe(uint8(mode))
 	} else {
-		portgroup.PMUX[pmux].SetPMUXO(chip.PORT_PMUX_REG_PMUXO(mode))
+		portgroup.Pmux[pmux].SetPmuxo(uint8(mode))
 	}
-	portgroup.PINCFG[p&0xFF].SetPMUXEN(enabled)
+	portgroup.Pincfg[p&0xFF].SetPmuxen(enabled)
 }
 
 func (p Pin) ClearInterrupt() {
 	// Determine the EXTINT from the pin number
 	exint := (p & 0xFF) % 16
-	if chip.EIC.INTENSET&(1<<exint) != 0 {
+	if eic.Eic.Intenset&(1<<exint) != 0 {
 		// Disable the interrupt
-		chip.EIC.INTENCLR &= 1 << exint
+		eic.Eic.Intenclr &= 1 << exint
 
 		// Disable PMUX
-		portgroup := &chip.PORT.GROUP[p>>8]
-		portgroup.PINCFG[p&0xFF].SetPMUXEN(false)
+		portgroup := &port.Port.Group[p>>8]
+		portgroup.Pincfg[p&0xFF].SetPmuxen(false)
 
 		// Disable the interrupt in NVIC
 		irq := cortexm.Interrupt(12 + exint)
@@ -352,35 +351,35 @@ func (p Pin) ClearInterrupt() {
 }
 
 func (p Pin) SetDirection(dir Direction) {
-	portgroup := &chip.PORT.GROUP[0xFF&(p>>8)]
+	portgroup := &port.Port.Group[0xFF&(p>>8)]
 	if dir == Input {
-		portgroup.DIRCLR.SetDIRCLR(1 << (p & 0xFF))
-		portgroup.CTRL.SetSAMPLING(1 << (p & 0xFF))
+		portgroup.Dirclr.SetDirclr(1 << (p & 0xFF))
+		portgroup.Ctrl.SetSampling(1 << (p & 0xFF))
 	} else if dir == Output {
-		portgroup.DIRSET.SetDIRSET(1 << (p & 0xFF))
+		portgroup.Dirset.SetDirset(1 << (p & 0xFF))
 	}
-	portgroup.PINCFG[p&0xFF].SetINEN(true)
+	portgroup.Pincfg[p&0xFF].SetInen(true)
 }
 
 func (p Pin) GetDirection() Direction {
-	portgroup := &chip.PORT.GROUP[0xFF&(p>>8)]
-	if (1<<(p&0xFF))&portgroup.DIR.GetDIR() == 0 {
+	portgroup := &port.Port.Group[0xFF&(p>>8)]
+	if (1<<(p&0xFF))&portgroup.Dir.GetDir() == 0 {
 		return Output
 	}
 	return Input
 }
 
 func (p Pin) SetPullMode(mode PullMode) {
-	portgroup := &chip.PORT.GROUP[0xFF&(p>>8)]
-	if (1<<(p&0xFF))&portgroup.DIR.GetDIR() == 0 {
+	portgroup := &port.Port.Group[0xFF&(p>>8)]
+	if (1<<(p&0xFF))&portgroup.Dir.GetDir() == 0 {
 		if mode == PullDown {
 			p.Set(false)
-			portgroup.PINCFG[p&0xFF].SetPULLEN(true)
+			portgroup.Pincfg[p&0xFF].SetPullen(true)
 		} else if mode == PullUp {
 			p.Set(true)
-			portgroup.PINCFG[p&0xFF].SetPULLEN(true)
+			portgroup.Pincfg[p&0xFF].SetPullen(true)
 		} else { // NoPull
-			portgroup.PINCFG[p&0xFF].SetPULLEN(false)
+			portgroup.Pincfg[p&0xFF].SetPullen(false)
 		}
 	}
 }
@@ -389,20 +388,20 @@ func (p Pin) GetPullMode() PullMode {
 	return 0
 }
 
-func (p Pin) GetSERCOM() samx51.SERCOM {
+func (p Pin) GetSERCOM() atsamx5x.SERCOM {
 	s := int(p>>28) & 0x0F
 	if s == 0x0F && p != 0 {
 		return -1
 	}
-	return samx51.SERCOM(s)
+	return atsamx5x.SERCOM(s)
 }
 
-func (p Pin) GetAltSERCOM() samx51.SERCOM {
+func (p Pin) GetAltSERCOM() atsamx5x.SERCOM {
 	s := int(p>>20) & 0x0F
 	if s == 0x0F && p != 0 {
 		return -1
 	}
-	return samx51.SERCOM(s)
+	return atsamx5x.SERCOM(s)
 }
 
 func (p Pin) GetPAD() int {
@@ -421,90 +420,90 @@ func (p Pin) GetAltPAD() int {
 	return s
 }
 
-func eicHandler(eic int) {
-	if fn := handlerFuncs[eic]; fn != nil {
-		fn(handlerPins[eic])
+func eicHandler(n int) {
+	if fn := handlerFuncs[n]; fn != nil {
+		fn(handlerPins[n])
 	}
 	// Clear the interrupt flag
-	chip.EIC.INTFLAG.SetEXTINT(1 << eic)
+	eic.Eic.Intflag.SetExtint(1 << n)
 }
 
-//sigo:interrupt _EIC_EXTINT_0_Handler EIC_EXTINT_0_Handler
-func _EIC_EXTINT_0_Handler() {
+//sigo:interrupt eicExtint0Handler EicExtint0Handler
+func eicExtint0Handler() {
 	eicHandler(0)
 }
 
-//sigo:interrupt _EIC_EXTINT_1_Handler EIC_EXTINT_1_Handler
-func _EIC_EXTINT_1_Handler() {
+//sigo:interrupt eicExtint1Handler EicExtint1Handler
+func eicExtint1Handler() {
 	eicHandler(1)
 }
 
-//sigo:interrupt _EIC_EXTINT_2_Handler EIC_EXTINT_2_Handler
-func _EIC_EXTINT_2_Handler() {
+//sigo:interrupt eicExtint2Handler EicExtint2Handler
+func eicExtint2Handler() {
 	eicHandler(2)
 }
 
-//sigo:interrupt _EIC_EXTINT_3_Handler EIC_EXTINT_3_Handler
-func _EIC_EXTINT_3_Handler() {
+//sigo:interrupt eicExtint3Handler EicExtint3Handler
+func eicExtint3Handler() {
 	eicHandler(3)
 }
 
-//sigo:interrupt _EIC_EXTINT_4_Handler EIC_EXTINT_4_Handler
-func _EIC_EXTINT_4_Handler() {
+//sigo:interrupt eicExtint4Handler EicExtint4Handler
+func eicExtint4Handler() {
 	eicHandler(4)
 }
 
-//sigo:interrupt _EIC_EXTINT_5_Handler EIC_EXTINT_5_Handler
-func _EIC_EXTINT_5_Handler() {
+//sigo:interrupt eicExtint5Handler EicExtint5Handler
+func eicExtint5Handler() {
 	eicHandler(5)
 }
 
-//sigo:interrupt _EIC_EXTINT_6_Handler EIC_EXTINT_6_Handler
-func _EIC_EXTINT_6_Handler() {
+//sigo:interrupt eicExtint6Handler EicExtint6Handler
+func eicExtint6Handler() {
 	eicHandler(6)
 }
 
-//sigo:interrupt _EIC_EXTINT_7_Handler EIC_EXTINT_7_Handler
-func _EIC_EXTINT_7_Handler() {
+//sigo:interrupt eicExtint7Handler EicExtint7Handler
+func eicExtint7Handler() {
 	eicHandler(7)
 }
 
-//sigo:interrupt _EIC_EXTINT_8_Handler EIC_EXTINT_8_Handler
-func _EIC_EXTINT_8_Handler() {
+//sigo:interrupt eicExtint8Handler EicExtint8Handler
+func eicExtint8Handler() {
 	eicHandler(8)
 }
 
-//sigo:interrupt _EIC_EXTINT_9_Handler EIC_EXTINT_9_Handler
-func _EIC_EXTINT_9_Handler() {
+//sigo:interrupt eicExtint9Handler EicExtint9Handler
+func eicExtint9Handler() {
 	eicHandler(9)
 }
 
-//sigo:interrupt _EIC_EXTINT_10_Handler EIC_EXTINT_10_Handler
-func _EIC_EXTINT_10_Handler() {
+//sigo:interrupt eicExtint10Handler EicExtint10Handler
+func eicExtint10Handler() {
 	eicHandler(10)
 }
 
-//sigo:interrupt _EIC_EXTINT_11_Handler EIC_EXTINT_11_Handler
-func _EIC_EXTINT_11_Handler() {
+//sigo:interrupt eicExtint11Handler EicExtint11Handler
+func eicExtint11Handler() {
 	eicHandler(11)
 }
 
-//sigo:interrupt _EIC_EXTINT_12_Handler EIC_EXTINT_12_Handler
-func _EIC_EXTINT_12_Handler() {
+//sigo:interrupt eicExtint12Handler EicExtint12Handler
+func eicExtint12Handler() {
 	eicHandler(12)
 }
 
-//sigo:interrupt _EIC_EXTINT_13_Handler EIC_EXTINT_13_Handler
-func _EIC_EXTINT_13_Handler() {
+//sigo:interrupt eicExtint13Handler EicExtint13Handler
+func eicExtint13Handler() {
 	eicHandler(13)
 }
 
-//sigo:interrupt _EIC_EXTINT_14_Handler EIC_EXTINT_14_Handler
-func _EIC_EXTINT_14_Handler() {
+//sigo:interrupt eicExtint14Handler EicExtint14Handler
+func eicExtint14Handler() {
 	eicHandler(14)
 }
 
-//sigo:interrupt _EIC_EXTINT_15_Handler EIC_EXTINT_15_Handler
-func _EIC_EXTINT_15_Handler() {
+//sigo:interrupt eicExtint15Handler EicExtint15Handler
+func eicExtint15Handler() {
 	eicHandler(15)
 }

@@ -13,9 +13,9 @@ _task_start:
 
 .global runtime.currentTask
 .global runtime.lastTask
-.global PendSV_Handler
-.type PendSV_Handler, %function
-PendSV_Handler:
+.global PendsvHandler
+.type PendsvHandler, %function
+PendsvHandler:
     // Choose the next task
     bl runtime.runScheduler
     cmp r0, #0                      // Check if runScheduler returned false
@@ -87,4 +87,4 @@ _return:
     mov lr, r3
 #endif
     bx lr                           // Use EXC_RETURN to set the next PC
-.size PendSV_Handler, .-PendSV_Handler
+.size PendsvHandler, .-PendsvHandler

@@ -76,16 +76,12 @@ func ImportATDF(ctx context.Context, config importer.Config) (d device.Device, e
 		for _, peripheral := range deviceElement.Peripherals.Modules {
 			for _, instance := range peripheral.Instances {
 				if len(instance.RegisterGroups) > 0 {
-					l := instances[peripheral.Id]
 					registerGroup := instance.RegisterGroups[0]
 					start := startAddresses[registerGroup.AddressSpace]
-					l = append(l, start+uintptr(registerGroup.Offset))
 
-					if len(peripheral.Id) > 0 {
-						instances[peripheral.Id] = l
-					} else {
-						instances[peripheral.Name] = l
-					}
+					id := fmt.Sprintf("%s%s", peripheral.Id, peripheral.Name)
+					l := instances[id]
+					instances[id] = append(l, start+uintptr(registerGroup.Offset))
 				}
 			}
 		}
@@ -96,14 +92,8 @@ func ImportATDF(ctx context.Context, config importer.Config) (d device.Device, e
 	}
 
 	for _, module := range root.Modules.Elements {
-		var instanceAddrs []uintptr
-
-		if len(module.Id) > 0 {
-			instanceAddrs = instances[module.Id]
-		} else {
-			instanceAddrs = instances[module.Name]
-		}
-
+		id := fmt.Sprintf("%s%s", module.Id, module.Name)
+		instanceAddrs := instances[id]
 		slices.Sort(instanceAddrs)
 
 		groups := map[string]atdf.ModeElement{}
@@ -174,8 +164,13 @@ func translateRegisterGroup(ctx context.Context, element atdf.ModuleRegisterGrou
 		hasMode = true
 	}
 
+	identifier := element.Name
+	if hasMode {
+		identifier = mode.Name
+	}
+
 	r = device.RegisterGroup{
-		Identifier:  element.Name,
+		Identifier:  identifier,
 		Reference:   element.NameInModule,
 		Description: device.CleanDescription(element.Caption),
 		Count:       max(1, int(element.Count)),
@@ -216,53 +211,67 @@ func translateRegister(ctx context.Context, element atdf.RegisterElement) (r dev
 		Flags:       translateRW(element.RW),
 	}
 
-	r.Fields = make([]device.Field, len(element.BitFields))
-	for i, field := range element.BitFields {
-		numBits := uintptr(0)
-		offset := uintptr(0)
-		if field.Mask != 0 {
-			for n := range 64 {
-				bit := (field.Mask >> n) & 1
-				if bit == 0 {
-					if numBits == 0 {
-						offset++
+	r.Fields = make([]device.Field, 0, len(element.BitFields))
+	for _, field := range element.BitFields {
+		modes := strings.Fields(field.Modes)
+		if len(modes) == 0 {
+			// Add a dummy empty mode.
+			modes = []string{""}
+		}
+
+		for _, mode := range modes {
+			numBits := uintptr(0)
+			offset := uintptr(0)
+			if field.Mask != 0 {
+				for n := range 64 {
+					bit := (field.Mask >> n) & 1
+					if bit == 0 {
+						if numBits == 0 {
+							offset++
+						} else {
+							// Stop examining the bits.
+							break
+						}
 					} else {
-						// Stop examining the bits.
-						break
-					}
-				} else {
-					numBits++
-				}
-			}
-		}
-
-		r.Fields[i] = device.Field{
-			Identifier:  cleanIdentifier(field.Name),
-			Width:       numBits,
-			Offset:      offset,
-			Flags:       r.Flags,
-			Description: device.CleanDescription(field.Caption),
-		}
-
-		if field.Values != nil {
-			if valueGroup := moduleElement.FindValueGroup(*field.Values); valueGroup != nil {
-				constantGroup := device.ConstantGroup{
-					Identifier: cleanIdentifier(valueGroup.Name),
-				}
-
-				constantGroup.Values = make([]device.ConstantValue, len(valueGroup.Elements))
-				for i, value := range valueGroup.Elements {
-					constantGroup.Values[i] = device.ConstantValue{
-						Identifier:  cleanIdentifier(value.Name),
-						Description: device.CleanDescription(value.Caption),
-						Value:       uint64(value.Value),
+						numBits++
 					}
 				}
-				r.Fields[i].Constants = &constantGroup
 			}
+
+			identifier := field.Name
+			if len(mode) > 0 {
+				identifier = fmt.Sprintf("%s_%s", mode, identifier)
+			}
+
+			f := device.Field{
+				Identifier:  cleanIdentifier(identifier),
+				Width:       numBits,
+				Offset:      offset,
+				Flags:       r.Flags,
+				Description: device.CleanDescription(field.Caption),
+			}
+
+			if field.Values != nil {
+				if valueGroup := moduleElement.FindValueGroup(*field.Values); valueGroup != nil {
+					constantGroup := device.ConstantGroup{
+						Identifier: cleanIdentifier(valueGroup.Name),
+					}
+
+					constantGroup.Values = make([]device.ConstantValue, len(valueGroup.Elements))
+					for i, value := range valueGroup.Elements {
+						constantGroup.Values[i] = device.ConstantValue{
+							Identifier:  cleanIdentifier(value.Name),
+							Description: device.CleanDescription(value.Caption),
+							Value:       uint64(value.Value),
+						}
+					}
+					f.Constants = &constantGroup
+				}
+			}
+
+			r.Fields = append(r.Fields, f)
 		}
 	}
-
 	return
 }
 

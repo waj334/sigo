@@ -293,6 +293,7 @@ build-compiler-rt:
 	$(call build-compiler-rt,armv6m-none-eabi,armv6m+nofp,-mthumb)
 
 generate-csp:
-	go run $(ROOT_DIR)/cmd/csp-gen/main.go --in=$(ROOT_DIR)/thirdparty/atmel-atdf/src/*.atdf --out=$(ROOT_DIR)/src/runtime/arm/cortexm/sam
+	go run $(ROOT_DIR)/cmd/csp-gen/*.go --in=$(ROOT_DIR)/targets/definitions/atsamd21.json --out=$(ROOT_DIR)/src/runtime/arm/cortexm/sam/atsamd21/support
+	go run $(ROOT_DIR)/cmd/csp-gen/*.go --in=$(ROOT_DIR)/targets/definitions/atsamx5x.json --out=$(ROOT_DIR)/src/runtime/arm/cortexm/sam/atsamx5x/support
 
 release: build-picolibc build-compiler-rt generate-csp sigo

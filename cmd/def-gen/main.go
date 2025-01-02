@@ -46,7 +46,7 @@ func main() {
 			OnlyVariants: false,
 		})
 		if err != nil {
-			println(err)
+			fmt.Println(err)
 			os.Exit(-3)
 		}
 
@@ -56,7 +56,7 @@ func main() {
 			OnlyVariants: false,
 		})
 		if err != nil {
-			println(err)
+			fmt.Println(err)
 			os.Exit(-3)
 		}
 
@@ -67,7 +67,7 @@ func main() {
 				pattern = filepath.Join(filepath.Dir(base), pattern)
 				variants, err := filepath.Glob(pattern)
 				if err != nil {
-					println(err)
+					fmt.Println(err)
 					os.Exit(-4)
 				}
 				variantFiles = append(variantFiles, variants...)
@@ -80,7 +80,7 @@ func main() {
 				})
 
 				if err != nil {
-					println(err)
+					fmt.Println(err)
 					os.Exit(-3)
 				}
 
@@ -108,20 +108,27 @@ func main() {
 	}
 
 	if len(output) > 0 {
+		// Create the directory to where the file will be stored.
+		err = os.MkdirAll(filepath.Dir(output), 0750)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(-4)
+		}
+
 		// Dump to the specified output file.
 		f, err := os.OpenFile(output, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 		if err != nil {
-			println(err)
+			fmt.Println(err)
 			os.Exit(-4)
 		}
 
 		if _, err = fmt.Fprintln(f, string(b)); err != nil {
-			println(err)
+			fmt.Println(err)
 			os.Exit(-4)
 		}
 
 		if err = f.Close(); err != nil {
-			println(err)
+			fmt.Println(err)
 			os.Exit(-4)
 		}
 	} else {

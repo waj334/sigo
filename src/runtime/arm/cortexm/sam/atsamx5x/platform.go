@@ -100,6 +100,7 @@ func init() {
 
 func DefaultClocks() {
 	// Configure the XOSC32K oscillator
+	osc32kctrl.Osc32kctrl.Xosc32k.SetEnable(false)
 	osc32kctrl.Osc32kctrl.Xosc32k.SetCgm(osc32kctrl.Xosc32kCgmXt)
 	osc32kctrl.Osc32kctrl.Xosc32k.SetXtalen(true)
 	osc32kctrl.Osc32kctrl.Xosc32k.SetEn32k(true)
@@ -139,7 +140,6 @@ func DefaultClocks() {
 
 	// Configure the DPLL - 120MHz
 	gclk.Gclk.Pchctrl[GCLK_OSCCTRL_FDPLL0].SetChen(false)
-	gclk.Gclk.Pchctrl[GCLK_OSCCTRL_FDPLL0].SetChen(false)
 	for gclk.Gclk.Pchctrl[GCLK_OSCCTRL_FDPLL0].GetChen() {
 	}
 
@@ -148,6 +148,7 @@ func DefaultClocks() {
 	for !gclk.Gclk.Pchctrl[GCLK_OSCCTRL_FDPLL0].GetChen() {
 	}
 
+	oscctrl.Oscctrl.Dpll[0].Dpllctrla.SetEnable(false)
 	oscctrl.Oscctrl.Dpll[0].Dpllctrlb.SetRefclk(oscctrl.DpllctrlbRefclkGclk)
 	oscctrl.Oscctrl.Dpll[0].Dpllctrlb.SetLtime(oscctrl.DpllctrlbLtimeDefault)
 	oscctrl.Oscctrl.Dpll[0].Dpllctrlb.SetFilter(oscctrl.DpllctrlbFilterFilter1)

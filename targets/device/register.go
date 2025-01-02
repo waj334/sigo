@@ -4,6 +4,11 @@ import (
 	"fmt"
 )
 
+type Positionable interface {
+	OffsetInBytes() uintptr
+	TotalWidth() uintptr
+}
+
 type RegisterGroup struct {
 	Identifier  string          `json:"identifier"`
 	Reference   string          `json:"reference,omitempty"`
@@ -20,6 +25,10 @@ type RegisterGroup struct {
 
 func (r *RegisterGroup) Peripheral() *Peripheral {
 	return r.peripheral
+}
+
+func (r *RegisterGroup) OffsetInBytes() uintptr {
+	return r.Offset
 }
 
 func (r *RegisterGroup) TotalWidth() uintptr {
@@ -71,6 +80,10 @@ func (r *Register) Peripheral() Peripheral {
 
 func (r *Register) TypeName() string {
 	return fmt.Sprintf("Reg%s%sType", r.peripheral.Identifier, r.Identifier)
+}
+
+func (r *Register) OffsetInBytes() uintptr {
+	return r.Offset
 }
 
 func (r *Register) TotalWidth() uintptr {

@@ -1,20 +1,14 @@
 package main
 
 import (
-	"encoding/xml"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
 	"log"
+	"omibyte.io/sigo/targets/device"
 	"os"
 	"path/filepath"
-	"strings"
-
-	"omibyte.io/sigo/cmd/csp-gen/atdf"
-	"omibyte.io/sigo/cmd/csp-gen/generator"
-	sam_atdf "omibyte.io/sigo/cmd/csp-gen/generator/SAM/atdf"
-	sam_svd "omibyte.io/sigo/cmd/csp-gen/generator/SAM/svd"
-	"omibyte.io/sigo/cmd/csp-gen/svd"
 )
 
 var (
@@ -29,96 +23,96 @@ func init() {
 }
 
 func main() {
-	fnames, err := filepath.Glob(input)
-	if err != nil {
-		log.Fatal(err)
+	// Create the output directory
+	if err := os.MkdirAll(outputDir, 0750); err != nil {
+		log.Fatal("file io error: ", err)
 	}
 
-	for _, fname := range fnames {
-		filetype := strings.ToLower(filepath.Ext(fname))
-		if filetype != ".svd" && filetype != ".atdf" {
-			log.Fatalf("Unsupported file type %s", filetype)
+	// Open the input file
+	file, err := os.Open(input)
+	if err != nil {
+		log.Fatal("file io error: ", err)
+	}
+
+	// Read the input file into a buffer
+	buf, err := io.ReadAll(file)
+	if err != nil {
+		log.Fatal("io error: ", err)
+	}
+
+	// Close the file
+	if err = file.Close(); err != nil {
+		log.Fatal("file io error: ", err)
+	}
+
+	// Unmarshal json.
+	var d device.Device
+	err = json.Unmarshal(buf, &d)
+	if err != nil {
+		log.Fatal("error decoding json: ", err)
+	}
+	d.Finalize()
+
+	// Write peripherals API.
+	for _, p := range d.Peripherals {
+		outFile := outputDir
+
+		if len(p.Group) > 0 {
+			// Place packages for grouped peripherals under a common subdirectory.
+			outFile = filepath.Join(outFile, formatSymbol(p.Group, false))
+		}
+		outFile = filepath.Join(outFile, formatSymbol(p.Identifier, false), "peripheral.go")
+
+		// Create the directory structure for the group.
+		if err = os.MkdirAll(filepath.Dir(outFile), 0750); err != nil {
+			log.Fatal("file io error: ", err)
 		}
 
-		// Open the input file
-		file, err := os.Open(fname)
+		// Create the file.
+		f, err := os.OpenFile(outFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 		if err != nil {
-			log.Fatal("file io error: ", err)
+			log.Fatal(err)
 		}
 
-		// Read the input file into a buffer
-		buf, err := io.ReadAll(file)
+		// Write the peripherals API to the file.
+		if _, err := writeBuildTags(f, d); err != nil {
+			log.Fatal(err)
+		}
+
+		if _, err = writePeripheralsApi(f, p); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	// Write the ISR vectors.
+	for _, v := range d.Variants {
+		outFile := filepath.Join(outputDir, fmt.Sprintf("isr_%s.s", v.Identifier))
+
+		// Create the file.
+		f, err := os.OpenFile(outFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 		if err != nil {
-			log.Fatal("io error: ", err)
+			log.Fatal(err)
 		}
 
-		// Close the file
-		if err = file.Close(); err != nil {
-			log.Fatal("file io error: ", err)
+		// Write the ISR vector to the file.
+		if _, err = writeIsrVector(f, v); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	// Write the linker scripts.
+	for _, v := range d.Variants {
+		outFile := filepath.Join(outputDir, fmt.Sprintf("linker_%s.ld", v.Identifier))
+
+		// Create the file.
+		f, err := os.OpenFile(outFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+		if err != nil {
+			log.Fatal(err)
 		}
 
-		var def any
-		switch filetype {
-		case ".svd":
-			def = &svd.DeviceElement{}
-		case ".atdf":
-			def = &atdf.ATDF{}
+		// Write the ISR vector to the file.
+		if _, err = writeLinkerScript(f, v); err != nil {
+			log.Fatal(err)
 		}
-
-		if err = xml.Unmarshal(buf, def); err != nil {
-			log.Fatalf("%s: xml decode error: %v", fname, err)
-		}
-
-		// Create the output directory
-		if err = os.MkdirAll(outputDir, 0750); err != nil {
-			log.Fatal("file io error: ", err)
-		}
-
-		// TODO: Support multiple input files
-
-		var gen generator.Generator
-
-		// Choose the generator based on the generator and then the series
-		switch def := def.(type) {
-		case *atdf.ATDF:
-			for _, device := range def.Devices.Elements {
-				fmt.Printf("CPU:\t\t%s\n", device.Name)
-				switch device.Series {
-				case "SAMC21", "SAMD21", "SAMD51", "SAME51", "SAME70", "SAML11", "SAML22", "SAMR21", "SAMS70", "SAMV70", "SAMV71":
-					gen = sam_atdf.NewGenerator(def, &device)
-				default:
-					log.Printf("Unsupported device: %s", device.Name)
-					continue
-				}
-
-				// Generate the implementation
-				if err = gen.Generate(outputDir); err != nil {
-					log.Fatal("generator error: ", err)
-				}
-			}
-		case *svd.DeviceElement:
-			fmt.Println("Generating the runtime package for the following machine:")
-			fmt.Printf("CPU:\t\t%s\n", def.CPU.Name)
-			fmt.Printf("Revision:\t%s\n", def.CPU.Revision)
-			fmt.Printf("Endian:\t\t%s\n", def.CPU.Endian)
-			fmt.Printf("Architecture:\t%v-bit\n", def.BitWidth)
-			fmt.Printf("Addressable Width:\t%v-bit\n", def.AddressableWidth)
-			fmt.Printf("FPU:\t\t%v\n", def.CPU.FPUPresent)
-
-			switch *def.Series {
-			case "SAMD21", "SAMD51", "SAME51", "SAME70", "SAML11", "SAML22", "SAMR21", "SAMS70", "SAMV70", "SAMV71":
-				gen = sam_svd.NewGenerator(def)
-
-				// TODO: Move this when multiple input files are supported
-				// Generate the implementation
-				if err = gen.Generate(outputDir); err != nil {
-					log.Fatal("generator error: ", err)
-				}
-			default:
-				log.Printf("Unsupported device: %s", def.Name)
-			}
-		}
-
-		fmt.Println("Done.")
 	}
 }

@@ -165,225 +165,225 @@ func (s *SERCOMHandler) Set(fn func()) {
 	*s = fn
 }
 
-//sigo:interrupt SERCOM0_0_Handler SERCOM0_0_Handler
-func SERCOM0_0_Handler() {
+//sigo:interrupt Sercom00Handler Sercom00Handler
+func Sercom00Handler() {
 	if SERCOM00HandlerFunc != nil {
 		SERCOM00HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM0_1_Handler SERCOM0_1_Handler
-func SERCOM0_1_Handler() {
+//sigo:interrupt Sercom01Handler Sercom01Handler
+func Sercom01Handler() {
 	if SERCOM01HandlerFunc != nil {
 		SERCOM01HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM0_2_Handler SERCOM0_2_Handler
-func SERCOM0_2_Handler() {
+//sigo:interrupt Sercom02Handler Sercom02Handler
+func Sercom02Handler() {
 	if SERCOM02HandlerFunc != nil {
 		SERCOM02HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM0_OTHER_Handler SERCOM0_OTHER_Handler
-func SERCOM0_OTHER_Handler() {
+//sigo:interrupt Sercom0OtherHandler Sercom0OtherHandler
+func Sercom0OtherHandler() {
 	if SERCOM03HandlerFunc != nil {
 		SERCOM03HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM1_0_Handler SERCOM1_0_Handler
-func SERCOM1_0_Handler() {
+//sigo:interrupt Sercom10Handler Sercom10Handler
+func Sercom10Handler() {
 	if SERCOM10HandlerFunc != nil {
 		SERCOM10HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM1_1_Handler SERCOM1_1_Handler
-func SERCOM1_1_Handler() {
+//sigo:interrupt Sercom11Handler Sercom11Handler
+func Sercom11Handler() {
 	if SERCOM11HandlerFunc != nil {
 		SERCOM11HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM1_2_Handler SERCOM1_2_Handler
-func SERCOM1_2_Handler() {
+//sigo:interrupt Sercom12Handler Sercom12Handler
+func Sercom12Handler() {
 	if SERCOM12HandlerFunc != nil {
 		SERCOM12HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM1_OTHER_Handler SERCOM1_OTHER_Handler
-func SERCOM1_OTHER_Handler() {
+//sigo:interrupt Sercom1OtherHandler Sercom1OtherHandler
+func Sercom1OtherHandler() {
 	if SERCOM13HandlerFunc != nil {
 		SERCOM13HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM2_0_Handler SERCOM2_0_Handler
-func SERCOM2_0_Handler() {
+//sigo:interrupt Sercom20Handler Sercom20Handler
+func Sercom20Handler() {
 	if SERCOM20HandlerFunc != nil {
 		SERCOM20HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM2_1_Handler SERCOM2_1_Handler
-func SERCOM2_1_Handler() {
+//sigo:interrupt Sercom21Handler Sercom21Handler
+func Sercom21Handler() {
 	if SERCOM21HandlerFunc != nil {
 		SERCOM21HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM2_2_Handler SERCOM2_2_Handler
-func SERCOM2_2_Handler() {
+//sigo:interrupt Sercom22Handler Sercom22Handler
+func Sercom22Handler() {
 	if SERCOM22HandlerFunc != nil {
 		SERCOM22HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM2_OTHER_Handler SERCOM2_OTHER_Handler
-func SERCOM2_OTHER_Handler() {
+//sigo:interrupt Sercom2OtherHandler Sercom2OtherHandler
+func Sercom2OtherHandler() {
 	if SERCOM23HandlerFunc != nil {
 		SERCOM23HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM3_0_Handler SERCOM3_0_Handler
-func SERCOM3_0_Handler() {
+//sigo:interrupt Sercom30Handler Sercom30Handler
+func Sercom30Handler() {
 	if SERCOM30HandlerFunc != nil {
 		SERCOM30HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM3_1_Handler SERCOM3_1_Handler
-func SERCOM3_1_Handler() {
+//sigo:interrupt Sercom31Handler Sercom31Handler
+func Sercom31Handler() {
 	if SERCOM31HandlerFunc != nil {
 		SERCOM31HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM3_2_Handler SERCOM3_2_Handler
-func SERCOM3_2_Handler() {
+//sigo:interrupt Sercom32Handler Sercom32Handler
+func Sercom32Handler() {
 	if SERCOM32HandlerFunc != nil {
 		SERCOM32HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM3_OTHER_Handler SERCOM3_OTHER_Handler
-func SERCOM3_OTHER_Handler() {
+//sigo:interrupt Sercom3OtherHandler Sercom3OtherHandler
+func Sercom3OtherHandler() {
 	if SERCOM33HandlerFunc != nil {
 		SERCOM33HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM4_0_Handler SERCOM4_0_Handler
-func SERCOM4_0_Handler() {
+//sigo:interrupt Sercom40Handler Sercom40Handler
+func Sercom40Handler() {
 	if SERCOM40HandlerFunc != nil {
 		SERCOM40HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM4_1_Handler SERCOM4_1_Handler
-func SERCOM4_1_Handler() {
+//sigo:interrupt Sercom41Handler Sercom41Handler
+func Sercom41Handler() {
 	if SERCOM41HandlerFunc != nil {
 		SERCOM41HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM4_2_Handler SERCOM4_2_Handler
-func SERCOM4_2_Handler() {
+//sigo:interrupt Sercom42Handler Sercom42Handler
+func Sercom42Handler() {
 	if SERCOM42HandlerFunc != nil {
 		SERCOM42HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM4_OTHER_Handler SERCOM4_OTHER_Handler
-func SERCOM4_OTHER_Handler() {
+//sigo:interrupt Sercom4OtherHandler Sercom4OtherHandler
+func Sercom4OtherHandler() {
 	if SERCOM43HandlerFunc != nil {
 		SERCOM43HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM5_0_Handler SERCOM5_0_Handler
-func SERCOM5_0_Handler() {
+//sigo:interrupt Sercom50Handler Sercom50Handler
+func Sercom50Handler() {
 	if SERCOM50HandlerFunc != nil {
 		SERCOM50HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM5_1_Handler SERCOM5_1_Handler
-func SERCOM5_1_Handler() {
+//sigo:interrupt Sercom51Handler Sercom51Handler
+func Sercom51Handler() {
 	if SERCOM51HandlerFunc != nil {
 		SERCOM51HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM5_2_Handler SERCOM5_2_Handler
-func SERCOM5_2_Handler() {
+//sigo:interrupt Sercom52Handler Sercom52Handler
+func Sercom52Handler() {
 	if SERCOM52HandlerFunc != nil {
 		SERCOM52HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM5_OTHER_Handler SERCOM5_OTHER_Handler
-func SERCOM5_OTHER_Handler() {
+//sigo:interrupt Sercom5OtherHandler Sercom5OtherHandler
+func Sercom5OtherHandler() {
 	if SERCOM53HandlerFunc != nil {
 		SERCOM53HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM6_0_Handler SERCOM6_0_Handler
-func SERCOM6_0_Handler() {
+//sigo:interrupt Sercom60Handler Sercom60Handler
+func Sercom60Handler() {
 	if SERCOM60HandlerFunc != nil {
 		SERCOM60HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM6_1_Handler SERCOM6_1_Handler
-func SERCOM6_1_Handler() {
+//sigo:interrupt Sercom61Handler Sercom61Handler
+func Sercom61Handler() {
 	if SERCOM61HandlerFunc != nil {
 		SERCOM61HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM6_2_Handler SERCOM6_2_Handler
-func SERCOM6_2_Handler() {
+//sigo:interrupt Sercom62Handler Sercom62Handler
+func Sercom62Handler() {
 	if SERCOM62HandlerFunc != nil {
 		SERCOM62HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM6_OTHER_Handler SERCOM6_OTHER_Handler
-func SERCOM6_OTHER_Handler() {
+//sigo:interrupt Sercom6OtherHandler Sercom6OtherHandler
+func Sercom6OtherHandler() {
 	if SERCOM63HandlerFunc != nil {
 		SERCOM63HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM7_0_Handler SERCOM7_0_Handler
-func SERCOM7_0_Handler() {
+//sigo:interrupt Sercom70Handler Sercom70Handler
+func Sercom70Handler() {
 	if SERCOM70HandlerFunc != nil {
 		SERCOM70HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM7_1_Handler SERCOM7_1_Handler
-func SERCOM7_1_Handler() {
+//sigo:interrupt Sercom71Handler Sercom71Handler
+func Sercom71Handler() {
 	if SERCOM71HandlerFunc != nil {
 		SERCOM71HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM7_2_Handler SERCOM7_2_Handler
-func SERCOM7_2_Handler() {
+//sigo:interrupt Sercom72Handler Sercom72Handler
+func Sercom72Handler() {
 	if SERCOM72HandlerFunc != nil {
 		SERCOM72HandlerFunc()
 	}
 }
 
-//sigo:interrupt SERCOM7_OTHER_Handler SERCOM7_OTHER_Handler
-func SERCOM7_OTHER_Handler() {
+//sigo:interrupt Sercom7OtherHandler Sercom7OtherHandler
+func Sercom7OtherHandler() {
 	if SERCOM73HandlerFunc != nil {
 		SERCOM73HandlerFunc()
 	}

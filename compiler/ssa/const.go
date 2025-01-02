@@ -29,7 +29,7 @@ func (b *Builder) emitConstantDecl(ctx context.Context, decl *ast.GenDecl) {
 					val := constant.BoolVal(obj.Val())
 					b.setAddr(ctx, ident, ConstantValue{
 						Emitter: func(ctx context.Context, location mlir.Location) mlir.Value {
-							return b.emitConstBool(ctx, val, location)
+							return b.emitConstBool(ctx, val, T, location)
 						},
 						T: T,
 						b: b,
@@ -39,7 +39,7 @@ func (b *Builder) emitConstantDecl(ctx context.Context, decl *ast.GenDecl) {
 					imagValue, _ := constant.Float32Val(constant.Imag(obj.Val()))
 					b.setAddr(ctx, ident, ConstantValue{
 						Emitter: func(ctx context.Context, location mlir.Location) mlir.Value {
-							return b.emitConstComplex64(ctx, realValue, imagValue, b.c64, location)
+							return b.emitConstComplex64(ctx, realValue, imagValue, T, location)
 						},
 						T: T,
 						b: b,
@@ -49,7 +49,7 @@ func (b *Builder) emitConstantDecl(ctx context.Context, decl *ast.GenDecl) {
 					imagValue, _ := constant.Float64Val(constant.Imag(obj.Val()))
 					b.setAddr(ctx, ident, ConstantValue{
 						Emitter: func(ctx context.Context, location mlir.Location) mlir.Value {
-							return b.emitConstComplex128(ctx, realValue, imagValue, b.c128, location)
+							return b.emitConstComplex128(ctx, realValue, imagValue, T, location)
 						},
 						T: T,
 						b: b,
@@ -58,7 +58,7 @@ func (b *Builder) emitConstantDecl(ctx context.Context, decl *ast.GenDecl) {
 					val, _ := constant.Float32Val(obj.Val())
 					b.setAddr(ctx, ident, ConstantValue{
 						Emitter: func(ctx context.Context, location mlir.Location) mlir.Value {
-							return b.emitConstFloat32(ctx, val, location)
+							return b.emitConstFloat32(ctx, val, T, location)
 						},
 						T: T,
 						b: b,
@@ -67,7 +67,7 @@ func (b *Builder) emitConstantDecl(ctx context.Context, decl *ast.GenDecl) {
 					val, _ := constant.Float64Val(obj.Val())
 					b.setAddr(ctx, ident, ConstantValue{
 						Emitter: func(ctx context.Context, location mlir.Location) mlir.Value {
-							return b.emitConstFloat64(ctx, val, location)
+							return b.emitConstFloat64(ctx, val, T, location)
 						},
 						T: T,
 						b: b,
@@ -134,7 +134,7 @@ func (b *Builder) emitConstantValue(ctx context.Context, value constant.Value, T
 	} else {
 		switch constT.Kind() {
 		case types.Bool:
-			return b.emitConstBool(ctx, constant.BoolVal(value), location)
+			return b.emitConstBool(ctx, constant.BoolVal(value), resultT, location)
 		case types.Complex64:
 			realValue, _ := constant.Float32Val(constant.Real(value))
 			imagValue, _ := constant.Float32Val(constant.Imag(value))
@@ -145,10 +145,10 @@ func (b *Builder) emitConstantValue(ctx context.Context, value constant.Value, T
 			return b.emitConstComplex128(ctx, realValue, imagValue, resultT, location)
 		case types.Float32:
 			constVal, _ := constant.Float32Val(value)
-			return b.emitConstFloat32(ctx, constVal, location)
+			return b.emitConstFloat32(ctx, constVal, resultT, location)
 		case types.Float64:
 			constVal, _ := constant.Float64Val(value)
-			return b.emitConstFloat64(ctx, constVal, location)
+			return b.emitConstFloat64(ctx, constVal, resultT, location)
 		case types.Int, types.Int8, types.Int16, types.Int32, types.Int64, types.Uint, types.Uint8, types.Uint16,
 			types.Uint32, types.Uint64, types.Uintptr:
 			constVal, _ := constant.Int64Val(value)

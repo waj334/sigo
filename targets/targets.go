@@ -25,7 +25,6 @@ type Targets []TargetInfo
 type TargetInfo struct {
 	Series             string   `yaml:"series"`
 	Chips              []string `yaml:"chips"`
-	ChipPackage        string   `yaml:"chipPackage"`
 	AdditionalPackages []string `yaml:"additionalPackages"`
 	Cpu                string   `yaml:"cpu"`
 	Architecture       string   `yaml:"architecture"`

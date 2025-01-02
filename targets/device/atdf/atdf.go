@@ -179,6 +179,7 @@ func (m ModuleRegisterGroupElement) Offset() types.Integer {
 type RegisterElement struct {
 	Name      string            `xml:"name,attr"`
 	Mode      string            `xml:"modes,attr"`
+	Modes     []ModeElement     `xml:"mode"`
 	Offset_   types.Integer     `xml:"offset,attr"`
 	RW        string            `xml:"rw,attr"`
 	Access    string            `xml:"access,omitempty"`

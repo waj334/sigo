@@ -602,6 +602,7 @@ func (b *Builder) addFunctionDecl(ctx context.Context, decl *ast.FuncDecl) *func
 		decl:           decl,
 		info:           info,
 		scope:          obj.Scope(),
+		linkage:        symbolInfo.Linkage,
 	}
 
 	// NOTE: Have to create the function type after the func object has been initialized if the function is

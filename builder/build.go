@@ -130,7 +130,6 @@ func Build(ctx context.Context, packageDir string) error {
 	} else {
 		tags = append(tags, options.Cpu, targetInfo.Architecture, targetInfo.Series, options.Float)
 		tags = append(tags, targetInfo.Tags...)
-		//additionalPackages = append(additionalPackages, strings.ReplaceAll(targetInfo.ChipPackage, "${chip}", options.Cpu))
 
 		for _, pkg := range targetInfo.AdditionalPackages {
 			if !slices.Contains(additionalPackages, pkg) {

@@ -53,7 +53,7 @@ func initMemory() {
 	}
 }
 
-//sigo:interrupt _entry Reset_Handler
+//sigo:interrupt _entry ResetHandler
 //sigo:required _entry
 func _entry() {
 	// Initialize the global variables

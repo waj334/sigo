@@ -25,6 +25,7 @@ type funcData struct {
 	isExported  bool
 	isInstance  bool
 	isAnonymous bool
+	linkage     string
 
 	isPackageInit bool
 	priority      int
@@ -266,10 +267,17 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 		visibility = "private"
 	}
 
+	// Set the linkage type.
+	linkage := "external"
+	if len(data.linkage) > 0 {
+		linkage = data.linkage
+	}
+
 	mlir.OperationStateAddAttributes(state, []mlir.NamedAttribute{
 		b.namedOf("function_type", mlir.TypeAttrGet(data.mlirType)),
 		b.namedOf("sym_name", mlir.StringAttrGet(b.config.Ctx, data.symbol)),
 		b.namedOf("sym_visibility", mlir.StringAttrGet(b.config.Ctx, visibility)),
+		b.namedOf("llvm.linkage", mlir.GetLLVMLinkageAttr(b.ctx, linkage)),
 	})
 
 	if data.isPackageInit {
