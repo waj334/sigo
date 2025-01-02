@@ -41,12 +41,24 @@ _irq_state:
     mrs r0, PRIMASK
     bx lr
 
-.section .text.HardFault_Handler
-.global HardFault_Handler
-.type HardFault_Handler. %function
-HardFault_Handler:
+.section .text.HardfaultHandler
+.global HardfaultHandler
+.type HardfaultHandler. %function
+HardfaultHandler:
+#ifdef __thumb2__
     tst lr, #4
     ite eq
     mrseq r0, msp
     mrsne r0, psp
     bl _hardfault
+#else
+    mov r1, lr
+    lsrs r1, #2
+    bcc use_msp
+    mrs r0, psp
+    bl _hardfault
+
+use_msp:
+    mrs r0, msp
+    bl _hardfault
+#endif

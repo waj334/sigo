@@ -1,13 +1,13 @@
 package atomic
 
-//sigo:linkname __atomic_compare_exchange_4 __atomic_compare_exchange_4
-//sigo:linkname __atomic_load_4 __atomic_load_4
-//sigo:linkname __atomic_store_4 __atomic_store_4
-//sigo:linkname __atomic_fetch_add_4 __atomic_fetch_add_4
-//sigo:linkname __atomic_compare_exchange_8 __atomic_compare_exchange_8
-//sigo:linkname __atomic_load_8 __atomic_load_8
-//sigo:linkname __atomic_store_8 __atomic_store_8
-//sigo:linkname __atomic_fetch_add_8 __atomic_fetch_add_8
+//sigo:export __atomic_compare_exchange_4 __atomic_compare_exchange_4
+//sigo:export __atomic_load_4 __atomic_load_4
+//sigo:export __atomic_store_4 __atomic_store_4
+//sigo:export __atomic_fetch_add_4 __atomic_fetch_add_4
+//sigo:export __atomic_compare_exchange_8 __atomic_compare_exchange_8
+//sigo:export __atomic_load_8 __atomic_load_8
+//sigo:export __atomic_store_8 __atomic_store_8
+//sigo:export __atomic_fetch_add_8 __atomic_fetch_add_8
 
 //sigo:linkage __atomic_compare_exchange_4 weak
 //sigo:linkage __atomic_load_4 weak

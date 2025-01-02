@@ -159,8 +159,8 @@ func (b *Builder) emitNamedAlloca(ctx context.Context, name string, T mlir.Type,
 	return resultOf(allocaOp)
 }
 
-func (b *Builder) emitConstBool(ctx context.Context, value bool, location mlir.Location) mlir.Value {
-	op := mlir.GoCreateConstantOperation(b.ctx, b.boolAttr(value), b.i1, location)
+func (b *Builder) emitConstBool(ctx context.Context, value bool, T mlir.Type, location mlir.Location) mlir.Value {
+	op := mlir.GoCreateConstantOperation(b.ctx, b.boolAttr(value), T, location)
 	appendOperation(ctx, op)
 	return resultOf(op)
 }
@@ -179,14 +179,14 @@ func (b *Builder) emitConstComplex128(ctx context.Context, r float64, i float64,
 	return resultOf(op)
 }
 
-func (b *Builder) emitConstFloat32(ctx context.Context, value float32, location mlir.Location) mlir.Value {
-	op := mlir.GoCreateConstantOperation(b.ctx, mlir.FloatAttrDoubleGet(b.ctx, b.f32, float64(value)), b.f32, location)
+func (b *Builder) emitConstFloat32(ctx context.Context, value float32, T mlir.Type, location mlir.Location) mlir.Value {
+	op := mlir.GoCreateConstantOperation(b.ctx, mlir.FloatAttrDoubleGet(b.ctx, b.f32, float64(value)), T, location)
 	appendOperation(ctx, op)
 	return resultOf(op)
 }
 
-func (b *Builder) emitConstFloat64(ctx context.Context, value float64, location mlir.Location) mlir.Value {
-	op := mlir.GoCreateConstantOperation(b.ctx, mlir.FloatAttrDoubleGet(b.ctx, b.f64, value), b.f64, location)
+func (b *Builder) emitConstFloat64(ctx context.Context, value float64, T mlir.Type, location mlir.Location) mlir.Value {
+	op := mlir.GoCreateConstantOperation(b.ctx, mlir.FloatAttrDoubleGet(b.ctx, b.f64, value), T, location)
 	appendOperation(ctx, op)
 	return resultOf(op)
 }

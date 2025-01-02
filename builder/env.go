@@ -17,7 +17,7 @@ func Environment() (Env, error) {
 	}
 
 	// The default root should be back one directory from the compiler
-	sigoRoot, err := filepath.Abs(filepath.Dir(compilerPath) + "/..")
+	sigoRoot, err := filepath.Abs(filepath.Join(filepath.Dir(compilerPath), ".."))
 	if err != nil {
 		return nil, err
 	}

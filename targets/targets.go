@@ -23,16 +23,16 @@ func All() Targets {
 
 type Targets []TargetInfo
 type TargetInfo struct {
-	Series       string   `yaml:"series"`
-	Chips        []string `yaml:"chips"`
-	ChipPackage  string   `yaml:"chipPackage"`
-	Cpu          string   `yaml:"cpu"`
-	Architecture string   `yaml:"architecture"`
-	Alignment    int      `yaml:"alignment"`
-	Triple       string   `yaml:"triple"`
-	Tags         []string `yaml:"tags"`
-	Features     []string `yaml:"features"`
-	Float        string   `yaml:"float"`
+	Series             string   `yaml:"series"`
+	Chips              []string `yaml:"chips"`
+	AdditionalPackages []string `yaml:"additionalPackages"`
+	Cpu                string   `yaml:"cpu"`
+	Architecture       string   `yaml:"architecture"`
+	Alignment          int      `yaml:"alignment"`
+	Triple             string   `yaml:"triple"`
+	Tags               []string `yaml:"tags"`
+	Features           []string `yaml:"features"`
+	Float              string   `yaml:"float"`
 }
 
 func (t TargetInfo) FormatFeatureString() string {

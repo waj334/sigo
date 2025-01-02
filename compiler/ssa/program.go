@@ -12,6 +12,7 @@ import (
 	"hash/fnv"
 	"io/fs"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"golang.org/x/tools/go/packages"
@@ -143,7 +144,8 @@ func (p *Program) Parse(ctx context.Context) error {
 	linkerScripts := append(p.Files[".ld"], p.Files[".linker"]...)
 	for _, fname := range linkerScripts {
 		// TODO: Make script in main package directory take priority.
-		if strings.Split(filepath.Base(fname), ".")[0] == "target" {
+		baseName := strings.TrimSuffix(filepath.Base(fname), filepath.Ext(fname))
+		if strings.Contains(baseName, "target") || strings.Contains(baseName, "linker") {
 			p.LinkerScript = fname
 		}
 	}
@@ -272,8 +274,18 @@ func (p *Program) AddPackage(pkg *packages.Package) (err error) {
 		}
 
 		if !d.IsDir() {
-			ext := strings.ToLower(filepath.Ext(path))
+			fname := filepath.Base(path)
+			fname = strings.TrimSuffix(fname, filepath.Ext(fname))
+			tag := strings.Split(fname, "_")
+			if len(tag) > 1 {
+				if !slices.Contains(p.Config.Tags, tag[len(tag)-1]) {
+					// Stop processing this file
+					return nil
+				}
+			}
+
 			// Insert into respective fileset.
+			ext := strings.ToLower(filepath.Ext(path))
 			files := p.Files[ext]
 			p.Files[ext] = append(files, path)
 		}

@@ -30,7 +30,10 @@ func initSysTick() {
 	SYST.CSR.SetENABLE(false)
 
 	// Set PendSV to the lowest priority so that context switching does not occur before other interrupts are serviced.
-	SCS.SHPR3.SetPRI_14(0xFF)
+	SCS.SHPR3.SetPRI_14(0xFE)
+
+	// Set DebugMonitor Below PendSV so that PendSV is serviced before stepping.
+	SCS.SHPR3.SetPRI_12(0xFF)
 
 	// NOTE: The priority for SysTick should be higher than PendSV, but lower than other critical interrupts.
 	SCS.SHPR3.SetPRI_15(4)
@@ -44,8 +47,8 @@ func initSysTick() {
 	}
 }
 
-//sigo:interrupt _SysTick_Handler SysTick_Handler
-func _SysTick_Handler() {
+//sigo:interrupt SystickHandler SystickHandler
+func SystickHandler() {
 	// Atomically increment the tick counter
 	atomic.AddUint32(&_tickCount, 1)
 

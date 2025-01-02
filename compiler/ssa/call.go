@@ -138,7 +138,9 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 					extractOp := mlir.GoCreateExtractOperation(b.ctx, 0, b.ptr, fnValue, location)
 					appendOperation(ctx, extractOp)
 					fn := resultOf(extractOp)
-					fn = b.bitcastTo(ctx, fn, T, location)
+
+					fPtrType := mlir.GoCreatePointerType(T)
+					fn = b.bitcastTo(ctx, fn, fPtrType, location)
 
 					// Extract the context pointer from the func value struct.
 					extractOp = mlir.GoCreateExtractOperation(b.ctx, 1, b.ptr, fnValue, location)
