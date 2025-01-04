@@ -11,7 +11,7 @@ import (
 
 	"runtime/arm/cortexm/sam/atsamx5x"
 	"runtime/arm/cortexm/sam/atsamx5x/support/sercom/i2cm"
-	"runtime/arm/cortexm/sam/atsamx5x/support/systemcontrol"
+	"runtime/arm/cortexm/support/systemcontrol"
 )
 
 const (
@@ -555,7 +555,7 @@ func (i *I2C) statusError() (err error) {
 }
 
 func irqMBHandler() {
-	sercom := (int(systemcontrol.Systemcontrol.Icsr.GetVectactive()-16) - int(atsamx5x.IRQ_SERCOM0_0)) / 4
+	sercom := (int(systemcontrol.SystemControl.Icsr.GetVectactive()-16) - int(atsamx5x.IRQ_SERCOM0_0)) / 4
 	i := i2c[sercom]
 	if i2cm.I2cm[sercom].Intflag.GetMb() {
 		// Host sent data
@@ -609,7 +609,7 @@ func irqMBHandler() {
 }
 
 func irqSBHandler() {
-	sercom := (int(systemcontrol.Systemcontrol.Icsr.GetVectactive()-16) - int(atsamx5x.IRQ_SERCOM0_0)) / 4
+	sercom := (int(systemcontrol.SystemControl.Icsr.GetVectactive()-16) - int(atsamx5x.IRQ_SERCOM0_0)) / 4
 	i := i2c[sercom]
 	if i2cm.I2cm[sercom].Intflag.GetSb() {
 		// Client sent data
@@ -668,7 +668,7 @@ func irqSBHandler() {
 }
 
 func irqERRORHandler() {
-	sercom := (int(systemcontrol.Systemcontrol.Icsr.GetVectactive()-16) - int(atsamx5x.IRQ_SERCOM0_0)) / 4
+	sercom := (int(systemcontrol.SystemControl.Icsr.GetVectactive()-16) - int(atsamx5x.IRQ_SERCOM0_0)) / 4
 	i := i2c[sercom]
 	if i2cm.I2cm[sercom].Intflag.GetError() {
 		// Error occurred. Allow the read/write operation to resume

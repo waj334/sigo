@@ -4,6 +4,7 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"io"
+	"slices"
 	"strings"
 
 	"omibyte.io/sigo/targets/device"
@@ -31,38 +32,53 @@ func formatSymbol(input string, exported bool) string {
 	return result
 }
 
-func writeBuildTags(output io.StringWriter, device device.Device) (int, error) {
+func writeBuildTags(output io.StringWriter, device device.Device, mandatoryTags []string) (int, error) {
 	var builder strings.Builder
-	var tags []string
+	var variantTags []string
 
 	if len(device.Series) > 0 {
-		tags = append(tags, device.Series)
+		mandatoryTags = append([]string{device.Series}, mandatoryTags...)
+	}
+
+	for _, tag := range device.BuildTags {
+		if slices.Contains(mandatoryTags, tag) {
+			continue
+		}
+		mandatoryTags = append(mandatoryTags, tag)
 	}
 
 	for _, variant := range device.Variants {
-		tags = append(tags, variant.Identifier)
+		variantTags = append(variantTags, variant.Identifier)
 	}
 
-	if len(device.Series) > 0 || len(tags) > 0 {
+	if len(mandatoryTags) > 0 || len(variantTags) > 0 {
 		builder.WriteString("//go:build ")
-	}
 
-	if len(device.Series) > 0 {
-		builder.WriteString(device.Series)
-		if len(tags) > 0 {
-			builder.WriteString(" && ")
-		}
-	}
+		if len(mandatoryTags) > 0 {
+			for i, tag := range mandatoryTags {
+				builder.WriteString(tag)
+				if i != len(mandatoryTags)-1 {
+					builder.WriteString(" && ")
+				}
+			}
 
-	if len(tags) > 0 {
-		builder.WriteString("(")
-		for i, tag := range tags {
-			builder.WriteString(tag)
-			if i != len(tags)-1 {
-				builder.WriteString(" || ")
+			if len(variantTags) > 0 {
+				builder.WriteString(" && ")
 			}
 		}
-		builder.WriteString(")\n\n")
+
+		if len(variantTags) > 0 {
+			builder.WriteString("(")
+			for i, tag := range variantTags {
+				builder.WriteString(tag)
+				if i != len(variantTags)-1 {
+					builder.WriteString(" || ")
+				}
+			}
+			builder.WriteString(")")
+		}
+
+		builder.WriteString("\n\n")
 	}
 
 	return output.WriteString(builder.String())

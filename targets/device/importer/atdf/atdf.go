@@ -42,7 +42,7 @@ func ImportATDF(ctx context.Context, config importer.Config) (d device.Device, e
 
 	d.Flags.Set(device.Read, device.Write)
 
-	instances := map[string][]uintptr{}
+	instances := map[string][]device.Address{}
 	d.Variants = make([]device.Variant, len(root.Devices.Elements))
 	for i, deviceElement := range root.Devices.Elements {
 		variant := &d.Variants[i]
@@ -57,17 +57,17 @@ func ImportATDF(ctx context.Context, config importer.Config) (d device.Device, e
 			}
 		}
 
-		startAddresses := map[string]uintptr{}
+		startAddresses := map[string]device.Address{}
 		if len(deviceElement.AddressSpaces.Elements) > 0 {
 			addressSpace := deviceElement.AddressSpaces.Elements[0]
 			variant.Memories = make([]device.Memory, len(addressSpace.MemorySegments))
-			startAddresses[addressSpace.Name] = uintptr(addressSpace.Start)
+			startAddresses[addressSpace.Name] = addressSpace.Start
 			for i, memory := range addressSpace.MemorySegments {
 				variant.Memories[i] = device.Memory{
 					Identifier: cleanIdentifier(memory.Name),
 					Type:       translateMemoryType(memory.Type),
-					Start:      uintptr(memory.Start),
-					Size:       uintptr(memory.Size),
+					Start:      memory.Start,
+					Size:       memory.Size,
 					Flags:      translateRW(memory.RW),
 				}
 			}
@@ -81,7 +81,7 @@ func ImportATDF(ctx context.Context, config importer.Config) (d device.Device, e
 
 					id := fmt.Sprintf("%s%s", peripheral.Id, peripheral.Name)
 					l := instances[id]
-					instances[id] = append(l, start+uintptr(registerGroup.Offset))
+					instances[id] = append(l, start+registerGroup.Offset)
 				}
 			}
 		}

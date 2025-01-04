@@ -11,7 +11,7 @@ import (
 	"runtime/arm/cortexm/sam/atsamx5x"
 	"runtime/arm/cortexm/sam/atsamx5x/support/mclk"
 	usart "runtime/arm/cortexm/sam/atsamx5x/support/sercom/usartInt"
-	"runtime/arm/cortexm/sam/atsamx5x/support/systemcontrol"
+	"runtime/arm/cortexm/support/systemcontrol"
 	"runtime/ringbuffer"
 )
 
@@ -227,7 +227,7 @@ func (u *UART) Configure(config Config) {
 }
 
 func irqHandler() {
-	sercom := int(systemcontrol.Systemcontrol.Icsr.GetVectactive()-62) / 4
+	sercom := int(systemcontrol.SystemControl.Icsr.GetVectactive()-62) / 4
 	switch {
 	case usart.UsartInt[sercom].Intflag.GetRxc():
 		rxcHandler(sercom)

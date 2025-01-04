@@ -10,7 +10,7 @@ import (
 
 	"runtime/arm/cortexm/sam/atsamd21"
 	"runtime/arm/cortexm/sam/atsamd21/support/sercom/spim"
-	"runtime/arm/cortexm/sam/atsamd21/support/systemcontrol"
+	"runtime/arm/cortexm/support/systemcontrol"
 )
 
 var (
@@ -341,7 +341,7 @@ func (s *_spi) Deselect() {
 }
 
 func irqHandler() {
-	sercom := int(systemcontrol.Systemcontrol.Icsr.GetVectactive()-16) - int(atsamd21.IRQ_SERCOM0)
+	sercom := int(systemcontrol.SystemControl.Icsr.GetVectactive()-16) - int(atsamd21.IRQ_SERCOM0)
 	switch {
 	case spim.Spim[sercom].Intflag.GetRxc():
 		rxcHandler(sercom)

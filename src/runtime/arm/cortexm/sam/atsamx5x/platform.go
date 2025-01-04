@@ -8,7 +8,6 @@ import (
 	"runtime/arm/cortexm/sam/atsamx5x/support/mclk"
 	"runtime/arm/cortexm/sam/atsamx5x/support/osc32kctrl"
 	"runtime/arm/cortexm/sam/atsamx5x/support/oscctrl"
-	"runtime/arm/cortexm/sam/atsamx5x/support/systemcontrol"
 )
 
 const (
@@ -313,9 +312,4 @@ func DefaultClocks() {
 	gclk.Gclk.Pchctrl[GCLK_SERCOM7_CORE].SetChen(true)
 	for !gclk.Gclk.Pchctrl[GCLK_SERCOM7_CORE].GetChen() {
 	}
-}
-
-func InitFPU() {
-	systemcontrol.Systemcontrol.Cpacr.SetCp10(systemcontrol.CpacrCp10Full)
-	systemcontrol.Systemcontrol.Cpacr.SetCp11(systemcontrol.CpacrCp11Full)
 }

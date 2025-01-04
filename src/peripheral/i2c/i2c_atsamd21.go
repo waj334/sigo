@@ -11,7 +11,7 @@ import (
 
 	"runtime/arm/cortexm/sam/atsamd21"
 	"runtime/arm/cortexm/sam/atsamd21/support/sercom/i2cm"
-	"runtime/arm/cortexm/sam/atsamd21/support/systemcontrol"
+	"runtime/arm/cortexm/support/systemcontrol"
 )
 
 const (
@@ -523,7 +523,7 @@ func (i *_i2c) statusError() (err error) {
 }
 
 func irqHandler() {
-	sercom := int(systemcontrol.Systemcontrol.Icsr.GetVectactive()-16) - int(atsamd21.IRQ_SERCOM0)
+	sercom := int(systemcontrol.SystemControl.Icsr.GetVectactive()-16) - int(atsamd21.IRQ_SERCOM0)
 	i := i2c[sercom]
 	switch {
 	case i2cm.I2cm[sercom].Intflag.GetError():

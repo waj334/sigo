@@ -75,7 +75,7 @@ func main() {
 		}
 
 		// Write the peripherals API to the file.
-		if _, err := writeBuildTags(f, d); err != nil {
+		if _, err := writeBuildTags(f, d, p.BuildTags); err != nil {
 			log.Fatal(err)
 		}
 
@@ -87,6 +87,10 @@ func main() {
 	// Write the ISR vectors.
 	for _, v := range d.Variants {
 		outFile := filepath.Join(outputDir, fmt.Sprintf("isr_%s.s", v.Identifier))
+
+		if err = os.MkdirAll(filepath.Dir(outFile), 0750); err != nil {
+			log.Fatal("file io error: ", err)
+		}
 
 		// Create the file.
 		f, err := os.OpenFile(outFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
@@ -103,6 +107,10 @@ func main() {
 	// Write the linker scripts.
 	for _, v := range d.Variants {
 		outFile := filepath.Join(outputDir, fmt.Sprintf("linker_%s.ld", v.Identifier))
+
+		if err = os.MkdirAll(filepath.Dir(outFile), 0750); err != nil {
+			log.Fatal("file io error: ", err)
+		}
 
 		// Create the file.
 		f, err := os.OpenFile(outFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)

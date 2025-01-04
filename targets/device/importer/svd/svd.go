@@ -100,7 +100,7 @@ func ImportSVD(ctx context.Context, config importer.Config) (d device.Device, er
 		if len(indices) > 0 {
 			// Make a copy of the first instance.
 			base := d.Peripherals[indices[0]]
-			base.Instances = []uintptr{*base.BaseAddress}
+			base.Instances = []device.Address{*base.BaseAddress}
 			base.Identifier = group
 
 			for _, i := range indices[1:] {

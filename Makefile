@@ -72,6 +72,8 @@ LIBS := $(wildcard $(GOIR_BUILD_DIR)/lib/*.a) $(wildcard $(LLVM_BUILD_DIR)/lib/*
 SIGO_EXE=$(BINDIR)/sigoc$(EXECUTABLE_POSTFIX)
 ABS_SIGO_EXE=$(ABS_BINDIR)/sigoc$(EXECUTABLE_POSTFIX)
 
+CSP_GEN_EXE=$(BINDIR)/csp-gen$(EXECUTABLE_POSTFIX)
+
 SSA_TEST_EXE=$(BINDIR)/ssa_test$(EXECUTABLE_POSTFIX)
 ABS_SSA_TEST_EXE=$(ABS_BINDIR)/ssa_test$(EXECUTABLE_POSTFIX)
 
@@ -285,15 +287,25 @@ clean-mlir-bindings:
 build-picolibc:
 	$(call build-picolibc,armv7m-none-eabi,armv7m+fp,-mthumb)
 	$(call build-picolibc,armv7m-none-eabi,armv7m+nofp,-mthumb)
+	$(call build-picolibc,armv7em-none-eabi,armv7em+fp,-mthumb)
+	$(call build-picolibc,armv7em-none-eabi,armv7em+nofp,-mthumb)
 	$(call build-picolibc,armv6m-none-eabi,armv6m+nofp,-mthumb)
 
 build-compiler-rt:
 	$(call build-compiler-rt,armv7m-none-eabi,armv7m+fp,-mthumb)
 	$(call build-compiler-rt,armv7m-none-eabi,armv7m+nofp,-mthumb)
+	$(call build-compiler-rt,armv7em-none-eabi,armv7em+fp,-mthumb)
+	$(call build-compiler-rt,armv7em-none-eabi,armv7em+nofp,-mthumb)
 	$(call build-compiler-rt,armv6m-none-eabi,armv6m+nofp,-mthumb)
 
-generate-csp:
-	go run $(ROOT_DIR)/cmd/csp-gen/*.go --in=$(ROOT_DIR)/targets/definitions/atsamd21.json --out=$(ROOT_DIR)/src/runtime/arm/cortexm/sam/atsamd21/support
-	go run $(ROOT_DIR)/cmd/csp-gen/*.go --in=$(ROOT_DIR)/targets/definitions/atsamx5x.json --out=$(ROOT_DIR)/src/runtime/arm/cortexm/sam/atsamx5x/support
+$(CSP_GEN_EXE): $(wildcard $(ROOT_DIR)/cmd/csp-gen/*.go)
+	go build -o $(CSP_GEN_EXE) $(ROOT_DIR)/cmd/csp-gen
+
+csp-gen: $(CSP_GEN_EXE)
+
+generate-csp: csp-gen
+	$(CSP_GEN_EXE) --in=$(ROOT_DIR)/targets/definitions/cortexm.json --out=$(ROOT_DIR)/src/runtime/arm/cortexm/support
+	$(CSP_GEN_EXE) --in=$(ROOT_DIR)/targets/definitions/atsamd21.json --out=$(ROOT_DIR)/src/runtime/arm/cortexm/sam/atsamd21/support
+	$(CSP_GEN_EXE) --in=$(ROOT_DIR)/targets/definitions/atsamx5x.json --out=$(ROOT_DIR)/src/runtime/arm/cortexm/sam/atsamx5x/support
 
 release: build-picolibc build-compiler-rt generate-csp sigo

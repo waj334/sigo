@@ -8,7 +8,7 @@ type Field struct {
 	register *Register
 
 	// Identifier is the identifier of the register.
-	Identifier string `json:"name"`
+	Identifier string `json:"identifier"`
 
 	// Width is the size of the field in bits.
 	Width uintptr `json:"width"`

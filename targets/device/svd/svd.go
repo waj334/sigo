@@ -1,9 +1,11 @@
 package svd
 
-import "omibyte.io/sigo/cmd/csp-gen/types"
+import (
+	"omibyte.io/sigo/targets/device"
+)
 
 type Addressable interface {
-	GetAddressOffset() types.Integer
+	GetAddressOffset() device.Address
 }
 
 type DeviceElement struct {
@@ -14,23 +16,23 @@ type DeviceElement struct {
 	Vendor           *string            `xml:"vendor"`
 	VendorId         *string            `xml:"vendorId"`
 	CPU              *CPUElement        `xml:"cpu"`
-	AddressableWidth types.Integer      `xml:"addressUnitBits"`
-	BitWidth         types.Integer      `xml:"width"`
-	RegisterSize     *types.Integer     `xml:"size"`
+	AddressableWidth device.Address     `xml:"addressUnitBits"`
+	BitWidth         device.Address     `xml:"width"`
+	RegisterSize     *device.Address    `xml:"size"`
 	DefaultAccess    *string            `xml:"access"`
-	ResetValue       *types.Integer     `xml:"resetValue"`
-	ResetMask        *types.Integer     `xml:"resetMask"`
+	ResetValue       *device.Address    `xml:"resetValue"`
+	ResetMask        *device.Address    `xml:"resetMask"`
 	Peripherals      PeripheralsElement `xml:"peripherals"`
 }
 
 type CPUElement struct {
-	Name                string        `xml:"name"`
-	Revision            string        `xml:"revision"`
-	Endian              string        `xml:"endian"`
-	MPUPresent          string        `xml:"mpuPresent"`
-	FPUPresent          string        `xml:"fpuPresent"`
-	NVICPriorityBits    types.Integer `xml:"nvicPrioBits"`
-	VendorSystickConfig bool          `xml:"vendorSystickConfig"`
+	Name                string         `xml:"name"`
+	Revision            string         `xml:"revision"`
+	Endian              string         `xml:"endian"`
+	MPUPresent          string         `xml:"mpuPresent"`
+	FPUPresent          string         `xml:"fpuPresent"`
+	NVICPriorityBits    device.Address `xml:"nvicPrioBits"`
+	VendorSystickConfig bool           `xml:"vendorSystickConfig"`
 }
 
 type PeripheralsElement struct {
@@ -57,7 +59,7 @@ type PeripheralElement struct {
 	Description  *string              `xml:"description"`
 	Group        *string              `xml:"groupName"`
 	Access       *string              `xml:"access"`
-	BaseAddress  *types.Integer       `xml:"baseAddress"`
+	BaseAddress  *device.Address      `xml:"baseAddress"`
 	AddressBlock *AddressBlockElement `xml:"addressBlock"`
 	Interrupts   *[]InterruptElement  `xml:"interrupt"`
 	Registers    *RegistersElement    `xml:"registers"`
@@ -65,14 +67,14 @@ type PeripheralElement struct {
 }
 
 type AddressBlockElement struct {
-	Offset types.Integer `xml:"offset"`
-	Size   types.Integer `xml:"size"`
+	Offset device.Address `xml:"offset"`
+	Size   device.Address `xml:"size"`
 }
 
 type InterruptElement struct {
-	Name        string        `xml:"name"`
-	Description string        `xml:"description"`
-	Value       types.Integer `xml:"value"`
+	Name        string `xml:"name"`
+	Description string `xml:"description"`
+	Value       int    `xml:"value"`
 }
 
 type RegistersElement struct {
@@ -83,29 +85,29 @@ type RegistersElement struct {
 type ClusterElement struct {
 	Name          string            `xml:"name"`
 	Description   string            `xml:"description"`
-	Count         types.Integer     `xml:"dim"`
-	Increment     types.Integer     `xml:"dimIncrement"`
-	AddressOffset types.Integer     `xml:"addressOffset"`
+	Count         device.Address    `xml:"dim"`
+	Increment     device.Address    `xml:"dimIncrement"`
+	AddressOffset device.Address    `xml:"addressOffset"`
 	Registers     []RegisterElement `xml:"register"`
 }
 
-func (c ClusterElement) GetAddressOffset() types.Integer {
+func (c ClusterElement) GetAddressOffset() device.Address {
 	return c.AddressOffset
 }
 
 type RegisterElement struct {
-	Name          string        `xml:"name"`
-	Description   string        `xml:"description"`
-	AddressOffset types.Integer `xml:"addressOffset"`
-	Size          types.Integer `xml:"size"`
-	Fields        FieldElements `xml:"fields"`
-	Count         types.Integer `xml:"dim"`
-	Increment     types.Integer `xml:"dimIncrement"`
-	Access        string        `xml:"access"`
-	Alternative   string        `xml:"alternateRegister"`
+	Name          string         `xml:"name"`
+	Description   string         `xml:"description"`
+	AddressOffset device.Address `xml:"addressOffset"`
+	Size          device.Address `xml:"size"`
+	Fields        FieldElements  `xml:"fields"`
+	Count         device.Address `xml:"dim"`
+	Increment     device.Address `xml:"dimIncrement"`
+	Access        string         `xml:"access"`
+	Alternative   string         `xml:"alternateRegister"`
 }
 
-func (r RegisterElement) GetAddressOffset() types.Integer {
+func (r RegisterElement) GetAddressOffset() device.Address {
 	return r.AddressOffset
 }
 
@@ -116,8 +118,8 @@ type FieldElements struct {
 type FieldElement struct {
 	Name             string                  `xml:"name"`
 	Description      string                  `xml:"description"`
-	BitOffset        types.Integer           `xml:"bitOffset"`
-	BitWidth         types.Integer           `xml:"bitWidth"`
+	BitOffset        device.Address          `xml:"bitOffset"`
+	BitWidth         device.Address          `xml:"bitWidth"`
 	Access           string                  `xml:"access"`
 	EnumeratedValues EnumeratedValuesElement `xml:"enumeratedValues"`
 }
@@ -128,7 +130,7 @@ type EnumeratedValuesElement struct {
 }
 
 type EnumeratedValueElement struct {
-	Name        string        `xml:"name"`
-	Description string        `xml:"description"`
-	Value       types.Integer `xml:"value"`
+	Name        string         `xml:"name"`
+	Description string         `xml:"description"`
+	Value       device.Address `xml:"value"`
 }

@@ -59,6 +59,9 @@ func _entry() {
 	// Initialize the global variables
 	initMemory()
 
+	// Initialize the FPU if it was enabled during the build.
+	initFPU()
+
 	// Init the GC
 	initgc()
 

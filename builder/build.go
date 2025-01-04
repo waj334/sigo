@@ -142,15 +142,16 @@ func Build(ctx context.Context, packageDir string) error {
 	options.Environment["GOARCH"] = "arm"
 	arch := strings.Split(targetInfo.Triple, "-")[0]
 	float := "nofp"
-	switch targetInfo.Float {
+	fpuEnabled := false
+	switch targetInfo.Fpu.ABI {
 	case "hardfp":
 		if options.Float == "softfp" {
 			float = "nofp"
 			targetInfo.Features = append(targetInfo.Features, "soft-float")
 		} else {
 			float = "fp"
-			/// TODO: There are different FP instruction features available for different chips. Find a better way of
-			/// specifying those respective features.
+			targetInfo.Features = append(targetInfo.Features, targetInfo.Fpu.Features...)
+			fpuEnabled = true
 		}
 	default:
 		float = "nofp"
@@ -259,7 +260,7 @@ func Build(ctx context.Context, packageDir string) error {
 	fmt.Println("done")
 
 	// Add required constant globals to the LLVM module directly
-	addConstantGlobals(llvmModule, options, dataLayout)
+	addConstantGlobals(llvmModule, options, fpuEnabled, dataLayout)
 
 	if options.DumpIR {
 		dumpModule(llvmModule, options.Output+".dump.ll")
@@ -468,8 +469,10 @@ func optimize(module llvm.LLVMModuleRef, level string, machine llvm.LLVMTargetMa
 	return
 }
 
-func addConstantGlobals(module llvm.LLVMModuleRef, options Options, dataLayout llvm.LLVMTargetDataRef) {
-	intPtrType := llvm.IntPtrTypeInContext(llvm.GetModuleContext(module), dataLayout)
+func addConstantGlobals(module llvm.LLVMModuleRef, options Options, floatEnabled bool, dataLayout llvm.LLVMTargetDataRef) {
+	ctx := llvm.GetModuleContext(module)
+	intPtrType := llvm.IntPtrTypeInContext(ctx, dataLayout)
+	boolType := llvm.Int1TypeInContext(ctx)
 
 	// Stack size for goroutines
 	globalGoroutineStackSize := findOrCreateGlobal(module, intPtrType, ssa.MangleSymbol("runtime._goroutineStackSize"))
@@ -479,6 +482,22 @@ func addConstantGlobals(module llvm.LLVMModuleRef, options Options, dataLayout l
 	llvm.SetInitializer(globalGoroutineStackSize, constGoroutineStackSize)
 	llvm.SetLinkage(globalGoroutineStackSize, llvm.ExternalLinkage)
 	llvm.SetGlobalConstant(globalGoroutineStackSize, true)
+
+	// FPU enable flag.
+	globalFpuEnableFlag := findOrCreateGlobal(module, boolType, ssa.MangleSymbol("runtime._fpuEnabled"))
+	alignment = llvm.PreferredAlignmentOfGlobal(dataLayout, globalFpuEnableFlag)
+
+	var constFpuEnableFlag llvm.LLVMValueRef
+	if floatEnabled {
+		constFpuEnableFlag = llvm.ConstInt(boolType, 1, false)
+	} else {
+		constFpuEnableFlag = llvm.ConstInt(boolType, 0, false)
+	}
+
+	llvm.SetAlignment(globalFpuEnableFlag, alignment)
+	llvm.SetInitializer(globalFpuEnableFlag, constFpuEnableFlag)
+	llvm.SetLinkage(globalFpuEnableFlag, llvm.ExternalLinkage)
+	llvm.SetGlobalConstant(globalFpuEnableFlag, true)
 }
 
 func findOrCreateGlobal(module llvm.LLVMModuleRef, ty llvm.LLVMTypeRef, name string) llvm.LLVMValueRef {

@@ -9,7 +9,7 @@ import (
 
 	"runtime/arm/cortexm/sam/atsamx5x"
 	"runtime/arm/cortexm/sam/atsamx5x/support/sercom/spim"
-	"runtime/arm/cortexm/sam/atsamx5x/support/systemcontrol"
+	"runtime/arm/cortexm/support/systemcontrol"
 )
 
 var (
@@ -304,7 +304,7 @@ func (s *SPI) Deselect() {
 }
 
 func rxcHandler() {
-	sercom := (int(systemcontrol.Systemcontrol.Icsr.GetVectactive()-16) - int(atsamx5x.IRQ_SERCOM0_0)) / 4
+	sercom := (int(systemcontrol.SystemControl.Icsr.GetVectactive()-16) - int(atsamx5x.IRQ_SERCOM0_0)) / 4
 	s := spi[sercom]
 
 	if s.state == stateDone {
@@ -343,7 +343,7 @@ func rxcHandler() {
 }
 
 func dreHandler() {
-	sercom := (int(systemcontrol.Systemcontrol.Icsr.GetVectactive()-16) - int(atsamx5x.IRQ_SERCOM0_0)) / 4
+	sercom := (int(systemcontrol.SystemControl.Icsr.GetVectactive()-16) - int(atsamx5x.IRQ_SERCOM0_0)) / 4
 	s := spi[sercom]
 
 	if s.state == stateDone {

@@ -21,18 +21,23 @@ func All() Targets {
 	return targets
 }
 
+type FloatInfo struct {
+	ABI      string   `yaml:"abi"`
+	Features []string `yaml:"features,omitempty"`
+}
+
 type Targets []TargetInfo
 type TargetInfo struct {
-	Series             string   `yaml:"series"`
-	Chips              []string `yaml:"chips"`
-	AdditionalPackages []string `yaml:"additionalPackages"`
-	Cpu                string   `yaml:"cpu"`
-	Architecture       string   `yaml:"architecture"`
-	Alignment          int      `yaml:"alignment"`
-	Triple             string   `yaml:"triple"`
-	Tags               []string `yaml:"tags"`
-	Features           []string `yaml:"features"`
-	Float              string   `yaml:"float"`
+	Series             string    `yaml:"series"`
+	Chips              []string  `yaml:"chips"`
+	AdditionalPackages []string  `yaml:"additionalPackages"`
+	Cpu                string    `yaml:"cpu"`
+	Architecture       string    `yaml:"architecture"`
+	Alignment          int       `yaml:"alignment"`
+	Triple             string    `yaml:"triple"`
+	Tags               []string  `yaml:"tags"`
+	Features           []string  `yaml:"features"`
+	Fpu                FloatInfo `yaml:"fpu"`
 }
 
 func (t TargetInfo) FormatFeatureString() string {

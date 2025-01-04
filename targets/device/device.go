@@ -2,6 +2,7 @@ package device
 
 type Device struct {
 	Series      string         `json:"series"`
+	BuildTags   []string       `json:"buildTags,omitempty"`
 	Flags       AttributeFlags `json:"flags"`
 	Variants    []Variant      `json:"variants"`
 	Peripherals []Peripheral   `json:"peripherals"`
@@ -39,7 +40,7 @@ const (
 type Memory struct {
 	Identifier string         `json:"identifier"`
 	Type       MemoryType     `json:"type"`
-	Start      uintptr        `json:"start"`
-	Size       uintptr        `json:"size"`
+	Start      Address        `json:"start"`
+	Size       Address        `json:"size"`
 	Flags      AttributeFlags `json:"flags"`
 }

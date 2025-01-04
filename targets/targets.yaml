@@ -7,10 +7,11 @@ targets:
     architecture: "arm"
     alignment: 4
     triple: "armv6m-none-eabi"
-    cpu: "cortex-m0"
+    cpu: "cortex-m0plus"
     tags: [ "arm", "cortexm", "atsamd21" ]
     features: [ "armv6-m", "soft-float" ]
-    float: "softfp"
+    fpu:
+      abi: "softfp"
 
   - series: "atsamc21"
     chips: [ "atsamc21e15a",  "atsamc21e16a",  "atsamc21e17a",  "atsamc21e18a",  "atsamc21g15a",  "atsamc21g16a",  "atsamc21g17a",  "atsamc21g18a",  "atsamc21j15a",  "atsamc21j16a",  "atsamc21j17a",  "atsamc21j17au",  "atsamc21j18a",  "atsamc21j18au",  "atsamc21n17a",  "atsamc21n18a" ]
@@ -20,10 +21,11 @@ targets:
     architecture: "arm"
     alignment: 4
     triple: "armv6m-none-eabi"
-    cpu: "cortex-m0"
+    cpu: "cortex-m0plus"
     tags: [ "arm", "cortexm", "atsamc21" ]
     features: [ "armv6-m", "soft-float" ]
-    float: "softfp"
+    fpu:
+      abi: "softfp"
 
   - series: "atsamd51"
     chips: [ "atsamd51g18a", "atsamd51g19a", "atsamd51j18a", "atsamd51j19a", "atsamd51j20a",  "atsamd51n19a", "atsamd51n20a", "atsamd51p19a", "atsamd51p20a" ]
@@ -32,11 +34,13 @@ targets:
       - "runtime/arm/cortexm/sam/atsamx5x/support"
     architecture: "thumb"
     alignment: 4
-    triple: "armv7m-none-eabi"
+    triple: "armv7em-none-eabi"
     cpu: "cortex-m4"
-    tags: [ "arm", "cortexm", "atsamx5x", "atsamd5x" ]
-    features: [ "armv7-m" ]
-    float: "hardfp"
+    tags: [ "arm", "cortexm", "cortexm4", "fpu", "atsamx5x", "atsamd5x" ]
+    features: [ "armv7-m", "armv7e-m", "thumb2", "dsp", "db" ]
+    fpu:
+      abi: "hardfp"
+      features: [ "fpregs", "vfp4d16sp" ]
 
   - series: "atsame51"
     chips: [ "atsame51g18a", "atsame51g19a", "atsame51j18a", "atsame51j19a", "atsame51j20a", "atsame51n19a", "atsame51n20a" ]
@@ -45,11 +49,13 @@ targets:
       - "runtime/arm/cortexm/sam/atsamx5x/support"
     architecture: "thumb"
     alignment: 4
-    triple: "armv7m-none-eabi"
+    triple: "armv7em-none-eabi"
     cpu: "cortex-m4"
-    tags: [ "arm", "cortexm", "atsamx5x", "atsame5x" ]
-    features: [ "armv7-m" ]
-    float: "hardfp"
+    tags: [ "arm", "cortexm", "cortexm4", "fpu", "atsamx5x", "atsame5x" ]
+    features: [ "armv7-m", "armv7e-m", "thumb2", "dsp", "db" ]
+    fpu:
+      abi: "hardfp"
+      features: [ "fpregs", "vfp4d16sp" ]
 
   - series: "qemu_cortexm4"
     chips: [ "qemu_cortexm4" ]
@@ -58,8 +64,10 @@ targets:
       - "runtime/arm/cortexm/qemu/cortexm4/support"
     architecture: "thumb"
     alignment: 4
-    triple: "armv7m-none-eabi"
-    tags: [ "arm", "cortexm", "qemu", "cortex_m4" ]
+    triple: "armv7em-none-eabi"
+    tags: [ "arm", "cortexm", "cortexm4", "fpu", "qemu", "cortex_m4" ]
     cpu: "cortex-m4"
-    features: [ "armv7-m" ]
-    float: "hardfp"
+    features: [ "armv7-m", "armv7-m", "thumb2", "dsp", "db" ]
+    fpu:
+      abi: "hardfp"
+      features: [ "fpregs", "vfp4d16sp" ]

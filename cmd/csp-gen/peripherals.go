@@ -13,7 +13,7 @@ import (
 func writePeripheralsApi(output io.StringWriter, peripheral device.Peripheral) (int, error) {
 	var builder strings.Builder
 
-	fmt.Fprintf(&builder, "package %s\n\n", formatSymbol(peripheral.Identifier, false))
+	fmt.Fprintf(&builder, "package %s\n\n", strings.ToLower(formatSymbol(peripheral.Identifier, false)))
 
 	builder.WriteString(`import (
 	"unsafe"
@@ -67,74 +67,6 @@ func writePeripheralTypeDeclaration(output io.StringWriter, p device.Peripheral)
 	}
 
 	fmt.Fprintln(&builder, "}")
-
-	/*
-		excluded := map[string]struct{}{}
-
-		// Visit each top-level group and find any subgroup that refers to a top-level group. These will NOT be instantiated
-		// at the top of the struct directly.
-		for _, group := range p.RegisterGroups {
-			for _, subgroup := range group.Groups {
-				if len(subgroup.Reference) > 0 {
-					excluded[subgroup.Reference] = struct{}{}
-				}
-			}
-		}
-
-		var groups []device.RegisterGroup
-		for _, group := range p.RegisterGroups {
-			if _, ok := excluded[group.Identifier]; ok {
-				continue
-			}
-			groups = append(groups, group)
-		}
-
-		fmt.Fprintf(&builder, "type %[1]s struct {\n", typeName(p))
-
-		merge := false
-		if len(groups) == 1 {
-			if groups[0].Count == 1 {
-				merge = true
-			}
-		}
-
-		if merge {
-			// Embed the register group type.
-			fmt.Fprintf(&builder, "%[1]s\n", typeName(groups[0]))
-		} else {
-
-			// Sort the groups by offset.
-			slices.SortFunc(groups, func(a, b device.RegisterGroup) int {
-				return int(a.Offset - b.Offset)
-			})
-
-			offset := groups[0].Offset
-			lastGroupWidth := uintptr(0)
-			lastGroupOffset := uintptr(0)
-
-			for _, group := range groups {
-				// Calculate padding required if there is a gap.
-				padding := group.Offset - (lastGroupOffset + lastGroupWidth)
-				if padding > 0 {
-					// Write padding bytes
-					fmt.Fprintf(&builder, "_ [%d]uint8\n", padding)
-					offset += padding
-				}
-				offset += group.TotalWidth() / 8
-
-				if group.Count == 1 {
-					fmt.Fprintf(&builder, "%s %s\n", varName(group), typeName(group))
-				} else {
-					fmt.Fprintf(&builder, "%s [%d]%s\n", varName(group), group.Count, typeName(group))
-				}
-
-				lastGroupOffset = group.Offset
-				lastGroupWidth = group.TotalWidth() / 8
-			}
-		}
-
-		fmt.Fprintln(&builder, "}")
-	*/
 
 	return output.WriteString(builder.String())
 }
