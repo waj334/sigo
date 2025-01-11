@@ -1,9 +1,11 @@
 
+#include <llvm/ADT/StringExtras.h>
 #include <llvm/ADT/TypeSwitch.h>
 
 #include <mlir/Conversion/LLVMCommon/Pattern.h>
 #include <mlir/Dialect/DLTI/DLTI.h>
 #include <mlir/Dialect/DLTI/Traits.h>
+#include <mlir/Dialect/LLVMIR/NVVMOpsEnums.h.inc>
 #include <mlir/IR/BuiltinTypes.h>
 #include <mlir/IR/IRMapping.h>
 
@@ -1629,8 +1631,7 @@ struct GoOpLowering : ConvertOpToLLVMPattern<GoOp>
     assert(fnValue && "func value is invalid");
 
     // Create the runtime call to push the defer frame to the defer stack
-    createRuntimeCall(
-      rewriter, loc, "addTask", this->getTypeConverter(), { fnValue });
+    createRuntimeCall(rewriter, loc, "addTask", this->getTypeConverter(), { fnValue });
     rewriter.eraseOp(op);
     return success();
   }
@@ -2686,6 +2687,175 @@ struct ExtractOpLowering : ConvertOpToLLVMPattern<ExtractOp>
   }
 };
 
+struct InlineAsmOpLowering final : ConvertOpToLLVMPattern<InlineAsmOp>
+{
+  using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
+
+  auto matchAndRewrite(InlineAsmOp op, OpAdaptor adaptor, ConversionPatternRewriter& rewriter) const
+    -> LogicalResult override
+  {
+    mlir::Type resultType;
+    mlir::SmallVector<std::string> clobbers;
+    mlir::SmallVector<mlir::Attribute> operandAttrs;
+    mlir::SmallVector<mlir::Type> outputTypes;
+    mlir::SmallVector<mlir::Value> outputPtrValues;
+    mlir::SmallVector<mlir::Value> inputValues;
+    mlir::DenseMap<size_t, size_t> indexMap;
+
+    const auto loc = op.getLoc();
+
+    mlir::SmallVector<mlir::go::AsmConstraintAttr> constraints;
+    auto outputsIt = constraints.begin();
+
+    // Sort the constraints.
+    for (const auto& c : op.getConstraints())
+    {
+      const auto constraintAttr = mlir::cast<mlir::go::AsmConstraintAttr>(c);
+      if (constraintAttr.getDirection().getOutput())
+      {
+        // Outputs go first.
+        outputsIt = constraints.insert(outputsIt, constraintAttr) + 1;
+      }
+      else if (constraintAttr.getDirection().getInput())
+      {
+        // Input go after outputs.
+        constraints.push_back(constraintAttr);
+      }
+    }
+
+    mlir::SmallVector<std::string> constraintsCodes;
+    size_t constraintIndexOffset = 0;
+    for (int i = 0; i < constraints.size(); ++i)
+    {
+      const auto constraintAttr = mlir::cast<mlir::go::AsmConstraintAttr>(constraints[i]);
+      std::string code = constraintAttr.getRegisterClass().str();
+
+      if (constraintAttr.getDirection().getOutput())
+      {
+        std::string modifier = "=";
+        if (constraintAttr.getReserve())
+        {
+          // Add the early clobber modifier.
+          modifier += "&";
+        }
+
+        // Prepend the modifier to the constraint code.
+        code = modifier + code;
+
+        if (constraintAttr.getDirection().getInput())
+        {
+          code = code + "," + std::to_string(i + constraintIndexOffset);
+          constraintIndexOffset++;
+
+          if (constraintAttr.getOperandIndex())
+          {
+            const auto index = constraintAttr.getOperandIndex().getInt();
+            mlir::Value operand = adaptor.getOperandValues()[index];
+            inputValues.push_back(operand);
+          }
+        }
+
+        if (constraintAttr.getOperandIndex())
+        {
+          const auto index = constraintAttr.getOperandIndex().getInt();
+          mlir::Value operand = op.getOperandValues()[index];
+          outputTypes.push_back(operand.getType());
+          outputPtrValues.push_back(adaptor.getOperandValues()[index]);
+        }
+
+        constraintsCodes.push_back(code);
+      }
+      else if (constraintAttr.getDirection().getInput())
+      {
+        if (constraintAttr.getOperandIndex())
+        {
+          const auto index = constraintAttr.getOperandIndex().getInt();
+          mlir::Value operand = adaptor.getOperandValues()[index];
+          inputValues.push_back(operand);
+        }
+        constraintsCodes.push_back(code);
+      }
+
+      indexMap[i] = i + constraintIndexOffset;
+    }
+
+    // Add clobbers last.
+    for (const auto& attr : op.getRegisterClobbers())
+    {
+      const auto strAttr = mlir::cast<mlir::StringAttr>(attr);
+      // Format the register string.
+      std::string code = "~{" + strAttr.str() + "}";
+      constraintsCodes.push_back(code);
+    }
+
+    // Format the constraint code string.
+    const std::string constraintsStr =
+      llvm::join(constraintsCodes.begin(), constraintsCodes.end(), ",");
+
+    if (outputTypes.size() > 1)
+    {
+      mlir::SmallVector<mlir::Type> resultStructTypes;
+      for (size_t i = 0; i < outputTypes.size(); ++i)
+      {
+        const auto outputType =
+          mlir::go::dyn_cast<mlir::go::PointerType>(outputTypes[i]);
+        resultStructTypes.push_back(typeConverter->convertType(*outputType.getElementType()));
+      }
+      resultType = mlir::LLVM::LLVMStructType::getLiteral(this->getContext(), resultStructTypes);
+    } else if (outputTypes.size() == 1)
+    {
+      const auto outputType =
+        mlir::go::dyn_cast<mlir::go::PointerType>(outputTypes[0]);
+      resultType = typeConverter->convertType(*outputType.getElementType());
+    }
+
+    // Substitute the aliases in the assembly string with their indices.
+    std::string asmStr = op.getAsmString().str();
+    for (int i = 0; i < constraints.size(); ++i)
+    {
+      const auto constraintAttr = mlir::cast<mlir::go::AsmConstraintAttr>(constraints[i]);
+      if (constraintAttr.getAlias())
+      {
+        const std::string aliasStr = "{" + constraintAttr.getAlias().str() + "}";
+        const std::string indexStr = "$" + std::to_string(indexMap[i]);
+        stringReplaceAll(asmStr, aliasStr, indexStr);
+      }
+    }
+
+    const auto asmStrAttr = mlir::StringAttr::get(this->getContext(), asmStr);
+
+    auto inlineAsmOp = rewriter.create<mlir::LLVM::InlineAsmOp>(
+      loc,
+      resultType,
+      inputValues,
+      asmStrAttr,
+      constraintsStr,
+      true,
+      true,
+      mlir::LLVM::AsmDialectAttr(),
+      mlir::ArrayAttr());
+
+    if (outputTypes.size() > 1)
+    {
+      for (int64_t i = 0; i < outputPtrValues.size(); ++i)
+      {
+        mlir::Value resultValue = rewriter.create<mlir::LLVM::ExtractValueOp>(
+          loc, inlineAsmOp.getResult(0), mlir::SmallVector<int64_t>{ i });
+        rewriter.create<mlir::LLVM::StoreOp>(loc, resultValue, outputPtrValues[i]);
+      }
+    }
+    else if (outputTypes.size() == 1)
+    {
+      rewriter.create<mlir::LLVM::StoreOp>(loc, inlineAsmOp.getResult(0), outputPtrValues[0]);
+    }
+
+    // Remove the original operation.
+    rewriter.eraseOp(op);
+
+    return success();
+  }
+};
+
 struct InsertOpLowering : ConvertOpToLLVMPattern<InsertOp>
 {
   using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
@@ -2743,6 +2913,7 @@ void populateGoToLLVMConversionPatterns(
             transforms::LLVM::GlobalOpLowering,
             transforms::LLVM::GlobalCtorsOpLowering,
             transforms::LLVM::GoOpLowering,
+            transforms::LLVM::InlineAsmOpLowering,
             transforms::LLVM::InsertOpLowering,
             transforms::LLVM::InterfaceCallOpLowering,
             transforms::LLVM::IntToPtrOpLowering,

@@ -90,7 +90,7 @@ void mlirGoInitializeContext(MlirContext context)
   mlir::MLIRContext* _context = unwrap(context);
 
   // Initialize any module-level interfaces here.
-//  mlir::ModuleOp::attachInterface<mlir::go::RuntimeTypeModuleOpInterface>(*_context);
+  //  mlir::ModuleOp::attachInterface<mlir::go::RuntimeTypeModuleOpInterface>(*_context);
 }
 
 MlirStringRef mlirModuleDump(MlirModule module)
@@ -444,4 +444,55 @@ void mlirGoBlockDumpTail(MlirBlock block, intptr_t count)
       break;
     }
   }
+}
+
+MlirAttribute mlirGoCreateAsmConstraintAttr(
+  MlirContext context,
+  MlirStringRef registerClass,
+  MlirGoAsmConstraintDirection direction,
+  MlirStringRef alias,
+  int operandIndex,
+  bool reserve)
+{
+  mlir::go::AsmConstraintDirectionAttr _dir;
+  mlir::StringAttr _alias;
+  mlir::IntegerAttr _operandIndex;
+  mlir::UnitAttr _reserve;
+
+  const auto _context = unwrap(context);
+  const auto _registerClass = mlir::StringAttr::get(_context, unwrap(registerClass));
+  switch (direction)
+  {
+    case MlirGoAsmConstraintDirection::In:
+      _dir = mlir::go::AsmConstraintDirectionAttr::get(
+        _context, mlir::UnitAttr::get(_context), mlir::UnitAttr());
+      break;
+    case MlirGoAsmConstraintDirection::Out:
+      _dir = mlir::go::AsmConstraintDirectionAttr::get(
+        _context, mlir::UnitAttr(), mlir::UnitAttr::get(_context));
+      break;
+    case MlirGoAsmConstraintDirection::InOut:
+      _dir = mlir::go::AsmConstraintDirectionAttr::get(
+        _context, mlir::UnitAttr::get(_context), mlir::UnitAttr::get(_context));
+      break;
+  }
+
+  if (alias.length > 0)
+  {
+    _alias = mlir::StringAttr::get(_context, unwrap(alias));
+  }
+
+  if (operandIndex >= 0)
+  {
+    _operandIndex = mlir::IntegerAttr::get(mlir::IntegerType::get(_context, 32), operandIndex);
+  }
+
+  if (reserve)
+  {
+    _reserve = mlir::UnitAttr::get(_context);
+  }
+
+  const auto attr = mlir::go::AsmConstraintAttr::get(
+    _context, _registerClass, _dir, _alias, _operandIndex, _reserve);
+  return wrap(attr);
 }

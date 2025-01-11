@@ -2,8 +2,14 @@ package os
 
 import "io"
 
+type iostream interface {
+	io.Reader
+	io.Writer
+	io.StringWriter
+}
+
 var (
-	Stdin  io.Reader
-	Stdout io.Writer
-	Stderr io.Writer
+	Stdin  iostream
+	Stdout iostream
+	Stderr iostream
 )

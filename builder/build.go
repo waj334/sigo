@@ -117,6 +117,12 @@ func Build(ctx context.Context, packageDir string) error {
 	// later.
 	pathMappings[goRootStaging] = options.Environment.Value("SIGOROOT")
 
+	// Initialize the targets subsystem.
+	err := targets.InitTargets(goRootStaging)
+	if err != nil {
+		return err
+	}
+
 	// Get the target information
 	var tags = options.BuildTags
 	var additionalPackages []string

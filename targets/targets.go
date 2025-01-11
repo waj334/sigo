@@ -1,8 +1,9 @@
 package targets
 
 import (
-	_ "embed"
 	"errors"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"golang.org/x/exp/slices"
@@ -11,10 +12,8 @@ import (
 	"omibyte.io/sigo/llvm"
 )
 
-//go:embed targets.yaml
-var rawTargets []byte
-
 var targets Targets
+var targetsInitialized = false
 var ErrTargetInformationFailed = errors.New("failed to get target information")
 
 func All() Targets {
@@ -91,13 +90,26 @@ func (t Targets) FindByChip(name string) (TargetInfo, error) {
 	return TargetInfo{}, errors.New("series not found")
 }
 
-func init() {
-	var t struct {
-		Elements []TargetInfo `yaml:"targets"`
-	}
-	if err := yaml.Unmarshal(rawTargets, &t); err != nil {
-		panic(err)
-	}
+func InitTargets(sigoRoot string) error {
+	if !targetsInitialized {
+		fname := filepath.Join(sigoRoot, "src", "targets.yaml")
 
-	targets = t.Elements
+		// Read the targets YAML file.
+		b, err := os.ReadFile(fname)
+		if err != nil {
+			return err
+		}
+
+		var t struct {
+			Elements []TargetInfo `yaml:"targets"`
+		}
+
+		if err := yaml.Unmarshal(b, &t); err != nil {
+			panic(err)
+		}
+
+		targets = t.Elements
+		targetsInitialized = true
+	}
+	return nil
 }

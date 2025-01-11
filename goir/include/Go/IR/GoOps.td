@@ -10,6 +10,8 @@ include "Go/IR/GoAttrDefs.td"
 include "Go/IR/GoEnums.td"
 include "Go/IR/GoTypes.td"
 
+include "Go/IR/Operations/Aggregate.td"
+include "Go/IR/Operations/Asm.td"
 include "Go/IR/Operations/Atomic.td"
 include "Go/IR/Operations/BinOps.td"
 include "Go/IR/Operations/Builtin.td"

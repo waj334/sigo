@@ -13,6 +13,21 @@ extern "C"
 #endif
 
   //===----------------------------------------------------------------------===//
+  // ASM Operations
+  //===----------------------------------------------------------------------===//
+
+  MlirOperation mlirGoCreateInlineAssemblyOperation(
+    MlirContext context,
+    MlirAttribute asmStr,
+    intptr_t nConstraints,
+    MlirAttribute* constraints,
+    intptr_t nRegisterClobbers,
+    MlirAttribute* registerClobbers,
+    intptr_t nOperands,
+    MlirValue* operands,
+    MlirLocation location);
+
+  //===----------------------------------------------------------------------===//
   // Binary Operations
   //===----------------------------------------------------------------------===//
 
@@ -380,11 +395,11 @@ extern "C"
     MlirLocation location);
 
   MlirOperation mlirGoCreateStringRangeOp(
-  MlirContext context,
-  MlirValue value,
-  MlirBlock bodyDest,
-  MlirBlock exitDest,
-  MlirLocation location);
+    MlirContext context,
+    MlirValue value,
+    MlirBlock bodyDest,
+    MlirBlock exitDest,
+    MlirLocation location);
 
   //===----------------------------------------------------------------------===//
   // Struct Operations
@@ -554,10 +569,8 @@ extern "C"
   // Builtin Operations
   //===----------------------------------------------------------------------===//
 
-  MlirOperation mlirGoCreatePanicOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirLocation location);
+  MlirOperation
+  mlirGoCreatePanicOperation(MlirContext context, MlirValue value, MlirLocation location);
 
   MlirOperation
   mlirGoCreateRecoverOperation(MlirContext context, MlirType type, MlirLocation location);

@@ -12,6 +12,44 @@
 using namespace mlir;
 
 //===----------------------------------------------------------------------===//
+// ASM Operations
+//===----------------------------------------------------------------------===//
+
+MlirOperation mlirGoCreateInlineAssemblyOperation(
+  MlirContext context,
+  MlirAttribute asmStr,
+  intptr_t nConstraints,
+  MlirAttribute* constraints,
+  intptr_t nRegisterClobbers,
+  MlirAttribute* registerClobbers,
+  intptr_t nOperands,
+  MlirValue* operands,
+  MlirLocation location)
+{
+  auto _context = unwrap(context);
+  auto _location = unwrap(location);
+  auto _asmStr = mlir::cast<mlir::StringAttr>(unwrap(asmStr));
+
+  ::llvm::SmallVector<::mlir::Attribute> _constraints;
+  (void)unwrapList(nConstraints, constraints, _constraints);
+
+  ::llvm::SmallVector<::mlir::Attribute> _registerClobbers;
+  (void)unwrapList(nRegisterClobbers, registerClobbers, _registerClobbers);
+
+  ::llvm::SmallVector<::mlir::Value> _operands;
+  (void)unwrapList(nOperands, operands, _operands);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op = builder.create<::mlir::go::InlineAsmOp>(
+    _location,
+    _asmStr,
+    ::mlir::ArrayAttr::get(_context, _constraints),
+    ::mlir::ArrayAttr::get(_context, _registerClobbers),
+    _operands);
+  return wrap(op);
+}
+
+//===----------------------------------------------------------------------===//
 // Binary Operations
 //===----------------------------------------------------------------------===//
 
@@ -1192,10 +1230,8 @@ mlirGoGetFunction(MlirContext context, MlirStringRef symbol, MlirType type, Mlir
 // Builtin Operations
 //===----------------------------------------------------------------------===//
 
-MlirOperation mlirGoCreatePanicOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirLocation location)
+MlirOperation
+mlirGoCreatePanicOperation(MlirContext context, MlirValue value, MlirLocation location)
 {
   auto _context = unwrap(context);
   auto _location = unwrap(location);
@@ -1442,8 +1478,7 @@ MlirOperation mlirGoCreateGoOperation(
   (void)unwrapList(nArgs, args, _args);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op =
-    builder.create<::mlir::go::GoOp>(_location, _fn, _method, _args);
+  mlir::Operation* op = builder.create<::mlir::go::GoOp>(_location, _fn, _method, _args);
   return wrap(op);
 }
 

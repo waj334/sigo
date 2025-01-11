@@ -99,4 +99,32 @@ def RuntimeTypeEntryAttr : GoDialect_Attr<"RuntimeTypeEntry", "runtime_type_entr
     let assemblyFormat = "`<` params `>`";
 }
 
+//===----------------------------------------------------------------------===//
+// AsmConstraintDirection
+//===----------------------------------------------------------------------===//
+
+def AsmConstraintDirectionAttr : GoDialect_Attr<"AsmConstraintDirection", "asm_constraint_dir"> {
+    let parameters = (ins
+        OptionalParameter<"UnitAttr">:$input,
+        OptionalParameter<"UnitAttr">:$output
+    );
+    let assemblyFormat = "`<` (`in` $input^)? (`out` $output^)? `>`";
+}
+
+//===----------------------------------------------------------------------===//
+// AsmConstraint
+//===----------------------------------------------------------------------===//
+
+def AsmConstraintAttr : GoDialect_Attr<"AsmConstraint", "asm_constraint"> {
+    let parameters = (ins
+        "StringAttr":$registerClass,
+        "AsmConstraintDirectionAttr":$direction,
+        OptionalParameter<"StringAttr">:$alias,
+        OptionalParameter<"IntegerAttr">:$operand_index,
+        OptionalParameter<"UnitAttr">:$reserve
+    );
+    let assemblyFormat = "`<` $registerClass ` ` $direction (` ` $alias^)? (` ` $operand_index^)? (` ` $reserve^ `reserve`)? `>`";
+}
+
+
 #endif // GO_ATTR_TD

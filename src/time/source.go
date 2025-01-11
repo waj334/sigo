@@ -1,5 +1,5 @@
 package time
 
-type TimeSource interface {
+type Source interface {
 	Now() (nsec uint64)
 }

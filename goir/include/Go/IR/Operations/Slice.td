@@ -48,7 +48,7 @@ def SliceOp : Go_Op<"slice", [
         ```
     }];
     let arguments = (ins
-        AnyTypeOrNamedOf<[Go_Slice,Go_String,Go_Pointer]>:$input,
+        AnyTypeOrNamedOf<[Go_Array, Go_Slice,Go_String,Go_Pointer]>:$input,
         Optional<Go_Integer>:$low,
         Optional<Go_Integer>:$high,
         Optional<Go_Integer>:$max);
