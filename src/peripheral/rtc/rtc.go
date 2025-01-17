@@ -2,8 +2,8 @@
 
 package rtc
 
-import "runtime"
+import "time"
 
 type RTC interface {
-	runtime.TimeSource
+	time.Source
 }

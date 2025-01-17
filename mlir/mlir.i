@@ -165,6 +165,8 @@ MLIR_STRING_SLICE_TYPEMAP(nMethodNames, methodNames)
 
 MLIR_SLICE_TYPEMAP(MlirAffineExpr, AffineExpr, nAffineExprs, affineExprs)
 
+MLIR_SLICE_TYPEMAP(MlirAttribute, Attribute, nConstraints, constraints)
+MLIR_SLICE_TYPEMAP(MlirAttribute, Attribute, nRegisterClobbers, registerClobbers)
 MLIR_SLICE_TYPEMAP(MlirAttribute, Attribute, numElements, elements)
 MLIR_SLICE_TYPEMAP(MlirAttribute, Attribute, nElements, elements)
 MLIR_SLICE_TYPEMAP(MlirAttribute, Attribute, nEntries, entries)

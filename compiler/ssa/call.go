@@ -658,3 +658,12 @@ func (b *Builder) createInterfaceCallWrapper(ctx context.Context, symbol string,
 
 	return b.thunkTypes[symbol]
 }
+
+func (b *Builder) emitCallArgs2(ctx context.Context, args []ast.Expr) []mlir.Value {
+	values := make([]mlir.Value, len(args))
+	for i, expr := range args {
+		ctx := newContextWithRhsIndex(ctx, i)
+		values[i] = b.emitExpr(ctx, expr)[0]
+	}
+	return values
+}

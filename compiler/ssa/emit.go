@@ -894,8 +894,16 @@ func (b *Builder) emitSliceExpr(ctx context.Context, expr *ast.SliceExpr) []mlir
 	location := b.location(expr.Pos())
 	T := b.GetStoredType(ctx, b.typeOf(ctx, expr))
 
-	// Evaluate the input slice.
-	X := b.emitExpr(ctx, expr.X)[0]
+	// Evaluate the input to slice.
+	var X mlir.Value
+	switch b.typeOf(ctx, expr.X).(type) {
+	case *types.Array:
+		// Use the base address of the array (pointer to array).
+		X = b.addressOf(ctx, expr.X, location)
+	default:
+		// Evaluate a slice or string.
+		X = b.emitExpr(ctx, expr.X)[0]
+	}
 
 	// Evaluate each available index.
 	if expr.Low != nil {

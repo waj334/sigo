@@ -633,6 +633,8 @@ func (b *Builder) objectOf(ctx context.Context, node ast.Node) types.Object {
 	switch node := node.(type) {
 	case *ast.Ident:
 		return info.ObjectOf(node)
+	case *ast.IndexExpr:
+		return b.objectOf(ctx, node.X)
 	case *ast.SelectorExpr:
 		if selection := info.Selections[node]; selection != nil {
 			return selection.Obj()

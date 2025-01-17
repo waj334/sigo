@@ -5,6 +5,7 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
+	"strings"
 
 	"omibyte.io/sigo/mlir"
 )
@@ -82,4 +83,10 @@ func (b *Builder) namedOf(name string, attr mlir.Attribute) mlir.NamedAttribute 
 
 func identIsValid(ident *ast.Ident) bool {
 	return len(ident.Name) > 0 && ident.Name != "_"
+}
+
+func cleanConstString(input string) string {
+	result := strings.ReplaceAll(input, "\"", "")
+	result = strings.ReplaceAll(result, "`", "")
+	return result
 }

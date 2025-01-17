@@ -32,6 +32,7 @@ LLVM_COMPONENTS := ARM AVR RISCV passes
 GOIR_ROOT=$(ROOT_DIR)/goir
 GOIR_BUILD_DIR=$(ROOT_DIR)/build/$(CMAKE_BUILD_TYPE)/goir-build
 GOIR_CMAKE_CACHE=$(GOIR_BUILD_DIR)/CMakeCache.txt
+GOIR_LIB=$(GOIR_BUILD_DIR)/libGoIR.a
 
 # Build a semicolon separated list that CMake can accept
 CMAKE_LLVM_COMPONENTS :=
@@ -228,8 +229,10 @@ $(GOIR_CMAKE_CACHE):
 
 configure-goir: build-llvm $(GOIR_CMAKE_CACHE)
 
-build-goir: configure-goir ./mlir/mlir.go
+$(GOIR_LIB): configure-goir
 	cmake --build ${GOIR_BUILD_DIR} -j$(NUM_JOBS)
+
+build-goir: $(GOIR_LIB) ./mlir/mlir.go
 
 configure: configure-llvm configure-goir
 

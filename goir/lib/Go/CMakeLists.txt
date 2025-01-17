@@ -1,4 +1,5 @@
 add_mlir_dialect_library(GoIR
+        IR/Operations/Asm.cxx
         IR/Operations/BinOps.cxx
         IR/Operations/Builtin.cxx
         IR/Operations/Call.cxx

@@ -79,6 +79,21 @@ extern "C"
 
   void mlirGoBlockDumpTail(MlirBlock block, intptr_t count);
 
+  enum MlirGoAsmConstraintDirection
+  {
+    In,
+    Out,
+    InOut
+  };
+
+  MlirAttribute mlirGoCreateAsmConstraintAttr(
+    MlirContext context,
+    MlirStringRef registerClass,
+    enum MlirGoAsmConstraintDirection direction,
+    MlirStringRef alias,
+    int operandIndex,
+    bool reserve);
+
 #ifdef __cplusplus
 }
 #endif

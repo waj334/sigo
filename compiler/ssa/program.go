@@ -7,13 +7,15 @@ import (
 	"go/importer"
 	"go/token"
 	"go/types"
-	"gonum.org/v1/gonum/graph/multi"
-	"gonum.org/v1/gonum/graph/topo"
 	"hash/fnv"
 	"io/fs"
 	"path/filepath"
 	"slices"
 	"strings"
+
+	"gonum.org/v1/gonum/graph/multi"
+	"gonum.org/v1/gonum/graph/topo"
+	"omibyte.io/sigo/compiler/check"
 
 	"golang.org/x/tools/go/packages"
 )
@@ -132,6 +134,21 @@ func (p *Program) Parse(ctx context.Context) error {
 	// Return early with error.
 	if err != nil {
 		return err
+	}
+
+	// Perform additional type checking required by SiGo.
+	var checkErr error
+	for _, pkg := range pkgs {
+		for _, file := range pkg.Syntax {
+			err := check.CheckAST(pkg.Fset, pkg.Types, file, pkg.TypesInfo)
+			if err != nil {
+				checkErr = errors.Join(checkErr, err)
+			}
+		}
+	}
+
+	if checkErr != nil {
+		return checkErr
 	}
 
 	// Compute dependency graph.

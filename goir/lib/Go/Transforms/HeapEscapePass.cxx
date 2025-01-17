@@ -94,7 +94,19 @@ struct HeapEscapePass : public PassWrapper<HeapEscapePass, OperationPass<mlir::g
               }
               return Result::DoesNotEscape;
             })
-          .Case([&](AddressOfOp) { return Result::EscapesToHeap; })
+          .Case([&](AddressOfOp addressOfOp)
+          {
+              if (const auto users = addressOfOp->getUsers();
+                  std::distance(users.begin(), users.end()) == 1)
+            {
+              if (mlir::isa<mlir::go::InlineAsmOp>(*users.begin()))
+              {
+                // Allow inline assembly to be nefarious if it is the only user.
+                return Result::DoesNotEscape;
+              }
+            }
+            return Result::EscapesToHeap;
+          })
           .Case([&](CallOp) { return Result::EscapesToHeap; })
           .Case([&](GetElementPointerOp gepOp)
                 { return this->analyzeOperation(gepOp.getValue().getDefiningOp(), visited); })

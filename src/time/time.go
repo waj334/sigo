@@ -1,8 +1,8 @@
 package time
 
-var source TimeSource
+var source Source
 
-func SetSource(src TimeSource) {
+func SetSource(src Source) {
 	source = src
 }
 

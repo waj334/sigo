@@ -175,6 +175,7 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
     target.addLegalOp<FunctionToPointerOp>();
     target.addLegalOp<GetElementPointerOp>();
     target.addLegalOp<GoOp>();
+    target.addLegalOp<InlineAsmOp>();
     target.addLegalOp<InsertOp>();
     target.addLegalOp<InterfaceCallOp>();
     target.addLegalOp<IntToPtrOp>();
