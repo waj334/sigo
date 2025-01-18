@@ -6,7 +6,7 @@ import (
 	"peripheral/i2c"
 	"peripheral/pin"
 	"peripheral/uart"
-	"runtime/arm/cortexm/sam/samx51"
+	"runtime/arm/cortexm/sam/atsamx5x"
 	"time"
 )
 
@@ -16,8 +16,8 @@ var (
 )
 
 func main() {
-	// Initialize the clock system
-	samx51.DefaultClocks()
+	// Initialize the clock system.
+	atsamx5x.DefaultClocks()
 
 	// Configure UART
 	UART.Configure(uart.Config{

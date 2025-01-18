@@ -1,22 +1,54 @@
 package cortexm
 
-//sigo:extern _enable_irq _enable_irq
-func _enable_irq(state uint32)
+import (
+	"asm"
+	"asm/register"
+	"unsafe"
+)
 
-//sigo:extern _disable_irq _disable_irq
-func _disable_irq() uint32
+//sigo:export abort runtime.abort
+func abort() {
+	DisableInterrupts()
+	for {
+		asm.Inline(`wfi`)
+	}
+}
 
-//sigo:extern _irq_state _irq_state
-func _irq_state() uint32
+//sigo:export currentStack runtime.currentStack
+func currentStack() (ptr unsafe.Pointer) {
+	asm.Inline(`mrs {ptr}, psp`, asm.Out(&ptr))
+	return
+}
 
+//sigo:export exec runtime.exec
+func exec(args unsafe.Pointer, fn unsafe.Pointer) {
+	asm.Inline(`
+		mov r0, {args}
+		blx {fn}
+   `, asm.In(args), asm.In(fn), asm.Clobber(register.R0))
+}
+
+//sigo:export EnableInterrupts runtime.EnableInterrupts
 func EnableInterrupts(state uint32) {
-	_enable_irq(state)
+	asm.Inline(`
+		msr PRIMASK, {state}
+		cpsie i
+	`, asm.In(state))
 }
 
-func DisableInterrupts() uint32 {
-	return _disable_irq()
+//sigo:export DisableInterrupts runtime.DisableInterrupts
+func DisableInterrupts() (state uint32) {
+	asm.Inline(`
+		mrs {state}, PRIMASK
+		cpsid i
+	`, asm.Out(&state))
+	return
 }
 
-func InterruptState() uint32 {
-	return _irq_state()
+//sigo:export InterruptState runtime.InterruptState
+func InterruptState() (state uint32) {
+	asm.Inline(`
+		mrs {state}, PRIMASK
+	`, asm.Out(&state))
+	return
 }

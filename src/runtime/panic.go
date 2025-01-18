@@ -3,27 +3,27 @@ package runtime
 import "unsafe"
 
 func _panic(arg any) {
-	// Transition the current task to the panicking state
-	currentTask.state = taskPanicking
+	// Transition the current goroutine to the panicking state
+	currentGoroutine.state = goroutinePanicking
 
 	// Store the arg in the current goroutine's context
-	currentTask.panicValue = arg
+	currentGoroutine.panicValue = arg
 
 	// TODO: Attempt to print the arguments
 
-	if currentTask.deferStack != nil {
+	if currentGoroutine.deferStack != nil {
 		// Begin unwinding the stack.
-		longjmp(&currentTask.deferStack.jb, 1)
+		longjmp(&currentGoroutine.deferStack.jb, 1)
 	}
 }
 
 func _recover() any {
-	if currentTask.state == taskPanicking {
-		// Transition task state to recovered
-		currentTask.state = taskRecovered
+	if currentGoroutine.state == goroutinePanicking {
+		// Transition goroutine state to recovered
+		currentGoroutine.state = goroutineRecovered
 
 		// Return the argument passed to panic
-		return currentTask.panicValue
+		return currentGoroutine.panicValue
 	}
 	return nil
 }

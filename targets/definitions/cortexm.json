@@ -2594,7 +2594,7 @@
                     "R",
                     "W"
                   ],
-                  "description": ""
+                  "description": "Lazy state preservation active"
                 },
                 {
                   "identifier": "USER",
@@ -2604,7 +2604,7 @@
                     "R",
                     "W"
                   ],
-                  "description": ""
+                  "description": "Indicates the privilege level of the software executing, when the processor allocated the floating point stack"
                 },
                 {
                   "identifier": "THREAD",
@@ -2614,7 +2614,7 @@
                     "R",
                     "W"
                   ],
-                  "description": ""
+                  "description": "Thread mode"
                 },
                 {
                   "identifier": "HFRDY",
@@ -2624,7 +2624,7 @@
                     "R",
                     "W"
                   ],
-                  "description": ""
+                  "description": "HardFault ready"
                 },
                 {
                   "identifier": "MMRDY",
@@ -2634,7 +2634,7 @@
                     "R",
                     "W"
                   ],
-                  "description": ""
+                  "description": "MemManage ready"
                 },
                 {
                   "identifier": "BFRDY",
@@ -2644,7 +2644,7 @@
                     "R",
                     "W"
                   ],
-                  "description": ""
+                  "description": "BusFault ready"
                 },
                 {
                   "identifier": "MONRDY",
@@ -2654,7 +2654,7 @@
                     "R",
                     "W"
                   ],
-                  "description": ""
+                  "description": "DebugMonitor ready"
                 },
                 {
                   "identifier": "LSPEN",
@@ -2664,7 +2664,7 @@
                     "R",
                     "W"
                   ],
-                  "description": ""
+                  "description": "Automatic state preservation enable. Enables lazy context save of floating-point state"
                 },
                 {
                   "identifier": "ASPEN",
@@ -2674,7 +2674,7 @@
                     "R",
                     "W"
                   ],
-                  "description": ""
+                  "description": "Automatic state preservation enable. Enables CONTROL.FPCA setting on execution of a floating-point instruction"
                 }
               ],
               "description": "Floating-Point Context Control Register",

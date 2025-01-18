@@ -259,6 +259,7 @@ func (i *I2C) Configure(config Config) error {
 	} else {
 		i2cm.I2cm[i.SERCOM].Ctrla.SetSclsm(config.SCLStretch)
 	}
+	i.fSCL = config.ClockSpeedHz
 
 	// Configure baud rate for Fast-Mode
 	// NOTE: Fast-Mode is still used in HS Mode to transmit Master Code and the Address bits
@@ -589,7 +590,7 @@ func irqMBHandler() {
 					ptr := (*uint32)(unsafe.Pointer(&i2cm.I2cm[sercom].Data))
 					volatile.StoreUint32(ptr, data)
 
-					//i2cm.I2cm[sercom].Data.SetData(data)
+					// i2cm.I2cm[sercom].Data.SetData(data)
 					i.Synchronize()
 				} else {
 					i.state = stateDone
@@ -628,7 +629,7 @@ func irqSBHandler() {
 				// Transmit the next byte
 				if len(i.buf) > 0 && i.nbytes < len(i.buf) {
 					// NOTE: Smart mode is enabled, so the ACK will be transmitted automatically
-					//value := i2cm.I2cm[sercom].Data.GetData()
+					// value := i2cm.I2cm[sercom].Data.GetData()
 					ptr := (*uint32)(unsafe.Pointer(&i2cm.I2cm[sercom].Data))
 					value := volatile.LoadUint32(ptr)
 					if i2cm.I2cm[sercom].Ctrlc.GetData32b() == i2cm.CtrlcData32bDataTrans8Bit {

@@ -181,20 +181,25 @@ func (b *Builder) emitInlineAssembly(ctx context.Context, expr *ast.CallExpr) {
 					for _, argExpr := range arg.Args {
 						switch argExpr := argExpr.(type) {
 						case *ast.SelectorExpr:
-							obj := b.objectOf(ctx, argExpr.Sel).(*types.Const)
-							if T, ok := obj.Type().(*types.Named); ok {
-								typeName := qualifiedName(T.Obj().Name(), T.Obj().Pkg())
-								switch typeName {
-								case "asm.RegisterClass":
-									class = strings.TrimSpace(constant.StringVal(obj.Val()))
-								case "asm.clobber":
-									switch argExpr.Sel.Name {
-									case "Reserve":
-										earlyClobber = true
-									default:
-										panic("unhandled")
+							obj := b.objectOf(ctx, argExpr.Sel)
+							switch obj := obj.(type) {
+							case *types.Const:
+								if T, ok := obj.Type().(*types.Named); ok {
+									typeName := qualifiedName(T.Obj().Name(), T.Obj().Pkg())
+									switch typeName {
+									case "asm.RegisterClass":
+										class = strings.TrimSpace(constant.StringVal(obj.Val()))
+									case "asm.clobber":
+										switch argExpr.Sel.Name {
+										case "Reserve":
+											earlyClobber = true
+										default:
+											panic("unhandled")
+										}
 									}
 								}
+							case *types.Var:
+								operandValue = b.emitExpr(ctx, argExpr)[0]
 							}
 						case *ast.CallExpr:
 							obj := b.objectOf(ctx, argExpr.Fun)

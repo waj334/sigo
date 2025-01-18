@@ -8,12 +8,10 @@ import (
 	"time"
 )
 
-func init() {
-	atsamx5x.DefaultClocks()
-}
-
 func main() {
-	//println("Hello, World!")
+	// Initialize the clock system.
+	atsamx5x.DefaultClocks()
+
 	cortexm.Semihosting.WriteString("Hello World\n")
 	var input [128]byte
 	for {

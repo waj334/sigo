@@ -13,9 +13,6 @@ func initgc()
 //sigo:extern gcmain runtime.gcmain
 func gcmain()
 
-//sigo:extern abort runtime.abort
-func abort()
-
 //sigo:extern __libc_init_array __libc_init_array
 func __libc_init_array()
 
@@ -56,7 +53,7 @@ func initMemory() {
 //sigo:interrupt _entry ResetHandler
 //sigo:required _entry
 func _entry() {
-	// Initialize the global variables
+	// Initialize the global variables.
 	initMemory()
 
 	// Initialize the FPU if it was enabled during the build.
@@ -69,22 +66,22 @@ func _entry() {
 	__libc_init_array()
 
 	go func() {
-		// Start the garbage collector
+		// Start the garbage collector.
 		go gcmain()
 
-		// Run the main program
+		// Run the main program.
 		main()
 
-		// Stop if main returns
+		// Stop if main returns.
 		abort()
 	}()
 
-	// Start the SysTick counter
+	// Start the SysTick counter.
 	initSysTick()
 
-	// Enable interrupts
+	// Enable interrupts.
 	EnableInterrupts(InterruptState())
 
-	// Schedule tasks
+	// Schedule goroutines.
 	triggerPendSV()
 }
