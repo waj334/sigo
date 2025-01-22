@@ -5,16 +5,16 @@ import (
 	"unsafe"
 )
 
-type taskState uint8
+type goroutineState uint8
 
 const (
-	taskNotStarted taskState = iota
-	taskIdle
-	taskSleep
-	taskRunning
-	taskPanicking
-	taskRecovered
-	taskWaiting
+	goroutineNotStarted goroutineState = iota
+	goroutineIdle
+	goroutineSleep
+	goroutineRunning
+	goroutinePanicking
+	goroutineRecovered
+	goroutineWaiting
 )
 
 type _func struct {
@@ -22,231 +22,234 @@ type _func struct {
 	args unsafe.Pointer
 }
 
-type task struct {
+type goroutine struct {
 	stackTop      unsafe.Pointer
 	__func        _func
 	stack         unsafe.Pointer
-	next          *task
-	prev          *task
-	state         taskState
+	next          *goroutine
+	prev          *goroutine
+	state         goroutineState
 	sleepDeadline uint64
 	deferStack    *deferStack
 	panicValue    any
 }
 
 //sigo:extern goroutineStackSize runtime._goroutineStackSize
-//sigo:extern initTask runtime.initTask
+//sigo:extern initGoroutine runtime.initGoroutine
 //sigo:extern alignStack runtime.alignStack
 //sigo:extern schedulerPause runtime.schedulerPause
 
-//go:export lastTask runtime.lastTask
-//go:export currentTask runtime.currentTask
+//go:export lastGoroutine runtime.lastGoroutine
+//go:export currentGoroutine runtime.currentGoroutine
 //go:export runScheduler runtime.runScheduler
-//go:export addTask runtime.addTask
-//go:export removeTask runtime.removeTask
+//go:export addGoroutine runtime.addGoroutine
+//go:export removeGoroutine runtime.removeGoroutine
 //go:export sleep runtime.sleep
-//go:export waitTask runtime.waitTask
-//go:export resumeTask runtime.resumeTask
-//go:export runningTask runtime.runningTask
+//go:export waitGoroutine runtime.waitGoroutine
+//go:export resumeGoroutine runtime.resumeGoroutine
+//go:export runningGoroutine runtime.runningGoroutine
 
 //sigo:required runScheduler
 
 var (
-	headTask           *task = nil
-	lastTask           *task = nil
-	currentTask        *task = nil
+	headGoroutine      *goroutine = nil
+	lastGoroutine      *goroutine = nil
+	currentGoroutine   *goroutine = nil
 	goroutineStackSize uintptr
 )
 
-func initTask(unsafe.Pointer)
+func initGoroutine(unsafe.Pointer)
 func alignStack(n uintptr) uintptr
 func schedulerPause()
 
-func runScheduler() (shouldSwitch bool) {
-	state := disableInterrupts()
+func runScheduler() bool {
+	state := DisableInterrupts()
 
-	// Check for stack overflow on current task
-	if currentTask != nil {
-		stackBottom := unsafe.Add(currentTask.stack, goroutineStackSize)
+	// Check for stack overflow on current goroutine.
+	if currentGoroutine != nil {
+		stackBottom := unsafe.Add(currentGoroutine.stack, goroutineStackSize)
 		stackSize := uintptr(stackBottom) - uintptr(currentStack())
 		if stackSize > goroutineStackSize {
 			panic("stack overflow")
 		}
 	}
 
-	if headTask != nil {
-		if currentTask == nil {
-			// Initialize the current task
-			currentTask = headTask
-			lastTask = nil
+	if headGoroutine != nil {
+		if currentGoroutine == nil {
+			// Initialize the current goroutine.
+			currentGoroutine = headGoroutine
+			lastGoroutine = nil
 		} else {
-			if currentTask.state == taskRunning {
-				// Move the current task to the idle state
-				currentTask.state = taskIdle
-			} else if currentTask.state == taskPanicking || currentTask.state == taskRecovered {
-				// Do not allow any further context switches from this task
+			if currentGoroutine.state == goroutinePanicking || currentGoroutine.state == goroutineRecovered {
+				// Do not allow any further context switches from this goroutine.
 				// NOTE: Interrupts are intentionally not re-enabled. The panic will re-enable them if a panic is
 				//		 recovered.
-				lastTask = currentTask
-				return
+				lastGoroutine = currentGoroutine
+				return false
 			}
 
-			// Switch to the next task
-			lastTask = currentTask
-			nextTask := lastTask.next
+			// Switch to the next goroutine
+			lastGoroutine = currentGoroutine
+			nextGoroutine := lastGoroutine.next
 
 			for {
-				if nextTask.state == taskSleep {
+				if nextGoroutine.state == goroutineSleep {
 					t := uint64(time.Now().UnixNano())
-					if t > nextTask.sleepDeadline {
-						nextTask.state = taskIdle
-						nextTask.sleepDeadline = 0
-					} else if nextTask == lastTask && nextTask.state == taskSleep {
-						// All tasks are sleep. panic
+					if t > nextGoroutine.sleepDeadline {
+						nextGoroutine.state = goroutineIdle
+						nextGoroutine.sleepDeadline = 0
+					} else if nextGoroutine == lastGoroutine && nextGoroutine.state == goroutineSleep {
+						// All goroutines are sleep. panic
 						panic("all goroutines are sleep")
 					} else {
-						// Skip sleeping task
-						nextTask = nextTask.next
+						// Skip sleeping goroutine
+						nextGoroutine = nextGoroutine.next
 						continue
 					}
-				} else if nextTask.state == taskWaiting {
-					// skip waiting tasks
-					nextTask = nextTask.next
+				} else if nextGoroutine.state == goroutineWaiting {
+					// skip waiting goroutines
+					nextGoroutine = nextGoroutine.next
 					continue
 				}
-				currentTask = nextTask
+				currentGoroutine = nextGoroutine
 				break
 			}
 		}
 
-		if currentTask != nil && currentTask != lastTask {
-			switch currentTask.state {
-			case taskNotStarted:
-				// Initialize the stack for this task
-				initTask(unsafe.Pointer(currentTask))
-
-				// Change this task to the running state
-				fallthrough
-			case taskIdle:
-				currentTask.state = taskRunning
-				shouldSwitch = true
+		if currentGoroutine != nil && currentGoroutine != lastGoroutine && currentGoroutine.state != goroutineRunning {
+			if lastGoroutine != nil {
+				// Transition the last goroutine to the idle state.
+				lastGoroutine.state = goroutineIdle
 			}
+
+			// Transition the new current goroutine to the running state.
+			currentGoroutine.state = goroutineRunning
+
+			// Re-enable interrupts and signal that a context switch to the new goroutine must take place.
+			EnableInterrupts(state)
+			return true
 		}
 	}
 
-	enableInterrupts(state)
-	return
+	EnableInterrupts(state)
+
+	// Signal that no context switch should occur.
+	return false
 }
 
-func addTask(f _func) {
+func addGoroutine(f _func) {
 	if f.f == nil {
 		// Do nothing.
 		return
 	}
 
-	state := disableInterrupts()
-	oldHead := headTask
+	state := DisableInterrupts()
 
-	// Allocate stack for this goroutine
+	// Allocate stack for this goroutine.
 	stackSize := goroutineStackSize
 	stack := alloc(stackSize)
 
-	// Create the new task
-	headTask = &task{
+	// Create the new goroutine
+	newGoroutine := &goroutine{
 		stack: stack,
-		// initTask may move the top of stack pointer depending on the target machine's stack growth direction
+		// initGoroutine may move the top of stack pointer depending on the target machine's stack growth direction.
 		stackTop: stack,
 		__func:   f,
-		state:    taskNotStarted,
+		state:    goroutineNotStarted,
 	}
+
+	// Initialize the stack for this goroutine.
+	initGoroutine(unsafe.Pointer(newGoroutine))
 
 	// Insert into ring
+	oldHead := headGoroutine
+	headGoroutine = newGoroutine
 	if oldHead == nil {
-		headTask.next = headTask
-		headTask.prev = headTask
+		headGoroutine.next = headGoroutine
+		headGoroutine.prev = headGoroutine
 	} else {
-		// Insert the new task before the old head task
-		headTask.next = oldHead
-		headTask.prev = oldHead.prev
+		// Insert the new goroutine before the old head goroutine.
+		headGoroutine.next = oldHead
+		headGoroutine.prev = oldHead.prev
 
-		oldHead.prev.next = headTask
-		oldHead.prev = headTask
+		oldHead.prev.next = headGoroutine
+		oldHead.prev = headGoroutine
 	}
-	enableInterrupts(state)
+	EnableInterrupts(state)
 }
 
-func removeTask(t *task) {
-	state := disableInterrupts()
+func removeGoroutine(t *goroutine) {
+	state := DisableInterrupts()
 
-	// Free this task's stack
+	// Free this goroutine's stack.
 	free(t.stack)
 
 	if t.next == t && t.prev == t {
-		// There is only one task left.
-		headTask = nil
-		currentTask = nil
-		lastTask = nil
+		// There is only one goroutine left.
+		headGoroutine = nil
+		currentGoroutine = nil
+		lastGoroutine = nil
 	} else {
-		// Remove the task from the ring.
+		// Remove the goroutine from the ring.
 		t.prev.next = t.next
 		t.next.prev = t.prev
 
-		// Advance to the next task
-		if t == currentTask {
-			currentTask = t.prev
+		// Advance to the next goroutine.
+		if t == currentGoroutine {
+			currentGoroutine = t.prev
 		}
 
-		// If the task being removed was the head task, set the next task as the new head task.
-		if t == headTask {
-			headTask = t.next
+		// If the goroutine being removed was the head goroutine, set the next goroutine as the new head goroutine.
+		if t == headGoroutine {
+			headGoroutine = t.next
 		}
 
-		// If the task being removed was the current task, set the next task as the new current task.
-		if t == currentTask {
-			currentTask = t.next
+		// If the goroutine being removed was the current goroutine, set the next goroutine as the new current goroutine.
+		if t == currentGoroutine {
+			currentGoroutine = t.next
 		}
 
-		// If the task being removed was the last task, set the previous task as the new last task.
-		if t == lastTask {
-			lastTask = t.prev
+		// If the goroutine being removed was the last goroutine, set the previous goroutine as the new last goroutine.
+		if t == lastGoroutine {
+			lastGoroutine = t.prev
 		}
 	}
 
-	enableInterrupts(state)
+	EnableInterrupts(state)
 }
 
-func waitTask(ptr unsafe.Pointer) {
-	t := (*task)(ptr)
-	if t.state != taskWaiting {
-		state := disableInterrupts()
-		t.state = taskWaiting
-		enableInterrupts(state)
+func waitGoroutine(ptr unsafe.Pointer) {
+	t := (*goroutine)(ptr)
+	if t.state != goroutineWaiting {
+		state := DisableInterrupts()
+		t.state = goroutineWaiting
+		EnableInterrupts(state)
 
-		// Schedule another task to begin running
+		// Schedule another goroutine to begin running.
 		schedulerPause()
 	}
 }
 
-func resumeTask(ptr unsafe.Pointer) {
-	t := (*task)(ptr)
-	if t.state == taskWaiting {
-		state := disableInterrupts()
-		t.state = taskIdle
-		enableInterrupts(state)
+func resumeGoroutine(ptr unsafe.Pointer) {
+	t := (*goroutine)(ptr)
+	if t.state == goroutineWaiting {
+		state := DisableInterrupts()
+		t.state = goroutineIdle
+		EnableInterrupts(state)
 	}
 }
 
-func runningTask() unsafe.Pointer {
-	return unsafe.Pointer(currentTask)
+func runningGoroutine() unsafe.Pointer {
+	return unsafe.Pointer(currentGoroutine)
 }
 
 func sleep(d uint64) {
-	if currentTask == nil {
+	if currentGoroutine == nil {
 		panic("sleep called from non-goroutine")
 	}
-	currentTask.sleepDeadline = uint64(time.Now().UnixNano()) + d
-	currentTask.state = taskSleep
+	currentGoroutine.sleepDeadline = uint64(time.Now().UnixNano()) + d
+	currentGoroutine.state = goroutineSleep
 
-	// Schedule another task to begin running
+	// Schedule another goroutine to begin running.
 	schedulerPause()
 }

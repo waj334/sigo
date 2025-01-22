@@ -1,15 +1,7 @@
 package runtime
 
-//sigo:extern enableInterrupts _enable_irq
-func enableInterrupts(state uint32)
+//sigo:extern EnableInterrupts runtime.EnableInterrupts
+//sigo:extern DisableInterrupts runtime.DisableInterrupts
 
-//sigo:extern disableInterrupts _disable_irq
-func disableInterrupts() uint32
-
-func EnableInterrupts(state uint32) {
-	enableInterrupts(state)
-}
-
-func DisableInterrupts() uint32 {
-	return disableInterrupts()
-}
+func EnableInterrupts(state uint32)
+func DisableInterrupts() uint32

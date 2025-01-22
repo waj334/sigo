@@ -70,7 +70,7 @@ type _gc struct {
 	toScan           *gcObject
 	currentAddress   uintptr
 	endAddress       uintptr
-	currentGoroutine *task
+	currentGoroutine *goroutine
 	mutex            sync.Mutex
 	phase            gcPhase
 	scanState        gcScanState
@@ -109,9 +109,9 @@ func (gc *_gc) markRoots() {
 	for i := 0; i < gcMaxIterations && gc.currentAddress < gc.endAddress; i++ {
 		ptr := *(*unsafe.Pointer)(unsafe.Pointer(gc.currentAddress))
 		if obj := gc.findObject(uintptr(ptr)); obj != nil {
-			state := disableInterrupts()
+			state := DisableInterrupts()
 			obj.color = gcGray
-			enableInterrupts(state)
+			EnableInterrupts(state)
 		}
 		gc.currentAddress += gcWordSize
 	}
@@ -124,9 +124,9 @@ func (gc *_gc) markRoots() {
 func (gc *_gc) markGrayObjects() {
 	for i := 0; i < gcMaxIterations && gc.toScan != nil; i++ {
 		if gc.toScan.color == gcGray {
-			state := disableInterrupts()
+			state := DisableInterrupts()
 			gc.toScan.color = gcBlack
-			enableInterrupts(state)
+			EnableInterrupts(state)
 			gc.scanObject(gc.toScan)
 		}
 		gc.toScan = gc.toScan.next
@@ -139,7 +139,7 @@ func (gc *_gc) markGrayObjects() {
 }
 
 func (gc *_gc) sweep() {
-	state := disableInterrupts()
+	state := DisableInterrupts()
 
 	var prev *gcObject
 	iteration := 0
@@ -167,7 +167,7 @@ func (gc *_gc) sweep() {
 	if gc.toScan == nil {
 		gc.phase = gcIdle
 	}
-	enableInterrupts(state)
+	EnableInterrupts(state)
 }
 
 func (gc *_gc) findObject(val uintptr) *gcObject {
@@ -190,9 +190,9 @@ func (gc *_gc) scanObject(obj *gcObject) {
 		childPtr := *(*unsafe.Pointer)(unsafe.Pointer(ptr))
 		if child := gc.findObject(uintptr(childPtr)); child != nil {
 			if child.color == gcWhite {
-				state := disableInterrupts()
+				state := DisableInterrupts()
 				child.color = gcGray
-				enableInterrupts(state)
+				EnableInterrupts(state)
 			}
 		}
 	}
@@ -213,14 +213,14 @@ func (gc *_gc) moveToNextScanState() {
 	switch gc.scanState {
 	case gcScanStack:
 		gc.scanState = gcScanGoroutines
-		if headTask != nil {
-			gc.currentAddress, gc.endAddress = gcGoroutineStack(headTask)
-			gc.currentGoroutine = headTask
+		if headGoroutine != nil {
+			gc.currentAddress, gc.endAddress = gcGoroutineStack(headGoroutine)
+			gc.currentGoroutine = headGoroutine
 		} else {
 			gc.moveToNextScanState()
 		}
 	case gcScanGoroutines:
-		if gc.currentGoroutine.next != headTask {
+		if gc.currentGoroutine.next != headGoroutine {
 			gc.currentAddress, gc.endAddress = gcGoroutineStack(gc.currentGoroutine.next)
 			gc.currentGoroutine = gc.currentGoroutine.next
 		} else {
@@ -248,17 +248,17 @@ func alloc(size uintptr) unsafe.Pointer {
 
 	allocSize := gcObjectSize + size
 
-	state := disableInterrupts()
+	state := DisableInterrupts()
 	ptr := malloc(allocSize)
-	enableInterrupts(state)
+	EnableInterrupts(state)
 
 	if ptr == nil {
 		// Attempt to reclaim memory now.
 		gc.fullGC()
 
-		state = disableInterrupts()
+		state = DisableInterrupts()
 		ptr = malloc(allocSize)
-		enableInterrupts(state)
+		EnableInterrupts(state)
 
 		if ptr == nil {
 			gc.mutex.Unlock()
@@ -266,14 +266,14 @@ func alloc(size uintptr) unsafe.Pointer {
 		}
 	}
 
-	state = disableInterrupts()
+	state = DisableInterrupts()
 	obj := (*gcObject)(ptr)
 	obj.next = gc.head
 	// NOTE: Objects are born black to prevent sweeping them early.
 	obj.color = gcBlack
 	obj.size = size
 	gc.head = obj
-	enableInterrupts(state)
+	EnableInterrupts(state)
 
 	if gc.phase == gcIdle {
 		// Transition to mark phase.
@@ -336,10 +336,10 @@ func gcGlobalsEnd() uintptr {
 }
 
 //go:inline gcGoroutineStack
-func gcGoroutineStack(t *task) (top, bottom uintptr) {
+func gcGoroutineStack(t *goroutine) (top, bottom uintptr) {
 	bottom = uintptr(unsafe.Add(t.stack, alignStack(goroutineStackSize)))
 	top = uintptr(t.stackTop)
-	if t == currentTask {
+	if t == currentGoroutine {
 		// Do not miss any heap object in the current goroutine since it
 		// will have a different stack pointer after when the context
 		// switched to it.
@@ -347,6 +347,6 @@ func gcGoroutineStack(t *task) (top, bottom uintptr) {
 	}
 
 	// TODO: Remember why this was needed and derive the value of the constant from the current architecture.
-	//top -= 64
+	// top -= 64
 	return
 }

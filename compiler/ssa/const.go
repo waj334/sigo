@@ -2,7 +2,6 @@ package ssa
 
 import (
 	"context"
-
 	"go/ast"
 	"go/constant"
 	"go/types"
@@ -117,7 +116,6 @@ func (b *Builder) emitConstantValue(ctx context.Context, value constant.Value, T
 
 	if isUntyped(constT) {
 		panic("untyped type is forbidden")
-		//constT = types.Default(constT).(*types.Basic)
 	}
 
 	var resultT mlir.Type

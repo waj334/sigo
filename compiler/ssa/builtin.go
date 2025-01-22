@@ -3,14 +3,33 @@ package ssa
 import (
 	"context"
 	"go/ast"
+	"go/token"
 	"go/types"
+
 	"omibyte.io/sigo/mlir"
 )
 
 func (b *Builder) emitBuiltinCall(ctx context.Context, expr *ast.CallExpr) []mlir.Value {
 	location := b.location(expr.Pos())
-	signature := b.typeOf(ctx, expr.Fun).(*types.Signature)
 	anyType := types.NewInterfaceType(nil, nil)
+
+	var signature *types.Signature
+	switch T := b.typeOf(ctx, expr.Fun).(type) {
+	case *types.Signature:
+		signature = T
+	default:
+		// Create a synthetic signature.
+		resultType := b.typeOf(ctx, expr)
+		resultTuple := types.NewTuple(types.NewVar(token.NoPos, nil, "", resultType))
+
+		inputs := make([]*types.Var, len(expr.Args))
+		for i, arg := range expr.Args {
+			argType := b.typeOf(ctx, arg)
+			inputs[i] = types.NewVar(token.NoPos, nil, "", argType)
+		}
+		paramsTuple := types.NewTuple(inputs...)
+		signature = types.NewSignatureType(nil, nil, nil, paramsTuple, resultTuple, false)
+	}
 
 	// Determine the built-in function name.
 	var name string

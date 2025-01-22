@@ -25,9 +25,6 @@ func (s SysTickSource) Now() uint64 {
 	return uint64(atomic.LoadUint32(&_tickCount)) * 1_000_000
 }
 
-//sigo:extern runScheduler runtime.runScheduler
-func runScheduler() bool
-
 func initSysTick() {
 	// Disable SysTick first
 	systick.Systick.Csr.SetEnable(false)

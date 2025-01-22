@@ -18,8 +18,8 @@ package atomic
 //sigo:linkage __atomic_store_8 weak
 //sigo:linkage __atomic_fetch_add_8 weak
 
-//sigo:extern enableInterrupts _enable_irq
-//sigo:extern disableInterrupts _disable_irq
+//sigo:extern enableInterrupts runtime.EnableInterrupts
+//sigo:extern disableInterrupts runtime.DisableInterrupts
 
 func enableInterrupts(state uint32)
 func disableInterrupts() uint32

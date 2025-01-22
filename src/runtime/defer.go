@@ -25,13 +25,13 @@ func deferStackCreate() deferStack {
 
 func deferInit(isLongjmp int, stack *deferStack) bool {
 	if isLongjmp != 0 {
-		nextStack := currentTask.deferStack.next
+		nextStack := currentGoroutine.deferStack.next
 
 		// Execute the defers.
-		deferRun(currentTask.deferStack)
+		deferRun(currentGoroutine.deferStack)
 
 		// Unwind the stack.
-		if currentTask.state == taskPanicking {
+		if currentGoroutine.state == goroutinePanicking {
 			if nextStack != nil {
 				longjmp(&nextStack.jb, 1)
 			} else {
@@ -41,8 +41,8 @@ func deferInit(isLongjmp int, stack *deferStack) bool {
 		}
 		return true
 	} else {
-		stack.next = currentTask.deferStack
-		currentTask.deferStack = stack
+		stack.next = currentGoroutine.deferStack
+		currentGoroutine.deferStack = stack
 		return false
 	}
 }
@@ -56,7 +56,7 @@ func deferPush(s *deferStack, fn _func) {
 }
 
 func deferRun(s *deferStack) {
-	lastState := currentTask.state
+	lastState := currentGoroutine.state
 	for s.head != nil {
 		// Pop frame from stack
 		frame := s.head
@@ -66,12 +66,12 @@ func deferRun(s *deferStack) {
 		exec(frame.fn.args, frame.fn.f)
 
 		// Check if a panic recovered
-		if lastState == taskPanicking && currentTask.state == taskRecovered {
-			// Transition this task back to the running state
-			currentTask.state = taskRunning
+		if lastState == goroutinePanicking && currentGoroutine.state == goroutineRecovered {
+			// Transition this goroutine back to the running state
+			currentGoroutine.state = goroutineRunning
 		}
 	}
 
 	// Pop this defer stack.
-	currentTask.deferStack = s.next
+	currentGoroutine.deferStack = s.next
 }

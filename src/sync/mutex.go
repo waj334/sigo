@@ -11,7 +11,7 @@ func schedulerPause()
 
 func (m *Mutex) Lock() {
 	for !atomic.CompareAndSwapUint32(&m.state, 0, 1) {
-		// Yield to run a different task
+		// Yield to run a different goroutine.
 		schedulerPause()
 	}
 }

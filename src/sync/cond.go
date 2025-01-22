@@ -4,13 +4,13 @@ import (
 	"unsafe"
 )
 
-//sigo:extern waitTask runtime.waitTask
-//sigo:extern resumeTask runtime.resumeTask
-//sigo:extern runningTask runtime.runningTask
+//sigo:extern waitGoroutine runtime.waitGoroutine
+//sigo:extern resumeGoroutine runtime.resumeGoroutine
+//sigo:extern runningGoroutine runtime.runningGoroutine
 
-func waitTask(unsafe.Pointer)
-func resumeTask(unsafe.Pointer)
-func runningTask() unsafe.Pointer
+func waitGoroutine(unsafe.Pointer)
+func resumeGoroutine(unsafe.Pointer)
+func runningGoroutine() unsafe.Pointer
 
 type Cond struct {
 	L       Locker
@@ -25,9 +25,9 @@ func NewCond(l Locker) *Cond {
 func (c *Cond) Broadcast() {
 	c.mutex.Lock()
 
-	// Resume all waiting goroutines
+	// Resume all waiting goroutines.
 	for _, waiter := range c.waiters {
-		resumeTask(waiter)
+		resumeGoroutine(waiter)
 	}
 
 	// Clear the waiters list
@@ -39,30 +39,30 @@ func (c *Cond) Signal() {
 	c.mutex.Lock()
 
 	if len(c.waiters) > 0 {
-		// Pop the first waiter from the waiters list
+		// Pop the first waiter from the waiters list.
 		waiter := c.waiters[0]
 		if len(c.waiters) > 1 {
 			c.waiters = c.waiters[1:]
 		} else {
-			// Clear the waiters list
+			// Clear the waiters list.
 			c.waiters = nil
 		}
 
-		// Resume this goroutine
-		resumeTask(waiter)
+		// Resume this goroutine.
+		resumeGoroutine(waiter)
 	}
 
 	c.mutex.Unlock()
 }
 
 func (c *Cond) Wait() {
-	// Add the current task to the waiter list
+	// Add the current goroutine to the waiter list.
 	c.mutex.Lock()
-	c.waiters = append(c.waiters, runningTask())
+	c.waiters = append(c.waiters, runningGoroutine())
 	c.mutex.Unlock()
 
-	// Switch the current task to the waiting state
+	// Switch the current goroutine to the waiting state.
 	c.L.Unlock()
-	waitTask(runningTask())
+	waitGoroutine(runningGoroutine())
 	c.L.Lock()
 }

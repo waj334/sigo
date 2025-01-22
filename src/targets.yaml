@@ -8,7 +8,7 @@ targets:
     alignment: 4
     triple: "armv6m-none-eabi"
     cpu: "cortex-m0plus"
-    tags: [ "arm", "cortexm", "atsamd21" ]
+    tags: [ "arm", "armv6m", "thumb", "cortexm", "atsamd21" ]
     features: [ "armv6-m", "soft-float" ]
     fpu:
       abi: "softfp"
@@ -22,7 +22,7 @@ targets:
     alignment: 4
     triple: "armv6m-none-eabi"
     cpu: "cortex-m0plus"
-    tags: [ "arm", "cortexm", "atsamc21" ]
+    tags: [ "arm", "armv6m", "thumb", "cortexm", "atsamc21" ]
     features: [ "armv6-m", "soft-float" ]
     fpu:
       abi: "softfp"
@@ -36,7 +36,7 @@ targets:
     alignment: 4
     triple: "armv7em-none-eabi"
     cpu: "cortex-m4"
-    tags: [ "arm", "cortexm", "cortexm4", "fpu", "atsamx5x", "atsamd5x" ]
+    tags: [ "arm", "armv7m", "armv7em", "thumb", "thumb2", "cortexm",  "cortexm4", "fpu", "atsamx5x", "atsamd5x" ]
     features: [ "armv7-m", "armv7e-m", "thumb2", "dsp", "db" ]
     fpu:
       abi: "hardfp"
@@ -51,11 +51,26 @@ targets:
     alignment: 4
     triple: "armv7em-none-eabi"
     cpu: "cortex-m4"
-    tags: [ "arm", "cortexm", "cortexm4", "fpu", "atsamx5x", "atsame5x" ]
+    tags: [ "arm", "armv7m", "armv7em", "thumb", "thumb2", "cortexm", "cortexm4", "fpu", "atsamx5x", "atsame5x" ]
     features: [ "armv7-m", "armv7e-m", "thumb2", "dsp", "db" ]
     fpu:
       abi: "hardfp"
       features: [ "fpregs", "vfp4d16sp" ]
+
+  - series: "stm32h7x7"
+    chips: [ "stm32h747", "stm32h757" ]
+    additionalPackages:
+      - "runtime/arm/cortexm"
+      - "runtime/arm/cortexm/stm32/stm32h7x7/support"
+    triple: "armv7em-none-eabi"
+    architecture: "thumb"
+    alignment: 4
+    cpu: "cortex-m7"
+    tags: [ "arm", "armv7m", "armv7em", "thumb", "thumb2", "cortexm", "cortexm4", "fpu" ]
+    features: [ "armv7-m", "armv7e-m", "thumb2", "dsp", "db", "m7", "branch-align-64", "use-mipipeliner", "use-misched" ]
+    fpu:
+      abi: "hardfp"
+      features: [ "fpregs", "fp-armv8d16" ]
 
   - series: "qemu_cortexm4"
     chips: [ "qemu_cortexm4" ]
@@ -65,9 +80,9 @@ targets:
     architecture: "thumb"
     alignment: 4
     triple: "armv7em-none-eabi"
-    tags: [ "arm", "cortexm", "cortexm4", "fpu", "qemu", "cortex_m4" ]
+    tags: [ "arm", "armv7m", "armv7em", "thumb", "thumb2", "cortexm", "cortexm4", "fpu", "qemu", "cortex_m4" ]
     cpu: "cortex-m4"
-    features: [ "armv7-m", "armv7-m", "thumb2", "dsp", "db" ]
+    features: [ "armv7-m", "armv7e-m", "thumb2", "dsp", "db" ]
     fpu:
       abi: "hardfp"
       features: [ "fpregs", "vfp4d16sp" ]

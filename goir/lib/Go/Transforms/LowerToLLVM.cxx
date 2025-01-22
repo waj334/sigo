@@ -1631,7 +1631,7 @@ struct GoOpLowering : ConvertOpToLLVMPattern<GoOp>
     assert(fnValue && "func value is invalid");
 
     // Create the runtime call to push the defer frame to the defer stack
-    createRuntimeCall(rewriter, loc, "addTask", this->getTypeConverter(), { fnValue });
+    createRuntimeCall(rewriter, loc, "addGoroutine", this->getTypeConverter(), { fnValue });
     rewriter.eraseOp(op);
     return success();
   }

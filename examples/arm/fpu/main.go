@@ -9,7 +9,13 @@ func main() {
 	f1 := float32(0.5)
 	f2 := float32(0.55)
 	f3 := f1 + f2
+
+	f4 := float64(0.6)
+	f5 := float64(0.4)
+	f6 := f4 + f5
+
 	use(f3)
+	use(f6)
 }
 
 func use(any) {
