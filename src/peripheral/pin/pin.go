@@ -10,11 +10,20 @@ type Pin interface {
 	Set(on bool)
 	Get() bool
 
-	SetInterrupt(mode IRQMode, handler func(Pin))
+	SetValue(value int) error
+	Value() (int, error)
+
+	SetInterrupt(mode IRQMode, handler func())
 	ClearInterrupt()
 
-	SetDirection(dir Direction)
-	GetDirection() Direction
+	SetMode(dir Mode)
+	GetMode() Mode
+
+	SetOutputMode(output OutputMode)
+	GetOutputMode() OutputMode
+
+	SetSpeedMode(speed SpeedMode)
+	GetSpeedMode() SpeedMode
 
 	SetPullMode(mode PullMode)
 	GetPullMode() PullMode

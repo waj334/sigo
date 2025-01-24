@@ -13,8 +13,8 @@ func hardfaultHandler() {
 	asm.Inline(`
 		tst lr, #4
 		ite eq
-		mrseq {es}, msp
-		mrsne {es}, psp
+		mrseq {{es}}, msp
+		mrsne {{es}}, psp
 	`, asm.Out(&es), asm.Clobber(register.LR))
 	hardfault(es)
 }

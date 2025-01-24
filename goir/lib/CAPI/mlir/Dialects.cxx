@@ -303,6 +303,7 @@ mlirGoOptimizeModule(MlirModule module, MlirStringRef name, MlirStringRef output
   pm.addPass(mlir::go::createGlobalConstantsPass());
   pm.addPass(mlir::go::createGlobalInitializerPass());
   pm.addNestedPass<mlir::go::FuncOp>(mlir::go::createHeapEscapePass());
+  pm.addNestedPass<mlir::go::FuncOp>(mlir::go::createFunctionPass());
 
   // Run the canonicalizer pass after Go-centric passes so no context is lost.
   pm.addPass(mlir::createCanonicalizerPass());

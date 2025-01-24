@@ -4,12 +4,11 @@ package rtc
 
 import (
 	"peripheral"
-	"time"
-
 	"runtime/arm/cortexm/sam/atsamx5x"
 	"runtime/arm/cortexm/sam/atsamx5x/support/mclk"
 	"runtime/arm/cortexm/sam/atsamx5x/support/osc32kctrl"
 	rtc "runtime/arm/cortexm/sam/atsamx5x/support/rtc/mode0"
+	"time"
 )
 
 const (
@@ -177,6 +176,10 @@ func (r *_rtc) Configure(config Config) error {
 }
 
 func (r *_rtc) Value() uint32 {
+	if !rtc.Mode0.Ctrla.GetEnable() {
+		return 0
+	}
+
 	for rtc.Mode0.Syncbusy.GetCount() {
 	}
 	return rtc.Mode0.Count.GetCount()

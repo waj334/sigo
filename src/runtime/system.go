@@ -5,7 +5,7 @@ import "unsafe"
 //sigo:extern abort runtime.abort
 func abort()
 
-//sigo:extern _exec_func runtime.exec
+//sigo:extern exec runtime.exec
 func exec(args, fn unsafe.Pointer)
 
 func nilCheck(ptr unsafe.Pointer) {

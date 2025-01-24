@@ -8,7 +8,8 @@ include "Go/IR/GoDialect.td"
 //===----------------------------------------------------------------------===//
 
 def PointerType : GoDialect_Type<"Pointer", "ptr", [
-           DeclareTypeInterfaceMethods<DataLayoutTypeInterface, ["getTypeSize"]>
+           DeclareTypeInterfaceMethods<DataLayoutTypeInterface,
+                           ["getTypeSize", "getTypeSizeInBits", "getABIAlignment", "getPreferredAlignment"]>
        ]> {
     let summary = "Pointer type";
     let description = [{

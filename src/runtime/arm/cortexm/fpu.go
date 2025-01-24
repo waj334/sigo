@@ -12,6 +12,10 @@ type extendedFrame struct {
 	FPSCR uintptr
 }
 
+type extendedGoroutineContext struct {
+	Sn [16]float32
+}
+
 //sigo:extern _fpuEnabled runtime._fpuEnabled
 var _fpuEnabled bool
 

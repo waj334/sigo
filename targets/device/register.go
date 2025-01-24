@@ -6,18 +6,24 @@ import (
 
 type Positionable interface {
 	OffsetInBytes() uintptr
-	TotalWidth() uintptr
+	TotalWidthInBits() uintptr
+	TotalWidthInBytes() uintptr
+	SizeInBytes() uintptr
 }
 
 type RegisterGroup struct {
 	Identifier  string          `json:"identifier"`
 	Reference   string          `json:"reference,omitempty"`
 	Description string          `json:"description,omitempty"`
-	Offset      uintptr         `json:"offset"`
-	Size        uintptr         `json:"size"`
+	Offset      Address         `json:"offset"`
+	Size        Address         `json:"size"`
 	Count       int             `json:"count"`
 	Groups      []RegisterGroup `json:"groups,omitempty"`
 	Registers   []Register      `json:"registers,omitempty"`
+	Merge       *bool           `json:"merge,omitempty"`
+
+	// Embed the type into the peripheral struct.
+	Embed *bool `json:"embed"`
 
 	peripheral *Peripheral
 	finalized  bool
@@ -28,11 +34,19 @@ func (r *RegisterGroup) Peripheral() *Peripheral {
 }
 
 func (r *RegisterGroup) OffsetInBytes() uintptr {
-	return r.Offset
+	return uintptr(r.Offset)
 }
 
-func (r *RegisterGroup) TotalWidth() uintptr {
-	return r.Size * uintptr(max(1, r.Count))
+func (r *RegisterGroup) TotalWidthInBits() uintptr {
+	return r.TotalWidthInBytes() * 8
+}
+
+func (r *RegisterGroup) TotalWidthInBytes() uintptr {
+	return uintptr(r.Size * Address(max(1, r.Count)))
+}
+
+func (r *RegisterGroup) SizeInBytes() uintptr {
+	return uintptr(r.Size)
 }
 
 func (r *RegisterGroup) Finalize() {
@@ -50,6 +64,13 @@ func (r *RegisterGroup) Finalize() {
 	}
 }
 
+func (r *RegisterGroup) GetMerge() bool {
+	if r.Merge != nil {
+		return *r.Merge
+	}
+	return false
+}
+
 type Register struct {
 	// Identifier is the name of this register.
 	Identifier string `json:"identifier"`
@@ -57,7 +78,7 @@ type Register struct {
 	// Width is the total size of the register in bits.
 	Width uintptr `json:"width"`
 
-	Offset uintptr `json:"offset"`
+	Offset Address `json:"offset"`
 
 	Count int `json:"count"`
 
@@ -83,11 +104,19 @@ func (r *Register) TypeName() string {
 }
 
 func (r *Register) OffsetInBytes() uintptr {
-	return r.Offset
+	return uintptr(r.Offset)
 }
 
-func (r *Register) TotalWidth() uintptr {
+func (r *Register) TotalWidthInBits() uintptr {
 	return r.Width * max(1, uintptr(r.Count))
+}
+
+func (r *Register) TotalWidthInBytes() uintptr {
+	return (r.Width * max(1, uintptr(r.Count))) / 8
+}
+
+func (r *Register) SizeInBytes() uintptr {
+	return uintptr(r.Width) / 8
 }
 
 func (r *Register) String() string {

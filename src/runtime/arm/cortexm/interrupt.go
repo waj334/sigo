@@ -4,6 +4,8 @@ import (
 	"runtime/arm/cortexm/support/nvic"
 )
 
+var IrqPriorityMask uint8 = 0xFF
+
 type Interrupt int16
 
 func (i Interrupt) EnableIRQ() {
@@ -15,5 +17,5 @@ func (i Interrupt) DisableIRQ() {
 }
 
 func (i Interrupt) SetPriority(priority uint8) {
-	nvic.Nvic.Ip[i].SetIpr(priority)
+	nvic.Nvic.Ip[i].SetIpr(priority & IrqPriorityMask)
 }

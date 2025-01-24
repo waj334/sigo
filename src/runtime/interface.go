@@ -1,6 +1,8 @@
 package runtime
 
-import "unsafe"
+import (
+	"unsafe"
+)
 
 type _interface struct {
 	value  unsafe.Pointer
@@ -89,31 +91,46 @@ func interfaceCompareTo(X _interface, otherType *_type, otherValue unsafe.Pointe
 func interfaceLookUp(i _interface, id uint32) (receiver, result unsafe.Pointer) {
 	T := i.valueT
 
-	// Get the element type of the pointer
-	if i.valueT.kind == Pointer {
-		T = (*_type)(i.valueT.data)
+	if T.kind == Pointer {
+		T = (*_type)(T.data)
 	}
 
-	// Locate the method matching the id
 	elementType := (*_namedTypeData)(T.data)
-	var method *_funcData
-	for _, method = range elementType.methods {
-		methodId := method.id
-		if id == methodId {
-			signature := method.signature
-			receiver = i.value
-			if i.valueT.kind == Pointer && signature.receiverType.kind != Pointer {
-				// Load the value.
-				receiver = *(*unsafe.Pointer)(receiver)
-			} else {
-				if signature.receiverType.kind == Pointer {
-					// Pass the address of the underlying value.
-					receiver = *(*unsafe.Pointer)(&i.value)
-				} // else the receiver value is already holds the address of the value.
+
+	for _, method := range elementType.methods {
+		if method.id == id {
+			sig := method.signature
+
+			switch {
+			case i.valueT.kind == Pointer && sig.receiverType.kind != Pointer:
+				// Interface holds *T, method wants T.
+				// -> Deref and .
+				tmp := alloc(sig.receiverType.size)
+				memmove(tmp, *(*unsafe.Pointer)(i.value), sig.receiverType.size)
+				receiver = *((*unsafe.Pointer)(tmp))
+
+			case i.valueT.kind != Pointer && sig.receiverType.kind != Pointer:
+				// Interface holds T, method wants T.
+				// -> Copy again to ensure semantics.
+				tmp := alloc(sig.receiverType.size)
+				memmove(tmp, i.value, sig.receiverType.size)
+				receiver = *((*unsafe.Pointer)(tmp))
+
+			case i.valueT.kind != Pointer && sig.receiverType.kind == Pointer:
+				// Interface holds T, method wants *T.
+				// -> Pass pointer to boxed value.
+				receiver = i.value
+
+			case i.valueT.kind == Pointer && sig.receiverType.kind == Pointer:
+				// Interface holds *T, method wants *T.
+				// -> Pass as-is.
+				receiver = i.value
 			}
+
 			return receiver, method.funcPtr
 		}
 	}
+
 	panic("no concrete implementation found")
 }
 

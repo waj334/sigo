@@ -150,7 +150,7 @@ func checkInlineWithResultCall(expr *ast.CallExpr, fset *token.FileSet, info *ty
 		}
 
 		// Validate usages of aliases in the assembly text.
-		re := regexp.MustCompile(`{([a-zA-Z][a-zA-Z0-9_]*)}+`)
+		re := regexp.MustCompile(`{{([a-zA-Z][a-zA-Z0-9_]*)}}+`)
 		matches := re.FindAllStringSubmatch(asmStr, -1)
 		for _, match := range matches {
 			if !slices.Contains(constraintAliases, match[1]) {

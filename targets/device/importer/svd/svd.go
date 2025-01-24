@@ -9,7 +9,6 @@ import (
 	"reflect"
 	"regexp"
 	"slices"
-	"strconv"
 
 	"omibyte.io/sigo/targets/device"
 	"omibyte.io/sigo/targets/device/importer"
@@ -23,6 +22,8 @@ type (
 	peripheralContextKey struct{}
 	registerContextKey   struct{}
 )
+
+var nameRegex = regexp.MustCompile("^([A-Za-z0-9]+?)(\\d+)$")
 
 func ImportSVD(ctx context.Context, config importer.Config) (d device.Device, err error) {
 	// Open the input file.
@@ -58,82 +59,77 @@ func ImportSVD(ctx context.Context, config importer.Config) (d device.Device, er
 		d.Peripherals[i] = translatePeripheral(ctx, d, peripheral)
 	}
 
-	// Attempt to merge peripheral instances by best effort.
-	nameRegex := regexp.MustCompile("^([a-zA-Z0-9]+)([0-9]+)$")
-	mergeMap := map[string][]int{}
-	var unmatched []int
-	for i, p := range d.Peripherals {
-		// Match the name using the regex.
-		matcheGroups := nameRegex.FindStringSubmatch(p.Identifier)
-		if matcheGroups != nil {
-			group := mergeMap[matcheGroups[1]]
-			instance, _ := strconv.Atoi(matcheGroups[2])
-			if len(group) < instance+1 {
-				newGroup := make([]int, instance+1)
-				for i := range newGroup {
-					newGroup[i] = -1
-				}
+	/*
+		// Attempt to merge peripheral instances by best effort.
+		mergeMap := map[string][]int{}
 
-				for i, g := range group {
-					newGroup[i] = g
-				}
-				group = newGroup
+		var unmatched []int
+		for i, p := range d.Peripherals {
+			// Match the name using the regex.
+			matcheGroups := nameRegex.FindStringSubmatch(p.Identifier)
+			if matcheGroups != nil {
+				group := mergeMap[matcheGroups[1]]
+				group = append(group, i)
+				mergeMap[matcheGroups[1]] = group
+			} else {
+				unmatched = append(unmatched, i)
 			}
-			group[instance] = i
-			mergeMap[matcheGroups[1]] = group
-		} else {
-			unmatched = append(unmatched, i)
 		}
-	}
 
-	var newPeripherals []device.Peripheral
-	for _, i := range unmatched {
-		newPeripherals = append(newPeripherals, d.Peripherals[i])
-	}
+		var newPeripherals []device.Peripheral
+		for _, i := range unmatched {
+			newPeripherals = append(newPeripherals, d.Peripherals[i])
+		}
 
-	for group, indices := range mergeMap {
-		// Remove negative indices.
-		indices = slices.DeleteFunc(indices, func(i int) bool {
-			return i == -1
+		for group, indices := range mergeMap {
+			if len(indices) > 0 {
+				// Sort the indices by their respective peripheral instance number.
+				slices.SortStableFunc(indices, func(a, b int) int {
+					amatches := nameRegex.FindStringSubmatch(d.Peripherals[a].Identifier)
+					bmatches := nameRegex.FindStringSubmatch(d.Peripherals[b].Identifier)
+
+					ai, _ := strconv.Atoi(amatches[2])
+					bi, _ := strconv.Atoi(bmatches[2])
+					return ai - bi
+				})
+
+				// Make a copy of the first instance.
+				base := d.Peripherals[indices[0]]
+				base.Instances = []device.Address{*base.BaseAddress}
+				base.Identifier = group
+
+				for _, i := range indices[1:] {
+					p := d.Peripherals[i]
+
+					// Add the remaining as instances.
+					base.Instances = append(base.Instances, *p.BaseAddress)
+
+					// Merge interrupts.
+					base.Interrupts = append(base.Interrupts, p.Interrupts...)
+				}
+
+				// Note: DO NOT SORT THE INSTANCES! They are already sorted by their instance number!!!
+
+				// Add to the new peripherals list.
+				newPeripherals = append(newPeripherals, base)
+			}
+		}
+
+		// Sort the peripherals by base address.
+		slices.SortFunc(newPeripherals, func(a device.Peripheral, b device.Peripheral) int {
+			return int(*a.BaseAddress - *b.BaseAddress)
 		})
 
-		if len(indices) > 0 {
-			// Make a copy of the first instance.
-			base := d.Peripherals[indices[0]]
-			base.Instances = []device.Address{*base.BaseAddress}
-			base.Identifier = group
-
-			for _, i := range indices[1:] {
-				p := d.Peripherals[i]
-
-				// Add the remaining as instances.
-				base.Instances = append(base.Instances, *p.BaseAddress)
-
-				// Merge interrupts.
-				base.Interrupts = append(base.Interrupts, p.Interrupts...)
+		// Unset the base address if there are instances.
+		for _, p := range newPeripherals {
+			if len(p.Instances) > 0 {
+				p.BaseAddress = nil
 			}
-
-			slices.Sort(base.Instances)
-
-			// Add to the new peripherals list.
-			newPeripherals = append(newPeripherals, base)
 		}
-	}
 
-	// Sort the peripherals by base address.
-	slices.SortFunc(newPeripherals, func(a device.Peripheral, b device.Peripheral) int {
-		return int(*a.BaseAddress - *b.BaseAddress)
-	})
-
-	// Unset the base address if there are instances.
-	for _, p := range newPeripherals {
-		if len(p.Instances) > 0 {
-			p.BaseAddress = nil
-		}
-	}
-
-	// Replace the peripherals list.
-	d.Peripherals = newPeripherals
+		// Replace the peripherals list.
+		d.Peripherals = newPeripherals
+	*/
 
 	return d, nil
 }
@@ -152,11 +148,19 @@ func translatePeripheral(ctx context.Context, d device.Device, element svd.Perip
 	}
 
 	// Set immutable values.
-	set(&p.Identifier, element.Name)
-	set(&p.Description, element.Description)
-	set(&p.BaseAddress, element.BaseAddress)
+	if element.Name != nil {
+		p.Identifier = *element.Name
+	}
 
-	p.Description = device.CleanDescription(p.Description)
+	if element.Description != nil {
+		p.Description = *element.Description
+		p.Description = device.CleanDescription(p.Description)
+	}
+
+	if element.BaseAddress != nil {
+		p.BaseAddress = new(device.Address)
+		*p.BaseAddress = *element.BaseAddress
+	}
 
 	if element.Access != nil {
 		p.Flags = translateAccess(*element.Access)
@@ -166,22 +170,43 @@ func translatePeripheral(ctx context.Context, d device.Device, element svd.Perip
 
 	// Translate registers.
 	if element.Registers != nil {
-		registers := make([]device.Register, len(element.Registers.RegisterElements))
-		for i, register := range element.Registers.RegisterElements {
-			registers[i] = translateRegister(ctx, p, register)
+		group := device.RegisterGroup{
+			Identifier:  p.Identifier,
+			Description: p.Description,
 		}
 
-		// TODO: Correct this!
-		//p.Registers = append(p.Registers, registers...)
+		group.Registers = make([]device.Register, len(element.Registers.RegisterElements))
+		for i, register := range element.Registers.RegisterElements {
+			group.Registers[i] = translateRegister(ctx, p, register)
+		}
+
+		// Sort the registers.
+		slices.SortFunc(group.Registers, func(a, b device.Register) int {
+			return int(a.Offset) - int(b.Offset)
+		})
 
 		// Translate register clusters.
 		for _, cluster := range element.Registers.ClusterElements {
 			ctx := context.WithValue(ctx, clusterContextKey{}, cluster)
-			registers := make([]device.Register, len(cluster.Registers))
+			subgroup := device.RegisterGroup{
+				Identifier:  cluster.Name,
+				Description: cluster.Description,
+				Offset:      cluster.AddressOffset,
+				Count:       int(cluster.Count),
+				Size:        cluster.Increment,
+			}
+			subgroup.Registers = make([]device.Register, len(cluster.Registers))
 			for i, register := range cluster.Registers {
-				registers[i] = translateRegister(ctx, p, register)
+				subgroup.Registers[i] = translateRegister(ctx, p, register)
 			}
 		}
+
+		p.RegisterGroups = []device.RegisterGroup{group}
+	} else if len(p.RegisterGroups) == 1 {
+		// Rename the inherited register group.
+		p.RegisterGroups[0].Identifier = p.Identifier
+
+		// NOTE: The description will require a manual fixup.
 	}
 
 	if element.Interrupts != nil {
@@ -207,6 +232,7 @@ func translateRegister(ctx context.Context, peripheral device.Peripheral, elemen
 	r.Identifier = element.Name
 	r.Description = device.CleanDescription(element.Description)
 	r.Width = uintptr(element.Size)
+	r.Offset = element.AddressOffset
 	r.Flags = translateAccess(element.Access)
 	if r.Flags.IsUnset() {
 		r.Flags = peripheral.Flags

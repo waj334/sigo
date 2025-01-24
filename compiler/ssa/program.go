@@ -10,6 +10,7 @@ import (
 	"hash/fnv"
 	"io/fs"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strings"
 
@@ -19,6 +20,8 @@ import (
 
 	"golang.org/x/tools/go/packages"
 )
+
+var pragmaRegex = regexp.MustCompile(`^//[\t\f\v ]*(?:go|sigo):[\t\f\v ]*([a-zA-Z0-9 ./_]+)$`)
 
 type ProgramConfig struct {
 	Tags               []string
@@ -354,12 +357,18 @@ func (p *Program) LookupType(pkgname, typename string) types.Type {
 func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) {
 	for _, commentGroup := range file.Comments {
 		for _, comment := range commentGroup.List {
-			// Split the comment on the space character
-			parts := strings.Split(comment.Text, " ")
+			matches := pragmaRegex.FindStringSubmatch(comment.Text)
+			if len(matches) == 0 {
+				continue
+			}
+
+			// Split the arguments on the space character
+			parts := strings.Fields(matches[1])
+
 			if count := len(parts); count > 1 {
 				// Process the comment based of the first part
 				switch parts[0] {
-				case "//sigo:extern":
+				case "extern":
 					if count == 3 {
 						_symbolName := mangleSymbol(qualifiedName(parts[1], pkg))
 						info := p.Symbols.GetSymbolInfo(_symbolName)
@@ -368,7 +377,7 @@ func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) {
 					} else {
 						// TODO: Return syntax error
 					}
-				case "//sigo:interrupt":
+				case "interrupt":
 					if count == 3 {
 						funcName := mangleSymbol(qualifiedName(parts[1], pkg))
 						info := p.Symbols.GetSymbolInfo(funcName)
@@ -378,13 +387,13 @@ func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) {
 					} else {
 						// TODO: Return syntax error
 					}
-				case "//sigo:define":
+				case "define":
 					if count == 2 {
 						p.Defines[parts[1]] = ""
 					} else {
 						p.Defines[parts[1]] = parts[2]
 					}
-				case "//go:linkname", "//sigo:linkname":
+				case "linkname":
 					if count == 3 {
 						_symbolName := mangleSymbol(qualifiedName(parts[1], pkg))
 						info := p.Symbols.GetSymbolInfo(_symbolName)
@@ -395,25 +404,33 @@ func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) {
 					} else {
 						// TODO: Return syntax error
 					}
-				case "//go:export", "//sigo:export":
-					if count == 3 {
+				case "export":
+					if count >= 2 {
 						funcName := mangleSymbol(qualifiedName(parts[1], pkg))
 						info := p.Symbols.GetSymbolInfo(funcName)
-						info.LinkName = mangleSymbol(parts[2])
 						info.Exported = true
+						if count == 3 {
+							info.LinkName = mangleSymbol(parts[2])
+						}
 					} else {
 						// TODO: Return syntax error
 					}
-				case "//sigo:linkage":
+				case "linkage":
 					if count == 3 {
 						funcName := mangleSymbol(qualifiedName(parts[1], pkg))
 						info := p.Symbols.GetSymbolInfo(funcName)
 						info.Linkage = strings.ToLower(parts[2])
 					}
-				case "//sigo:required":
+				case "required":
 					funcName := mangleSymbol(qualifiedName(parts[1], pkg))
 					info := p.Symbols.GetSymbolInfo(funcName)
 					info.IsRequired = true
+				case "attribute":
+					if len(parts) > 2 {
+						funcName := mangleSymbol(qualifiedName(parts[1], pkg))
+						info := p.Symbols.GetSymbolInfo(funcName)
+						info.Attributes = parts[2:]
+					}
 				}
 			}
 		}

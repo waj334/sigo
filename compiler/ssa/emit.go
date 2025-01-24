@@ -6,10 +6,11 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
-	"omibyte.io/sigo/mlir"
 	"os"
 	"path/filepath"
 	"runtime/debug"
+
+	"omibyte.io/sigo/mlir"
 )
 
 func (b *Builder) emitAssign(ctx context.Context, stmt *ast.AssignStmt) {
@@ -624,7 +625,6 @@ func (b *Builder) emitIndexAddr(ctx context.Context, expr *ast.IndexExpr) mlir.V
 
 func (b *Builder) emitReturn(ctx context.Context, stmt *ast.ReturnStmt) {
 	var results []mlir.Value
-	location := b.location(stmt.Pos())
 	info := currentInfo(ctx)
 
 	// Get the current function declaration being built.
@@ -651,6 +651,8 @@ func (b *Builder) emitReturn(ctx context.Context, stmt *ast.ReturnStmt) {
 		ctx = newContextWithLhsList(ctx, returnTypes)
 
 		for i, result := range stmt.Results {
+			location := b.location(result.Pos())
+
 			// Select the inferred type for nils.
 			ctx = newContextWithRhsIndex(ctx, i)
 
@@ -690,8 +692,8 @@ func (b *Builder) emitReturn(ctx context.Context, stmt *ast.ReturnStmt) {
 			}
 
 			if len(v) > state.signature.Results().Len() {
-				/// NOTE: Some expressions may yield more results than the return specifies. Slice the returns in order
-				///       to return the exact values expected by this return statement.
+				// / NOTE: Some expressions may yield more results than the return specifies. Slice the returns in order
+				// /       to return the exact values expected by this return statement.
 				results = append(results, v[:len(stmt.Results)]...)
 			} else {
 				results = append(results, v...)
@@ -700,7 +702,7 @@ func (b *Builder) emitReturn(ctx context.Context, stmt *ast.ReturnStmt) {
 	}
 
 	// Create the return operation in the current block.
-	op := mlir.GoCreateReturnOperation(b.config.Ctx, results, location)
+	op := mlir.GoCreateReturnOperation(b.config.Ctx, results, b.location(stmt.End()))
 	appendOperation(ctx, op)
 }
 
@@ -1003,7 +1005,7 @@ func (b *Builder) emitTypeAssertExpr(ctx context.Context, expr *ast.TypeAssertEx
 	X := b.emitExpr(ctx, expr.X)[0]
 
 	// Get the type to assert.
-	//T := b.GetType(ctx, b.typeOf(ctx, expr.Type))
+	// T := b.GetType(ctx, b.typeOf(ctx, expr.Type))
 
 	// Create the type assertion operation.
 	op := mlir.GoCreateTypeAssertOperation(b.ctx, X, b.exprTypes(ctx, expr), location)

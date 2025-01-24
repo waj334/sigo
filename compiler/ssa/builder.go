@@ -6,15 +6,16 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
+	"path/filepath"
+	"strings"
+	"sync"
+	"sync/atomic"
+
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 	"golang.org/x/tools/go/packages"
 	"omibyte.io/sigo/llvm"
 	"omibyte.io/sigo/mlir"
-	"path/filepath"
-	"strings"
-	"sync"
-	"sync/atomic"
 )
 
 type Config struct {
@@ -225,7 +226,7 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 			false,
 			mlir.LLVMDIEmissionKindFull,
 			mlir.LLVMDINameTableKindNone,
-			//mlir.LLVMDINameTableKindDefault,
+			// mlir.LLVMDINameTableKindDefault,
 		)
 		b.compileUnits[file] = compileUnitAttr
 		return true
@@ -414,6 +415,7 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 						!isPackageInit &&
 						!symbolInfo.IsInterrupt &&
 						!symbolInfo.ExternalLinkage &&
+						!symbolInfo.Exported &&
 						len(symbolInfo.LinkName) == 0 &&
 						pkg.PkgPath != "runtime" &&
 						!isMain {
@@ -603,6 +605,7 @@ func (b *Builder) addFunctionDecl(ctx context.Context, decl *ast.FuncDecl) *func
 		info:           info,
 		scope:          obj.Scope(),
 		linkage:        symbolInfo.Linkage,
+		attributes:     symbolInfo.Attributes,
 	}
 
 	// NOTE: Have to create the function type after the func object has been initialized if the function is

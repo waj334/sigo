@@ -41,6 +41,8 @@ type funcData struct {
 
 	decl *ast.FuncDecl
 	info *types.Info
+
+	attributes []string
 }
 
 type inputParam struct {
@@ -243,7 +245,7 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 
 		if !blockHasTerminator(lastBlock) {
 			// Control flow fell off the end of the function block. Insert tail operations.
-			//TODO: Run defers.
+			// TODO: Run defers.
 
 			endLocation := b.location(data.body.End())
 			zeroValues := make([]mlir.Value, 0, data.signature.Results().Len())
@@ -278,6 +280,7 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 		b.namedOf("sym_name", mlir.StringAttrGet(b.config.Ctx, data.symbol)),
 		b.namedOf("sym_visibility", mlir.StringAttrGet(b.config.Ctx, visibility)),
 		b.namedOf("llvm.linkage", mlir.GetLLVMLinkageAttr(b.ctx, linkage)),
+		b.namedOf("passthrough", b.strArrayAttr(data.attributes...)),
 	})
 
 	if data.isPackageInit {

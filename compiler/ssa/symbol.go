@@ -9,6 +9,7 @@ type SymbolInfo struct {
 	IsInterrupt     bool
 	IsRequired      bool
 	Linkage         string
+	Attributes      []string
 }
 
 type SymbolInfoStore struct {

@@ -12,6 +12,7 @@ type Peripheral struct {
 	// Instances is the list of base addresses for this register type.
 	Instances []Address `json:"instances,omitempty"`
 
+	Registers      []Register      `json:"registers,omitempty"`
 	RegisterGroups []RegisterGroup `json:"registerGroups,omitempty"`
 	Interrupts     []Interrupt     `json:"interrupts,omitempty"`
 

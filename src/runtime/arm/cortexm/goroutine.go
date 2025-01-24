@@ -1,6 +1,7 @@
 package cortexm
 
 import (
+	"nonstandard"
 	"unsafe"
 )
 
@@ -8,11 +9,10 @@ import (
 var _goroutineStackSize uintptr
 
 const basicFrameSize = unsafe.Sizeof(basicFrame{})
-const extendedFrameSize = basicFrameSize + unsafe.Sizeof(extendedFrame{})
-const goroutineContextSize = unsafe.Sizeof(goroutineContext{})
+const basicGoroutineContextSize = unsafe.Sizeof(basicGoroutineContext{})
 
-//sigo:extern fnPtrStartGoroutine runtime.startGoroutine
-var fnPtrStartGoroutine unsafe.Pointer
+//go:extern removeGoroutine  runtime.removeGoroutine
+func removeGoroutine(unsafe.Pointer)
 
 type basicFrame struct {
 	R0  uintptr
@@ -30,7 +30,7 @@ type stackFrame struct {
 	extendedFrame
 }
 
-type goroutineContext struct {
+type basicGoroutineContext struct {
 	R4  uintptr
 	R5  uintptr
 	R6  uintptr
@@ -40,6 +40,10 @@ type goroutineContext struct {
 	R10 uintptr
 	R11 uintptr
 	LR  uintptr
+}
+type goroutineContext struct {
+	basicGoroutineContext
+	extendedGoroutineContext
 }
 
 type _goroutine struct {
@@ -60,13 +64,17 @@ func initGoroutine(gptr unsafe.Pointer) {
 
 	// Set up the call to startGoroutine.
 	estack.PSR = defaultPsrValue
-	estack.PC = uintptr(unsafe.Pointer(&fnPtrStartGoroutine))
-	estack.R0 = uintptr(g.fn.args)
-	estack.R1 = uintptr(g.fn.ptr)
-	estack.R2 = uintptr(gptr)
+
+	estack.PC = uintptr(nonstandard.PointerOf(startGoroutine))
+	estack.R0 = uintptr(gptr)
+
+	// estack.PC = uintptr(unsafe.Pointer(&fnPtrStartGoroutine))
+	// estack.R0 = uintptr(g.fn.args)
+	// estack.R1 = uintptr(g.fn.ptr)
+	// estack.R2 = uintptr(gptr)
 
 	// Subtract 2 stack stackFrame lengths to account for unstacking R4 - R11 during the initial context switch.
-	g.stack = unsafe.Add(unsafe.Pointer(estack), -int32(goroutineContextSize))
+	g.stack = unsafe.Add(unsafe.Pointer(estack), -int32(basicGoroutineContextSize))
 	ctx := (*goroutineContext)(g.stack)
 	ctx.R4 = 0x0101_0101
 	ctx.R5 = 0x0202_0202
@@ -76,13 +84,27 @@ func initGoroutine(gptr unsafe.Pointer) {
 	ctx.R9 = 0x0606_0606
 	ctx.R10 = 0x0707_0707
 	ctx.R11 = 0x0808_0808
-
-	// Set all the LR bits
-	ctx.LR = 0xFFFF_FFFF
+	ctx.LR = 0xFFFF_FFFD
 }
 
 //go:export align runtime.alignStack
 func align(n uintptr) uintptr {
 	// The stack on Cortex-M is always 8-byte aligned
 	return n + (n % 8)
+}
+
+//sigo:export startGoroutine
+//sigo:attribute startGoroutine noreturn
+func startGoroutine(g *_goroutine) {
+	// Start the goroutine.
+	exec(g.fn.args, g.fn.ptr)
+
+	// Remove the goroutine from the scheduler.
+	removeGoroutine(unsafe.Pointer(g))
+
+	// Busy loop until another task can be run.
+	for {
+		// Trigger a context switch.
+		triggerPendSV()
+	}
 }

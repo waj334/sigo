@@ -2,12 +2,12 @@ package builder
 
 import (
 	"errors"
-	"gopkg.in/yaml.v3"
 	"io/fs"
 	"os"
-	"path"
 	"path/filepath"
 	"slices"
+
+	"gopkg.in/yaml.v3"
 )
 
 type stlFilter struct {
@@ -15,20 +15,20 @@ type stlFilter struct {
 	Exclude []string `yaml:"exclude"`
 }
 
-func stageGoRoot(stageDir string, env Env) error {
+func StageGoRoot(stageDir string, env Env) error {
 	goRootPath := env.Value("GOROOT")
 	sigoRootPath := env.Value("SIGOROOT")
 
 	// Symlink the "pkg" directory from GOROOT into the staging directory
-	goPkgPath := path.Join(goRootPath, "pkg")
-	stagedPkgPath := path.Join(stageDir, "pkg")
+	goPkgPath := filepath.Join(goRootPath, "pkg")
+	stagedPkgPath := filepath.Join(stageDir, "pkg")
 	err := os.Symlink(goPkgPath, stagedPkgPath)
 	if err != nil {
 		return err
 	}
 
 	// Create the directory for the standard library.
-	sigoStlPath := path.Join(sigoRootPath, "src")
+	sigoStlPath := filepath.Join(sigoRootPath, "src")
 	err = os.MkdirAll(sigoStlPath, os.ModeDir)
 	if err != nil {
 		return err
@@ -60,7 +60,7 @@ func stageGoRoot(stageDir string, env Env) error {
 
 	// Read the index.yaml file present in the SiGo root directory.
 	var b []byte
-	b, err = os.ReadFile(path.Join(sigoRootPath, "src", "index.yaml"))
+	b, err = os.ReadFile(filepath.Join(sigoRootPath, "src", "index.yaml"))
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func stageGoRoot(stageDir string, env Env) error {
 	}
 
 	// Copy subset of Go standard library into the staging directory.
-	goStlPath := path.Join(goRootPath, "src")
+	goStlPath := filepath.Join(goRootPath, "src")
 	filepath.WalkDir(goStlPath, func(path string, d fs.DirEntry, err error) error {
 		relPath, _ := filepath.Rel(goStlPath, path)
 		stagedPath := filepath.Join(stageDir, "src", relPath)
@@ -107,14 +107,6 @@ func stageGoRoot(stageDir string, env Env) error {
 		}
 		return nil
 	})
-
-	/*
-		// Symlink the standard library from SiGo into the staging directory
-		stagedStlPath := path.Join(stageDir, "src")
-		if err := os.Symlink(sigoStlPath, stagedStlPath); err != nil {
-			return err
-		}
-	*/
 
 	return nil
 }

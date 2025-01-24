@@ -88,16 +88,18 @@ const (
 )
 
 var (
-	SERCOM_REF_FREQUENCY uint32 = 60_000_000
-	GCLK0_FREQUENCY      uint32 = 120_000_000
+	SercomRefFrequency uint32 = 60_000_000
+	Gclk0Frequency     uint32 = 120_000_000
 )
 
 func init() {
-	cortexm.SYSTICK_FREQUENCY = GCLK0_FREQUENCY
-	cortexm.NPRIORITY_BITS = 3
+	cortexm.SysTickFrequency = Gclk0Frequency
+	cortexm.IrqPriorityMask = 0b111
 }
 
 func DefaultClocks() {
+	state := cortexm.DisableInterrupts()
+
 	// Configure the XOSC32K oscillator
 	osc32kctrl.Osc32kctrl.Xosc32k.SetEnable(false)
 	osc32kctrl.Osc32kctrl.Xosc32k.SetCgm(osc32kctrl.Xosc32kCgmXt)
@@ -312,4 +314,6 @@ func DefaultClocks() {
 	gclk.Gclk.Pchctrl[GCLK_SERCOM7_CORE].SetChen(true)
 	for !gclk.Gclk.Pchctrl[GCLK_SERCOM7_CORE].GetChen() {
 	}
+
+	cortexm.EnableInterrupts(state)
 }

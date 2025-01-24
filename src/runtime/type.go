@@ -35,10 +35,10 @@ const (
 )
 
 type _type struct {
-	kind kind
-	size uint16
+	size uintptr
 	data unsafe.Pointer
 	name string
+	kind kind
 }
 
 type _namedTypeData struct {

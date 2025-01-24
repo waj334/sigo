@@ -1,5 +1,7 @@
 # These packages will be included from the Go standard library when staging SiGo standard library.
 include:
+  - builtin
+  - internal/buildcfg
   - internal/bytealg
   - io
   - unicode

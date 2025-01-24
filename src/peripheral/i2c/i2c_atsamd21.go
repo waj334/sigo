@@ -4,14 +4,12 @@ package i2c
 
 import (
 	"errors"
-	"sync"
-
 	"peripheral"
 	"peripheral/pin"
-
 	"runtime/arm/cortexm/sam/atsamd21"
 	"runtime/arm/cortexm/sam/atsamd21/support/sercom/i2cm"
 	"runtime/arm/cortexm/support/systemcontrol"
+	"sync"
 )
 
 const (
@@ -77,13 +75,13 @@ var (
 		I2C5,
 	}
 
-	errLENERR   = errors.New("_i2c: transaction length error")
-	errSEXTTOUT = errors.New("_i2c: client SCL low extend time-out")
-	errMEXTTOUT = errors.New("_i2c: host SCL low extend time-out")
-	errLOWTOUT  = errors.New("_i2c: SCL low time-out")
-	errARBLOST  = errors.New("_i2c: arbitration lost")
-	errBUSERR   = errors.New("_i2c: bus error")
-	errRXNACK   = errors.New("_i2c: received not acknowledge")
+	errLENERR   = errors.New("i2c: transaction length error")
+	errSEXTTOUT = errors.New("i2c: client SCL low extend time-out")
+	errMEXTTOUT = errors.New("i2c: host SCL low extend time-out")
+	errLOWTOUT  = errors.New("i2c: SCL low time-out")
+	errARBLOST  = errors.New("i2c: arbitration lost")
+	errBUSERR   = errors.New("i2c: bus error")
+	errRXNACK   = errors.New("i2c: received not acknowledge")
 )
 
 type _i2c struct {
@@ -149,7 +147,7 @@ func (i *_i2c) Configure(config Config) error {
 
 	// Calculate the baud
 	var baudLow, baudHigh uint32
-	baudLow, baudHigh, ok := CalculateBaudValue(atsamd21.SERCOM_REF_FREQUENCY, config.ClockSpeedHz)
+	baudLow, baudHigh, ok := CalculateBaudValue(atsamd21.SercomRefFrequency, config.ClockSpeedHz)
 	if !ok {
 		return peripheral.ErrInvalidConfig
 	}
@@ -222,7 +220,7 @@ func (i *_i2c) Configure(config Config) error {
 		i2cm.I2cm[i.SERCOM].Baud.SetHsbaudlow(uint8(baudLow))
 
 		// Configure Fast-Mode for 400 KHz
-		baudLow, baudHigh, ok = CalculateBaudValue(atsamd21.SERCOM_REF_FREQUENCY, 400_000)
+		baudLow, baudHigh, ok = CalculateBaudValue(atsamd21.SercomRefFrequency, 400_000)
 		if !ok {
 			return peripheral.ErrInvalidConfig
 		}
@@ -276,7 +274,7 @@ func (i *_i2c) SetAddress(addr uint16) {
 
 func (i *_i2c) SetClockFrequency(clockSpeedHz uint32) bool {
 	var baudLow, baudHigh uint32
-	baudLow, baudHigh, ok := CalculateBaudValue(atsamd21.SERCOM_REF_FREQUENCY, clockSpeedHz)
+	baudLow, baudHigh, ok := CalculateBaudValue(atsamd21.SercomRefFrequency, clockSpeedHz)
 	if !ok {
 		return false
 	}
@@ -291,7 +289,7 @@ func (i *_i2c) SetClockFrequency(clockSpeedHz uint32) bool {
 		i2cm.I2cm[i.SERCOM].Baud.SetHsbaudlow(uint8(baudLow))
 
 		// Configure Fast-Mode for 400 KHz
-		baudLow, baudHigh, ok = CalculateBaudValue(atsamd21.SERCOM_REF_FREQUENCY, 400_000)
+		baudLow, baudHigh, ok = CalculateBaudValue(atsamd21.SercomRefFrequency, 400_000)
 		if !ok {
 			return false
 		}

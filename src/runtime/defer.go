@@ -14,16 +14,16 @@ type deferFrame struct {
 type jmp_buf [16]int
 
 //sigo:extern setjmp setjmp
-func setjmp(*jmp_buf) int
+func setjmp(*jmp_buf) int32
 
 //sigo:extern longjmp longjmp
-func longjmp(*jmp_buf, int)
+func longjmp(*jmp_buf, int32)
 
 func deferStackCreate() deferStack {
 	return deferStack{}
 }
 
-func deferInit(isLongjmp int, stack *deferStack) bool {
+func deferInit(isLongjmp int32, stack *deferStack) bool {
 	if isLongjmp != 0 {
 		nextStack := currentGoroutine.deferStack.next
 

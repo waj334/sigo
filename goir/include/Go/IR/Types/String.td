@@ -9,7 +9,8 @@ include "Go/IR/GoDialect.td"
 
 def StringType : GoDialect_Type<"String", "string", [
             RuntimeTypeInterface,
-            DeclareTypeInterfaceMethods<DataLayoutTypeInterface, ["getTypeSize", "getTypeSizeInBits", "getABIAlignment", "getPreferredAlignment"]>
+            DeclareTypeInterfaceMethods<DataLayoutTypeInterface,
+                            ["getTypeSize", "getTypeSizeInBits", "getABIAlignment", "getPreferredAlignment"]>
         ]> {
     let summary = "String type";
     let description = [{

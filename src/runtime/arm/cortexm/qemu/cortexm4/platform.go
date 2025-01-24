@@ -5,6 +5,6 @@ import (
 )
 
 func init() {
-	cortexm.SYSTICK_FREQUENCY = 168_000_000
-	cortexm.NPRIORITY_BITS = 3
+	cortexm.SysTickFrequency = 168_000_000
+	cortexm.IrqPriorityMask = 0b111
 }

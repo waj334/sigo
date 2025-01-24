@@ -151,7 +151,7 @@ func (u *_uart) Configure(config Config) {
 	u.SERCOM.SetPMEnabled(true)
 
 	// Set the baud rate
-	ratio := (uint64(atsamd21.SERCOM_REF_FREQUENCY) * uint64(1000)) / uint64(config.BaudHz*16)
+	ratio := (uint64(atsamd21.SercomRefFrequency) * uint64(1000)) / uint64(config.BaudHz*16)
 	baud := ratio / 1000
 	fp := ((ratio - (baud * 1000)) * 8) / 1000
 
@@ -269,7 +269,7 @@ func (u *_uart) Read(p []byte) (n int, err error) {
 
 func (u *_uart) Write(p []byte) (n int, err error) {
 	u.mutex.Lock()
-	// Write the string to the TX buffer
+	// Write the string to the _TX buffer
 	n, err = u.txBuffer.Write(p)
 
 	// Enable the DRE interrupt that will write the bytes from the buffer
@@ -280,7 +280,7 @@ func (u *_uart) Write(p []byte) (n int, err error) {
 
 func (u *_uart) WriteString(s string) (n int, err error) {
 	u.mutex.Lock()
-	// Write the string to the TX buffer
+	// Write the string to the _TX buffer
 	n, err = u.txBuffer.WriteString(s)
 
 	// Enable the DRE interrupt that will write the bytes from the buffer

@@ -12,7 +12,8 @@ include "Go/IR/GoEnums.td"
 
 def ChanType : GoDialect_Type<"Chan", "chan", [
             RuntimeTypeInterface,
-            DeclareTypeInterfaceMethods<DataLayoutTypeInterface, ["getTypeSize", "getTypeSizeInBits", "getABIAlignment", "getPreferredAlignment"]>
+            DeclareTypeInterfaceMethods<DataLayoutTypeInterface,
+                ["getTypeSize", "getTypeSizeInBits", "getABIAlignment", "getPreferredAlignment"]>
         ]> {
     let summary = "Channel type";
     let description = [{

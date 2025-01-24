@@ -98,7 +98,7 @@ func Build(ctx context.Context, packageDir string) error {
 
 	// Stage the GOROOT that will be used for parsing the packages.
 	// NOTE: GOROOT must be unmodified at this point so that directories can be symlinked accurately.
-	if err := stageGoRoot(goRootStaging, options.Environment); err != nil {
+	if err := StageGoRoot(goRootStaging, options.Environment); err != nil {
 		panic(err)
 	}
 
@@ -291,7 +291,7 @@ func Build(ctx context.Context, packageDir string) error {
 	}
 	fmt.Println("done")
 
-	//TODO: Clean up
+	// TODO: Clean up
 
 	return nil
 }

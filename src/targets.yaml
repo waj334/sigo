@@ -58,15 +58,16 @@ targets:
       features: [ "fpregs", "vfp4d16sp" ]
 
   - series: "stm32h7x7"
-    chips: [ "stm32h747", "stm32h757" ]
+    chips: [ "stm32h747xi", "stm32h747bi", "stm32h747ii", "stm32h747ai", "stm32h747zi", "stm32h747xg", "stm32h747bg", "stm32h747ig", "stm32h747ag", "stm32h757xi", "stm32h757bi", "stm32h757ii", "stm32h757ai", "stm32h757zi" ]
     additionalPackages:
       - "runtime/arm/cortexm"
+      - "runtime/arm/cortexm/stm32/stm32h7x7"
       - "runtime/arm/cortexm/stm32/stm32h7x7/support"
     triple: "armv7em-none-eabi"
     architecture: "thumb"
     alignment: 4
     cpu: "cortex-m7"
-    tags: [ "arm", "armv7m", "armv7em", "thumb", "thumb2", "cortexm", "cortexm4", "fpu" ]
+    tags: [ "arm", "armv7m", "armv7em", "thumb", "thumb2", "cortexm", "cortexm4", "fpu", "stm32h", "stm32h7x7" ]
     features: [ "armv7-m", "armv7e-m", "thumb2", "dsp", "db", "m7", "branch-align-64", "use-mipipeliner", "use-misched" ]
     fpu:
       abi: "hardfp"

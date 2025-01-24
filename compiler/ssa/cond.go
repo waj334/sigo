@@ -29,7 +29,7 @@ func (b *Builder) emitIfStatement(ctx context.Context, stmt *ast.IfStmt) {
 
 	// Conditionally branch to either the then block of the else block.
 	condBrOp := mlir.GoCreateCondBranchOperation(b.ctx, condValue, thenBlock, nil, elseBlock, nil,
-		b.location(stmt.Cond.Pos()))
+		b.location(stmt.Cond.End()))
 	appendOperation(ctx, condBrOp)
 
 	// Build the then block.
@@ -38,7 +38,7 @@ func (b *Builder) emitIfStatement(ctx context.Context, stmt *ast.IfStmt) {
 		b.emitBlock(ctx, stmt.Body)
 		if !blockHasTerminator(currentBlock(ctx)) {
 			// Branch to the exit block.
-			brOp := mlir.GoCreateBranchOperation(b.ctx, exitBlock, nil, b.location(stmt.Body.End()))
+			brOp := mlir.GoCreateBranchOperation(b.ctx, exitBlock, nil, b.location(stmt.End()))
 			appendOperation(ctx, brOp)
 		}
 	})
@@ -48,23 +48,13 @@ func (b *Builder) emitIfStatement(ctx context.Context, stmt *ast.IfStmt) {
 	buildBlock(ctx, elseBlock, func() {
 		// NOTE: An else condition is optional.
 		if stmt.Else != nil {
-			// TODO: This switch can be eliminated once blocks are emitted by only the specific emitX functions.
-			switch elseExpr := stmt.Else.(type) {
-			case *ast.IfStmt:
-				// Emit the else-if condition.
-				b.emitIfStatement(ctx, elseExpr)
-			case *ast.BlockStmt:
-				// Emit the else block.
-				b.emitBlock(ctx, elseExpr)
-			default:
-				panic("unhandled")
-			}
+			b.emitStmt(ctx, stmt.Else)
 		}
 
 		// NOTE: An if-statement may change the current block to a new one that is not the else-block.
 		if !blockHasTerminator(currentBlock(ctx)) {
 			// Branch to the exit block.
-			brOp := mlir.GoCreateBranchOperation(b.ctx, exitBlock, nil, b.location(stmt.Body.End()))
+			brOp := mlir.GoCreateBranchOperation(b.ctx, exitBlock, nil, b.location(stmt.End()))
 			appendOperation(ctx, brOp)
 		}
 	})

@@ -6,9 +6,16 @@ import (
 	"peripheral/pin"
 	"peripheral/rtc"
 	"peripheral/uart"
-	mcu "runtime/arm/cortexm/sam/samx51"
 	"time"
+
+	mcu "runtime/arm/cortexm/sam/samx51"
 )
+
+//sigo:export nanotime runtime.nanotime
+func nanotime() uint64 {
+	// The runtime and time package will use the RTC as its time source.
+	return RTC.Now()
+}
 
 var (
 	RTC  = rtc.RTC
@@ -18,9 +25,6 @@ var (
 
 func init() {
 	rtc.SOURCE_CLK_FREQUENCY = 32_768 // Hz
-
-	// Use the realtime clock as the time source.
-	time.SetSource(RTC)
 
 	// Initialize the clock system.
 	mcu.DefaultClocks()

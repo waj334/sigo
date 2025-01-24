@@ -506,11 +506,20 @@ func (b *Builder) emitDeferStatement(ctx context.Context, stmt *ast.DeferStmt) {
 		default:
 			// Evaluate the callee.
 			F := b.emitExpr(ctx, Fun)[0]
+			signature := b.typeOf(ctx, Fun.Sel).(*types.Signature)
 
 			switch b.objectOf(ctx, Fun.X).(type) {
 			case *types.Var:
-				// Evaluate the receiver value.
-				recv := b.emitExpr(ctx, Fun.X)[0]
+				recvAddr := b.valueOf(ctx, Fun.X)
+
+				var recv mlir.Value
+				if isPointer(signature.Recv().Type()) {
+					// Take the address of the receiver object.
+					recv = recvAddr.Pointer(ctx, location)
+				} else {
+					// Load the receiver value.
+					recv = recvAddr.Load(ctx, location)
+				}
 
 				// Prepend the receiver value to the call args.
 				callArgs = append([]mlir.Value{recv}, callArgs...)

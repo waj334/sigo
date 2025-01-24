@@ -3,24 +3,23 @@
 package atsamd21
 
 import (
-	"unsafe"
-
 	"runtime"
 	"runtime/arm/cortexm"
 	"runtime/arm/cortexm/sam/atsamd21/support/gclk"
 	"runtime/arm/cortexm/sam/atsamd21/support/nvmctrl"
 	"runtime/arm/cortexm/sam/atsamd21/support/pm"
 	"runtime/arm/cortexm/sam/atsamd21/support/sysctrl"
+	"unsafe"
 )
 
 var (
-	SERCOM_REF_FREQUENCY uint32 = 48_000_000
-	GCLK0_FREQUENCY      uint32 = 48_000_000
+	SercomRefFrequency uint32 = 48_000_000
+	Gclk0Frequency     uint32 = 48_000_000
 )
 
 func init() {
-	cortexm.SYSTICK_FREQUENCY = GCLK0_FREQUENCY
-	cortexm.NPRIORITY_BITS = 4
+	cortexm.SysTickFrequency = Gclk0Frequency
+	cortexm.IrqPriorityMask = 0b1111
 }
 
 func DefaultClocks() {
@@ -168,7 +167,7 @@ func initDFLL() {
 	// Enable DFLL48M
 	var DFLLCTRL sysctrl.RegisterDfllctrlType
 	DFLLCTRL.SetMode(true)
-	//DFLLCTRL.SetWaitlock(true)
+	// DFLLCTRL.SetWaitlock(true)
 	DFLLCTRL.SetEnable(true)
 	sysctrl.Sysctrl.Dfllctrl = DFLLCTRL
 	for !sysctrl.Sysctrl.Pclksr.GetDflllckc() || !sysctrl.Sysctrl.Pclksr.GetDflllckc() {

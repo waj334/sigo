@@ -21,3 +21,15 @@ func (b *Builder) boolAttr(value bool) mlir.Attribute {
 		return 0
 	}(value))
 }
+
+func (b *Builder) strAttr(value string) mlir.Attribute {
+	return mlir.StringAttrGet(b.ctx, value)
+}
+
+func (b *Builder) strArrayAttr(values ...string) mlir.Attribute {
+	strAttrs := make([]mlir.Attribute, len(values))
+	for i, v := range values {
+		strAttrs[i] = mlir.StringAttrGet(b.ctx, v)
+	}
+	return mlir.ArrayAttrGet(b.ctx, strAttrs)
+}

@@ -145,7 +145,7 @@ func (u *UART) Configure(config Config) {
 	}
 
 	// Set the baud rate
-	ratio := (uint64(atsamx5x.SERCOM_REF_FREQUENCY) * uint64(1000)) / uint64(config.BaudHz*16)
+	ratio := (uint64(atsamx5x.SercomRefFrequency) * uint64(1000)) / uint64(config.BaudHz*16)
 	baud := ratio / 1000
 	fp := ((ratio - (baud * 1000)) * 8) / 1000
 
@@ -261,7 +261,7 @@ func (u *UART) Read(p []byte) (n int, err error) {
 
 func (u *UART) Write(p []byte) (n int, err error) {
 	u.mutex.Lock()
-	// Write the string to the TX buffer
+	// Write the string to the _TX buffer
 	n, err = u.txBuffer.Write(p)
 
 	// Enable the DRE interrupt that will write the bytes from the buffer
@@ -272,7 +272,7 @@ func (u *UART) Write(p []byte) (n int, err error) {
 
 func (u *UART) WriteString(s string) (n int, err error) {
 	u.mutex.Lock()
-	// Write the string to the TX buffer
+	// Write the string to the _TX buffer
 	n, err = u.txBuffer.WriteString(s)
 
 	// Enable the DRE interrupt that will write the bytes from the buffer

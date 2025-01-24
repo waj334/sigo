@@ -174,7 +174,13 @@ Value locateOrCreateDeferStack(
 
   OpBuilder::InsertionGuard guard(rewriter);
   Block& entryBlock = *parentFunc.getBody().begin();
-  rewriter.createBlock(&entryBlock);
+
+  auto newEntryBlock = rewriter.createBlock(&entryBlock);
+
+  for (const auto& arg : entryBlock.getArguments())
+  {
+    newEntryBlock->addArgument(arg.getType(), arg.getLoc());
+  }
 
   Value deferStackValue =
     createRuntimeCall(rewriter, loc, "deferStackCreate", typeConverter, {})[0];
@@ -209,7 +215,7 @@ Value locateOrCreateDeferStack(
     if (const auto returnType = parentFunc.getFunctionType().getReturnType();
         !mlir::isa<mlir::LLVM::LLVMVoidType>(returnType))
     {
-      // Return the zero value of the result type of the current function.
+      // Return the zero value of the current function's result type.
       mlir::Value zeroValue = rewriter.create<mlir::LLVM::ZeroOp>(loc, returnType);
       rewriter.create<mlir::LLVM::ReturnOp>(loc, zeroValue);
     }
@@ -222,7 +228,8 @@ Value locateOrCreateDeferStack(
   // Insert a conditional branch after the init defer call to branch to the normal block if not
   // panicking or to the recover block upon recovering from a panic.
   rewriter.setInsertionPointAfter(result.getDefiningOp());
-  rewriter.create<mlir::LLVM::CondBrOp>(loc, result, recoverBlock, &entryBlock);
+  rewriter.create<mlir::LLVM::CondBrOp>(
+    loc, result, recoverBlock, &entryBlock, newEntryBlock->getArguments());
 
   return deferStackPtr;
 }
@@ -274,7 +281,6 @@ class AllocaOpLowering : public ConvertOpToLLVMPattern<AllocaOp>
     const Location loc = op.getLoc();
     auto elementType = this->getTypeConverter()->convertType(adaptor.getElement());
     auto parentFunc = op->getParentOfType<mlir::LLVM::LLVMFuncOp>();
-    Block& entryBlock = *parentFunc.getBody().begin();
     Value allocValue;
 
     if (adaptor.getHeap().has_value() && *adaptor.getHeap())
@@ -299,12 +305,6 @@ class AllocaOpLowering : public ConvertOpToLLVMPattern<AllocaOp>
     else
     {
       const auto funcLoc = parentFunc.getLoc();
-      if (!op->getBlock()->isEntryBlock())
-      {
-        // Create the alloca operation for the stack allocation in the entry block of its respective
-        // function.
-        rewriter.setInsertionPointToStart(&entryBlock);
-      }
 
       // Allocate the specified number of elements.
       Value sizeValue =
@@ -322,6 +322,15 @@ class AllocaOpLowering : public ConvertOpToLLVMPattern<AllocaOp>
       // Zero initialize the value.
       Value zeroValue = rewriter.create<mlir::LLVM::ZeroOp>(funcLoc, elementType);
       rewriter.create<mlir::LLVM::StoreOp>(funcLoc, zeroValue, allocValue);
+
+      auto newOp = allocValue.getDefiningOp();
+      for (const auto attr : adaptor.getAttributes())
+      {
+        if (!newOp->hasAttr(attr.getName()))
+        {
+          newOp->setAttr(attr.getName(), attr.getValue());
+        }
+      }
     }
 
     // Create debug information if set on the operation.
@@ -330,10 +339,7 @@ class AllocaOpLowering : public ConvertOpToLLVMPattern<AllocaOp>
         loc->findInstanceOf<mlir::FusedLocWith<mlir::LLVM::DILocalVariableAttr>>())
     {
       rewriter.create<mlir::LLVM::DbgDeclareOp>(
-        allocValue.getDefiningOp()->getLoc(),
-        allocValue,
-        fusedLoc.getMetadata(),
-        mlir::LLVM::DIExpressionAttr());
+        fusedLoc, allocValue, fusedLoc.getMetadata(), mlir::LLVM::DIExpressionAttr());
     }
 
     // return success.
@@ -723,155 +729,102 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
             rewriter.replaceOp(op, runtimeCallResults);
           });
     }
-    else if (callee == "max")
+    else if (callee == "max" || callee == "min")
     {
-      Value incomingValue = operands[0];
-      Type valueType = incomingValue.getType();
-
-      // Add the block parameter that will be used to receive the largest value.
-      Block* successor = rewriter.getBlock();
-      Value result = successor->addArgument(valueType, incomingValue.getLoc());
-      rewriter.replaceOp(op, { result });
+      const auto operandType = operands[0].getType();
+      const auto originalOperandType = op.getOperand(0).getType();
 
       // TODO: Implement fast path for scenario where all values are constants.
 
       if (operands.size() == 1)
       {
-        rewriter.replaceOp(op, { incomingValue });
+        rewriter.replaceOp(op, { operands[0] });
       }
       else
       {
-        SmallVector<mlir::Block*> blocks;
+        const auto predecessorBlock = op->getBlock();
 
-        // Create the initial predecessor block.
-        rewriter.createBlock(rewriter.getBlock());
+        // Create the exit block by splitting at the original operation.
+        const auto exitBlock = rewriter.splitBlock(op->getBlock(), op->getIterator());
+        const auto resultValue = exitBlock->addArgument(operandType, op->getResult(0).getLoc());
+        rewriter.replaceOp(op, resultValue);
 
-        // Create blocks.
+        // Create the initial block where the comparison will be performed.
+        auto block = new mlir::Block;
+        block->addArgument(operandType, operands[0].getLoc());
+        block->insertBefore(exitBlock);
+
+        // Branch to the first comparison block passing the first operand.
+        rewriter.setInsertionPointToEnd(predecessorBlock);
+        rewriter.create<mlir::LLVM::BrOp>(loc, mlir::ValueRange{ operands[0] }, block);
+
+        // Populate each comparison block.
         for (size_t i = 1; i < operands.size(); ++i)
         {
-          const Value nextValue = operands[i];
+          assert(block != exitBlock && "the compare block cannot be the exit block");
+          const auto xValue = block->getArgument(0);
+          const auto yValue = operands[i];
+
+          // Set the insertion point to the start of the first comparison block.
+          rewriter.setInsertionPointToStart(block);
 
           // Compare the incoming value against the next value using the respective comparison
           // operation.
-          Value cond =
-            TypeSwitch<Type, Value>(valueType)
-              .Case(
-                [&](IntegerType) -> Value
-                {
-                  const auto predicate = isUnsigned(op->getOperandTypes()[0])
-                    ? mlir::LLVM::ICmpPredicate::ugt
-                    : mlir::LLVM::ICmpPredicate::sgt;
-                  return rewriter.create<mlir::LLVM::ICmpOp>(
-                    loc, boolType, predicate, incomingValue, nextValue);
-                })
-              .Case(
-                [&](FloatType) -> Value
-                {
-                  return rewriter.create<mlir::LLVM::FCmpOp>(
-                    loc, boolType, mlir::LLVM::FCmpPredicate::ogt, incomingValue, nextValue);
-                });
+          const Value cond = TypeSwitch<Type, Value>(originalOperandType)
+                               .Case(
+                                 [&](mlir::go::IntegerType) -> Value
+                                 {
+                                   mlir::LLVM::ICmpPredicate predicate;
+                                   if (callee == "max")
+                                   {
+                                     predicate = isUnsigned(op->getOperandTypes()[0])
+                                       ? mlir::LLVM::ICmpPredicate::ugt
+                                       : mlir::LLVM::ICmpPredicate::sgt;
+                                   }
+                                   else
+                                   {
+                                     predicate = isUnsigned(op->getOperandTypes()[0])
+                                       ? mlir::LLVM::ICmpPredicate::ult
+                                       : mlir::LLVM::ICmpPredicate::slt;
+                                   }
+                                   return rewriter.create<mlir::LLVM::ICmpOp>(
+                                     loc, boolType, predicate, xValue, yValue);
+                                 })
+                               .Case(
+                                 [&](FloatType) -> Value
+                                 {
+                                   return rewriter.create<mlir::LLVM::FCmpOp>(
+                                     loc,
+                                     boolType,
+                                     callee == "max" ? mlir::LLVM::FCmpPredicate::ogt
+                                                     : mlir::LLVM::FCmpPredicate::olt,
+                                     xValue,
+                                     yValue);
+                                 });
 
-          mlir::Block* next;
-
-          if (i < operands.size() - 1)
+          mlir::Block* nextBlock = nullptr;
+          if (i == operands.size() - 1)
           {
-            // Create the next block to jump to.
-            mlir::OpBuilder::InsertionGuard guard(rewriter);
-            next = rewriter.createBlock(rewriter.getBlock(), valueType, { operands[i].getLoc() });
+            // Branch to the exit block.
+            nextBlock = exitBlock;
           }
           else
           {
-            next = successor;
+            // Create a new block where the next comparison will be performed.
+            nextBlock = new mlir::Block;
+            block->addArgument(operandType, operands[i].getLoc());
+            block->insertBefore(exitBlock);
+            block = nextBlock;
           }
 
-          // Pass the larger value to the next block to perform the next comparison with.
+          // Branch to the next block passing the dependent value.
           rewriter.create<mlir::LLVM::CondBrOp>(
             loc,
             cond,
-            next,
-            SmallVector<Value>{ incomingValue },
-            next,
-            SmallVector<Value>{ nextValue });
-
-          // Continue insertion in the next block.
-          incomingValue = next->getArgument(0);
-          rewriter.setInsertionPointToStart(next);
-        }
-      }
-    }
-    else if (callee == "min")
-    {
-      Value incomingValue = operands[0];
-      Type valueType = incomingValue.getType();
-
-      // Add the block parameter that will be used to receive the smallest value.
-      Block* successor = rewriter.getBlock();
-      Value result = successor->addArgument(valueType, incomingValue.getLoc());
-      rewriter.replaceOp(op, { result });
-
-      // TODO: Implement fast path for scenario where all values are constants.
-
-      if (operands.size() == 1)
-      {
-        rewriter.replaceOp(op, { incomingValue });
-      }
-      else
-      {
-        SmallVector<mlir::Block*> blocks;
-
-        // Create the initial predecessor block.
-        rewriter.createBlock(rewriter.getBlock());
-
-        // Create blocks.
-        for (size_t i = 1; i < operands.size(); ++i)
-        {
-          const Value nextValue = operands[i];
-
-          // Compare the incoming value against the next value using the respective comparison
-          // operation.
-          Value cond =
-            TypeSwitch<Type, Value>(valueType)
-              .Case(
-                [&](IntegerType) -> Value
-                {
-                  const auto predicate = isUnsigned(op->getOperandTypes()[0])
-                    ? mlir::LLVM::ICmpPredicate::ult
-                    : mlir::LLVM::ICmpPredicate::slt;
-                  return rewriter.create<mlir::LLVM::ICmpOp>(
-                    loc, boolType, predicate, incomingValue, nextValue);
-                })
-              .Case(
-                [&](FloatType) -> Value
-                {
-                  return rewriter.create<mlir::LLVM::FCmpOp>(
-                    loc, boolType, mlir::LLVM::FCmpPredicate::olt, incomingValue, nextValue);
-                });
-
-          mlir::Block* next;
-
-          if (i < operands.size() - 1)
-          {
-            // Create the next block to jump to.
-            mlir::OpBuilder::InsertionGuard guard(rewriter);
-            next = rewriter.createBlock(rewriter.getBlock(), valueType, { operands[i].getLoc() });
-          }
-          else
-          {
-            next = successor;
-          }
-
-          // Pass the smaller value to the next block to perform the next comparison with.
-          rewriter.create<mlir::LLVM::CondBrOp>(
-            loc,
-            cond,
-            next,
-            SmallVector<Value>{ incomingValue },
-            next,
-            SmallVector<Value>{ nextValue });
-
-          // Continue insertion in the next block.
-          incomingValue = next->getArgument(0);
-          rewriter.setInsertionPointToStart(next);
+            nextBlock,
+            SmallVector<Value>{ xValue },
+            nextBlock,
+            SmallVector<Value>{ yValue });
         }
       }
     }
@@ -1506,8 +1459,23 @@ struct DeferOpLowering : ConvertOpToLLVMPattern<DeferOp>
     assert(fnValue && "func value is invalid");
 
     // Locate the head of the defer frame list for this function.
-    mlir::Value deferStackPtrValue =
-      locateOrCreateDeferStack(op, this->getTypeConverter(), rewriter);
+    //  mlir::Value deferStackPtrValue =
+    //    locateOrCreateDeferStack(op, this->getTypeConverter(), rewriter);
+
+    mlir::Value deferStackPtrValue;
+    op->getParentOp()->walk(
+      [&](mlir::Operation* op)
+      {
+        if (op->hasAttr("deferStack"))
+        {
+          deferStackPtrValue = rewriter.getRemappedValue(op->getResult(0));
+        }
+      });
+
+    if (!deferStackPtrValue)
+    {
+      return op->emitOpError("no defer stack present in parent function");
+    }
 
     // Create the runtime call to push the defer frame to the defer stack
     createRuntimeCall(
@@ -1609,8 +1577,11 @@ struct GlobalCtorsOpLowering : ConvertOpToLLVMPattern<GlobalCtorsOp>
     OpAdaptor adaptor,
     ConversionPatternRewriter& rewriter) const override
   {
+    mlir::SmallVector<mlir::Attribute> data(
+      adaptor.getCtors().size(), mlir::LLVM::ZeroAttr::get(this->getContext()));
+    const auto dataAttr = mlir::ArrayAttr::get(this->getContext(), data);
     rewriter.replaceOpWithNewOp<mlir::LLVM::GlobalCtorsOp>(
-      op, adaptor.getCtors(), adaptor.getPriorities());
+      op, adaptor.getCtors(), adaptor.getPriorities(), dataAttr);
     return success();
   }
 };
@@ -2671,6 +2642,41 @@ struct TypeAssertOpLowering : ConvertOpToLLVMPattern<TypeAssertOp>
   }
 };
 
+struct UnrealizedConversionCastOpLowering : ConvertOpToLLVMPattern<mlir::UnrealizedConversionCastOp>
+{
+  using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
+
+  LogicalResult matchAndRewrite(
+    UnrealizedConversionCastOp op,
+    OpAdaptor adaptor,
+    ConversionPatternRewriter& rewriter) const override
+  {
+    /*
+    const auto inputType = op.getInputs()[0].getType();
+    for (auto user : op->getUsers())
+    {
+      if (mlir::isa<mlir::UnrealizedConversionCastOp>(user))
+      {
+        const auto userResultType = user->getResult(0).getType();
+        inputType.dump();
+        userResultType.dump();
+        if (userResultType == inputType)
+        {
+          // Replace the user.
+          rewriter.replaceOp(user, op.getInputs()[0]);
+        }
+      }
+    }
+    // Erase this operation.
+    rewriter.eraseOp(op);
+    */
+
+    rewriter.replaceOp(op, op.getInputs());
+
+    return success();
+  }
+};
+
 struct ExtractOpLowering : ConvertOpToLLVMPattern<ExtractOp>
 {
   using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
@@ -2725,7 +2731,7 @@ struct InlineAsmOpLowering final : ConvertOpToLLVMPattern<InlineAsmOp>
 
     mlir::SmallVector<std::string> constraintsCodes;
     size_t constraintIndexOffset = 0;
-    for (int i = 0; i < constraints.size(); ++i)
+    for (size_t i = 0; i < constraints.size(); ++i)
     {
       const auto constraintAttr = mlir::cast<mlir::go::AsmConstraintAttr>(constraints[i]);
       std::string code = constraintAttr.getRegisterClass().str();
@@ -2797,26 +2803,32 @@ struct InlineAsmOpLowering final : ConvertOpToLLVMPattern<InlineAsmOp>
       mlir::SmallVector<mlir::Type> resultStructTypes;
       for (size_t i = 0; i < outputTypes.size(); ++i)
       {
-        const auto outputType =
-          mlir::go::dyn_cast<mlir::go::PointerType>(outputTypes[i]);
+        const auto outputType = mlir::go::dyn_cast<mlir::go::PointerType>(outputTypes[i]);
         resultStructTypes.push_back(typeConverter->convertType(*outputType.getElementType()));
       }
       resultType = mlir::LLVM::LLVMStructType::getLiteral(this->getContext(), resultStructTypes);
-    } else if (outputTypes.size() == 1)
+    }
+    else if (outputTypes.size() == 1)
     {
-      const auto outputType =
-        mlir::go::dyn_cast<mlir::go::PointerType>(outputTypes[0]);
-      resultType = typeConverter->convertType(*outputType.getElementType());
+      const auto outputType = mlir::go::dyn_cast<mlir::go::PointerType>(outputTypes[0]);
+      if (outputType.getElementType().has_value())
+      {
+        resultType = typeConverter->convertType(*outputType.getElementType());
+      }
+      else
+      {
+        resultType = this->getVoidPtrType();
+      }
     }
 
     // Substitute the aliases in the assembly string with their indices.
     std::string asmStr = op.getAsmString().str();
-    for (int i = 0; i < constraints.size(); ++i)
+    for (size_t i = 0; i < constraints.size(); ++i)
     {
       const auto constraintAttr = mlir::cast<mlir::go::AsmConstraintAttr>(constraints[i]);
       if (constraintAttr.getAlias())
       {
-        const std::string aliasStr = "{" + constraintAttr.getAlias().str() + "}";
+        const std::string aliasStr = "{{" + constraintAttr.getAlias().str() + "}}";
         const std::string indexStr = "$" + std::to_string(indexMap[i]);
         stringReplaceAll(asmStr, aliasStr, indexStr);
       }
@@ -2938,6 +2950,8 @@ void populateGoToLLVMConversionPatterns(
             transforms::LLVM::StringToSliceOpLowering,
             transforms::LLVM::StoreOpLowering,
             transforms::LLVM::TypeAssertOpLowering,
+            transforms::LLVM::TypeAssertOpLowering,
+            transforms::LLVM::UnrealizedConversionCastOpLowering,
             transforms::LLVM::YieldOpLowering,
             transforms::LLVM::ZeroOpLowering
         >(converter);

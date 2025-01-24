@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"omibyte.io/sigo/targets/device"
 	"os"
 	"path/filepath"
+
+	"omibyte.io/sigo/targets/device"
 )
 
 var (
@@ -80,6 +81,32 @@ func main() {
 		}
 
 		if _, err = writePeripheralsApi(f, p); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	// Write interrupts API.
+	for _, v := range d.Variants {
+		outFile := filepath.Join(outputDir, "..", fmt.Sprintf("interrupts_%s.go", v.Identifier))
+
+		// Create the directory structure for the group.
+		if err = os.MkdirAll(filepath.Dir(outFile), 0750); err != nil {
+			log.Fatal("file io error: ", err)
+		}
+
+		// Create the file.
+		f, err := os.OpenFile(outFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Write the interrupts API to the file.
+		if _, err := writeBuildTags(f, d, nil); err != nil {
+			log.Fatal(err)
+		}
+
+		// TODO: Support other architectures.
+		if _, err = writeInterruptsApi(f, d.Series, "runtime/arm/cortexm", "cortexm.Interrupt", v); err != nil {
 			log.Fatal(err)
 		}
 	}

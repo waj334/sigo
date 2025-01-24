@@ -14,7 +14,7 @@ func writeLinkerScript(output io.StringWriter, v device.Variant) (int, error) {
 	builder.WriteString("MEMORY\n{\n")
 
 	for _, memory := range v.Memories {
-		fmt.Fprintf(&builder, "    MEM_%s (%s) : ORIGIN = %#x, LENGTH = %#x\n",
+		fmt.Fprintf(&builder, "    MEM_%s (%s) : ORIGIN = %#x, LENGTH = %v\n",
 			strings.ToUpper(memory.Identifier), translateAccess(memory.Flags), memory.Start, memory.Size)
 	}
 
@@ -29,24 +29,36 @@ func writeLinkerScript(output io.StringWriter, v device.Variant) (int, error) {
 		}
 	}
 
-	builder.WriteString("\nSECTIONS\n{\n\n")
+	var memories []device.Memory
 
+	// Filter memories...
 	for _, memory := range v.Memories {
 		if memory.Flags.IsSet(device.PrimaryFlash) || memory.Flags.IsSet(device.PrimaryRam) {
 			continue
 		}
+		memories = append(memories, memory)
+	}
 
-		name := fmt.Sprintf(".%sData", strings.ToLower(memory.Identifier))
-		fmt.Fprintf(&builder, `    %[1]s :
+	if len(memories) > 0 {
+		builder.WriteString("\nSECTIONS\n{\n\n")
+
+		for _, memory := range memories {
+			if memory.Flags.IsSet(device.PrimaryFlash) || memory.Flags.IsSet(device.PrimaryRam) {
+				continue
+			}
+
+			name := fmt.Sprintf(".%sData", strings.ToLower(memory.Identifier))
+			fmt.Fprintf(&builder, `    %[1]s :
     {
         *(%[1]s)
     } >MEM_%s
 
 `,
-			name, strings.ToUpper(memory.Identifier))
-	}
+				name, strings.ToUpper(memory.Identifier))
+		}
 
-	builder.WriteString("}\n\n")
+		builder.WriteString("}\n\n")
+	}
 
 	builder.WriteString("__stack_size = 4K;\n")
 	builder.WriteString("INCLUDE program.ld\n\n")
