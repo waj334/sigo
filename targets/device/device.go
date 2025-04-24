@@ -41,6 +41,6 @@ type Memory struct {
 	Identifier string         `json:"identifier"`
 	Type       MemoryType     `json:"type"`
 	Start      Address        `json:"start"`
-	Size       Address        `json:"size"`
+	Size       string         `json:"size"`
 	Flags      AttributeFlags `json:"flags"`
 }

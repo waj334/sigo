@@ -3,13 +3,12 @@
 package pin
 
 import (
-	"unsafe"
-	"volatile"
-
 	"runtime/arm/cortexm"
 	"runtime/arm/cortexm/sam/atsamd21"
 	"runtime/arm/cortexm/sam/atsamd21/support/eic"
 	"runtime/arm/cortexm/sam/atsamd21/support/port"
+	"unsafe"
+	"volatile"
 )
 
 type Pin uint32
@@ -118,8 +117,8 @@ const (
 )
 
 const (
-	Input  Direction = 0
-	Output Direction = 1
+	Input  Mode = 0
+	Output Mode = 1
 )
 
 const (
@@ -138,8 +137,7 @@ const (
 )
 
 var (
-	handlerFuncs [16]func(Pin)
-	handlerPins  [16]Pin
+	handlerFuncs [16]func()
 )
 
 func (p Pin) High() {
@@ -177,7 +175,7 @@ func (p Pin) Get() bool {
 	}
 }
 
-func (p Pin) SetInterrupt(mode IRQMode, handler func(Pin)) {
+func (p Pin) SetInterrupt(mode IRQMode, handler func()) {
 	// Bounds check the mode
 	if mode < 0 || mode > 5 {
 		panic("invalid mode value")
@@ -203,7 +201,6 @@ func (p Pin) SetInterrupt(mode IRQMode, handler func(Pin)) {
 	exint := int((p & 0xFF) % 16)
 
 	handlerFuncs[exint] = handler
-	handlerPins[exint] = p
 
 	// Set the configuration
 	config := exint / 8
@@ -223,7 +220,7 @@ func (p Pin) SetInterrupt(mode IRQMode, handler func(Pin)) {
 
 	// Enable the interrupt in NVIC
 	irq := cortexm.Interrupt(12 + exint)
-	//irq.SetPriority(0xC0)
+	// irq.SetPriority(0xC0)
 	irq.EnableIRQ()
 }
 
@@ -256,22 +253,21 @@ func (p Pin) ClearInterrupt() {
 		irq.DisableIRQ()
 
 		handlerFuncs[exint] = nil
-		handlerPins[exint] = 0x00FF
 	}
 }
 
-func (p Pin) SetDirection(dir Direction) {
+func (p Pin) SetMode(mode Mode) {
 	portgroup := &port.Port.Group[0xFF&(p>>8)]
-	if dir == Input {
+	if mode == Input {
 		portgroup.Dirclr.SetDirclr(1 << (p & 0xFF))
 		portgroup.Ctrl.SetSampling(1 << (p & 0xFF))
-	} else if dir == Output {
+	} else if mode == Output {
 		portgroup.Dirset.SetDirset(1 << (p & 0xFF))
 	}
 	portgroup.Pincfg[p&0xFF].SetInen(true)
 }
 
-func (p Pin) GetDirection() Direction {
+func (p Pin) GetMode() Mode {
 	portgroup := &port.Port.Group[0xFF&(p>>8)]
 	if (1<<(p&0xFF))&portgroup.Dir.GetDir() == 0 {
 		return Output
@@ -336,7 +332,7 @@ func eicHandler() {
 	for n := range 16 {
 		if (status>>n)&0x1 == 1 {
 			if fn := handlerFuncs[n]; fn != nil {
-				fn(handlerPins[n])
+				fn()
 			}
 
 			// Clear the interrupt flag

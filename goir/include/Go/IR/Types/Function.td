@@ -4,7 +4,8 @@
 include "Go/IR/GoDialect.td"
 
 def GoFunctionType : GoDialect_Type<"Function", "function", [
-            DeclareTypeInterfaceMethods<DataLayoutTypeInterface, ["getTypeSize"]>
+            DeclareTypeInterfaceMethods<DataLayoutTypeInterface,
+                            ["getTypeSize", "getTypeSizeInBits", "getABIAlignment", "getPreferredAlignment"]>
         ]> {
     let parameters = (ins
         OptionalParameter<"::mlir::Type">:$receiver,

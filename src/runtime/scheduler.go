@@ -117,7 +117,7 @@ func runScheduler() bool {
 		}
 
 		if currentGoroutine != nil && currentGoroutine != lastGoroutine && currentGoroutine.state != goroutineRunning {
-			if lastGoroutine != nil {
+			if lastGoroutine != nil && lastGoroutine.state == goroutineRunning {
 				// Transition the last goroutine to the idle state.
 				lastGoroutine.state = goroutineIdle
 			}
@@ -178,40 +178,41 @@ func addGoroutine(f _func) {
 	EnableInterrupts(state)
 }
 
-func removeGoroutine(t *goroutine) {
+func removeGoroutine(ptr unsafe.Pointer) {
 	state := DisableInterrupts()
+	g := (*goroutine)(ptr)
 
 	// Free this goroutine's stack.
-	free(t.stack)
+	free(g.stack)
 
-	if t.next == t && t.prev == t {
+	if g.next == g && g.prev == g {
 		// There is only one goroutine left.
 		headGoroutine = nil
 		currentGoroutine = nil
 		lastGoroutine = nil
 	} else {
 		// Remove the goroutine from the ring.
-		t.prev.next = t.next
-		t.next.prev = t.prev
+		g.prev.next = g.next
+		g.next.prev = g.prev
 
 		// Advance to the next goroutine.
-		if t == currentGoroutine {
-			currentGoroutine = t.prev
+		if g == currentGoroutine {
+			currentGoroutine = g.prev
 		}
 
 		// If the goroutine being removed was the head goroutine, set the next goroutine as the new head goroutine.
-		if t == headGoroutine {
-			headGoroutine = t.next
+		if g == headGoroutine {
+			headGoroutine = g.next
 		}
 
 		// If the goroutine being removed was the current goroutine, set the next goroutine as the new current goroutine.
-		if t == currentGoroutine {
-			currentGoroutine = t.next
+		if g == currentGoroutine {
+			currentGoroutine = g.next
 		}
 
 		// If the goroutine being removed was the last goroutine, set the previous goroutine as the new last goroutine.
-		if t == lastGoroutine {
-			lastGoroutine = t.prev
+		if g == lastGoroutine {
+			lastGoroutine = g.prev
 		}
 	}
 
@@ -219,10 +220,10 @@ func removeGoroutine(t *goroutine) {
 }
 
 func waitGoroutine(ptr unsafe.Pointer) {
-	t := (*goroutine)(ptr)
-	if t.state != goroutineWaiting {
+	g := (*goroutine)(ptr)
+	if g.state != goroutineWaiting {
 		state := DisableInterrupts()
-		t.state = goroutineWaiting
+		g.state = goroutineWaiting
 		EnableInterrupts(state)
 
 		// Schedule another goroutine to begin running.
@@ -231,10 +232,10 @@ func waitGoroutine(ptr unsafe.Pointer) {
 }
 
 func resumeGoroutine(ptr unsafe.Pointer) {
-	t := (*goroutine)(ptr)
-	if t.state == goroutineWaiting {
+	g := (*goroutine)(ptr)
+	if g.state == goroutineWaiting {
 		state := DisableInterrupts()
-		t.state = goroutineIdle
+		g.state = goroutineIdle
 		EnableInterrupts(state)
 	}
 }

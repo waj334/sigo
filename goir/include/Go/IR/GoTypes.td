@@ -21,7 +21,8 @@ include "Go/IR/Types/Slice.td"
 include "Go/IR/Types/String.td"
 
 def NamedType : GoDialect_Type<"Named", "named", [
-            DeclareTypeInterfaceMethods<DataLayoutTypeInterface, ["getTypeSize"]>
+            DeclareTypeInterfaceMethods<DataLayoutTypeInterface,
+                            ["getTypeSize", "getTypeSizeInBits", "getABIAlignment", "getPreferredAlignment"]>
         ]> {
     let parameters = (ins
         "Type":$underlying,

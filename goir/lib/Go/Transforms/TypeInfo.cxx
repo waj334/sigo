@@ -8,6 +8,11 @@
 
 #include "Go/Util.h"
 
+constexpr int64_t constSizeIndex = 0;
+constexpr int64_t constDataIndex = 1;
+constexpr int64_t constNameIndex = 2;
+constexpr int64_t constKindIndex = 3;
+
 namespace mlir::go
 {
 static llvm::SmallDenseMap<mlir::Type, uint64_t> s_generatedTypeInfoMap =
@@ -291,6 +296,7 @@ mlir::LLVM::GlobalOp createTypeInfo(
   const auto i16Type = builder.getI16Type();
   const auto ptrType = mlir::LLVM::LLVMPointerType::get(builder.getContext());
   const auto infoType = converter.convertType(converter.lookupRuntimeType("type"));
+  const auto uintptrType = builder.getIntegerType(converter.getPointerBitwidth());
 
   // Look up type info in module first.
   const auto infoSymbol = typeInfoSymbol(T);
@@ -679,26 +685,30 @@ mlir::LLVM::GlobalOp createTypeInfo(
       const GoTypeId kind = GetGoTypeId(baseType(T));
       Value kindValue =
         builder.create<mlir::LLVM::ConstantOp>(loc, i8Type, static_cast<uint64_t>(kind));
-      typeValue = builder.create<mlir::LLVM::InsertValueOp>(loc, typeValue, kindValue, 0);
+      typeValue =
+        builder.create<mlir::LLVM::InsertValueOp>(loc, typeValue, kindValue, constKindIndex);
 
       // Insert the type size value.
       const auto dataLayout = mlir::DataLayout(module);
       const auto typeSize = dataLayout.getTypeSize(T);
       Value sizeValue =
-        builder.create<mlir::LLVM::ConstantOp>(loc, i16Type, static_cast<uint64_t>(typeSize));
-      typeValue = builder.create<mlir::LLVM::InsertValueOp>(loc, typeValue, sizeValue, 1);
+        builder.create<mlir::LLVM::ConstantOp>(loc, uintptrType, static_cast<uint64_t>(typeSize));
+      typeValue =
+        builder.create<mlir::LLVM::InsertValueOp>(loc, typeValue, sizeValue, constSizeIndex);
 
       if (dataGlobalOp)
       {
         // Insert the address to the respective type data.
         Value dataValue = builder.create<mlir::LLVM::AddressOfOp>(loc, dataGlobalOp);
-        typeValue = builder.create<mlir::LLVM::InsertValueOp>(loc, typeValue, dataValue, 2);
+        typeValue =
+          builder.create<mlir::LLVM::InsertValueOp>(loc, typeValue, dataValue, constDataIndex);
       }
 
       if (!typeName.empty())
       {
         Value nameValue = createGoStringValue(builder, module, converter, typeName, loc);
-        typeValue = builder.create<mlir::LLVM::InsertValueOp>(loc, typeValue, nameValue, 3);
+        typeValue =
+          builder.create<mlir::LLVM::InsertValueOp>(loc, typeValue, nameValue, constNameIndex);
       }
 
       // Yield the type data value.

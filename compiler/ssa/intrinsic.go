@@ -84,7 +84,9 @@ func isIntrinsic(symbol string) bool {
 		"asm.Out",
 		"asm.InOut",
 		"Asm.Clobber",
-		"asm.Inline":
+		"asm.Inline",
+
+		"nonstandard.PointerOf":
 		return true
 	default:
 		return false
@@ -143,6 +145,11 @@ func (b *Builder) emitIntrinsic(ctx context.Context, expr *ast.CallExpr) []mlir.
 	case "asm.Inline":
 		b.emitInlineAssembly(ctx, expr)
 		return nil
+	case "nonstandard.PointerOf":
+		obj := b.objectOf(ctx, expr.Args[0]).(*types.Func)
+		symbolName := qualifiedFuncName(obj)
+		value := b.addressOfSymbol(ctx, symbolName, b.ptr, location)
+		return b.values(value)
 	default:
 		panic("unhandled")
 	}

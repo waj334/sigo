@@ -133,6 +133,29 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
 
     // Walk the module and attach debug info to all alloca operations.
     module.walk([&](AllocaOp op) { processAllocOp(op, builder, dataLayout, runtimeTypes); });
+
+    // Constants
+    module.walk(
+      [&](ConstantOp op)
+      {
+        mlir::Attribute diVar;
+        mlir::TypeSwitch<mlir::Operation*>(op->getParentOp())
+          .Case(
+            [&](mlir::ModuleOp)
+            {
+              // TODO: Need intrinsic operation for describing named constants.
+            })
+          .Case(
+            [&](mlir::FunctionOpInterface)
+            {
+              // TODO: Need intrinsic operation for describing named constants.
+            });
+
+        if (diVar)
+        {
+          op->setLoc(FusedLoc::get(context, { op.getLoc() }, diVar));
+        }
+      });
   }
 
   void processAllocOp(

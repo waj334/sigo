@@ -1,13 +1,16 @@
 package main
 
 import (
-	"github.com/spf13/cobra"
+	"fmt"
+	"os"
+
 	"io/ioutil"
 	"log"
-	"omibyte.io/sigo/builder"
-	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/spf13/cobra"
+	"omibyte.io/sigo/builder"
 )
 
 const (
@@ -48,159 +51,25 @@ var (
 			println("SIGOROOT: ", sigoRoot)
 			println("GOROOT: ", goRoot)
 
-			dirMap := map[string]int{}
-
 			// Remove the root
 			os.RemoveAll(filepath.ToSlash(rootDir))
 
-			filepath.Walk(sigoRoot, func(path string, info os.FileInfo, err error) error {
-				if err != nil {
-					log.Fatalf("Failed to access path %s: %v", path, err)
-				}
-
-				if info.IsDir() {
-					relPath, err := filepath.Rel(sigoRoot, path)
-					if err != nil {
-						log.Fatalf("Failed to get relative path: %v", err)
-					}
-
-					if strings.Contains(relPath, ".git") || strings.Contains(relPath, "CMakeFiles") || strings.Contains(path, "sigo/build") {
-						// Skip git folder
-						return nil
-					}
-
-					includedInSigo := isInclusionList(filepath.ToSlash(relPath), sigoRootInclude)
-					includedInGo := isInclusionList(filepath.ToSlash(relPath), goRootInclude)
-
-					// If the directory is in the inclusion list of both directories and exists in both, create it
-					if includedInSigo && includedInGo {
-						dirMap[path] = CONCRETE
-					} else if includedInSigo || includedInGo {
-						dirMap[path] = SYMLINK
-					}
-				}
-				return nil
-			})
-
-			filepath.Walk(goRoot, func(path string, info os.FileInfo, err error) error {
-				if err != nil {
-					log.Fatalf("Failed to access path %s: %v", path, err)
-				}
-
-				if info.IsDir() {
-					relPath, err := filepath.Rel(goRoot, path)
-					if err != nil {
-						log.Fatalf("Failed to get relative path: %v", err)
-					}
-					includedInGo := isInclusionList(filepath.ToSlash(relPath), goRootInclude)
-
-					if includedInGo {
-						subdirs := strings.Split(filepath.ToSlash(relPath), "/")
-						parentPath := ""
-						for _, subdir := range subdirs {
-							parentPath = filepath.ToSlash(filepath.Join(parentPath, subdir))
-							if isInclusionList(parentPath, sigoRootInclude) {
-								// Does SiGO have this same directory?
-								if _, statErr := os.Stat(filepath.Join(sigoRoot, parentPath)); statErr == nil {
-									dirMap[path] = CONCRETE
-								} else if isInclusionList(parentPath, goRootInclude) {
-									dirMap[path] = SYMLINK
-								}
-							} else if isInclusionList(parentPath, goRootInclude) {
-								dirMap[path] = SYMLINK
-							}
-						}
-					}
-				}
-				return nil
-			})
-
-			// create a copy of the map for iterating
-			tempDirMap := make(map[string]int)
-			for k, v := range dirMap {
-				tempDirMap[k] = v
+			env, err := builder.Environment()
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Toolchain error: %v", err)
+				return
 			}
 
-			/*for path, dirType := range tempDirMap {
-				if dirType == CONCRETE {
-					// remove all directories that are nested within this concrete directory (children, grandchildren, etc.)
-					for nestedPath := range tempDirMap {
-						if nestedPath != path && strings.HasPrefix(nestedPath, path+"/") {
-							delete(tempDirMap, nestedPath)
-						}
-					}
-				}
-			}*/
-
-			// keep only those directories that are immediate children of concrete directories or are not nested within any concrete directory
-			reducedDirMap := make(map[string]int)
-			for path, dirType := range tempDirMap {
-				if dirType == CONCRETE {
-					reducedDirMap[path] = dirType
-				} else { // dirType == SYMLINK
-					parentDir := filepath.Dir(path)
-					if parentType, parentExists := tempDirMap[parentDir]; parentExists && parentType == CONCRETE {
-						// the parent directory is a concrete directory
-						reducedDirMap[path] = dirType
-					} else if !parentExists {
-						// the parent directory is not in the map, so it's not a concrete directory
-						reducedDirMap[path] = dirType
-					}
-				}
+			// Create the root directory.
+			if err := os.MkdirAll(rootDir, 0755); err != nil {
+				fmt.Fprintf(os.Stderr, "error: %v", err)
+				return
 			}
 
-			relToAbs := map[string]string{}
-			for path, _ := range reducedDirMap {
-				var relPath string
-				var err error
-				isSigo := false
-				if strings.HasPrefix(filepath.ToSlash(path), filepath.ToSlash(sigoRoot)) {
-					relPath, err = filepath.Rel(sigoRoot, path)
-					isSigo = true
-				} else {
-					relPath, err = filepath.Rel(goRoot, path)
-				}
-
-				if err != nil {
-					log.Fatalf("Failed to get relative path: %v", err)
-				}
-
-				if _, ok := relToAbs[relPath]; !ok || isSigo {
-					relToAbs[filepath.ToSlash(relPath)] = path
-				}
+			if err := builder.StageGoRoot(rootDir, env); err != nil {
+				fmt.Fprintf(os.Stderr, "Error while staging: %v", err)
+				return
 			}
-
-			for path, _ := range reducedDirMap {
-				var relPath string
-				var err error
-				if strings.HasPrefix(filepath.ToSlash(path), filepath.ToSlash(sigoRoot)) {
-					relPath, err = filepath.Rel(sigoRoot, path)
-				} else {
-					relPath, err = filepath.Rel(goRoot, path)
-				}
-
-				if err != nil {
-					log.Fatalf("Failed to get relative path: %v", err)
-				}
-
-				subdirs := strings.Split(filepath.ToSlash(relPath), "/")
-				parentPath := ""
-				for _, subdir := range subdirs {
-					parentPath = filepath.ToSlash(filepath.Join(parentPath, subdir))
-					targetPath := filepath.Join(rootDir, parentPath)
-					mode := reducedDirMap[relToAbs[parentPath]]
-					if mode == CONCRETE {
-						if err := os.MkdirAll(targetPath, os.ModePerm); err != nil {
-							log.Fatalf("Failed to create directory %s: %v", targetPath, err)
-						}
-					} else if mode == SYMLINK {
-						createSymlink(relToAbs[parentPath], targetPath)
-					}
-				}
-			}
-
-			// Symlink files
-			symlinkFiles(goRoot, rootDir, inclusionFileList)
 		},
 	}
 )

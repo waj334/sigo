@@ -26,6 +26,7 @@ add_mlir_dialect_library(GoIR
         Transforms/AttachDebugInfoPass.cxx
         Transforms/CallPass.cxx
         Transforms/DumpToFilePass.cxx
+        Transforms/FunctionPass.cxx
         Transforms/GlobalConstantsPass.cxx
         Transforms/GlobalInitializerPass.cxx
         Transforms/HeapEscapePass.cxx

@@ -4,7 +4,8 @@
 include "Go/IR/GoDialect.td"
 
 def BooleanType : GoDialect_Type<"Boolean", "bool", [
-            DeclareTypeInterfaceMethods<DataLayoutTypeInterface, ["getTypeSize"]>
+            DeclareTypeInterfaceMethods<DataLayoutTypeInterface,
+                            ["getTypeSize", "getTypeSizeInBits", "getABIAlignment", "getPreferredAlignment"]>
         ]> {
     let extraClassDefinition = [{
         ::llvm::TypeSize $cppClass::getTypeSizeInBits(const DataLayout &dataLayout,
@@ -30,7 +31,8 @@ def BooleanType : GoDialect_Type<"Boolean", "bool", [
 }
 
 def GoIntegerType : GoDialect_Type<"Integer", "integer", [
-            DeclareTypeInterfaceMethods<DataLayoutTypeInterface, ["getTypeSize"]>
+            DeclareTypeInterfaceMethods<DataLayoutTypeInterface,
+                            ["getTypeSize", "getTypeSizeInBits", "getABIAlignment", "getPreferredAlignment"]>
         ]> {
     let parameters = (ins
             "mlir::go::IntegerType::SignednessSemantics":$signedness,

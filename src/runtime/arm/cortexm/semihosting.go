@@ -40,7 +40,7 @@ func (s *semihosting) Write(p []byte) (n int, err error) {
 		ptr := unsafe.Add(unsafe.Pointer(basePtr), i)
 		asm.Inline(`
 			mov r0, #0x03
-			mov r1, {ptr}
+			mov r1, {{ptr}}
 			bkpt 0xAB
 		`, asm.In(ptr), asm.Clobber(register.R0), asm.Clobber(register.R1))
 	}
@@ -55,7 +55,7 @@ func (s *semihosting) WriteString(input string) (n int, err error) {
 		ptr := unsafe.Add(unsafe.Pointer(basePtr), i)
 		asm.Inline(`
 			mov r0, #0x03
-			mov r1, {ptr}
+			mov r1, {{ptr}}
 			bkpt 0xAB
 		`, asm.In(ptr), asm.Clobber(register.R0), asm.Clobber(register.R1))
 	}

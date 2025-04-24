@@ -9,7 +9,8 @@ include "Go/IR/GoDialect.td"
 
 def MapType : GoDialect_Type<"Map", "map", [
             RuntimeTypeInterface,
-            DeclareTypeInterfaceMethods<DataLayoutTypeInterface, ["getTypeSize", "getTypeSizeInBits", "getABIAlignment", "getPreferredAlignment"]>
+            DeclareTypeInterfaceMethods<DataLayoutTypeInterface,
+                            ["getTypeSize", "getTypeSizeInBits", "getABIAlignment", "getPreferredAlignment"]>
         ]> {
     let summary = "Map type";
     let description = [{

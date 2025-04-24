@@ -43,9 +43,8 @@ CGO_LDFLAGS += -Wl,--gc-sections $(shell ${LLVM_CONFIG_EXECUTABLE} --ldflags) $(
 CGO_CFLAGS += -fPIC -ffunction-sections -fdata-sections $(shell ${LLVM_CONFIG_EXECUTABLE} --cflags)
 
 # Add MLIR libraries
-#CGO_LDFLAGS += -lMLIRAffineAnalysis -lMLIRAffineDialect -lMLIRAffineToStandard -lMLIRAffineTransformOps -lMLIRAffineTransforms -lMLIRAffineTransformsTestPasses -lMLIRAffineUtils -lMLIRAMDGPUDialect -lMLIRAMDGPUToROCDL -lMLIRAMXDialect -lMLIRAMXToLLVMIRTranslation -lMLIRAMXTransforms -lMLIRAnalysis -lMLIRArithAttrToLLVMConversion -lMLIRArithDialect -lMLIRArithTestPasses -lMLIRArithToLLVM -lMLIRArithToSPIRV -lMLIRArithTransforms -lMLIRArithUtils -lMLIRArmNeon2dToIntr -lMLIRArmNeonDialect -lMLIRArmNeonToLLVMIRTranslation -lMLIRArmSVEDialect -lMLIRArmSVEToLLVMIRTranslation -lMLIRArmSVETransforms -lMLIRAsmParser -lMLIRAsyncDialect -lMLIRAsyncToLLVM -lMLIRAsyncTransforms -lMLIRBufferizationDialect -lMLIRBufferizationTestPasses -lMLIRBufferizationToMemRef -lMLIRBufferizationTransformOps -lMLIRBufferizationTransforms -lMLIRBytecodeReader -lMLIRBytecodeWriter -lMLIRCallInterfaces -lMLIRCAPIAsync -lMLIRCAPIControlFlow -lMLIRCAPIConversion -lMLIRCAPIDebug -lMLIRCAPIFunc -lMLIRCAPIGPU -lMLIRCAPIInterfaces -lMLIRCAPIIR -lMLIRCAPILinalg -lMLIRCAPILLVM -lMLIRCAPIMLProgram -lMLIRCAPIPDL -lMLIRCAPIQuant -lMLIRCAPIRegisterEverything -lMLIRCAPISCF -lMLIRCAPIShape -lMLIRCAPISparseTensor -lMLIRCAPITensor -lMLIRCAPITransformDialect -lMLIRCAPITransforms -lMLIRCastInterfaces -lMLIRComplexDialect -lMLIRComplexToLibm -lMLIRComplexToLLVM -lMLIRComplexToStandard -lMLIRControlFlowDialect -lMLIRControlFlowInterfaces -lMLIRControlFlowTestPasses -lMLIRControlFlowToLLVM -lMLIRControlFlowToSPIRV -lMLIRCopyOpInterface -lMLIRDataLayoutInterfaces -lMLIRDerivedAttributeOpInterface -lMLIRDestinationStyleOpInterface -lMLIRDialect -lMLIRDialectUtils -lMLIRDLTIDialect -lMLIRDLTITestPasses -lMLIREmitCDialect -lMLIRExecutionEngineUtils -lMLIRFromLLVMIRTranslationRegistration -lMLIRFuncDialect -lMLIRFuncTestPasses -lMLIRFuncToLLVM -lMLIRFuncToSPIRV -lMLIRFuncTransforms -lMLIRGPUOps -lMLIRGPUTestPasses -lMLIRGPUToGPURuntimeTransforms -lMLIRGPUToNVVMTransforms -lMLIRGPUToROCDLTransforms -lMLIRGPUToSPIRV -lMLIRGPUToVulkanTransforms -lMLIRGPUTransformOps -lMLIRGPUTransforms -lMLIRIndexDialect -lMLIRIndexToLLVM -lMLIRInferIntRangeCommon -lMLIRInferIntRangeInterface -lMLIRInferTypeOpInterface -lMLIRIR -lMLIRLinalgAnalysis -lMLIRLinalgDialect -lMLIRLinalgTestPasses -lMLIRLinalgToLLVM -lMLIRLinalgToStandard -lMLIRLinalgTransformOps -lMLIRLinalgTransforms -lMLIRLinalgUtils -lMLIRLLVMCommonConversion -lMLIRLLVMDialect -lMLIRLLVMIRToLLVMTranslation -lMLIRLLVMIRTransforms -lMLIRLLVMTestPasses -lMLIRLLVMToLLVMIRTranslation -lMLIRLoopLikeInterface -lMLIRLspServerLib -lMLIRLspServerSupportLib -lMLIRMaskableOpInterface -lMLIRMaskingOpInterface -lMLIRMathDialect -lMLIRMathTestPasses -lMLIRMathToFuncs -lMLIRMathToLibm -lMLIRMathToLLVM -lMLIRMathToSPIRV -lMLIRMathTransforms -lMLIRMemRefDialect -lMLIRMemRefTestPasses -lMLIRMemRefToLLVM -lMLIRMemRefToSPIRV -lMLIRMemRefTransformOps -lMLIRMemRefTransforms -lMLIRMemRefUtils -lMLIRMlirOptMain -lMLIRMLProgramDialect -lMLIRNVGPUDialect -lMLIRNVGPUTestPasses -lMLIRNVGPUToNVVM -lMLIRNVGPUTransforms -lMLIRNVGPUUtils -lMLIRNVVMDialect -lMLIRNVVMToLLVMIRTranslation -lMLIROpenACCDialect -lMLIROpenACCToLLVM -lMLIROpenACCToLLVMIRTranslation -lMLIROpenACCToSCF -lMLIROpenMPDialect -lMLIROpenMPToLLVM -lMLIROpenMPToLLVMIRTranslation -lMLIROptLib -lMLIRParallelCombiningOpInterface -lMLIRParser -lMLIRPass -lMLIRPDLDialect -lMLIRPDLInterpDialect -lMLIRPDLLAST -lMLIRPDLLCodeGen -lMLIRPdllLspServerLib -lMLIRPDLLODS -lMLIRPDLLParser -lMLIRPDLToPDLInterp -lMLIRPresburger -lMLIRQuantDialect -lMLIRQuantUtils -lMLIRReconcileUnrealizedCasts -lMLIRReduce -lMLIRReduceLib -lMLIRRewrite -lMLIRROCDLDialect -lMLIRROCDLToLLVMIRTranslation -lMLIRRuntimeVerifiableOpInterface -lMLIRSCFDialect -lMLIRSCFTestPasses -lMLIRSCFToControlFlow -lMLIRSCFToGPU -lMLIRSCFToOpenMP -lMLIRSCFToSPIRV -lMLIRSCFTransformOps -lMLIRSCFTransforms -lMLIRSCFUtils -lMLIRShapeDialect -lMLIRShapedOpInterfaces -lMLIRShapeOpsTransforms -lMLIRShapeTestPasses -lMLIRShapeToStandard -lMLIRSideEffectInterfaces -lMLIRSparseTensorDialect -lMLIRSparseTensorPipelines -lMLIRSparseTensorTransforms -lMLIRSparseTensorUtils -lMLIRSPIRVBinaryUtils -lMLIRSPIRVConversion -lMLIRSPIRVDeserialization -lMLIRSPIRVDialect -lMLIRSPIRVModuleCombiner -lMLIRSPIRVSerialization -lMLIRSPIRVTestPasses -lMLIRSPIRVToLLVM -lMLIRSPIRVTransforms -lMLIRSPIRVTranslateRegistration -lMLIRSPIRVUtils -lMLIRSupport -lMLIRSupportIndentedOstream -lMLIRTableGen -lMLIRTargetCpp -lMLIRTargetLLVMIRExport -lMLIRTargetLLVMIRImport -lMLIRTblgenLib -lMLIRTensorDialect -lMLIRTensorInferTypeOpInterfaceImpl -lMLIRTensorTestPasses -lMLIRTensorTilingInterfaceImpl -lMLIRTensorToLinalg -lMLIRTensorToSPIRV -lMLIRTensorTransforms -lMLIRTensorUtils -lMLIRTestAnalysis -lMLIRTestDialect -lMLIRTestDynDialect -lMLIRTestFuncToLLVM -lMLIRTestIR -lMLIRTestPass -lMLIRTestPDLL -lMLIRTestReducer -lMLIRTestRewrite -lMLIRTestTransformDialect -lMLIRTestTransforms -lMLIRTilingInterface -lMLIRTilingInterfaceTestPasses -lMLIRToLLVMIRTranslationRegistration -lMLIRTosaDialect -lMLIRTosaTestPasses -lMLIRTosaToArith -lMLIRTosaToLinalg -lMLIRTosaToSCF -lMLIRTosaToTensor -lMLIRTosaTransforms -lMLIRTransformDialect -lMLIRTransformDialectTransforms -lMLIRTransformDialectUtils -lMLIRTransforms -lMLIRTransformUtils -lMLIRTranslateLib -lMLIRVectorDialect -lMLIRVectorInterfaces -lMLIRVectorTestPasses -lMLIRVectorToGPU -lMLIRVectorToLLVM -lMLIRVectorToSCF -lMLIRVectorToSPIRV -lMLIRVectorTransformOps -lMLIRVectorTransforms -lMLIRVectorUtils -lMLIRViewLikeInterface -lMLIRX86VectorDialect -lMLIRX86VectorToLLVMIRTranslation -lMLIRX86VectorTransforms
-CGO_LDFLAGS += -lMLIRAnalysis -lMLIRArithAttrToLLVMConversion -lMLIRArithDialect -lMLIRArithToLLVM -lMLIRArithTransforms -lMLIRArithUtils -lMLIRAsmParser -lMLIRBytecodeOpInterface -lMLIRBytecodeReader -lMLIRBytecodeWriter -lMLIRCallInterfaces -lMLIRCAPIFunc -lMLIRCAPIIR -lMLIRCAPILLVM -lMLIRCastInterfaces -lMLIRComplexDialect -lMLIRComplexToLLVM -lMLIRControlFlowDialect -lMLIRControlFlowInterfaces -lMLIRControlFlowToLLVM -lMLIRCopyOpInterface -lMLIRDataLayoutInterfaces -lMLIRDerivedAttributeOpInterface -lMLIRDestinationStyleOpInterface -lMLIRFuncDialect -lMLIRFunctionInterfaces -lMLIRFuncToLLVM -lMLIRFuncTransformOps -lMLIRFuncTransforms -lMLIRDialect -lMLIRDialectUtils -lMLIRInferIntRangeCommon -lMLIRDLTIDialect -lMLIRInferIntRangeInterface -lMLIRInferTypeOpInterface -lMLIRIR -lMLIRLLVMCommonConversion -lMLIRLLVMDialect -lMLIRLLVMIRToLLVMTranslation -lMLIRLLVMIRTransforms -lMLIRLLVMToLLVMIRTranslation -lMLIRLoopLikeInterface -lMLIRMaskableOpInterface -lMLIRMaskingOpInterface -lMLIRMathDialect -lMLIRMathToFuncs -lMLIRMathToLLVM -lMLIRMathTransforms -lMLIRMemorySlotInterfaces -lMLIRMlirOptMain -lMLIROptLib -lMLIRParallelCombiningOpInterface -lMLIRParser -lMLIRPass -lMLIRPDLDialect -lMLIRPDLInterpDialect -lMLIRPDLToPDLInterp -lMLIRReconcileUnrealizedCasts -lMLIRReduce -lMLIRReduceLib -lMLIRRewrite -lMLIRRewritePDL -lMLIRRuntimeVerifiableOpInterface -lMLIRSideEffectInterfaces -lMLIRSupport -lMLIRTableGen -lMLIRTargetCpp -lMLIRTargetLLVMIRExport -lMLIRTargetLLVMIRImport -lMLIRTblgenLib -lMLIRTransforms -lMLIRTransformUtils -lMLIRTargetLLVMIRImport -lMLIRTilingInterface -lMLIRToLLVMIRTranslationRegistration -lMLIRUBDialect -lMLIRUBToLLVM -lMLIRViewLikeInterface -lMLIRLLVMToLLVMIRTranslation -lMLIRBuiltinToLLVMIRTranslation
-CGO_LDFLAGS += -lMLIRIR -lGoIR -lCGoIR
+CGO_LDFLAGS += @link.rsp
+CGO_LDFLAGS += -lGoIR -lCGoIR
 CGO_LDFLAGS += -lstdc++
 
 # Add MLIR includes
@@ -74,6 +73,13 @@ SIGO_EXE=$(BINDIR)/sigoc$(EXECUTABLE_POSTFIX)
 ABS_SIGO_EXE=$(ABS_BINDIR)/sigoc$(EXECUTABLE_POSTFIX)
 
 CSP_GEN_EXE=$(BINDIR)/csp-gen$(EXECUTABLE_POSTFIX)
+DEF_GEN_EXE=$(BINDIR)/def-gen$(EXECUTABLE_POSTFIX)
+
+TARGETS_DEVICE_SRCS += $(wildcard $(ROOT_DIR)/targets/device/*.go)
+TARGETS_DEVICE_SRCS += $(wildcard $(ROOT_DIR)/targets/device/importer/*.go)
+TARGETS_DEVICE_SRCS += $(wildcard $(ROOT_DIR)/targets/device/importer/atdf/*.go)
+TARGETS_DEVICE_SRCS += $(wildcard $(ROOT_DIR)/targets/device/importer/svd/*.go)
+TARGETS_DEVICE_SRCS += $(wildcard $(ROOT_DIR)/targets/device/svd/*.go)
 
 SSA_TEST_EXE=$(BINDIR)/ssa_test$(EXECUTABLE_POSTFIX)
 ABS_SSA_TEST_EXE=$(ABS_BINDIR)/ssa_test$(EXECUTABLE_POSTFIX)
@@ -302,13 +308,36 @@ build-compiler-rt:
 	$(call build-compiler-rt,armv6m-none-eabi,armv6m+nofp,-mthumb)
 
 $(CSP_GEN_EXE): $(wildcard $(ROOT_DIR)/cmd/csp-gen/*.go)
-	go build -o $(CSP_GEN_EXE) $(ROOT_DIR)/cmd/csp-gen
+	@if [ $(SIGO_BUILD_RELEASE) -eq 1 ]; then \
+		go build -o $(CSP_GEN_EXE) -gcflags "all=-N -l" $(ROOT_DIR)/cmd/csp-gen; \
+  	else \
+		go build -o $(CSP_GEN_EXE) -gcflags "all=-N -l" $(ROOT_DIR)/cmd/csp-gen; \
+	fi
 
 csp-gen: $(CSP_GEN_EXE)
+	@if [ $(DEBUG) -eq 1 ]; then \
+		dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(CSP_GEN_EXE) -- $(args); \
+	else \
+		$(CSP_GEN_EXE) $(args); \
+	fi
 
-generate-csp: csp-gen
+generate-csp: $(CSP_GEN_EXE)
 	$(CSP_GEN_EXE) --in=$(ROOT_DIR)/targets/definitions/cortexm.json --out=$(ROOT_DIR)/src/runtime/arm/cortexm/support
 	$(CSP_GEN_EXE) --in=$(ROOT_DIR)/targets/definitions/atsamd21.json --out=$(ROOT_DIR)/src/runtime/arm/cortexm/sam/atsamd21/support
 	$(CSP_GEN_EXE) --in=$(ROOT_DIR)/targets/definitions/atsamx5x.json --out=$(ROOT_DIR)/src/runtime/arm/cortexm/sam/atsamx5x/support
+	$(CSP_GEN_EXE) --in=$(ROOT_DIR)/targets/definitions/stm32h747_cm7.json --out=$(ROOT_DIR)/src/runtime/arm/cortexm/stm32/stm32h7x7/support
+
+$(DEF_GEN_EXE): $(wildcard $(ROOT_DIR)/cmd/def-gen/*.go) $(TARGETS_DEVICE_SRCS)
+	@if [ $(SIGO_BUILD_RELEASE) -eq 1 ]; then \
+		go build -o $(DEF_GEN_EXE) $(ROOT_DIR)/cmd/def-gen; \
+  	else \
+		go build -o $(DEF_GEN_EXE) -gcflags "all=-N -l" $(ROOT_DIR)/cmd/def-gen; \
+	fi
+def-gen: $(DEF_GEN_EXE)
+	@if [ $(DEBUG) -eq 1 ]; then \
+		dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(DEF_GEN_EXE) -- $(args); \
+	else \
+		$(DEF_GEN_EXE) $(args); \
+	fi
 
 release: build-picolibc build-compiler-rt generate-csp sigo

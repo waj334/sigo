@@ -220,7 +220,7 @@ func (b *Builder) emitStructCompare(ctx context.Context, op token.Token, X mlir.
 
 func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir.Value {
 	X := b.emitExpr(ctx, expr.X)[0]
-	location := b.location(expr.Pos())
+	location := b.location(expr.OpPos)
 
 	XT := baseType(b.typeOf(ctx, expr.X))
 	YT := baseType(b.typeOf(ctx, expr.Y))

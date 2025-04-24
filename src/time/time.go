@@ -1,10 +1,7 @@
 package time
 
-var source Source
-
-func SetSource(src Source) {
-	source = src
-}
+//sigo:extern nanotime runtime.nanotime
+func nanotime() uint64
 
 type Time struct {
 	t uint64
@@ -28,7 +25,7 @@ const (
 
 func Now() Time {
 	return Time{
-		t: source.Now(),
+		t: nanotime(),
 	}
 }
 

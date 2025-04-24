@@ -12,8 +12,8 @@ func main() {
 	var sum, diff int
 
 	asm.Inline(`
-	adds {sum}, {x}, {y}
-	sub {diff}, {sum}, {y}`,
+	adds {{sum}}, {{x}}, {{y}}
+	sub {{diff}}, {{sum}}, {{y}}`,
 		asm.Out(register.R, &sum, asm.Reserve),
 		asm.InOut(register.R, &diff, asm.Reserve),
 		asm.In(x),

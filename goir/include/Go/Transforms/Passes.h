@@ -26,6 +26,8 @@ std::unique_ptr<mlir::Pass> createDumpToFilePass(StringRef name, StringRef dir);
 
 std::unique_ptr<mlir::Pass> createCallPass();
 
+std::unique_ptr<mlir::Pass> createFunctionPass();
+
 void populateGoToCoreConversionPatterns(
   mlir::MLIRContext* context,
   TypeConverter& converter,

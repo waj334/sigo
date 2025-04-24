@@ -9,7 +9,8 @@ include "Go/IR/GoDialect.td"
 
 def SliceType : GoDialect_Type<"Slice", "slice", [
             RuntimeTypeInterface,
-            DeclareTypeInterfaceMethods<DataLayoutTypeInterface, ["getTypeSize", "getTypeSizeInBits", "getABIAlignment", "getPreferredAlignment"]>
+            DeclareTypeInterfaceMethods<DataLayoutTypeInterface,
+                            ["getTypeSize", "getTypeSizeInBits", "getABIAlignment", "getPreferredAlignment"]>
         ]> {
     let summary = "Slice type";
     let description = [{

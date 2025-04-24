@@ -10,7 +10,8 @@ include "mlir/Interfaces/DataLayoutInterfaces.td"
 //===----------------------------------------------------------------------===//
 
 def ArrayType : GoDialect_Type<"Array", "array", [
-            DeclareTypeInterfaceMethods<DataLayoutTypeInterface, ["getTypeSize"]>
+                DeclareTypeInterfaceMethods<DataLayoutTypeInterface,
+                            ["getTypeSize", "getTypeSizeInBits", "getABIAlignment", "getPreferredAlignment"]>
         ]> {
     let summary = "Array type";
     let description = [{
