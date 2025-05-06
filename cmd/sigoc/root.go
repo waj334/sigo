@@ -61,7 +61,7 @@ var (
 			}
 
 			// Create the root directory.
-			if err := os.MkdirAll(rootDir, 0755); err != nil {
+			if err := os.MkdirAll(rootDir, os.ModePerm); err != nil {
 				fmt.Fprintf(os.Stderr, "error: %v", err)
 				return
 			}

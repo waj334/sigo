@@ -25,7 +25,7 @@ func init() {
 
 func main() {
 	// Create the output directory
-	if err := os.MkdirAll(outputDir, 0750); err != nil {
+	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
 		log.Fatal("file io error: ", err)
 	}
 
@@ -65,7 +65,7 @@ func main() {
 		outFile = filepath.Join(outFile, formatSymbol(p.Identifier, false), "peripheral.go")
 
 		// Create the directory structure for the group.
-		if err = os.MkdirAll(filepath.Dir(outFile), 0750); err != nil {
+		if err = os.MkdirAll(filepath.Dir(outFile), os.ModePerm); err != nil {
 			log.Fatal("file io error: ", err)
 		}
 
@@ -90,7 +90,7 @@ func main() {
 		outFile := filepath.Join(outputDir, "..", fmt.Sprintf("interrupts_%s.go", v.Identifier))
 
 		// Create the directory structure for the group.
-		if err = os.MkdirAll(filepath.Dir(outFile), 0750); err != nil {
+		if err = os.MkdirAll(filepath.Dir(outFile), os.ModePerm); err != nil {
 			log.Fatal("file io error: ", err)
 		}
 
@@ -115,7 +115,7 @@ func main() {
 	for _, v := range d.Variants {
 		outFile := filepath.Join(outputDir, fmt.Sprintf("isr_%s.s", v.Identifier))
 
-		if err = os.MkdirAll(filepath.Dir(outFile), 0750); err != nil {
+		if err = os.MkdirAll(filepath.Dir(outFile), os.ModePerm); err != nil {
 			log.Fatal("file io error: ", err)
 		}
 
@@ -135,7 +135,7 @@ func main() {
 	for _, v := range d.Variants {
 		outFile := filepath.Join(outputDir, fmt.Sprintf("linker_%s.ld", v.Identifier))
 
-		if err = os.MkdirAll(filepath.Dir(outFile), 0750); err != nil {
+		if err = os.MkdirAll(filepath.Dir(outFile), os.ModePerm); err != nil {
 			log.Fatal("file io error: ", err)
 		}
 

@@ -4,7 +4,7 @@ package cortexm
 
 import (
 	"runtime/arm/cortexm/support/fpu"
-	"runtime/arm/cortexm/support/systemcontrol"
+	"runtime/arm/cortexm/support/systemControl"
 )
 
 type extendedFrame struct {

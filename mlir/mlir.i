@@ -1,5 +1,7 @@
 %module mlir
 
+// NOTE: This a workaround since SWIG does not actually support the __attribute__ syntax on Linux. On Windows, this
+//       actually has no effect when building static.
 #define _WIN32
 
 // Remove Mlir prefix from functions and types
@@ -7,9 +9,10 @@
 
 %header %{
 #include <stdbool.h>
+#include <stdint.h>
 //#include "mlir-c/Dialect/Async.h"
 //#include "mlir-c/Dialect/ControlFlow.h"
-#include "mlir-c/Dialect/Func.h"
+//#include "mlir-c/Dialect/Func.h"
 //#include "mlir-c/Dialect/GPU.h" 
 //#include "mlir-c/Dialect/Linalg.h"
 #include "mlir-c/Dialect/LLVM.h"
@@ -34,7 +37,7 @@
 //#include "mlir-c/IntegerSet.h"
 //#include "mlir-c/Interfaces.h"
 #include "mlir-c/IR.h"
-#include "mlir-c/Pass.h"
+//#include "mlir-c/Pass.h"
 //#include "mlir-c/RegisterEverything.h"
 //#include "mlir-c/Transforms.h"
 
@@ -84,6 +87,9 @@
 #include "Go-c/mlir/Types.h"
 %}
 
+%typemap(gotype) intptr_t "int"
+%typemap(gotype) uintptr_t "uint"
+
 %include inttypes.i
 %include typemaps.i
 
@@ -91,10 +97,10 @@
 %ignore mlirStringRefCreateFromCString;
 %ignore mlirStringRefEqual;
 
-%define MLIR_STRING_SLICE_TYPEMAP(N_PARAM, ARR_PARAM)
-%typemap(gotype) (intptr_t N_PARAM, MlirStringRef *ARR_PARAM) "[]string";
-%typemap(imtype) (intptr_t N_PARAM, MlirStringRef *ARR_PARAM) "[]C.MlirStringRef";
-%typemap(goin) (intptr_t N_PARAM, MlirStringRef *ARR_PARAM) %{
+%define _MLIR_STRING_SLICE_TYPEMAP(N_TYPE, N_PARAM, ARR_PARAM)
+%typemap(gotype) (N_TYPE N_PARAM, MlirStringRef *ARR_PARAM) "[]string";
+%typemap(imtype) (N_TYPE N_PARAM, MlirStringRef *ARR_PARAM) "[]C.MlirStringRef";
+%typemap(goin) (N_TYPE N_PARAM, MlirStringRef *ARR_PARAM) %{
     $result = make([]C.MlirStringRef, 0, len($input))
     for _, val := range $input {
         strVal := C.mlirStringRefCreateFromCString(C.CString(val))
@@ -102,10 +108,35 @@
     }
 %}
 
-%typemap(in) (intptr_t N_PARAM, MlirStringRef *ARR_PARAM) %{
+%typemap(in) (N_TYPE N_PARAM, MlirStringRef *ARR_PARAM) %{
     $1 = ($1_type)$input.len;
     $2 = (MlirStringRef*)$input.array;
 %}
+%enddef
+
+%define MLIR_STRING_SLICE_TYPEMAP(N_PARAM, ARR_PARAM)
+_MLIR_STRING_SLICE_TYPEMAP(short, N_PARAM, ARR_PARAM)
+_MLIR_STRING_SLICE_TYPEMAP(unsigned short, N_PARAM, ARR_PARAM)
+
+_MLIR_STRING_SLICE_TYPEMAP(int, N_PARAM, ARR_PARAM)
+_MLIR_STRING_SLICE_TYPEMAP(unsigned int, N_PARAM, ARR_PARAM)
+
+_MLIR_STRING_SLICE_TYPEMAP(long, N_PARAM, ARR_PARAM)
+_MLIR_STRING_SLICE_TYPEMAP(unsigned long, N_PARAM, ARR_PARAM)
+
+_MLIR_STRING_SLICE_TYPEMAP(long long, N_PARAM, ARR_PARAM)
+_MLIR_STRING_SLICE_TYPEMAP(unsigned long long, N_PARAM, ARR_PARAM)
+
+_MLIR_STRING_SLICE_TYPEMAP(int8_t, N_PARAM, ARR_PARAM)
+_MLIR_STRING_SLICE_TYPEMAP(uint8_t, N_PARAM, ARR_PARAM)
+_MLIR_STRING_SLICE_TYPEMAP(int16_t, N_PARAM, ARR_PARAM)
+_MLIR_STRING_SLICE_TYPEMAP(uint16_t, N_PARAM, ARR_PARAM)
+_MLIR_STRING_SLICE_TYPEMAP(int32_t, N_PARAM, ARR_PARAM)
+_MLIR_STRING_SLICE_TYPEMAP(uint32_t, N_PARAM, ARR_PARAM)
+_MLIR_STRING_SLICE_TYPEMAP(int64_t, N_PARAM, ARR_PARAM)
+_MLIR_STRING_SLICE_TYPEMAP(uint64_t, N_PARAM, ARR_PARAM)
+_MLIR_STRING_SLICE_TYPEMAP(intptr_t, N_PARAM, ARR_PARAM)
+_MLIR_STRING_SLICE_TYPEMAP(uintptr_t, N_PARAM, ARR_PARAM)
 %enddef
 
 MLIR_STRING_SLICE_TYPEMAP(nMethodNames, methodNames)
@@ -125,10 +156,10 @@ MLIR_STRING_SLICE_TYPEMAP(nMethodNames, methodNames)
     $result = $1;
 %}
 
-%define MLIR_SLICE_TYPEMAP(TYPE, GOTYPE, N_PARAM, ARR_PARAM)
-%typemap(gotype) (intptr_t N_PARAM, TYPE *ARR_PARAM) "[]GOTYPE";
-%typemap(imtype) (intptr_t N_PARAM, TYPE *ARR_PARAM) "[]C.TYPE";
-%typemap(goin) (intptr_t N_PARAM, TYPE *ARR_PARAM) %{
+%define _MLIR_SLICE_TYPEMAP(TYPE, GOTYPE, N_TYPE, N_PARAM, ARR_PARAM)
+%typemap(gotype) (N_TYPE N_PARAM, TYPE *ARR_PARAM) "[]GOTYPE";
+%typemap(imtype) (N_TYPE N_PARAM, TYPE *ARR_PARAM) "[]C.TYPE";
+%typemap(goin) (N_TYPE N_PARAM, TYPE *ARR_PARAM) %{
    $result = make([]C.TYPE, 0, len($input))
    for _, val := range $input {
         if val != nil {
@@ -139,14 +170,14 @@ MLIR_STRING_SLICE_TYPEMAP(nMethodNames, methodNames)
    }
 %}
 
-%typemap(in) (intptr_t N_PARAM, TYPE *ARR_PARAM) %{
+%typemap(in) (N_TYPE N_PARAM, TYPE *ARR_PARAM) %{
     $1 = ($1_type)$input.len;
     $2 = (TYPE*)$input.array;
 %}
 
-%typemap(gotype) (intptr_t N_PARAM, TYPE const *ARR_PARAM) "[]GOTYPE";
-%typemap(imtype) (intptr_t N_PARAM, TYPE const *ARR_PARAM) "[]C.TYPE";
-%typemap(goin) (intptr_t N_PARAM, TYPE const *ARR_PARAM) %{
+%typemap(gotype) (N_TYPE N_PARAM, TYPE const *ARR_PARAM) "[]GOTYPE";
+%typemap(imtype) (N_TYPE N_PARAM, TYPE const *ARR_PARAM) "[]C.TYPE";
+%typemap(goin) (N_TYPE N_PARAM, TYPE const *ARR_PARAM) %{
     $result = make([]C.TYPE, 0, len($input))
     for _, val := range $input {
         if val != nil {
@@ -157,10 +188,35 @@ MLIR_STRING_SLICE_TYPEMAP(nMethodNames, methodNames)
     }
 %}
 
-%typemap(in) (intptr_t N_PARAM, TYPE const *ARR_PARAM) %{
+%typemap(in) (N_TYPE N_PARAM, TYPE const *ARR_PARAM) %{
     $1 = ($1_type)$input.len;
     $2 = (TYPE*)$input.array;
 %}
+%enddef
+
+%define MLIR_SLICE_TYPEMAP(TYPE, GOTYPE, N_PARAM, ARR_PARAM)
+_MLIR_SLICE_TYPEMAP(TYPE, GOTYPE, short, N_PARAM, ARR_PARAM)
+_MLIR_SLICE_TYPEMAP(TYPE, GOTYPE, unsigned short, N_PARAM, ARR_PARAM)
+
+_MLIR_SLICE_TYPEMAP(TYPE, GOTYPE, int, N_PARAM, ARR_PARAM)
+_MLIR_SLICE_TYPEMAP(TYPE, GOTYPE, unsigned int, N_PARAM, ARR_PARAM)
+
+_MLIR_SLICE_TYPEMAP(TYPE, GOTYPE, long, N_PARAM, ARR_PARAM)
+_MLIR_SLICE_TYPEMAP(TYPE, GOTYPE, unsigned long, N_PARAM, ARR_PARAM)
+
+_MLIR_SLICE_TYPEMAP(TYPE, GOTYPE, long long, N_PARAM, ARR_PARAM)
+_MLIR_SLICE_TYPEMAP(TYPE, GOTYPE, unsigned long long, N_PARAM, ARR_PARAM)
+
+_MLIR_SLICE_TYPEMAP(TYPE, GOTYPE, int8_t, N_PARAM, ARR_PARAM)
+_MLIR_SLICE_TYPEMAP(TYPE, GOTYPE, uint8_t, N_PARAM, ARR_PARAM)
+_MLIR_SLICE_TYPEMAP(TYPE, GOTYPE, int16_t, N_PARAM, ARR_PARAM)
+_MLIR_SLICE_TYPEMAP(TYPE, GOTYPE, uint16_t, N_PARAM, ARR_PARAM)
+_MLIR_SLICE_TYPEMAP(TYPE, GOTYPE, int32_t, N_PARAM, ARR_PARAM)
+_MLIR_SLICE_TYPEMAP(TYPE, GOTYPE, uint32_t, N_PARAM, ARR_PARAM)
+_MLIR_SLICE_TYPEMAP(TYPE, GOTYPE, int64_t, N_PARAM, ARR_PARAM)
+_MLIR_SLICE_TYPEMAP(TYPE, GOTYPE, uint64_t, N_PARAM, ARR_PARAM)
+_MLIR_SLICE_TYPEMAP(TYPE, GOTYPE, intptr_t, N_PARAM, ARR_PARAM)
+_MLIR_SLICE_TYPEMAP(TYPE, GOTYPE, uintptr_t, N_PARAM, ARR_PARAM)
 %enddef
 
 MLIR_SLICE_TYPEMAP(MlirAffineExpr, AffineExpr, nAffineExprs, affineExprs)
@@ -212,36 +268,61 @@ MLIR_SLICE_TYPEMAP(MlirValue, Value, nValues, values)
 MLIR_SLICE_TYPEMAP(MlirValue, Value, nArgs, args)
 MLIR_SLICE_TYPEMAP(MlirValue, Value, nChans, chans)
 
-%define MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, N_PARAM, ARR_PARAM)
-%typemap(gotype) (intptr_t N_PARAM, TYPE *ARR_PARAM) "[]GOTYPE";
-%typemap(gotype) (intptr_t N_PARAM, TYPE *ARR_PARAM) "[]GOTYPE";
-%typemap(imtype) (intptr_t N_PARAM, TYPE *ARR_PARAM) "[]C.TYPE";
-%typemap(goin) (intptr_t N_PARAM, TYPE *ARR_PARAM) %{
+%define _MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, N_TYPE, N_PARAM, ARR_PARAM)
+%typemap(gotype) (N_TYPE N_PARAM, TYPE *ARR_PARAM) "[]GOTYPE";
+%typemap(gotype) (N_TYPE N_PARAM, TYPE *ARR_PARAM) "[]GOTYPE";
+%typemap(imtype) (N_TYPE N_PARAM, TYPE *ARR_PARAM) "[]C.TYPE";
+%typemap(goin) (N_TYPE N_PARAM, TYPE *ARR_PARAM) %{
     $result = make([]C.TYPE, 0, len($input))
     for _, val := range $input {
         $result = append($result, C.TYPE(val))
     }
 %}
 
-%typemap(in) (intptr_t N_PARAM, TYPE *ARR_PARAM) %{
+%typemap(in) (N_TYPE N_PARAM, TYPE *ARR_PARAM) %{
     $1 = ($1_type)$input.len;
     $2 = (TYPE*)$input.array;
 %}
 
-%typemap(gotype) (intptr_t N_PARAM, TYPE const *ARR_PARAM) "[]GOTYPE";
-%typemap(imtype) (intptr_t N_PARAM, TYPE const *ARR_PARAM) "[]C.TYPE";
-%typemap(in) (intptr_t N_PARAM, TYPE const *ARR_PARAM) "[]C.TYPE";
-%typemap(goin) (intptr_t N_PARAM, TYPE const *ARR_PARAM) %{
+%typemap(gotype) (N_TYPE N_PARAM, TYPE const *ARR_PARAM) "[]GOTYPE";
+%typemap(imtype) (N_TYPE N_PARAM, TYPE const *ARR_PARAM) "[]C.TYPE";
+%typemap(in) (N_TYPE N_PARAM, TYPE const *ARR_PARAM) "[]C.TYPE";
+%typemap(goin) (N_TYPE N_PARAM, TYPE const *ARR_PARAM) %{
    $result = make([]C.TYPE, 0, len($input))
    for _, val := range $input {
        $result = append($result, C.TYPE(val))
    }
 %}
 
-%typemap(in) (intptr_t N_PARAM, TYPE const *ARR_PARAM) %{
+%typemap(in) (N_TYPE N_PARAM, TYPE const *ARR_PARAM) %{
     $1 = ($1_type)$input.len;
     $2 = (TYPE*)$input.array;
 %}
+%enddef
+
+%define MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, N_PARAM, ARR_PARAM)
+_MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, short, N_PARAM, ARR_PARAM)
+_MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, unsigned short, N_PARAM, ARR_PARAM)
+
+_MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, int, N_PARAM, ARR_PARAM)
+_MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, unsigned int, N_PARAM, ARR_PARAM)
+
+_MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, long, N_PARAM, ARR_PARAM)
+_MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, unsigned long, N_PARAM, ARR_PARAM)
+
+_MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, long long, N_PARAM, ARR_PARAM)
+_MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, unsigned long long, N_PARAM, ARR_PARAM)
+
+_MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, int8_t, N_PARAM, ARR_PARAM)
+_MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, uint8_t, N_PARAM, ARR_PARAM)
+_MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, int16_t, N_PARAM, ARR_PARAM)
+_MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, uint16_t, N_PARAM, ARR_PARAM)
+_MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, int32_t, N_PARAM, ARR_PARAM)
+_MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, uint32_t, N_PARAM, ARR_PARAM)
+_MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, int64_t, N_PARAM, ARR_PARAM)
+_MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, uint64_t, N_PARAM, ARR_PARAM)
+_MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, intptr_t, N_PARAM, ARR_PARAM)
+_MLIR_PRIMITIVE_SLICE_TYPEMAP(TYPE, GOTYPE, uintptr_t, N_PARAM, ARR_PARAM)
 %enddef
 
 MLIR_PRIMITIVE_SLICE_TYPEMAP(bool, bool, size, values)
@@ -313,13 +394,13 @@ LLVM_TYPEMAP(LLVMErrorRef)
 //%include "mlir-c/IntegerSet.h"
 //%include "mlir-c/Interfaces.h"
 %include "mlir-c/IR.h"
-%include "mlir-c/Pass.h"
+//%include "mlir-c/Pass.h"
 //%include "mlir-c/RegisterEverything.h"
 //%include "mlir-c/Transforms.h"
 
 //%include "mlir-c/Dialect/Async.h"
 //%include "mlir-c/Dialect/ControlFlow.h"
-%include "mlir-c/Dialect/Func.h"
+//%include "mlir-c/Dialect/Func.h"
 //%include "mlir-c/Dialect/GPU.h"
 //%include "mlir-c/Dialect/Linalg.h"
 %include "mlir-c/Dialect/LLVM.h"

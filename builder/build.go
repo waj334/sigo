@@ -227,7 +227,7 @@ func Build(ctx context.Context, packageDir string) error {
 	// Create the output directory.
 	outputDir := filepath.Dir(options.Output)
 	if _, err := os.Stat(outputDir); errors.Is(err, os.ErrNotExist) {
-		if err := os.MkdirAll(outputDir, 0750); err != nil {
+		if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
 			return err
 		}
 	}
@@ -357,6 +357,12 @@ func link(options Options, targetInfo targets.TargetInfo, arch string, float str
 				}
 				return ""
 			}(),
+			func() string {
+				if float == "nofp" {
+					return "-mfloat-abi=softfp"
+				}
+				return "-mfloat-abi=hard"
+			}(),
 			"-o", objFile}
 
 		// Append defines to the assembler arguments
@@ -385,7 +391,7 @@ func link(options Options, targetInfo targets.TargetInfo, arch string, float str
 		args = append(args, objFile)
 	}
 
-	// Invoke ld.lld to compile the final binary
+	// Invoke ld.lld to link the final binary image.
 	lldCmd := exec.Command(toolchain.LD, args...)
 	lldCmd.Stdout = nil
 	lldCmd.Stderr = os.Stderr

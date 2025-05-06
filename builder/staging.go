@@ -29,7 +29,7 @@ func StageGoRoot(stageDir string, env Env) error {
 
 	// Create the directory for the standard library.
 	sigoStlPath := filepath.Join(sigoRootPath, "src")
-	err = os.MkdirAll(sigoStlPath, os.ModeDir)
+	err = os.MkdirAll(sigoStlPath, os.ModePerm)
 	if err != nil {
 		return err
 	}
@@ -44,7 +44,7 @@ func StageGoRoot(stageDir string, env Env) error {
 			}
 
 			// Create this directory.
-			err = os.MkdirAll(stagedPath, os.ModeDir)
+			err = os.MkdirAll(stagedPath, os.ModePerm)
 			if err != nil {
 				return err
 			}
@@ -87,7 +87,7 @@ func StageGoRoot(stageDir string, env Env) error {
 				// Check if the directory does not already exist in the staging directory.
 				if _, err := os.Stat(stagedPath); errors.Is(err, os.ErrNotExist) {
 					// Create this directory.
-					err = os.MkdirAll(stagedPath, os.ModeDir)
+					err = os.MkdirAll(stagedPath, os.ModePerm)
 					if err != nil {
 						return err
 					}
