@@ -3,6 +3,13 @@ include:
   - builtin
   - internal/buildcfg
   - internal/bytealg
+  - internal/goarch
+  - internal/godebug
+  - internal/goexperiment
+  - internal/goos
+  - internal/goroot
+  - internal/gover
+  - internal/goversion
   - io
   - unicode
   - unicode/utf8

@@ -22,7 +22,7 @@ extern "C"
 
   void mlirStringRefDestroy(MlirStringRef* ref);
 
-  intptr_t mlirTypeHash(MlirType type);
+  int mlirTypeHash(MlirType type);
 
   MlirAttribute mlirGoCreateTypeMetadata(MlirType type, MlirAttribute dict);
 
@@ -58,7 +58,7 @@ extern "C"
 
   MlirAttribute mlirGoCreateTypeMetadataDictionaryAttr(
     MlirContext context,
-    intptr_t nEntries,
+    int nEntries,
     MlirAttribute* entries);
 
   MlirBlock mlirRegionGetLastBlock(MlirRegion region);
@@ -73,11 +73,11 @@ extern "C"
   MlirOperation mlirValueGetDefiningOperation(MlirValue value);
 
   MlirBlock
-  mlirBlockCreate2(intptr_t nArgs, MlirType* args, intptr_t nLocations, MlirLocation* locations);
+  mlirBlockCreate2(int nArgs, MlirType* args, int nLocations, MlirLocation* locations);
 
   MlirAttribute mlirDistinctAttrGet(MlirAttribute attr);
 
-  void mlirGoBlockDumpTail(MlirBlock block, intptr_t count);
+  void mlirGoBlockDumpTail(MlirBlock block, int count);
 
   enum MlirGoAsmConstraintDirection
   {

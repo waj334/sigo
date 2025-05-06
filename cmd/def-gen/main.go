@@ -109,7 +109,7 @@ func main() {
 
 	if len(output) > 0 {
 		// Create the directory to where the file will be stored.
-		err = os.MkdirAll(filepath.Dir(output), 0750)
+		err = os.MkdirAll(filepath.Dir(output), os.ModePerm)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(-4)

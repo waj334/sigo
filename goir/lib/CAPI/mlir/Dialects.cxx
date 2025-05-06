@@ -142,7 +142,7 @@ void mlirStringRefDestroy(MlirStringRef* ref)
   free((void*)ref->data);
 }
 
-intptr_t mlirTypeHash(MlirType type)
+int mlirTypeHash(MlirType type)
 {
   auto _type = unwrap(type);
   return mlir::hash_value(_type);
@@ -358,7 +358,7 @@ MlirAttribute mlirGoCreateTypeMetadataEntryAttr(MlirType type, MlirAttribute dic
 
 MlirAttribute mlirGoCreateTypeMetadataDictionaryAttr(
   MlirContext context,
-  intptr_t nEntries,
+  int nEntries,
   MlirAttribute* entries)
 {
   const auto _context = unwrap(context);
@@ -419,7 +419,7 @@ MlirOperation mlirValueGetDefiningOperation(MlirValue value)
 }
 
 MlirBlock
-mlirBlockCreate2(intptr_t nArgs, MlirType* args, intptr_t nLocations, MlirLocation* locations)
+mlirBlockCreate2(int nArgs, MlirType* args, int nLocations, MlirLocation* locations)
 {
   assert(nArgs == nLocations);
   return mlirBlockCreate(nArgs, args, locations);
@@ -431,7 +431,7 @@ MlirAttribute mlirDistinctAttrGet(MlirAttribute attr)
   return wrap(mlir::DistinctAttr::create(_attr));
 }
 
-void mlirGoBlockDumpTail(MlirBlock block, intptr_t count)
+void mlirGoBlockDumpTail(MlirBlock block, int count)
 {
   auto _block = unwrap(block);
   auto it = _block->rbegin();

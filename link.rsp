@@ -210,7 +210,3 @@
 -lMLIRVectorTransforms
 -lMLIRVectorUtils
 -lMLIRViewLikeInterface
--lMLIRX86VectorDialect
--lMLIRX86VectorToLLVMIRTranslation
--lMLIRX86VectorTransforms
-

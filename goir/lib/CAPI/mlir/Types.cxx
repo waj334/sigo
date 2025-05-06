@@ -40,7 +40,7 @@ bool mlirGoTypeIsAPointer(MlirType type)
   return mlir::go::isa<mlir::go::PointerType>(_type);
 }
 
-MlirType mlirGoCreateArrayType(MlirType elementType, intptr_t length)
+MlirType mlirGoCreateArrayType(MlirType elementType, int length)
 {
   auto _elementType = unwrap(elementType);
   return wrap(mlir::go::ArrayType::get(_elementType.getContext(), _elementType, length));
@@ -69,9 +69,9 @@ MlirType mlirGoCreateChanType(MlirType elementType, enum mlirGoChanDirection dir
 
 MlirType mlirGoCreateInterfaceType(
   MlirContext context,
-  intptr_t nMethodNames,
+  int nMethodNames,
   MlirStringRef* methodNames,
-  intptr_t nMethods,
+  int nMethods,
   MlirType* methods)
 {
   auto _context = unwrap(context);
@@ -93,7 +93,7 @@ MlirType mlirGoCreateInterfaceType(
 
   // Populate the method map
   mlir::go::detail::InterfaceTypeStorage::FunctionMap _methodsMap;
-  for (intptr_t i = 0; i < nMethodNames; i++)
+  for (int i = 0; i < nMethodNames; i++)
   {
     _methodsMap[_methodNames[i].str()] = mlir::cast<mlir::go::FunctionType>(_methods[i]);
   }
@@ -114,9 +114,9 @@ MlirType mlirGoCreateNamedInterfaceType(MlirContext context, MlirStringRef name)
 void mlirGoSetNamedInterfaceMethods(
   MlirContext context,
   MlirType interface,
-  intptr_t nMethodNames,
+  int nMethodNames,
   MlirStringRef* methodNames,
-  intptr_t nMethods,
+  int nMethods,
   MlirType* methods)
 {
   auto _interface = mlir::cast<mlir::go::InterfaceType>(unwrap(interface));
@@ -138,7 +138,7 @@ void mlirGoSetNamedInterfaceMethods(
 
   // Populate the method map
   mlir::go::detail::InterfaceTypeStorage::FunctionMap _methodsMap;
-  for (intptr_t i = 0; i < nMethodNames; i++)
+  for (int i = 0; i < nMethodNames; i++)
   {
     _methodsMap[_methodNames[i].str()] = mlir::cast<mlir::go::FunctionType>(_methods[i]);
   }
@@ -190,7 +190,7 @@ MlirType mlirGoCreateStringType(MlirContext context)
   return wrap(::mlir::go::StringType::get(unwrap(context)));
 }
 
-MlirType mlirGoCreateBasicStructType(MlirContext context, intptr_t nFields, MlirType* fields)
+MlirType mlirGoCreateBasicStructType(MlirContext context, int nFields, MlirType* fields)
 {
   auto _context = unwrap(context);
 
@@ -202,11 +202,11 @@ MlirType mlirGoCreateBasicStructType(MlirContext context, intptr_t nFields, Mlir
 
 MlirType mlirGoCreateLiteralStructType(
   MlirContext context,
-  intptr_t nNames,
+  int nNames,
   MlirAttribute* names,
-  intptr_t nFields,
+  int nFields,
   MlirType* fields,
-  intptr_t nTags,
+  int nTags,
   MlirAttribute* tags)
 {
   auto _context = unwrap(context);
@@ -255,7 +255,7 @@ MlirType mlirGoCreateLiteralStructType(
 
   mlir::SmallVector<mlir::go::GoStructType::FieldTy> _fields;
   _fields.reserve(nFields);
-  for (intptr_t i = 0; i < nFields; i++)
+  for (int i = 0; i < nFields; i++)
   {
     _fields.emplace_back(_fieldNames[i], _fieldTypes[i], _fieldTags[i]);
   }
@@ -272,11 +272,11 @@ MlirType mlirGoCreateNamedStructType(MlirContext context, MlirStringRef name)
 
 void mlirGoSetStructTypeBody(
   MlirType type,
-  intptr_t nNames,
+  int nNames,
   MlirAttribute* names,
-  intptr_t nFields,
+  int nFields,
   MlirType* fields,
-  intptr_t nTags,
+  int nTags,
   MlirAttribute* tags)
 {
   std::vector<mlir::Type> body;
@@ -326,7 +326,7 @@ void mlirGoSetStructTypeBody(
 
   mlir::SmallVector<mlir::go::GoStructType::FieldTy> _fields;
   _fieldNames.reserve(nFields);
-  for (intptr_t i = 0; i < nFields; i++)
+  for (int i = 0; i < nFields; i++)
   {
     _fields.emplace_back(_fieldNames[i], _fieldTypes[i], _fieldTags[i]);
   }
@@ -351,7 +351,7 @@ bool mlirGoTypeIsBoolean(MlirType type)
   return mlir::go::isa<mlir::go::BooleanType>(unwrap(type));
 }
 
-MlirType mlirGoCreateSignedIntType(MlirContext ctx, intptr_t width)
+MlirType mlirGoCreateSignedIntType(MlirContext ctx, int width)
 {
   auto _ctx = unwrap(ctx);
   if (width > 0)
@@ -361,7 +361,7 @@ MlirType mlirGoCreateSignedIntType(MlirContext ctx, intptr_t width)
   return wrap(mlir::go::IntegerType::get(_ctx, mlir::go::IntegerType::Signed));
 }
 
-MlirType mlirGoCreateUnsignedIntType(MlirContext ctx, intptr_t width)
+MlirType mlirGoCreateUnsignedIntType(MlirContext ctx, int width)
 {
   auto _ctx = unwrap(ctx);
   if (width > 0)
@@ -419,9 +419,9 @@ int mlirGoIntegerTypeGetWidth(MlirType type)
 MlirType mlirGoCreateFunctionType(
   MlirContext ctx,
   MlirType* receiver,
-  intptr_t nInputs,
+  int nInputs,
   MlirType* inputs,
-  intptr_t nResults,
+  int nResults,
   MlirType* results)
 {
   auto _ctx = unwrap(ctx);
@@ -461,25 +461,25 @@ MlirType mlirGoFunctionTypeGetReceiver(MlirType type)
   return wrap(_type.getReceiver());
 }
 
-intptr_t mlirGoFunctionTypeGetNumInputs(MlirType type)
+int mlirGoFunctionTypeGetNumInputs(MlirType type)
 {
   const auto _type = mlir::go::cast<mlir::go::FunctionType>(unwrap(type));
   return _type.getNumInputs();
 }
 
-MlirType mlirGoFunctionTypeGetInput(MlirType type, intptr_t index)
+MlirType mlirGoFunctionTypeGetInput(MlirType type, int index)
 {
   const auto _type = mlir::go::cast<mlir::go::FunctionType>(unwrap(type));
   return wrap(_type.getInput(index));
 }
 
-intptr_t mlirGoFunctionTypeGetNumResults(MlirType type)
+int mlirGoFunctionTypeGetNumResults(MlirType type)
 {
   const auto _type = mlir::go::cast<mlir::go::FunctionType>(unwrap(type));
   return _type.getNumResults();
 }
 
-MlirType mlirGoFunctionTypeGetResult(MlirType type, intptr_t index)
+MlirType mlirGoFunctionTypeGetResult(MlirType type, int index)
 {
   const auto _type = mlir::go::cast<mlir::go::FunctionType>(unwrap(type));
   return wrap(_type.getResult(index));

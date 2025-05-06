@@ -18,11 +18,11 @@ using namespace mlir;
 MlirOperation mlirGoCreateInlineAssemblyOperation(
   MlirContext context,
   MlirAttribute asmStr,
-  intptr_t nConstraints,
+  int nConstraints,
   MlirAttribute* constraints,
-  intptr_t nRegisterClobbers,
+  int nRegisterClobbers,
   MlirAttribute* registerClobbers,
-  intptr_t nOperands,
+  int nOperands,
   MlirValue* operands,
   MlirLocation location)
 {
@@ -509,7 +509,7 @@ MlirOperation mlirGoCreateAllocaOperation(
   MlirContext context,
   MlirType resultType,
   MlirType elementType,
-  intptr_t numElements,
+  int numElements,
   bool isHeap,
   MlirLocation location)
 {
@@ -517,7 +517,7 @@ MlirOperation mlirGoCreateAllocaOperation(
   auto _resultType = unwrap(resultType);
   auto _elementType = unwrap(elementType);
   auto _location = unwrap(location);
-  intptr_t _numElements = 1;
+  int _numElements = 1;
   if (numElements > 0)
   {
     _numElements = numElements;
@@ -597,9 +597,9 @@ MlirOperation mlirGoCreateGepOperation(
   MlirContext context,
   MlirValue addr,
   MlirType baseType,
-  intptr_t nConstIndices,
+  int nConstIndices,
   int32_t* constIndices,
-  intptr_t nDynamicIndices,
+  int nDynamicIndices,
   MlirValue* dynamicIndices,
   MlirType type,
   MlirLocation location)
@@ -1159,7 +1159,7 @@ MlirOperation mlirGoCreateChangeInterfaceOperation(
 MlirOperation mlirGoCreateTypeAssertOperation(
   MlirContext context,
   MlirValue value,
-  intptr_t nResults,
+  int nResults,
   MlirType* results,
   MlirLocation location)
 {
@@ -1309,7 +1309,7 @@ MlirOperation mlirGoCreateAtomicSwapOperation(
 MlirOperation mlirGoCreateBranchOperation(
   MlirContext context,
   MlirBlock dest,
-  intptr_t nDestOperands,
+  int nDestOperands,
   MlirValue* destOperands,
   MlirLocation location)
 {
@@ -1329,10 +1329,10 @@ MlirOperation mlirGoCreateCondBranchOperation(
   MlirContext context,
   MlirValue condition,
   MlirBlock trueDest,
-  intptr_t nTrueDestOperands,
+  int nTrueDestOperands,
   MlirValue* trueDestOperands,
   MlirBlock falseDest,
-  intptr_t nFalseDestOperands,
+  int nFalseDestOperands,
   MlirValue* falseDestOperands,
   MlirLocation location)
 {
@@ -1360,7 +1360,7 @@ MlirOperation mlirGoCreateCondBranchOperation(
 
 MlirOperation mlirGoCreateReturnOperation(
   MlirContext context,
-  intptr_t nOperands,
+  int nOperands,
   MlirValue* operands,
   MlirLocation location)
 {
@@ -1382,9 +1382,9 @@ MlirOperation mlirGoCreateReturnOperation(
 MlirOperation mlirGoCreateCallOperation(
   MlirContext context,
   MlirStringRef callee,
-  intptr_t nResultTypes,
+  int nResultTypes,
   MlirType* resultTypes,
-  intptr_t nOperands,
+  int nOperands,
   MlirValue* operands,
   MlirLocation location)
 {
@@ -1407,9 +1407,9 @@ MlirOperation mlirGoCreateCallOperation(
 MlirOperation mlirGoCreateCallIndirectOperation(
   MlirContext context,
   MlirValue callee,
-  intptr_t nResultTypes,
+  int nResultTypes,
   MlirType* resultTypes,
-  intptr_t nOperands,
+  int nOperands,
   MlirValue* operands,
   MlirLocation location)
 {
@@ -1433,7 +1433,7 @@ MlirOperation mlirGoCreateDeferOperation(
   MlirContext context,
   MlirValue fn,
   MlirAttribute* method,
-  intptr_t nArgs,
+  int nArgs,
   MlirValue* args,
   MlirLocation location)
 {
@@ -1458,7 +1458,7 @@ MlirOperation mlirGoCreateGoOperation(
   MlirContext context,
   MlirValue fn,
   MlirStringRef method,
-  intptr_t nArgs,
+  int nArgs,
   MlirValue* args,
   MlirLocation location)
 {
@@ -1487,7 +1487,7 @@ MlirOperation mlirGoCreateInterfaceCall(
   MlirStringRef callee,
   MlirType signature,
   MlirValue ifaceValue,
-  intptr_t nArgs,
+  int nArgs,
   MlirValue* args,
   MlirLocation location)
 {
@@ -1509,9 +1509,9 @@ MlirOperation mlirGoCreateInterfaceCall(
 MlirOperation mlirGoCreateBuiltInCallOperation(
   MlirContext context,
   MlirStringRef identifier,
-  intptr_t nResultTypes,
+  int nResultTypes,
   MlirType* resultTypes,
-  intptr_t nOperands,
+  int nOperands,
   MlirValue* operands,
   MlirLocation location)
 {
@@ -1662,7 +1662,7 @@ MlirOperation mlirGoCreateMakeInterfaceOperation(
 
 MlirOperation mlirGoCreateChanRecvOp(
   MlirContext context,
-  intptr_t nResultTypes,
+  int nResultTypes,
   MlirType* resultTypes,
   MlirValue channel,
   MlirLocation location)
@@ -1718,11 +1718,11 @@ MlirOperation mlirGoCreateChanSelectOp(
   MlirContext context,
   bool hasDefault,
   MlirAttribute send,
-  intptr_t nChans,
+  int nChans,
   MlirValue* chans,
   MlirBlock defaultDest,
   MlirBlock exitDest,
-  intptr_t nCases,
+  int nCases,
   MlirBlock* cases,
   MlirLocation location)
 {

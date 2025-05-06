@@ -20,15 +20,15 @@ extern "C"
 
   bool mlirGoTypeIsAPointer(MlirType type);
 
-  MlirType mlirGoCreateArrayType(MlirType elementType, intptr_t length);
+  MlirType mlirGoCreateArrayType(MlirType elementType, int length);
 
   MlirType mlirGoCreateChanType(MlirType elementType, enum mlirGoChanDirection direction);
 
   MlirType mlirGoCreateInterfaceType(
     MlirContext context,
-    intptr_t nMethodNames,
+    int nMethodNames,
     MlirStringRef* methodNames,
-    intptr_t nMethods,
+    int nMethods,
     MlirType* methods);
 
   MlirType mlirGoCreateNamedInterfaceType(MlirContext context, MlirStringRef name);
@@ -36,9 +36,9 @@ extern "C"
   void mlirGoSetNamedInterfaceMethods(
     MlirContext context,
     MlirType interface,
-    intptr_t nMethodNames,
+    int nMethodNames,
     MlirStringRef* methodNames,
-    intptr_t nMethods,
+    int nMethods,
     MlirType* methods);
 
   MlirType mlirGoCreateMapType(MlirType keyType, MlirType valueType);
@@ -53,37 +53,37 @@ extern "C"
 
   MlirType mlirGoCreateStringType(MlirContext context);
 
-  MlirType mlirGoCreateBasicStructType(MlirContext context, intptr_t nFields, MlirType* fields);
+  MlirType mlirGoCreateBasicStructType(MlirContext context, int nFields, MlirType* fields);
 
   MlirType mlirGoCreateLiteralStructType(
     MlirContext context,
-    intptr_t nNames,
+    int nNames,
     MlirAttribute* names,
-    intptr_t nFields,
+    int nFields,
     MlirType* fields,
-    intptr_t nTags,
+    int nTags,
     MlirAttribute* tags);
 
   MlirType mlirGoCreateNamedStructType(MlirContext context, MlirStringRef name);
 
   void mlirGoSetStructTypeBody(
     MlirType type,
-    intptr_t nNames,
+    int nNames,
     MlirAttribute* names,
-    intptr_t nFields,
+    int nFields,
     MlirType* fields,
-    intptr_t nTags,
+    int nTags,
     MlirAttribute* tags);
 
   MlirType mlirGoCreateBooleanType(MlirContext ctx);
 
   bool mlirGoTypeIsBoolean(MlirType type);
 
-  MlirType mlirGoCreateSignedIntType(MlirContext ctx, intptr_t width);
+  MlirType mlirGoCreateSignedIntType(MlirContext ctx, int width);
 
   MlirType mlirGoStructTypeGetFieldType(MlirType type, int index);
 
-  MlirType mlirGoCreateUnsignedIntType(MlirContext ctx, intptr_t width);
+  MlirType mlirGoCreateUnsignedIntType(MlirContext ctx, int width);
 
   MlirType mlirGoCreateUintptrType(MlirContext ctx);
 
@@ -100,9 +100,9 @@ extern "C"
   MlirType mlirGoCreateFunctionType(
     MlirContext ctx,
     MlirType* receiver,
-    intptr_t nInputs,
+    int nInputs,
     MlirType* inputs,
-    intptr_t nResults,
+    int nResults,
     MlirType* results);
 
   bool mlirGoTypeIsAFunctionType(MlirType type);
@@ -111,13 +111,13 @@ extern "C"
 
   MlirType mlirGoFunctionTypeGetReceiver(MlirType type);
 
-  intptr_t mlirGoFunctionTypeGetNumInputs(MlirType type);
+  int mlirGoFunctionTypeGetNumInputs(MlirType type);
 
-  MlirType mlirGoFunctionTypeGetInput(MlirType type, intptr_t index);
+  MlirType mlirGoFunctionTypeGetInput(MlirType type, int index);
 
-  intptr_t mlirGoFunctionTypeGetNumResults(MlirType type);
+  int mlirGoFunctionTypeGetNumResults(MlirType type);
 
-  MlirType mlirGoFunctionTypeGetResult(MlirType type, intptr_t index);
+  MlirType mlirGoFunctionTypeGetResult(MlirType type, int index);
 
 #ifdef __cplusplus
 }

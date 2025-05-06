@@ -19,11 +19,11 @@ extern "C"
   MlirOperation mlirGoCreateInlineAssemblyOperation(
     MlirContext context,
     MlirAttribute asmStr,
-    intptr_t nConstraints,
+    int nConstraints,
     MlirAttribute* constraints,
-    intptr_t nRegisterClobbers,
+    int nRegisterClobbers,
     MlirAttribute* registerClobbers,
-    intptr_t nOperands,
+    int nOperands,
     MlirValue* operands,
     MlirLocation location);
 
@@ -292,7 +292,7 @@ extern "C"
     MlirContext context,
     MlirType resultType,
     MlirType elementType,
-    intptr_t numElements,
+    int numElements,
     bool isHeap,
     MlirLocation location);
 
@@ -340,9 +340,9 @@ extern "C"
     MlirContext context,
     MlirValue addr,
     MlirType baseType,
-    intptr_t nConstIndices,
+    int nConstIndices,
     int32_t* constIndices,
-    intptr_t nDynamicIndices,
+    int nDynamicIndices,
     MlirValue* dynamicIndices,
     MlirType type,
     MlirLocation location);
@@ -539,7 +539,7 @@ extern "C"
   MlirOperation mlirGoCreateTypeAssertOperation(
     MlirContext context,
     MlirValue value,
-    intptr_t nResults,
+    int nResults,
     MlirType* results,
     MlirLocation location);
 
@@ -608,7 +608,7 @@ extern "C"
   MlirOperation mlirGoCreateBranchOperation(
     MlirContext context,
     MlirBlock dest,
-    intptr_t nDestOperands,
+    int nDestOperands,
     MlirValue* destOperands,
     MlirLocation location);
 
@@ -616,16 +616,16 @@ extern "C"
     MlirContext context,
     MlirValue condition,
     MlirBlock trueDest,
-    intptr_t nTrueDestOperands,
+    int nTrueDestOperands,
     MlirValue* trueDestOperands,
     MlirBlock falseDest,
-    intptr_t nFalseDestOperands,
+    int nFalseDestOperands,
     MlirValue* falseDestOperands,
     MlirLocation location);
 
   MlirOperation mlirGoCreateReturnOperation(
     MlirContext context,
-    intptr_t nOperands,
+    int nOperands,
     MlirValue* operands,
     MlirLocation location);
 
@@ -636,18 +636,18 @@ extern "C"
   MlirOperation mlirGoCreateCallOperation(
     MlirContext context,
     MlirStringRef callee,
-    intptr_t nResultTypes,
+    int nResultTypes,
     MlirType* resultTypes,
-    intptr_t nOperands,
+    int nOperands,
     MlirValue* operands,
     MlirLocation location);
 
   MlirOperation mlirGoCreateCallIndirectOperation(
     MlirContext context,
     MlirValue callee,
-    intptr_t nResultTypes,
+    int nResultTypes,
     MlirType* resultTypes,
-    intptr_t nOperands,
+    int nOperands,
     MlirValue* operands,
     MlirLocation location);
 
@@ -655,7 +655,7 @@ extern "C"
     MlirContext context,
     MlirValue fn,
     MlirAttribute* method,
-    intptr_t nArgs,
+    int nArgs,
     MlirValue* args,
     MlirLocation location);
 
@@ -663,7 +663,7 @@ extern "C"
     MlirContext context,
     MlirValue fn,
     MlirStringRef method,
-    intptr_t nArgs,
+    int nArgs,
     MlirValue* args,
     MlirLocation location);
 
@@ -672,16 +672,16 @@ extern "C"
     MlirStringRef callee,
     MlirType signature,
     MlirValue value,
-    intptr_t nArgs,
+    int nArgs,
     MlirValue* args,
     MlirLocation location);
 
   MlirOperation mlirGoCreateBuiltInCallOperation(
     MlirContext context,
     MlirStringRef identifier,
-    intptr_t nResultTypes,
+    int nResultTypes,
     MlirType* resultTypes,
-    intptr_t nOperands,
+    int nOperands,
     MlirValue* operands,
     MlirLocation location);
 
@@ -737,7 +737,7 @@ extern "C"
 
   MlirOperation mlirGoCreateChanRecvOp(
     MlirContext context,
-    intptr_t nResultTypes,
+    int nResultTypes,
     MlirType* resultTypes,
     MlirValue channel,
     MlirLocation location);
@@ -760,11 +760,11 @@ extern "C"
     MlirContext context,
     bool hasDefault,
     MlirAttribute send,
-    intptr_t nChans,
+    int nChans,
     MlirValue* chans,
     MlirBlock defaultDest,
     MlirBlock exitDest,
-    intptr_t nCases,
+    int nCases,
     MlirBlock* cases,
     MlirLocation location);
 

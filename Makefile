@@ -6,9 +6,22 @@ ifeq ($(OS),Windows_NT)
 	CMAKE_CXX_FLAGS += -pthread -femulated-tls
 	CMAKE_CXX_STANDARD_LIBRARIES += -lpthread
 	CLANG_TARGET := x86_64-pc-windows-gnu
+	CC ?= clang
+	CXX ?= clang++
 	# NOTE: ld should be replaced with ld.lld directly on Windows since Go is dumb.
 else
 	CGO_LDFLAGS += -fuse-ld=lld -lrt -ldl -lpthread -lm -lz -ltinfo
+endif
+
+CMAKE_COMPILER_ARGS := -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX}
+CMAKE_COMPILER_TARGET_ARGS += -DCMAKE_C_COMPILER_TARGET=${CLANG_TARGET} -DCMAKE_CXX_COMPILER_TARGET=${CLANG_TARGET}
+CMAKE_LINKER_ARGS := -DCMAKE_LINKER_TYPE=DEFAULT
+
+# Override the linker based on pattern
+ifneq (,$(findstring ld.gold,$(LD)))
+	CMAKE_LINKER_ARGS := -DCMAKE_LINKER_TYPE=GOLD
+else ifneq (,$(findstring ld.lld,$(LD)))
+	CMAKE_LINKER_ARGS := -DCMAKE_LINKER_TYPE=LLD
 endif
 
 GOFLAGS +=
@@ -20,7 +33,7 @@ ifeq ($(SIGO_BUILD_RELEASE),0)
 	CMAKE_BUILD_TYPE := Debug
 else
 	CGO_CFLAGS += -Oz
-	CMAKE_BUILD_TYPE=Release
+	CMAKE_BUILD_TYPE := Release
 endif
 
 LLVM_BUILD_DIR=$(ROOT_DIR)/build/$(CMAKE_BUILD_TYPE)/llvm-build
@@ -88,21 +101,18 @@ ABS_SSA_TEST_EXE=$(ABS_BINDIR)/ssa_test$(EXECUTABLE_POSTFIX)
 DEBUG ?= 0
 
 define build-compiler-rt
-	cmake $(ROOT_DIR)/thirdparty/llvm-project/compiler-rt -G "Ninja" -B ./build/compiler-rt-$(1)-$(2) \
+	CC=${CC} CXX=${CXX} cmake $(ROOT_DIR)/thirdparty/llvm-project/compiler-rt -G "Ninja" -B ./build/Release/compiler-rt-$(1)-$(2) \
 		-DCMAKE_INSTALL_PREFIX=$(ROOT_DIR)/lib/compiler-rt/$(1)/$(2) \
+		${CMAKE_COMPILER_ARGS} \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DBUILD_SHARED_LIBS=OFF \
 		-DCMAKE_SYSTEM_NAME="Generic" \
-		-DCMAKE_C_COMPILER=clang \
 		-DCMAKE_C_COMPILER_TARGET=$(1) \
 		-DCMAKE_C_FLAGS="-nostdlib -march=$(2) $(3)" \
-		-DCMAKE_CXX_COMPILER=clang++ \
 		-DCMAKE_CXX_COMPILER_TARGET=$(1) \
 		-DCMAKE_CXX_FLAGS="-nostdlib -march=$(2) $(3)" \
 		-DCMAKE_ASM_COMPILER_TARGET=$(1) \
 		-DCMAKE_ASM_FLAGS="-march=$(2) $(3)" \
-		-DCMAKE_C_COMPILER_LAUNCHER=ccache \
-		-DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
 		-DLLVM_CMAKE_DIR=$(LLVM_BUILD_DIR) \
 		-DCOMPILER_RT_OS_DIR="$(1)" \
 		-DCOMPILER_RT_DEFAULT_TARGET_ONLY=ON \
@@ -113,31 +123,28 @@ define build-compiler-rt
 		-DCOMPILER_RT_BUILD_XRAY=OFF \
 		-DCOMPILER_RT_BUILD_LIBFUZZER=OFF \
 		-DCOMPILER_RT_BUILD_PROFILE=OFF
-	cmake --build ./build/compiler-rt-$(1)-$(2) --target install
+	cmake --build ./build/Release/compiler-rt-$(1)-$(2) --target install
 endef
 
 define build-picolibc
-	cmake $(ROOT_DIR)/thirdparty/picolibc -G "Ninja" -B ./build/picolibc-$(1)-$(2) \
+	CC=${CC} CXX=${CXX} cmake $(ROOT_DIR)/thirdparty/picolibc -G "Ninja" -B ./build/Release/picolibc-$(1)-$(2) 	\
 		-DCMAKE_INSTALL_PREFIX=$(ROOT_DIR)/lib/picolibc/$(1)/$(2) \
+		${CMAKE_COMPILER_ARGS} \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DBUILD_SHARED_LIBS=OFF \
 		-DCMAKE_SYSTEM_NAME="Generic" \
 		-DCMAKE_SYSTEM_PROCESSOR="arm" \
-		-DCMAKE_C_COMPILER=clang \
 		-DCMAKE_C_COMPILER_TARGET=$(1) \
 		-DCMAKE_C_FLAGS="-nostdlib -march=$(2) $(3)" \
-		-DCMAKE_CXX_COMPILER=clang++ \
 		-DCMAKE_CXX_COMPILER_TARGET=$(1) \
 		-DCMAKE_CXX_FLAGS="-nostdlib -march=$(2) $(3)" \
 		-DCMAKE_ASM_COMPILER_TARGET=$(1) \
 		-DCMAKE_ASM_FLAGS="-march=$(2) $(3)" \
-		-DCMAKE_C_COMPILER_LAUNCHER=ccache \
-		-DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
 		-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER \
 		-DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
 		-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY \
 		-DPICOLIBC_TLS=OFF
-	cmake --build ./build/picolibc-$(1)-$(2) --target install --parallel
+	cmake --build ./build/Release/picolibc-$(1)-$(2) --target install --parallel
 endef
 
 define build-test
@@ -193,25 +200,21 @@ clean-sigo:
 
 $(LLVM_CMAKE_CACHE):
 	@mkdir -p ${LLVM_BUILD_DIR}
-	cmake -G "Ninja" -B ${LLVM_BUILD_DIR} $(ROOT_DIR)/thirdparty/llvm-project/llvm 	\
-		-DCMAKE_C_COMPILER=clang 													\
-        -DCMAKE_C_COMPILER_TARGET=${CLANG_TARGET} 									\
-        -DCMAKE_CXX_COMPILER=clang++ 												\
-        -DCMAKE_CXX_COMPILER_TARGET=${CLANG_TARGET} 								\
-        -DCMAKE_C_COMPILER_LAUNCHER=ccache 											\
-        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache 										\
-        -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}"										\
-        -DCMAKE_CXX_STANDARD_LIBRARIES="${CMAKE_CXX_STANDARD_LIBRARIES}"			\
-        -DCMAKE_LINKER_TYPE=LLD 													\
-		-DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) 										\
-		-DLLVM_ENABLE_PROJECTS="llvm;mlir" 											\
-		-DLLVM_ENABLE_ASSERTIONS=ON 												\
-		-DLLVM_ENABLE_EXPENSIVE_CHECKS=ON 											\
-		-DLLVM_ENABLE_BACKTRACES=ON 												\
-		-DLLVM_TARGETS_TO_BUILD="${CMAKE_LLVM_COMPONENTS}" 							\
-		-DMLIR_INCLUDE_TESTS=OFF 													\
-		-DLLVM_INCLUDE_TESTS=OFF 													\
-		-DCOMPILER_RT_INCLUDE_TESTS=OFF 											\
+	CC=${CC} CXX=${CXX} LD=${LD} cmake -G "Ninja" -B ${LLVM_BUILD_DIR} $(ROOT_DIR)/thirdparty/llvm-project/llvm 	\
+		-DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) \
+		${CMAKE_COMPILER_ARGS} \
+		${CMAKE_COMPILER_TARGET_ARGS} \
+		${CMAKE_LINKER_ARGS} \
+        -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}" \
+        -DCMAKE_CXX_STANDARD_LIBRARIES="${CMAKE_CXX_STANDARD_LIBRARIES}" \
+		-DLLVM_ENABLE_PROJECTS="llvm;mlir" \
+		-DLLVM_ENABLE_ASSERTIONS=ON \
+		-DLLVM_ENABLE_EXPENSIVE_CHECKS=ON \
+		-DLLVM_ENABLE_BACKTRACES=ON \
+		-DLLVM_TARGETS_TO_BUILD="${CMAKE_LLVM_COMPONENTS}" \
+		-DMLIR_INCLUDE_TESTS=OFF \
+		-DLLVM_INCLUDE_TESTS=OFF \
+		-DCOMPILER_RT_INCLUDE_TESTS=OFF \
 		-DCLANG_INCLUDE_TESTS=OFF
 
 configure-llvm: $(LLVM_CMAKE_CACHE)
@@ -220,17 +223,13 @@ build-llvm: configure-llvm
 	cmake --build ${LLVM_BUILD_DIR} -j$(NUM_JOBS)
 
 $(GOIR_CMAKE_CACHE):
-	cmake -G "Ninja" -B ${GOIR_BUILD_DIR} ${GOIR_ROOT}								\
-		-DCMAKE_C_COMPILER_TARGET=${CLANG_TARGET} 									\
-		-DCMAKE_C_COMPILER=clang 													\
-		-DCMAKE_CXX_COMPILER=clang++ 												\
-		-DCMAKE_CXX_COMPILER_TARGET=${CLANG_TARGET} 								\
-		-DCMAKE_C_COMPILER_LAUNCHER=ccache 											\
-		-DCMAKE_CXX_COMPILER_LAUNCHER=ccache 										\
-		-DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}" 										\
-		-DCMAKE_CXX_STANDARD_LIBRARIES="${CMAKE_CXX_STANDARD_LIBRARIES}"			\
-		-DCMAKE_LINKER_TYPE=LLD 													\
-		-DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) 										\
+	CC=${CC} CXX=${CXX} LD=${LD}  cmake -G "Ninja" -B ${GOIR_BUILD_DIR} ${GOIR_ROOT} \
+		-DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) \
+		${CMAKE_COMPILER_ARGS} \
+		${CMAKE_COMPILER_TARGET_ARGS} \
+		${CMAKE_LINKER_ARGS} \
+		-DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}" \
+		-DCMAKE_CXX_STANDARD_LIBRARIES="${CMAKE_CXX_STANDARD_LIBRARIES}" \
 		-DCMAKE_PREFIX_PATH=${LLVM_BUILD_DIR}/lib/cmake
 
 configure-goir: build-llvm $(GOIR_CMAKE_CACHE)
@@ -249,7 +248,7 @@ reconfigure:
 generate-llvm-bindings: ./llvm/llvm.go
 ./llvm/llvm.go: ./llvm/llvm.i
 	@echo "Generating LLVM bindings using SWIG..."
-	@swig -go -intgosize 64 -cgo \
+	@swig -DSWIGWORDSIZE64 -go -intgosize 64 -cgo \
 	-I$(ROOT_DIR)/build/llvm-build/lib/clang/16/include \
 	-I$(ROOT_DIR)/build/llvm-build/include \
 	-I$(ROOT_DIR)/build/llvm-headers/include \
@@ -265,7 +264,7 @@ clean-llvm-bindings:
 generate-clang-bindings: ./clang/clang.go
 ./clang/clang.go: ./clang/clang.i
 	@echo "Generating Clang bindings using SWIG..."
-	@swig -go -intgosize 64 -cgo \
+	@swig -DSWIGWORDSIZE64 -go -intgosize 64 -cgo \
 	-I$(ROOT_DIR)/build/llvm-build/lib/clang/16/include \
 	-I$(ROOT_DIR)/build/llvm-build/include \
 	-I$(ROOT_DIR)/build/llvm-build/include \
@@ -280,7 +279,7 @@ clean-clang-bindings:
 generate-mlir-bindings: ./mlir/mlir.go
 ./mlir/mlir.go: ./mlir/mlir.i $(GOIR_ROOT)/include/Go-c/mlir/Dialects.h $(GOIR_ROOT)/include/Go-c/mlir/Enums.h $(GOIR_ROOT)/include/Go-c/mlir/Operations.h $(GOIR_ROOT)/include/Go-c/mlir/Types.h
 	@echo "Generating MLIR bindings using SWIG..."
-	@swig -go -intgosize 64 -cgo \
+	@swig -DSWIGWORDSIZE64 -go -intgosize 64 -cgo \
 	-I$(ROOT_DIR)/build/llvm-build/lib/clang/16/include \
 	-I$(ROOT_DIR)/build/llvm-build/include \
 	-I${GOIR_ROOT}/include \

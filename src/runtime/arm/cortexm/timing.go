@@ -3,7 +3,7 @@ package cortexm
 import (
 	"sync/atomic"
 
-	"runtime/arm/cortexm/support/systemcontrol"
+	"runtime/arm/cortexm/support/systemControl"
 	"runtime/arm/cortexm/support/systick"
 )
 
