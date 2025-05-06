@@ -11,12 +11,17 @@ NOTE: This compiler is under active development and will change often!
 
 Others coming soon...
 
-## Building
+## Compiling
 
-System Requirements:
+### System Requirements:
 1. The Go Compiler
 2. Clang (Recommended)
    1. On Windows, only the `x86_64-pc-windows-gnu` variant of clang is compatible with Go.
+3. SWIG (https://www.swig.org/)
+
+```shell
+sudo apt install clang swig
+```
 
 Run the following commands to create a debug build:
 ```shell
