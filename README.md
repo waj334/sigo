@@ -20,7 +20,7 @@ Others coming soon...
 3. SWIG (https://www.swig.org/)
 
 ```shell
-sudo apt install clang swig
+sudo apt install clang swig libzstd-dev
 ```
 
 Run the following commands to create a debug build:

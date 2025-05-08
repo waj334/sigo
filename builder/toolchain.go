@@ -1,8 +1,11 @@
 package builder
 
 import (
-	"os/exec"
+	"fmt"
+	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 )
 
 type Toolchain struct {
@@ -15,9 +18,9 @@ func findToolchain(env Env) (Toolchain, error) {
 	cc := env.Value("CC")
 	if len(cc) == 0 {
 		var err error
-		if cc, err = findExecutable("clang"); err != nil {
+		if cc, err = findVersionedExecutable("clang", "-"); err != nil {
 			// Fallback to GCC.
-			cc, err = findExecutable("gcc")
+			cc, err = findVersionedExecutable("gcc", "-")
 		}
 
 		if err != nil {
@@ -28,9 +31,9 @@ func findToolchain(env Env) (Toolchain, error) {
 	ld := env.Value("LD")
 	if len(ld) == 0 {
 		var err error
-		if ld, err = findExecutable("ld.lld"); err != nil {
+		if ld, err = findVersionedExecutable("ld.lld", "-"); err != nil {
 			// Fallback to LD.
-			ld, err = findExecutable("ld")
+			ld, err = findVersionedExecutable("ld", "-")
 		}
 
 		if err != nil {
@@ -41,9 +44,9 @@ func findToolchain(env Env) (Toolchain, error) {
 	objcopy := env.Value("OBJCOPY")
 	if len(objcopy) == 0 {
 		var err error
-		if objcopy, err = findExecutable("llvm-objcopy"); err != nil {
+		if objcopy, err = findVersionedExecutable("llvm-objcopy", "-"); err != nil {
 			// Fallback to objcopy.
-			objcopy, err = findExecutable("objcopy")
+			objcopy, err = findVersionedExecutable("objcopy", "-")
 		}
 
 		if err != nil {
@@ -58,10 +61,33 @@ func findToolchain(env Env) (Toolchain, error) {
 	}, nil
 }
 
-func findExecutable(cmd string) (string, error) {
-	fname, err := exec.LookPath(cmd)
-	if err == nil {
-		fname, err = filepath.Abs(fname)
+func findVersionedExecutable(cmd string, sep string) (string, error) {
+	pathEnv := os.Getenv("PATH")
+	paths := strings.Split(pathEnv, string(os.PathListSeparator))
+
+	var exe string
+	for _, pathPrefix := range paths {
+		wildcard := filepath.Join(pathPrefix, cmd) + sep + "*"
+		if versions, err := filepath.Glob(wildcard); err == nil {
+			maxVersion := 0
+			for _, version := range versions {
+				s := strings.Split(version, cmd+sep)
+				if len(s) > 1 {
+					if v, err := strconv.Atoi(s[1]); err == nil && v > maxVersion {
+						maxVersion = v
+						exe = version
+					}
+				} else {
+					// Just use this version directly.
+					exe = version
+				}
+			}
+		}
 	}
-	return fname, err
+
+	if len(exe) != 0 {
+		return exe, nil
+	}
+
+	return "", fmt.Errorf("could not find executable for %s", cmd)
 }

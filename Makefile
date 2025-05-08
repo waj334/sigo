@@ -10,7 +10,7 @@ ifeq ($(OS),Windows_NT)
 	CXX ?= clang++
 	# NOTE: ld should be replaced with ld.lld directly on Windows since Go is dumb.
 else
-	CGO_LDFLAGS += -fuse-ld=lld -lrt -ldl -lpthread -lm -lz -ltinfo
+	CGO_LDFLAGS += -fuse-ld=lld -lrt -ldl -lpthread -lm -lz -ltinfo -lzstd
 endif
 
 CMAKE_COMPILER_ARGS := -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX}
@@ -102,6 +102,7 @@ DEBUG ?= 0
 
 define build-compiler-rt
 	CC=${CC} CXX=${CXX} cmake $(ROOT_DIR)/thirdparty/llvm-project/compiler-rt -G "Ninja" -B ./build/Release/compiler-rt-$(1)-$(2) \
+		-DCMAKE_TOOLCHAIN_FILE=$(ROOT_DIR)/cmake/compiler-rt-toolchain.cmake \
 		-DCMAKE_INSTALL_PREFIX=$(ROOT_DIR)/lib/compiler-rt/$(1)/$(2) \
 		${CMAKE_COMPILER_ARGS} \
 		-DCMAKE_BUILD_TYPE=Release \
