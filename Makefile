@@ -24,8 +24,6 @@ else ifneq (,$(findstring ld.lld,$(LD)))
 	CMAKE_LINKER_ARGS := -DCMAKE_LINKER_TYPE=LLD
 endif
 
-GOFLAGS +=
-
 SIGO_BUILD_RELEASE ?= 0
 ifeq ($(SIGO_BUILD_RELEASE),0)
 	CGO_LDFLAGS += -g
@@ -53,6 +51,7 @@ $(foreach item, $(LLVM_BUILD_COMPONENTS),$(if $(CMAKE_LLVM_COMPONENTS),$(eval CM
 
 # Determine build flags required by LLVM
 CGO_LDFLAGS += -Wl,--gc-sections $(shell ${LLVM_CONFIG_EXECUTABLE} --ldflags) $(shell ${LLVM_CONFIG_EXECUTABLE} --libs ${LLVM_COMPONENTS}) -L${GOIR_BUILD_DIR}/lib
+CGO_LDFLAGS += -lLLVMTableGen
 CGO_CFLAGS += -fPIC -ffunction-sections -fdata-sections $(shell ${LLVM_CONFIG_EXECUTABLE} --cflags)
 
 # Add MLIR libraries
@@ -60,11 +59,16 @@ CGO_LDFLAGS += @link.rsp
 CGO_LDFLAGS += -lGoIR -lCGoIR
 CGO_LDFLAGS += -lstdc++
 
+# Add LLVM includes
+CGO_CFLAGS += -I$(ROOT_DIR)/thirdparty/llvm-project/llvm/include
+CGO_CFLAGS += -I${LLVM_BUILD_DIR}/tools/mlir/include
+
 # Add MLIR includes
 CGO_CFLAGS += -I$(ROOT_DIR)/thirdparty/llvm-project/mlir/include
-CGO_CFLAGS += -I${LLVM_BUILD_DIR}/tools/mlir/include
 CGO_CFLAGS += -I${GOIR_ROOT}/include
 CGO_CFLAGS += -I${GOIR_BUILD_DIR}/include
+
+CGO_CXXFLAGS := -std=c++17 -fno-rtti $(CGO_CFLAGS)
 
 # Paths:
 BINDIR := ./bin
@@ -87,6 +91,7 @@ ABS_SIGO_EXE=$(ABS_BINDIR)/sigoc$(EXECUTABLE_POSTFIX)
 
 CSP_GEN_EXE=$(BINDIR)/csp-gen$(EXECUTABLE_POSTFIX)
 DEF_GEN_EXE=$(BINDIR)/def-gen$(EXECUTABLE_POSTFIX)
+TABLEGEN_CSP_EXE := $(BINDIR)/tablegen-csp$(EXECUTABLE_POSTFIX)
 
 TARGETS_DEVICE_SRCS += $(wildcard $(ROOT_DIR)/targets/device/*.go)
 TARGETS_DEVICE_SRCS += $(wildcard $(ROOT_DIR)/targets/device/importer/*.go)
@@ -161,14 +166,17 @@ endef
 
 all: sigo
 
+env:
+	CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" go env
+
 clean: clean-sigo clean-llvm-bindings clean-clang-bindings clean-mlir-bindings clean-tests
 
 $(SIGO_EXE): build-goir generate-llvm-bindings generate-mlir-bindings $(GO_SRCS) $(LIBS)
 	rm -f $(SIGO_EXE)
 	@if [ $(SIGO_BUILD_RELEASE) -eq 1 ]; then \
-  		GOFLAGS="$(GOFLAGS)" CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" go build -o $(SIGO_EXE) -ldflags="-linkmode external" $(ROOT_DIR)/cmd/sigoc; \
+  		CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" CGO_CXXFLAGS="$(CGO_CXXFLAGS)" go build -o $(SIGO_EXE) -ldflags="-linkmode external" $(ROOT_DIR)/cmd/sigoc; \
   	else \
-		GOFLAGS="$(GOFLAGS)" CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" go build -o $(SIGO_EXE) -gcflags "all=-N -l" -ldflags="-linkmode external" $(ROOT_DIR)/cmd/sigoc; \
+		CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" CGO_CXXFLAGS="$(CGO_CXXFLAGS)" go build -o $(SIGO_EXE) -gcflags "all=-N -l" -ldflags="-linkmode external" $(ROOT_DIR)/cmd/sigoc; \
   	fi
 
 sigo: $(SIGO_EXE)
@@ -338,6 +346,19 @@ def-gen: $(DEF_GEN_EXE)
 		dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(DEF_GEN_EXE) -- $(args); \
 	else \
 		$(DEF_GEN_EXE) $(args); \
+	fi
+
+$(TABLEGEN_CSP_EXE): generate-llvm-bindings $(GO_SRCS) $(LIBS)
+	rm -f $(TABLEGEN_CSP_EXE)
+	@if [ $(SIGO_BUILD_RELEASE) -eq 1 ]; then \
+  		CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" CGO_CXXFLAGS="$(CGO_CXXFLAGS)" go build -o $(TABLEGEN_CSP_EXE) -ldflags="-linkmode external" $(ROOT_DIR)/cmd/tablegen-csp; \
+  	else \
+		CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" CGO_CXXFLAGS="$(CGO_CXXFLAGS)" go build -o $(TABLEGEN_CSP_EXE) -gcflags "all=-N -l" -ldflags="-linkmode external" $(ROOT_DIR)/cmd/tablegen-csp; \
+  	fi
+
+tablegen-csp: $(TABLEGEN_CSP_EXE)
+	@if [ $(DEBUG) -eq 1 ]; then \
+    	dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(TABLEGEN_CSP_EXE) -- $(args); \
 	fi
 
 release: build-picolibc build-compiler-rt generate-csp sigo
