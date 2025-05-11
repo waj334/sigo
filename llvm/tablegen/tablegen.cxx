@@ -27,9 +27,14 @@ struct LLVMGlobalMapIterator
     int position;
 };
 
+struct LLVMRecordList {
+    const llvm::Record **records;
+    size_t size;
+};
+
 struct LLVMRecord
 {
-    llvm::Record* PTR;
+    const llvm::Record* PTR;
 };
 
 struct LLVMRecordMap
@@ -164,10 +169,9 @@ bool LLVMGlobalMapIteratorNext(LLVMGlobalMapIterator* IT)
     return IT->position < IT->map->size();
 }
 
-LLVMRecord* LLVMCreateRecord(const std::unique_ptr<llvm::Record>& record)
+LLVMRecord* LLVMCreateRecord(const llvm::Record* record)
 {
-    LLVMRecord* R = new LLVMRecord();
-    R->PTR = record.get();
+    LLVMRecord* R = new LLVMRecord{record};
     return R;
 }
 
@@ -179,9 +183,44 @@ void LLVMDisposeRecord(LLVMRecord* R)
     }
 }
 
+bool LLVMRecordIsNull(const LLVMRecord* R)
+{
+    return R == nullptr || R->PTR == nullptr;
+}
+
 const char* LLVMRecordGetName(LLVMRecord* R)
 {
     return LLVMCreateCString(R->PTR->getName().str());
+}
+
+const char* LLVMRecordGetValueAsString(LLVMRecord* R, const char* name)
+{
+    return LLVMCreateCString(R->PTR->getValueAsString(name).str());
+}
+
+LLVMRecord* LLVMRecordGetValueAsDef(LLVMRecord* R, const char* name)
+{
+    return LLVMCreateRecord(R->PTR->getValueAsDef(name));
+}
+
+LLVMRecord* LLVMRecordGetValueAsOptionalDef(LLVMRecord* R, const char* name)
+{
+    return LLVMCreateRecord(R->PTR->getValueAsOptionalDef(name));
+}
+
+bool LLVMRecordGetValueAsBit(LLVMRecord* R, const char* name)
+{
+    return R->PTR->getValueAsBit(name);
+}
+
+bool LLVMRecordGetValueAsBitOrUnset(LLVMRecord* R, const char* name, bool* unset)
+{
+    return R->PTR->getValueAsBitOrUnset(name, *unset);
+}
+
+int64_t LLVMRecordGetValueAsInt(LLVMRecord* R, const char* name)
+{
+    return R->PTR->getValueAsInt(name);
 }
 
 void LLVMDisposeRecordMapIterator(LLVMRecordMapIterator* IT)
@@ -201,7 +240,7 @@ const char* LLVMRecordMapIteratorKey(LLVMRecordMapIterator* IT)
 LLVMRecord* LLVMRecordMapIteratorValue(LLVMRecordMapIterator* IT)
 {
     const auto it = std::next(IT->map->begin(), IT->position);
-    return LLVMCreateRecord(it->second);
+    return LLVMCreateRecord(it->second.get());
 }
 
 bool LLVMRecordMapIteratorNext(LLVMRecordMapIterator* IT)
@@ -278,6 +317,38 @@ LLVMRecordMap* LLVMRecordKeeperGetDefs(LLVMRecordKeeper* RK)
 LLVMGlobalMap* LLVMRecordKeeperGetGlobals(LLVMRecordKeeper* RK)
 {
     return LLVMCreateGlobalMap(RK->PTR->getGlobals());
+}
+
+LLVMRecordList* LLVMRecordKeeperGetAllDerivedDefinitions(LLVMRecordKeeper *RK, const char *className)
+{
+    auto derived = RK->PTR->getAllDerivedDefinitions(className);
+
+    LLVMRecordList* result = new LLVMRecordList();
+    result->size = derived.size();
+    result->records = nullptr;
+
+    if (!derived.empty()) {
+        result->records = new const llvm::Record*[derived.size()];
+        std::copy(derived.begin(), derived.end(), result->records);
+    }
+
+    return result;
+}
+
+void LLVMDisposeRecordList(LLVMRecordList* list)
+{
+    delete[] list->records;
+    delete list;
+}
+
+int LLVMRecordListSize(LLVMRecordList* list)
+{
+    return list->size;
+}
+
+LLVMRecord* LLVMRecordListValue(LLVMRecordList* list, int index)
+{
+    return LLVMCreateRecord(list->records[index]);
 }
 
 }

@@ -1,10 +1,12 @@
 package tablegen
 
 // #include "tablegen.h"
+// #include <stdlib.h>
 import "C"
 
 import (
 	"runtime"
+	"unsafe"
 )
 
 type RecordKeeper interface {
@@ -69,4 +71,19 @@ func (r *recordKeeper) GetGlobals() map[string]Init {
 		m[it.Key()] = it.Value()
 	}
 	return m
+}
+
+func (r *recordKeeper) GetDerivedRecords(className string) []Record {
+	cname := C.CString(className)
+	defer C.free(unsafe.Pointer(cname))
+
+	list := C.LLVMRecordKeeperGetAllDerivedDefinitions(r.ptr, cname)
+	defer C.LLVMDisposeRecordList(list)
+
+	sz := int(C.LLVMRecordListSize(list))
+	records := make([]Record, sz)
+	for i := range sz {
+		records[i] = newRecord(C.LLVMRecordListValue(list, C.int(i)))
+	}
+	return records
 }

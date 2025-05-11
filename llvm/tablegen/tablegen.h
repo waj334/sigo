@@ -1,7 +1,9 @@
 #ifndef C_LLVM_TABLEGEN_H
 #define C_LLVM_TABLEGEN_H
 
+#include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,7 +26,19 @@ LLVMGlobalMapIterator* LLVMGlobalMapBegin(LLVMGlobalMap* GM);
 
 typedef struct LLVMRecord LLVMRecord;
 void LLVMDisposeRecord(LLVMRecord* R);
+bool LLVMRecordIsNull(const LLVMRecord* R);
 const char* LLVMRecordGetName(LLVMRecord* R);
+const char* LLVMRecordGetValueAsString(LLVMRecord* R, const char* name);
+LLVMRecord* LLVMRecordGetValueAsDef(LLVMRecord* R, const char* name);
+LLVMRecord* LLVMRecordGetValueAsOptionalDef(LLVMRecord* R, const char* name);
+bool LLVMRecordGetValueAsBit(LLVMRecord* R, const char* name);
+bool LLVMRecordGetValueAsBitOrUnset(LLVMRecord* R, const char* name, bool* unset);
+int64_t LLVMRecordGetValueAsInt(LLVMRecord* R, const char* name);
+
+typedef struct LLVMRecordList LLVMRecordList;
+void LLVMDisposeRecordList(LLVMRecordList* list);
+int LLVMRecordListSize(LLVMRecordList* list);
+LLVMRecord* LLVMRecordListValue(LLVMRecordList* list, int index);
 
 typedef struct LLVMRecordMapIterator LLVMRecordMapIterator;
 void LLVMDisposeRecordMapIterator(LLVMRecordMapIterator* IT);
@@ -43,6 +57,7 @@ const char* LLVMRecordKeeperGetInputFilename(LLVMRecordKeeper* RK);
 LLVMRecordMap* LLVMRecordKeeperGetClasses(LLVMRecordKeeper* RK);
 LLVMRecordMap* LLVMRecordKeeperGetDefs(LLVMRecordKeeper* RK);
 LLVMGlobalMap* LLVMRecordKeeperGetGlobals(LLVMRecordKeeper* RK);
+LLVMRecordList* LLVMRecordKeeperGetAllDerivedDefinitions(LLVMRecordKeeper *RK, const char *className);
 
 bool LLVMTableGenParseFile(const char* filename,
                             LLVMRecordKeeper* RK,
