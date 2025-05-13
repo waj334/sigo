@@ -16,6 +16,7 @@ type Record interface {
 	GetValueAsBit(name string) bool
 	GetValueAsBitOrUnset(name string) (bool, bool)
 	GetValueAsInt(name string) int64
+	GetValueAsListOfDefs(name string) []Record
 }
 
 type record struct {
@@ -84,4 +85,19 @@ func (r *record) GetValueAsInt(name string) int64 {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
 	return int64(C.LLVMRecordGetValueAsInt(r.ptr, cname))
+}
+
+func (r *record) GetValueAsListOfDefs(name string) []Record {
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+
+	list := C.LLVMRecordGetValueAsListOfDefs(r.ptr, cname)
+	defer C.LLVMDisposeRecordList(list)
+
+	sz := int(C.LLVMRecordListSize(list))
+	records := make([]Record, sz)
+	for i := range sz {
+		records[i] = newRecord(C.LLVMRecordListValue(list, C.int(i)))
+	}
+	return records
 }

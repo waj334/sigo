@@ -1,3 +1,6 @@
+
+#include "tablegen.h"
+
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/TableGen/Parser.h>
 #include <llvm/TableGen/Record.h>
@@ -52,6 +55,13 @@ struct LLVMRecordKeeper
 {
     llvm::RecordKeeper* PTR;
 };
+
+LLVMRecord* LLVMCreateRecord(const llvm::Record* record);
+char* LLVMCreateCString(const std::string& str);
+LLVMInit* LLVMCreateInit(const llvm::Init* init);
+LLVMGlobalMap* LLVMCreateGlobalMap(const GlobalMap& gm);
+LLVMRecordList* LLVMCreateRecordList(const std::vector<const llvm::Record*>& records);
+LLVMRecordMap* LLVMCreateRecordMap(const RecordMap& rm);
 
 bool LLVMTableGenParseFile(const char* filename,
                             LLVMRecordKeeper* RK,
@@ -169,6 +179,36 @@ bool LLVMGlobalMapIteratorNext(LLVMGlobalMapIterator* IT)
     return IT->position < IT->map->size();
 }
 
+LLVMRecordList* LLVMCreateRecordList(const std::vector<const llvm::Record*>& records)
+{
+    LLVMRecordList* result = new LLVMRecordList();
+    result->size = records.size();
+    result->records = nullptr;
+
+    if (!records.empty()) {
+        result->records = new const llvm::Record*[records.size()];
+        std::copy(records.begin(), records.end(), result->records);
+    }
+
+    return result;
+}
+
+void LLVMDisposeRecordList(LLVMRecordList* list)
+{
+    delete[] list->records;
+    delete list;
+}
+
+int LLVMRecordListSize(LLVMRecordList* list)
+{
+    return list->size;
+}
+
+LLVMRecord* LLVMRecordListValue(LLVMRecordList* list, int index)
+{
+    return LLVMCreateRecord(list->records[index]);
+}
+
 LLVMRecord* LLVMCreateRecord(const llvm::Record* record)
 {
     LLVMRecord* R = new LLVMRecord{record};
@@ -221,6 +261,12 @@ bool LLVMRecordGetValueAsBitOrUnset(LLVMRecord* R, const char* name, bool* unset
 int64_t LLVMRecordGetValueAsInt(LLVMRecord* R, const char* name)
 {
     return R->PTR->getValueAsInt(name);
+}
+
+LLVMRecordList* LLVMRecordGetValueAsListOfDefs(LLVMRecord* R, const char* name)
+{
+    auto defs = R->PTR->getValueAsListOfDefs(name);
+    return LLVMCreateRecordList(defs);
 }
 
 void LLVMDisposeRecordMapIterator(LLVMRecordMapIterator* IT)
@@ -321,34 +367,8 @@ LLVMGlobalMap* LLVMRecordKeeperGetGlobals(LLVMRecordKeeper* RK)
 
 LLVMRecordList* LLVMRecordKeeperGetAllDerivedDefinitions(LLVMRecordKeeper *RK, const char *className)
 {
-    auto derived = RK->PTR->getAllDerivedDefinitions(className);
-
-    LLVMRecordList* result = new LLVMRecordList();
-    result->size = derived.size();
-    result->records = nullptr;
-
-    if (!derived.empty()) {
-        result->records = new const llvm::Record*[derived.size()];
-        std::copy(derived.begin(), derived.end(), result->records);
-    }
-
-    return result;
-}
-
-void LLVMDisposeRecordList(LLVMRecordList* list)
-{
-    delete[] list->records;
-    delete list;
-}
-
-int LLVMRecordListSize(LLVMRecordList* list)
-{
-    return list->size;
-}
-
-LLVMRecord* LLVMRecordListValue(LLVMRecordList* list, int index)
-{
-    return LLVMCreateRecord(list->records[index]);
+    auto defs = RK->PTR->getAllDerivedDefinitions(className);
+    return LLVMCreateRecordList(defs);
 }
 
 }

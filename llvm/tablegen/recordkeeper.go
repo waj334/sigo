@@ -15,6 +15,7 @@ type RecordKeeper interface {
 	GetClasses() map[string]Record
 	GetDefs() map[string]Record
 	GetGlobals() map[string]Init
+	GetDerivedRecords(className string) []Record
 }
 
 type recordKeeper struct {
