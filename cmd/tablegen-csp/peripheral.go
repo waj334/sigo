@@ -32,7 +32,7 @@ func generatePeripheralType(out io.Writer, peripheralType tablegen.Record, insta
 		varName := formatGoIdentifier(strings.ToLower(instanceName), true)
 		baseAddress := instance.GetValueAsInt(constPeripheralInstanceFieldBase)
 
-		fmt.Fprintf(&builder, "%s = (*%s)(unsafe.Pointer(uintptr(%#x)))\n", varName, className, baseAddress)
+		fmt.Fprintf(&builder, "%s = (*%s)(unsafe.Pointer(uintptr(%#X)))\n", varName, className, baseAddress)
 	}
 
 	if len(groups) > 0 {
@@ -98,40 +98,130 @@ func generateRegister(out io.Writer, register tablegen.Record) (int, error) {
 
 	registerWidth := register.GetValueAsInt(constRangeFieldWidth)
 	registerTypeName := formatRegisterTypeName(register)
-	underlyingType, err := typeForWidth(registerWidth)
+	registerDescription := register.GetValueAsString(constObjectFieldDescription)
+	registerUnderlyingType, err := typeForWidth(registerWidth)
 	if err != nil {
 		return 0, err
 	}
 
-	fmt.Fprintf(&builder, "type %s %s\n\n", registerTypeName, underlyingType)
+	if len(registerDescription) > 0 {
+		fmt.Fprintf(&builder, "// %s %s\n", registerTypeName, registerDescription)
+	}
+
+	fmt.Fprintf(&builder, "type %s %s\n\n", registerTypeName, registerUnderlyingType)
 
 	fields := register.GetValueAsListOfDefs(constRegisterFieldFields)
 	for _, field := range fields {
 		fieldName := formatRegisterFieldName(field)
+		fieldDescription := field.GetValueAsString(constObjectFieldDescription)
 		fieldAccess := field.GetValueAsDef(constFieldFieldAccess).GetValueAsString(constAccessModeValue)
+		fieldOffset := field.GetValueAsInt(constRangeFieldOffset)
 		fieldWidth := field.GetValueAsInt(constRangeFieldWidth)
-		fieldType, err := typeForWidth(fieldWidth)
+		fieldEnums := field.GetValueAsListOfDefs(constFieldFieldEnums)
+		fieldEnumType := formatRegisterFieldEnumTypeName(register, field)
+		fieldUnderlyingType, err := typeForWidth(fieldWidth)
 		if err != nil {
 			return 0, err
 		}
 
+		// Generate constants.
+		constPrefix := formatRegisterConstPrefix(register, field)
+		constShift := fmt.Sprintf("%sShift", constPrefix)
+		constMask := fmt.Sprintf("%sMask", constPrefix)
+		mask := ((1 << fieldWidth) - 1) << fieldOffset
+
+		if len(fieldEnums) > 0 {
+			fmt.Fprintf(&builder, "type %s %s\n\n", fieldEnumType, fieldUnderlyingType)
+		}
+
+		fmt.Fprintf(&builder, "const (\n")
+
+		setterParamType := fieldUnderlyingType
+		if len(fieldEnums) > 0 {
+			for _, enum := range fieldEnums {
+				setterParamType = fieldEnumType
+				enumName := formatRegisterFieldEnumValueName(register, field, enum)
+				enumDescription := enum.GetValueAsString(constObjectFieldDescription)
+				enumValue := enum.GetValueAsInt(constEnumFieldValue)
+
+				trailingNewline := false
+				if len(enumDescription) > 0 {
+					fmt.Fprintf(&builder, "// %s %s\n", enumName, enumDescription)
+					trailingNewline = true
+				}
+
+				if fieldWidth == 1 {
+					if enumValue == 0 {
+						fmt.Fprintf(&builder, "%s %s = false\n", enumName, fieldEnumType)
+					} else {
+						fmt.Fprintf(&builder, "%s %s = true\n", enumName, fieldEnumType)
+					}
+				} else {
+					fmt.Fprintf(&builder, "%s %s = %#X\n", enumName, fieldEnumType, enumValue)
+				}
+
+				if trailingNewline {
+					fmt.Fprintf(&builder, "\n")
+				}
+			}
+			fmt.Fprintf(&builder, "\n")
+		} else if fieldWidth == 1 {
+			setterParamType = "bool"
+		}
+
+		fmt.Fprintf(&builder, "%s = %d\n", constShift, fieldOffset)
+		fmt.Fprintf(&builder, "%s = %#X\n", constMask, mask)
+		fmt.Fprintf(&builder, ")\n\n")
+
+		addr := fmt.Sprintf("(*%s)(r)", registerUnderlyingType)
+		load := fmt.Sprintf("volatile.LoadUint%d(%s)", registerWidth, addr)
+
 		if strings.Contains(fieldAccess, "R") {
 			// Generate read API.
-			fmt.Fprintf(&builder, "func (r *%s) Get%s() %s {\n", registerTypeName, fieldName, fieldType)
-			fmt.Fprintf(&builder, "// TODO: Implement me\n")
-			fmt.Fprintf(&builder, "return 0")
-			fmt.Fprintf(&builder, "}\n\n")
+			if len(fieldDescription) > 0 {
+				fmt.Fprintf(&builder, "// Get%s %s\n", fieldName, fieldDescription)
+			}
+
+			if fieldWidth == 1 {
+				fmt.Fprintf(&builder, "func (r *%s) Get%s() bool {\n", registerTypeName, fieldName)
+				fmt.Fprintf(&builder, "return (%s&%s) != 0\n", load, constMask)
+				fmt.Fprintf(&builder, "}\n\n")
+			} else {
+				fmt.Fprintf(&builder, "func (r *%s) Get%s() %s {\n", registerTypeName, fieldName, fieldUnderlyingType)
+				fmt.Fprintf(&builder, "return %s((%s&%s) >> %s)\n", fieldUnderlyingType, load, constMask, constShift)
+				fmt.Fprintf(&builder, "}\n\n")
+			}
 		}
 
 		if strings.Contains(fieldAccess, "W") {
-			// TODO: Generate write API.
-			fmt.Fprintf(&builder, "func (r *%s) Set%s(value %s) {\n", registerTypeName, fieldName, fieldType)
-			fmt.Fprintf(&builder, "// TODO: Implement me\n")
-			fmt.Fprintf(&builder, "}\n\n")
+			// Generate write API.
+			if len(fieldDescription) > 0 {
+				fmt.Fprintf(&builder, "// Set%s %s\n", fieldName, fieldDescription)
+			}
+
+			if fieldWidth == 1 {
+				fmt.Fprintf(&builder, "func (r *%s) Set%s(value %s) {\n", registerTypeName, fieldName, setterParamType)
+				fmt.Fprintf(&builder, "if value {\n")
+				fmt.Fprintf(&builder, "volatile.StoreUint%d(%s, %s|%s)\n", registerWidth, addr, load, constMask)
+				fmt.Fprintf(&builder, "} else {\n")
+				fmt.Fprintf(&builder, "volatile.StoreUint%d(%s, %s&^%s)\n", registerWidth, addr, load, constMask)
+				fmt.Fprintf(&builder, "}\n")
+				fmt.Fprintf(&builder, "}\n\n")
+			} else {
+				fmt.Fprintf(&builder, "func (r *%s) Set%s(value %s) {\n", registerTypeName, fieldName, setterParamType)
+				fmt.Fprintf(&builder, "volatile.StoreUint%d(%s, (%s&^%s)|(%s(value)<<%s))\n", registerWidth, addr, load, constMask, registerUnderlyingType, constShift)
+				fmt.Fprintf(&builder, "}\n\n")
+			}
 		}
 	}
 
 	return fmt.Fprint(out, builder.String())
+}
+
+func formatRegisterConstPrefix(register, field tablegen.Record) string {
+	registerName := register.GetValueAsString(constObjectFieldName)
+	fieldName := field.GetValueAsString(constObjectFieldName)
+	return formatGoIdentifier(formatCamelCase("Register", registerName, "Field", fieldName), true)
 }
 
 func formatRegisterFieldName(def tablegen.Record) string {
@@ -142,4 +232,17 @@ func formatRegisterFieldName(def tablegen.Record) string {
 func formatRegisterTypeName(def tablegen.Record) string {
 	name := def.GetValueAsString(constObjectFieldName)
 	return formatGoIdentifier(formatCamelCase("register", name, "Type"), false)
+}
+
+func formatRegisterFieldEnumTypeName(register, field tablegen.Record) string {
+	registerName := register.GetValueAsString(constObjectFieldName)
+	fieldName := field.GetValueAsString(constObjectFieldName)
+	return formatGoIdentifier(formatCamelCase("Register", registerName, "Field", fieldName, "Enum", "Type"), true)
+}
+
+func formatRegisterFieldEnumValueName(register, field, enum tablegen.Record) string {
+	registerName := register.GetValueAsString(constObjectFieldName)
+	fieldName := field.GetValueAsString(constObjectFieldName)
+	enumName := enum.GetValueAsString(constObjectFieldName)
+	return formatGoIdentifier(formatCamelCase("Register", registerName, "Field", fieldName, "Enum", enumName), true)
 }

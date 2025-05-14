@@ -27,15 +27,15 @@ class BitRange<int Offset, int Width> : Range<Offset, Width>;
 class ByteRange<int Offset, int Width> : Range<Offset, Width>;
 
 // Describes an acceptable value for a field.
-class Value<string Name, int Val, string Description = ""> : Object<Name, Description> {
+class Enum<string Name, int Val, string Description = ""> : Object<Name, Description> {
     int value = Val;
 }
 
 // Describes a field within a register that a value can be read from and/or written to.
-class Field<string Name, int Offset, int Width, AccessMode Access, string Description = "">
+class Field<string Name, int Offset, int Width, AccessMode Access, string Description = "", list<Enum> Enums = []>
         : Object<Name, Description>, BitRange<Offset, Width> {
     AccessMode access = Access;
-    list<Value> values;
+    list<Enum> enums = Enums;
 }
 
 // Describes a register containing fields that can be read from of written.

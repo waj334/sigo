@@ -21,7 +21,10 @@ const (
 
 	constRecordField      = "field"
 	constFieldFieldAccess = "access"
-	constFieldFieldValues = "values"
+	constFieldFieldEnums  = "enums"
+
+	constRecordEnum     = "Enum"
+	constEnumFieldValue = "value"
 
 	constRecordRange      = "Range"
 	constRecordBitRange   = "BitRange"

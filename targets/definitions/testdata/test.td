@@ -4,18 +4,21 @@ def UARTPeripheral : PeripheralType<"UART", "The UART Peripheral"> {
   let accessWidth = 32;
   let registers = [
     Register<"CR",  0x00, 32, [
-      Field<"EN", 0, 1, ReadWrite>,
-      Field<"TXEIE", 7, 1, ReadWrite>
-    ]>,
+      Field<"EN", 0, 1, ReadWrite, "enable peripheral" [
+        Enum<"enabled", 1, "enable the peripheral">,
+        Enum<"disable", 0, "disable the peripheral">
+      ]>,
+      Field<"TXEIE", 7, 1, ReadWrite, "enable TX interrupt">
+    ], "control register">,
 
     Register<"SR",  0x04, 32, [
-      Field<"TXE", 7, 1, Read>,
-      Field<"RXNE", 5, 1, Read>
-    ]>,
+      Field<"TXE", 7, 1, Read, "TX enabled status">,
+      Field<"RXNE", 5, 1, Read, "RC enabled status">
+    ], "status register">,
 
     Register<"DR",  0x0C, 32, [
-      Field<"DATA", 0, 8, ReadWrite>
-    ]>
+      Field<"DATA", 0, 8, ReadWrite, "data available to read">
+    ], "data register">
   ];
 }
 
