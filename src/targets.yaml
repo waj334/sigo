@@ -6,7 +6,7 @@ targets:
       - "runtime/arm/cortexm/sam/atsamd21/support"
     architecture: "arm"
     alignment: 4
-    triple: "armv6m-none-eabi"
+    triplet: "armv6m-none-eabi"
     cpu: "cortex-m0plus"
     tags: [ "arm", "armv6m", "thumb", "cortexm", "atsamd21" ]
     features: [ "armv6-m", "soft-float" ]
@@ -20,7 +20,7 @@ targets:
       - "runtime/arm/cortexm/sam/atsamc21/support"
     architecture: "arm"
     alignment: 4
-    triple: "armv6m-none-eabi"
+    triplet: "armv6m-none-eabi"
     cpu: "cortex-m0plus"
     tags: [ "arm", "armv6m", "thumb", "cortexm", "atsamc21" ]
     features: [ "armv6-m", "soft-float" ]
@@ -34,7 +34,7 @@ targets:
       - "runtime/arm/cortexm/sam/atsamx5x/support"
     architecture: "thumb"
     alignment: 4
-    triple: "armv7em-none-eabi"
+    triplet: "armv7em-none-eabi"
     cpu: "cortex-m4"
     tags: [ "arm", "armv7m", "armv7em", "thumb", "thumb2", "cortexm",  "cortexm4", "fpu", "atsamx5x", "atsamd5x" ]
     features: [ "armv7-m", "armv7e-m", "thumb2", "dsp", "db" ]
@@ -49,7 +49,7 @@ targets:
       - "runtime/arm/cortexm/sam/atsamx5x/support"
     architecture: "thumb"
     alignment: 4
-    triple: "armv7em-none-eabi"
+    triplet: "armv7em-none-eabi"
     cpu: "cortex-m4"
     tags: [ "arm", "armv7m", "armv7em", "thumb", "thumb2", "cortexm", "cortexm4", "fpu", "atsamx5x", "atsame5x" ]
     features: [ "armv7-m", "armv7e-m", "thumb2", "dsp", "db" ]
@@ -63,7 +63,7 @@ targets:
       - "runtime/arm/cortexm"
       - "runtime/arm/cortexm/stm32/stm32h7x7"
       - "runtime/arm/cortexm/stm32/stm32h7x7/support"
-    triple: "armv7em-none-eabi"
+    triplet: "armv7em-none-eabi"
     architecture: "thumb"
     alignment: 4
     cpu: "cortex-m7"
@@ -80,7 +80,7 @@ targets:
       - "runtime/arm/cortexm/qemu/cortexm4/support"
     architecture: "thumb"
     alignment: 4
-    triple: "armv7em-none-eabi"
+    triplet: "armv7em-none-eabi"
     tags: [ "arm", "armv7m", "armv7em", "thumb", "thumb2", "cortexm", "cortexm4", "fpu", "qemu", "cortex_m4" ]
     cpu: "cortex-m4"
     features: [ "armv7-m", "armv7e-m", "thumb2", "dsp", "db" ]

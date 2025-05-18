@@ -1,10 +1,11 @@
 include "base.td"
+include "arm/family.td"
 
 def UARTPeripheral : PeripheralType<"UART", "The UART Peripheral"> {
   let accessWidth = 32;
   let registers = [
     Register<"CR",  0x00, 32, [
-      Field<"EN", 0, 1, ReadWrite, "enable peripheral" [
+      Field<"EN", 0, 1, ReadWrite, "enable peripheral", [
         Enum<"enabled", 1, "enable the peripheral">,
         Enum<"disable", 0, "disable the peripheral">
       ]>,

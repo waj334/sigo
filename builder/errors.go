@@ -8,5 +8,5 @@ var (
 	ErrUnexpectedOutputPath = errors.New("unexpected output path provided")
 	ErrLinknameAlreadyUsed  = errors.New("encountered duplicate linkname")
 	ErrCodeGeneratorError   = errors.New("failed to generate object code")
-	ErrClangFailed          = errors.New("clang exited with an error")
+	ErrCompilerFailed       = errors.New("compiler exited with an error")
 )

@@ -8,7 +8,7 @@
 	branch = 93b5d5f2ad44867b60267417cd6d6250dbf68983
 [submodule "thirdparty/cmsis-svd"]
 	path = thirdparty/cmsis-svd
-	url = https://github.com/posborne/cmsis-svd.git
+	url = https://github.com/cmsis-svd/cmsis-svd-data.git
 [submodule "thirdparty/atmel-atdf"]
 	path = thirdparty/atmel-atdf
 	url = https://github.com/waj334/atmel-atdf.git

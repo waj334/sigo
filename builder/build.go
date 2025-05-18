@@ -146,7 +146,7 @@ func Build(ctx context.Context, packageDir string) error {
 
 	// TODO: Detect the target architecture by some other means
 	options.Environment["GOARCH"] = "arm"
-	arch := strings.Split(targetInfo.Triple, "-")[0]
+	arch := strings.Split(targetInfo.Triplet, "-")[0]
 	float := "nofp"
 	fpuEnabled := false
 	switch targetInfo.Fpu.ABI {
@@ -207,7 +207,7 @@ func Build(ctx context.Context, packageDir string) error {
 	// Set module attributes before creating the SSA builder.
 	dataLayout := llvm.CreateTargetDataLayout(targetMachine)
 	mlir.GoSetTargetDataLayout(mlirModule, dataLayout)
-	mlir.GoSetTargetTriple(mlirModule, targetInfo.Triple)
+	mlir.GoSetTargetTriple(mlirModule, targetInfo.Triplet)
 
 	// Create the SSA builder.
 	builder := ssa.NewBuilder(ssa.Config{
@@ -304,10 +304,10 @@ func link(options Options, targetInfo targets.TargetInfo, arch string, float str
 	}
 
 	// TODO: Select the proper build of picolibc
-	libCDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/picolibc", targetInfo.Triple, arch+"+"+float, "lib")
+	//libCDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/picolibc", targetInfo.Triplet, arch+"+"+float, "lib")
 
 	// Select build of runtime-rt
-	libCompilerRTDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/compiler-rt", targetInfo.Triple, arch+"+"+float, "lib", targetInfo.Triple)
+	libCompilerRTDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/compiler-rt", targetInfo.Triplet, arch+"+"+float, "lib", targetInfo.Triplet)
 
 	// Get the toolchain.
 	toolchain, err := findToolchain(options.Environment)
@@ -315,20 +315,34 @@ func link(options Options, targetInfo targets.TargetInfo, arch string, float str
 		return err
 	}
 
+	var artifacts []string
+
+	picolibc, err := pkgPicolibc(targetInfo)
+	if err != nil {
+		return err
+	}
+
+	objs, err := picolibc.Compile(toolchain, targetInfo, options.GenerateDebugInfo, options.Optimization, options.BuildDir)
+	if err != nil {
+		return err
+	}
+
+	artifacts = append(artifacts, objs...)
+
 	// Other arguments
-	targetTriple := "--target=" + targetInfo.Triple
+	targetTriple := "--target=" + targetInfo.Triplet
 	elfOut := filepath.Join(options.BuildDir, "package.elf")
 	args := []string{
 		"-v",
 		"--gc-sections",
 		"-o", elfOut,
 		"-nostdlib",
-		"-L" + libCDir,
+		//"-L" + libCDir,
 		"-L" + libCompilerRTDir,
 		"-L" + filepath.Join(options.Environment.Value("SIGOROOT"), "runtime"),
 		"-L" + filepath.Dir(prog.LinkerScript),
 		"-T" + prog.LinkerScript,
-		"-lc",
+		//"-lc",
 		"-lclang_rt.builtins-" + arch,
 	}
 
@@ -342,6 +356,7 @@ func link(options Options, targetInfo targets.TargetInfo, arch string, float str
 	}
 
 	args = append(args, objectOut)
+	args = append(args, artifacts...)
 
 	// Compile all assembly files
 	for _, asm := range append(prog.Files[".s"], prog.Files[".asm"]...) {
@@ -384,7 +399,7 @@ func link(options Options, targetInfo targets.TargetInfo, arch string, float str
 		if err := clangCmd.Run(); err != nil {
 			fmt.Println()
 			fmt.Println("Command failed: ", clangCmd.String())
-			return errors.Join(ErrClangFailed, err)
+			return errors.Join(ErrCompilerFailed, err)
 		}
 
 		// Add this object file to the end of the linker command
@@ -398,7 +413,7 @@ func link(options Options, targetInfo targets.TargetInfo, arch string, float str
 	if err := lldCmd.Run(); err != nil {
 		fmt.Println()
 		fmt.Println("Command failed: ", lldCmd.String())
-		return errors.Join(ErrClangFailed, err)
+		return errors.Join(ErrCompilerFailed, err)
 	}
 
 	// Convert the final binary image to the specified output binary type
@@ -407,13 +422,13 @@ func link(options Options, targetInfo targets.TargetInfo, arch string, float str
 		objCopyCmd := exec.Command(toolchain.ObjCopy, "-O", "binary", elfOut, options.Output)
 		if err := objCopyCmd.Run(); err != nil {
 			output, _ := lldCmd.Output()
-			return errors.Join(ErrClangFailed, err, errors.New(string(output)))
+			return errors.Join(ErrCompilerFailed, err, errors.New(string(output)))
 		}
 	case ".hex":
 		objCopyCmd := exec.Command(toolchain.ObjCopy, "-O", "ihex", elfOut, options.Output)
 		if err := objCopyCmd.Run(); err != nil {
 			output, _ := lldCmd.Output()
-			return errors.Join(ErrClangFailed, err, errors.New(string(output)))
+			return errors.Join(ErrCompilerFailed, err, errors.New(string(output)))
 		}
 	default:
 		// Load the ELF into memory

@@ -1,14 +1,37 @@
-class AccessMode<string Value> {
+#ifndef _BASE_TD
+#define _BASE_TD
+
+class Object<string Name, string Description = ""> {
+    string name = Name;
+    string description = Description;
+}
+
+class StringValue<string Value> {
     string value = Value;
 }
+
+class FPU<string Value> : StringValue<Value>;
+def NoFPU : FPU<"none">;
+def SP : FPU<"SP">;
+def DP : FPU<"DP">;
+
+class MPU<string Value> : StringValue<Value>;
+def NoMPU : MPU<"none">;
+def MPUPresent : MPU<"MPU">;
+
+class AccessMode<string Value> : StringValue<Value>;
 
 def Read : AccessMode<"R">;
 def Write : AccessMode<"W">;
 def ReadWrite : AccessMode<"RW">;
 
-class Object<string Name, string Description = ""> {
-    string name = Name;
-    string description = Description;
+class Family<string Name> : Object<Name>;
+class Architecture<string Name, Family Fam, string Arch, string Triple, FPU Fpu = NoFPU, MPU Mpu = NoMPU> : Object<Name> {
+    Family family = Fam;
+    FPU fpu = Fpu;
+    MPU mpu = Mpu;
+    string triple = Triple;
+    string arch = Arch;
 }
 
 class Quantity<int Value> {
@@ -25,6 +48,8 @@ class Range<int Offset, int Width> {
 
 class BitRange<int Offset, int Width> : Range<Offset, Width>;
 class ByteRange<int Offset, int Width> : Range<Offset, Width>;
+class MemoryRange<string Name, int Origin, int Size, string Description = "">
+        : Object<Name, Description>, Range<Origin, Size>;
 
 // Describes an acceptable value for a field.
 class Enum<string Name, int Val, string Description = ""> : Object<Name, Description> {
@@ -61,3 +86,20 @@ class PeripheralGroup<list<PeripheralInstance> Instances, string Description = "
         : Object<"Instances", Description> {
     list<PeripheralInstance> instances = Instances;
 }
+
+class Interrupt<string Name, int Line, string Description = ""> : Object<Name, Description> {
+    int line = Line;
+}
+
+// Describes a variant within a chip series.
+class Variant<string Name, string Description = ""> : Object<Name, Description> {
+    list<MemoryRange> memories;
+    list<Interrupt> interrupts;
+}
+
+class Series<string Name, string Description = ""> : Object<Name, Description> {
+    Architecture arch;
+    list<Variant> variants;
+}
+
+#endif // _BASE_TD

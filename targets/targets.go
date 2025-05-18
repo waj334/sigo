@@ -33,7 +33,7 @@ type TargetInfo struct {
 	Cpu                string    `yaml:"cpu"`
 	Architecture       string    `yaml:"architecture"`
 	Alignment          int       `yaml:"alignment"`
-	Triple             string    `yaml:"triple"`
+	Triplet            string    `yaml:"triplet"`
 	Tags               []string  `yaml:"tags"`
 	Features           []string  `yaml:"features"`
 	Fpu                FloatInfo `yaml:"fpu"`
@@ -49,7 +49,7 @@ func (t TargetInfo) FormatFeatureString() string {
 
 func (t TargetInfo) CreateTarget() (llvm.LLVMTargetRef, error) {
 	// Get the target from the triple
-	target, errMsg, ok := llvm.GetTargetFromTriple(t.Triple)
+	target, errMsg, ok := llvm.GetTargetFromTriple(t.Triplet)
 	if !ok {
 		if len(errMsg) > 0 {
 			return llvm.LLVMTargetRef{}, errors.Join(ErrTargetInformationFailed, errors.New(errMsg))
@@ -63,7 +63,7 @@ func (t TargetInfo) CreateTargetMachine(target llvm.LLVMTargetRef) llvm.LLVMTarg
 	// Create the target machine with the desired CPU and features
 	machineRef := llvm.CreateTargetMachine(
 		target,
-		t.Triple,
+		t.Triplet,
 		t.Cpu,
 		t.FormatFeatureString(),
 		llvm.LLVMCodeGenOptLevel(llvm.CodeGenLevelNone),
