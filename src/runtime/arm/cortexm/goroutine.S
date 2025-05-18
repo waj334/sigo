@@ -5,8 +5,12 @@
 PendsvHandler:
     push {lr}                           // Temporarily store LR on the stack since the branch below will NOT restore LR.
     bl runtime.runScheduler             // Choose the next goroutine
+#ifdef __thumb2__
     pop {lr}                            // Restore the previous value of LR
-
+#else
+    pop {r1}
+    mov lr, r0
+#endif
     cmp r0, #0                          // Check if runScheduler returned false
     beq _restore_and_return             // No context switch should be performed
 

@@ -22,6 +22,7 @@ func All() Targets {
 
 type FloatInfo struct {
 	ABI      string   `yaml:"abi"`
+	Type     string   `yaml:"type"`
 	Features []string `yaml:"features,omitempty"`
 }
 

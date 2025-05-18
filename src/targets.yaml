@@ -71,6 +71,7 @@ targets:
     features: [ "armv7-m", "armv7e-m", "thumb2", "dsp", "db", "m7", "branch-align-64", "use-mipipeliner", "use-misched" ]
     fpu:
       abi: "hardfp"
+      type: "fpv5-d16"
       features: [ "fpregs", "fp-armv8d16" ]
 
   - series: "qemu_cortexm4"

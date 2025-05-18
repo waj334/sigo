@@ -1,4 +1,4 @@
-//go:build arm && fpu
+//go:build arm
 
 package fpu
 

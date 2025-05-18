@@ -303,12 +303,6 @@ func link(options Options, targetInfo targets.TargetInfo, arch string, float str
 		return errors.Join(ErrCodeGeneratorError, errors.New(errMsg))
 	}
 
-	// TODO: Select the proper build of picolibc
-	//libCDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/picolibc", targetInfo.Triplet, arch+"+"+float, "lib")
-
-	// Select build of runtime-rt
-	libCompilerRTDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/compiler-rt", targetInfo.Triplet, arch+"+"+float, "lib", targetInfo.Triplet)
-
 	// Get the toolchain.
 	toolchain, err := findToolchain(options.Environment)
 	if err != nil {
@@ -317,12 +311,29 @@ func link(options Options, targetInfo targets.TargetInfo, arch string, float str
 
 	var artifacts []string
 
+	// Compile picolibc for the current target machine.
 	picolibc, err := pkgPicolibc(targetInfo)
 	if err != nil {
 		return err
 	}
 
-	objs, err := picolibc.Compile(toolchain, targetInfo, options.GenerateDebugInfo, options.Optimization, options.BuildDir)
+	objs, err := picolibc.Compile(toolchain, targetInfo, options.GenerateDebugInfo, options.Optimization, float,
+		options.NumJobs, options.BuildDir)
+	if err != nil {
+		return err
+	}
+
+	artifacts = append(artifacts, objs...)
+
+	// Compile compiler-rt for the current target machine.
+	compilerRT, err := pkgCompilerRT(targetInfo, float)
+	if err != nil {
+		return err
+	}
+
+	objs, err = compilerRT.Compile(toolchain, targetInfo, options.GenerateDebugInfo, options.Optimization, float,
+		options.NumJobs, options.BuildDir)
+
 	if err != nil {
 		return err
 	}
@@ -337,13 +348,9 @@ func link(options Options, targetInfo targets.TargetInfo, arch string, float str
 		"--gc-sections",
 		"-o", elfOut,
 		"-nostdlib",
-		//"-L" + libCDir,
-		"-L" + libCompilerRTDir,
 		"-L" + filepath.Join(options.Environment.Value("SIGOROOT"), "runtime"),
 		"-L" + filepath.Dir(prog.LinkerScript),
 		"-T" + prog.LinkerScript,
-		//"-lc",
-		"-lclang_rt.builtins-" + arch,
 	}
 
 	if options.GenerateDebugInfo {

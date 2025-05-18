@@ -4,6 +4,7 @@ package cortexm
 
 import (
 	"asm"
+	"asm/register"
 )
 
 //sigo:interrupt hardfaultHandler HardfaultHandler
@@ -17,6 +18,6 @@ func hardfaultHandler() {
 
 use_msp:
 	mrs {{es}}, msp
-	`, asm.Out(&es), asm.Clobber(registers.R1))
+	`, asm.Out(&es), asm.Clobber(register.R1))
 	hardfault(es)
 }
