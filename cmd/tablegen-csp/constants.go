@@ -32,6 +32,18 @@ const (
 	constRangeFieldOffset = "offset"
 	constRangeFieldWidth  = "width"
 
+	constRecordMemoryRange          = "MemoryRange"
+	constMemoryRangeFieldAccess     = "access"
+	constMemoryRangeFieldExecutable = "executable"
+
 	constRecordAccessMode = "AccessMode"
 	constAccessModeValue  = "value"
+
+	constRecordVariant          = "Variant"
+	constVariantFieldMemories   = "memories"
+	constVariantFieldInterrupts = "interrupts"
+	constVariantFieldStackSize  = "stackSize"
+
+	constRecordInterrupt    = "Interrupt"
+	constInterruptFieldLine = "line"
 )

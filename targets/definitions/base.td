@@ -12,12 +12,6 @@ class StringValue<string Value> {
 
 class FPU<string Value> : StringValue<Value>;
 def NoFPU : FPU<"none">;
-def SP : FPU<"SP">;
-def DP : FPU<"DP">;
-
-class MPU<string Value> : StringValue<Value>;
-def NoMPU : MPU<"none">;
-def MPUPresent : MPU<"MPU">;
 
 class AccessMode<string Value> : StringValue<Value>;
 
@@ -26,20 +20,23 @@ def Write : AccessMode<"W">;
 def ReadWrite : AccessMode<"RW">;
 
 class Family<string Name> : Object<Name>;
-class Architecture<string Name, Family Fam, string Arch, string Triple, FPU Fpu = NoFPU, MPU Mpu = NoMPU> : Object<Name> {
+class Architecture<string Name, Family Fam, string Arch, string Triple, FPU Fpu = NoFPU> : Object<Name> {
     Family family = Fam;
     FPU fpu = Fpu;
-    MPU mpu = Mpu;
     string triple = Triple;
     string arch = Arch;
 }
 
-class Quantity<int Value> {
-    int value = Value;
+class Quantity<int Value, int Multiplier = 1> {
+    int value = !mul(Value, Multiplier);
 }
 
-class Bits<int Value> : Quantity<Value>;
-class Bytes<int Value> : Quantity<Value>;
+class Bit<int Value> : Quantity<Value>;
+
+class MemoryUnit<int Value, int Multiplier> : Quantity<Value, Multiplier>;
+class B<int Value> : MemoryUnit<Value, 1>;
+class KB<int Value> : MemoryUnit<Value, 1000>;
+class GB<int Value> : MemoryUnit<Value, 1000000000>;
 
 class Range<int Offset, int Width> {
   int offset = Offset;
@@ -48,8 +45,14 @@ class Range<int Offset, int Width> {
 
 class BitRange<int Offset, int Width> : Range<Offset, Width>;
 class ByteRange<int Offset, int Width> : Range<Offset, Width>;
-class MemoryRange<string Name, int Origin, int Size, string Description = "">
-        : Object<Name, Description>, Range<Origin, Size>;
+class MemoryRange<string Name, int Origin, MemoryUnit Size, bit Executable = false, AccessMode Access = ReadWrite,
+    string Description = "">
+        : Object<Name, Description>, Range<Origin, Size.value>
+{
+    AccessMode access = Access;
+    bit executable = Executable;
+}
+defvar Executable = true;
 
 // Describes an acceptable value for a field.
 class Enum<string Name, int Val, string Description = ""> : Object<Name, Description> {
@@ -92,13 +95,16 @@ class Interrupt<string Name, int Line, string Description = ""> : Object<Name, D
 }
 
 // Describes a variant within a chip series.
-class Variant<string Name, string Description = ""> : Object<Name, Description> {
-    list<MemoryRange> memories;
-    list<Interrupt> interrupts;
+class Variant<string Name, list<MemoryRange> Memories = [], list<Interrupt> Interrupts = [],
+    MemoryUnit StackSize = KB<4>, string Description = "">
+        : Object<Name, Description> {
+    list<MemoryRange> memories = Memories;
+    list<Interrupt> interrupts = Interrupts;
+    int stackSize = StackSize.value;
 }
 
-class Series<string Name, string Description = ""> : Object<Name, Description> {
-    Architecture arch;
+class Series<string Name, Architecture Arch, string Description = ""> : Object<Name, Description> {
+    Architecture arch = Arch;
     list<Variant> variants;
 }
 

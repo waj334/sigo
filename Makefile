@@ -91,6 +91,7 @@ ABS_SIGO_EXE=$(ABS_BINDIR)/sigoc$(EXECUTABLE_POSTFIX)
 
 CSP_GEN_EXE=$(BINDIR)/csp-gen$(EXECUTABLE_POSTFIX)
 DEF_GEN_EXE=$(BINDIR)/def-gen$(EXECUTABLE_POSTFIX)
+TBDEF_GEN_EXE=$(BINDIR)/tbdef-gen$(EXECUTABLE_POSTFIX)
 TABLEGEN_CSP_EXE := $(BINDIR)/tablegen-csp$(EXECUTABLE_POSTFIX)
 
 TARGETS_DEVICE_SRCS += $(wildcard $(ROOT_DIR)/targets/device/*.go)
@@ -284,6 +285,17 @@ def-gen: $(DEF_GEN_EXE)
 		dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(DEF_GEN_EXE) -- $(args); \
 	else \
 		$(DEF_GEN_EXE) $(args); \
+	fi
+
+$(TBDEF_GEN_EXE): $(wildcard $(ROOT_DIR)/cmd/tbdef-gen/*.go) $(TARGETS_DEVICE_SRCS)
+	@if [ $(SIGO_BUILD_RELEASE) -eq 1 ]; then \
+		go build -o $(TBDEF_GEN_EXE) $(ROOT_DIR)/cmd/tbdef-gen; \
+  	else \
+		go build -o $(TBDEF_GEN_EXE) -gcflags "all=-N -l" $(ROOT_DIR)/cmd/tbdef-gen; \
+	fi
+tbdef-gen: $(TBDEF_GEN_EXE)
+	@if [ $(DEBUG) -eq 1 ]; then \
+		dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(TBDEF_GEN_EXE) -- $(args); \
 	fi
 
 $(TABLEGEN_CSP_EXE): generate-llvm-bindings $(GO_SRCS) $(LIBS)

@@ -36,7 +36,7 @@ func main() {
 	recordKeeper := tablegen.NewRecordKeeper()
 	ok := tablegen.ParseTableGenFile(input, recordKeeper, includes)
 	if !ok {
-		log.Fatalf("failed to parse the input file")
+		log.Fatalf("failed to parse the input file\n")
 	}
 
 	peripheralInstances := map[string][]tablegen.Record{}
@@ -56,7 +56,7 @@ func main() {
 			memberType := member.GetValueAsDef(constPeripheralInstanceFieldType)
 			memberTypeRecordName := memberType.GetName()
 			if memberTypeRecordName != typeRecordName {
-				log.Fatal("mismatch type in peripheral group")
+				log.Fatalln("mismatch type in peripheral group")
 			}
 		}
 
@@ -82,7 +82,23 @@ func main() {
 		groups := peripheralGroups[def.GetName()]
 		_, err := generatePeripheralType(os.Stdout, def, instances, groups)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalln(err)
+		}
+	}
+
+	// Generate linker scripts.
+	for _, def := range recordKeeper.GetDerivedRecords(constRecordVariant) {
+		_, err := generateLinkerScript(os.Stdout, def)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
+
+	// Generate interrupt vector.
+	for _, def := range recordKeeper.GetDerivedRecords(constRecordVariant) {
+		_, err := generateArmInterruptVector(os.Stdout, def)
+		if err != nil {
+			log.Fatalln(err)
 		}
 	}
 }

@@ -40,6 +40,7 @@ targets:
     features: [ "armv7-m", "armv7e-m", "thumb2", "dsp", "db" ]
     fpu:
       abi: "hardfp"
+      type: "fpv4-sp-d16"
       features: [ "fpregs", "vfp4d16sp" ]
 
   - series: "atsame51"
@@ -55,6 +56,7 @@ targets:
     features: [ "armv7-m", "armv7e-m", "thumb2", "dsp", "db" ]
     fpu:
       abi: "hardfp"
+      type: "fpv4-sp-d16"
       features: [ "fpregs", "vfp4d16sp" ]
 
   - series: "stm32h7x7"
@@ -87,4 +89,5 @@ targets:
     features: [ "armv7-m", "armv7e-m", "thumb2", "dsp", "db" ]
     fpu:
       abi: "hardfp"
+      type: "fpv4-sp-d16"
       features: [ "fpregs", "vfp4d16sp" ]

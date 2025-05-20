@@ -42,11 +42,7 @@ type PeripheralsElement struct {
 func (p PeripheralsElement) Find(name string) (int, bool) {
 	if len(name) > 0 {
 		for i, pp := range p.Elements {
-			if pp.Name == nil {
-				continue
-			}
-
-			if *pp.Name == name {
+			if pp.Name == name {
 				return i, true
 			}
 		}
@@ -55,11 +51,11 @@ func (p PeripheralsElement) Find(name string) (int, bool) {
 }
 
 type PeripheralElement struct {
-	Name         *string              `xml:"name"`
+	Name         string               `xml:"name"`
 	Description  *string              `xml:"description"`
 	Group        *string              `xml:"groupName"`
 	Access       *string              `xml:"access"`
-	BaseAddress  *device.Address      `xml:"baseAddress"`
+	BaseAddress  device.Address       `xml:"baseAddress"`
 	AddressBlock *AddressBlockElement `xml:"addressBlock"`
 	Interrupts   *[]InterruptElement  `xml:"interrupt"`
 	Registers    *RegistersElement    `xml:"registers"`
@@ -97,6 +93,7 @@ func (c ClusterElement) GetAddressOffset() device.Address {
 
 type RegisterElement struct {
 	Name          string         `xml:"name"`
+	DisplayName   string         `xml:"displayName"`
 	Description   string         `xml:"description"`
 	AddressOffset device.Address `xml:"addressOffset"`
 	Size          device.Address `xml:"size"`
@@ -120,6 +117,7 @@ type FieldElement struct {
 	Description      string                  `xml:"description"`
 	BitOffset        device.Address          `xml:"bitOffset"`
 	BitWidth         device.Address          `xml:"bitWidth"`
+	BitRange         string                  `xml:"bitRange"`
 	Access           string                  `xml:"access"`
 	EnumeratedValues EnumeratedValuesElement `xml:"enumeratedValues"`
 }
