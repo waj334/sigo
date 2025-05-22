@@ -1,7 +1,7 @@
 package svd
 
 import (
-	"omibyte.io/sigo/targets/device"
+	"pkg.si-go.dev/sigo/targets/device"
 )
 
 type Addressable interface {

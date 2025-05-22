@@ -3,7 +3,7 @@ package ssa
 import (
 	"context"
 	"go/types"
-	"omibyte.io/sigo/mlir"
+	"pkg.si-go.dev/sigo/mlir"
 )
 
 type Value interface {

@@ -6,7 +6,7 @@ import (
 	"io"
 	"strings"
 
-	"omibyte.io/sigo/targets/device"
+	"pkg.si-go.dev/sigo/targets/device"
 )
 
 func writeInterruptsApi(output io.StringWriter, pkg string, irqPkg string, irqType string, variant device.Variant) (int, error) {

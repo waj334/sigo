@@ -5,7 +5,7 @@ import (
 	"io"
 	"strings"
 
-	"omibyte.io/sigo/targets/device"
+	"pkg.si-go.dev/sigo/targets/device"
 )
 
 func writeLinkerScript(output io.StringWriter, v device.Variant) (int, error) {

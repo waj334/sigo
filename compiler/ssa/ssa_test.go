@@ -20,8 +20,8 @@ import (
 
 	"golang.org/x/tools/go/packages"
 
-	_ "omibyte.io/sigo/llvm"
-	"omibyte.io/sigo/mlir"
+	_ "pkg.si-go.dev/sigo/llvm"
+	"pkg.si-go.dev/sigo/mlir"
 )
 
 var enabledTests string

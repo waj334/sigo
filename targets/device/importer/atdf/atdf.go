@@ -10,9 +10,9 @@ import (
 	"slices"
 	"strings"
 
-	"omibyte.io/sigo/targets/device"
-	"omibyte.io/sigo/targets/device/atdf"
-	"omibyte.io/sigo/targets/device/importer"
+	"pkg.si-go.dev/sigo/targets/device"
+	"pkg.si-go.dev/sigo/targets/device/atdf"
+	"pkg.si-go.dev/sigo/targets/device/importer"
 )
 
 type (

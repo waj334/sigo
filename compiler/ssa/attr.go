@@ -1,6 +1,6 @@
 package ssa
 
-import "omibyte.io/sigo/mlir"
+import "pkg.si-go.dev/sigo/mlir"
 
 func (b *Builder) intAttr(value int64) mlir.Attribute {
 	T := mlir.IntegerTypeGet(b.ctx, 64)

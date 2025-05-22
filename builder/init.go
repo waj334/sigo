@@ -1,6 +1,6 @@
 package builder
 
-import "omibyte.io/sigo/llvm"
+import "pkg.si-go.dev/sigo/llvm"
 
 func init() {
 	// Set up compile target

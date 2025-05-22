@@ -10,10 +10,10 @@ import (
 	"slices"
 	"strings"
 
-	"omibyte.io/sigo/targets/device"
-	"omibyte.io/sigo/targets/device/importer"
-	"omibyte.io/sigo/targets/device/importer/atdf"
-	"omibyte.io/sigo/targets/device/importer/svd"
+	"pkg.si-go.dev/sigo/targets/device"
+	"pkg.si-go.dev/sigo/targets/device/importer"
+	"pkg.si-go.dev/sigo/targets/device/importer/atdf"
+	"pkg.si-go.dev/sigo/targets/device/importer/svd"
 )
 
 var (

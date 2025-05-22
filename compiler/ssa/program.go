@@ -16,7 +16,7 @@ import (
 
 	"gonum.org/v1/gonum/graph/multi"
 	"gonum.org/v1/gonum/graph/topo"
-	"omibyte.io/sigo/compiler/check"
+	"pkg.si-go.dev/sigo/compiler/check"
 
 	"golang.org/x/tools/go/packages"
 )

@@ -9,7 +9,7 @@ import (
 	"go/types"
 	"strings"
 
-	"omibyte.io/sigo/mlir"
+	"pkg.si-go.dev/sigo/mlir"
 )
 
 func (b *Builder) isIntrinsic(ctx context.Context, expr *ast.CallExpr) bool {

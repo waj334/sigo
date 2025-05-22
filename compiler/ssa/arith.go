@@ -6,7 +6,7 @@ import (
 	"go/token"
 	"go/types"
 
-	"omibyte.io/sigo/mlir"
+	"pkg.si-go.dev/sigo/mlir"
 )
 
 func (b *Builder) emitArith(ctx context.Context, op token.Token, X, Y mlir.Value, XT types.Type, T mlir.Type, location mlir.Location) mlir.Value {

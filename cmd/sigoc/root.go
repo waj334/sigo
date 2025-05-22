@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"omibyte.io/sigo/builder"
+	"pkg.si-go.dev/sigo/builder"
 )
 
 const (

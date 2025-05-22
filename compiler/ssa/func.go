@@ -8,7 +8,7 @@ import (
 	"go/types"
 	"sync"
 
-	"omibyte.io/sigo/mlir"
+	"pkg.si-go.dev/sigo/mlir"
 )
 
 type funcData struct {

@@ -7,7 +7,7 @@ import (
 	"slices"
 	"strings"
 
-	"omibyte.io/sigo/targets/device"
+	"pkg.si-go.dev/sigo/targets/device"
 )
 
 func formatSymbol(input string, exported bool) string {

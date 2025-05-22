@@ -7,7 +7,7 @@ import (
 	"go/types"
 	"strings"
 
-	"omibyte.io/sigo/mlir"
+	"pkg.si-go.dev/sigo/mlir"
 )
 
 // appendOperation Appends the operation to the last block in the region provided by the context.

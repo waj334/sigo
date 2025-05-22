@@ -13,10 +13,10 @@ import (
 	"strings"
 	"time"
 
-	"omibyte.io/sigo/compiler/ssa"
-	"omibyte.io/sigo/llvm"
-	"omibyte.io/sigo/mlir"
-	"omibyte.io/sigo/targets"
+	"pkg.si-go.dev/sigo/compiler/ssa"
+	"pkg.si-go.dev/sigo/llvm"
+	"pkg.si-go.dev/sigo/mlir"
+	"pkg.si-go.dev/sigo/targets"
 )
 
 type (

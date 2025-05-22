@@ -14,8 +14,8 @@ import (
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 	"golang.org/x/tools/go/packages"
-	"omibyte.io/sigo/llvm"
-	"omibyte.io/sigo/mlir"
+	"pkg.si-go.dev/sigo/llvm"
+	"pkg.si-go.dev/sigo/mlir"
 )
 
 type Config struct {

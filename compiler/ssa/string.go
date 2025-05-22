@@ -4,7 +4,7 @@ import (
 	"context"
 	"go/ast"
 	"go/token"
-	"omibyte.io/sigo/mlir"
+	"pkg.si-go.dev/sigo/mlir"
 )
 
 func (b *Builder) emitStringRange(ctx context.Context, stmt *ast.RangeStmt) {
