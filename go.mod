@@ -1,4 +1,4 @@
-module omibyte.io/sigo
+module pkg.si-go.dev/sigo
 
 go 1.22.0
 
