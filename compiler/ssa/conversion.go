@@ -5,7 +5,7 @@ import (
 
 	"go/types"
 
-	"omibyte.io/sigo/mlir"
+	"pkg.si-go.dev/sigo/mlir"
 )
 
 func (b *Builder) emitTypeConversion(ctx context.Context, X mlir.Value, src types.Type, dest types.Type, location mlir.Location) mlir.Value {

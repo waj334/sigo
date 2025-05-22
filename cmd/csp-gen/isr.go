@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
-	"omibyte.io/sigo/targets/device"
+	"pkg.si-go.dev/sigo/targets/device"
 	"slices"
 	"strings"
 )

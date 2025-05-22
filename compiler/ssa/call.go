@@ -5,7 +5,7 @@ import (
 	"go/ast"
 	"go/types"
 
-	"omibyte.io/sigo/mlir"
+	"pkg.si-go.dev/sigo/mlir"
 )
 
 func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.Value {

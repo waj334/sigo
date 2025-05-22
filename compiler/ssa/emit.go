@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"runtime/debug"
 
-	"omibyte.io/sigo/mlir"
+	"pkg.si-go.dev/sigo/mlir"
 )
 
 func (b *Builder) emitAssign(ctx context.Context, stmt *ast.AssignStmt) {

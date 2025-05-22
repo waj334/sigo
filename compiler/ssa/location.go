@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"omibyte.io/sigo/mlir"
+	"pkg.si-go.dev/sigo/mlir"
 )
 
 func (b *Builder) location(p token.Pos) mlir.Location {

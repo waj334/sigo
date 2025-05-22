@@ -6,7 +6,7 @@ import (
 	"go/token"
 	"go/types"
 
-	"omibyte.io/sigo/mlir"
+	"pkg.si-go.dev/sigo/mlir"
 )
 
 func (b *Builder) emitIfStatement(ctx context.Context, stmt *ast.IfStmt) {

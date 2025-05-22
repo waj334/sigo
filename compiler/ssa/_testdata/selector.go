@@ -2,7 +2,7 @@
 
 package main
 
-import "omibyte.io/sigo/compiler/ssa/_testdata/src/somepkg"
+import "pkg.si-go.dev/sigo/compiler/ssa/_testdata/src/somepkg"
 
 type embeddedStruct struct {
 	e int

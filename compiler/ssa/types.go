@@ -7,7 +7,7 @@ import (
 	"go/types"
 	"hash/fnv"
 
-	"omibyte.io/sigo/mlir"
+	"pkg.si-go.dev/sigo/mlir"
 )
 
 type typeCacheNestedLockKey struct{}

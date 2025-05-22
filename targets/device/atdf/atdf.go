@@ -1,7 +1,7 @@
 package atdf
 
 import (
-	"omibyte.io/sigo/targets/device"
+	"pkg.si-go.dev/sigo/targets/device"
 )
 
 type Offsetable interface {

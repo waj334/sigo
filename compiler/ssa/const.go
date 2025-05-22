@@ -6,7 +6,7 @@ import (
 	"go/constant"
 	"go/types"
 
-	"omibyte.io/sigo/mlir"
+	"pkg.si-go.dev/sigo/mlir"
 )
 
 func (b *Builder) emitConstantDecl(ctx context.Context, decl *ast.GenDecl) {

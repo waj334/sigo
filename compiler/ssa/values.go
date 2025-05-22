@@ -5,7 +5,7 @@ import (
 	"go/ast"
 	"go/types"
 
-	"omibyte.io/sigo/mlir"
+	"pkg.si-go.dev/sigo/mlir"
 )
 
 func (b *Builder) valueOf(ctx context.Context, node ast.Node) Value {

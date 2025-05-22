@@ -9,7 +9,7 @@ import (
 	"golang.org/x/exp/slices"
 	"gopkg.in/yaml.v3"
 
-	"omibyte.io/sigo/llvm"
+	"pkg.si-go.dev/sigo/llvm"
 )
 
 var targets Targets

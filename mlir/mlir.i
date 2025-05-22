@@ -337,7 +337,7 @@ MLIR_PRIMITIVE_SLICE_TYPEMAP(int32_t, int32, nConstIndices, constIndices)
 
 // Handle LLVM typs
 
-%go_import("omibyte.io/sigo/llvm")
+%go_import("pkg.si-go.dev/sigo/llvm")
 
 %define LLVM_TYPEMAP(TYPE)
 

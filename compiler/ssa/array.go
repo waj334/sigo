@@ -5,7 +5,7 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
-	"omibyte.io/sigo/mlir"
+	"pkg.si-go.dev/sigo/mlir"
 )
 
 func (b *Builder) emitArrayRange(ctx context.Context, stmt *ast.RangeStmt) {
