@@ -11,13 +11,13 @@ import (
 var (
 	base            string
 	variantPatterns string
-	output          string
+	outputDirectory string
 )
 
 func init() {
 	flag.StringVar(&base, "base", "", "base description file for series")
 	flag.StringVar(&variantPatterns, "variants", "", "description file patterns for series variants")
-	flag.StringVar(&output, "output", "", "output SiGO description file")
+	flag.StringVar(&outputDirectory, "out", "", "output SiGO description file")
 	flag.Parse()
 }
 

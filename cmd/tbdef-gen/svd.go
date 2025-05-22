@@ -3,17 +3,19 @@ package main
 import (
 	"context"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 
-	"omibyte.io/sigo/targets/device/svd"
+	"pkg.si-go.dev/sigo/targets/device/svd"
 )
 
-func translateSVD(ctx context.Context, fname string) error {
+func translateSVD(ctx context.Context, inputFilename string) error {
 	// Open the input file.
-	file, err := os.Open(fname)
+	file, err := os.Open(inputFilename)
 	if err != nil {
 		return err
 	}
@@ -31,26 +33,98 @@ func translateSVD(ctx context.Context, fname string) error {
 		return err
 	}
 
-	for _, peripheral := range element.Peripherals.Elements {
-		_, err = translatePeripheral(ctx, os.Stdout, peripheral)
+	// Map instances to their respective base peripheral.
+	instanceMap := map[int][]svd.PeripheralElement{}
+	for i, peripheral := range element.Peripherals.Elements {
+		if peripheral.DerivedFrom != nil {
+			derivedFrom := *peripheral.DerivedFrom
+			index, ok := element.Peripherals.Find(derivedFrom)
+			if ok {
+				instanceMap[index] = append(instanceMap[index], peripheral)
+			}
+		} else {
+			instanceMap[i] = append(instanceMap[i], peripheral)
+		}
+	}
+
+	var includes []string
+	for baseIndex, instances := range instanceMap {
+		// Look up the base peripheral that the instances will be created from.
+		basePeripheral := element.Peripherals.Elements[baseIndex]
+
+		// Format the base filename.
+		peripheralName := sanitizeName(basePeripheral.Name, basePeripheral.Name)
+		peripheralName = strings.ToLower(peripheralName)
+
+		// Format the path to the peripheral TableGen file.
+		filename := filepath.Join(outputDirectory, "peripherals", peripheralName+".td")
+
+		// Add this file to the list of includes.
+		includes = append(includes, filename)
+
+		// Create the directory.
+		err = os.MkdirAll(filepath.Dir(filename), os.ModePerm)
+		if err != nil {
+			return err
+		}
+
+		// Create the peripheral TableGen file that will be written to.
+		file, err = os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, os.ModePerm)
+		if err != nil {
+			return err
+		}
+
+		// Write the contents of the peripheral TableGen file.
+		_, err = generatePeripheral(ctx, file, basePeripheral, instances)
 		if err != nil {
 			return err
 		}
 	}
 
+	// Format the base filename.
+	deviceName := sanitizeName(element.Name, element.Name)
+	deviceName = strings.ToLower(deviceName)
+
+	// Format the path to the series TableGen file.
+	filename := filepath.Join(outputDirectory, deviceName+".td")
+
+	// Create the directory.
+	err = os.MkdirAll(filepath.Dir(filename), os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	// Create the peripheral TableGen file that will be written to.
+	file, err = os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	// Write the contents of the peripheral TableGen file.
+	_, err = generateSeries(ctx, file, element, includes)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func translatePeripheral(ctx context.Context, out io.Writer, peripheral svd.PeripheralElement) (int, error) {
+func generatePeripheral(ctx context.Context, out io.Writer, peripheral svd.PeripheralElement, instances []svd.PeripheralElement) (int, error) {
 	var builder strings.Builder
 
 	defName := fmt.Sprintf("%sPeripheral", peripheral.Name)
-	name := peripheral.Name
+	name := sanitizeName(peripheral.Name, peripheral.Name)
 	description := ""
 	if peripheral.Description != nil {
-		description = strings.TrimSpace(*peripheral.Description)
+		description = sanitizeDescription(*peripheral.Description)
 	}
 
+	if len(peripheral.Registers.RegisterElements) == 0 {
+		return 0, nil
+	}
+
+	fmt.Fprintf(&builder, "#ifndef _PERIPHERALS_%s_TD\n", strings.ToUpper(name))
+	fmt.Fprintf(&builder, "#define _PERIPHERALS_%s_TD\n\n", strings.ToUpper(name))
 	fmt.Fprintf(&builder, "include \"base.td\"\n\n")
 
 	if description != "" {
@@ -72,24 +146,35 @@ func translatePeripheral(ctx context.Context, out io.Writer, peripheral svd.Peri
 				width = int(reg.Size.Value())
 			}
 
-			regDesc := ""
-			if len(reg.Description) > 0 {
-				regDesc = strings.TrimSpace(reg.Description)
+			count := 1
+			if reg.Count > 1 {
+				count = int(reg.Count.Value())
 			}
 
-			fmt.Fprintf(&builder, "    Register<\"%s\", %#x, %d, [\n", regName, offset, width)
+			regDesc := ""
+			if len(reg.Description) > 0 {
+				regDesc = sanitizeDescription(reg.Description)
+			}
+
+			if count > 1 {
+				fmt.Fprintf(&builder, "    RepeatingRegister<\"%s\", %d, %#x, %d, [\n", regName, count, offset, width)
+			} else {
+				fmt.Fprintf(&builder, "    Register<\"%s\", %#x, %d, [\n", regName, offset, width)
+			}
 
 			// Fields
 			for _, field := range reg.Fields.Elements {
 				fieldName := sanitizeName(field.Name, "")
 				fieldDesc := ""
 				if len(field.Description) > 0 {
-					fieldDesc = strings.TrimSpace(field.Description)
+					fieldDesc = sanitizeDescription(field.Description)
 				}
 
 				offset, width := bitRangeToOffsetWidth(field.BitRange)
-
 				access := accessMode(field.Access)
+
+				// TODO: Implement repeating register fields.
+				// TODO: Repeating register fields must respect the register's access width.
 
 				fmt.Fprintf(&builder, "      Field<\"%s\", %d, %d, %s", fieldName, offset, width, access)
 
@@ -105,7 +190,7 @@ func translatePeripheral(ctx context.Context, out io.Writer, peripheral svd.Peri
 					}
 					enumDesc := ""
 					if len(enum.Description) > 0 {
-						enumDesc = strings.TrimSpace(enum.Description)
+						enumDesc = sanitizeDescription(enum.Description)
 					}
 					val := enum.Value.Value()
 
@@ -136,27 +221,85 @@ func translatePeripheral(ctx context.Context, out io.Writer, peripheral svd.Peri
 	}
 
 	fmt.Fprintf(&builder, "}\n\n")
+
+	if len(instances) > 0 {
+		instanceClassName := fmt.Sprintf("%sInstance", name)
+		fmt.Fprintf(&builder, "class %s<string Name, int Base> : PeripheralInstance<Name, Base, %s>;\n", instanceClassName, defName)
+		for _, instance := range instances {
+			instanceName := sanitizeName(instance.Name, instance.Name)
+			fmt.Fprintf(&builder, "def %s : %s<\"%s\", %#x>;\n", instanceName, instanceClassName, instanceName, instance.BaseAddress.Value())
+		}
+		fmt.Fprintf(&builder, "\n")
+	}
+
+	fmt.Fprintf(&builder, "#endif // _PERIPHERALS_%s_TD\n", strings.ToUpper(name))
+
 	return fmt.Fprint(out, builder.String())
 }
 
-func sanitizeName(display, fallback string) string {
-	name := display
-	if name == "" {
-		name = fallback
-	}
-	name = strings.ReplaceAll(name, "%s", "")
-	name = strings.ReplaceAll(name, "[%s]", "")
-	name = strings.ReplaceAll(name, "[", "")
-	name = strings.ReplaceAll(name, "]", "")
-	name = strings.ReplaceAll(name, " ", "")
-	name = strings.ReplaceAll(name, "-", "_")
+func generateSeries(ctx context.Context, out io.Writer, device svd.DeviceElement, includes []string) (int, error) {
+	var builder strings.Builder
 
-	// Clean up trailing separators.
-	for strings.HasSuffix(name, "_") {
-		name = strings.TrimSuffix(name, "_")
+	name := sanitizeName(device.Name, device.Name)
+
+	fmt.Fprintf(&builder, "#ifndef _%s_TD\n", strings.ToUpper(name))
+	fmt.Fprintf(&builder, "#define _%s_TD\n\n", strings.ToUpper(name))
+	fmt.Fprintf(&builder, "include \"base.td\"\n")
+
+	var arch string
+	switch strings.ToUpper(device.CPU.Name) {
+	case "CM0":
+		arch = "CortexM0"
+	case "CM0PLUS":
+		arch = "CortexM0Plus"
+	case "CM0+":
+		arch = "CortexM0Plus"
+	case "CM1":
+		arch = "CortexM1"
+	case "CM3":
+		arch = "CortexM3"
+	case "CM4":
+		arch = "CortexM4"
+	case "CM7":
+		arch = "CortexM7"
+		fmt.Fprintf(&builder, "include \"arm/cortexm/interrupts.td\"\n")
+		fmt.Fprintf(&builder, "include \"arm/cortexm/registers.td\"\n")
+		fmt.Fprintf(&builder, "include \"arm/cortexm/variant.td\"\n")
+		fmt.Fprintf(&builder, "include \"arm/family.td\"\n")
+	case "CM23":
+		arch = "CortexM23"
+	case "CM33":
+		arch = "CortexM33"
+	case "CM35P":
+		arch = "CortexM35P"
+	case "CM52":
+		arch = "CortexM52"
+	case "CM55":
+		arch = "CortexM55"
+	case "CM85":
+		arch = "CortexM85"
+	default:
+		return 0, errors.New("unknown architecture " + device.CPU.Name)
 	}
 
-	return name
+	// Generate includes section.
+	fmt.Fprintf(&builder, "\n")
+	for _, include := range includes {
+		include, err := filepath.Rel(outputDirectory, include)
+		if err != nil {
+			return 0, err
+		}
+
+		fmt.Fprintf(&builder, "include \"%s\"\n", include)
+	}
+
+	fmt.Fprintf(&builder, "\n")
+	fmt.Fprintf(&builder, "def %s : Series<\"%s\", %s> {\n", name, name, arch)
+	fmt.Fprintf(&builder, "  let variants = [];\n")
+	fmt.Fprintf(&builder, "}\n")
+
+	fmt.Fprintf(&builder, "#endif // _%s_TD\n", strings.ToUpper(name))
+	return fmt.Fprint(out, builder.String())
 }
 
 func accessMode(svdAccess string) string {

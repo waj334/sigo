@@ -64,12 +64,27 @@ class Field<string Name, int Offset, int Width, AccessMode Access, string Descri
         : Object<Name, Description>, BitRange<Offset, Width> {
     AccessMode access = Access;
     list<Enum> enums = Enums;
+    int count = 1;
+}
+
+class RepeatingField<string Name, int Count, int Offset, int Width, AccessMode Access, string Description = "",
+    list<Enum> Enums = []>
+        : Field<Name, Offset, Width, Access, Description, Enums>
+{
+    let count = Count;
 }
 
 // Describes a register containing fields that can be read from of written.
 class Register<string Name, int Offset, int Width, list<Field> Fields = [], string Description = "">
         : Object<Name, Description>, ByteRange<Offset, Width> {
     list<Field> fields = Fields;
+    int count = 1;
+}
+
+class RepeatingRegister<string Name, int Count, int Offset, int Width, list<Field> Fields = [], string Description = "">
+    : Register<Name, Offset, Width, Fields, Description>
+{
+    let count = Count;
 }
 
 // Describes the prototype of a peripheral.

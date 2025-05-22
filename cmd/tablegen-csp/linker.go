@@ -5,7 +5,7 @@ import (
 	"io"
 	"strings"
 
-	"omibyte.io/sigo/llvm/tablegen"
+	"pkg.si-go.dev/sigo/llvm/tablegen"
 )
 
 func generateLinkerScript(out io.Writer, variant tablegen.Record) (int, error) {

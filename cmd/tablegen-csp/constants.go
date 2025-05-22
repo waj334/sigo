@@ -18,6 +18,7 @@ const (
 
 	constRecordRegister      = "register"
 	constRegisterFieldFields = "fields"
+	constRegisterFieldCount  = "count"
 
 	constRecordField      = "field"
 	constFieldFieldAccess = "access"

@@ -4,8 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"omibyte.io/sigo/llvm/tablegen"
 	"os"
+	"path/filepath"
+	"pkg.si-go.dev/sigo/llvm/tablegen"
 )
 
 var (
@@ -33,6 +34,14 @@ func init() {
 }
 
 func main() {
+	// Path of input file to includes.
+	currentFile, err := filepath.Abs(input)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	includes = append(includes, filepath.Dir(currentFile))
+
 	recordKeeper := tablegen.NewRecordKeeper()
 	ok := tablegen.ParseTableGenFile(input, recordKeeper, includes)
 	if !ok {

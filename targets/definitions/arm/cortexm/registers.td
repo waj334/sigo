@@ -1,1 +1,6 @@
+#ifndef _ARM_CORTEXM_REGISTERS_TD
+#define _ARM_CORTEXM_REGISTERS_TD
+
 include "base.td"
+
+#endif // _ARM_CORTEXM_REGISTERS_TD

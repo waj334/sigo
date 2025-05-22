@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"go/format"
 	"io"
+	"os"
 	"strings"
 
-	"omibyte.io/sigo/llvm/tablegen"
+	"pkg.si-go.dev/sigo/llvm/tablegen"
 )
 
 func generatePeripheralType(out io.Writer, peripheralType tablegen.Record, instances []tablegen.Record, groups []tablegen.Record) (int, error) {
@@ -32,7 +33,7 @@ func generatePeripheralType(out io.Writer, peripheralType tablegen.Record, insta
 		varName := formatGoIdentifier(strings.ToLower(instanceName), true)
 		baseAddress := instance.GetValueAsInt(constPeripheralInstanceFieldBase)
 
-		fmt.Fprintf(&builder, "%s = (*%s)(unsafe.Pointer(uintptr(%#X)))\n", varName, className, baseAddress)
+		fmt.Fprintf(&builder, "%s = (*%s)(unsafe.Pointer(uintptr(%#x)))\n", varName, className, baseAddress)
 	}
 
 	if len(groups) > 0 {
@@ -58,7 +59,8 @@ func generatePeripheralType(out io.Writer, peripheralType tablegen.Record, insta
 	registers := peripheralType.GetValueAsListOfDefs(constPeripheralTypeFieldRegisters)
 	for _, register := range registers {
 		offset := register.GetValueAsInt(constRangeFieldOffset)
-		width := register.GetValueAsInt(constRangeFieldWidth) / 8
+		count := register.GetValueAsInt(constRegisterFieldCount)
+		width := (register.GetValueAsInt(constRangeFieldWidth) / 8) * count
 
 		// Insert padding if currentOffset < register's offset
 		if offset > position {
@@ -68,7 +70,12 @@ func generatePeripheralType(out io.Writer, peripheralType tablegen.Record, insta
 
 		fieldName := formatRegisterFieldName(register)
 		typeName := formatRegisterTypeName(register)
-		fmt.Fprintf(&builder, "%s %s\n", fieldName, typeName)
+
+		if count > 1 {
+			fmt.Fprintf(&builder, "%s [%d]%s\n", fieldName, count, typeName)
+		} else {
+			fmt.Fprintf(&builder, "%s %s\n", fieldName, typeName)
+		}
 
 		// Update position.
 		position = offset + width
@@ -88,6 +95,7 @@ func generatePeripheralType(out io.Writer, peripheralType tablegen.Record, insta
 	srcStr := builder.String()
 	src, err := format.Source([]byte(srcStr))
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "*** START ***\n%s\n*** END ***\n", srcStr)
 		return 0, err
 	}
 	return fmt.Fprint(out, string(src))
@@ -157,7 +165,7 @@ func generateRegister(out io.Writer, register tablegen.Record) (int, error) {
 						fmt.Fprintf(&builder, "%s %s = true\n", enumName, fieldEnumType)
 					}
 				} else {
-					fmt.Fprintf(&builder, "%s %s = %#X\n", enumName, fieldEnumType, enumValue)
+					fmt.Fprintf(&builder, "%s %s = %#x\n", enumName, fieldEnumType, enumValue)
 				}
 
 				if trailingNewline {
@@ -170,7 +178,7 @@ func generateRegister(out io.Writer, register tablegen.Record) (int, error) {
 		}
 
 		fmt.Fprintf(&builder, "%s = %d\n", constShift, fieldOffset)
-		fmt.Fprintf(&builder, "%s = %#X\n", constMask, mask)
+		fmt.Fprintf(&builder, "%s = %#x\n", constMask, mask)
 		fmt.Fprintf(&builder, ")\n\n")
 
 		addr := fmt.Sprintf("(*%s)(r)", registerUnderlyingType)

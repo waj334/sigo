@@ -1,3 +1,6 @@
+#ifndef _ARM_CORTEXM_INTERRUPTS_TD
+#define _ARM_CORTEXM_INTERRUPTS_TD
+
 include "base.td"
 
 defvar CortexMInterrupts = [
@@ -12,3 +15,5 @@ defvar CortexMInterrupts = [
     Interrupt<"PendSVHandler",  -2,     "Pendable request for system service.">,
     Interrupt<"SysTickHandler", -1,     "System Tick Timer.">,
 ];
+
+#endif // _ARM_CORTEXM_INTERRUPTS_TD
