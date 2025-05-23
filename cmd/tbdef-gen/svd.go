@@ -326,8 +326,45 @@ func generateSeries(ctx context.Context, out io.Writer, device svd.DeviceElement
 
 		fmt.Fprintf(&builder, "include \"%s\"\n", include)
 	}
-
 	fmt.Fprintf(&builder, "\n")
+
+	// Gather interrupts
+	type IRQ struct {
+		name string
+		line int
+	}
+
+	interrupts := make([]svd.InterruptElement, 0, len(device.Peripherals.Elements))
+	for _, peripheral := range device.Peripherals.Elements {
+		if peripheral.Interrupts != nil {
+			for _, interrupt := range *peripheral.Interrupts {
+				interrupts = append(interrupts, interrupt)
+			}
+		}
+	}
+
+	// Sort the interrupts by line number.
+	slices.SortFunc(interrupts, func(a, b svd.InterruptElement) int {
+		return cmp.Compare(a.Value, b.Value)
+	})
+
+	if len(interrupts) > 0 {
+		// Generate the interrupt list.
+		fmt.Fprintf(&builder, "defvar interrupts = [\n")
+		for _, interrupt := range interrupts {
+			interruptName := strings.ToUpper(sanitizeName(interrupt.Name, interrupt.Name))
+			if len(interrupt.Description) > 0 {
+				description := sanitizeDescription(interrupt.Description)
+				fmt.Fprintf(&builder, "  Interrupt<\"%s\", %d, \"%s\">,\n", interruptName, interrupt.Value, description)
+			} else {
+				fmt.Fprintf(&builder, "  Interrupt<\"%s\", %d>,\n", name, interrupt.Value)
+			}
+
+		}
+		fmt.Fprintf(&builder, "];\n\n")
+	}
+
+	// Generate variants.
 	fmt.Fprintf(&builder, "def %s : Series<\"%s\", %s> {\n", name, name, arch)
 	fmt.Fprintf(&builder, "  let variants = [];\n")
 	fmt.Fprintf(&builder, "}\n")
