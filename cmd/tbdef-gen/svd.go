@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	"encoding/xml"
 	"errors"
@@ -8,6 +9,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"pkg.si-go.dev/sigo/targets/device/svd"
@@ -136,9 +138,14 @@ func generatePeripheral(ctx context.Context, out io.Writer, peripheral svd.Perip
 	fmt.Fprintf(&builder, "  let accessWidth = 32;\n")
 
 	if len(peripheral.Registers.RegisterElements) > 0 {
+		// Sort registers by offset.
+		slices.SortFunc(peripheral.Registers.RegisterElements, func(a, b svd.RegisterElement) int {
+			return cmp.Compare(a.AddressOffset, b.AddressOffset)
+		})
+
 		fmt.Fprintf(&builder, "  let registers = [\n")
 		for _, reg := range peripheral.Registers.RegisterElements {
-			regName := sanitizeName(reg.DisplayName, reg.Name)
+			regName := strings.ToUpper(sanitizeName(reg.DisplayName, reg.Name))
 			offset := reg.AddressOffset.Value()
 			width := 32 // fallback default
 
@@ -162,9 +169,23 @@ func generatePeripheral(ctx context.Context, out io.Writer, peripheral svd.Perip
 				fmt.Fprintf(&builder, "    Register<\"%s\", %#x, %d, [\n", regName, offset, width)
 			}
 
+			// Sort fields by offset.
+			slices.SortFunc(reg.Fields.Elements, func(a, b svd.FieldElement) int {
+				offsetOf := func(field svd.FieldElement) int {
+					var offset int
+					if len(field.BitRange) > 0 {
+						offset, _ = bitRangeToOffsetWidth(field.BitRange)
+					} else {
+						offset = int(field.BitOffset.Value())
+					}
+					return offset
+				}
+				return cmp.Compare(offsetOf(a), offsetOf(b))
+			})
+
 			// Fields
 			for _, field := range reg.Fields.Elements {
-				fieldName := sanitizeName(field.Name, "")
+				fieldName := strings.ToUpper(sanitizeName(field.Name, ""))
 				fieldDesc := ""
 				if len(field.Description) > 0 {
 					fieldDesc = sanitizeDescription(field.Description)
@@ -231,6 +252,11 @@ func generatePeripheral(ctx context.Context, out io.Writer, peripheral svd.Perip
 	fmt.Fprintf(&builder, "}\n\n")
 
 	if len(instances) > 0 {
+		// Sort instances by address.
+		slices.SortFunc(instances, func(a, b svd.PeripheralElement) int {
+			return cmp.Compare(a.BaseAddress, b.BaseAddress)
+		})
+
 		instanceClassName := fmt.Sprintf("%sInstance", name)
 		fmt.Fprintf(&builder, "class %s<string Name, int Base> : PeripheralInstance<Name, Base, %s>;\n", instanceClassName, defName)
 		for _, instance := range instances {

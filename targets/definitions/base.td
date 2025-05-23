@@ -93,10 +93,11 @@ class PeripheralType<string Name, string Description = ""> : Object<Name, Descri
     int accessWidth = 32;
 }
 
-class PeripheralInstance<string Name, int Base, PeripheralType Type, string Description = "">
+class PeripheralInstance<string Name, int Base, PeripheralType Type, string Description = "", list<string> Tags = []>
         : Object<Name, Description> {
     int base = Base;
     PeripheralType type = Type;
+    list<string> tags = Tags;
 }
 
 // Describes a grouping of peripherals. Memboers of the group MUST be the same derived type.
@@ -111,11 +112,12 @@ class Interrupt<string Name, int Line, string Description = ""> : Object<Name, D
 
 // Describes a variant within a chip series.
 class Variant<string Name, list<MemoryRange> Memories = [], list<Interrupt> Interrupts = [],
-    MemoryUnit StackSize = KB<4>, string Description = "">
+    MemoryUnit StackSize = KB<4>, list<string> Tags = [], string Description = "">
         : Object<Name, Description> {
     list<MemoryRange> memories = Memories;
     list<Interrupt> interrupts = Interrupts;
     int stackSize = StackSize.value;
+    list<string> tags = Tags;
 }
 
 class Series<string Name, Architecture Arch, string Description = ""> : Object<Name, Description> {
