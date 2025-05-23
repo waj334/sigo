@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"pkg.si-go.dev/sigo/llvm/tablegen"
+	"strings"
 )
 
 var (
@@ -87,9 +88,26 @@ func main() {
 
 	// Determine which peripherals need to be generated.
 	for _, def := range recordKeeper.GetDerivedRecords(constRecordPeripheralType) {
+		name := def.GetValueAsString(constObjectFieldName)
+		name = strings.ToLower(sanitizeName(name, name))
+
+		filename := filepath.Join(outputDir, "reg", name, "peripheral.go")
+
+		// Create the directory where the peripheral API will be placed.
+		err := os.MkdirAll(filepath.Dir(filename), os.ModePerm)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		// Create the source file that will be written.
+		file, err := os.Create(filename)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
 		instances := peripheralInstances[def.GetName()]
 		groups := peripheralGroups[def.GetName()]
-		_, err := generatePeripheralType(os.Stdout, def, instances, groups)
+		_, err = generatePeripheralType(file, def, instances, groups)
 		if err != nil {
 			log.Fatalln(err)
 		}

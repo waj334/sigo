@@ -18,8 +18,8 @@ func generatePeripheralType(out io.Writer, peripheralType tablegen.Record, insta
 	var builder strings.Builder
 
 	peripheralName := peripheralType.GetValueAsString(constObjectFieldName)
-	packageName := formatGoIdentifier(strings.ToLower(peripheralName), true)
-	className := formatGoIdentifier(strings.ToLower(peripheralName), false)
+	packageName := strings.ToLower(formatGoIdentifier(strings.ToLower(peripheralName), true))
+	className := "_" + formatGoIdentifier(strings.ToLower(peripheralName), false)
 
 	fmt.Fprintf(&builder, "package %s\n\n", packageName)
 	fmt.Fprintf(&builder, "import (\n")

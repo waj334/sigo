@@ -170,7 +170,15 @@ func generatePeripheral(ctx context.Context, out io.Writer, peripheral svd.Perip
 					fieldDesc = sanitizeDescription(field.Description)
 				}
 
-				offset, width := bitRangeToOffsetWidth(field.BitRange)
+				var offset int
+				var width int
+				if len(field.BitRange) > 0 {
+					offset, width = bitRangeToOffsetWidth(field.BitRange)
+				} else {
+					offset = int(field.BitOffset.Value())
+					width = int(field.BitWidth.Value())
+				}
+
 				access := accessMode(field.Access)
 
 				// TODO: Implement repeating register fields.
