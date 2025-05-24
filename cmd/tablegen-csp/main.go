@@ -6,8 +6,10 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"pkg.si-go.dev/sigo/llvm/tablegen"
 	"strings"
+
+	_ "pkg.si-go.dev/sigo/llvm"
+	"pkg.si-go.dev/sigo/llvm/tablegen"
 )
 
 var (
@@ -49,9 +51,24 @@ func main() {
 		log.Fatalf("failed to parse the input file\n")
 	}
 
-	peripheralInstances := map[string][]tablegen.Record{}
-	peripheralGroups := map[string][]tablegen.Record{}
+	// Get the series of which code will be generated for.
+	// NOTE: Only a single series can be defined!.
+	var series *tablegen.Record
+	if allSeries := recordKeeper.GetDerivedRecords(constRecordSeries); len(allSeries) == 0 {
+		log.Fatalf("no series defined\n")
+	} else if len(allSeries) > 1 {
+		log.Fatalf("multiple series defined\n")
+	} else {
+		series = allSeries[0]
+	}
 
+	peripheralTypes := series.GetValueAsListOfDefs(constSeriesFieldPeripheralTypes)
+	variants := series.GetValueAsListOfDefs(constSeriesFieldVariants)
+
+	peripheralInstances := map[string][]*tablegen.Record{}
+	peripheralGroups := map[string][]*tablegen.Record{}
+
+	// Resolve groups.
 	for _, def := range recordKeeper.GetDerivedRecords(constRecordPeripheralGroup) {
 		members := def.GetValueAsListOfDefs(constPeripheralGroupFieldInstances)
 		if len(members) == 0 {
@@ -87,7 +104,7 @@ func main() {
 	}
 
 	// Determine which peripherals need to be generated.
-	for _, def := range recordKeeper.GetDerivedRecords(constRecordPeripheralType) {
+	for _, def := range peripheralTypes {
 		name := def.GetValueAsString(constObjectFieldName)
 		name = strings.ToLower(sanitizeName(name, name))
 
@@ -114,7 +131,7 @@ func main() {
 	}
 
 	// Generate linker scripts.
-	for _, def := range recordKeeper.GetDerivedRecords(constRecordVariant) {
+	for _, def := range variants {
 		_, err := generateLinkerScript(os.Stdout, def)
 		if err != nil {
 			log.Fatalln(err)
@@ -122,7 +139,7 @@ func main() {
 	}
 
 	// Generate interrupt vector.
-	for _, def := range recordKeeper.GetDerivedRecords(constRecordVariant) {
+	for _, def := range variants {
 		_, err := generateArmInterruptVector(os.Stdout, def)
 		if err != nil {
 			log.Fatalln(err)

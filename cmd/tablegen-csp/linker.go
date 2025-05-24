@@ -8,7 +8,7 @@ import (
 	"pkg.si-go.dev/sigo/llvm/tablegen"
 )
 
-func generateLinkerScript(out io.Writer, variant tablegen.Record) (int, error) {
+func generateLinkerScript(out io.Writer, variant *tablegen.Record) (int, error) {
 	var builder strings.Builder
 
 	memories := variant.GetValueAsListOfDefs(constVariantFieldMemories)

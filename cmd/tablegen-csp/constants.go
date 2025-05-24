@@ -47,4 +47,9 @@ const (
 
 	constRecordInterrupt    = "Interrupt"
 	constInterruptFieldLine = "line"
+
+	constRecordSeries               = "Series"
+	constSeriesFieldArchitecture    = "arch"
+	constSeriesFieldVariants        = "variants"
+	constSeriesFieldPeripheralTypes = "peripheralTypes"
 )

@@ -10,7 +10,7 @@ import (
 	"pkg.si-go.dev/sigo/llvm/tablegen"
 )
 
-func generateArmInterruptVector(out io.Writer, variant tablegen.Record) (int, error) {
+func generateArmInterruptVector(out io.Writer, variant *tablegen.Record) (int, error) {
 	var builder strings.Builder
 	var declBuilder strings.Builder
 	var irqBuilder strings.Builder
@@ -42,7 +42,7 @@ __isr_vector:
 `)
 
 	// Sort the interrupts.
-	slices.SortFunc(interrupts, func(a, b tablegen.Record) int {
+	slices.SortFunc(interrupts, func(a, b *tablegen.Record) int {
 		linea := a.GetValueAsInt(constInterruptFieldLine)
 		lineb := b.GetValueAsInt(constInterruptFieldLine)
 		return cmp.Compare(linea, lineb)

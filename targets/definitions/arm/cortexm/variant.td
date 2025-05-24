@@ -8,7 +8,7 @@ defvar CortexMTags = [ "arm", "cortexm" ];
 
 class CortexMVariant<string Name, list<MemoryRange> Memories = [], list<Interrupt> Interrupts = [],
     MemoryUnit StackSize = KB<4>, list<string> Tags, string Description = "">
-        : Variant<Name, Memories, !listconcat(CortexMInterrupts, Interrupts), StackSize, !listconcat(CortexMTags, tags),
+        : Variant<Name, Memories, !listconcat(CortexMInterrupts, Interrupts), StackSize, !listconcat(CortexMTags, Tags),
             Description>;
 
 #endif // _ARM_CORTEXM_VARIANT_TD

@@ -2,31 +2,23 @@ package tablegen
 
 // #include "tablegen.h"
 import "C"
+import "runtime"
 
-import (
-	"runtime"
-)
-
-type GlobalMap interface {
-	Begin() GlobalMapIterator
-}
-
-type globalMap struct {
+type GlobalMap struct {
 	ptr *C.LLVMGlobalMap
 }
 
-func newGlobalMap(val *C.LLVMGlobalMap) GlobalMap {
-	gval := new(globalMap)
-	gval.ptr = val
-	runtime.SetFinalizer(gval, func(g *globalMap) {
+func newGlobalMap(val *C.LLVMGlobalMap) *GlobalMap {
+	g := &GlobalMap{ptr: val}
+	runtime.SetFinalizer(g, func(g *GlobalMap) {
 		if g.ptr != nil {
 			C.LLVMDisposeGlobalMap(g.ptr)
 			g.ptr = nil
 		}
 	})
-	return gval
+	return g
 }
 
-func (g *globalMap) Begin() GlobalMapIterator {
+func (g *GlobalMap) Begin() *GlobalMapIterator {
 	return newGlobalMapIterator(C.LLVMGlobalMapBegin(g.ptr))
 }

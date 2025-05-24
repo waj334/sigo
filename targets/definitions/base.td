@@ -123,6 +123,7 @@ class Variant<string Name, list<MemoryRange> Memories = [], list<Interrupt> Inte
 class Series<string Name, Architecture Arch, string Description = ""> : Object<Name, Description> {
     Architecture arch = Arch;
     list<Variant> variants;
+    list<PeripheralType> peripheralTypes;
 }
 
 #endif // _BASE_TD

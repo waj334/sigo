@@ -8,7 +8,7 @@ import (
 	"unsafe"
 )
 
-func ParseTableGenFile(path string, rk RecordKeeper, includes []string) bool {
+func ParseTableGenFile(path string, rk *RecordKeeper, includes []string) bool {
 	cpath := C.CString(path)
 	defer C.free(unsafe.Pointer(cpath))
 

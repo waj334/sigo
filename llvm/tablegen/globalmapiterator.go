@@ -7,20 +7,13 @@ import (
 	"runtime"
 )
 
-type GlobalMapIterator interface {
-	Key() string
-	Value() Init
-	Next() bool
-}
-
-type globalMapIterator struct {
+type GlobalMapIterator struct {
 	ptr *C.LLVMGlobalMapIterator
 }
 
-func newGlobalMapIterator(val *C.LLVMGlobalMapIterator) GlobalMapIterator {
-	itval := new(globalMapIterator)
-	itval.ptr = val
-	runtime.SetFinalizer(itval, func(it *globalMapIterator) {
+func newGlobalMapIterator(val *C.LLVMGlobalMapIterator) *GlobalMapIterator {
+	itval := &GlobalMapIterator{ptr: val}
+	runtime.SetFinalizer(itval, func(it *GlobalMapIterator) {
 		if it.ptr != nil {
 			C.LLVMDisposeGlobalMapIterator(it.ptr)
 			it.ptr = nil
@@ -29,16 +22,16 @@ func newGlobalMapIterator(val *C.LLVMGlobalMapIterator) GlobalMapIterator {
 	return itval
 }
 
-func (g *globalMapIterator) Key() string {
+func (g *GlobalMapIterator) Key() string {
 	cstr := C.LLVMGlobalMapIteratorKey(g.ptr)
 	defer C.LLVMDisposeCString(cstr)
 	return C.GoString(cstr)
 }
 
-func (g *globalMapIterator) Value() Init {
+func (g *GlobalMapIterator) Value() Init {
 	return newInit(C.LLVMGlobalMapIteratorValue(g.ptr))
 }
 
-func (g *globalMapIterator) Next() bool {
+func (g *GlobalMapIterator) Next() bool {
 	return bool(C.LLVMGlobalMapIteratorNext(g.ptr))
 }

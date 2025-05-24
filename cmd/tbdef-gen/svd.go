@@ -275,6 +275,7 @@ func generateSeries(ctx context.Context, out io.Writer, device svd.DeviceElement
 	var builder strings.Builder
 
 	name := sanitizeName(device.Name, device.Name)
+	baseVariantClassType := "Variant"
 
 	fmt.Fprintf(&builder, "#ifndef _%s_TD\n", strings.ToUpper(name))
 	fmt.Fprintf(&builder, "#define _%s_TD\n\n", strings.ToUpper(name))
@@ -284,37 +285,62 @@ func generateSeries(ctx context.Context, out io.Writer, device svd.DeviceElement
 	switch strings.ToUpper(device.CPU.Name) {
 	case "CM0":
 		arch = "CortexM0"
+		baseVariantClassType = "CortexMVariant"
+		writeCortexMIncludes(&builder)
 	case "CM0PLUS":
 		arch = "CortexM0Plus"
+		baseVariantClassType = "CortexMVariant"
+		writeCortexMIncludes(&builder)
 	case "CM0+":
 		arch = "CortexM0Plus"
+		baseVariantClassType = "CortexMVariant"
+		writeCortexMIncludes(&builder)
 	case "CM1":
 		arch = "CortexM1"
+		baseVariantClassType = "CortexMVariant"
+		writeCortexMIncludes(&builder)
 	case "CM3":
 		arch = "CortexM3"
+		baseVariantClassType = "CortexMVariant"
+		writeCortexMIncludes(&builder)
 	case "CM4":
 		arch = "CortexM4"
+		baseVariantClassType = "CortexMVariant"
+		writeCortexMIncludes(&builder)
 	case "CM7":
 		arch = "CortexM7"
-		fmt.Fprintf(&builder, "include \"arm/cortexm/interrupts.td\"\n")
-		fmt.Fprintf(&builder, "include \"arm/cortexm/registers.td\"\n")
-		fmt.Fprintf(&builder, "include \"arm/cortexm/variant.td\"\n")
-		fmt.Fprintf(&builder, "include \"arm/family.td\"\n")
+		baseVariantClassType = "CortexMVariant"
+		writeCortexMIncludes(&builder)
 	case "CM23":
 		arch = "CortexM23"
+		baseVariantClassType = "CortexMVariant"
+		writeCortexMIncludes(&builder)
 	case "CM33":
 		arch = "CortexM33"
+		baseVariantClassType = "CortexMVariant"
+		writeCortexMIncludes(&builder)
 	case "CM35P":
 		arch = "CortexM35P"
+		baseVariantClassType = "CortexMVariant"
+		writeCortexMIncludes(&builder)
 	case "CM52":
 		arch = "CortexM52"
+		baseVariantClassType = "CortexMVariant"
+		writeCortexMIncludes(&builder)
 	case "CM55":
 		arch = "CortexM55"
+		baseVariantClassType = "CortexMVariant"
+		writeCortexMIncludes(&builder)
 	case "CM85":
 		arch = "CortexM85"
+		baseVariantClassType = "CortexMVariant"
+		writeCortexMIncludes(&builder)
 	default:
 		return 0, errors.New("unknown architecture " + device.CPU.Name)
 	}
+
+	// Sort includes.
+	slices.Sort(includes)
 
 	// Generate includes section.
 	fmt.Fprintf(&builder, "\n")
@@ -328,12 +354,25 @@ func generateSeries(ctx context.Context, out io.Writer, device svd.DeviceElement
 	}
 	fmt.Fprintf(&builder, "\n")
 
-	// Gather interrupts
-	type IRQ struct {
-		name string
-		line int
-	}
+	// Sort peripherals by name.
+	slices.SortFunc(device.Peripherals.Elements, func(a, b svd.PeripheralElement) int {
+		return strings.Compare(a.Name, b.Name)
+	})
 
+	// Generate peripheral list.
+	fmt.Fprintf(&builder, "defvar peripherals = [\n")
+	for _, peripheral := range device.Peripherals.Elements {
+		if peripheral.Registers == nil || len(peripheral.Registers.RegisterElements) == 0 {
+			// Skip peripherals that don't have registers.
+			continue
+		}
+
+		defName := fmt.Sprintf("%sPeripheral", peripheral.Name)
+		fmt.Fprintf(&builder, "  %s,\n", defName)
+	}
+	fmt.Fprintf(&builder, "];\n\n")
+
+	// Gather interrupts.
 	interrupts := make([]svd.InterruptElement, 0, len(device.Peripherals.Elements))
 	for _, peripheral := range device.Peripherals.Elements {
 		if peripheral.Interrupts != nil {
@@ -359,15 +398,26 @@ func generateSeries(ctx context.Context, out io.Writer, device svd.DeviceElement
 			} else {
 				fmt.Fprintf(&builder, "  Interrupt<\"%s\", %d>,\n", name, interrupt.Value)
 			}
-
 		}
 		fmt.Fprintf(&builder, "];\n\n")
 	}
 
+	// Generate default tags list.
+	fmt.Fprintf(&builder, "defvar tags = [ \"%s\" ];\n\n", strings.ToLower(name))
+
+	// Generate the variant class type.
+	variantClassType := fmt.Sprintf("%sVariant", name)
+	fmt.Fprintf(&builder,
+		`class %s<string Name, list<MemoryRange> Memories, MemoryUnit StackSize, list<string> Tags = [], 
+    string Description = ""> 
+      : %s<Name, Memories, interrupts, StackSize, !listconcat(tags, Tags), Description>;`+"\n\n",
+		variantClassType, baseVariantClassType)
+
 	// Generate variants.
 	fmt.Fprintf(&builder, "def %s : Series<\"%s\", %s> {\n", name, name, arch)
 	fmt.Fprintf(&builder, "  let variants = [];\n")
-	fmt.Fprintf(&builder, "}\n")
+	fmt.Fprintf(&builder, "  let peripheralTypes = peripherals;\n")
+	fmt.Fprintf(&builder, "}\n\n")
 
 	fmt.Fprintf(&builder, "#endif // _%s_TD\n", strings.ToUpper(name))
 	return fmt.Fprint(out, builder.String())
@@ -391,4 +441,11 @@ func bitRangeToOffsetWidth(br string) (offset, width int) {
 	var hi, lo int
 	fmt.Sscanf(br, "[%d:%d]", &hi, &lo)
 	return lo, hi - lo + 1
+}
+
+func writeCortexMIncludes(out io.Writer) {
+	fmt.Fprintf(out, "include \"arm/cortexm/interrupts.td\"\n")
+	fmt.Fprintf(out, "include \"arm/cortexm/registers.td\"\n")
+	fmt.Fprintf(out, "include \"arm/cortexm/variant.td\"\n")
+	fmt.Fprintf(out, "include \"arm/family.td\"\n")
 }

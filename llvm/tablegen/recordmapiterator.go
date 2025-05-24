@@ -7,20 +7,17 @@ import (
 	"runtime"
 )
 
-type RecordMapIterator interface {
-	Key() string
-	Value() Record
-	Next() bool
+type RecordMapIterator struct {
+	ptr    *C.LLVMRecordMapIterator
+	parent *RecordMap
 }
 
-type recordMapIterator struct {
-	ptr *C.LLVMRecordMapIterator
-}
-
-func newRecordMapIterator(val *C.LLVMRecordMapIterator) RecordMapIterator {
-	itval := new(recordMapIterator)
-	itval.ptr = val
-	runtime.SetFinalizer(itval, func(it *recordMapIterator) {
+func newRecordMapIterator(val *C.LLVMRecordMapIterator, parent *RecordMap) *RecordMapIterator {
+	itval := &RecordMapIterator{
+		ptr:    val,
+		parent: parent,
+	}
+	runtime.SetFinalizer(itval, func(it *RecordMapIterator) {
 		if it.ptr != nil {
 			C.LLVMDisposeRecordMapIterator(it.ptr)
 			it.ptr = nil
@@ -29,16 +26,16 @@ func newRecordMapIterator(val *C.LLVMRecordMapIterator) RecordMapIterator {
 	return itval
 }
 
-func (r *recordMapIterator) Key() string {
+func (r *RecordMapIterator) Key() string {
 	cstr := C.LLVMRecordMapIteratorKey(r.ptr)
 	defer C.LLVMDisposeCString(cstr)
 	return C.GoString(cstr)
 }
 
-func (r *recordMapIterator) Value() Record {
-	return newRecord(C.LLVMRecordMapIteratorValue(r.ptr))
+func (r *RecordMapIterator) Value() *Record {
+	return r.parent.parent.adoptRecord(C.LLVMRecordMapIteratorValue(r.ptr))
 }
 
-func (r *recordMapIterator) Next() bool {
+func (r *RecordMapIterator) Next() bool {
 	return bool(C.LLVMRecordMapIteratorNext(r.ptr))
 }

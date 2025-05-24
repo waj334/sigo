@@ -10,7 +10,7 @@ import (
 	"pkg.si-go.dev/sigo/llvm/tablegen"
 )
 
-func generatePeripheralType(out io.Writer, peripheralType tablegen.Record, instances []tablegen.Record, groups []tablegen.Record) (int, error) {
+func generatePeripheralType(out io.Writer, peripheralType *tablegen.Record, instances []*tablegen.Record, groups []*tablegen.Record) (int, error) {
 	if len(instances) == 0 {
 		return 0, nil
 	}
@@ -101,7 +101,7 @@ func generatePeripheralType(out io.Writer, peripheralType tablegen.Record, insta
 	return fmt.Fprint(out, string(src))
 }
 
-func generateRegister(out io.Writer, register tablegen.Record) (int, error) {
+func generateRegister(out io.Writer, register *tablegen.Record) (int, error) {
 	var builder strings.Builder
 
 	registerWidth := register.GetValueAsInt(constRangeFieldWidth)
@@ -226,29 +226,29 @@ func generateRegister(out io.Writer, register tablegen.Record) (int, error) {
 	return fmt.Fprint(out, builder.String())
 }
 
-func formatRegisterConstPrefix(register, field tablegen.Record) string {
+func formatRegisterConstPrefix(register, field *tablegen.Record) string {
 	registerName := register.GetValueAsString(constObjectFieldName)
 	fieldName := field.GetValueAsString(constObjectFieldName)
 	return formatGoIdentifier(formatCamelCase("Register", registerName, "Field", fieldName), true)
 }
 
-func formatRegisterFieldName(def tablegen.Record) string {
+func formatRegisterFieldName(def *tablegen.Record) string {
 	name := def.GetValueAsString(constObjectFieldName)
 	return formatGoIdentifier(strings.ToLower(name), true)
 }
 
-func formatRegisterTypeName(def tablegen.Record) string {
+func formatRegisterTypeName(def *tablegen.Record) string {
 	name := def.GetValueAsString(constObjectFieldName)
 	return formatGoIdentifier(formatCamelCase("register", name, "Type"), false)
 }
 
-func formatRegisterFieldEnumTypeName(register, field tablegen.Record) string {
+func formatRegisterFieldEnumTypeName(register, field *tablegen.Record) string {
 	registerName := register.GetValueAsString(constObjectFieldName)
 	fieldName := field.GetValueAsString(constObjectFieldName)
 	return formatGoIdentifier(formatCamelCase("Register", registerName, "Field", fieldName, "Enum", "Type"), true)
 }
 
-func formatRegisterFieldEnumValueName(register, field, enum tablegen.Record) string {
+func formatRegisterFieldEnumValueName(register, field, enum *tablegen.Record) string {
 	registerName := register.GetValueAsString(constObjectFieldName)
 	fieldName := field.GetValueAsString(constObjectFieldName)
 	enumName := enum.GetValueAsString(constObjectFieldName)
