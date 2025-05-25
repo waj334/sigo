@@ -17,6 +17,7 @@ typedef struct LLVMRecordList LLVMRecordList;
 typedef struct LLVMRecordMapIterator LLVMRecordMapIterator;
 typedef struct LLVMRecordMap LLVMRecordMap;
 typedef struct LLVMRecordKeeper LLVMRecordKeeper;
+typedef struct LLVMCStringList LLVMCStringList;
 
 void LLVMDisposeCString(const char* str);
 
@@ -40,6 +41,7 @@ bool LLVMRecordGetValueAsBit(LLVMRecord* R, const char* name);
 bool LLVMRecordGetValueAsBitOrUnset(LLVMRecord* R, const char* name, bool* unset);
 int64_t LLVMRecordGetValueAsInt(LLVMRecord* R, const char* name);
 LLVMRecordList* LLVMRecordGetValueAsListOfDefs(LLVMRecord* R, const char* name);
+LLVMCStringList* LLVMRecordGetValueAsListOfStrings(LLVMRecord* R, const char* name);
 
 void LLVMDisposeRecordList(LLVMRecordList* list);
 int LLVMRecordListSize(LLVMRecordList* list);
@@ -60,6 +62,10 @@ LLVMRecordMap* LLVMRecordKeeperGetClasses(LLVMRecordKeeper* RK);
 LLVMRecordMap* LLVMRecordKeeperGetDefs(LLVMRecordKeeper* RK);
 LLVMGlobalMap* LLVMRecordKeeperGetGlobals(LLVMRecordKeeper* RK);
 LLVMRecordList* LLVMRecordKeeperGetAllDerivedDefinitions(LLVMRecordKeeper *RK, const char *className);
+
+void LLVMDisposeCStringList(LLVMCStringList* SL);
+int LLVMCStringListSize(LLVMCStringList* SL);
+const char* LLVMCStringListValue(LLVMCStringList* SL, int index);
 
 bool LLVMTableGenParseFile(const char* filename,
                             LLVMRecordKeeper* RK,

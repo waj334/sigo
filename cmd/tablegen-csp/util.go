@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strings"
 )
@@ -65,4 +66,20 @@ func typeForWidth(width int64) (string, error) {
 	default:
 		return "", errors.New("invalid width")
 	}
+}
+
+func tagsString(required []string, optional []string) string {
+	if len(required) > 0 && len(optional) == 0 {
+		return fmt.Sprintf("(%s)", strings.Join(required, " && "))
+	}
+
+	if len(required) > 0 && len(optional) > 0 {
+		return fmt.Sprintf("(%s) && (%s)", strings.Join(required, " && "), strings.Join(optional, " || "))
+	}
+
+	if len(required) == 0 && len(optional) > 0 {
+		return fmt.Sprintf("(%s)", strings.Join(optional, " || "))
+	}
+
+	return ""
 }

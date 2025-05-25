@@ -80,3 +80,18 @@ func (r *Record) GetValueAsListOfDefs(name string) []*Record {
 	}
 	return records
 }
+
+func (r *Record) GetValueAsListOfStrings(name string) []string {
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+
+	list := C.LLVMRecordGetValueAsListOfStrings(r.ptr, cname)
+	defer C.LLVMDisposeCStringList(list)
+
+	sz := int(C.LLVMCStringListSize(list))
+	values := make([]string, sz)
+	for i := range sz {
+		values[i] = C.GoString(C.LLVMCStringListValue(list, C.int(i)))
+	}
+	return values
+}

@@ -56,12 +56,18 @@ struct LLVMRecordKeeper
     llvm::RecordKeeper* PTR;
 };
 
+struct LLVMCStringList
+{
+    std::vector<llvm::StringRef> vec;
+};
+
 LLVMRecord* LLVMCreateRecord(const llvm::Record* record);
 char* LLVMCreateCString(const std::string& str);
 LLVMInit* LLVMCreateInit(const llvm::Init* init);
 LLVMGlobalMap* LLVMCreateGlobalMap(const GlobalMap& gm);
 LLVMRecordList* LLVMCreateRecordList(const std::vector<const llvm::Record*>& records);
 LLVMRecordMap* LLVMCreateRecordMap(const RecordMap& rm);
+LLVMCStringList* LLVMCreateCStringList(const std::vector<llvm::StringRef>& vec);
 
 bool LLVMTableGenParseFile(const char* filename,
                             LLVMRecordKeeper* RK,
@@ -269,6 +275,12 @@ LLVMRecordList* LLVMRecordGetValueAsListOfDefs(LLVMRecord* R, const char* name)
     return LLVMCreateRecordList(defs);
 }
 
+LLVMCStringList* LLVMRecordGetValueAsListOfStrings(LLVMRecord* R, const char* name)
+{
+    const auto values = R->PTR->getValueAsListOfStrings(name);
+    return LLVMCreateCStringList(values);
+}
+
 void LLVMDisposeRecordMapIterator(LLVMRecordMapIterator* IT)
 {
     if (IT)
@@ -365,10 +377,35 @@ LLVMGlobalMap* LLVMRecordKeeperGetGlobals(LLVMRecordKeeper* RK)
     return LLVMCreateGlobalMap(RK->PTR->getGlobals());
 }
 
-LLVMRecordList* LLVMRecordKeeperGetAllDerivedDefinitions(LLVMRecordKeeper *RK, const char *className)
+LLVMRecordList* LLVMRecordKeeperGetAllDerivedDefinitions(LLVMRecordKeeper *RK, const char* className)
 {
     auto defs = RK->PTR->getAllDerivedDefinitions(className);
     return LLVMCreateRecordList(defs);
+}
+
+LLVMCStringList* LLVMCreateCStringList(const std::vector<llvm::StringRef>& vec)
+{
+    LLVMCStringList* SL = new LLVMCStringList();
+    SL->vec = vec;
+    return SL;
+}
+
+void LLVMDisposeCStringList(LLVMCStringList* SL)
+{
+    if (SL)
+    {
+        delete SL;
+    }
+}
+
+int LLVMCStringListSize(LLVMCStringList* SL)
+{
+    return static_cast<int>(SL->vec.size());
+}
+
+const char* LLVMCStringListValue(LLVMCStringList* SL, int index)
+{
+    return LLVMCreateCString(SL->vec[index].str());
 }
 
 }

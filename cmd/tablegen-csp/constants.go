@@ -52,4 +52,8 @@ const (
 	constSeriesFieldArchitecture    = "arch"
 	constSeriesFieldVariants        = "variants"
 	constSeriesFieldPeripheralTypes = "peripheralTypes"
+
+	constRecordArchitecture          = "Architecture"
+	constArchitectureRuntimePackages = "runtimePackages"
+	constArchitectureTags            = "tags"
 )

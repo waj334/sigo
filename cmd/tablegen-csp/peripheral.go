@@ -10,7 +10,7 @@ import (
 	"pkg.si-go.dev/sigo/llvm/tablegen"
 )
 
-func generatePeripheralType(out io.Writer, peripheralType *tablegen.Record, instances []*tablegen.Record, groups []*tablegen.Record) (int, error) {
+func generatePeripheralType(out io.Writer, peripheralType *tablegen.Record, instances []*tablegen.Record, groups []*tablegen.Record, requiredTags []string, optionalTags []string) (int, error) {
 	if len(instances) == 0 {
 		return 0, nil
 	}
@@ -20,6 +20,10 @@ func generatePeripheralType(out io.Writer, peripheralType *tablegen.Record, inst
 	peripheralName := peripheralType.GetValueAsString(constObjectFieldName)
 	packageName := strings.ToLower(formatGoIdentifier(strings.ToLower(peripheralName), true))
 	className := "_" + formatGoIdentifier(strings.ToLower(peripheralName), false)
+
+	if len(requiredTags) > 0 || len(optionalTags) > 0 {
+		fmt.Fprintf(&builder, "//go:build %s\n\n", tagsString(requiredTags, optionalTags))
+	}
 
 	fmt.Fprintf(&builder, "package %s\n\n", packageName)
 	fmt.Fprintf(&builder, "import (\n")

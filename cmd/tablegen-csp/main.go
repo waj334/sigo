@@ -64,9 +64,18 @@ func main() {
 
 	peripheralTypes := series.GetValueAsListOfDefs(constSeriesFieldPeripheralTypes)
 	variants := series.GetValueAsListOfDefs(constSeriesFieldVariants)
+	arch := series.GetValueAsDef(constSeriesFieldArchitecture)
 
 	peripheralInstances := map[string][]*tablegen.Record{}
 	peripheralGroups := map[string][]*tablegen.Record{}
+
+	requiredTags := arch.GetValueAsListOfStrings(constArchitectureTags)
+	optionalTags := make([]string, 0, len(variants))
+	for _, variant := range variants {
+		variantName := variant.GetValueAsString(constObjectFieldName)
+		variantName = strings.ToLower(variantName)
+		optionalTags = append(optionalTags, variantName)
+	}
 
 	// Resolve groups.
 	for _, def := range recordKeeper.GetDerivedRecords(constRecordPeripheralGroup) {
@@ -124,7 +133,7 @@ func main() {
 
 		instances := peripheralInstances[def.GetName()]
 		groups := peripheralGroups[def.GetName()]
-		_, err = generatePeripheralType(file, def, instances, groups)
+		_, err = generatePeripheralType(file, def, instances, groups, requiredTags, optionalTags)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -132,7 +141,25 @@ func main() {
 
 	// Generate linker scripts.
 	for _, def := range variants {
-		_, err := generateLinkerScript(os.Stdout, def)
+		name := def.GetValueAsString(constObjectFieldName)
+		name = strings.ToLower(sanitizeName(name, name))
+
+		filename := fmt.Sprintf("linker_%s.S", name)
+		filename = filepath.Join(outputDir, filename)
+
+		// Create the directory where the peripheral API will be placed.
+		err := os.MkdirAll(filepath.Dir(filename), os.ModePerm)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		// Create the linker file that will be written.
+		file, err := os.Create(filename)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		_, err = generateLinkerScript(file, def)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -140,9 +167,50 @@ func main() {
 
 	// Generate interrupt vector.
 	for _, def := range variants {
-		_, err := generateArmInterruptVector(os.Stdout, def)
+		name := def.GetValueAsString(constObjectFieldName)
+		name = strings.ToLower(sanitizeName(name, name))
+
+		filename := fmt.Sprintf("isr_%s.S", name)
+		filename = filepath.Join(outputDir, filename)
+
+		// Create the directory where the peripheral API will be placed.
+		err := os.MkdirAll(filepath.Dir(filename), os.ModePerm)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		// Create the assembly file that will be written.
+		file, err := os.Create(filename)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		_, err = generateArmInterruptVector(file, def)
 		if err != nil {
 			log.Fatalln(err)
 		}
 	}
+
+	// Generate init.go.
+	{
+		filename := filepath.Join(outputDir, "init.go")
+
+		// Create the directory where the peripheral API will be placed.
+		err := os.MkdirAll(filepath.Dir(filename), os.ModePerm)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		// Create the source file that will be written.
+		file, err := os.Create(filename)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		_, err = generateSeriesInit(file, series, requiredTags, optionalTags)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
+
 }

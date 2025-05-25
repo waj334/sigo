@@ -20,7 +20,7 @@ func generateArmInterruptVector(out io.Writer, variant *tablegen.Record) (int, e
 		return 0, nil
 	}
 
-	fmt.Fprintf(&builder, `.syntax unified
+	fmt.Fprint(&builder, `.syntax unified
 
 .section .text.DefaultHandler
 .global  DefaultHandler

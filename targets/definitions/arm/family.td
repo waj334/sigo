@@ -20,17 +20,23 @@ def ARM : Family<"arm">;
 class ARMArchitecture<string Name, string Arch, string Triple, FPU Fpu = NoFPU>
         : Architecture<Name, ARM, Arch, Triple, Fpu>;
 
-def CortexM0 : ARMArchitecture<"cortexm-m0", "arm", "armv6m-none-eabi">;
-def CortexM0Plus : ARMArchitecture<"cortexm-m0plus", "arm", "armv6m-none-eabi">;
-def CortexM1 : ARMArchitecture<"cortexm-m1", "arm", "armv6m-none-eabi">;
-def CortexM23 : ARMArchitecture<"cortex-m23", "arm", "armv8m.base-none-eabihf">;
-def CortexM3 : ARMArchitecture<"cortex-m3", "thumb", "armv7m-none-eabi">;
-def CortexM33 : ARMArchitecture<"cortex-m33", "thumb", "armv8m.main-none-eabihf", FPV5_SP_D16>;
-def CortexM35P : ARMArchitecture<"cortex-m35p", "thumb", "armv8m.main-none-eabihf", FPV5_SP_D16>;
-def CortexM4 : ARMArchitecture<"cortex-m4", "thumb", "armv7em-none-eabihf", FPV4_SP_D16>;
-def CortexM52 : ARMArchitecture<"cortex-m52", "thumb", "armv81m.main-none-eabihf", FPV5_D16>;
-def CortexM55 : ARMArchitecture<"cortex-m55", "thumb", "armv81m.main-none-eabihf", FPV5_D16>;
-def CortexM7 : ARMArchitecture<"cortex-m7", "thumb", "armv7em-none-eabihf", FPV5_D16>;
-def CortexM85 : ARMArchitecture<"cortex-m85", "thumb", "armv81m.main-none-eabihf", FPV5_D16>;
+class CortexMArchitectue<string Name, string Arch, string Triple, list<string> Tags, FPU Fpu = NoFPU>
+        : ARMArchitecture<Name, Arch, Triple, Fpu> {
+    let tags = !listconcat([ "arm", "cortexm" ], Tags);
+    let runtimePackages = [ "pkg.si-go.dev/chip/arm/cortexm/runtime" ];
+}
+
+def CortexM0 : CortexMArchitectue<"cortexm-m0", "arm", "armv6m-none-eabi", [ "armv6m" ]>;
+def CortexM0Plus : CortexMArchitectue<"cortexm-m0plus", "arm", "armv6m-none-eabi", [ "armv6m" ]>;
+def CortexM1 : CortexMArchitectue<"cortexm-m1", "arm", "armv6m-none-eabi", [ "armv6m" ]>;
+def CortexM23 : CortexMArchitectue<"cortex-m23", "arm", "armv8m.base-none-eabihf", [ "armv8m.base" ]>;
+def CortexM3 : CortexMArchitectue<"cortex-m3", "thumb", "armv7m-none-eabi", [ "armv7m", "thumb" ]>;
+def CortexM33 : CortexMArchitectue<"cortex-m33", "thumb", "armv8m.main-none-eabihf", [ "armv8m.main", "thumb" ], FPV5_SP_D16>;
+def CortexM35P : CortexMArchitectue<"cortex-m35p", "thumb", "armv8m.main-none-eabihf", [ "armv8m.main", "thumb" ], FPV5_SP_D16>;
+def CortexM4 : CortexMArchitectue<"cortex-m4", "thumb", "armv7em-none-eabihf", [ "armv7m", "armv7em", "thumb" ], FPV4_SP_D16>;
+def CortexM52 : CortexMArchitectue<"cortex-m52", "thumb", "armv81m.main-none-eabihf", [ "armv81m.main", "thumb" ], FPV5_D16>;
+def CortexM55 : CortexMArchitectue<"cortex-m55", "thumb", "armv81m.main-none-eabihf", [ "armv81m.main", "thumb" ], FPV5_D16>;
+def CortexM7 : CortexMArchitectue<"cortex-m7", "thumb", "armv7em-none-eabihf", [ "armv7m", "armv7em", "thumb" ], FPV5_D16>;
+def CortexM85 : CortexMArchitectue<"cortex-m85", "thumb", "armv81m.main-none-eabihf", [ "armv81m.main", "thumb" ], FPV5_D16>;
 
 #endif // _ARM_FAMILY_TD

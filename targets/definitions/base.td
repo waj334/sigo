@@ -25,6 +25,8 @@ class Architecture<string Name, Family Fam, string Arch, string Triple, FPU Fpu 
     FPU fpu = Fpu;
     string triple = Triple;
     string arch = Arch;
+    list<string> runtimePackages = [];
+    list<string> tags = [];
 }
 
 class Quantity<int Value, int Multiplier = 1> {
@@ -36,6 +38,7 @@ class Bit<int Value> : Quantity<Value>;
 class MemoryUnit<int Value, int Multiplier> : Quantity<Value, Multiplier>;
 class B<int Value> : MemoryUnit<Value, 1>;
 class KB<int Value> : MemoryUnit<Value, 1000>;
+class MB<int Value> : MemoryUnit<Value, 1000000>;
 class GB<int Value> : MemoryUnit<Value, 1000000000>;
 
 class Range<int Offset, int Width> {
