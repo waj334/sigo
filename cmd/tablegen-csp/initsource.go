@@ -5,6 +5,7 @@ import (
 	"go/format"
 	"io"
 	"os"
+	"slices"
 	"strings"
 
 	"pkg.si-go.dev/sigo/llvm/tablegen"
@@ -14,7 +15,28 @@ func generateSeriesInit(out io.Writer, series *tablegen.Record, requiredTags []s
 	var builder strings.Builder
 
 	arch := series.GetValueAsDef(constSeriesFieldArchitecture)
-	runtimePackages := arch.GetValueAsListOfStrings(constArchitectureRuntimePackages)
+
+	// Gather runtime packages that need to be imported.
+	runtimePackages := series.GetValueAsListOfStrings(constSeriesRuntimePackages)
+	runtimePackages = append(runtimePackages, arch.GetValueAsListOfStrings(constArchitectureRuntimePackages)...)
+
+	if len(runtimePackages) == 0 {
+		return 0, nil
+	}
+
+	// De-duplicate the imports.
+	seen := make(map[string]struct{})
+	deduped := make([]string, 0, len(runtimePackages))
+	for _, pkg := range runtimePackages {
+		if _, ok := seen[pkg]; !ok {
+			seen[pkg] = struct{}{}
+			deduped = append(deduped, pkg)
+		}
+	}
+	runtimePackages = deduped
+
+	// Sort the imports.
+	slices.Sort(runtimePackages)
 
 	seriesName := series.GetValueAsString(constObjectFieldName)
 	packageName := strings.ToLower(formatGoIdentifier(strings.ToLower(seriesName), true))

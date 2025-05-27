@@ -1,7 +1,7 @@
 package builder
 
 type Options struct {
-	Packages          []string
+	Packages          map[string]string
 	Output            string
 	BuildDir          string
 	DumpOnVerifyError bool

@@ -4,6 +4,7 @@
 #include "Go/Transforms/Passes.h"
 #include "Go/Transforms/TypeConverter.h"
 #include "Go/Util.h"
+#include <Go/IR/GoTypes.h>
 
 namespace mlir::go
 {
@@ -14,6 +15,9 @@ struct GlobalConstantsPass
   {
     auto module = getOperation();
     mlir::DataLayout dataLayout(module);
+
+    // Create the builder
+    OpBuilder builder(module.getBodyRegion());
 
     mlir::LowerToLLVMOptions options(&getContext(), dataLayout);
     if (auto dataLayoutStr = dyn_cast<StringAttr>(module->getAttr("llvm.data_layout"));
@@ -27,14 +31,50 @@ struct GlobalConstantsPass
 
     auto _stringType = converter.convertType(converter.lookupRuntimeType("string"));
 
-    // Collect the values that globals will be created from
+    // Fold all constants with a reference or a body and then replace the operation.
+    module.walk(
+      [&](ConstantOp op)
+      {
+        if (!op.getSymRef() && op.getBody().empty())
+        {
+          return;
+        }
+
+        SmallVector<OpFoldResult, 4> foldResults;
+        assert(succeeded(op->fold(foldResults)));
+
+        const auto foldedValue = mlir::cast<mlir::Attribute>(foldResults[0]);
+        assert(foldedValue);
+
+        OpBuilder::InsertionGuard guard(builder);
+        builder.setInsertionPoint(op);
+
+        // Create a new constant operation returning the folded value.
+        auto newConstOp = builder.create<ConstantOp>(
+          op.getLoc(), op.getType(), foldedValue, StringAttr());
+
+        // Replace the old operation.
+        op->replaceAllUsesWith(newConstOp);
+
+        // Remove the old operation.
+        op.erase();
+      });
+
+    // Now all global constants can be removed.
+    module.walk(
+      [&](GlobalConstantOp op)
+      {
+        op.erase();
+      });
+
+    // Collect the values that globals will be created from.
     SmallVector<std::pair<std::string, mlir::Location>> globalStrings;
     module.walk(
       [&](ConstantOp constOp)
       {
-        if (go::isa<StringType>(constOp.getType()))
+        if (go::isa<go::StringType>(constOp.getType()))
         {
-          const auto strAttr = mlir::dyn_cast<mlir::StringAttr>(constOp.getValue());
+          const auto strAttr = mlir::dyn_cast<mlir::StringAttr>(*constOp.getValue());
 
           // Has this string already been encountered?
           auto it = std::find_if(
@@ -49,9 +89,6 @@ struct GlobalConstantsPass
           }
         }
       });
-
-    // Create the builder
-    OpBuilder builder(module.getBodyRegion());
 
     // Create the global constant strings
     {

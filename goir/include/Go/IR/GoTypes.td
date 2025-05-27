@@ -65,7 +65,7 @@ class AnyTypeOrNamedOf<list<Type> allowedTypes, string summary = "",
     Or<[
         And<[
             CPred<"::mlir::isa<NamedType>($_self)">,
-            Or<!foreach(type, allowedTypes, SubstLeaves<"$_self", "::mlir::cast<NamedType>(type).getUnderlying()", type.predicate>)>
+            Or<!foreach(type, allowedTypes, SubstLeaves<"$_self", "::mlir::cast<NamedType>($_self).getUnderlying()", type.predicate>)>
         ]>,
         Or<!foreach(type, allowedTypes, type.predicate)>
     ]>,

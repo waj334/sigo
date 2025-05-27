@@ -83,29 +83,48 @@ func translateSVD(ctx context.Context, inputFilename string) error {
 		}
 	}
 
-	// Format the base filename.
-	deviceName := sanitizeName(element.Name, element.Name)
-	deviceName = strings.ToLower(deviceName)
+	{
+		// Format the path to the series TableGen file.
+		filename := filepath.Join(outputDirectory, "platform.td")
 
-	// Format the path to the series TableGen file.
-	filename := filepath.Join(outputDirectory, deviceName+".td")
+		// Create the directory.
+		err = os.MkdirAll(filepath.Dir(filename), os.ModePerm)
+		if err != nil {
+			return err
+		}
 
-	// Create the directory.
-	err = os.MkdirAll(filepath.Dir(filename), os.ModePerm)
-	if err != nil {
-		return err
+		// Create the peripheral TableGen file that will be written to.
+		file, err = os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, os.ModePerm)
+		if err != nil {
+			return err
+		}
+
+		// Write the contents of the peripheral TableGen file.
+		_, err = generateSeries(ctx, file, element, includes)
+		if err != nil {
+			return err
+		}
 	}
 
-	// Create the peripheral TableGen file that will be written to.
-	file, err = os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, os.ModePerm)
-	if err != nil {
-		return err
-	}
+	{
+		// Format the path to the series init source file.
+		filename := filepath.Join(outputDirectory, "init.go")
 
-	// Write the contents of the peripheral TableGen file.
-	_, err = generateSeries(ctx, file, element, includes)
-	if err != nil {
-		return err
+		// Create the directory.
+		err = os.MkdirAll(filepath.Dir(filename), os.ModePerm)
+		if err != nil {
+			return err
+		}
+
+		// Create the peripheral TableGen file that will be written to.
+		file, err = os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, os.ModePerm)
+		if err != nil {
+			return err
+		}
+
+		fmt.Fprintf(file, "// TODO: Add build tags below to control which target MCU variants can import this package.\n")
+		fmt.Fprintf(file, "//go:build variantA || variantB || varintC\n\n")
+		fmt.Fprintf(file, "package def\n\n")
 	}
 
 	return nil

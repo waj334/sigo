@@ -21,6 +21,7 @@ func sanitizeName(display, fallback string) string {
 	name = strings.ReplaceAll(name, "-", "_")
 	name = strings.ReplaceAll(name, ":", "_")
 	name = strings.ReplaceAll(name, ",", "_")
+	name = strings.ReplaceAll(name, ".", "_")
 
 	// Clean up trailing separators.
 	for strings.HasSuffix(name, "_") {

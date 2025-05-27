@@ -60,7 +60,7 @@ var (
 
 			env, err := builder.Environment()
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Toolchain error: %v", err)
+				fmt.Fprintf(os.Stderr, "Toolchain error: %v\n", err)
 				return
 			}
 
@@ -70,31 +70,33 @@ var (
 				Environment: env,
 				//CompilerVerbosity: compiler.Debug,
 				GenerateDebugInfo: buildOpts.debug,
-				Cpu:               buildOpts.cpu,
+				Cpu:               strings.ToLower(buildOpts.cpu),
 				Float:             buildOpts.float,
 				CTypeNames:        buildOpts.ctypes,
 				NumJobs:           buildOpts.jobs,
 				Optimization:      buildOpts.optimize,
 				StackSize:         buildOpts.stackSize,
 				KeepWorkDir:       buildOpts.keepWorkDir,
+				Packages:          map[string]string{},
 			}
 
 			if len(buildOpts.tags) > 0 {
-				builderOptions.BuildTags = strings.Split(buildOpts.tags, ",")
+				for _, tag := range strings.Split(buildOpts.tags, ",") {
+					builderOptions.BuildTags = append(builderOptions.BuildTags, strings.ToLower(tag))
+				}
 			}
 
 			if len(cmd.Flags().Args()) == 0 {
 				// Build the current directory by default
-				builderOptions.Packages = append(builderOptions.Packages, cwd)
+				builderOptions.Packages[cwd] = "."
 			} else {
 				// Convert the paths to relative paths
 				for _, arg := range cmd.Flags().Args() {
-					if filepath.IsAbs(arg) {
-						path, _ := filepath.Rel(cwd, arg)
-						builderOptions.Packages = append(builderOptions.Packages, path)
-					} else {
-						builderOptions.Packages = append(builderOptions.Packages, arg)
+					modulePath, err := findModuleRoot(arg)
+					if err != nil {
+						fmt.Fprintf(os.Stderr, "Build error: %v\n", err)
 					}
+					builderOptions.Packages[modulePath] = arg
 				}
 			}
 
@@ -118,9 +120,9 @@ var (
 			// Begin building the packages
 			if err = builder.BuildPackages(context.Background(), builderOptions); err != nil {
 				if errors.Is(err, builder.ErrParserError) {
-					fmt.Fprintf(os.Stderr, "Build error: %v", err)
+					fmt.Fprintf(os.Stderr, "Build error: %v\n", err)
 				} else {
-					fmt.Fprintf(os.Stderr, "Compiler error: %v", err)
+					fmt.Fprintf(os.Stderr, "Compiler error: %v\n", err)
 				}
 				return
 			}
@@ -141,4 +143,18 @@ func init() {
 	buildCmd.Flags().StringVarP(&buildOpts.optimize, "opt", "O", "0", "optimization level")
 	buildCmd.Flags().IntVarP(&buildOpts.stackSize, "stack-size", "s", 2048, "stack size of each goroutine")
 	buildCmd.Flags().BoolVar(&buildOpts.keepWorkDir, "work", false, "do not delete the work directory upon build")
+}
+
+func findModuleRoot(start string) (string, error) {
+	dir := filepath.Clean(start)
+	for {
+		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+			return dir, nil
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			return "", fmt.Errorf("go.mod not found starting from %s", start)
+		}
+		dir = parent
+	}
 }

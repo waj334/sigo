@@ -50,7 +50,7 @@ func generateLinkerScript(out io.Writer, variant *tablegen.Record) (int, error) 
 	fmt.Fprintf(&builder, "}\n\n")
 
 	stackSizeInKB := variant.GetValueAsInt(constVariantFieldStackSize) / 1000
-	fmt.Fprintf(&builder, "__stack_size = %dK\n", stackSizeInKB)
+	fmt.Fprintf(&builder, "__stack_size = %dK;\n", stackSizeInKB)
 	fmt.Fprintf(&builder, "INCLUDE program.ld\n\n")
 
 	return fmt.Fprint(out, builder.String())

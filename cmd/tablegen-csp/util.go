@@ -23,13 +23,21 @@ func sanitizeName(display, fallback string) string {
 	name = strings.ReplaceAll(name, "-", "_")
 	name = strings.ReplaceAll(name, ":", "_")
 	name = strings.ReplaceAll(name, ",", "_")
+	name = strings.ReplaceAll(name, ".", "_")
 
 	// Clean up trailing separators.
 	for strings.HasSuffix(name, "_") {
 		name = strings.TrimSuffix(name, "_")
 	}
-
 	return name
+}
+
+func sanitizeDescription(description string) string {
+	r := regexp.MustCompile("[\\n\\s]+")
+	// Replace newlines with spaces
+	description = r.ReplaceAllString(description, " ")
+	description = strings.TrimSpace(description)
+	return description
 }
 
 func formatGoIdentifier(identifier string, exported bool) string {

@@ -144,7 +144,7 @@ func main() {
 		name := def.GetValueAsString(constObjectFieldName)
 		name = strings.ToLower(sanitizeName(name, name))
 
-		filename := fmt.Sprintf("linker_%s.S", name)
+		filename := fmt.Sprintf("linker_%s.ld", name)
 		filename = filepath.Join(outputDir, filename)
 
 		// Create the directory where the peripheral API will be placed.
@@ -166,8 +166,12 @@ func main() {
 	}
 
 	// Generate interrupt vector.
-	for _, def := range variants {
-		name := def.GetValueAsString(constObjectFieldName)
+	for _, variant := range variants {
+		if len(variant.GetValueAsListOfDefs("interrupts")) == 0 {
+			continue
+		}
+
+		name := variant.GetValueAsString(constObjectFieldName)
 		name = strings.ToLower(sanitizeName(name, name))
 
 		filename := fmt.Sprintf("isr_%s.S", name)
@@ -185,9 +189,45 @@ func main() {
 			log.Fatalln(err)
 		}
 
-		_, err = generateArmInterruptVector(file, def)
+		_, err = generateArmInterruptVector(file, variant)
 		if err != nil {
 			log.Fatalln(err)
+		}
+	}
+
+	// Generate interrupts_variant.go.
+	for _, variant := range variants {
+		if len(variant.GetValueAsListOfDefs("interrupts")) == 0 {
+			continue
+		}
+
+		name := variant.GetValueAsString(constObjectFieldName)
+		name = strings.ToLower(sanitizeName(name, name))
+
+		filename := fmt.Sprintf("interrupts_%s.go", name)
+		filename = filepath.Join(outputDir, filename)
+
+		// Create the directory where the peripheral API will be placed.
+		err := os.MkdirAll(filepath.Dir(filename), os.ModePerm)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		// Create the source file that will be written.
+		file, err := os.Create(filename)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		n, err := generateArmInterruptsSource(file, series, variant)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		if n == 0 {
+			// Remove this file.
+			file.Close()
+			os.Remove(filename)
 		}
 	}
 
@@ -207,9 +247,15 @@ func main() {
 			log.Fatalln(err)
 		}
 
-		_, err = generateSeriesInit(file, series, requiredTags, optionalTags)
+		n, err := generateSeriesInit(file, series, nil, optionalTags)
 		if err != nil {
 			log.Fatalln(err)
+		}
+
+		if n == 0 {
+			// Remove this file.
+			file.Close()
+			os.Remove(filename)
 		}
 	}
 

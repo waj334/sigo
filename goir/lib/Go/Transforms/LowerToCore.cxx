@@ -669,27 +669,61 @@ struct ConstantOpLowering : public OpConversionPattern<ConstantOp>
   {
     const auto origResultType = op.getType();
     auto resultType = typeConverter->convertType(op.getType());
-    if (go::isa<ComplexType>(origResultType))
-    {
-      auto value = mlir::cast<ComplexNumberAttr>(adaptor.getValue());
-      rewriter.replaceOpWithNewOp<mlir::complex::ConstantOp>(
-        op, resultType, ArrayAttr::get(getContext(), { value.getReal(), value.getImag() }));
-    }
-    else if (go::isa<mlir::FunctionType>(origResultType))
-    {
-      auto symbol = mlir::dyn_cast<mlir::FlatSymbolRefAttr>(adaptor.getValue());
-      rewriter.replaceOpWithNewOp<func::ConstantOp>(op, resultType, symbol);
-    }
-    else
-    {
-      auto attr = mlir::dyn_cast<mlir::TypedAttr>(adaptor.getValue());
-      if (auto intAttr = mlir::dyn_cast<mlir::IntegerAttr>(adaptor.getValue()); intAttr)
+    const auto foldedValue = *op.getValue();
+
+    return mlir::TypeSwitch<mlir::Type, LogicalResult>(go::underlyingType(origResultType))
+      .Case(
+        [&](ComplexType) -> LogicalResult
+        {
+          auto value = mlir::dyn_cast<ComplexNumberAttr>(foldedValue);
+          if (!value)
+          {
+            return op->emitOpError("expected ComplexNumberAttr for complex type");
+          }
+          rewriter.replaceOpWithNewOp<mlir::complex::ConstantOp>(
+            op, resultType, ArrayAttr::get(getContext(), { value.getReal(), value.getImag() }));
+          return success();
+        })
+      .Case(
+        [&](IntegerType) -> LogicalResult
+        {
+          auto value = mlir::dyn_cast<IntegerAttr>(foldedValue);
+          if (!value)
+          {
+            return op->emitOpError("expected IntegerAttr for integer type");
+          }
+          const auto resultValue = rewriter.getIntegerAttr(resultType, value.getInt());
+          rewriter.replaceOpWithNewOp<mlir::arith::ConstantOp>(op, resultType, resultValue);
+          return success();
+        })
+      .Case(
+        [&](FloatType) -> LogicalResult
+        {
+          auto value = mlir::dyn_cast<FloatAttr>(foldedValue);
+          if (!value)
+          {
+            return op->emitOpError("expected FloatAttr for float type");
+          }
+          const auto resultValue = rewriter.getFloatAttr(resultType, value.getValue());
+          rewriter.replaceOpWithNewOp<mlir::arith::ConstantOp>(op, resultType, resultValue);
+          return success();
+        })
+      .Case(
+        [&](BooleanType) -> LogicalResult
+        {
+          auto value = mlir::dyn_cast<IntegerAttr>(foldedValue);
+          if (!value)
+          {
+            return op->emitOpError("expected IntegerAttr for integer type");
+          }
+          const auto resultValue = rewriter.getIntegerAttr(resultType, value.getInt());
+          rewriter.replaceOpWithNewOp<mlir::arith::ConstantOp>(op, resultType, resultValue);
+          return success();
+        })
+      .Default([&](mlir::Type type)
       {
-        attr = mlir::IntegerAttr::get(resultType, intAttr.getInt());
-      }
-      rewriter.replaceOpWithNewOp<mlir::arith::ConstantOp>(op, resultType, attr);
-    }
-    return success();
+        return op->emitOpError("unhandled constant result type ") << type;
+      });
   }
 };
 

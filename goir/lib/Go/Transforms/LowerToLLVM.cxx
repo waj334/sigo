@@ -1252,38 +1252,39 @@ struct ConstantOpLowering : ConvertOpToLLVMPattern<ConstantOp>
   {
     const auto loc = op.getLoc();
     auto resultType = this->getTypeConverter()->convertType(op.getType());
+    return mlir::TypeSwitch<mlir::Type, LogicalResult>(go::underlyingType(op.getType()))
+      .Case(
+        [&](StringType) -> LogicalResult
+        {
+          const auto strAttr = mlir::dyn_cast<StringAttr>(*op.getValue());
+          const auto strLen = strAttr.size();
+          const auto strHash = hash_value(strAttr.strref());
+          const std::string name = "cstr_" + std::to_string(strHash);
 
-    if (go::isa<StringType>(op.getType()))
-    {
-      const auto strAttr = mlir::dyn_cast<StringAttr>(op.getValue());
-      const auto strLen = strAttr.size();
-      const auto strHash = hash_value(strAttr.strref());
-      const std::string name = "cstr_" + std::to_string(strHash);
+          auto pointerT = this->getVoidPtrType();
+          auto runeT = rewriter.getIntegerType(8);
+          auto intT = this->getIntPtrType();
+          const auto arrayT = mlir::LLVM::LLVMArrayType::get(runeT, strLen);
 
-      auto pointerT = this->getVoidPtrType();
-      auto runeT = rewriter.getIntegerType(8);
-      auto intT = this->getIntPtrType();
-      const auto arrayT = mlir::LLVM::LLVMArrayType::get(runeT, strLen);
+          // Get the pointer to the first character in the global string.
+          Value globalPtr = rewriter.create<mlir::LLVM::AddressOfOp>(loc, pointerT, name);
+          Value addr = rewriter.create<mlir::LLVM::GEPOp>(
+            loc, pointerT, arrayT, globalPtr, ArrayRef<mlir::LLVM::GEPArg>{ 0, 0 });
 
-      // Get the pointer to the first character in the global string.
-      Value globalPtr = rewriter.create<mlir::LLVM::AddressOfOp>(loc, pointerT, name);
-      Value addr = rewriter.create<mlir::LLVM::GEPOp>(
-        loc, pointerT, arrayT, globalPtr, ArrayRef<mlir::LLVM::GEPArg>{ 0, 0 });
+          // Create the constant integer value representing this string's length.
+          Value lenVal = rewriter.create<mlir::LLVM::ConstantOp>(
+            loc, this->getIntPtrType(), rewriter.getIntegerAttr(intT, strAttr.strref().size()));
 
-      // Create the constant integer value representing this string's length.
-      Value lenVal = rewriter.create<mlir::LLVM::ConstantOp>(
-        loc, this->getIntPtrType(), rewriter.getIntegerAttr(intT, strAttr.strref().size()));
+          // Create the string struct
+          mlir::Value structValue = rewriter.create<mlir::LLVM::UndefOp>(loc, resultType);
+          structValue = rewriter.create<mlir::LLVM::InsertValueOp>(loc, structValue, addr, 0);
+          structValue = rewriter.create<mlir::LLVM::InsertValueOp>(loc, structValue, lenVal, 1);
 
-      // Create the string struct
-      mlir::Value structValue = rewriter.create<mlir::LLVM::UndefOp>(loc, resultType);
-      structValue = rewriter.create<mlir::LLVM::InsertValueOp>(loc, structValue, addr, 0);
-      structValue = rewriter.create<mlir::LLVM::InsertValueOp>(loc, structValue, lenVal, 1);
-
-      // Replace the original operation with the string struct value.
-      rewriter.replaceOp(op, structValue);
-      return success();
-    }
-    return failure();
+          // Replace the original operation with the string struct value.
+          rewriter.replaceOp(op, structValue);
+          return success();
+        })
+      .Default([&](mlir::Type type) { return op->emitOpError("unhandled constant result type") << type; });
   }
 };
 

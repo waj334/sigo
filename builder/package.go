@@ -9,8 +9,6 @@ import (
 	"slices"
 	"strings"
 	"sync"
-
-	"pkg.si-go.dev/sigo/targets"
 )
 
 const (
@@ -184,7 +182,7 @@ type Package struct {
 	Files       map[string]string
 }
 
-func (p *Package) Compile(toolchain Toolchain, target targets.TargetInfo, debug bool, opt string, float string,
+func (p *Package) Compile(toolchain Toolchain, triplet string, cpu string, fpu string, debug bool, opt string, floatEnabled bool,
 	numjobs int, outputDir string) ([]string, error) {
 
 	var artifacts []string
@@ -244,7 +242,7 @@ func (p *Package) Compile(toolchain Toolchain, target targets.TargetInfo, debug 
 				}
 
 				args := []string{
-					fmt.Sprintf("--target=%s", target.Triplet),
+					fmt.Sprintf("--target=%s", triplet),
 				}
 				args = append(args, includes...)
 				args = append(args, defines...)
@@ -272,18 +270,19 @@ func (p *Package) Compile(toolchain Toolchain, target targets.TargetInfo, debug 
 					args = append(args, "-O0")
 				}
 
-				if float == "nofp" {
+				if !floatEnabled {
 					args = append(args, "-mfloat-abi=softfp")
 				} else {
 					args = append(args, "-mfloat-abi=hard")
 
-					if len(target.Fpu.Type) > 0 {
-						args = append(args, fmt.Sprintf("-mfpu=%s", target.Fpu.Type))
+					if len(fpu) > 0 {
+						args = append(args, fmt.Sprintf("-mfpu=%s", fpu))
 					}
 				}
 
-				args = append(args, fmt.Sprintf("-mcpu=%s", target.Cpu))
+				args = append(args, fmt.Sprintf("-mcpu=%s", cpu))
 				args = append(args,
+					"-nostdlib", "-nodefaultlibs", "-ffreestanding", "-fno-builtin",
 					"-c", "-o", artifact,
 					filepath.Join(p.PathPrefix, src),
 				)
@@ -316,7 +315,7 @@ func (p *Package) Compile(toolchain Toolchain, target targets.TargetInfo, debug 
 	return artifacts, nil
 }
 
-func pkgPicolibc(target targets.TargetInfo) (Package, error) {
+func pkgPicolibc(arch string) (Package, error) {
 	env, err := Environment()
 	if err != nil {
 		return Package{}, err
@@ -358,13 +357,14 @@ func pkgPicolibc(target targets.TargetInfo) (Package, error) {
 		},
 	}
 
-	switch target.Architecture {
-	case "arm", "thumb":
+	switch arch {
+	case "arm", "thumb", "thumb2":
 		pkg.Sources = append(pkg.Sources,
 			"newlib/libc/machine/arm/bzero.c",
 			"newlib/libc/machine/arm/memchr.S",
 			"newlib/libc/machine/arm/memmove.c",
 			"newlib/libc/machine/arm/memset.c",
+			"newlib/libc/machine/arm/memset.S",
 			"newlib/libc/machine/arm/setjmp.S",
 			"newlib/libc/machine/arm/strcmp.S",
 			"newlib/libc/machine/arm/strcpy.S",
@@ -376,7 +376,7 @@ func pkgPicolibc(target targets.TargetInfo) (Package, error) {
 	return pkg, nil
 }
 
-func pkgCompilerRT(target targets.TargetInfo, float string) (Package, error) {
+func pkgCompilerRT(triplet string, features []string, floatEnabled bool) (Package, error) {
 	env, err := Environment()
 	if err != nil {
 		return Package{}, err
@@ -397,13 +397,9 @@ func pkgCompilerRT(target targets.TargetInfo, float string) (Package, error) {
 
 	hasFp := false
 	fpIsDp := false
-	if float != "nofp" {
-		if slices.Contains(target.Features, "fpregs") {
+	if floatEnabled {
+		if slices.Contains(features, "fpregs") {
 			hasFp = true
-			switch {
-			case slices.Contains(target.Features, "fp-armv8d16"):
-				fpIsDp = true
-			}
 		}
 	}
 
@@ -676,8 +672,8 @@ func pkgCompilerRT(target targets.TargetInfo, float string) (Package, error) {
 	}
 
 	// Handle adding target-specific sources.
-	triplet := strings.Split(target.Triplet, "-")
-	switch triplet[0] {
+	tripletParts := strings.Split(triplet, "-")
+	switch tripletParts[0] {
 	case "arm", "armv6m", "armv8m.base":
 		addSources(armEabiSources...)
 		addSources(thumb1BaseSources...)
@@ -691,6 +687,14 @@ func pkgCompilerRT(target targets.TargetInfo, float string) (Package, error) {
 
 		if hasFp {
 			addSources(thumb1SjLjEhSources...)
+
+			switch {
+			case slices.Contains(features, "vfpv3-d16"),
+				slices.Contains(features, "vfpv4-d16"),
+				slices.Contains(features, "fpv5-d16"):
+				fpIsDp = true
+			}
+
 			if fpIsDp {
 				addSources(thumb1Vfp2Dpsources...)
 			} else {

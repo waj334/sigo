@@ -10,7 +10,10 @@ class StringValue<string Value> {
     string value = Value;
 }
 
-class FPU<string Value> : StringValue<Value>;
+class FPU<string Value, list<string> Features = []> : StringValue<Value> {
+    list<string> features = Features;
+}
+
 def NoFPU : FPU<"none">;
 
 class AccessMode<string Value> : StringValue<Value>;
@@ -20,13 +23,15 @@ def Write : AccessMode<"W">;
 def ReadWrite : AccessMode<"RW">;
 
 class Family<string Name> : Object<Name>;
-class Architecture<string Name, Family Fam, string Arch, string Triple, FPU Fpu = NoFPU> : Object<Name> {
+class Architecture<string Name, Family Fam, string Arch, string Triple, int Alignment = 4, FPU Fpu = NoFPU> : Object<Name> {
     Family family = Fam;
     FPU fpu = Fpu;
     string triple = Triple;
     string arch = Arch;
+    int alignment = Alignment;
     list<string> runtimePackages = [];
     list<string> tags = [];
+    list<string> features = [];
 }
 
 class Quantity<int Value, int Multiplier = 1> {
@@ -125,8 +130,10 @@ class Variant<string Name, list<MemoryRange> Memories = [], list<Interrupt> Inte
 
 class Series<string Name, Architecture Arch, string Description = ""> : Object<Name, Description> {
     Architecture arch = Arch;
-    list<Variant> variants;
-    list<PeripheralType> peripheralTypes;
+    list<Variant> variants = [];
+    list<PeripheralType> peripheralTypes = [];
+    list<string> runtimePackages = [];
+    bit internal = false;
 }
 
 #endif // _BASE_TD

@@ -232,29 +232,40 @@ func generateRegister(out io.Writer, register *tablegen.Record) (int, error) {
 
 func formatRegisterConstPrefix(register, field *tablegen.Record) string {
 	registerName := register.GetValueAsString(constObjectFieldName)
+	registerName = formatCamelCase(strings.Split(registerName, "_")...)
+
 	fieldName := field.GetValueAsString(constObjectFieldName)
+	fieldName = formatCamelCase(strings.Split(fieldName, "_")...)
 	return formatGoIdentifier(formatCamelCase("Register", registerName, "Field", fieldName), true)
 }
 
 func formatRegisterFieldName(def *tablegen.Record) string {
-	name := def.GetValueAsString(constObjectFieldName)
-	return formatGoIdentifier(strings.ToLower(name), true)
+	fieldName := def.GetValueAsString(constObjectFieldName)
+	fieldName = formatCamelCase(strings.Split(fieldName, "_")...)
+	return formatGoIdentifier(strings.ToLower(fieldName), true)
 }
 
 func formatRegisterTypeName(def *tablegen.Record) string {
-	name := def.GetValueAsString(constObjectFieldName)
-	return formatGoIdentifier(formatCamelCase("register", name, "Type"), false)
+	registerName := def.GetValueAsString(constObjectFieldName)
+	registerName = formatCamelCase(strings.Split(registerName, "_")...)
+
+	return formatGoIdentifier(formatCamelCase("register", registerName, "Type"), false)
 }
 
 func formatRegisterFieldEnumTypeName(register, field *tablegen.Record) string {
 	registerName := register.GetValueAsString(constObjectFieldName)
+	registerName = formatCamelCase(strings.Split(registerName, "_")...)
+
 	fieldName := field.GetValueAsString(constObjectFieldName)
 	return formatGoIdentifier(formatCamelCase("Register", registerName, "Field", fieldName, "Enum", "Type"), true)
 }
 
 func formatRegisterFieldEnumValueName(register, field, enum *tablegen.Record) string {
 	registerName := register.GetValueAsString(constObjectFieldName)
+	registerName = formatCamelCase(strings.Split(registerName, "_")...)
+
 	fieldName := field.GetValueAsString(constObjectFieldName)
+	fieldName = formatCamelCase(strings.Split(fieldName, "_")...)
 	enumName := enum.GetValueAsString(constObjectFieldName)
 	return formatGoIdentifier(formatCamelCase("Register", registerName, "Field", fieldName, "Enum", enumName), true)
 }

@@ -866,17 +866,75 @@ MlirOperation mlirGoCreateInsertOperation(
 
 MlirOperation mlirGoCreateConstantOperation(
   MlirContext context,
-  MlirAttribute value,
+  MlirAttribute* value,
+  MlirAttribute* symbol,
   MlirType type,
   MlirLocation location)
 {
   auto _context = unwrap(context);
-  auto _value = unwrap(value);
   auto _type = unwrap(type);
   auto _location = unwrap(location);
 
+  mlir::Attribute _value;
+  if (value)
+  {
+    _value = unwrap(*value);
+  }
+
+  mlir::StringAttr _symbol;
+  if (symbol)
+  {
+    _symbol = mlir::cast<mlir::StringAttr>(unwrap(*symbol));
+  }
+
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::ConstantOp>(_location, _type, _value);
+  mlir::Operation* op = builder.create<::mlir::go::ConstantOp>(_location, _type, _value, _symbol);
+  return wrap(op);
+}
+
+MlirOperation mlirGoCreateGlobalConstantOperation(
+  MlirContext context,
+  MlirAttribute* value,
+  MlirAttribute symbol,
+  MlirLocation location)
+{
+  auto _context = unwrap(context);
+  auto _location = unwrap(location);
+
+  mlir::Attribute _value;
+  if (value)
+  {
+    _value = unwrap(*value);
+  }
+
+  mlir::StringAttr _symbol = mlir::cast<mlir::StringAttr>(unwrap(symbol));
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op =
+    builder.create<::mlir::go::GlobalConstantOp>(_location, _symbol, _value);
+  return wrap(op);
+}
+
+void mlirGoGlobalConstantOperationAddBody(MlirOperation op, MlirBlock body)
+{
+  auto _op = mlir::cast<mlir::go::GlobalConstantOp>(unwrap(op));
+  const auto _body = unwrap(body);
+  _op.getBody().push_back(_body);
+}
+
+MlirOperation mlirGoCreateSizeofOperation(
+  MlirContext context,
+  MlirType inputType,
+  MlirType resultType,
+  MlirLocation location)
+{
+  auto _context = unwrap(context);
+  auto _inputType = unwrap(inputType);
+  auto _resultType = unwrap(resultType);
+  auto _location = unwrap(location);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op = builder.create<::mlir::go::SizeofOp>(_location, _resultType, _inputType);
   return wrap(op);
 }
 
