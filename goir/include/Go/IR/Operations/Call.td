@@ -119,6 +119,7 @@ def BuiltInCallOp : Go_Op<"call_builtin"> {
         $callee `(` $callee_operands `)` attr-dict `:` functional-type($callee_operands, $callee_results)
     }];
     let hasVerifier = 1;
+    let hasFolder = 1;
 }
 
 #endif // GO_OPERATIONS_CALL_TD

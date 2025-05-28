@@ -33,7 +33,6 @@ export CXX=clang++
 export LD=ld.lld
 
 make sigo
-make generate-csp
 ./bin/sigoc --help
 ```
 

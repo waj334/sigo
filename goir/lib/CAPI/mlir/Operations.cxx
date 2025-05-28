@@ -197,18 +197,20 @@ MlirOperation mlirGoCreateCmpInterfaceOperation(
 MlirOperation mlirGoCreateCmpStringOperation(
   MlirContext context,
   MlirType resultType,
+  MlirAttribute predicate,
   MlirValue x,
   MlirValue y,
   MlirLocation location)
 {
   auto _context = unwrap(context);
+  auto _predicate = mlir::cast<::mlir::go::CmpPredicateAttr>(unwrap(predicate));
   auto _x = unwrap(x);
   auto _y = unwrap(y);
   auto _resultType = unwrap(resultType);
   auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::CmpStringOp>(_location, _resultType, _x, _y);
+  mlir::Operation* op = builder.create<::mlir::go::CmpStringOp>(_location, _resultType, _predicate, _x, _y);
   return wrap(op);
 }
 
@@ -920,22 +922,6 @@ void mlirGoGlobalConstantOperationAddBody(MlirOperation op, MlirBlock body)
   auto _op = mlir::cast<mlir::go::GlobalConstantOp>(unwrap(op));
   const auto _body = unwrap(body);
   _op.getBody().push_back(_body);
-}
-
-MlirOperation mlirGoCreateSizeofOperation(
-  MlirContext context,
-  MlirType inputType,
-  MlirType resultType,
-  MlirLocation location)
-{
-  auto _context = unwrap(context);
-  auto _inputType = unwrap(inputType);
-  auto _resultType = unwrap(resultType);
-  auto _location = unwrap(location);
-
-  mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::SizeofOp>(_location, _resultType, _inputType);
-  return wrap(op);
 }
 
 //===----------------------------------------------------------------------===//

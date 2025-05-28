@@ -1,11 +1,11 @@
 package atdf
 
 import (
-	"pkg.si-go.dev/sigo/targets/device"
+	"pkg.si-go.dev/sigo/cmd/tbdef-gen/common"
 )
 
 type Offsetable interface {
-	Offset() device.Address
+	Offset() common.Address
 }
 
 type ATDF struct {
@@ -39,18 +39,18 @@ type AddressSpacesElement struct {
 type AddressSpaceElement struct {
 	Id             string                 `xml:"id,attr"`
 	Name           string                 `xml:"name,attr"`
-	Start          device.Address         `xml:"start,attr"`
-	Size           device.Address         `xml:"size,attr"`
+	Start          common.Address         `xml:"start,attr"`
+	Size           common.Address         `xml:"size,attr"`
 	Endianness     string                 `xml:"endianness,attr"`
 	MemorySegments []MemorySegmentElement `xml:"memory-segment"`
 }
 
 type MemorySegmentElement struct {
 	Name     string         `xml:"name,attr"`
-	Start    device.Address `xml:"start,attr"`
-	Size     device.Address `xml:"size,attr"`
+	Start    common.Address `xml:"start,attr"`
+	Size     common.Address `xml:"size,attr"`
 	Type     string         `xml:"type,attr"`
-	PageSize device.Address `xml:"pagesize,attr"`
+	PageSize common.Address `xml:"pagesize,attr"`
 	RW       string         `xml:"rw,attr"`
 	Exec     bool           `xml:"exec,attr,omitempty"`
 }
@@ -61,7 +61,7 @@ type ParametersElement struct {
 
 type ParameterElement struct {
 	Name    string         `xml:"name,attr"`
-	Value   device.Address `xml:"value,attr"`
+	Value   common.Address `xml:"value,attr"`
 	Caption string         `xml:"caption,attr,omitempty"`
 }
 
@@ -87,7 +87,7 @@ type InstanceRegisterGroupElement struct {
 	Name         string         `xml:"name,attr"`
 	NameInModule string         `xml:"name-in-module,attr"`
 	AddressSpace string         `xml:"address-space,attr"`
-	Offset       device.Address `xml:"offset,attr"`
+	Offset       common.Address `xml:"offset,attr"`
 }
 
 type SignalsElement struct {
@@ -118,7 +118,7 @@ type EventsElement struct {
 
 type GeneratorElement struct {
 	Name           string         `xml:"name,attr"`
-	Index          device.Address `xml:"index,attr"`
+	Index          common.Address `xml:"index,attr"`
 	ModuleInstance string         `xml:"module-instance,attr"`
 }
 
@@ -137,7 +137,7 @@ type PropertyGroupElements struct {
 
 type PropertyElement struct {
 	Name  string         `xml:"name,attr"`
-	Value device.Address `xml:"value,attr"`
+	Value common.Address `xml:"value,attr"`
 }
 
 type ModulesElement struct {
@@ -165,16 +165,16 @@ func (m *ModuleElement) FindValueGroup(name string) *ModuleValueGroupElement {
 type ModuleRegisterGroupElement struct {
 	Name         string                       `xml:"name,attr"`
 	NameInModule string                       `xml:"name-in-module,attr"`
-	Size         device.Address               `xml:"size,attr"`
+	Size         common.Address               `xml:"size,attr"`
 	Caption      string                       `xml:"caption,attr,omitempty"`
-	Count        device.Address               `xml:"count,attr"`
-	Offset_      device.Address               `xml:"offset,attr"`
+	Count        common.Address               `xml:"count,attr"`
+	Offset_      common.Address               `xml:"offset,attr"`
 	Registers    []RegisterElement            `xml:"register"`
 	Groups       []ModuleRegisterGroupElement `xml:"register-group"`
 	Modes        []ModeElement                `xml:"mode"`
 }
 
-func (m ModuleRegisterGroupElement) Offset() device.Address {
+func (m ModuleRegisterGroupElement) Offset() common.Address {
 	return m.Offset_
 }
 
@@ -182,17 +182,17 @@ type RegisterElement struct {
 	Name      string            `xml:"name,attr"`
 	Mode      string            `xml:"modes,attr"`
 	Modes     []ModeElement     `xml:"mode"`
-	Offset_   device.Address    `xml:"offset,attr"`
+	Offset_   common.Address    `xml:"offset,attr"`
 	RW        string            `xml:"rw,attr"`
 	Access    string            `xml:"access,omitempty"`
-	Size      device.Address    `xml:"size,attr"`
-	Count     device.Address    `xml:"count,attr"`
-	InitValue device.Address    `xml:"initval,attr"`
+	Size      common.Address    `xml:"size,attr"`
+	Count     common.Address    `xml:"count,attr"`
+	InitValue common.Address    `xml:"initval,attr"`
 	Caption   string            `xml:"caption,attr,omitempty"`
 	BitFields []BitFieldElement `xml:"bitfield"`
 }
 
-func (r RegisterElement) Offset() device.Address {
+func (r RegisterElement) Offset() common.Address {
 	return r.Offset_
 }
 
@@ -200,7 +200,7 @@ type BitFieldElement struct {
 	Name    string         `xml:"name,attr"`
 	Modes   string         `xml:"modes,attr"`
 	Caption string         `xml:"caption,attr,omitempty"`
-	Mask    device.Address `xml:"mask,attr"`
+	Mask    common.Address `xml:"mask,attr"`
 	Values  *string        `xml:"values,attr,omitempty"`
 }
 
@@ -212,7 +212,7 @@ type ModuleValueGroupElement struct {
 type ModuleValueElement struct {
 	Name    string         `xml:"name,attr"`
 	Caption string         `xml:"caption,attr,omitempty"`
-	Value   device.Address `xml:"value,attr"`
+	Value   common.Address `xml:"value,attr"`
 }
 
 type PinoutsElement struct {
@@ -231,6 +231,6 @@ type PinElement struct {
 type ModeElement struct {
 	Name      string         `xml:"name,attr"`
 	Qualifier string         `xml:"qualifier,attr"`
-	Value     device.Address `xml:"value,attr"`
+	Value     common.Address `xml:"value,attr"`
 	Caption   string         `xml:"caption,attr,omitempty"`
 }

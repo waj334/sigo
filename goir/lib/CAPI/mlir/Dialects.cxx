@@ -87,10 +87,6 @@ private:
 
 void mlirGoInitializeContext(MlirContext context)
 {
-  mlir::MLIRContext* _context = unwrap(context);
-
-  // Initialize any module-level interfaces here.
-  //  mlir::ModuleOp::attachInterface<mlir::go::RuntimeTypeModuleOpInterface>(*_context);
 }
 
 MlirStringRef mlirModuleDump(MlirModule module)
@@ -181,7 +177,6 @@ void mlirGoBindRuntimeType(MlirModule module, MlirStringRef mnemonic, MlirType r
   const auto _module = unwrap(module);
   const auto _mnemonic = unwrap(mnemonic);
   const auto _runtimeType = unwrap(runtimeType);
-  const auto _ctx = _module->getContext();
 
   llvm::SmallVector<mlir::NamedAttribute> entries;
   if (_module->hasAttr("go.runtimeTypes"))
@@ -309,6 +304,8 @@ mlirGoOptimizeModule(MlirModule module, MlirStringRef name, MlirStringRef output
   pm.addPass(mlir::createCanonicalizerPass());
 
   pm.addPass(mlir::go::createLowerToCorePass());
+  pm.addPass(mlir::createCanonicalizerPass());
+
   pm.addPass(mlir::go::createLowerToLLVMPass());
   pm.addNestedPass<mlir::LLVM::LLVMFuncOp>(mlir::LLVM::createLegalizeForExportPass());
   pm.addPass(mlir::createCanonicalizerPass());

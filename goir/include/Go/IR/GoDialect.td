@@ -12,6 +12,7 @@ def Go_Dialect : Dialect {
     let cppNamespace = "::mlir::go";
     let useDefaultTypePrinterParser = 0;
     let useDefaultAttributePrinterParser = 1;
+    let hasConstantMaterializer = 1;
     let extraClassDeclaration = [{
         ::mlir::Type parseType(::mlir::DialectAsmParser &parser) const override;
         void printType(::mlir::Type type, ::mlir::DialectAsmPrinter &printer) const override;

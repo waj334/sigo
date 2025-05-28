@@ -122,7 +122,7 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 	importCfg := &packages.Config{
 		Context: ctx,
 		Dir:     moduleDir,
-		Mode:    packages.NeedName | packages.NeedFiles | packages.NeedImports | packages.NeedDeps,
+		Mode:    packages.NeedName | packages.NeedFiles | packages.NeedImports | packages.NeedDeps | packages.NeedModule,
 		BuildFlags: []string{
 			"-tags=" + options.Cpu,
 		},
@@ -165,9 +165,8 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 		// Found the platform TableGen file. Parse it.
 		rk := tablegen.NewRecordKeeper()
 
-		// TODO: The include path should be derived from the root of the chip package location.
-		// TODO: Move the base TableGen classes to the chip package.
-		if !tablegen.ParseTableGenFile(fname, rk, []string{"/home/waj334/Projects/sigo/targets/definitions", filepath.Dir(fname)}) {
+		// NOTE: The base TableGen definitions are next to go.mod in pkg.si-go.dev/chip.
+		if !tablegen.ParseTableGenFile(fname, rk, []string{pkg.Module.Dir, filepath.Dir(fname)}) {
 			return errors.New("failed to parse platform.td")
 		}
 
@@ -332,7 +331,7 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 	passDumpDir = filepath.Dir(passDumpDir)
 	passDumpName := filepath.Base(options.Output)
 	fmt.Print("Optimizing Go IR...")
-	if mlir.LogicalResultIsFailure(mlir.GoOptimizeModule(mlirModule, passDumpName, passDumpDir, false)) {
+	if mlir.LogicalResultIsFailure(mlir.GoOptimizeModule(mlirModule, passDumpName, passDumpDir, options.DebugLowering)) {
 		fmt.Println()
 		return errors.Join(ErrCodeGeneratorError, err, errors.New("optimization passes failed"))
 	}

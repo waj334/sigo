@@ -32,6 +32,14 @@ def Go_CmpIPredicate : I64EnumAttr<"CmpIPredicate", "",
     let cppNamespace = "::mlir::go";
 }
 
+def Go_CmpPredicate : I64EnumAttr<"CmpPredicate", "",
+        [
+            I64EnumAttrCase<"eq",  0>,
+            I64EnumAttrCase<"ne",  1>,
+        ]> {
+    let cppNamespace = "::mlir::go";
+}
+
 def Go_ChanDirection : I64EnumAttr<
         "ChanDirection", "Channel direction",
         [

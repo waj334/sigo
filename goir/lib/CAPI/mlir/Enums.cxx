@@ -72,6 +72,22 @@ MlirAttribute mlirGoCreateCmpIPredicate(MlirContext context, mlirGoCmpIPredicate
     return wrap(::mlir::go::CmpIPredicateAttr::get(unwrap(context), _predicate));
 }
 
+MlirAttribute mlirGoCreateCmpPredicate(MlirContext context, enum mlirGoCmpPredicate predicate)
+{
+  ::mlir::go::CmpPredicate _predicate;
+  switch (predicate) {
+    case mlirGoCmpPredicate_eq:
+      _predicate = ::mlir::go::CmpPredicate::eq;
+      break;
+    case mlirGoCmpPredicate_ne:
+      _predicate = ::mlir::go::CmpPredicate::ne;
+      break;
+    default:
+      assert(false&&"unreachable");
+  }
+  return wrap(::mlir::go::CmpPredicateAttr::get(unwrap(context), _predicate));
+}
+
 MlirAttribute mlirGoCreateChanDirection(MlirContext context, mlirGoChanDirection direction) {
     ::mlir::go::ChanDirection _direction;
     switch (direction) {

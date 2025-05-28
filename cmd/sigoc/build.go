@@ -16,18 +16,19 @@ import (
 
 var (
 	buildOpts = struct {
-		output      string
-		verbose     string
-		debug       bool
-		dumpIR      bool
-		cpu         string
-		float       string
-		tags        string
-		ctypes      bool
-		jobs        int
-		optimize    string
-		stackSize   int
-		keepWorkDir bool
+		output        string
+		verbose       string
+		debug         bool
+		dumpIR        bool
+		cpu           string
+		float         string
+		tags          string
+		ctypes        bool
+		jobs          int
+		optimize      string
+		stackSize     int
+		keepWorkDir   bool
+		debugLowering bool
 	}{}
 
 	buildCmd = &cobra.Command{
@@ -78,6 +79,7 @@ var (
 				StackSize:         buildOpts.stackSize,
 				KeepWorkDir:       buildOpts.keepWorkDir,
 				Packages:          map[string]string{},
+				DebugLowering:     buildOpts.debugLowering,
 			}
 
 			if len(buildOpts.tags) > 0 {
@@ -143,6 +145,7 @@ func init() {
 	buildCmd.Flags().StringVarP(&buildOpts.optimize, "opt", "O", "0", "optimization level")
 	buildCmd.Flags().IntVarP(&buildOpts.stackSize, "stack-size", "s", 2048, "stack size of each goroutine")
 	buildCmd.Flags().BoolVar(&buildOpts.keepWorkDir, "work", false, "do not delete the work directory upon build")
+	buildCmd.Flags().BoolVar(&buildOpts.debugLowering, "debug-lowering", false, "output the IR before and after each lowering pass")
 }
 
 func findModuleRoot(start string) (string, error) {

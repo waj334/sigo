@@ -107,6 +107,7 @@ extern "C"
   MlirOperation mlirGoCreateCmpStringOperation(
     MlirContext context,
     MlirType resultType,
+    MlirAttribute predicate,
     MlirValue x,
     MlirValue y,
     MlirLocation location);
@@ -426,26 +427,18 @@ extern "C"
 
   MlirOperation mlirGoCreateConstantOperation(
     MlirContext context,
-    MlirAttribute *value,
-    MlirAttribute *symbol,
+    MlirAttribute* value,
+    MlirAttribute* symbol,
     MlirType type,
     MlirLocation location);
 
   MlirOperation mlirGoCreateGlobalConstantOperation(
     MlirContext context,
-    MlirAttribute *value,
+    MlirAttribute* value,
     MlirAttribute symbol,
     MlirLocation location);
 
-  void mlirGoGlobalConstantOperationAddBody(
-    MlirOperation op,
-    MlirBlock body);
-
-  MlirOperation mlirGoCreateSizeofOperation(
-    MlirContext context,
-    MlirType inputType,
-    MlirType resultType,
-    MlirLocation location);
+  void mlirGoGlobalConstantOperationAddBody(MlirOperation op, MlirBlock body);
 
   //===----------------------------------------------------------------------===//
   // Casting Operations

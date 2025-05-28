@@ -76,19 +76,35 @@ func (b *Builder) emitConstantDecl(ctx context.Context, decl *ast.GenDecl) {
 
 			symbolName := qualifiedName(obj.Name(), obj.Pkg())
 
-			// NOTE: value is nil if the constant value was NOT a literal value.
-			constOp := mlir.GoCreateGlobalConstantOperation(b.ctx, value, b.strAttr(symbolName), location)
-			if body != nil {
-				mlir.GoGlobalConstantOperationAddBody(constOp, body)
-			}
+			// Is this constant at the global scope?
+			if obj.Parent() == obj.Pkg().Scope() {
+				// Emit a global constant that will be referred to later when used.
+				// NOTE: value is nil if the constant value was NOT a literal value.
+				constOp := mlir.GoCreateGlobalConstantOperation(b.ctx, value, b.strAttr(symbolName), location)
+				if body != nil {
+					mlir.GoGlobalConstantOperationAddBody(constOp, body)
+				}
 
-			appendOperation(ctx, constOp)
+				appendOperation(ctx, constOp)
+			}
 
 			b.setAddr(ctx, ident, ConstantValue{
 				Emitter: func(ctx context.Context, location mlir.Location) mlir.Value {
-					constRefOp := mlir.GoCreateConstantOperation(b.ctx, nil, b.strAttr(symbolName), T, location)
-					appendOperation(ctx, constRefOp)
-					return resultOf(constRefOp)
+					// Is this constant at the global scope?
+					if obj.Parent() == obj.Pkg().Scope() {
+						// Create a reference to the global constant.
+						constRefOp := mlir.GoCreateConstantOperation(b.ctx, nil, b.strAttr(symbolName), T, location)
+						appendOperation(ctx, constRefOp)
+						return resultOf(constRefOp)
+					} else {
+						// Emit the constant at its point of usage.
+						constOp := mlir.GoCreateGlobalConstantOperation(b.ctx, value, nil, location)
+						if body != nil {
+							mlir.GoGlobalConstantOperationAddBody(constOp, body)
+						}
+						appendOperation(ctx, constOp)
+						return resultOf(constOp)
+					}
 				},
 				T: T,
 				b: b,

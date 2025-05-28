@@ -65,18 +65,4 @@ def GlobalConstantOp : Go_Op<"constant_global", [Symbol]> {
     }];
 }
 
-//===----------------------------------------------------------------------===//
-// SizeofOp
-//===----------------------------------------------------------------------===//
-
-def SizeofOp : Go_Op<"sizeof", [ConstantLike, Pure, NoMemoryEffect]> {
-    let summary = "Compile-time sizeof for Go types";
-    let hasFolder = 1;
-    let arguments = (ins TypeAttrOf<Go_Type>:$input);
-    let results = (outs Go_Integer:$result);
-    let assemblyFormat = [{
-        `(` $input `)` attr-dict `:` type($result)
-    }];
-}
-
 #endif // GO_OPERATIONS_CONSTANT_TD

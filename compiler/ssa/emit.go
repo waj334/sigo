@@ -462,8 +462,16 @@ func (b *Builder) emitIdent(ctx context.Context, expr *ast.Ident) []mlir.Value {
 	case *types.Const:
 		exprType := b.typeOf(ctx, expr)
 		T := resolveType(ctx, exprType)
-		val := b.emitConstantValue(ctx, obj.Val(), T, location)
-		return []mlir.Value{val}
+		if obj.Parent() != types.Universe && obj.Parent() == obj.Pkg().Scope() {
+			// Create a reference to the global constant.
+			symbolName := qualifiedName(obj.Name(), obj.Pkg())
+			constRefOp := mlir.GoCreateConstantOperation(b.ctx, nil, b.strAttr(symbolName), b.GetStoredType(ctx, T), location)
+			appendOperation(ctx, constRefOp)
+			return resultsOf(constRefOp)
+		} else {
+			val := b.emitConstantValue(ctx, obj.Val(), T, location)
+			return b.values(val)
+		}
 	case *types.Func:
 		symbol := b.resolveSymbol(mangleSymbol(qualifiedFuncName(obj)))
 		b.queueJob(ctx, symbol)

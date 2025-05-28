@@ -254,39 +254,6 @@ clean-mlir-bindings:
 	rm $(ROOT_DIR)/mlir/mlir.go \
 	   $(ROOT_DIR)/mlir/mlir_wrap.c
 
-$(CSP_GEN_EXE): $(wildcard $(ROOT_DIR)/cmd/csp-gen/*.go)
-	@if [ $(SIGO_BUILD_RELEASE) -eq 1 ]; then \
-		go build -o $(CSP_GEN_EXE) -gcflags "all=-N -l" $(ROOT_DIR)/cmd/csp-gen; \
-  	else \
-		go build -o $(CSP_GEN_EXE) -gcflags "all=-N -l" $(ROOT_DIR)/cmd/csp-gen; \
-	fi
-
-csp-gen: $(CSP_GEN_EXE)
-	@if [ $(DEBUG) -eq 1 ]; then \
-		dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(CSP_GEN_EXE) -- $(args); \
-	else \
-		$(CSP_GEN_EXE) $(args); \
-	fi
-
-generate-csp: $(CSP_GEN_EXE)
-	$(CSP_GEN_EXE) --in=$(ROOT_DIR)/targets/definitions/cortexm.json --out=$(ROOT_DIR)/src/runtime/arm/cortexm/support
-	$(CSP_GEN_EXE) --in=$(ROOT_DIR)/targets/definitions/atsamd21.json --out=$(ROOT_DIR)/src/runtime/arm/cortexm/sam/atsamd21/support
-	$(CSP_GEN_EXE) --in=$(ROOT_DIR)/targets/definitions/atsamx5x.json --out=$(ROOT_DIR)/src/runtime/arm/cortexm/sam/atsamx5x/support
-	$(CSP_GEN_EXE) --in=$(ROOT_DIR)/targets/definitions/stm32h747_cm7.json --out=$(ROOT_DIR)/src/runtime/arm/cortexm/stm32/stm32h7x7/support
-
-$(DEF_GEN_EXE): $(wildcard $(ROOT_DIR)/cmd/def-gen/*.go) $(TARGETS_DEVICE_SRCS)
-	@if [ $(SIGO_BUILD_RELEASE) -eq 1 ]; then \
-		go build -o $(DEF_GEN_EXE) $(ROOT_DIR)/cmd/def-gen; \
-  	else \
-		go build -o $(DEF_GEN_EXE) -gcflags "all=-N -l" $(ROOT_DIR)/cmd/def-gen; \
-	fi
-def-gen: $(DEF_GEN_EXE)
-	@if [ $(DEBUG) -eq 1 ]; then \
-		dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(DEF_GEN_EXE) -- $(args); \
-	else \
-		$(DEF_GEN_EXE) $(args); \
-	fi
-
 $(TBDEF_GEN_EXE): $(wildcard $(ROOT_DIR)/cmd/tbdef-gen/*.go) $(TARGETS_DEVICE_SRCS)
 	@if [ $(SIGO_BUILD_RELEASE) -eq 1 ]; then \
 		go build -o $(TBDEF_GEN_EXE) $(ROOT_DIR)/cmd/tbdef-gen; \

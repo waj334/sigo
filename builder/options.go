@@ -17,4 +17,5 @@ type Options struct {
 	Optimization      string
 	StackSize         int
 	KeepWorkDir       bool
+	DebugLowering     bool
 }

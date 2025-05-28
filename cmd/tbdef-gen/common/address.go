@@ -1,4 +1,4 @@
-package device
+package common
 
 import (
 	"encoding/xml"

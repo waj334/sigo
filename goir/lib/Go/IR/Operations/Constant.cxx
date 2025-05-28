@@ -1,6 +1,7 @@
 #include <optional>
 
 #include <mlir/IR/Attributes.h>
+#include <mlir/IR/OpDefinition.h>
 
 #include "Go/IR/GoDialect.h"
 #include "Go/IR/GoOps.h"
@@ -87,7 +88,11 @@ LogicalResult ConstantOp::verify()
   if (hasRef)
   {
     auto moduleOp = this->getOperation()->getParentOfType<ModuleOp>();
-    auto op = moduleOp.lookupSymbol(this->getSymRefAttr());
+    const auto op = moduleOp.lookupSymbol(this->getSymRefAttr());
+    if (!op)
+    {
+      return emitOpError() << "operation with symbol " << this->getSymRefAttr() << " does not exist";
+    }
     if (!mlir::isa<GlobalConstantOp>(op))
     {
       return emitOpError("reference must be to a global constant");
@@ -150,14 +155,6 @@ LogicalResult GlobalConstantOp::verify()
   }
 
   return success();
-}
-
-mlir::OpFoldResult SizeofOp::fold(FoldAdaptor adaptor)
-{
-  const auto storageType = mlir::IntegerType::get(this->getContext(), 64);
-  const auto dataLayout = DataLayout(getOperation()->getParentOfType<ModuleOp>());
-  const auto size = dataLayout.getTypeSize(this->getInput());
-  return IntegerAttr::get(storageType, size);
 }
 
 } // namespace mlir::go

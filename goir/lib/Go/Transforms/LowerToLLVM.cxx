@@ -1284,7 +1284,8 @@ struct ConstantOpLowering : ConvertOpToLLVMPattern<ConstantOp>
           rewriter.replaceOp(op, structValue);
           return success();
         })
-      .Default([&](mlir::Type type) { return op->emitOpError("unhandled constant result type") << type; });
+      .Default([&](mlir::Type type)
+               { return op->emitOpError("unhandled constant result type") << type; });
   }
 };
 
@@ -1415,14 +1416,23 @@ struct CmpStringOpLowering : ConvertOpToLLVMPattern<CmpStringOp>
     ConversionPatternRewriter& rewriter) const override
   {
     const auto loc = op->getLoc();
+    const auto i1Type = rewriter.getI1Type();
+    const Value one =
+      rewriter.create<mlir::LLVM::ConstantOp>(loc, i1Type, rewriter.getIntegerAttr(i1Type, 1));
 
     // Replace with the runtime call to perform the string comparison.
-    mlir::Value result = createRuntimeCall(
+    Value result = createRuntimeCall(
       rewriter,
       loc,
       "stringCompare",
       this->getTypeConverter(),
       { adaptor.getLhs(), adaptor.getRhs() })[0];
+
+    if (adaptor.getPredicate() == CmpPredicate::ne)
+    {
+      // Invert the result.
+      result = rewriter.create<mlir::LLVM::XOrOp>(loc, i1Type, result, one);
+    }
 
     // Replace the operation.
     rewriter.replaceOp(op, result);

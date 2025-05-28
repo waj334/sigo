@@ -12,7 +12,7 @@ import (
 	"slices"
 	"strings"
 
-	"pkg.si-go.dev/sigo/targets/device/svd"
+	"pkg.si-go.dev/sigo/cmd/tbdef-gen/svd"
 )
 
 func translateSVD(ctx context.Context, inputFilename string) error {

@@ -1,11 +1,11 @@
 package svd
 
 import (
-	"pkg.si-go.dev/sigo/targets/device"
+	"pkg.si-go.dev/sigo/cmd/tbdef-gen/common"
 )
 
 type Addressable interface {
-	GetAddressOffset() device.Address
+	GetAddressOffset() common.Address
 }
 
 type DeviceElement struct {
@@ -16,12 +16,12 @@ type DeviceElement struct {
 	Vendor           *string            `xml:"vendor"`
 	VendorId         *string            `xml:"vendorId"`
 	CPU              *CPUElement        `xml:"cpu"`
-	AddressableWidth device.Address     `xml:"addressUnitBits"`
-	BitWidth         device.Address     `xml:"width"`
-	RegisterSize     *device.Address    `xml:"size"`
+	AddressableWidth common.Address     `xml:"addressUnitBits"`
+	BitWidth         common.Address     `xml:"width"`
+	RegisterSize     *common.Address    `xml:"size"`
 	DefaultAccess    *string            `xml:"access"`
-	ResetValue       *device.Address    `xml:"resetValue"`
-	ResetMask        *device.Address    `xml:"resetMask"`
+	ResetValue       *common.Address    `xml:"resetValue"`
+	ResetMask        *common.Address    `xml:"resetMask"`
 	Peripherals      PeripheralsElement `xml:"peripherals"`
 }
 
@@ -31,7 +31,7 @@ type CPUElement struct {
 	Endian              string         `xml:"endian"`
 	MPUPresent          string         `xml:"mpuPresent"`
 	FPUPresent          string         `xml:"fpuPresent"`
-	NVICPriorityBits    device.Address `xml:"nvicPrioBits"`
+	NVICPriorityBits    common.Address `xml:"nvicPrioBits"`
 	VendorSystickConfig bool           `xml:"vendorSystickConfig"`
 }
 
@@ -55,7 +55,7 @@ type PeripheralElement struct {
 	Description  *string              `xml:"description"`
 	Group        *string              `xml:"groupName"`
 	Access       *string              `xml:"access"`
-	BaseAddress  device.Address       `xml:"baseAddress"`
+	BaseAddress  common.Address       `xml:"baseAddress"`
 	AddressBlock *AddressBlockElement `xml:"addressBlock"`
 	Interrupts   *[]InterruptElement  `xml:"interrupt"`
 	Registers    *RegistersElement    `xml:"registers"`
@@ -63,8 +63,8 @@ type PeripheralElement struct {
 }
 
 type AddressBlockElement struct {
-	Offset device.Address `xml:"offset"`
-	Size   device.Address `xml:"size"`
+	Offset common.Address `xml:"offset"`
+	Size   common.Address `xml:"size"`
 }
 
 type InterruptElement struct {
@@ -81,13 +81,13 @@ type RegistersElement struct {
 type ClusterElement struct {
 	Name          string            `xml:"name"`
 	Description   string            `xml:"description"`
-	Count         device.Address    `xml:"dim"`
-	Increment     device.Address    `xml:"dimIncrement"`
-	AddressOffset device.Address    `xml:"addressOffset"`
+	Count         common.Address    `xml:"dim"`
+	Increment     common.Address    `xml:"dimIncrement"`
+	AddressOffset common.Address    `xml:"addressOffset"`
 	Registers     []RegisterElement `xml:"register"`
 }
 
-func (c ClusterElement) GetAddressOffset() device.Address {
+func (c ClusterElement) GetAddressOffset() common.Address {
 	return c.AddressOffset
 }
 
@@ -95,16 +95,16 @@ type RegisterElement struct {
 	Name          string         `xml:"name"`
 	DisplayName   string         `xml:"displayName"`
 	Description   string         `xml:"description"`
-	AddressOffset device.Address `xml:"addressOffset"`
-	Size          device.Address `xml:"size"`
+	AddressOffset common.Address `xml:"addressOffset"`
+	Size          common.Address `xml:"size"`
 	Fields        FieldElements  `xml:"fields"`
-	Count         device.Address `xml:"dim"`
-	Increment     device.Address `xml:"dimIncrement"`
+	Count         common.Address `xml:"dim"`
+	Increment     common.Address `xml:"dimIncrement"`
 	Access        string         `xml:"access"`
 	Alternative   string         `xml:"alternateRegister"`
 }
 
-func (r RegisterElement) GetAddressOffset() device.Address {
+func (r RegisterElement) GetAddressOffset() common.Address {
 	return r.AddressOffset
 }
 
@@ -115,8 +115,8 @@ type FieldElements struct {
 type FieldElement struct {
 	Name             string                  `xml:"name"`
 	Description      string                  `xml:"description"`
-	BitOffset        device.Address          `xml:"bitOffset"`
-	BitWidth         device.Address          `xml:"bitWidth"`
+	BitOffset        common.Address          `xml:"bitOffset"`
+	BitWidth         common.Address          `xml:"bitWidth"`
 	BitRange         string                  `xml:"bitRange"`
 	Access           string                  `xml:"access"`
 	EnumeratedValues EnumeratedValuesElement `xml:"enumeratedValues"`
@@ -130,5 +130,5 @@ type EnumeratedValuesElement struct {
 type EnumeratedValueElement struct {
 	Name        string         `xml:"name"`
 	Description string         `xml:"description"`
-	Value       device.Address `xml:"value"`
+	Value       common.Address `xml:"value"`
 }
