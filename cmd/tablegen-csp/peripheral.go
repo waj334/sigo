@@ -18,8 +18,11 @@ func generatePeripheralType(out io.Writer, peripheralType *tablegen.Record, inst
 	var builder strings.Builder
 
 	peripheralName := peripheralType.GetValueAsString(constObjectFieldName)
+	peripheralCount := peripheralType.GetValueAsInt(constPeripheralTypeFieldCount)
+
 	packageName := strings.ToLower(formatGoIdentifier(strings.ToLower(peripheralName), true))
 	className := "_" + formatGoIdentifier(strings.ToLower(peripheralName), false)
+	regsClassName := "_regs" + formatGoIdentifier(strings.ToLower(peripheralName), true)
 
 	if len(requiredTags) > 0 || len(optionalTags) > 0 {
 		fmt.Fprintf(&builder, "//go:build %s\n\n", tagsString(requiredTags, optionalTags))
@@ -57,6 +60,19 @@ func generatePeripheralType(out io.Writer, peripheralType *tablegen.Record, inst
 	fmt.Fprintf(&builder, ")\n")
 	fmt.Fprintf(&builder, "\n")
 	fmt.Fprintf(&builder, "type %s struct {\n", className)
+
+	if peripheralCount > 1 {
+		memberName := formatGoIdentifier(peripheralName, true)
+		arrayLabel := peripheralType.GetValueAsString(constPeripheralTypeArrayLabel)
+		if len(arrayLabel) == 0 {
+			arrayLabel = memberName
+		}
+		arrayLabel = formatGoIdentifier(arrayLabel, true)
+
+		fmt.Fprintf(&builder, "%s [%d]%s\n", arrayLabel, peripheralCount, regsClassName)
+		fmt.Fprintf(&builder, "}\n\n")
+		fmt.Fprintf(&builder, "type %s struct {\n", regsClassName)
+	}
 
 	// Generate struct members.
 	position := int64(0)

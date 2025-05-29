@@ -8,6 +8,8 @@ const (
 	constRecordPeripheralType           = "PeripheralType"
 	constPeripheralTypeFieldRegisters   = "registers"
 	constPeripheralTypeFieldAccessWidth = "accessWidth"
+	constPeripheralTypeFieldCount       = "count"
+	constPeripheralTypeArrayLabel       = "arrayLabel"
 
 	constRecordPeripheralGroup         = "PeripheralGroup"
 	constPeripheralGroupFieldInstances = "instances"
