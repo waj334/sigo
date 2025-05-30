@@ -7,37 +7,67 @@
 namespace mlir::go
 {
 
+template<typename resultT, typename opT, typename adaptorT>
+std::optional<resultT> getOrFold(opT op, adaptorT adaptor)
+{
+  resultT operand;
+  if (const auto attr = adaptor.getOperand())
+  {
+    operand = mlir::dyn_cast_or_null<resultT>(attr);
+  }
+  else if (auto definingOp = op->getOperand().getDefiningOp())
+  {
+    mlir::SmallVector<OpFoldResult, 4> results;
+    if (failed(definingOp->fold(results)))
+    {
+      return std::nullopt;
+    }
+    operand = mlir::dyn_cast_or_null<resultT>(mlir::cast<mlir::Attribute>(results.front()));
+  }
+  else
+  {
+    return std::nullopt;
+  }
+
+  if (!operand)
+  {
+    return std::nullopt;
+  }
+
+  return operand;
+}
+
 OpFoldResult ComplementOp::fold(FoldAdaptor adaptor)
 {
-  auto operand = llvm::dyn_cast_or_null<mlir::IntegerAttr>(adaptor.getOperand());
-  if (!operand)
+  const auto result = getOrFold<IntegerAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
 
-  auto type = mlir::cast<mlir::IntegerType>(operand.getType());
-  auto value = operand.getValue();
+  const auto& operand = *result;
+  const auto type = mlir::cast<mlir::IntegerType>(operand.getType());
+  const auto value = operand.getValue();
 
   // Bitwise NOT: x ^ -1
-  auto allOnes = llvm::APInt::getAllOnes(type.getWidth());
-  auto result = value ^ allOnes;
-
-  return mlir::IntegerAttr::get(type, result);
+  const auto allOnes = llvm::APInt::getAllOnes(type.getWidth());
+  return mlir::IntegerAttr::get(type, value ^ allOnes);
 }
 
 mlir::OpFoldResult NegCOp::fold(FoldAdaptor adaptor)
 {
-  // Both operands must be constants.
-  auto operand = llvm::dyn_cast_or_null<ComplexNumberAttr>(adaptor.getOperand());
-  if (!operand)
+  const auto result = getOrFold<ComplexNumberAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
 
+  const auto& operand = *result;
+
   // Negate real and imaginary parts.
   const auto fT = operand.getReal().getType();
-  auto real = -operand.getReal().getValue();
-  auto imag = -operand.getImag().getValue();
+  const auto real = -operand.getReal().getValue();
+  const auto imag = -operand.getImag().getValue();
 
   return ComplexNumberAttr::get(
     this->getContext(), FloatAttr::get(fT, real), FloatAttr::get(fT, imag));
@@ -45,34 +75,37 @@ mlir::OpFoldResult NegCOp::fold(FoldAdaptor adaptor)
 
 OpFoldResult NegFOp::fold(FoldAdaptor adaptor)
 {
-  const auto operand = mlir::dyn_cast_or_null<FloatAttr>(adaptor.getOperand());
-  if (!operand)
+  const auto result = getOrFold<FloatAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
 
+  const auto& operand = *result;
   return FloatAttr::get(operand.getType(), -operand.getValue());
 }
 
 OpFoldResult NegIOp::fold(FoldAdaptor adaptor)
 {
-  const auto operand = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getOperand());
-  if (!operand)
+  const auto result = getOrFold<IntegerAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
 
+  const auto& operand = *result;
   return IntegerAttr::get(operand.getType(), -operand.getValue());
 }
 
 OpFoldResult NotOp::fold(FoldAdaptor adaptor)
 {
-  const auto operand = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getOperand());
-  if (!operand)
+  const auto result = getOrFold<IntegerAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
 
+  const auto& operand = *result;
   return IntegerAttr::get(operand.getType(), !operand.getValue());
 }
 

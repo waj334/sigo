@@ -7,318 +7,365 @@
 namespace mlir::go
 {
 
+template<typename resultT, typename opT, typename adaptorT>
+std::optional<std::tuple<resultT, resultT>> getOrFold(opT op, adaptorT adaptor)
+{
+  resultT lhs;
+  resultT rhs;
+
+  const Value larg = op->getLhs();
+  const Value rarg = op->getRhs();
+
+  if (const auto attr = adaptor.getLhs())
+  {
+    lhs = mlir::dyn_cast_or_null<resultT>(attr);
+  }
+  else if (auto definingOp = larg.getDefiningOp())
+  {
+    mlir::SmallVector<OpFoldResult, 4> results;
+    if (failed(definingOp->fold(results)))
+    {
+      return std::nullopt;
+    }
+    lhs = mlir::dyn_cast_or_null<resultT>(mlir::cast<mlir::Attribute>(results.front()));
+  }
+  else if (const auto blockArg = mlir::dyn_cast_or_null<BlockArgument>(larg))
+  {
+    // TODO: The originating operation of a value passed to a PHI node should be able to be
+    //       determined by examining uses.
+    /*
+    const auto parentBlock = blockArg.getOwner();
+    const auto argIndex = blockArg.getArgNumber();
+    for (const auto& pred : parentBlock->getPredecessors())
+    {
+      auto terminator = pred->getTerminator();
+      const auto operand = terminator->getOperand(argIndex);
+    }
+    */
+    return std::nullopt;
+  }
+  else
+  {
+    return std::nullopt;
+  }
+
+  if (const auto attr = adaptor.getRhs())
+  {
+    rhs = mlir::dyn_cast_or_null<resultT>(attr);
+  }
+  else if (auto definingOp = op->getRhs().getDefiningOp())
+  {
+    mlir::SmallVector<OpFoldResult, 4> results;
+    if (failed(definingOp->fold(results)))
+    {
+      return std::nullopt;
+    }
+    rhs = mlir::dyn_cast_or_null<resultT>(mlir::cast<mlir::Attribute>(results.front()));
+  }
+  else
+  {
+    return std::nullopt;
+  }
+
+  if (!lhs || !rhs)
+  {
+    return std::nullopt;
+  }
+
+  return std::make_tuple(lhs, rhs);
+}
+
 mlir::OpFoldResult AddCOp::fold(FoldAdaptor adaptor)
 {
-  // Both operands must be constants.
-  auto lhs = llvm::dyn_cast_or_null<ComplexNumberAttr>(adaptor.getLhs());
-  auto rhs = llvm::dyn_cast_or_null<ComplexNumberAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<ComplexNumberAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
+  const auto& [lhs, rhs] = *result;
 
   // Add real and imaginary parts.
   const auto fT = lhs.getReal().getType();
-  auto real = lhs.getReal().getValue() + rhs.getReal().getValue();
-  auto imag = lhs.getImag().getValue() + rhs.getImag().getValue();
-
+  const auto real = lhs.getReal().getValue() + rhs.getReal().getValue();
+  const auto imag = lhs.getImag().getValue() + rhs.getImag().getValue();
   return ComplexNumberAttr::get(
     this->getContext(), FloatAttr::get(fT, real), FloatAttr::get(fT, imag));
 }
 
 OpFoldResult AddFOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<FloatAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<FloatAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<FloatAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
-
+  const auto& [lhs, rhs] = *result;
   return FloatAttr::get(lhs.getType(), lhs.getValue() + rhs.getValue());
 }
 
 OpFoldResult AddIOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<IntegerAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
-
+  const auto& [lhs, rhs] = *result;
   return IntegerAttr::get(lhs.getType(), lhs.getValue() + rhs.getValue());
 }
 
 OpFoldResult AddStrOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<StringAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<StringAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<StringAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
-
+  const auto& [lhs, rhs] = *result;
   return StringAttr::get(this->getContext(), lhs.getValue() + rhs.getValue());
 }
 
 OpFoldResult AndOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<IntegerAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
-
+  const auto& [lhs, rhs] = *result;
   return IntegerAttr::get(lhs.getType(), lhs.getValue() & rhs.getValue());
 }
 
 OpFoldResult AndNotOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<IntegerAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
-
+  const auto& [lhs, rhs] = *result;
   return IntegerAttr::get(lhs.getType(), lhs.getValue() & ~rhs.getValue());
 }
 
 mlir::OpFoldResult CmpCOp::fold(FoldAdaptor adaptor)
 {
-  // Both operands must be constants.
-  auto lhs = llvm::dyn_cast_or_null<ComplexNumberAttr>(adaptor.getLhs());
-  auto rhs = llvm::dyn_cast_or_null<ComplexNumberAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<ComplexNumberAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
+  const auto& [lhs, rhs] = *result;
 
-  if (!lhs || !rhs)
-  {
-    return {};
-  }
-
-  bool result = false;
+  bool value = false;
   switch (adaptor.getPredicate())
   {
     case CmpFPredicate::eq:
-      result = lhs.getReal().getValue() == rhs.getReal().getValue() &&
+      value = lhs.getReal().getValue() == rhs.getReal().getValue() &&
         lhs.getImag().getValue() == rhs.getImag().getValue();
       break;
     case CmpFPredicate::ne:
-      result = lhs.getReal().getValue() != rhs.getReal().getValue() ||
+      value = lhs.getReal().getValue() != rhs.getReal().getValue() ||
         lhs.getImag().getValue() != rhs.getImag().getValue();
       break;
     default:
       assert(false && "unsupported predicate");
       return {};
   }
-  return mlir::BoolAttr::get(getContext(), result);
+  return mlir::BoolAttr::get(getContext(), value);
 }
 
 OpFoldResult CmpFOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<FloatAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<FloatAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<BoolAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
+  const auto& [lhs, rhs] = *result;
 
-  bool result = false;
+  bool value = false;
   switch (adaptor.getPredicate())
   {
     case CmpFPredicate::eq:
-      result = lhs.getValue() == rhs.getValue();
+      value = lhs.getValue() == rhs.getValue();
       break;
     case CmpFPredicate::gt:
-      result = lhs.getValue() > rhs.getValue();
+      value = lhs.getValue() > rhs.getValue();
       break;
     case CmpFPredicate::ge:
-      result = lhs.getValue() >= rhs.getValue();
+      value = lhs.getValue() >= rhs.getValue();
       break;
     case CmpFPredicate::lt:
-      result = lhs.getValue() < rhs.getValue();
+      value = lhs.getValue() < rhs.getValue();
       break;
     case CmpFPredicate::le:
-      result = lhs.getValue() <= rhs.getValue();
+      value = lhs.getValue() <= rhs.getValue();
       break;
     case CmpFPredicate::ne:
-      result = lhs.getValue() != rhs.getValue();
+      value = lhs.getValue() != rhs.getValue();
       break;
   }
-  return mlir::BoolAttr::get(getContext(), result);
+  return mlir::BoolAttr::get(getContext(), value);
 }
 
 mlir::OpFoldResult CmpIOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<IntegerAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
+  const auto& [lhs, rhs] = *result;
+  const auto lval = lhs.getValue();
+  const auto rval = rhs.getValue();
 
-  const auto lhsVal = lhs.getValue();
-  const auto rhsVal = rhs.getValue();
-
-  bool result = false;
+  bool value = false;
   switch (adaptor.getPredicate())
   {
     case CmpIPredicate::eq:
-      result = lhsVal == rhsVal;
+      value = lval == rval;
       break;
     case CmpIPredicate::ne:
-      result = lhsVal != rhsVal;
+      value = lval != rval;
       break;
     case CmpIPredicate::slt:
-      result = lhsVal.slt(rhsVal);
+      value = lval.slt(rval);
       break;
     case CmpIPredicate::sle:
-      result = lhsVal.sle(rhsVal);
+      value = lval.sle(rval);
       break;
     case CmpIPredicate::sgt:
-      result = lhsVal.sgt(rhsVal);
+      value = lval.sgt(rval);
       break;
     case CmpIPredicate::sge:
-      result = lhsVal.sge(rhsVal);
+      value = lval.sge(rval);
       break;
     case CmpIPredicate::ult:
-      result = lhsVal.ult(rhsVal);
+      value = lval.ult(rval);
       break;
     case CmpIPredicate::ule:
-      result = lhsVal.ule(rhsVal);
+      value = lval.ule(rval);
       break;
     case CmpIPredicate::ugt:
-      result = lhsVal.ugt(rhsVal);
+      value = lval.ugt(rval);
       break;
     case CmpIPredicate::uge:
-      result = lhsVal.uge(rhsVal);
+      value = lval.uge(rval);
       break;
   }
 
-  return mlir::BoolAttr::get(getContext(), result);
+  return mlir::BoolAttr::get(getContext(), value);
 }
 
 OpFoldResult CmpStringOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<StringAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<StringAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<StringAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
+  const auto& [lhs, rhs] = *result;
 
-  bool result = false;
+  bool value = false;
   switch (adaptor.getPredicate())
   {
     case CmpPredicate::eq:
-      result = lhs.getValue() == rhs.getValue();
+      value = lhs.getValue() == rhs.getValue();
       break;
     case CmpPredicate::ne:
-      result = lhs.getValue() != rhs.getValue();
+      value = lhs.getValue() != rhs.getValue();
       break;
   }
-  return mlir::BoolAttr::get(getContext(), result);
+  return mlir::BoolAttr::get(getContext(), value);
 }
 
 mlir::OpFoldResult DivCOp::fold(FoldAdaptor adaptor)
 {
-  // Both operands must be constants.
-  auto lhs = llvm::dyn_cast_or_null<ComplexNumberAttr>(adaptor.getLhs());
-  auto rhs = llvm::dyn_cast_or_null<ComplexNumberAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<ComplexNumberAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
+  const auto& [lhs, rhs] = *result;
 
   // Add real and imaginary parts.
   const auto fT = lhs.getReal().getType();
-  auto real = lhs.getReal().getValue() / rhs.getReal().getValue();
-  auto imag = lhs.getImag().getValue() / rhs.getImag().getValue();
-
+  const auto real = lhs.getReal().getValue() / rhs.getReal().getValue();
+  const auto imag = lhs.getImag().getValue() / rhs.getImag().getValue();
   return ComplexNumberAttr::get(
     this->getContext(), FloatAttr::get(fT, real), FloatAttr::get(fT, imag));
 }
 
 OpFoldResult DivFOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<FloatAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<FloatAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<FloatAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
+  const auto& [lhs, rhs] = *result;
 
   return FloatAttr::get(lhs.getType(), lhs.getValue() / rhs.getValue());
 }
 
 OpFoldResult DivSIOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<IntegerAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
-
+  const auto& [lhs, rhs] = *result;
   return IntegerAttr::get(lhs.getType(), lhs.getValue().sdiv(rhs.getValue()));
 }
 
 OpFoldResult DivUIOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<IntegerAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
-
+  const auto& [lhs, rhs] = *result;
   return IntegerAttr::get(lhs.getType(), lhs.getValue().udiv(rhs.getValue()));
 }
 
 mlir::OpFoldResult MulCOp::fold(FoldAdaptor adaptor)
 {
-  // Both operands must be constants.
-  auto lhs = llvm::dyn_cast_or_null<ComplexNumberAttr>(adaptor.getLhs());
-  auto rhs = llvm::dyn_cast_or_null<ComplexNumberAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<ComplexNumberAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
+  const auto& [lhs, rhs] = *result;
 
   // Add real and imaginary parts.
   const auto fT = lhs.getReal().getType();
-  auto real = lhs.getReal().getValue() * rhs.getReal().getValue();
-  auto imag = lhs.getImag().getValue() * rhs.getImag().getValue();
-
+  const auto real = lhs.getReal().getValue() * rhs.getReal().getValue();
+  const auto imag = lhs.getImag().getValue() * rhs.getImag().getValue();
   return ComplexNumberAttr::get(
     this->getContext(), FloatAttr::get(fT, real), FloatAttr::get(fT, imag));
 }
 
 OpFoldResult MulFOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<FloatAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<FloatAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<FloatAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
-
+  const auto& [lhs, rhs] = *result;
   return FloatAttr::get(lhs.getType(), lhs.getValue() * rhs.getValue());
 }
 
 OpFoldResult MulIOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<IntegerAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
+  const auto& [lhs, rhs] = *result;
 
   // TODO: Need to check if lhs is unsigned.
   return IntegerAttr::get(lhs.getType(), lhs.getValue().smul_sat(rhs.getValue()));
@@ -326,157 +373,117 @@ OpFoldResult MulIOp::fold(FoldAdaptor adaptor)
 
 OpFoldResult OrOp::fold(FoldAdaptor adaptor)
 {
-  mlir::IntegerAttr lhs;
-  mlir::IntegerAttr rhs;
-
-  if (!adaptor.getLhs())
-  {
-    mlir::SmallVector<OpFoldResult, 4> results;
-    if (failed(this->getLhs().getDefiningOp()->fold(results)))
-    {
-      return {};
-    }
-    lhs = mlir::dyn_cast_or_null<IntegerAttr>(results.front());
-  }
-  else
-  {
-    lhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getLhs());
-  }
-
-  if (!adaptor.getRhs())
-  {
-    mlir::SmallVector<OpFoldResult, 4> results;
-    if (failed(this->getRhs().getDefiningOp()->fold(results)))
-    {
-      return {};
-    }
-    rhs = mlir::dyn_cast_or_null<IntegerAttr>(results.front());
-  }
-  else
-  {
-    rhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getRhs());
-  }
-
-  if (!lhs || !rhs)
+  const auto result = getOrFold<IntegerAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
-
-  const auto i64Type = mlir::IntegerType::get(this->getContext(), 64);
-  return IntegerAttr::get(i64Type, lhs.getValue() | rhs.getValue());
+  const auto& [lhs, rhs] = *result;
+  return IntegerAttr::get(lhs.getType(), lhs.getValue() | rhs.getValue());
 }
 
 OpFoldResult RemFOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<FloatAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<FloatAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<FloatAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
-
+  const auto& [lhs, rhs] = *result;
   return FloatAttr::get(lhs.getType(), lhs.getValue().remainder(rhs.getValue()));
 }
 
 OpFoldResult RemSIOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<IntegerAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
-
+  const auto& [lhs, rhs] = *result;
   return IntegerAttr::get(lhs.getType(), lhs.getValue().srem(rhs.getValue()));
 }
 
 OpFoldResult RemUIOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<IntegerAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
-
+  const auto& [lhs, rhs] = *result;
   return IntegerAttr::get(lhs.getType(), lhs.getValue().urem(rhs.getValue()));
 }
 
 OpFoldResult ShlOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<IntegerAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
-
+  const auto& [lhs, rhs] = *result;
   return IntegerAttr::get(lhs.getType(), lhs.getValue().shl(rhs.getValue()));
 }
 
 OpFoldResult ShrUIOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<IntegerAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
-
+  const auto& [lhs, rhs] = *result;
   return IntegerAttr::get(lhs.getType(), lhs.getValue().lshr(rhs.getValue()));
 }
 
 OpFoldResult ShrSIOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<IntegerAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
-
+  const auto& [lhs, rhs] = *result;
   return IntegerAttr::get(lhs.getType(), lhs.getValue().ashr(rhs.getValue()));
 }
 
 mlir::OpFoldResult SubCOp::fold(FoldAdaptor adaptor)
 {
-  // Both operands must be constants.
-  auto lhs = llvm::dyn_cast_or_null<ComplexNumberAttr>(adaptor.getLhs());
-  auto rhs = llvm::dyn_cast_or_null<ComplexNumberAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<ComplexNumberAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
+  const auto& [lhs, rhs] = *result;
 
   // Add real and imaginary parts.
   const auto fT = lhs.getReal().getType();
-  auto real = lhs.getReal().getValue() - rhs.getReal().getValue();
-  auto imag = lhs.getImag().getValue() - rhs.getImag().getValue();
-
+  const auto real = lhs.getReal().getValue() - rhs.getReal().getValue();
+  const auto imag = lhs.getImag().getValue() - rhs.getImag().getValue();
   return ComplexNumberAttr::get(
     this->getContext(), FloatAttr::get(fT, real), FloatAttr::get(fT, imag));
 }
 
 OpFoldResult SubFOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<FloatAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<FloatAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<FloatAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
-
+  const auto& [lhs, rhs] = *result;
   return FloatAttr::get(lhs.getType(), lhs.getValue() - rhs.getValue());
 }
 
 OpFoldResult SubIOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<IntegerAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
+  const auto& [lhs, rhs] = *result;
 
   // TODO: Need to check if lhs is unsigned.
   return IntegerAttr::get(lhs.getType(), lhs.getValue() - rhs.getValue());
@@ -484,12 +491,12 @@ OpFoldResult SubIOp::fold(FoldAdaptor adaptor)
 
 OpFoldResult XorOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getRhs());
-  if (!lhs || !rhs)
+  const auto result = getOrFold<IntegerAttr>(this, adaptor);
+  if (!result)
   {
     return {};
   }
+  const auto& [lhs, rhs] = *result;
 
   // TODO: Need to check if lhs is unsigned.
   return IntegerAttr::get(lhs.getType(), lhs.getValue() ^ rhs.getValue());

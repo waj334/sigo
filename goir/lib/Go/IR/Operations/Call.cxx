@@ -3,6 +3,8 @@
 #include <llvm/ADT/SmallVectorExtras.h>
 #include <llvm/ADT/TypeSwitch.h>
 
+#include <mlir/Rewrite/FrozenRewritePatternSet.h>
+
 #include "Go/IR/GoDialect.h"
 #include "Go/IR/GoOps.h"
 #include "Go/Util.h"
@@ -11,6 +13,37 @@ constexpr std::string_view runtimeFuncTypeName = "runtime._func";
 
 namespace mlir::go
 {
+
+template<typename resultT, typename opT, typename adaptorT>
+std::optional<resultT> getOrFold(opT op, adaptorT adaptor, const size_t index)
+{
+  resultT operand;
+  if (const auto attr = adaptor.getCalleeOperands()[index])
+  {
+    operand = mlir::dyn_cast_or_null<resultT>(attr);
+  }
+  else if (auto definingOp = op->getCalleeOperands()[index].getDefiningOp())
+  {
+    mlir::SmallVector<OpFoldResult, 4> results;
+    if (failed(definingOp->fold(results)))
+    {
+      return std::nullopt;
+    }
+    operand = mlir::dyn_cast_or_null<resultT>(mlir::cast<mlir::Attribute>(results.front()));
+  }
+  else
+  {
+    return std::nullopt;
+  }
+
+  if (!operand)
+  {
+    return std::nullopt;
+  }
+
+  return operand;
+}
+
 ::mlir::LogicalResult DeferOp::verify()
 {
   FunctionType Fn;
@@ -264,7 +297,7 @@ LogicalResult BuiltInCallOp::fold(FoldAdaptor adaptor, SmallVectorImpl<OpFoldRes
   const auto callee = this->getCallee().str();
   if (callee == "cap")
   {
-    const auto inputType = this->getOperand(0).getType();
+    const auto inputType = this->getCalleeOperands()[0].getType();
     return mlir::TypeSwitch<mlir::Type, mlir::LogicalResult>(inputType)
       .Case(
         [&](ArrayType type)
@@ -278,7 +311,7 @@ LogicalResult BuiltInCallOp::fold(FoldAdaptor adaptor, SmallVectorImpl<OpFoldRes
 
   if (callee == "len")
   {
-    const auto inputType = this->getOperand(0).getType();
+    const auto inputType = this->getCalleeOperands()[0].getType();
     return mlir::TypeSwitch<mlir::Type, mlir::LogicalResult>(inputType)
       .Case(
         [&](ArrayType type)
@@ -290,15 +323,14 @@ LogicalResult BuiltInCallOp::fold(FoldAdaptor adaptor, SmallVectorImpl<OpFoldRes
       .Case(
         [&](StringType type)
         {
-          const auto attr =
-            mlir::dyn_cast_or_null<mlir::StringAttr>(adaptor.getOperands().front());
-          if (!attr)
+          const auto value = getOrFold<StringAttr>(this, adaptor, 0).value_or(StringAttr());
+          if (!value)
           {
             return failure();
           }
 
           // Return the length of the constant string.
-          const auto result = mlir::IntegerAttr::get(i64Type, attr.size());
+          const auto result = mlir::IntegerAttr::get(i64Type, value.size());
           results.push_back(result);
           return success();
         })
@@ -307,18 +339,18 @@ LogicalResult BuiltInCallOp::fold(FoldAdaptor adaptor, SmallVectorImpl<OpFoldRes
 
   if (callee == "imag")
   {
-    const auto inputType = this->getOperand(0).getType();
+    const auto inputType = this->getCalleeOperands()[0].getType();
     return mlir::TypeSwitch<mlir::Type, mlir::LogicalResult>(inputType)
       .Case(
         [&](ComplexType type)
         {
-          const auto attr =
-            mlir::dyn_cast_or_null<ComplexNumberAttr>(adaptor.getOperands().front());
-          if (!attr)
+          const auto value =
+            getOrFold<ComplexNumberAttr>(this, adaptor, 0).value_or(ComplexNumberAttr());
+          if (!value)
           {
             return failure();
           }
-          results.push_back(attr.getImag());
+          results.push_back(value.getImag());
           return success();
         })
       .Default([&](Type) { return failure(); });
@@ -326,18 +358,18 @@ LogicalResult BuiltInCallOp::fold(FoldAdaptor adaptor, SmallVectorImpl<OpFoldRes
 
   if (callee == "real")
   {
-    const auto inputType = this->getOperand(0).getType();
+    const auto inputType = this->getCalleeOperands()[0].getType();
     return mlir::TypeSwitch<mlir::Type, mlir::LogicalResult>(inputType)
       .Case(
         [&](ComplexType type)
         {
-          const auto attr =
-            mlir::dyn_cast_or_null<ComplexNumberAttr>(adaptor.getOperands().front());
-          if (!attr)
+          const auto value =
+            getOrFold<ComplexNumberAttr>(this, adaptor, 0).value_or(ComplexNumberAttr());
+          if (!value)
           {
             return failure();
           }
-          results.push_back(attr.getReal());
+          results.push_back(value.getReal());
           return success();
         })
       .Default([&](Type) { return failure(); });
@@ -345,47 +377,48 @@ LogicalResult BuiltInCallOp::fold(FoldAdaptor adaptor, SmallVectorImpl<OpFoldRes
 
   if (callee == "max")
   {
-    const auto inputType = this->getOperand(0).getType();
+    const auto inputType = this->getCalleeOperands()[0].getType();
     return mlir::TypeSwitch<mlir::Type, mlir::LogicalResult>(inputType)
       .Case(
         [&](IntegerType)
         {
-          int64_t value = std::numeric_limits<int64_t>::min();
-          for (auto operand : adaptor.getOperands())
+          int64_t largestValue = std::numeric_limits<int64_t>::min();
+          for (const auto operand : llvm::seq(this->getCalleeOperands().size()))
           {
-            const auto attr = mlir::dyn_cast_or_null<IntegerAttr>(operand);
-            if (!attr)
+            const auto value =
+              getOrFold<IntegerAttr>(this, adaptor, operand).value_or(IntegerAttr());
+            if (!value)
             {
               return failure();
             }
 
-            if (attr.getInt() > value)
+            if (value.getInt() > largestValue)
             {
-              value = attr.getInt();
+              largestValue = value.getInt();
             }
           }
-          const auto result = mlir::IntegerAttr::get(i64Type, value);
+          const auto result = mlir::IntegerAttr::get(i64Type, largestValue);
           results.push_back(result);
           return success();
         })
       .Case(
         [&](FloatType)
         {
-          double value = std::numeric_limits<double>::min();
-          for (auto operand : adaptor.getOperands())
+          double largestValue = std::numeric_limits<double>::min();
+          for (const auto operand : llvm::seq(this->getCalleeOperands().size()))
           {
-            const auto attr = mlir::dyn_cast_or_null<FloatAttr>(operand);
-            if (!attr)
+            const auto value = getOrFold<FloatAttr>(this, adaptor, operand).value_or(FloatAttr());
+            if (!value)
             {
               return failure();
             }
 
-            if (attr.getValueAsDouble() > value)
+            if (value.getValueAsDouble() > largestValue)
             {
-              value = attr.getValueAsDouble();
+              largestValue = value.getValueAsDouble();
             }
           }
-          const auto result = mlir::FloatAttr::get(f64Type, value);
+          const auto result = mlir::FloatAttr::get(f64Type, largestValue);
           results.push_back(result);
           return success();
         })
@@ -394,47 +427,48 @@ LogicalResult BuiltInCallOp::fold(FoldAdaptor adaptor, SmallVectorImpl<OpFoldRes
 
   if (callee == "min")
   {
-    const auto inputType = this->getOperand(0).getType();
+    const auto inputType = this->getCalleeOperands()[0].getType();
     return mlir::TypeSwitch<mlir::Type, mlir::LogicalResult>(inputType)
       .Case(
         [&](IntegerType)
         {
-          int64_t value = std::numeric_limits<int64_t>::max();
-          for (auto operand : adaptor.getOperands())
+          int64_t smallestValue = std::numeric_limits<int64_t>::max();
+          for (const auto operand : llvm::seq(this->getCalleeOperands().size()))
           {
-            const auto attr = mlir::dyn_cast_or_null<IntegerAttr>(operand);
-            if (!attr)
+            const auto value =
+              getOrFold<IntegerAttr>(this, adaptor, operand).value_or(IntegerAttr());
+            if (!value)
             {
               return failure();
             }
 
-            if (attr.getInt() < value)
+            if (value.getInt() < smallestValue)
             {
-              value = attr.getInt();
+              smallestValue = value.getInt();
             }
           }
-          const auto result = mlir::IntegerAttr::get(i64Type, value);
+          const auto result = mlir::IntegerAttr::get(i64Type, smallestValue);
           results.push_back(result);
           return success();
         })
       .Case(
         [&](FloatType)
         {
-          double value = std::numeric_limits<double>::max();
-          for (auto operand : adaptor.getOperands())
+          double smallestValue = std::numeric_limits<double>::max();
+          for (const auto operand : llvm::seq(this->getCalleeOperands().size()))
           {
-            const auto attr = mlir::dyn_cast_or_null<FloatAttr>(operand);
-            if (!attr)
+            const auto value = getOrFold<FloatAttr>(this, adaptor, operand).value_or(FloatAttr());
+            if (!value)
             {
               return failure();
             }
 
-            if (attr.getValueAsDouble() < value)
+            if (value.getValueAsDouble() < smallestValue)
             {
-              value = attr.getValueAsDouble();
+              smallestValue = value.getValueAsDouble();
             }
           }
-          const auto result = mlir::FloatAttr::get(f64Type, value);
+          const auto result = mlir::FloatAttr::get(f64Type, smallestValue);
           results.push_back(result);
           return success();
         })
@@ -443,17 +477,18 @@ LogicalResult BuiltInCallOp::fold(FoldAdaptor adaptor, SmallVectorImpl<OpFoldRes
 
   if (callee == "unsafe.Add")
   {
-    int64_t value = 0;
-    for (auto operand : adaptor.getOperands())
+    int64_t sum = 0;
+    for (const auto operand : llvm::seq(this->getCalleeOperands().size()))
     {
-      const auto attr = mlir::dyn_cast_or_null<IntegerAttr>(operand);
-      if (!attr)
+      const auto value = getOrFold<IntegerAttr>(this, adaptor, operand).value_or(IntegerAttr());
+      if (!value)
       {
         return failure();
       }
-      value += attr.getInt();
+
+      sum += value.getInt();
     }
-    const auto result = mlir::IntegerAttr::get(i64Type, value);
+    const auto result = mlir::IntegerAttr::get(i64Type, sum);
     results.push_back(result);
     return success();
   }
@@ -461,7 +496,7 @@ LogicalResult BuiltInCallOp::fold(FoldAdaptor adaptor, SmallVectorImpl<OpFoldRes
   if (callee == "unsafe.Alignof")
   {
     const auto dataLayout = DataLayout(getOperation()->getParentOfType<ModuleOp>());
-    const auto size = dataLayout.getTypeABIAlignment(this->getOperand(0).getType());
+    const auto size = dataLayout.getTypeABIAlignment(this->getCalleeOperands()[0].getType());
     const auto result = IntegerAttr::get(i64Type, size);
     results.push_back(result);
     return success();
@@ -469,13 +504,13 @@ LogicalResult BuiltInCallOp::fold(FoldAdaptor adaptor, SmallVectorImpl<OpFoldRes
 
   if (callee == "unsafe.Offsetof")
   {
-    const auto structType = mlir::dyn_cast_or_null<GoStructType>(this->getOperand(0).getType());
+    const auto structType = mlir::dyn_cast_or_null<GoStructType>(this->getCalleeOperands()[0].getType());
     if (!structType)
     {
       return failure();
     }
 
-    const auto index = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getOperands()[1]);
+    const auto index = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getCalleeOperands()[1]);
     if (!index)
     {
       return failure();
@@ -490,7 +525,7 @@ LogicalResult BuiltInCallOp::fold(FoldAdaptor adaptor, SmallVectorImpl<OpFoldRes
 
   if (callee == "unsafe.Sizeof")
   {
-    const auto type = this->getOperand(0).getType();
+    const auto type = this->getCalleeOperands()[0].getType();
     const auto dataLayout = DataLayout(getOperation()->getParentOfType<ModuleOp>());
     const auto size = dataLayout.getTypeSize(type);
     const auto result = IntegerAttr::get(i64Type, size);

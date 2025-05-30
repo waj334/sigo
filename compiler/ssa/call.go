@@ -56,6 +56,14 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 				// Emit the interface call.
 				return b.emitInterfaceCall(ctx, X, funcObj, argValues, location)
 			default:
+				var signature *types.Signature
+				switch obj := obj.Type().(type) {
+				case *types.Signature:
+					signature = obj
+				case *types.Named:
+					fobj := b.objectOf(ctx, expr.Fun)
+					signature = baseType(fobj.Type()).(*types.Signature)
+				}
 				//signature := obj.Type().(*types.Signature)
 				if signature.Recv() != nil {
 					recvType := signature.Recv().Type()
