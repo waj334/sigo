@@ -34,7 +34,7 @@ OpFoldResult AddFOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-  
+
   return FloatAttr::get(lhs.getType(), lhs.getValue() + rhs.getValue());
 }
 
@@ -46,7 +46,7 @@ OpFoldResult AddIOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-  
+
   return IntegerAttr::get(lhs.getType(), lhs.getValue() + rhs.getValue());
 }
 
@@ -58,7 +58,7 @@ OpFoldResult AddStrOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-  
+
   return StringAttr::get(this->getContext(), lhs.getValue() + rhs.getValue());
 }
 
@@ -70,7 +70,7 @@ OpFoldResult AndOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-  
+
   return IntegerAttr::get(lhs.getType(), lhs.getValue() & rhs.getValue());
 }
 
@@ -82,7 +82,7 @@ OpFoldResult AndNotOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-  
+
   return IntegerAttr::get(lhs.getType(), lhs.getValue() & ~rhs.getValue());
 }
 
@@ -95,7 +95,7 @@ mlir::OpFoldResult CmpCOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-  
+
   if (!lhs || !rhs)
   {
     return {};
@@ -127,7 +127,7 @@ OpFoldResult CmpFOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-  
+
   bool result = false;
   switch (adaptor.getPredicate())
   {
@@ -252,7 +252,7 @@ OpFoldResult DivFOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-  
+
   return FloatAttr::get(lhs.getType(), lhs.getValue() / rhs.getValue());
 }
 
@@ -264,7 +264,7 @@ OpFoldResult DivSIOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-  
+
   return IntegerAttr::get(lhs.getType(), lhs.getValue().sdiv(rhs.getValue()));
 }
 
@@ -276,7 +276,7 @@ OpFoldResult DivUIOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-  
+
   return IntegerAttr::get(lhs.getType(), lhs.getValue().udiv(rhs.getValue()));
 }
 
@@ -307,7 +307,7 @@ OpFoldResult MulFOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-  
+
   return FloatAttr::get(lhs.getType(), lhs.getValue() * rhs.getValue());
 }
 
@@ -319,21 +319,51 @@ OpFoldResult MulIOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-  
+
   // TODO: Need to check if lhs is unsigned.
   return IntegerAttr::get(lhs.getType(), lhs.getValue().smul_sat(rhs.getValue()));
 }
 
 OpFoldResult OrOp::fold(FoldAdaptor adaptor)
 {
-  const auto lhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getLhs());
-  const auto rhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getRhs());
+  mlir::IntegerAttr lhs;
+  mlir::IntegerAttr rhs;
+
+  if (!adaptor.getLhs())
+  {
+    mlir::SmallVector<OpFoldResult, 4> results;
+    if (failed(this->getLhs().getDefiningOp()->fold(results)))
+    {
+      return {};
+    }
+    lhs = mlir::dyn_cast_or_null<IntegerAttr>(results.front());
+  }
+  else
+  {
+    lhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getLhs());
+  }
+
+  if (!adaptor.getRhs())
+  {
+    mlir::SmallVector<OpFoldResult, 4> results;
+    if (failed(this->getRhs().getDefiningOp()->fold(results)))
+    {
+      return {};
+    }
+    rhs = mlir::dyn_cast_or_null<IntegerAttr>(results.front());
+  }
+  else
+  {
+    rhs = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getRhs());
+  }
+
   if (!lhs || !rhs)
   {
     return {};
   }
-  
-  return IntegerAttr::get(lhs.getType(), lhs.getValue() | rhs.getValue());
+
+  const auto i64Type = mlir::IntegerType::get(this->getContext(), 64);
+  return IntegerAttr::get(i64Type, lhs.getValue() | rhs.getValue());
 }
 
 OpFoldResult RemFOp::fold(FoldAdaptor adaptor)
@@ -344,7 +374,7 @@ OpFoldResult RemFOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-  
+
   return FloatAttr::get(lhs.getType(), lhs.getValue().remainder(rhs.getValue()));
 }
 
@@ -356,7 +386,7 @@ OpFoldResult RemSIOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-  
+
   return IntegerAttr::get(lhs.getType(), lhs.getValue().srem(rhs.getValue()));
 }
 
@@ -368,7 +398,7 @@ OpFoldResult RemUIOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-  
+
   return IntegerAttr::get(lhs.getType(), lhs.getValue().urem(rhs.getValue()));
 }
 
@@ -380,7 +410,7 @@ OpFoldResult ShlOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-  
+
   return IntegerAttr::get(lhs.getType(), lhs.getValue().shl(rhs.getValue()));
 }
 
@@ -392,7 +422,7 @@ OpFoldResult ShrUIOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-  
+
   return IntegerAttr::get(lhs.getType(), lhs.getValue().lshr(rhs.getValue()));
 }
 
@@ -404,7 +434,7 @@ OpFoldResult ShrSIOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-  
+
   return IntegerAttr::get(lhs.getType(), lhs.getValue().ashr(rhs.getValue()));
 }
 
@@ -435,7 +465,7 @@ OpFoldResult SubFOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-  
+
   return FloatAttr::get(lhs.getType(), lhs.getValue() - rhs.getValue());
 }
 
@@ -447,7 +477,7 @@ OpFoldResult SubIOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-  
+
   // TODO: Need to check if lhs is unsigned.
   return IntegerAttr::get(lhs.getType(), lhs.getValue() - rhs.getValue());
 }
@@ -460,7 +490,7 @@ OpFoldResult XorOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-  
+
   // TODO: Need to check if lhs is unsigned.
   return IntegerAttr::get(lhs.getType(), lhs.getValue() ^ rhs.getValue());
 }

@@ -164,10 +164,10 @@ func generateRegister(out io.Writer, register *tablegen.Record) (int, error) {
 
 		fmt.Fprintf(&builder, "const (\n")
 
-		setterParamType := fieldUnderlyingType
+		paramType := fieldUnderlyingType
 		if len(fieldEnums) > 0 {
 			for _, enum := range fieldEnums {
-				setterParamType = fieldEnumType
+				paramType = fieldEnumType
 				enumName := formatRegisterFieldEnumValueName(register, field, enum)
 				enumDescription := enum.GetValueAsString(constObjectFieldDescription)
 				enumValue := enum.GetValueAsInt(constEnumFieldValue)
@@ -194,7 +194,7 @@ func generateRegister(out io.Writer, register *tablegen.Record) (int, error) {
 			}
 			fmt.Fprintf(&builder, "\n")
 		} else if fieldWidth == 1 {
-			setterParamType = "bool"
+			paramType = "bool"
 		}
 
 		fmt.Fprintf(&builder, "%s = %d\n", constShift, fieldOffset)
@@ -215,8 +215,8 @@ func generateRegister(out io.Writer, register *tablegen.Record) (int, error) {
 				fmt.Fprintf(&builder, "return (%s&%s) != 0\n", load, constMask)
 				fmt.Fprintf(&builder, "}\n\n")
 			} else {
-				fmt.Fprintf(&builder, "func (r *%s) Get%s() %s {\n", registerTypeName, fieldName, fieldUnderlyingType)
-				fmt.Fprintf(&builder, "return %s((%s&%s) >> %s)\n", fieldUnderlyingType, load, constMask, constShift)
+				fmt.Fprintf(&builder, "func (r *%s) Get%s() %s {\n", registerTypeName, fieldName, paramType)
+				fmt.Fprintf(&builder, "return %s((%s&%s) >> %s)\n", paramType, load, constMask, constShift)
 				fmt.Fprintf(&builder, "}\n\n")
 			}
 		}
@@ -228,7 +228,7 @@ func generateRegister(out io.Writer, register *tablegen.Record) (int, error) {
 			}
 
 			if fieldWidth == 1 {
-				fmt.Fprintf(&builder, "func (r *%s) Set%s(value %s) {\n", registerTypeName, fieldName, setterParamType)
+				fmt.Fprintf(&builder, "func (r *%s) Set%s(value %s) {\n", registerTypeName, fieldName, paramType)
 				fmt.Fprintf(&builder, "if value {\n")
 				fmt.Fprintf(&builder, "volatile.StoreUint%d(%s, %s|%s)\n", registerWidth, addr, load, constMask)
 				fmt.Fprintf(&builder, "} else {\n")
@@ -236,7 +236,7 @@ func generateRegister(out io.Writer, register *tablegen.Record) (int, error) {
 				fmt.Fprintf(&builder, "}\n")
 				fmt.Fprintf(&builder, "}\n\n")
 			} else {
-				fmt.Fprintf(&builder, "func (r *%s) Set%s(value %s) {\n", registerTypeName, fieldName, setterParamType)
+				fmt.Fprintf(&builder, "func (r *%s) Set%s(value %s) {\n", registerTypeName, fieldName, paramType)
 				fmt.Fprintf(&builder, "volatile.StoreUint%d(%s, (%s&^%s)|(%s(value)<<%s))\n", registerWidth, addr, load, constMask, registerUnderlyingType, constShift)
 				fmt.Fprintf(&builder, "}\n\n")
 			}

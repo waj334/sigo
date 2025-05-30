@@ -41,7 +41,11 @@ struct GlobalConstantsPass
         }
 
         SmallVector<OpFoldResult, 4> foldResults;
-        assert(succeeded(op->fold(foldResults)));
+        if (failed(op->fold(foldResults)))
+        {
+          op->fold(foldResults);
+        }
+        //assert(succeeded(op->fold(foldResults)));
 
         const auto foldedValue = mlir::cast<mlir::Attribute>(foldResults[0]);
         assert(foldedValue);
