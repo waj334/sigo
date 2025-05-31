@@ -1,24 +1,27 @@
 #ifndef GO_DIALECT_ENUMS_H
 #define GO_DIALECT_ENUMS_H
 
+#include <mlir-c/BuiltinAttributes.h>
 #include <mlir-c/IR.h>
 #include <mlir-c/Support.h>
-#include <mlir-c/BuiltinAttributes.h>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-enum mlirGoCmpFPredicate {
+  enum mlirGoCmpFPredicate
+  {
     mlirGoCmpFPredicate_eq = 1,
     mlirGoCmpFPredicate_gt,
     mlirGoCmpFPredicate_ge,
     mlirGoCmpFPredicate_lt,
     mlirGoCmpFPredicate_le,
     mlirGoCmpFPredicate_ne
-};
+  };
 
-enum mlirGoCmpIPredicate {
+  enum mlirGoCmpIPredicate
+  {
     mlirGoCmpIPredicate_eq,
     mlirGoCmpIPredicate_ne,
     mlirGoCmpIPredicate_slt,
@@ -29,15 +32,23 @@ enum mlirGoCmpIPredicate {
     mlirGoCmpIPredicate_ule,
     mlirGoCmpIPredicate_ugt,
     mlirGoCmpIPredicate_uge
-};
+  };
 
-enum mlirGoChanDirection {
+  enum mlirGoCmpPredicate
+  {
+    mlirGoCmpPredicate_eq = 1,
+    mlirGoCmpPredicate_ne
+  };
+
+  enum mlirGoChanDirection
+  {
     mlirGoChanDirection_SendRecv,
     mlirGoChanDirection_SendOnly,
     mlirGoChanDirection_RecvOnly
-};
+  };
 
-enum mlirDISubprogramFlags {
+  enum mlirDISubprogramFlags
+  {
     mlirDISubprogramFlags_Virtual = 1,
     mlirDISubprogramFlags_PureVirtual = 2,
     mlirDISubprogramFlags_LocalToUnit = 4,
@@ -49,9 +60,10 @@ enum mlirDISubprogramFlags {
     mlirDISubprogramFlags_MainSubprogram = 256,
     mlirDISubprogramFlags_Deleted = 512,
     mlirDISubprogramFlags_ObjCDirect = 2048,
-};
+  };
 
-enum mlirDIFlags {
+  enum mlirDIFlags
+  {
     DIFlags_Zero = 0,
     DIFlags_Bit0 = 1,
     DIFlags_Bit1 = 2,
@@ -86,14 +98,15 @@ enum mlirDIFlags {
     DIFlags_BigEndian = 134217728,
     DIFlags_LittleEndian = 268435456,
     DIFlags_AllCallsDescribed = 536870912,
-};
+  };
 
-MlirAttribute mlirGoCreateCmpFPredicate(MlirContext context, enum mlirGoCmpFPredicate predicate);
-MlirAttribute mlirGoCreateCmpIPredicate(MlirContext context, enum mlirGoCmpIPredicate predicate);
-MlirAttribute mlirGoCreateChanDirection(MlirContext context, enum mlirGoChanDirection direction);
+  MlirAttribute mlirGoCreateCmpFPredicate(MlirContext context, enum mlirGoCmpFPredicate predicate);
+  MlirAttribute mlirGoCreateCmpIPredicate(MlirContext context, enum mlirGoCmpIPredicate predicate);
+  MlirAttribute mlirGoCreateCmpPredicate(MlirContext context, enum mlirGoCmpPredicate predicate);
+  MlirAttribute mlirGoCreateChanDirection(MlirContext context, enum mlirGoChanDirection direction);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //GO_DIALECT_ENUMS_H
+#endif // GO_DIALECT_ENUMS_H

@@ -70,7 +70,7 @@ def FuncOp : Go_Op<"func", [
 // ReturnOp
 //===----------------------------------------------------------------------===//
 
-def ReturnOp : Go_Op<"return", [Pure, HasParent<"FuncOp">, ReturnLike, Terminator]> {
+def ReturnOp : Go_Op<"return", [Pure, ParentOneOf<["mlir::go::FuncOp", "mlir::func::FuncOp", "mlir::LLVM::LLVMFuncOp"]>, ReturnLike, Terminator]> {
     let arguments = (ins
         Variadic<Go_Type>:$operands);
     let builders = [

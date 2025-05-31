@@ -14,11 +14,11 @@ import (
 	"slices"
 	"strings"
 
+	"golang.org/x/tools/go/packages"
 	"gonum.org/v1/gonum/graph/multi"
 	"gonum.org/v1/gonum/graph/topo"
-	"pkg.si-go.dev/sigo/compiler/check"
 
-	"golang.org/x/tools/go/packages"
+	"pkg.si-go.dev/sigo/compiler/check"
 )
 
 var pragmaRegex = regexp.MustCompile(`^//[\t\f\v ]*(?:go|sigo):[\t\f\v ]*([a-zA-Z0-9 ./_]+)$`)
@@ -28,6 +28,7 @@ type ProgramConfig struct {
 	AdditionalPackages []string
 	Environment        []string
 	PackagePath        string
+	ModuleRoot         string
 	GoRoot             string
 	Sizes              types.Sizes
 }
@@ -106,7 +107,7 @@ func (p *Program) Parse(ctx context.Context) error {
 		Mode:    packages.NeedName | packages.NeedFiles | packages.NeedImports | packages.NeedDeps | packages.NeedTypes | packages.NeedSyntax | packages.NeedTypesInfo | packages.NeedModule | packages.NeedEmbedFiles | packages.NeedEmbedPatterns | packages.NeedCompiledGoFiles,
 		Context: ctx,
 		Logf:    nil,
-		Dir:     "",
+		Dir:     p.Config.ModuleRoot,
 		Env:     p.Config.Environment,
 		BuildFlags: []string{
 			"-tags=" + strings.Join(p.Config.Tags, ","),
@@ -177,6 +178,11 @@ func (p *Program) Parse(ctx context.Context) error {
 				for _, decl := range file.Decls {
 					if decl, ok := decl.(*ast.FuncDecl); ok {
 						if decl.Name.Name == "main" {
+							if decl.Body == nil {
+								// This is likely a forward declaration of the main function for use in a runtime
+								// implementation. Skip it.
+								continue
+							}
 							// Set the main function symbol. This symbol will be mapped to "main.main" during linking.
 							p.MainFunc = mangleSymbol(qualifiedName("main", pkg.Types))
 
@@ -267,15 +273,7 @@ func (p *Program) AddPackage(pkg *packages.Package) (err error) {
 	}
 
 	// Locate this package on the filesystem.
-	pkgDir := pkg.PkgPath
-	if pkg.Module == nil {
-		// Assume this is a runtime package.
-		// TODO: Support GOPATH?
-		pkgDir = filepath.Join(p.Config.GoRoot, "src", pkgDir)
-	} else {
-		// Prepend the module directory to the package path.
-		pkgDir = filepath.Join(pkg.Module.Dir, pkgDir)
-	}
+	pkgDir := pkg.Dir
 
 	// Evaluate symbolic links.
 	evalPkgDir, symlinkErr := filepath.EvalSymlinks(pkgDir)

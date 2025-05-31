@@ -226,6 +226,12 @@ void GoDialect::printType(::mlir::Type type, ::mlir::DialectAsmPrinter& printer)
     .Default([&](auto t) { return ::generatedTypePrinter(t, printer); });
 }
 
+Operation*
+GoDialect::materializeConstant(OpBuilder& builder, Attribute value, Type type, Location loc)
+{
+  return builder.create<ConstantOp>(loc, type, value, StringAttr());
+}
+
 IntegerType IntegerType::get(
   mlir::MLIRContext* context,
   SignednessSemantics signedness,

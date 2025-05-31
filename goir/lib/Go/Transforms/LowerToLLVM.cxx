@@ -1252,38 +1252,40 @@ struct ConstantOpLowering : ConvertOpToLLVMPattern<ConstantOp>
   {
     const auto loc = op.getLoc();
     auto resultType = this->getTypeConverter()->convertType(op.getType());
+    return mlir::TypeSwitch<mlir::Type, LogicalResult>(go::underlyingType(op.getType()))
+      .Case(
+        [&](StringType) -> LogicalResult
+        {
+          const auto strAttr = mlir::dyn_cast<StringAttr>(*op.getValue());
+          const auto strLen = strAttr.size();
+          const auto strHash = hash_value(strAttr.strref());
+          const std::string name = "cstr_" + std::to_string(strHash);
 
-    if (go::isa<StringType>(op.getType()))
-    {
-      const auto strAttr = mlir::dyn_cast<StringAttr>(op.getValue());
-      const auto strLen = strAttr.size();
-      const auto strHash = hash_value(strAttr.strref());
-      const std::string name = "cstr_" + std::to_string(strHash);
+          auto pointerT = this->getVoidPtrType();
+          auto runeT = rewriter.getIntegerType(8);
+          auto intT = this->getIntPtrType();
+          const auto arrayT = mlir::LLVM::LLVMArrayType::get(runeT, strLen);
 
-      auto pointerT = this->getVoidPtrType();
-      auto runeT = rewriter.getIntegerType(8);
-      auto intT = this->getIntPtrType();
-      const auto arrayT = mlir::LLVM::LLVMArrayType::get(runeT, strLen);
+          // Get the pointer to the first character in the global string.
+          Value globalPtr = rewriter.create<mlir::LLVM::AddressOfOp>(loc, pointerT, name);
+          Value addr = rewriter.create<mlir::LLVM::GEPOp>(
+            loc, pointerT, arrayT, globalPtr, ArrayRef<mlir::LLVM::GEPArg>{ 0, 0 });
 
-      // Get the pointer to the first character in the global string.
-      Value globalPtr = rewriter.create<mlir::LLVM::AddressOfOp>(loc, pointerT, name);
-      Value addr = rewriter.create<mlir::LLVM::GEPOp>(
-        loc, pointerT, arrayT, globalPtr, ArrayRef<mlir::LLVM::GEPArg>{ 0, 0 });
+          // Create the constant integer value representing this string's length.
+          Value lenVal = rewriter.create<mlir::LLVM::ConstantOp>(
+            loc, this->getIntPtrType(), rewriter.getIntegerAttr(intT, strAttr.strref().size()));
 
-      // Create the constant integer value representing this string's length.
-      Value lenVal = rewriter.create<mlir::LLVM::ConstantOp>(
-        loc, this->getIntPtrType(), rewriter.getIntegerAttr(intT, strAttr.strref().size()));
+          // Create the string struct
+          mlir::Value structValue = rewriter.create<mlir::LLVM::UndefOp>(loc, resultType);
+          structValue = rewriter.create<mlir::LLVM::InsertValueOp>(loc, structValue, addr, 0);
+          structValue = rewriter.create<mlir::LLVM::InsertValueOp>(loc, structValue, lenVal, 1);
 
-      // Create the string struct
-      mlir::Value structValue = rewriter.create<mlir::LLVM::UndefOp>(loc, resultType);
-      structValue = rewriter.create<mlir::LLVM::InsertValueOp>(loc, structValue, addr, 0);
-      structValue = rewriter.create<mlir::LLVM::InsertValueOp>(loc, structValue, lenVal, 1);
-
-      // Replace the original operation with the string struct value.
-      rewriter.replaceOp(op, structValue);
-      return success();
-    }
-    return failure();
+          // Replace the original operation with the string struct value.
+          rewriter.replaceOp(op, structValue);
+          return success();
+        })
+      .Default([&](mlir::Type type)
+               { return op->emitOpError("unhandled constant result type") << type; });
   }
 };
 
@@ -1414,14 +1416,23 @@ struct CmpStringOpLowering : ConvertOpToLLVMPattern<CmpStringOp>
     ConversionPatternRewriter& rewriter) const override
   {
     const auto loc = op->getLoc();
+    const auto i1Type = rewriter.getI1Type();
+    const Value one =
+      rewriter.create<mlir::LLVM::ConstantOp>(loc, i1Type, rewriter.getIntegerAttr(i1Type, 1));
 
     // Replace with the runtime call to perform the string comparison.
-    mlir::Value result = createRuntimeCall(
+    Value result = createRuntimeCall(
       rewriter,
       loc,
       "stringCompare",
       this->getTypeConverter(),
       { adaptor.getLhs(), adaptor.getRhs() })[0];
+
+    if (adaptor.getPredicate() == CmpPredicate::ne)
+    {
+      // Invert the result.
+      result = rewriter.create<mlir::LLVM::XOrOp>(loc, i1Type, result, one);
+    }
 
     // Replace the operation.
     rewriter.replaceOp(op, result);
@@ -2900,61 +2911,62 @@ void populateGoToLLVMConversionPatterns(
   RewritePatternSet& patterns)
 {
   // clang-format off
-        patterns.add<
-            transforms::LLVM::AddressOfOpLowering,
-            transforms::LLVM::AddStrOpLowering,
-            transforms::LLVM::AllocaOpLowering,
-            transforms::LLVM::AtomicAddIOpLowering,
-            transforms::LLVM::AtomicCompareAndSwapIOpLowering,
-            transforms::LLVM::AtomicSwapIOpLowering,
-            transforms::LLVM::BitcastOpLowering,
-            transforms::LLVM::BuiltInCallOpLowering,
-            transforms::LLVM::CallIndirectOpLowering,
-            transforms::LLVM::ChangeInterfaceOpLowering,
-            transforms::LLVM::ChanRangeOpLowering,
-            transforms::LLVM::ChanSelectOpLowering,
-            transforms::LLVM::ChanSendOpLowering,
-            transforms::LLVM::ChanRecvOpLowering,
-            transforms::LLVM::ConstantOpLowering,
-            transforms::LLVM::CmpInterfaceOpLowering,
-            transforms::LLVM::CmpNilOpLowering,
-            transforms::LLVM::CmpStringOpLowering,
-            transforms::LLVM::DeferOpLowering,
-            transforms::LLVM::ExtractOpLowering,
-            transforms::LLVM::GetElementPointerOpLowering,
-            transforms::LLVM::GlobalOpLowering,
-            transforms::LLVM::GlobalCtorsOpLowering,
-            transforms::LLVM::GoOpLowering,
-            transforms::LLVM::InlineAsmOpLowering,
-            transforms::LLVM::InsertOpLowering,
-            transforms::LLVM::InterfaceCallOpLowering,
-            transforms::LLVM::IntToPtrOpLowering,
-            transforms::LLVM::LoadOpLowering,
-            transforms::LLVM::MakeInterfaceOpLowering,
-            transforms::LLVM::MakeMapOpLowering,
-            transforms::LLVM::MakeSliceOpLowering,
-            transforms::LLVM::MapLookupOpLowering,
-            transforms::LLVM::MapUpdateOpLowering,
-            transforms::LLVM::MapRangeOpLowering,
-            transforms::LLVM::PanicOpLowering,
-            transforms::LLVM::PointerToFunctionOpLowering,
-            transforms::LLVM::PtrToIntOpLowering,
-            transforms::LLVM::RecoverOpLowering,
-            transforms::LLVM::RecvOpLowering,
-            transforms::LLVM::RunDefersLowering,
-            transforms::LLVM::SliceOpLowering,
-            transforms::LLVM::SliceAddrOpLowering,
-            transforms::LLVM::SliceToStringOpLowering,
-            transforms::LLVM::StringAddrOpLowering,
-            transforms::LLVM::StringRangeOpLowering,
-            transforms::LLVM::StringToSliceOpLowering,
-            transforms::LLVM::StoreOpLowering,
-            transforms::LLVM::TypeAssertOpLowering,
-            transforms::LLVM::TypeAssertOpLowering,
-            transforms::LLVM::UnrealizedConversionCastOpLowering,
-            transforms::LLVM::YieldOpLowering,
-            transforms::LLVM::ZeroOpLowering
-        >(converter);
-        // clang-format off
-    }
+  patterns.add<
+      transforms::LLVM::AddressOfOpLowering,
+      transforms::LLVM::AddStrOpLowering,
+      transforms::LLVM::AllocaOpLowering,
+      transforms::LLVM::AtomicAddIOpLowering,
+      transforms::LLVM::AtomicCompareAndSwapIOpLowering,
+      transforms::LLVM::AtomicSwapIOpLowering,
+      transforms::LLVM::BitcastOpLowering,
+      transforms::LLVM::BuiltInCallOpLowering,
+      transforms::LLVM::CallIndirectOpLowering,
+      transforms::LLVM::ChangeInterfaceOpLowering,
+      transforms::LLVM::ChanRangeOpLowering,
+      transforms::LLVM::ChanSelectOpLowering,
+      transforms::LLVM::ChanSendOpLowering,
+      transforms::LLVM::ChanRecvOpLowering,
+      transforms::LLVM::ConstantOpLowering,
+      transforms::LLVM::CmpInterfaceOpLowering,
+      transforms::LLVM::CmpNilOpLowering,
+      transforms::LLVM::CmpStringOpLowering,
+      transforms::LLVM::DeferOpLowering,
+      transforms::LLVM::ExtractOpLowering,
+      transforms::LLVM::GetElementPointerOpLowering,
+      transforms::LLVM::GlobalOpLowering,
+      transforms::LLVM::GlobalCtorsOpLowering,
+      transforms::LLVM::GoOpLowering,
+      transforms::LLVM::InlineAsmOpLowering,
+      transforms::LLVM::InsertOpLowering,
+      transforms::LLVM::InterfaceCallOpLowering,
+      transforms::LLVM::IntToPtrOpLowering,
+      transforms::LLVM::LoadOpLowering,
+      transforms::LLVM::MakeInterfaceOpLowering,
+      transforms::LLVM::MakeMapOpLowering,
+      transforms::LLVM::MakeSliceOpLowering,
+      transforms::LLVM::MapLookupOpLowering,
+      transforms::LLVM::MapUpdateOpLowering,
+      transforms::LLVM::MapRangeOpLowering,
+      transforms::LLVM::PanicOpLowering,
+      transforms::LLVM::PointerToFunctionOpLowering,
+      transforms::LLVM::PtrToIntOpLowering,
+      transforms::LLVM::RecoverOpLowering,
+      transforms::LLVM::RecvOpLowering,
+      transforms::LLVM::RunDefersLowering,
+      transforms::LLVM::SliceOpLowering,
+      transforms::LLVM::SliceAddrOpLowering,
+      transforms::LLVM::SliceToStringOpLowering,
+      transforms::LLVM::StringAddrOpLowering,
+      transforms::LLVM::StringRangeOpLowering,
+      transforms::LLVM::StringToSliceOpLowering,
+      transforms::LLVM::StoreOpLowering,
+      transforms::LLVM::TypeAssertOpLowering,
+      transforms::LLVM::TypeAssertOpLowering,
+      transforms::LLVM::UnrealizedConversionCastOpLowering,
+      transforms::LLVM::YieldOpLowering,
+      transforms::LLVM::ZeroOpLowering
+  >(converter);
+  // clang-format off
+}
+
 } // namespace mlir::go

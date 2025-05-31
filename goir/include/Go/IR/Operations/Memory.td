@@ -122,7 +122,9 @@ def GetElementPointerOp : Go_Op<"gep", [NoMemoryEffect]> {
 // YieldOp
 //===----------------------------------------------------------------------===//
 
-def YieldOp : Go_Op<"yield", [Pure, ReturnLike, Terminator, ParentOneOf<["GlobalOp"]>]> {
+def YieldOp : Go_Op<"yield", [Pure, ReturnLike, Terminator,
+            ParentOneOf<["GlobalOp", "ConstantOp", "GlobalConstantOp"]>
+        ]> {
     let arguments = (ins Go_Type:$initializerValue);
     let assemblyFormat = [{
         $initializerValue attr-dict `:` type($initializerValue)

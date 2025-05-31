@@ -87,10 +87,6 @@ private:
 
 void mlirGoInitializeContext(MlirContext context)
 {
-  mlir::MLIRContext* _context = unwrap(context);
-
-  // Initialize any module-level interfaces here.
-  //  mlir::ModuleOp::attachInterface<mlir::go::RuntimeTypeModuleOpInterface>(*_context);
 }
 
 MlirStringRef mlirModuleDump(MlirModule module)
@@ -181,7 +177,6 @@ void mlirGoBindRuntimeType(MlirModule module, MlirStringRef mnemonic, MlirType r
   const auto _module = unwrap(module);
   const auto _mnemonic = unwrap(mnemonic);
   const auto _runtimeType = unwrap(runtimeType);
-  const auto _ctx = _module->getContext();
 
   llvm::SmallVector<mlir::NamedAttribute> entries;
   if (_module->hasAttr("go.runtimeTypes"))
@@ -298,23 +293,41 @@ mlirGoOptimizeModule(MlirModule module, MlirStringRef name, MlirStringRef output
     pm.enableTiming();
   }
 
+  // ─────────────────────────────────────────────
+  // Phase 1: Top-level module passes
+  // ─────────────────────────────────────────────
   pm.addPass(mlir::go::createCallPass());
   pm.addPass(mlir::go::createAttachDebugInfoPass());
   pm.addPass(mlir::go::createGlobalConstantsPass());
   pm.addPass(mlir::go::createGlobalInitializerPass());
-  pm.addNestedPass<mlir::go::FuncOp>(mlir::go::createHeapEscapePass());
-  pm.addNestedPass<mlir::go::FuncOp>(mlir::go::createFunctionPass());
 
-  // Run the canonicalizer pass after Go-centric passes so no context is lost.
+  // ─────────────────────────────────────────────
+  // Phase 2: Per-function Go semantic passes
+  // ─────────────────────────────────────────────
+  {
+    auto& nestedFuncPM = pm.nest<mlir::go::FuncOp>();
+    nestedFuncPM.addPass(mlir::go::createHeapEscapePass());
+    nestedFuncPM.addPass(mlir::go::createFunctionPass());
+  }
+
+  // ─────────────────────────────────────────────
+  // Phase 3: Lower Go-specific ops (all ops, not just functions)
+  // ─────────────────────────────────────────────
   pm.addPass(mlir::createCanonicalizerPass());
-
   pm.addPass(mlir::go::createLowerToCorePass());
+
+  // ─────────────────────────────────────────────
+  // Phase 4: LLVM lowering on the full module
+  // ─────────────────────────────────────────────
+  pm.addPass(mlir::createCanonicalizerPass());
   pm.addPass(mlir::go::createLowerToLLVMPass());
+
+  // ─────────────────────────────────────────────
+  // Phase 5: LLVM export + cleanup
+  // ─────────────────────────────────────────────
   pm.addNestedPass<mlir::LLVM::LLVMFuncOp>(mlir::LLVM::createLegalizeForExportPass());
   pm.addPass(mlir::createCanonicalizerPass());
-  // pm.addPass(mlir::createCSEPass());
   pm.addPass(mlir::createSymbolDCEPass());
-  // pm.addPass(mlir::createSCCPPass());
   pm.addPass(mlir::createCanonicalizerPass());
 
   return wrap(pm.run(_module));

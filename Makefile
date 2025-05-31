@@ -24,8 +24,6 @@ else ifneq (,$(findstring ld.lld,$(LD)))
 	CMAKE_LINKER_ARGS := -DCMAKE_LINKER_TYPE=LLD
 endif
 
-GOFLAGS +=
-
 SIGO_BUILD_RELEASE ?= 0
 ifeq ($(SIGO_BUILD_RELEASE),0)
 	CGO_LDFLAGS += -g
@@ -53,6 +51,7 @@ $(foreach item, $(LLVM_BUILD_COMPONENTS),$(if $(CMAKE_LLVM_COMPONENTS),$(eval CM
 
 # Determine build flags required by LLVM
 CGO_LDFLAGS += -Wl,--gc-sections $(shell ${LLVM_CONFIG_EXECUTABLE} --ldflags) $(shell ${LLVM_CONFIG_EXECUTABLE} --libs ${LLVM_COMPONENTS}) -L${GOIR_BUILD_DIR}/lib
+CGO_LDFLAGS += -lLLVMTableGen
 CGO_CFLAGS += -fPIC -ffunction-sections -fdata-sections $(shell ${LLVM_CONFIG_EXECUTABLE} --cflags)
 
 # Add MLIR libraries
@@ -60,11 +59,16 @@ CGO_LDFLAGS += @link.rsp
 CGO_LDFLAGS += -lGoIR -lCGoIR
 CGO_LDFLAGS += -lstdc++
 
+# Add LLVM includes
+CGO_CFLAGS += -I$(ROOT_DIR)/thirdparty/llvm-project/llvm/include
+CGO_CFLAGS += -I${LLVM_BUILD_DIR}/tools/mlir/include
+
 # Add MLIR includes
 CGO_CFLAGS += -I$(ROOT_DIR)/thirdparty/llvm-project/mlir/include
-CGO_CFLAGS += -I${LLVM_BUILD_DIR}/tools/mlir/include
 CGO_CFLAGS += -I${GOIR_ROOT}/include
 CGO_CFLAGS += -I${GOIR_BUILD_DIR}/include
+
+CGO_CXXFLAGS := -std=c++17 -fno-rtti $(CGO_CFLAGS)
 
 # Paths:
 BINDIR := ./bin
@@ -87,6 +91,8 @@ ABS_SIGO_EXE=$(ABS_BINDIR)/sigoc$(EXECUTABLE_POSTFIX)
 
 CSP_GEN_EXE=$(BINDIR)/csp-gen$(EXECUTABLE_POSTFIX)
 DEF_GEN_EXE=$(BINDIR)/def-gen$(EXECUTABLE_POSTFIX)
+TBDEF_GEN_EXE=$(BINDIR)/tbdef-gen$(EXECUTABLE_POSTFIX)
+TABLEGEN_CSP_EXE := $(BINDIR)/tablegen-csp$(EXECUTABLE_POSTFIX)
 
 TARGETS_DEVICE_SRCS += $(wildcard $(ROOT_DIR)/targets/device/*.go)
 TARGETS_DEVICE_SRCS += $(wildcard $(ROOT_DIR)/targets/device/importer/*.go)
@@ -100,54 +106,6 @@ ABS_SSA_TEST_EXE=$(ABS_BINDIR)/ssa_test$(EXECUTABLE_POSTFIX)
 # Common commandline options:
 DEBUG ?= 0
 
-define build-compiler-rt
-	CC=${CC} CXX=${CXX} cmake $(ROOT_DIR)/thirdparty/llvm-project/compiler-rt -G "Ninja" -B ./build/Release/compiler-rt-$(1)-$(2) \
-		-DCMAKE_TOOLCHAIN_FILE=$(ROOT_DIR)/cmake/compiler-rt-toolchain.cmake \
-		-DCMAKE_INSTALL_PREFIX=$(ROOT_DIR)/lib/compiler-rt/$(1)/$(2) \
-		${CMAKE_COMPILER_ARGS} \
-		-DCMAKE_BUILD_TYPE=Release \
-		-DBUILD_SHARED_LIBS=OFF \
-		-DCMAKE_SYSTEM_NAME="Generic" \
-		-DCMAKE_C_COMPILER_TARGET=$(1) \
-		-DCMAKE_C_FLAGS="-nostdlib -march=$(2) $(3)" \
-		-DCMAKE_CXX_COMPILER_TARGET=$(1) \
-		-DCMAKE_CXX_FLAGS="-nostdlib -march=$(2) $(3)" \
-		-DCMAKE_ASM_COMPILER_TARGET=$(1) \
-		-DCMAKE_ASM_FLAGS="-march=$(2) $(3)" \
-		-DLLVM_CMAKE_DIR=$(LLVM_BUILD_DIR) \
-		-DCOMPILER_RT_OS_DIR="$(1)" \
-		-DCOMPILER_RT_DEFAULT_TARGET_ONLY=ON \
-		-DCOMPILER_RT_BAREMETAL_BUILD=ON \
-		-DCOMPILER_RT_BUILD_BUILTINS=ON \
-		-DCOMPILER_RT_BUILD_CRT=ON \
-		-DCOMPILER_RT_BUILD_SANITIZERS=OFF \
-		-DCOMPILER_RT_BUILD_XRAY=OFF \
-		-DCOMPILER_RT_BUILD_LIBFUZZER=OFF \
-		-DCOMPILER_RT_BUILD_PROFILE=OFF
-	cmake --build ./build/Release/compiler-rt-$(1)-$(2) --target install
-endef
-
-define build-picolibc
-	CC=${CC} CXX=${CXX} cmake $(ROOT_DIR)/thirdparty/picolibc -G "Ninja" -B ./build/Release/picolibc-$(1)-$(2) 	\
-		-DCMAKE_INSTALL_PREFIX=$(ROOT_DIR)/lib/picolibc/$(1)/$(2) \
-		${CMAKE_COMPILER_ARGS} \
-		-DCMAKE_BUILD_TYPE=Release \
-		-DBUILD_SHARED_LIBS=OFF \
-		-DCMAKE_SYSTEM_NAME="Generic" \
-		-DCMAKE_SYSTEM_PROCESSOR="arm" \
-		-DCMAKE_C_COMPILER_TARGET=$(1) \
-		-DCMAKE_C_FLAGS="-nostdlib -march=$(2) $(3)" \
-		-DCMAKE_CXX_COMPILER_TARGET=$(1) \
-		-DCMAKE_CXX_FLAGS="-nostdlib -march=$(2) $(3)" \
-		-DCMAKE_ASM_COMPILER_TARGET=$(1) \
-		-DCMAKE_ASM_FLAGS="-march=$(2) $(3)" \
-		-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER \
-		-DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
-		-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY \
-		-DPICOLIBC_TLS=OFF
-	cmake --build ./build/Release/picolibc-$(1)-$(2) --target install --parallel
-endef
-
 define build-test
 	@rm -f $(1)$(EXECUTABLE_POSTFIX)
 	CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS) -lstdc++" go test -gcflags "all=-N -l" -ldflags="-linkmode external -extldflags=-Wl,--allow-multiple-definition" -c -o $(1) $(2)
@@ -157,18 +115,21 @@ define run-test
 	CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS) -lstdc++" go test -v -gcflags "all=-N -l" -ldflags="-linkmode external -extldflags=-Wl,--allow-multiple-definition" $(1) -args ${args}
 endef
 
-.PHONY: all build-compiler-rt build-goir build-llvm build-mlir build-picolibc build-tests clean clean-clang-bindings clean-llvm-bindings clean-mlir-bindings clean-tests clean-sigo configure-goir configure-llvm configure-mlir debug generate-clang-bindings generate-csp generate-llvm-bindings generate-mlir-bindings sigo ssa_test
+.PHONY: all build-goir build-llvm build-mlir build-tests clean clean-clang-bindings clean-llvm-bindings clean-mlir-bindings clean-tests clean-sigo configure-goir configure-llvm configure-mlir debug generate-clang-bindings generate-csp generate-llvm-bindings generate-mlir-bindings sigo ssa_test
 
 all: sigo
+
+env:
+	CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" go env
 
 clean: clean-sigo clean-llvm-bindings clean-clang-bindings clean-mlir-bindings clean-tests
 
 $(SIGO_EXE): build-goir generate-llvm-bindings generate-mlir-bindings $(GO_SRCS) $(LIBS)
 	rm -f $(SIGO_EXE)
 	@if [ $(SIGO_BUILD_RELEASE) -eq 1 ]; then \
-  		GOFLAGS="$(GOFLAGS)" CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" go build -o $(SIGO_EXE) -ldflags="-linkmode external" $(ROOT_DIR)/cmd/sigoc; \
+  		CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" CGO_CXXFLAGS="$(CGO_CXXFLAGS)" go build -o $(SIGO_EXE) -ldflags="-linkmode external" $(ROOT_DIR)/cmd/sigoc; \
   	else \
-		GOFLAGS="$(GOFLAGS)" CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" go build -o $(SIGO_EXE) -gcflags "all=-N -l" -ldflags="-linkmode external" $(ROOT_DIR)/cmd/sigoc; \
+		CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" CGO_CXXFLAGS="$(CGO_CXXFLAGS)" go build -o $(SIGO_EXE) -gcflags "all=-N -l" -ldflags="-linkmode external" $(ROOT_DIR)/cmd/sigoc; \
   	fi
 
 sigo: $(SIGO_EXE)
@@ -293,51 +254,28 @@ clean-mlir-bindings:
 	rm $(ROOT_DIR)/mlir/mlir.go \
 	   $(ROOT_DIR)/mlir/mlir_wrap.c
 
-build-picolibc:
-	$(call build-picolibc,armv7m-none-eabi,armv7m+fp,-mthumb)
-	$(call build-picolibc,armv7m-none-eabi,armv7m+nofp,-mthumb)
-	$(call build-picolibc,armv7em-none-eabi,armv7em+fp,-mthumb)
-	$(call build-picolibc,armv7em-none-eabi,armv7em+nofp,-mthumb)
-	$(call build-picolibc,armv6m-none-eabi,armv6m+nofp,-mthumb)
-
-build-compiler-rt:
-	$(call build-compiler-rt,armv7m-none-eabi,armv7m+fp,-mthumb)
-	$(call build-compiler-rt,armv7m-none-eabi,armv7m+nofp,-mthumb)
-	$(call build-compiler-rt,armv7em-none-eabi,armv7em+fp,-mthumb)
-	$(call build-compiler-rt,armv7em-none-eabi,armv7em+nofp,-mthumb)
-	$(call build-compiler-rt,armv6m-none-eabi,armv6m+nofp,-mthumb)
-
-$(CSP_GEN_EXE): $(wildcard $(ROOT_DIR)/cmd/csp-gen/*.go)
+$(TBDEF_GEN_EXE): $(wildcard $(ROOT_DIR)/cmd/tbdef-gen/*.go) $(TARGETS_DEVICE_SRCS)
 	@if [ $(SIGO_BUILD_RELEASE) -eq 1 ]; then \
-		go build -o $(CSP_GEN_EXE) -gcflags "all=-N -l" $(ROOT_DIR)/cmd/csp-gen; \
+		go build -o $(TBDEF_GEN_EXE) $(ROOT_DIR)/cmd/tbdef-gen; \
   	else \
-		go build -o $(CSP_GEN_EXE) -gcflags "all=-N -l" $(ROOT_DIR)/cmd/csp-gen; \
+		go build -o $(TBDEF_GEN_EXE) -gcflags "all=-N -l" $(ROOT_DIR)/cmd/tbdef-gen; \
 	fi
-
-csp-gen: $(CSP_GEN_EXE)
+tbdef-gen: $(TBDEF_GEN_EXE)
 	@if [ $(DEBUG) -eq 1 ]; then \
-		dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(CSP_GEN_EXE) -- $(args); \
-	else \
-		$(CSP_GEN_EXE) $(args); \
+		dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(TBDEF_GEN_EXE) -- $(args); \
 	fi
 
-generate-csp: $(CSP_GEN_EXE)
-	$(CSP_GEN_EXE) --in=$(ROOT_DIR)/targets/definitions/cortexm.json --out=$(ROOT_DIR)/src/runtime/arm/cortexm/support
-	$(CSP_GEN_EXE) --in=$(ROOT_DIR)/targets/definitions/atsamd21.json --out=$(ROOT_DIR)/src/runtime/arm/cortexm/sam/atsamd21/support
-	$(CSP_GEN_EXE) --in=$(ROOT_DIR)/targets/definitions/atsamx5x.json --out=$(ROOT_DIR)/src/runtime/arm/cortexm/sam/atsamx5x/support
-	$(CSP_GEN_EXE) --in=$(ROOT_DIR)/targets/definitions/stm32h747_cm7.json --out=$(ROOT_DIR)/src/runtime/arm/cortexm/stm32/stm32h7x7/support
-
-$(DEF_GEN_EXE): $(wildcard $(ROOT_DIR)/cmd/def-gen/*.go) $(TARGETS_DEVICE_SRCS)
+$(TABLEGEN_CSP_EXE): generate-llvm-bindings $(GO_SRCS) $(LIBS)
+	rm -f $(TABLEGEN_CSP_EXE)
 	@if [ $(SIGO_BUILD_RELEASE) -eq 1 ]; then \
-		go build -o $(DEF_GEN_EXE) $(ROOT_DIR)/cmd/def-gen; \
+  		CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" CGO_CXXFLAGS="$(CGO_CXXFLAGS)" go build -o $(TABLEGEN_CSP_EXE) -ldflags="-linkmode external" $(ROOT_DIR)/cmd/tablegen-csp; \
   	else \
-		go build -o $(DEF_GEN_EXE) -gcflags "all=-N -l" $(ROOT_DIR)/cmd/def-gen; \
-	fi
-def-gen: $(DEF_GEN_EXE)
+		CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" CGO_CXXFLAGS="$(CGO_CXXFLAGS)" go build -o $(TABLEGEN_CSP_EXE) -gcflags "all=-N -l" -ldflags="-linkmode external" $(ROOT_DIR)/cmd/tablegen-csp; \
+  	fi
+
+tablegen-csp: $(TABLEGEN_CSP_EXE)
 	@if [ $(DEBUG) -eq 1 ]; then \
-		dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(DEF_GEN_EXE) -- $(args); \
-	else \
-		$(DEF_GEN_EXE) $(args); \
+    	dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(TABLEGEN_CSP_EXE) -- $(args); \
 	fi
 
-release: build-picolibc build-compiler-rt generate-csp sigo
+release: generate-csp sigo

@@ -161,46 +161,46 @@ func (b *Builder) emitNamedAlloca(ctx context.Context, name string, T mlir.Type,
 }
 
 func (b *Builder) emitConstBool(ctx context.Context, value bool, T mlir.Type, location mlir.Location) mlir.Value {
-	op := mlir.GoCreateConstantOperation(b.ctx, b.boolAttr(value), T, location)
+	op := mlir.GoCreateConstantOperation(b.ctx, b.boolAttr(value), nil, T, location)
 	appendOperation(ctx, op)
 	return resultOf(op)
 }
 
 func (b *Builder) emitConstComplex64(ctx context.Context, r float32, i float32, T mlir.Type, location mlir.Location) mlir.Value {
 	attr := mlir.GoCreateComplexNumberAttr(b.ctx, T, float64(r), float64(i))
-	op := mlir.GoCreateConstantOperation(b.ctx, attr, T, location)
+	op := mlir.GoCreateConstantOperation(b.ctx, attr, nil, T, location)
 	appendOperation(ctx, op)
 	return resultOf(op)
 }
 
 func (b *Builder) emitConstComplex128(ctx context.Context, r float64, i float64, T mlir.Type, location mlir.Location) mlir.Value {
 	attr := mlir.GoCreateComplexNumberAttr(b.ctx, T, r, i)
-	op := mlir.GoCreateConstantOperation(b.ctx, attr, T, location)
+	op := mlir.GoCreateConstantOperation(b.ctx, attr, nil, T, location)
 	appendOperation(ctx, op)
 	return resultOf(op)
 }
 
 func (b *Builder) emitConstFloat32(ctx context.Context, value float32, T mlir.Type, location mlir.Location) mlir.Value {
-	op := mlir.GoCreateConstantOperation(b.ctx, mlir.FloatAttrDoubleGet(b.ctx, b.f32, float64(value)), T, location)
+	op := mlir.GoCreateConstantOperation(b.ctx, mlir.FloatAttrDoubleGet(b.ctx, b.f32, float64(value)), nil, T, location)
 	appendOperation(ctx, op)
 	return resultOf(op)
 }
 
 func (b *Builder) emitConstFloat64(ctx context.Context, value float64, T mlir.Type, location mlir.Location) mlir.Value {
-	op := mlir.GoCreateConstantOperation(b.ctx, mlir.FloatAttrDoubleGet(b.ctx, b.f64, value), T, location)
+	op := mlir.GoCreateConstantOperation(b.ctx, mlir.FloatAttrDoubleGet(b.ctx, b.f64, value), nil, T, location)
 	appendOperation(ctx, op)
 	return resultOf(op)
 }
 
 func (b *Builder) emitConstInt(ctx context.Context, value int64, T mlir.Type, location mlir.Location) mlir.Value {
 	// NOTE: The integer type used with integer attributes must be signless.
-	op := mlir.GoCreateConstantOperation(b.ctx, b.intAttr(value), T, location)
+	op := mlir.GoCreateConstantOperation(b.ctx, b.intAttr(value), nil, T, location)
 	appendOperation(ctx, op)
 	return resultOf(op)
 }
 
 func (b *Builder) emitConstString(ctx context.Context, value string, location mlir.Location) mlir.Value {
-	op := mlir.GoCreateConstantOperation(b.ctx, mlir.StringAttrGet(b.ctx, value), b.str, location)
+	op := mlir.GoCreateConstantOperation(b.ctx, mlir.StringAttrGet(b.ctx, value), nil, b.str, location)
 	appendOperation(ctx, op)
 	return resultOf(op)
 }

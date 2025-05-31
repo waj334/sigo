@@ -9,14 +9,15 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"slices"
 	"strings"
 	"time"
 
+	"golang.org/x/tools/go/packages"
+
 	"pkg.si-go.dev/sigo/compiler/ssa"
 	"pkg.si-go.dev/sigo/llvm"
+	"pkg.si-go.dev/sigo/llvm/tablegen"
 	"pkg.si-go.dev/sigo/mlir"
-	"pkg.si-go.dev/sigo/targets"
 )
 
 type (
@@ -34,12 +35,12 @@ func BuildPackages(ctx context.Context, options Options) error {
 	}
 
 	// Build each package
-	for _, directory := range options.Packages {
-		info, err := os.Stat(directory)
+	for moduleRoot, pkgDir := range options.Packages {
+		info, err := os.Stat(pkgDir)
 		if err != nil {
 			return errors.Join(ErrParserError, err)
 		} else if info.IsDir() {
-			return Build(ctx, directory)
+			return Build(ctx, moduleRoot, pkgDir)
 		} else {
 			// TODO: Allow a mix of package directories and individual .go files?
 			panic("Not implemented")
@@ -49,7 +50,7 @@ func BuildPackages(ctx context.Context, options Options) error {
 	return nil
 }
 
-func Build(ctx context.Context, packageDir string) error {
+func Build(ctx context.Context, moduleDir, packageDir string) error {
 	t := time.Now()
 	defer func() {
 		fmt.Printf("Build duration: %3fsec\n", time.Now().Sub(t).Seconds())
@@ -117,75 +118,163 @@ func Build(ctx context.Context, packageDir string) error {
 	// later.
 	pathMappings[goRootStaging] = options.Environment.Value("SIGOROOT")
 
-	// Initialize the targets subsystem.
-	err := targets.InitTargets(goRootStaging)
+	// Perform an import analysis to locate the chip series TableGen file.
+	importCfg := &packages.Config{
+		Context: ctx,
+		Dir:     moduleDir,
+		Mode:    packages.NeedName | packages.NeedFiles | packages.NeedImports | packages.NeedDeps | packages.NeedModule,
+		BuildFlags: []string{
+			"-tags=" + options.Cpu,
+		},
+		Env: options.Environment.List(),
+	}
+
+	pkgs, err := packages.Load(importCfg, packageDir)
 	if err != nil {
 		return err
 	}
 
-	// Get the target information
-	var tags = options.BuildTags
-	var additionalPackages []string
-	targetInfo, err := targets.All().FindByChip(options.Cpu)
-	if err != nil {
-		// Fallback to series
-		targetInfo, err = targets.All().FindBySeries(options.Cpu)
-		if err != nil {
-			return err
-		}
-	} else {
-		tags = append(tags, options.Cpu, targetInfo.Architecture, targetInfo.Series, options.Float)
-		tags = append(tags, targetInfo.Tags...)
+	if len(pkgs) == 0 {
+		return errors.New("there was a problem analyzing imports")
+	}
 
-		for _, pkg := range targetInfo.AdditionalPackages {
-			if !slices.Contains(additionalPackages, pkg) {
-				additionalPackages = append(additionalPackages, pkg)
+	allPkgs := collectAllPackages(pkgs)
+
+	// Find the platform TableGen file.
+	platformFound := false
+	tags := options.BuildTags
+	alignment := int64(4)
+	fpuEnabled := false
+
+	var features []string
+	var triplet string
+	var archType string
+	var cpuType string
+	var fpuType string
+	var machine llvm.LLVMTargetMachineRef
+
+	for _, pkg := range allPkgs {
+		fname := filepath.Join(pkg.Dir, "platform.td")
+		_, err := os.Stat(fname)
+		if os.IsNotExist(err) {
+			continue
+		}
+
+		platformFound = true
+
+		// Found the platform TableGen file. Parse it.
+		rk := tablegen.NewRecordKeeper()
+
+		// NOTE: The base TableGen definitions are next to go.mod in pkg.si-go.dev/chip.
+		if !tablegen.ParseTableGenFile(fname, rk, []string{pkg.Module.Dir, filepath.Dir(fname)}) {
+			return errors.New("failed to parse platform.td")
+		}
+
+		// Get the series def.
+		allSeries := rk.GetDerivedRecords("Series")
+		if len(allSeries) == 0 {
+			return errors.New("no chip series defined")
+		} else if len(allSeries) > 1 {
+			return errors.New("multiple chip series encountered")
+		}
+
+		series := allSeries[0]
+		seriesName := series.GetValueAsString("name")
+		variants := series.GetValueAsListOfDefs("variants")
+
+		// Find the variant matching the series.
+		var variantTags []string
+		variantExists := false
+		for _, variant := range variants {
+			variantName := strings.ToLower(variant.GetValueAsString("name"))
+			if options.Cpu == variantName {
+				variantExists = true
+				variantTags = variant.GetValueAsListOfStrings("tags")
+				break
 			}
 		}
-	}
 
-	// TODO: Detect the target architecture by some other means
-	options.Environment["GOARCH"] = "arm"
-	arch := strings.Split(targetInfo.Triple, "-")[0]
-	float := "nofp"
-	fpuEnabled := false
-	switch targetInfo.Fpu.ABI {
-	case "hardfp":
-		if options.Float == "softfp" {
-			float = "nofp"
-			targetInfo.Features = append(targetInfo.Features, "soft-float")
-		} else {
-			float = "fp"
-			targetInfo.Features = append(targetInfo.Features, targetInfo.Fpu.Features...)
-			fpuEnabled = true
+		if !variantExists {
+			return errors.New("this variant is not valid for the imported platform package")
 		}
-	default:
-		float = "nofp"
-		targetInfo.Features = append(targetInfo.Features, "soft-float")
+
+		// Get the architecture information.
+		arch := series.GetValueAsDef("arch")
+		archTags := arch.GetValueAsListOfStrings("tags")
+		archFpu := arch.GetValueAsDef("fpu")
+
+		archType = arch.GetValueAsString("arch")
+		cpuType = arch.GetValueAsString("name")
+		features = arch.GetValueAsListOfStrings("features")
+		triplet = arch.GetValueAsString("triple")
+		alignment = arch.GetValueAsInt("alignment")
+
+		fpuType = archFpu.GetValueAsString("value")
+		fpuFeatures := archFpu.GetValueAsListOfStrings("features")
+		if fpuType == "none" {
+			fpuFeatures = append(fpuFeatures, "soft-float")
+		} else if options.Float == "hardfp" {
+			fpuEnabled = true
+			fpuFeatures = append(fpuFeatures, "fpregs")
+			tags = append(tags, "fpu")
+		} else {
+			fpuFeatures = append(fpuFeatures, "soft-float")
+		}
+
+		features = append(features, fpuFeatures...)
+
+		tags = append(tags, strings.ToLower(seriesName), strings.ToLower(options.Cpu), strings.ToLower(options.Float), strings.ToLower(archType))
+		tags = append(tags, fpuFeatures...)
+		tags = append(tags, variantTags...)
+		tags = append(tags, archTags...)
+
+		formattedFeatures := make([]string, len(features))
+		for i, feature := range features {
+			formattedFeatures[i] = "+" + feature
+		}
+		featureStr := strings.Join(formattedFeatures, ",")
+
+		// Get the target from the triple
+		target, errMsg, ok := llvm.GetTargetFromTriple(triplet)
+		if !ok {
+			if len(errMsg) > 0 {
+				return errors.Join(ErrCodeGeneratorError, errors.New(errMsg))
+			}
+			return ErrCodeGeneratorError
+		}
+
+		machine = llvm.CreateTargetMachine(
+			target,
+			triplet,
+			cpuType,
+			featureStr,
+			llvm.LLVMCodeGenOptLevel(llvm.CodeGenLevelNone),
+			llvm.LLVMRelocMode(llvm.RelocDefault),
+			llvm.LLVMCodeModel(llvm.CodeModelDefault))
+		break
 	}
 
-	// Create the machine target
-	target, err := targetInfo.CreateTarget()
-	if err != nil {
-		return err
+	if !platformFound {
+		return errors.New("no target platform could be determined")
 	}
-	targetMachine := targetInfo.CreateTargetMachine(target)
-	targetLayout := llvm.CreateTargetDataLayout(targetMachine)
+
+	targetLayout := llvm.CreateTargetDataLayout(machine)
 
 	// Set up sizes.
 	sizes := types.StdSizes{
 		WordSize: int64(llvm.PointerSize(targetLayout)),
-		MaxAlign: int64(targetInfo.Alignment),
+		MaxAlign: alignment,
 	}
 
 	// Create a new program.
 	program := ssa.NewProgram(&ssa.ProgramConfig{
-		Tags:               tags,
-		AdditionalPackages: additionalPackages,
-		Environment:        options.Environment.List(),
-		PackagePath:        packageDir,
-		GoRoot:             options.Environment.Value("GOROOT"),
-		Sizes:              &sizes,
+		Tags: tags,
+		//AdditionalPackages: additionalPackages,
+		Environment: options.Environment.List(),
+		PackagePath: packageDir,
+		ModuleRoot:  moduleDir,
+		GoRoot:      options.Environment.Value("GOROOT"),
+		Sizes:       &sizes,
 	})
 
 	// Parse the package.
@@ -205,9 +294,9 @@ func Build(ctx context.Context, packageDir string) error {
 	mlirModule := mlir.ModuleCreateEmpty(mlir.LocationUnknownGet(mlirCtx))
 
 	// Set module attributes before creating the SSA builder.
-	dataLayout := llvm.CreateTargetDataLayout(targetMachine)
+	dataLayout := llvm.CreateTargetDataLayout(machine)
 	mlir.GoSetTargetDataLayout(mlirModule, dataLayout)
-	mlir.GoSetTargetTriple(mlirModule, targetInfo.Triple)
+	mlir.GoSetTargetTriple(mlirModule, triplet)
 
 	// Create the SSA builder.
 	builder := ssa.NewBuilder(ssa.Config{
@@ -242,7 +331,7 @@ func Build(ctx context.Context, packageDir string) error {
 	passDumpDir = filepath.Dir(passDumpDir)
 	passDumpName := filepath.Base(options.Output)
 	fmt.Print("Optimizing Go IR...")
-	if mlir.LogicalResultIsFailure(mlir.GoOptimizeModule(mlirModule, passDumpName, passDumpDir, false)) {
+	if mlir.LogicalResultIsFailure(mlir.GoOptimizeModule(mlirModule, passDumpName, passDumpDir, options.DebugLowering)) {
 		fmt.Println()
 		return errors.Join(ErrCodeGeneratorError, err, errors.New("optimization passes failed"))
 	}
@@ -274,7 +363,7 @@ func Build(ctx context.Context, packageDir string) error {
 
 	// Optimize modules
 	fmt.Print("Optimizing LLVM IR...")
-	if err = optimize(llvmModule, options.Optimization, targetMachine); err != nil {
+	if err = optimize(llvmModule, options.Optimization, machine); err != nil {
 		fmt.Println()
 		return errors.Join(ErrCodeGeneratorError, err)
 	}
@@ -285,7 +374,7 @@ func Build(ctx context.Context, packageDir string) error {
 	}
 
 	fmt.Print("Linking firmware image...")
-	if err := link(options, targetInfo, arch, float, program, targetMachine, llvmModule); err != nil {
+	if err := link(options, triplet, archType, cpuType, fpuType, fpuEnabled, features, program, machine, llvmModule); err != nil {
 		fmt.Println()
 		return err
 	}
@@ -296,18 +385,12 @@ func Build(ctx context.Context, packageDir string) error {
 	return nil
 }
 
-func link(options Options, targetInfo targets.TargetInfo, arch string, float string, prog *ssa.Program, targetMachine llvm.LLVMTargetMachineRef, module llvm.LLVMModuleRef) error {
+func link(options Options, triplet string, arch string, cpu string, fpu string, floatEnabled bool, features []string, prog *ssa.Program, targetMachine llvm.LLVMTargetMachineRef, module llvm.LLVMModuleRef) error {
 	// Create the object file
 	objectOut := filepath.Join(options.BuildDir, "firmware.o")
 	if ok, errMsg := llvm.TargetMachineEmitToFile2(targetMachine, module, objectOut, llvm.LLVMCodeGenFileType(llvm.ObjectFile)); !ok {
 		return errors.Join(ErrCodeGeneratorError, errors.New(errMsg))
 	}
-
-	// TODO: Select the proper build of picolibc
-	libCDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/picolibc", targetInfo.Triple, arch+"+"+float, "lib")
-
-	// Select build of runtime-rt
-	libCompilerRTDir := filepath.Join(options.Environment.Value("SIGOROOT"), "lib/compiler-rt", targetInfo.Triple, arch+"+"+float, "lib", targetInfo.Triple)
 
 	// Get the toolchain.
 	toolchain, err := findToolchain(options.Environment)
@@ -315,21 +398,52 @@ func link(options Options, targetInfo targets.TargetInfo, arch string, float str
 		return err
 	}
 
+	var artifacts []string
+
+	// Compile picolibc for the current target machine.
+	picolibc, err := pkgPicolibc(arch)
+	if err != nil {
+		return err
+	}
+
+	objs, err := picolibc.Compile(toolchain, triplet, cpu, fpu, options.GenerateDebugInfo, options.Optimization, floatEnabled,
+		options.NumJobs, options.BuildDir)
+	if err != nil {
+		return err
+	}
+
+	artifacts = append(artifacts, objs...)
+
+	// Compile compiler-rt for the current target machine.
+	compilerRT, err := pkgCompilerRT(triplet, features, floatEnabled)
+	if err != nil {
+		return err
+	}
+
+	objs, err = compilerRT.Compile(toolchain, triplet, cpu, fpu, options.GenerateDebugInfo, options.Optimization, floatEnabled,
+		options.NumJobs, options.BuildDir)
+
+	if err != nil {
+		return err
+	}
+
+	artifacts = append(artifacts, objs...)
+
+	if len(prog.LinkerScript) == 0 {
+		return errors.New("no linker script found")
+	}
+
 	// Other arguments
-	targetTriple := "--target=" + targetInfo.Triple
+	targetTriple := "--target=" + triplet
 	elfOut := filepath.Join(options.BuildDir, "package.elf")
 	args := []string{
 		"-v",
 		"--gc-sections",
 		"-o", elfOut,
 		"-nostdlib",
-		"-L" + libCDir,
-		"-L" + libCompilerRTDir,
 		"-L" + filepath.Join(options.Environment.Value("SIGOROOT"), "runtime"),
 		"-L" + filepath.Dir(prog.LinkerScript),
 		"-T" + prog.LinkerScript,
-		"-lc",
-		"-lclang_rt.builtins-" + arch,
 	}
 
 	if options.GenerateDebugInfo {
@@ -342,6 +456,7 @@ func link(options Options, targetInfo targets.TargetInfo, arch string, float str
 	}
 
 	args = append(args, objectOut)
+	args = append(args, artifacts...)
 
 	// Compile all assembly files
 	for _, asm := range append(prog.Files[".s"], prog.Files[".asm"]...) {
@@ -358,7 +473,7 @@ func link(options Options, targetInfo targets.TargetInfo, arch string, float str
 				return ""
 			}(),
 			func() string {
-				if float == "nofp" {
+				if !floatEnabled {
 					return "-mfloat-abi=softfp"
 				}
 				return "-mfloat-abi=hard"
@@ -384,7 +499,7 @@ func link(options Options, targetInfo targets.TargetInfo, arch string, float str
 		if err := clangCmd.Run(); err != nil {
 			fmt.Println()
 			fmt.Println("Command failed: ", clangCmd.String())
-			return errors.Join(ErrClangFailed, err)
+			return errors.Join(ErrCompilerFailed, err)
 		}
 
 		// Add this object file to the end of the linker command
@@ -398,7 +513,7 @@ func link(options Options, targetInfo targets.TargetInfo, arch string, float str
 	if err := lldCmd.Run(); err != nil {
 		fmt.Println()
 		fmt.Println("Command failed: ", lldCmd.String())
-		return errors.Join(ErrClangFailed, err)
+		return errors.Join(ErrCompilerFailed, err)
 	}
 
 	// Convert the final binary image to the specified output binary type
@@ -407,13 +522,13 @@ func link(options Options, targetInfo targets.TargetInfo, arch string, float str
 		objCopyCmd := exec.Command(toolchain.ObjCopy, "-O", "binary", elfOut, options.Output)
 		if err := objCopyCmd.Run(); err != nil {
 			output, _ := lldCmd.Output()
-			return errors.Join(ErrClangFailed, err, errors.New(string(output)))
+			return errors.Join(ErrCompilerFailed, err, errors.New(string(output)))
 		}
 	case ".hex":
 		objCopyCmd := exec.Command(toolchain.ObjCopy, "-O", "ihex", elfOut, options.Output)
 		if err := objCopyCmd.Run(); err != nil {
 			output, _ := lldCmd.Output()
-			return errors.Join(ErrClangFailed, err, errors.New(string(output)))
+			return errors.Join(ErrCompilerFailed, err, errors.New(string(output)))
 		}
 	default:
 		// Load the ELF into memory
@@ -529,4 +644,26 @@ func findOrCreateGlobal(module llvm.LLVMModuleRef, ty llvm.LLVMTypeRef, name str
 
 func align(n uint, m uint) uint {
 	return n + (n % m)
+}
+
+func collectAllPackages(pkgs []*packages.Package) []*packages.Package {
+	seen := make(map[*packages.Package]bool)
+	var all []*packages.Package
+
+	var visit func(pkg *packages.Package)
+	visit = func(pkg *packages.Package) {
+		if seen[pkg] {
+			return
+		}
+		seen[pkg] = true
+		all = append(all, pkg)
+		for _, imp := range pkg.Imports {
+			visit(imp)
+		}
+	}
+
+	for _, pkg := range pkgs {
+		visit(pkg)
+	}
+	return all
 }

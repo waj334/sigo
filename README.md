@@ -33,9 +33,6 @@ export CXX=clang++
 export LD=ld.lld
 
 make sigo
-make generate-csp
-make build-picolibc
-make build-compiler-rt
 ./bin/sigoc --help
 ```
 

@@ -53,6 +53,7 @@ def ComplementOp : Go_IntUnaryOp<"comp", [NoMemoryEffect]> {
         %0 = go.comp %a : i32
     ```
     }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -71,6 +72,7 @@ def NegCOp : Go_ComplexUnaryOp<"negc", [NoMemoryEffect]> {
         %0 = go.negc %a : !go.complex64
         ```
     }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -89,6 +91,7 @@ def NegFOp : Go_FloatUnaryOp<"negf", [NoMemoryEffect]> {
         %0 = go.negf %a : f32
         ```
     }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -107,6 +110,7 @@ def NegIOp : Go_IntUnaryOp<"negi", [NoMemoryEffect]> {
         %0 = go.negi %a : i32
         ```
     }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -125,6 +129,7 @@ def NotOp : Go_BoolUnaryOp<"not", [NoMemoryEffect]> {
         %0 = go.not %a : i1
     ```
     }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//

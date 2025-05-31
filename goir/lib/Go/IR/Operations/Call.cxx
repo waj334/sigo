@@ -1,5 +1,9 @@
+#include <limits>
+
 #include <llvm/ADT/SmallVectorExtras.h>
 #include <llvm/ADT/TypeSwitch.h>
+
+#include <mlir/Rewrite/FrozenRewritePatternSet.h>
 
 #include "Go/IR/GoDialect.h"
 #include "Go/IR/GoOps.h"
@@ -9,6 +13,37 @@ constexpr std::string_view runtimeFuncTypeName = "runtime._func";
 
 namespace mlir::go
 {
+
+template<typename resultT, typename opT, typename adaptorT>
+std::optional<resultT> getOrFold(opT op, adaptorT adaptor, const size_t index)
+{
+  resultT operand;
+  if (const auto attr = adaptor.getCalleeOperands()[index])
+  {
+    operand = mlir::dyn_cast_or_null<resultT>(attr);
+  }
+  else if (auto definingOp = op->getCalleeOperands()[index].getDefiningOp())
+  {
+    mlir::SmallVector<OpFoldResult, 4> results;
+    if (failed(definingOp->fold(results)))
+    {
+      return std::nullopt;
+    }
+    operand = mlir::dyn_cast_or_null<resultT>(mlir::cast<mlir::Attribute>(results.front()));
+  }
+  else
+  {
+    return std::nullopt;
+  }
+
+  if (!operand)
+  {
+    return std::nullopt;
+  }
+
+  return operand;
+}
+
 ::mlir::LogicalResult DeferOp::verify()
 {
   FunctionType Fn;
@@ -165,7 +200,8 @@ namespace mlir::go
           {
             return success();
           }
-          return this->emitOpError() << "expected \"" << runtimeFuncTypeName << "\" struct type, but got " << namedType;
+          return this->emitOpError()
+            << "expected \"" << runtimeFuncTypeName << "\" struct type, but got " << namedType;
         })
       .Default([&](auto T) { return this->emitOpError() << "unsupported callee type " << T; });
 
@@ -247,6 +283,257 @@ mlir::LogicalResult InterfaceCallOp::verify()
   }
 
   return success();
+}
+
+LogicalResult BuiltInCallOp::fold(FoldAdaptor adaptor, SmallVectorImpl<OpFoldResult>& results)
+{
+  if (adaptor.getOperands().empty())
+  {
+    return failure();
+  }
+
+  const auto i64Type = mlir::IntegerType::get(this->getContext(), 64);
+  const auto f64Type = mlir::Float64Type::get(this->getContext());
+  const auto callee = this->getCallee().str();
+  if (callee == "cap")
+  {
+    const auto inputType = this->getCalleeOperands()[0].getType();
+    return mlir::TypeSwitch<mlir::Type, mlir::LogicalResult>(inputType)
+      .Case(
+        [&](ArrayType type)
+        {
+          const auto result = mlir::IntegerAttr::get(i64Type, type.getLength());
+          results.push_back(result);
+          return success();
+        })
+      .Default([&](Type) { return failure(); });
+  }
+
+  if (callee == "len")
+  {
+    const auto inputType = this->getCalleeOperands()[0].getType();
+    return mlir::TypeSwitch<mlir::Type, mlir::LogicalResult>(inputType)
+      .Case(
+        [&](ArrayType type)
+        {
+          const auto result = mlir::IntegerAttr::get(i64Type, type.getLength());
+          results.push_back(result);
+          return success();
+        })
+      .Case(
+        [&](StringType type)
+        {
+          const auto value = getOrFold<StringAttr>(this, adaptor, 0).value_or(StringAttr());
+          if (!value)
+          {
+            return failure();
+          }
+
+          // Return the length of the constant string.
+          const auto result = mlir::IntegerAttr::get(i64Type, value.size());
+          results.push_back(result);
+          return success();
+        })
+      .Default([&](Type) { return failure(); });
+  }
+
+  if (callee == "imag")
+  {
+    const auto inputType = this->getCalleeOperands()[0].getType();
+    return mlir::TypeSwitch<mlir::Type, mlir::LogicalResult>(inputType)
+      .Case(
+        [&](ComplexType type)
+        {
+          const auto value =
+            getOrFold<ComplexNumberAttr>(this, adaptor, 0).value_or(ComplexNumberAttr());
+          if (!value)
+          {
+            return failure();
+          }
+          results.push_back(value.getImag());
+          return success();
+        })
+      .Default([&](Type) { return failure(); });
+  }
+
+  if (callee == "real")
+  {
+    const auto inputType = this->getCalleeOperands()[0].getType();
+    return mlir::TypeSwitch<mlir::Type, mlir::LogicalResult>(inputType)
+      .Case(
+        [&](ComplexType type)
+        {
+          const auto value =
+            getOrFold<ComplexNumberAttr>(this, adaptor, 0).value_or(ComplexNumberAttr());
+          if (!value)
+          {
+            return failure();
+          }
+          results.push_back(value.getReal());
+          return success();
+        })
+      .Default([&](Type) { return failure(); });
+  }
+
+  if (callee == "max")
+  {
+    const auto inputType = this->getCalleeOperands()[0].getType();
+    return mlir::TypeSwitch<mlir::Type, mlir::LogicalResult>(inputType)
+      .Case(
+        [&](IntegerType)
+        {
+          int64_t largestValue = std::numeric_limits<int64_t>::min();
+          for (const auto operand : llvm::seq(this->getCalleeOperands().size()))
+          {
+            const auto value =
+              getOrFold<IntegerAttr>(this, adaptor, operand).value_or(IntegerAttr());
+            if (!value)
+            {
+              return failure();
+            }
+
+            if (value.getInt() > largestValue)
+            {
+              largestValue = value.getInt();
+            }
+          }
+          const auto result = mlir::IntegerAttr::get(i64Type, largestValue);
+          results.push_back(result);
+          return success();
+        })
+      .Case(
+        [&](FloatType)
+        {
+          double largestValue = std::numeric_limits<double>::min();
+          for (const auto operand : llvm::seq(this->getCalleeOperands().size()))
+          {
+            const auto value = getOrFold<FloatAttr>(this, adaptor, operand).value_or(FloatAttr());
+            if (!value)
+            {
+              return failure();
+            }
+
+            if (value.getValueAsDouble() > largestValue)
+            {
+              largestValue = value.getValueAsDouble();
+            }
+          }
+          const auto result = mlir::FloatAttr::get(f64Type, largestValue);
+          results.push_back(result);
+          return success();
+        })
+      .Default([&](Type) { return failure(); });
+  }
+
+  if (callee == "min")
+  {
+    const auto inputType = this->getCalleeOperands()[0].getType();
+    return mlir::TypeSwitch<mlir::Type, mlir::LogicalResult>(inputType)
+      .Case(
+        [&](IntegerType)
+        {
+          int64_t smallestValue = std::numeric_limits<int64_t>::max();
+          for (const auto operand : llvm::seq(this->getCalleeOperands().size()))
+          {
+            const auto value =
+              getOrFold<IntegerAttr>(this, adaptor, operand).value_or(IntegerAttr());
+            if (!value)
+            {
+              return failure();
+            }
+
+            if (value.getInt() < smallestValue)
+            {
+              smallestValue = value.getInt();
+            }
+          }
+          const auto result = mlir::IntegerAttr::get(i64Type, smallestValue);
+          results.push_back(result);
+          return success();
+        })
+      .Case(
+        [&](FloatType)
+        {
+          double smallestValue = std::numeric_limits<double>::max();
+          for (const auto operand : llvm::seq(this->getCalleeOperands().size()))
+          {
+            const auto value = getOrFold<FloatAttr>(this, adaptor, operand).value_or(FloatAttr());
+            if (!value)
+            {
+              return failure();
+            }
+
+            if (value.getValueAsDouble() < smallestValue)
+            {
+              smallestValue = value.getValueAsDouble();
+            }
+          }
+          const auto result = mlir::FloatAttr::get(f64Type, smallestValue);
+          results.push_back(result);
+          return success();
+        })
+      .Default([&](Type) { return failure(); });
+  }
+
+  if (callee == "unsafe.Add")
+  {
+    int64_t sum = 0;
+    for (const auto operand : llvm::seq(this->getCalleeOperands().size()))
+    {
+      const auto value = getOrFold<IntegerAttr>(this, adaptor, operand).value_or(IntegerAttr());
+      if (!value)
+      {
+        return failure();
+      }
+
+      sum += value.getInt();
+    }
+    const auto result = mlir::IntegerAttr::get(i64Type, sum);
+    results.push_back(result);
+    return success();
+  }
+
+  if (callee == "unsafe.Alignof")
+  {
+    const auto dataLayout = DataLayout(getOperation()->getParentOfType<ModuleOp>());
+    const auto size = dataLayout.getTypeABIAlignment(this->getCalleeOperands()[0].getType());
+    const auto result = IntegerAttr::get(i64Type, size);
+    results.push_back(result);
+    return success();
+  }
+
+  if (callee == "unsafe.Offsetof")
+  {
+    const auto structType = mlir::dyn_cast_or_null<GoStructType>(this->getCalleeOperands()[0].getType());
+    if (!structType)
+    {
+      return failure();
+    }
+
+    const auto index = mlir::dyn_cast_or_null<IntegerAttr>(adaptor.getCalleeOperands()[1]);
+    if (!index)
+    {
+      return failure();
+    }
+
+    const auto dataLayout = DataLayout(getOperation()->getParentOfType<ModuleOp>());
+    const auto size = structType.getFieldOffset(dataLayout, index.getInt());
+    const auto result = IntegerAttr::get(i64Type, size);
+    results.push_back(result);
+    return success();
+  }
+
+  if (callee == "unsafe.Sizeof")
+  {
+    const auto type = this->getCalleeOperands()[0].getType();
+    const auto dataLayout = DataLayout(getOperation()->getParentOfType<ModuleOp>());
+    const auto size = dataLayout.getTypeSize(type);
+    const auto result = IntegerAttr::get(i64Type, size);
+    results.push_back(result);
+    return success();
+  }
+
+  return failure();
 }
 
 mlir::LogicalResult BuiltInCallOp::verify()

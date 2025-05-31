@@ -64,7 +64,7 @@ def GoIntegerType : GoDialect_Type<"Integer", "integer", [
             if (width.has_value()) {
                 return ::llvm::TypeSize::getFixed(*width);
             }
-            return dataLayout.getTypeSizeInBits(IndexType::get(this->getContext()));
+            return ::llvm::TypeSize::getFixed(32);
         }
 
         ::llvm::TypeSize $cppClass::getTypeSize(const DataLayout &dataLayout,
@@ -74,14 +74,13 @@ def GoIntegerType : GoDialect_Type<"Integer", "integer", [
 
         uint64_t $cppClass::getABIAlignment(const DataLayout &dataLayout,
                                                 DataLayoutEntryListRef params) const {
-            mlir::Type T;
             const auto width = this->getWidth();
             if (width.has_value()) {
-                T = mlir::IntegerType::get(this->getContext(), *width);
+                auto T = mlir::IntegerType::get(this->getContext(), *width);
+                return dataLayout.getTypeABIAlignment(T);
             } else {
-                T = IndexType::get(this->getContext());
+                return ::llvm::TypeSize::getFixed(4);
             }
-            return dataLayout.getTypeABIAlignment(T);
         }
 
         uint64_t $cppClass::getPreferredAlignment(const DataLayout &dataLayout,

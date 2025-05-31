@@ -105,14 +105,18 @@ func (b *Builder) emitInterfaceCompare(ctx context.Context, predicate token.Toke
 }
 
 func (b *Builder) emitStringCompare(ctx context.Context, predicate token.Token, X mlir.Value, Y mlir.Value, location mlir.Location) mlir.Value {
-	op := mlir.GoCreateCmpStringOperation(b.ctx, b.i1, X, Y, location)
-	appendOperation(ctx, op)
-	result := resultOf(op)
-	if predicate == token.NEQ {
-		// Negate the result.
-		result = b.emitNegation(ctx, result, location)
+	switch predicate {
+	case token.EQL:
+		op := mlir.GoCreateCmpStringOperation(b.ctx, b.i1, mlir.GoCreateCmpPredicate(b.ctx, mlir.GoCmpPredicate_eq), X, Y, location)
+		appendOperation(ctx, op)
+		return resultOf(op)
+	case token.NEQ:
+		op := mlir.GoCreateCmpStringOperation(b.ctx, b.i1, mlir.GoCreateCmpPredicate(b.ctx, mlir.GoCmpPredicate_ne), X, Y, location)
+		appendOperation(ctx, op)
+		return resultOf(op)
+	default:
+		panic("unhandled comparison predicate type")
 	}
-	return result
 }
 
 func (b *Builder) emitPointerCompare(ctx context.Context, op token.Token, X mlir.Value, Y mlir.Value, location mlir.Location) mlir.Value {
@@ -317,7 +321,7 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 
 func (b *Builder) emitNegation(ctx context.Context, X mlir.Value, location mlir.Location) mlir.Value {
 	// Negate the input boolean value.
-	constTrueOp := mlir.GoCreateConstantOperation(b.ctx, b.boolAttr(true), b.i1, location)
+	constTrueOp := mlir.GoCreateConstantOperation(b.ctx, b.boolAttr(true), nil, b.i1, location)
 	appendOperation(ctx, constTrueOp)
 
 	xorOp := mlir.GoCreateXorOperation(b.ctx, b.i1, X, resultOf(constTrueOp), location)

@@ -20,6 +20,7 @@ type (
 	globalKey           struct{}
 	jobQueueKey         struct{}
 	infoKey             struct{}
+	nameIndexKey        struct{}
 )
 
 type blockWithArgs struct {
@@ -180,4 +181,15 @@ func currentInfo(ctx context.Context) *types.Info {
 		return val.(*types.Info)
 	}
 	return nil
+}
+
+func newContextWithNameIndex(ctx context.Context, index int) context.Context {
+	return context.WithValue(ctx, nameIndexKey{}, index)
+}
+
+func currentNameIndex(ctx context.Context) int {
+	if val := ctx.Value(nameIndexKey{}); val != nil {
+		return val.(int)
+	}
+	return -1
 }

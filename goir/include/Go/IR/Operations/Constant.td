@@ -6,7 +6,9 @@ include "Go/IR/GoTypes.td"
 
 include "mlir/IR/BuiltinAttributeInterfaces.td"
 include "mlir/IR/BuiltinAttributes.td"
+include "mlir/IR/OpAsmInterface.td"
 include "mlir/IR/OpBase.td"
+include "mlir/IR/SymbolInterfaces.td"
 
 def Go_CanBeConstant : AnyAttrOf<[
     ComplexNumberAttr,
@@ -25,9 +27,9 @@ def Go_CanBeConstant : AnyAttrOf<[
 //===----------------------------------------------------------------------===//
 
 def ConstantOp : Go_Op<"constant", [ConstantLike, Pure, NoMemoryEffect]> {
-    let summary = "Zero value of type operation";
+    let summary = "Constant value operation";
     let description = [{
-        The `go.constant` operation returns the zero value of the
+        The `go.constant` operation returns a constant value of the
         specified type.
 
         ```mlir
@@ -38,11 +40,28 @@ def ConstantOp : Go_Op<"constant", [ConstantLike, Pure, NoMemoryEffect]> {
         %4 = go.constant (.25i) : !go.complex
         ```
     }];
+
+    let hasVerifier = 1;
     let hasFolder = 1;
-    let arguments = (ins Go_CanBeConstant:$value);
+    let arguments = (ins
+        OptionalAttr<Go_CanBeConstant>:$value,
+        OptionalAttr<SymbolNameAttr>:$sym_ref
+    );
     let results = (outs Go_Type:$result);
+    let regions = (region MaxSizedRegion<1>:$body);
     let assemblyFormat = [{
-        `(` $value `)` attr-dict `:` type($result)
+        ` ` ( `(` $value^ `)` )? ( $sym_ref^ )? attr-dict `:` type($result) ( $body^ )?
+    }];
+}
+
+def GlobalConstantOp : Go_Op<"constant_global", [Symbol]> {
+    let hasVerifier = 1;
+    let arguments = (ins
+        SymbolNameAttr:$sym_name,
+        OptionalAttr<Go_CanBeConstant>:$value);
+    let regions = (region MaxSizedRegion<1>:$body);
+    let assemblyFormat = [{
+        $sym_name ( `(` $value^ `)` )? ( $body^ )? attr-dict
     }];
 }
 

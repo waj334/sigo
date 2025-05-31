@@ -44,24 +44,6 @@ class Go_CompareOp<string mnemonic, list<Trait> traits = []> :
 }
 
 //===----------------------------------------------------------------------===//
-// addf
-//===----------------------------------------------------------------------===//
-
-def AddFOp : Go_FloatBinOp<"addf", [Commutative, SameOperandsAndResultType,
-            NoMemoryEffect]> {
-    let summary = "Accepts two floating-point inputs and yields their sum.";
-    let description = [{
-        The `go.addf` operation takes two floating-point operands and returns
-        the sum of the operands as the result.
-
-        Example:
-        ```mlir
-        %0 = go.addf %a, %b : f32
-        ```
-    }];
-}
-
-//===----------------------------------------------------------------------===//
 // addc
 //===----------------------------------------------------------------------===//
 
@@ -77,6 +59,26 @@ def AddCOp : Go_ComplexBinOp<"addc", [Commutative, SameOperandsAndResultType,
         %0 = go.addc %a, %b : !go.complex64
         ```
     }];
+    let hasFolder = 1;
+}
+
+//===----------------------------------------------------------------------===//
+// addf
+//===----------------------------------------------------------------------===//
+
+def AddFOp : Go_FloatBinOp<"addf", [Commutative, SameOperandsAndResultType,
+            NoMemoryEffect]> {
+    let summary = "Accepts two floating-point inputs and yields their sum.";
+    let description = [{
+        The `go.addf` operation takes two floating-point operands and returns
+        the sum of the operands as the result.
+
+        Example:
+        ```mlir
+        %0 = go.addf %a, %b : f32
+        ```
+    }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -95,6 +97,7 @@ def AddIOp : Go_IntBinOp<"addi", [Pure, Commutative, SameOperandsAndResultType,
         %0 = go.addi %a, %b : i32
         ```
     }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -114,6 +117,7 @@ def AddStrOp : Go_BinOp<"addstr", [Pure, SameOperandsAndResultType]>,
         %0 = go.addstr %a, %b : !go.string
         ```
     }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -132,6 +136,7 @@ def AndOp : Go_IntBinOp<"and", [Commutative, SameOperandsAndResultType,
         %0 = go.and %a, %b : i32
         ```
     }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -151,6 +156,7 @@ def AndNotOp : Go_IntBinOp<"andnot", [SameOperandsAndResultType,
         %0 = go.andnot %a, %b : i32
         ```
     }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -174,6 +180,7 @@ def CmpCOp : Go_CompareOp<"cmpc", [NoMemoryEffect]> {
                            Go_Complex:$lhs,
                            Go_Complex:$rhs);
     let hasVerifier = 1;
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -196,6 +203,7 @@ def CmpFOp : Go_CompareOp<"cmpf", [NoMemoryEffect]> {
     let arguments = (ins Go_CmpFPredicate:$predicate,
                            Go_Float:$lhs,
                            Go_Float:$rhs);
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -218,6 +226,7 @@ def CmpIOp : Go_CompareOp<"cmpi", [NoMemoryEffect]> {
     let arguments = (ins Go_CmpIPredicate:$predicate,
                                Go_Integral:$lhs,
                                Go_Integral:$rhs);
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -241,30 +250,14 @@ def CmpInterfaceOp : Go_BinOp<"cmp.interface", [Commutative]> {
 
 def CmpStringOp : Go_BinOp<"cmp.string", [Commutative]> {
     let arguments = (ins
+        Go_CmpPredicate:$predicate,
         Go_String:$lhs,
         Go_String:$rhs
     );
     let results = (outs
         Go_Bool:$result
     );
-}
-
-//===----------------------------------------------------------------------===//
-// divf
-//===----------------------------------------------------------------------===//
-
-def DivFOp : Go_FloatBinOp<"divf", [SameOperandsAndResultType,
-            NoMemoryEffect]> {
-    let summary = "Accepts two signed floating-point inputs and yields their quotient.";
-    let description = [{
-        The `go.divf` operation takes two floating-point operands and returns
-        the quotient of the operands as the result.
-
-        Example:
-        ```mlir
-        %0 = go.divf %a, %b : f32
-        ```
-    }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -283,6 +276,26 @@ def DivCOp : Go_ComplexBinOp<"divc", [SameOperandsAndResultType,
         %0 = go.divc %a, %b : !go.complex64
         ```
     }];
+    let hasFolder = 1;
+}
+
+//===----------------------------------------------------------------------===//
+// divf
+//===----------------------------------------------------------------------===//
+
+def DivFOp : Go_FloatBinOp<"divf", [SameOperandsAndResultType,
+            NoMemoryEffect]> {
+    let summary = "Accepts two signed floating-point inputs and yields their quotient.";
+    let description = [{
+        The `go.divf` operation takes two floating-point operands and returns
+        the quotient of the operands as the result.
+
+        Example:
+        ```mlir
+        %0 = go.divf %a, %b : f32
+        ```
+    }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -301,6 +314,7 @@ def DivSIOp : Go_IntBinOp<"divsi", [Pure, SameOperandsAndResultType,
         %0 = go.divsi %a, %b : i32
         ```
     }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -319,24 +333,7 @@ def DivUIOp : Go_IntBinOp<"divui", [Pure, SameOperandsAndResultType,
         %0 = go.divui %a, %b : i32
         ```
     }];
-}
-
-//===----------------------------------------------------------------------===//
-// mulf
-//===----------------------------------------------------------------------===//
-
-def MulFOp : Go_FloatBinOp<"mulf", [Commutative, SameOperandsAndResultType,
-            NoMemoryEffect]> {
-    let summary = "Accepts two floating-point inputs and yields their product.";
-    let description = [{
-        The `go.mulf` operation takes two floating-point operands and
-        returns the product of the operands as the result.
-
-        Example:
-        ```mlir
-        %0 = go.mulf %a, %b : f32
-        ```
-    }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -355,6 +352,26 @@ def MulCOp : Go_ComplexBinOp<"mulc", [Commutative, SameOperandsAndResultType,
         %0 = go.mulf %a, %b : !go.complex64
         ```
     }];
+    let hasFolder = 1;
+}
+
+//===----------------------------------------------------------------------===//
+// mulf
+//===----------------------------------------------------------------------===//
+
+def MulFOp : Go_FloatBinOp<"mulf", [Commutative, SameOperandsAndResultType,
+            NoMemoryEffect]> {
+    let summary = "Accepts two floating-point inputs and yields their product.";
+    let description = [{
+        The `go.mulf` operation takes two floating-point operands and
+        returns the product of the operands as the result.
+
+        Example:
+        ```mlir
+        %0 = go.mulf %a, %b : f32
+        ```
+    }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -373,6 +390,7 @@ def MulIOp : Go_IntBinOp<"muli", [Pure, Commutative, SameOperandsAndResultType,
         %0 = go.muli %a, %b : i32
         ```
     }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -391,6 +409,7 @@ def OrOp : Go_IntBinOp<"or", [Commutative, SameOperandsAndResultType,
         %0 = go.or %a, %b : i32
         ```
     }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -409,6 +428,7 @@ def RemFOp : Go_FloatBinOp<"remf", [SameOperandsAndResultType,
         %0 = go.remf %a, %b : f32
         ```
     }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -428,6 +448,7 @@ def RemSIOp : Go_IntBinOp<"remsi", [SameOperandsAndResultType,
         %0 = go.remsi %a, %b : i32
         ```
     }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -447,6 +468,7 @@ def RemUIOp : Go_IntBinOp<"remui", [SameOperandsAndResultType,
         %0 = go.remui %a, %b : i32
         ```
     }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -465,6 +487,7 @@ def ShlOp : Go_IntBinOp<"shl", [NoMemoryEffect]> {
         ```
     }];
     let assemblyFormat = "$lhs `,` $rhs attr-dict-with-keyword `:` functional-type(operands, results)";
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -484,6 +507,7 @@ def ShrUIOp : Go_IntBinOp<"shrui", [NoMemoryEffect]> {
         ```
     }];
     let assemblyFormat = "$lhs `,` $rhs attr-dict-with-keyword `:` functional-type(operands, results)";
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -503,24 +527,7 @@ def ShrSIOp : Go_IntBinOp<"shrsi", [NoMemoryEffect]> {
         ```
     }];
     let assemblyFormat = "$lhs `,` $rhs attr-dict-with-keyword `:` functional-type(operands, results)";
-}
-
-//===----------------------------------------------------------------------===//
-// subf
-//===----------------------------------------------------------------------===//
-
-def SubFOp : Go_FloatBinOp<"subf", [SameOperandsAndResultType,
-            NoMemoryEffect]> {
-    let summary = "Accepts two floating-point inputs and yields their difference.";
-    let description = [{
-        The `go.subf` operation takes two floating-point operands and returns the
-        difference of the operands as the result.
-
-        Example:
-        ```mlir
-        %0 = go.subf %a, %b : f32
-        ```
-    }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -539,6 +546,26 @@ def SubCOp : Go_ComplexBinOp<"subc", [SameOperandsAndResultType,
         %0 = go.subc %a, %b : f32
         ```
     }];
+    let hasFolder = 1;
+}
+
+//===----------------------------------------------------------------------===//
+// subf
+//===----------------------------------------------------------------------===//
+
+def SubFOp : Go_FloatBinOp<"subf", [SameOperandsAndResultType,
+            NoMemoryEffect]> {
+    let summary = "Accepts two floating-point inputs and yields their difference.";
+    let description = [{
+        The `go.subf` operation takes two floating-point operands and returns the
+        difference of the operands as the result.
+
+        Example:
+        ```mlir
+        %0 = go.subf %a, %b : f32
+        ```
+    }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -557,6 +584,7 @@ def SubIOp : Go_IntBinOp<"subi", [Pure, SameOperandsAndResultType,
         %0 = go.subi %a, %b : i32
         ```
     }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -578,6 +606,7 @@ def XorOp : Go_IntBinOp<"xor", [SameOperandsAndResultType,
 
     let arguments = (ins Go_Integral:$lhs, Go_Integral:$rhs);
     let results = (outs Go_Integral:$result);
+    let hasFolder = 1;
 }
 
 #endif // GO_OPERATIONS_BINOPS_TD
