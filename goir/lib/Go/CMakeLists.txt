@@ -33,6 +33,7 @@ add_mlir_dialect_library(GoIR
         Transforms/LowerToCore.cxx
         Transforms/LowerToLLVM.cxx
         Transforms/Passes.cxx
+        Transforms/PreprocessingPass.cxx
         Transforms/TypeConverter.cxx
         Transforms/TypeInfo.cxx
         Util.cxx

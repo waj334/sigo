@@ -266,8 +266,7 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 					}
 
 					// Mark this function as un-generated.
-					actualSymbol := b.resolveSymbol(symbol)
-					b.ungeneratedFuncs[actualSymbol] = decl
+					b.ungeneratedFuncs[symbol] = decl
 				}
 			}
 		}
@@ -403,10 +402,9 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 					}
 
 					symbolInfo := b.config.Program.Symbols.GetSymbolInfo(symbol)
-					actualSymbol := b.resolveSymbol(symbol)
 
 					isPackageInit := false
-					if strings.HasSuffix(actualSymbol, ".init") {
+					if strings.HasSuffix(symbol, ".init") {
 						isPackageInit = true
 					}
 
@@ -427,12 +425,12 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 
 					// Create the data for this function if it has NOT been encountered before or the incoming function
 					// has a body and the previous did not (overrides the pre-declaration).
-					existing, ok := b.funcDeclData[actualSymbol]
+					existing, ok := b.funcDeclData[symbol]
 					createData := !ok
 					if !createData {
 						if isPredeclaration(existing.decl) {
 							createData = !isPredeclaration(decl)
-							b.ungeneratedFuncs[actualSymbol] = decl
+							b.ungeneratedFuncs[symbol] = decl
 						}
 					}
 
@@ -448,7 +446,7 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 								counter = &atomic.Uint32{}
 								b.initPackageCounter[pkg] = counter
 							}
-							data.symbol = fmt.Sprintf("%s.%d", actualSymbol, counter.Add(1))
+							data.symbol = fmt.Sprintf("%s.%d", symbol, counter.Add(1))
 							data.isPackageInit = true
 							data.priority = pkgNum
 						}
@@ -582,13 +580,14 @@ func (b *Builder) addFunctionDecl(ctx context.Context, decl *ast.FuncDecl) *func
 	symbolInfo := b.config.Program.Symbols.GetSymbolInfo(symbol)
 	actualSymbol := b.resolveSymbol(symbol)
 
-	if _, ok := b.ungeneratedFuncs[actualSymbol]; !ok && obj.Name() != "init" {
+	if _, ok := b.ungeneratedFuncs[symbol]; !ok && obj.Name() != "init" {
 		// Do nothing.
 		return nil
 	}
 
 	data := &funcData{
-		symbol:         actualSymbol,
+		symbol:         symbol,
+		linkname:       actualSymbol,
 		funcType:       decl.Type,
 		recv:           decl.Recv,
 		body:           decl.Body,
@@ -618,11 +617,11 @@ func (b *Builder) addFunctionDecl(ctx context.Context, decl *ast.FuncDecl) *func
 
 	// NOTE: Init functions do not need to be tracked as they will ONLY be called by the runtime.
 	if symbol != "init" {
-		b.funcDeclData[actualSymbol] = data
+		b.funcDeclData[symbol] = data
 	}
 
 	// Remove this entry in the un-generated job map.
-	delete(b.ungeneratedFuncs, actualSymbol)
+	delete(b.ungeneratedFuncs, symbol)
 
 	return data
 }

@@ -304,6 +304,7 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 	// Create the function data for the anonymous function.
 	anonData := &funcData{
 		symbol:    fmt.Sprintf("anon_func_%s", b.locationHashString(expr.Pos())),
+		linkname:  fmt.Sprintf("anon_func_%s", b.locationHashString(expr.Pos())),
 		funcType:  expr.Type,
 		mlirType:  T,
 		signature: signature,
@@ -374,15 +375,13 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 		}
 	}
 
-	// Emit the anonymous function.
-	b.emitFunc(ctx, anonData)
-
 	// Get and return the address of the function.
-	funcPtr := b.addressOfSymbol(ctx, anonData.symbol, b.ptr, location)
+	funcPtr := b.addressOfSymbol(ctx, anonData.linkname, b.ptr, location)
 
 	// Create a pointer to a context value.
 	var contextPtr mlir.Value
 	if contextValue, contextType := anonData.createContextStructValue(ctx, b, location); contextValue != nil {
+		anonData.contextType = contextType
 		allocaOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, contextType, 1, false, location)
 		appendOperation(ctx, allocaOp)
 		contextPtr = resultOf(allocaOp)
@@ -390,6 +389,9 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 		storeOp := mlir.GoCreateStoreOperation(b.ctx, contextValue, contextPtr, location)
 		appendOperation(ctx, storeOp)
 	}
+
+	// Emit the anonymous function.
+	b.emitFunc(ctx, anonData)
 
 	// Return a func value.
 	return b.createFunctionValue(ctx, funcPtr, contextPtr, location)

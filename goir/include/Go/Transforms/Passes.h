@@ -28,6 +28,8 @@ std::unique_ptr<mlir::Pass> createCallPass();
 
 std::unique_ptr<mlir::Pass> createFunctionPass();
 
+std::unique_ptr<mlir::Pass> createPreprocessingPass();
+
 void populateGoToCoreConversionPatterns(
   mlir::MLIRContext* context,
   TypeConverter& converter,

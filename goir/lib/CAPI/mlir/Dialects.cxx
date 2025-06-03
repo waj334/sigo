@@ -296,6 +296,7 @@ mlirGoOptimizeModule(MlirModule module, MlirStringRef name, MlirStringRef output
   // ─────────────────────────────────────────────
   // Phase 1: Top-level module passes
   // ─────────────────────────────────────────────
+  pm.addPass(mlir::go::createPreprocessingPass());
   pm.addPass(mlir::go::createCallPass());
   pm.addPass(mlir::go::createAttachDebugInfoPass());
   pm.addPass(mlir::go::createGlobalConstantsPass());

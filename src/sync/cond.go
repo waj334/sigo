@@ -4,13 +4,13 @@ import (
 	"unsafe"
 )
 
-//sigo:extern waitGoroutine runtime.waitGoroutine
-//sigo:extern resumeGoroutine runtime.resumeGoroutine
-//sigo:extern runningGoroutine runtime.runningGoroutine
+//sigo:extern gopark runtime.gopark
+//sigo:extern goresume runtime.goresume
+//sigo:extern getg runtime.getg
 
-func waitGoroutine(unsafe.Pointer)
-func resumeGoroutine(unsafe.Pointer)
-func runningGoroutine() unsafe.Pointer
+func gopark(unsafe.Pointer)
+func goresume(unsafe.Pointer)
+func getg() unsafe.Pointer
 
 type Cond struct {
 	L       Locker
@@ -27,7 +27,7 @@ func (c *Cond) Broadcast() {
 
 	// Resume all waiting goroutines.
 	for _, waiter := range c.waiters {
-		resumeGoroutine(waiter)
+		goresume(waiter)
 	}
 
 	// Clear the waiters list
@@ -49,7 +49,7 @@ func (c *Cond) Signal() {
 		}
 
 		// Resume this goroutine.
-		resumeGoroutine(waiter)
+		goresume(waiter)
 	}
 
 	c.mutex.Unlock()
@@ -58,11 +58,11 @@ func (c *Cond) Signal() {
 func (c *Cond) Wait() {
 	// Add the current goroutine to the waiter list.
 	c.mutex.Lock()
-	c.waiters = append(c.waiters, runningGoroutine())
+	c.waiters = append(c.waiters, getg())
 	c.mutex.Unlock()
 
 	// Switch the current goroutine to the waiting state.
 	c.L.Unlock()
-	waitGoroutine(runningGoroutine())
+	gopark(getg())
 	c.L.Lock()
 }

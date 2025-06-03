@@ -244,36 +244,28 @@ func initgc() {
 
 //go:export alloc runtime.alloc
 func alloc(size uintptr) unsafe.Pointer {
+	state := DisableInterrupts()
 	gc.mutex.Lock()
 
 	allocSize := gcObjectSize + size
 
-	state := DisableInterrupts()
 	ptr := malloc(allocSize)
-	EnableInterrupts(state)
-
 	if ptr == nil {
 		// Attempt to reclaim memory now.
 		gc.fullGC()
-
-		state = DisableInterrupts()
 		ptr = malloc(allocSize)
-		EnableInterrupts(state)
-
 		if ptr == nil {
 			gc.mutex.Unlock()
 			abort()
 		}
 	}
 
-	state = DisableInterrupts()
 	obj := (*gcObject)(ptr)
 	obj.next = gc.head
 	// NOTE: Objects are born black to prevent sweeping them early.
 	obj.color = gcBlack
 	obj.size = size
 	gc.head = obj
-	EnableInterrupts(state)
 
 	if gc.phase == gcIdle {
 		// Transition to mark phase.
@@ -281,6 +273,7 @@ func alloc(size uintptr) unsafe.Pointer {
 	}
 
 	gc.mutex.Unlock()
+	EnableInterrupts(state)
 	return unsafe.Add(ptr, gcObjectSize)
 }
 

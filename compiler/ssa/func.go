@@ -13,11 +13,13 @@ import (
 
 type funcData struct {
 	symbol      string
+	linkname    string
 	scope       *types.Scope
 	funcType    *ast.FuncType
 	mlirType    mlir.Type
 	signature   *types.Signature
 	freeVars    []*FreeVar
+	contextType mlir.Type
 	recv        *ast.FieldList
 	body        *ast.BlockStmt
 	pos         token.Pos
@@ -109,9 +111,8 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 		}
 	}
 
-	// Create the region in which all blocks will be placed in.
-	region := mlir.RegionCreate()
-	ctx = newContextWithRegion(ctx, region)
+	// Create the function operation.
+	state := mlir.OperationStateGet("go.func", loc)
 
 	argOffset := 0
 
@@ -141,11 +142,17 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 		argOffset = 1
 	}
 
+	// Create the region in which all blocks will be placed in.
+	region := mlir.RegionCreate()
+	ctx = newContextWithRegion(ctx, region)
+	mlir.OperationStateAddOwnedRegions(state, []mlir.Region{region})
+
 	// NOTE: Forward declarations will not have any block.
 	if data.body != nil {
 		// Create the entry block for the current function.
 		entryBlock := mlir.BlockCreate2(inputs.types(), inputs.locations())
 		mlir.RegionAppendOwnedBlock(region, entryBlock)
+
 		ctx = newContextWithCurrentBlock(ctx)
 		setCurrentBlock(ctx, entryBlock)
 
@@ -154,7 +161,6 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 		if len(data.freeVars) > 0 {
 			// Update free variable pointers.
 			ctxValue := mlir.BlockGetArgument(entryBlock, 0)
-
 			for i, fv := range data.freeVars {
 				// Append the freevar's alloca operation to the current block.
 				allocaOp := mlir.ValueGetDefiningOperation(fv.ptr)
@@ -164,7 +170,7 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 				ptrType := mlir.GoCreatePointerType(fv.T)
 
 				// GEP into the context to derive the address of the free variable.
-				gepOp := mlir.GoCreateGepOperation2(b.ctx, ctxValue, fv.T, []any{0, i}, mlir.GoCreatePointerType(ptrType), loc)
+				gepOp := mlir.GoCreateGepOperation2(b.ctx, ctxValue, data.contextType, []any{0, i}, mlir.GoCreatePointerType(ptrType), loc)
 				appendOperation(ctx, gepOp)
 
 				// Load the address of the external local variable.
@@ -260,9 +266,6 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 		}
 	}
 
-	// Create the function operation.
-	state := mlir.OperationStateGet("go.func", loc)
-	mlir.OperationStateAddOwnedRegions(state, []mlir.Region{region})
 	visibility := "public"
 	if !data.isExported || data.body == nil {
 		// NOTE: Forward declarations MUST be private.
@@ -277,7 +280,7 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 
 	mlir.OperationStateAddAttributes(state, []mlir.NamedAttribute{
 		b.namedOf("function_type", mlir.TypeAttrGet(data.mlirType)),
-		b.namedOf("sym_name", mlir.StringAttrGet(b.config.Ctx, data.symbol)),
+		b.namedOf("sym_name", mlir.StringAttrGet(b.config.Ctx, data.linkname)),
 		b.namedOf("sym_visibility", mlir.StringAttrGet(b.config.Ctx, visibility)),
 		b.namedOf("llvm.linkage", mlir.GetLLVMLinkageAttr(b.ctx, linkage)),
 		b.namedOf("passthrough", b.strArrayAttr(data.attributes...)),
@@ -335,6 +338,7 @@ func (b *Builder) createFuncInstance(ctx context.Context, genericSignature *type
 	instanceNo := len(data.instances)
 	instanceData := &funcData{
 		symbol:         fmt.Sprintf("%s$instance_%d", data.symbol, instanceNo),
+		linkname:       fmt.Sprintf("%s$instance_%d", data.linkname, instanceNo),
 		locals:         data.locals,
 		scope:          data.scope,
 		funcType:       data.funcType,
