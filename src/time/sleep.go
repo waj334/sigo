@@ -25,8 +25,8 @@ var sleepQueueMutex sync.Mutex
 //sigo:export addsleep runtime.addsleep
 //sigo:linkage addsleep weak
 func addsleep(uint64) {
-	// Default this does nothing. When implemented, this function can be the entry point for setting up hardware timing
-	// mechanisms.
+	// By default, this does nothing. When implemented, this function can be the entry point for setting up hardware
+	// timing mechanisms.
 }
 
 func sleep(d uint64) {
