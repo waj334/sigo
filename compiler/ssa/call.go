@@ -333,7 +333,7 @@ func (b *Builder) emitGeneralCall(ctx context.Context, ident *ast.Ident, obj *ty
 		data := b.genericFuncs[callee]
 		instance := info.Instances[ident]
 		instanceData := b.createFuncInstance(ctx, signature, instance, data)
-		callee = instanceData.symbol
+		callee = instanceData.linkname
 		signature = instanceData.signature
 	}
 

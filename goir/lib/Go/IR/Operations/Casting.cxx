@@ -5,8 +5,23 @@
 #include "Go/IR/GoOps.h"
 #include "Go/Util.h"
 
-namespace mlir::go
+namespace mlir::go {
+
+OpFoldResult BitcastOp::fold(FoldAdaptor adaptor)
 {
+  if (adaptor.getValue())
+  {
+    return adaptor.getValue();
+  }
+
+  mlir::SmallVector<OpFoldResult, 4> results;
+  if (const auto definingOp = this->getValue().getDefiningOp(); failed(definingOp->fold(results)))
+  {
+    return {};
+  }
+  return results.front();
+}
+
 ::mlir::LogicalResult BitcastOp::verify()
 {
   return success();

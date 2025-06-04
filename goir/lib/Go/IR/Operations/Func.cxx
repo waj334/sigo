@@ -151,26 +151,20 @@ void FuncOp::print(::mlir::OpAsmPrinter& p)
   const auto fnT = this->getFunctionType();
   const auto resultTypes = fnT.getResults();
 
+  const auto linkageAttr =
+    mlir::dyn_cast_or_null<mlir::LLVM::LinkageAttr>(this->getOperation()->getAttr("llvm.linkage"));
+
   Region& body = this->getRegion();
-  const bool isExternal = body.empty();
+  const bool isExternal =
+    linkageAttr ? linkageAttr.getLinkage() == mlir::LLVM::Linkage::External : false;
+
   unsigned argIndex = 0;
 
   // Print optional receiver.
   if (fnT.getReceiver())
   {
-    p << " [";
-
-    if (isExternal)
-    {
-      p << this->getBody().getArgument(0);
-      argIndex++;
-    }
-    else
-    {
-      p << fnT.getReceiver();
-    }
-
-    p << "] ";
+    p << " [" << this->getBody().getArgument(0) << "] ";
+    argIndex++;
   }
   else
   {
@@ -224,7 +218,8 @@ LogicalResult FuncOp::verify()
   return success();
 }
 
-::mlir::LogicalResult FuncOp::verifyBody() {
+::mlir::LogicalResult FuncOp::verifyBody()
+{
   return success();
 }
 

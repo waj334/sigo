@@ -30,6 +30,7 @@ def BitcastOp : Go_Op<"bitcast", [Pure, NoMemoryEffect]> {
         $value attr-dict-with-keyword `:` type($value) `to` type($result)
     }];
     let hasVerifier = 1;
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//

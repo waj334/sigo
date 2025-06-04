@@ -1,7 +1,6 @@
 package runtime
 
 import (
-	"time"
 	"unsafe"
 )
 
@@ -9,12 +8,11 @@ type goroutineState uint8
 
 const (
 	goroutineNotStarted goroutineState = iota
-	goroutineIdle
-	goroutineSleep
+	goroutineReady
 	goroutineRunning
 	goroutinePanicking
 	goroutineRecovered
-	goroutineWaiting
+	goroutineParked
 )
 
 type _func struct {
@@ -23,15 +21,14 @@ type _func struct {
 }
 
 type goroutine struct {
-	stackTop      unsafe.Pointer
-	__func        _func
-	stack         unsafe.Pointer
-	next          *goroutine
-	prev          *goroutine
-	state         goroutineState
-	sleepDeadline uint64
-	deferStack    *deferStack
-	panicValue    any
+	stackTop   unsafe.Pointer
+	__func     _func
+	stack      unsafe.Pointer
+	next       *goroutine
+	prev       *goroutine
+	state      goroutineState
+	deferStack *deferStack
+	panicValue any
 }
 
 //sigo:extern goroutineStackSize runtime._goroutineStackSize
@@ -45,9 +42,9 @@ type goroutine struct {
 //go:export addGoroutine runtime.addGoroutine
 //go:export removeGoroutine runtime.removeGoroutine
 //go:export sleep runtime.sleep
-//go:export waitGoroutine runtime.waitGoroutine
-//go:export resumeGoroutine runtime.resumeGoroutine
-//go:export runningGoroutine runtime.runningGoroutine
+//go:export gopark runtime.gopark
+//go:export goresume runtime.goresume
+//go:export getg runtime.getg
 
 //sigo:required runScheduler
 
@@ -55,6 +52,7 @@ var (
 	headGoroutine      *goroutine = nil
 	lastGoroutine      *goroutine = nil
 	currentGoroutine   *goroutine = nil
+	targetGoroutine    *goroutine = nil
 	goroutineStackSize uintptr
 )
 
@@ -79,6 +77,11 @@ func runScheduler() bool {
 			// Initialize the current goroutine.
 			currentGoroutine = headGoroutine
 			lastGoroutine = nil
+		} else if targetGoroutine != nil {
+			// Switch to the target goroutine.
+			lastGoroutine = currentGoroutine
+			currentGoroutine = targetGoroutine
+			targetGoroutine = nil
 		} else {
 			if currentGoroutine.state == goroutinePanicking || currentGoroutine.state == goroutineRecovered {
 				// Do not allow any further context switches from this goroutine.
@@ -92,34 +95,25 @@ func runScheduler() bool {
 			lastGoroutine = currentGoroutine
 			nextGoroutine := lastGoroutine.next
 
+			start := nextGoroutine
 			for {
-				if nextGoroutine.state == goroutineSleep {
-					t := uint64(time.Now().UnixNano())
-					if t > nextGoroutine.sleepDeadline {
-						nextGoroutine.state = goroutineIdle
-						nextGoroutine.sleepDeadline = 0
-					} else if nextGoroutine == lastGoroutine && nextGoroutine.state == goroutineSleep {
-						// All goroutines are sleep. panic
-						panic("all goroutines are sleep")
-					} else {
-						// Skip sleeping goroutine
-						nextGoroutine = nextGoroutine.next
-						continue
-					}
-				} else if nextGoroutine.state == goroutineWaiting {
-					// skip waiting goroutines
-					nextGoroutine = nextGoroutine.next
-					continue
+				if nextGoroutine.state != goroutineParked {
+					currentGoroutine = nextGoroutine
+					break
 				}
-				currentGoroutine = nextGoroutine
-				break
+				nextGoroutine = nextGoroutine.next
+				if nextGoroutine == start {
+					// All goroutines are parked.
+					EnableInterrupts(state)
+					return false
+				}
 			}
 		}
 
 		if currentGoroutine != nil && currentGoroutine != lastGoroutine && currentGoroutine.state != goroutineRunning {
 			if lastGoroutine != nil && lastGoroutine.state == goroutineRunning {
-				// Transition the last goroutine to the idle state.
-				lastGoroutine.state = goroutineIdle
+				// Transition the last goroutine to the ready state.
+				lastGoroutine.state = goroutineReady
 			}
 
 			// Transition the new current goroutine to the running state.
@@ -195,11 +189,6 @@ func removeGoroutine(ptr unsafe.Pointer) {
 		g.prev.next = g.next
 		g.next.prev = g.prev
 
-		// Advance to the next goroutine.
-		if g == currentGoroutine {
-			currentGoroutine = g.prev
-		}
-
 		// If the goroutine being removed was the head goroutine, set the next goroutine as the new head goroutine.
 		if g == headGoroutine {
 			headGoroutine = g.next
@@ -219,38 +208,30 @@ func removeGoroutine(ptr unsafe.Pointer) {
 	EnableInterrupts(state)
 }
 
-func waitGoroutine(ptr unsafe.Pointer) {
+func gopark(ptr unsafe.Pointer) {
+	state := DisableInterrupts()
 	g := (*goroutine)(ptr)
-	if g.state != goroutineWaiting {
-		state := DisableInterrupts()
-		g.state = goroutineWaiting
-		EnableInterrupts(state)
-
-		// Schedule another goroutine to begin running.
+	g.state = goroutineParked
+	EnableInterrupts(state)
+	for g.state == goroutineParked {
 		schedulerPause()
 	}
 }
 
-func resumeGoroutine(ptr unsafe.Pointer) {
+func goresume(ptr unsafe.Pointer) {
+	state := DisableInterrupts()
 	g := (*goroutine)(ptr)
-	if g.state == goroutineWaiting {
-		state := DisableInterrupts()
-		g.state = goroutineIdle
+	if g.state == goroutineParked {
+		g.state = goroutineReady
 		EnableInterrupts(state)
+
+		targetGoroutine = g
+		schedulerPause()
+		return
 	}
+	EnableInterrupts(state)
 }
 
-func runningGoroutine() unsafe.Pointer {
+func getg() unsafe.Pointer {
 	return unsafe.Pointer(currentGoroutine)
-}
-
-func sleep(d uint64) {
-	if currentGoroutine == nil {
-		panic("sleep called from non-goroutine")
-	}
-	currentGoroutine.sleepDeadline = uint64(time.Now().UnixNano()) + d
-	currentGoroutine.state = goroutineSleep
-
-	// Schedule another goroutine to begin running.
-	schedulerPause()
 }
