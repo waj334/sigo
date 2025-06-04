@@ -244,8 +244,8 @@ func initgc() {
 
 //go:export alloc runtime.alloc
 func alloc(size uintptr) unsafe.Pointer {
-	state := DisableInterrupts()
 	gc.mutex.Lock()
+	state := DisableInterrupts()
 
 	allocSize := gcObjectSize + size
 

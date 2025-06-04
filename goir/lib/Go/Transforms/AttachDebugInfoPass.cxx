@@ -217,6 +217,12 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
       return m_typeMap[type];
     }
 
+    // Clean up name.
+    std::string _name = name.str();
+    stringReplaceAll(_name, ".", "_");
+    stringReplaceAll(_name, "/", "_");
+    stringReplaceAll(_name, "-", "_");
+
     LLVM::DITypeAttr result;
 
     const auto kind = GetGoTypeId(baseType(type));
@@ -227,10 +233,16 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
     {
       const auto underlyingType = getDITypeAttr(
         context, namedType.getUnderlying(), dataLayout, runtimeTypes, namedType.getName());
+
+      std::string alias = namedType.getName().str();
+      stringReplaceAll(alias, ".", "_");
+      stringReplaceAll(alias, "/", "_");
+      stringReplaceAll(alias, "-", "_");
+
       return LLVM::DIDerivedTypeAttr::get(
         context,
         llvm::dwarf::DW_TAG_typedef,
-        namedType.getName(),
+        mlir::StringAttr::get(context, alias),
         underlyingType,
         size,
         align,
@@ -357,7 +369,7 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
           recId,
           false,
           llvm::dwarf::DW_TAG_array_type,
-          StringAttr::get(context, name),
+          StringAttr::get(context, _name),
           nullptr,
           0, // LINE
           nullptr,
@@ -480,7 +492,7 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
         const uint64_t structSizeInBits = dataLayout.getTypeSizeInBits(structT);
 
         // Create the composite type.
-        const auto nameAttr = StringAttr::get(context, name);
+        const auto nameAttr = StringAttr::get(context, _name);
         result = LLVM::DICompositeTypeAttr::get(
           context,
           recId,

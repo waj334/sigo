@@ -97,6 +97,7 @@ struct GlobalConstantsPass
     // Create the global constant strings
     {
       mlir::OpBuilder::InsertionGuard guard(builder);
+      builder.setInsertionPointToStart(&module.getBodyRegion().front());
       for (const auto& [str, loc] : globalStrings)
       {
         const auto strHash = hash_value(llvm::StringRef(str));
