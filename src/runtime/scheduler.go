@@ -34,11 +34,11 @@ type goroutine struct {
 //sigo:extern goroutineStackSize runtime._goroutineStackSize
 //sigo:extern initGoroutine runtime.initGoroutine
 //sigo:extern alignStack runtime.alignStack
-//sigo:extern schedulerPause runtime.schedulerPause
+//sigo:extern gosched runtime.gosched
 
 //go:export lastGoroutine runtime.lastGoroutine
 //go:export currentGoroutine runtime.currentGoroutine
-//go:export runScheduler runtime.runScheduler
+//go:export schedule runtime.schedule
 //go:export addGoroutine runtime.addGoroutine
 //go:export removeGoroutine runtime.removeGoroutine
 //go:export sleep runtime.sleep
@@ -58,9 +58,9 @@ var (
 
 func initGoroutine(unsafe.Pointer)
 func alignStack(n uintptr) uintptr
-func schedulerPause()
+func gosched()
 
-func runScheduler() bool {
+func schedule() bool {
 	state := DisableInterrupts()
 
 	// Check for stack overflow on current goroutine.
@@ -214,7 +214,7 @@ func gopark(ptr unsafe.Pointer) {
 	g.state = goroutineParked
 	EnableInterrupts(state)
 	for g.state == goroutineParked {
-		schedulerPause()
+		gosched()
 	}
 }
 
@@ -226,7 +226,7 @@ func goresume(ptr unsafe.Pointer) {
 		EnableInterrupts(state)
 
 		targetGoroutine = g
-		schedulerPause()
+		gosched()
 		return
 	}
 	EnableInterrupts(state)

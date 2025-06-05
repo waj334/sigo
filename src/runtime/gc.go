@@ -109,9 +109,7 @@ func (gc *_gc) markRoots() {
 	for i := 0; i < gcMaxIterations && gc.currentAddress < gc.endAddress; i++ {
 		ptr := *(*unsafe.Pointer)(unsafe.Pointer(gc.currentAddress))
 		if obj := gc.findObject(uintptr(ptr)); obj != nil {
-			state := DisableInterrupts()
 			obj.color = gcGray
-			EnableInterrupts(state)
 		}
 		gc.currentAddress += gcWordSize
 	}
@@ -124,9 +122,7 @@ func (gc *_gc) markRoots() {
 func (gc *_gc) markGrayObjects() {
 	for i := 0; i < gcMaxIterations && gc.toScan != nil; i++ {
 		if gc.toScan.color == gcGray {
-			state := DisableInterrupts()
 			gc.toScan.color = gcBlack
-			EnableInterrupts(state)
 			gc.scanObject(gc.toScan)
 		}
 		gc.toScan = gc.toScan.next
@@ -167,6 +163,7 @@ func (gc *_gc) sweep() {
 	if gc.toScan == nil {
 		gc.phase = gcIdle
 	}
+
 	EnableInterrupts(state)
 }
 
@@ -190,9 +187,7 @@ func (gc *_gc) scanObject(obj *gcObject) {
 		childPtr := *(*unsafe.Pointer)(unsafe.Pointer(ptr))
 		if child := gc.findObject(uintptr(childPtr)); child != nil {
 			if child.color == gcWhite {
-				state := DisableInterrupts()
 				child.color = gcGray
-				EnableInterrupts(state)
 			}
 		}
 	}
@@ -244,8 +239,8 @@ func initgc() {
 
 //go:export alloc runtime.alloc
 func alloc(size uintptr) unsafe.Pointer {
-	gc.mutex.Lock()
-	state := DisableInterrupts()
+	criticalSection := sync.NewCriticalSection(&gc.mutex)
+	criticalSection.Begin()
 
 	allocSize := gcObjectSize + size
 
@@ -255,7 +250,6 @@ func alloc(size uintptr) unsafe.Pointer {
 		gc.fullGC()
 		ptr = malloc(allocSize)
 		if ptr == nil {
-			gc.mutex.Unlock()
 			abort()
 		}
 	}
@@ -272,8 +266,7 @@ func alloc(size uintptr) unsafe.Pointer {
 		gc.startMark()
 	}
 
-	gc.mutex.Unlock()
-	EnableInterrupts(state)
+	criticalSection.End()
 	return unsafe.Add(ptr, gcObjectSize)
 }
 
@@ -283,7 +276,7 @@ func gcmain() {
 		gc.mutex.Lock()
 		gc.iterate()
 		gc.mutex.Unlock()
-		schedulerPause()
+		gosched()
 	}
 }
 

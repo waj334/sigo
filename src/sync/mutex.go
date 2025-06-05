@@ -6,13 +6,13 @@ type Mutex struct {
 	state uint32
 }
 
-//sigo:extern schedulerPause runtime.schedulerPause
-func schedulerPause()
+//sigo:extern gosched runtime.gosched
+func gosched()
 
 func (m *Mutex) Lock() {
 	for !atomic.CompareAndSwapUint32(&m.state, 0, 1) {
 		// Yield to run a different goroutine.
-		schedulerPause()
+		gosched()
 	}
 }
 
