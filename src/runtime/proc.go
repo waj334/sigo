@@ -1,5 +1,5 @@
 package runtime
 
 func Gosched() {
-	schedulerPause()
+	gosched()
 }

@@ -90,7 +90,7 @@ func channelReceive(c _channel, block bool) (unsafe.Pointer, bool) {
 	if c.state == nil {
 		// Block indefinitely.
 		for {
-			schedulerPause()
+			gosched()
 		}
 	}
 
@@ -104,7 +104,7 @@ func _channelReceive(c _channel, block bool) (unsafe.Pointer, bool) {
 	if c.state == nil {
 		// Block indefinitely.
 		for {
-			schedulerPause()
+			gosched()
 		}
 	}
 
@@ -160,7 +160,7 @@ func channelRange(c _channel) (unsafe.Pointer, bool) {
 	if c.state == nil {
 		// Block indefinitely.
 		for {
-			schedulerPause()
+			gosched()
 		}
 	}
 
@@ -209,7 +209,7 @@ func channelSelect(chanArr *_channel, sendArr *bool, readyArr *int, count int, h
 		}
 
 		// If no cases are ready and there's no default case, yield to another goroutine.
-		schedulerPause()
+		gosched()
 	}
 
 	return -1
