@@ -94,20 +94,67 @@ struct HeapEscapePass : public PassWrapper<HeapEscapePass, OperationPass<mlir::g
               }
               return Result::DoesNotEscape;
             })
-          .Case([&](AddressOfOp addressOfOp)
-          {
+          .Case(
+            [&](AddressOfOp addressOfOp)
+            {
               if (const auto users = addressOfOp->getUsers();
                   std::distance(users.begin(), users.end()) == 1)
-            {
-              if (mlir::isa<mlir::go::InlineAsmOp>(*users.begin()))
               {
-                // Allow inline assembly to be nefarious if it is the only user.
-                return Result::DoesNotEscape;
+                if (mlir::isa<mlir::go::InlineAsmOp>(*users.begin()))
+                {
+                  // Allow inline assembly to be nefarious if it is the only user.
+                  return Result::DoesNotEscape;
+                }
               }
-            }
-            return Result::EscapesToHeap;
-          })
-          .Case([&](CallOp) { return Result::EscapesToHeap; })
+              return Result::EscapesToHeap;
+            })
+          .Case(
+            [&](CallOp callOp)
+            {
+              auto moduleOp = callOp->getParentOfType<mlir::ModuleOp>();
+              auto calleeFuncOp =
+                mlir::dyn_cast<mlir::go::FuncOp>(moduleOp.lookupSymbol(callOp.getCallee()));
+
+              // Check if our op is passed as the receiver
+              size_t argStart = 0;
+              if (
+                calleeFuncOp.getFunctionType().getReceiver() &&
+                callOp.getOperand(0).getDefiningOp() == op)
+              {
+                // Step into the callee and analyze how the receiver is used.
+                const auto entryBlock = &calleeFuncOp.front();
+                const auto receiverArg = entryBlock->getArgument(0);
+                DenseSet<Operation*> innerVisited;
+
+                // The next section shouldn't consider the receiver argument value.
+                argStart = 1;
+
+                // Detect direct storage into stack allocas.
+                for (Operation* user : receiverArg.getUsers())
+                {
+                  if (auto store = dyn_cast<StoreOp>(user))
+                  {
+                    if (store.getValue() == receiverArg)
+                    {
+                      if (auto alloca = dyn_cast<AllocaOp>(store.getAddr().getDefiningOp()))
+                      {
+                        return this->analyzeOperation(alloca, visited, true);
+                      }
+                    }
+                  }
+                }
+              }
+
+              // Check if the alloca is passed as an argument.
+              for (size_t index = argStart; index < callOp.getNumOperands(); ++index)
+              {
+                if (const auto operand = callOp.getOperand(index); operand.getDefiningOp() == op)
+                {
+                  return Result::EscapesToHeap;
+                }
+              }
+              return Result::DoesNotEscape;
+            })
           .Case([&](GetElementPointerOp gepOp)
                 { return this->analyzeOperation(gepOp.getValue().getDefiningOp(), visited); })
           .Case([&](InsertOp insertOp) { return this->analyzeOperation(insertOp, visited); })
@@ -127,6 +174,14 @@ struct HeapEscapePass : public PassWrapper<HeapEscapePass, OperationPass<mlir::g
           .Case(
             [&](StoreOp storeOp)
             {
+              // Is the value being stored a block argument?
+              if (!storeOp.getValue().getDefiningOp())
+              {
+                // This type of store does not escape since it is just setting up the local
+                // variables.
+                return this->analyzeOperation(storeOp.getAddr().getDefiningOp(), visited);
+              }
+
               // Evaluate whether the address being stored to will cause the value to escape the
               // current function.
               auto [escapes, baseAddrOp] = this->isEscapingAddress(storeOp.getAddr());
