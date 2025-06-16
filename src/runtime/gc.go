@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"sync"
+	"sync/atomic"
 	"unsafe"
 )
 
@@ -239,14 +240,25 @@ func initgc() {
 
 //go:export alloc runtime.alloc
 func alloc(size uintptr) unsafe.Pointer {
+	var ptr unsafe.Pointer
+
+	if gc.phase != gcIdle {
+		// No need to lock during the sweep phase.
+		return _alloc(size)
+	}
+
 	criticalSection := sync.NewCriticalSection(&gc.mutex)
 	criticalSection.Begin()
+	ptr = _alloc(size)
+	criticalSection.End()
+	return ptr
+}
 
+func _alloc(size uintptr) unsafe.Pointer {
 	allocSize := gcObjectSize + size
 
 	ptr := malloc(allocSize)
 	if ptr == nil {
-		// Attempt to reclaim memory now.
 		gc.fullGC()
 		ptr = malloc(allocSize)
 		if ptr == nil {
@@ -255,18 +267,25 @@ func alloc(size uintptr) unsafe.Pointer {
 	}
 
 	obj := (*gcObject)(ptr)
-	obj.next = gc.head
-	// NOTE: Objects are born black to prevent sweeping them early.
 	obj.color = gcBlack
 	obj.size = size
-	gc.head = obj
 
 	if gc.phase == gcIdle {
-		// Transition to mark phase.
 		gc.startMark()
 	}
 
-	criticalSection.End()
+	for {
+		head := gc.head
+		obj.next = head
+		if atomic.CompareAndSwapPointer(
+			(*unsafe.Pointer)(unsafe.Pointer(&gc.head)),
+			unsafe.Pointer(head),
+			unsafe.Pointer(obj),
+		) {
+			break
+		}
+	}
+
 	return unsafe.Add(ptr, gcObjectSize)
 }
 

@@ -79,6 +79,8 @@ extern "C"
 
   void mlirGoBlockDumpTail(MlirBlock block, int count);
 
+  void mlirGoMoveBlockAfter(const MlirBlock block, const MlirBlock after);
+
   enum MlirGoAsmConstraintDirection
   {
     In,

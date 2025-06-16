@@ -34,7 +34,6 @@
 -lMLIRCAPIConversion
 -lMLIRCAPIDebug
 -lMLIRCAPIFunc
--lMLIRCAPIIndex
 -lMLIRCAPIInterfaces
 -lMLIRCAPIIR
 -lMLIRCAPIIRDL
@@ -48,7 +47,6 @@
 -lMLIRCAPIRegisterEverything
 -lMLIRCAPISCF
 -lMLIRCAPIShape
--lMLIRCAPISMT
 -lMLIRCAPISparseTensor
 -lMLIRCAPITensor
 -lMLIRCAPITransformDialect
@@ -57,7 +55,6 @@
 -lMLIRCAPIVector
 -lMLIRCastInterfaces
 -lMLIRComplexDialect
--lMLIRComplexDivisionConversion
 -lMLIRComplexToLLVM
 -lMLIRComplexToStandard
 -lMLIRControlFlowDialect
@@ -77,7 +74,6 @@
 -lMLIRDLTIDialect
 -lMLIRDLTITransformOps
 -lMLIRExecutionEngineUtils
--lMLIRExportSMTLIB
 -lMLIRFromLLVMIRTranslationRegistration
 -lMLIRFuncAllExtensions
 -lMLIRFuncDialect
@@ -156,7 +152,6 @@
 -lMLIRShapeToStandard
 -lMLIRShardingInterface
 -lMLIRSideEffectInterfaces
--lMLIRSMT
 -lMLIRSparseTensorDialect
 -lMLIRSparseTensorPipelines
 -lMLIRSparseTensorTransformOps

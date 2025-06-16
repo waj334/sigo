@@ -465,7 +465,6 @@ func pkgCompilerRT(triplet string, features []string, floatEnabled bool) (Packag
 		"divti3.c",
 		"extendsfdf2.c",
 		"extendhfsf2.c",
-		"extendhfdf2.c",
 		"ffsdi2.c",
 		"ffssi2.c",
 		"ffsti2.c",

@@ -235,7 +235,8 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 				envPtr := resultOf(extractOp)
 
 				// Emit the indirect call.
-				op := mlir.GoCreateCallIndirectOperation(b.ctx, funcPtr, resultTypes, append(argValues, envPtr), location)
+				argValues = append([]mlir.Value{envPtr}, argValues...)
+				op := mlir.GoCreateCallIndirectOperation(b.ctx, funcPtr, resultTypes, argValues, location)
 				appendOperation(ctx, op)
 				return resultsOf(op)
 			default:

@@ -283,9 +283,12 @@ func (b *Builder) emitBlock(ctx context.Context, stmt *ast.BlockStmt) {
 
 func (b *Builder) emitStatements(ctx context.Context, list []ast.Stmt) {
 	for _, stmt := range list {
-		// Do not continue emission if the current block is already terminated.
-		if blockHasTerminator(currentBlock(ctx)) {
-			return
+		// NOTE: Labeled blocks are allowed to follow a terminator.
+		if _, ok := stmt.(*ast.LabeledStmt); !ok {
+			// Do not emit into the current block if it is already terminated.
+			if blockHasTerminator(currentBlock(ctx)) {
+				continue
+			}
 		}
 
 		b.emitStmt(ctx, stmt)
@@ -306,7 +309,12 @@ func (b *Builder) emitBranchStatement(ctx context.Context, stmt *ast.BranchStmt)
 		appendOperation(ctx, brOp)
 		return
 	case token.GOTO:
-		block := currentLabeledBlocks(ctx)[stmt.Label.Name]
+		labeledBlocks := currentLabeledBlocks(ctx)
+		block, ok := labeledBlocks[stmt.Label.Name]
+		if !ok {
+			panic("no block with label " + stmt.Label.Name + " found")
+		}
+
 		brOp := mlir.GoCreateBranchOperation(b.ctx, block, nil, b.location(stmt.Pos()))
 		appendOperation(ctx, brOp)
 		return
@@ -525,7 +533,8 @@ func (b *Builder) emitIndexExpr(ctx context.Context, expr *ast.IndexExpr) []mlir
 	location := b.location(expr.Pos())
 
 	// Perform the specific index operation based on the input value type.
-	switch b.typeOf(ctx, expr.X).(type) {
+	T := baseType(b.typeOf(ctx, expr.X))
+	switch T.(type) {
 	case *types.Array:
 		// Evaluate the address.
 		addr := b.emitIndexAddr(ctx, expr)
@@ -596,9 +605,9 @@ func (b *Builder) emitIndexAddr(ctx context.Context, expr *ast.IndexExpr) mlir.V
 	index := b.emitExpr(ctx, expr.Index)[0]
 
 	// Perform the specific index operation based on the input value type.
-	switch baseType := b.typeOf(ctx, expr.X).(type) {
+	switch underlyingType := baseType(b.typeOf(ctx, expr.X)).(type) {
 	case *types.Array:
-		arrayT := b.GetType(ctx, baseType)
+		arrayT := b.GetType(ctx, underlyingType)
 
 		// Get the address of the array.
 		ptr := b.addressOf(ctx, expr.X, location)
@@ -715,13 +724,25 @@ func (b *Builder) emitReturn(ctx context.Context, stmt *ast.ReturnStmt) {
 }
 
 func (b *Builder) emitLabeledStatement(ctx context.Context, stmt *ast.LabeledStmt) {
-	// All labeled blocks should have been created prior. Simply just branch to it.
-	block := currentLabeledBlocks(ctx)[stmt.Label.Name]
-	brOp := mlir.GoCreateBranchOperation(b.ctx, block, nil, b.location(stmt.Pos()))
-	appendOperation(ctx, brOp)
+	curr := currentBlock(ctx)
+
+	// All labeled blocks should have been created prior.
+	labeledBlocks := currentLabeledBlocks(ctx)
+	block, ok := labeledBlocks[stmt.Label.Name]
+	if !ok {
+		panic("no block with label " + stmt.Label.Name + " found")
+	}
+
+	if !blockHasTerminator(curr) {
+		// Branch to the labeled block.
+		brOp := mlir.GoCreateBranchOperation(b.ctx, block, nil, b.location(stmt.Pos()))
+		appendOperation(ctx, brOp)
+	}
+
+	// Move block after current block.
+	mlir.GoMoveBlockAfter(block, curr)
 
 	// Continue emission in the labeled block.
-	appendBlock(ctx, block)
 	setCurrentBlock(ctx, block)
 
 	// Emit the labeled statement's statement

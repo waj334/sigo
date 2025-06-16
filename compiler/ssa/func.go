@@ -233,14 +233,18 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 		}
 
 		// Create all labeled blocks before emitting the body since some statements might need to be able to look them
-		// up later. The ast.LabeledStmt will actually append them to the current region as the appropriate time.
+		// up later. The ast.LabeledStmt will actually append them to the current region at the appropriate time.
 		labeledBlocks := map[string]mlir.Block{}
-		for _, stmt := range data.body.List {
-			if stmt, ok := stmt.(*ast.LabeledStmt); ok {
+		ast.Inspect(data.body, func(node ast.Node) bool {
+			if stmt, ok := node.(*ast.LabeledStmt); ok {
 				labeledBlock := mlir.BlockCreate2(nil, nil)
 				labeledBlocks[stmt.Label.Name] = labeledBlock
+
+				// Append the block now.
+				appendBlock(ctx, labeledBlock)
 			}
-		}
+			return true
+		})
 		ctx = newContextWithLabeledBlocks(ctx, labeledBlocks)
 
 		// Fill the function body.
