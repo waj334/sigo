@@ -46,6 +46,21 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 		case *ast.SelectorExpr:
 			T := b.typeOf(ctx, Fun.X)
 			obj := b.objectOf(ctx, Fun.Sel)
+
+			if paramT, ok := T.(*types.TypeParam); ok {
+				data := currentFuncData(ctx)
+				namedT := data.typeMap[paramT.Index()].(*types.Named)
+				T = namedT
+
+				// Lookup the actual function being called.
+				for method := range namedT.Methods() {
+					if method.Name() == obj.Name() {
+						obj = method
+						break
+					}
+				}
+			}
+
 			switch T.Underlying().(type) {
 			case *types.Interface:
 				funcObj := obj.(*types.Func)
@@ -64,7 +79,7 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 					fobj := b.objectOf(ctx, expr.Fun)
 					signature = baseType(fobj.Type()).(*types.Signature)
 				}
-				//signature := obj.Type().(*types.Signature)
+
 				if signature.Recv() != nil {
 					recvType := signature.Recv().Type()
 					actualRecvType := b.typeOf(ctx, Fun.X)
@@ -331,7 +346,12 @@ func (b *Builder) emitGeneralCall(ctx context.Context, ident *ast.Ident, obj *ty
 	// Is the callee a generic function?
 	if signature.TypeParams().Len() > 0 || signature.RecvTypeParams().Len() > 0 {
 		// Need to instantiate this generic function.
-		data := b.genericFuncs[callee]
+		data, ok := b.genericFuncs[callee]
+		if !ok {
+			decl := b.ungeneratedFuncs[callee]
+			data = b.addFunctionDecl(ctx, decl)
+		}
+
 		instance := info.Instances[ident]
 		instanceData := b.createFuncInstance(ctx, signature, instance, data)
 		callee = instanceData.linkname

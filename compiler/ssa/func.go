@@ -323,8 +323,20 @@ func (b *Builder) createFuncInstance(ctx context.Context, genericSignature *type
 	// Map the receiver type parameter to the concrete receiver type.
 	if recv := genericSignature.Recv(); recv != nil {
 		signature = genericSignature
-		targs := signature.Recv().Type().(*types.Named).TypeArgs()
-		tparams := signature.Recv().Type().(*types.Named).TypeParams()
+
+		// Determine the underlying named type.
+		var namedType *types.Named
+		switch T := types.Unalias(signature.Recv().Type()).(type) {
+		case *types.Pointer:
+			namedType = T.Elem().(*types.Named)
+		case *types.Named:
+			namedType = T
+		default:
+			panic("unhandled")
+		}
+
+		targs := namedType.TypeArgs()
+		tparams := namedType.TypeParams()
 		for i := 0; i < targs.Len(); i++ {
 			typeMap[tparams.At(i).Index()] = targs.At(i)
 		}
@@ -361,8 +373,7 @@ func (b *Builder) createFuncInstance(ctx context.Context, genericSignature *type
 	}
 
 	// Create the instantiated function type.
-	ctx = newContextWithFuncData(ctx, instanceData)
-	instanceData.mlirType = b.createSignatureType(ctx, signature)
+	instanceData.mlirType = b.createSignatureType(newContextWithFuncData(ctx, instanceData), signature)
 
 	// Emit the instance.
 	b.emitFunc(ctx, instanceData)

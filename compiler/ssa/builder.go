@@ -576,7 +576,7 @@ func (b *Builder) addFunctionDecl(ctx context.Context, decl *ast.FuncDecl) *func
 		symbol = mangleSymbol("main.main")
 	}
 
-	signature := obj.Type().Underlying().(*types.Signature)
+	signature := baseType(obj.Type()).(*types.Signature)
 	symbolInfo := b.config.Program.Symbols.GetSymbolInfo(symbol)
 	actualSymbol := b.resolveSymbol(symbol)
 

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"go/ast"
 	"go/types"
-	"hash/fnv"
 
 	"pkg.si-go.dev/sigo/mlir"
 )
@@ -217,21 +216,16 @@ func (b *Builder) createNamedType(ctx context.Context, T *types.Named) mlir.Type
 	// Format the qualified identifier for this type with respect to its origin package.
 	identifier := qualifiedName(T.Obj().Name(), T.Obj().Pkg())
 
-	if T.TypeArgs().Len() > 0 {
-		hasher := fnv.New32()
-		hasher.Write([]byte(T.Obj().Name()))
-		for i := 0; i < T.TypeArgs().Len(); i++ {
-			hasher.Write([]byte(T.TypeArgs().At(i).String()))
-		}
-		hasher.Sum32()
-		identifier += fmt.Sprintf("$%X", hasher.Sum32())
-	}
-
 	// Add the identifier to the current context.
 	ctx = newContextWithIdentifier(ctx, identifier)
 
 	// Create the underlying type.
 	underlyingType := b.GetType(ctx, T.Underlying())
+	underlyingTypeHash := mlir.TypeHash(underlyingType)
+
+	if T.TypeArgs().Len() > 0 {
+		identifier += fmt.Sprintf("$%X", underlyingTypeHash)
+	}
 
 	// Collect method symbols.
 	entries := make([]mlir.Attribute, T.NumMethods())
