@@ -48,6 +48,8 @@ func (b *Builder) GetType(ctx context.Context, T types.Type) (result mlir.Type) 
 	}
 
 	switch T := T.(type) {
+	case *types.Alias:
+		return b.GetType(ctx, types.Unalias(T))
 	case *types.Array:
 		result = b.createArrayType(ctx, T)
 	case *types.Basic:
@@ -450,6 +452,7 @@ func baseStructTypeOf(T types.Type) *types.Struct {
 }
 
 func baseType(T types.Type) types.Type {
+	T = types.Unalias(T)
 	for {
 		if named, ok := T.(*types.Named); ok {
 			T = named.Underlying()

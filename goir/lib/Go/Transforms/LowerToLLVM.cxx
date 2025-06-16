@@ -1588,11 +1588,9 @@ struct GlobalCtorsOpLowering : ConvertOpToLLVMPattern<GlobalCtorsOp>
     OpAdaptor adaptor,
     ConversionPatternRewriter& rewriter) const override
   {
-    mlir::SmallVector<mlir::Attribute> data(
-      adaptor.getCtors().size(), mlir::LLVM::ZeroAttr::get(this->getContext()));
-    const auto dataAttr = mlir::ArrayAttr::get(this->getContext(), data);
     rewriter.replaceOpWithNewOp<mlir::LLVM::GlobalCtorsOp>(
-      op, adaptor.getCtors(), adaptor.getPriorities(), dataAttr);
+      op, adaptor.getCtors(), adaptor.getPriorities());
+
     return success();
   }
 };

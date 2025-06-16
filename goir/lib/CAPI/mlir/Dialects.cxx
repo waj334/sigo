@@ -461,6 +461,13 @@ void mlirGoBlockDumpTail(MlirBlock block, int count)
   }
 }
 
+void mlirGoMoveBlockAfter(const MlirBlock block, const MlirBlock after)
+{
+  const auto _block = unwrap(block);
+  const auto _after = unwrap(after);
+  _block->moveBefore( _after->getParent(), std::next(_after->getIterator()));
+}
+
 MlirAttribute mlirGoCreateAsmConstraintAttr(
   MlirContext context,
   MlirStringRef registerClass,

@@ -278,4 +278,5 @@ tablegen-csp: $(TABLEGEN_CSP_EXE)
     	dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(TABLEGEN_CSP_EXE) -- $(args); \
 	fi
 
-release: generate-csp sigo
+release: sigo
+generate-bindings: generate-mlir-bindings generate-llvm-bindings

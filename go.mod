@@ -1,8 +1,6 @@
 module pkg.si-go.dev/sigo
 
-go 1.22.0
-
-toolchain go1.23
+go 1.23.0
 
 require (
 	github.com/sirkon/go-format/v2 v2.0.2

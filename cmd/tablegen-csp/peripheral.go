@@ -132,11 +132,38 @@ func generateRegister(out io.Writer, register *tablegen.Record) (int, error) {
 		return 0, err
 	}
 
+	addr := fmt.Sprintf("(*%s)(r)", registerUnderlyingType)
+	load := fmt.Sprintf("volatile.LoadUint%d(%s)", registerWidth, addr)
+
 	if len(registerDescription) > 0 {
 		fmt.Fprintf(&builder, "// %s %s\n", registerTypeName, registerDescription)
 	}
 
 	fmt.Fprintf(&builder, "type %s %s\n\n", registerTypeName, registerUnderlyingType)
+
+	// Generate generic API.
+	fmt.Fprintf(&builder, "func (r *%s) Load() %s {\n", registerTypeName, registerUnderlyingType)
+	fmt.Fprintf(&builder, "return %s\n", load)
+	fmt.Fprintf(&builder, "}\n\n")
+
+	fmt.Fprintf(&builder, "func (r *%s) Store(value %s) {\n", registerTypeName, registerUnderlyingType)
+	fmt.Fprintf(&builder, "volatile.StoreUint%d(%s, value)\n", registerWidth, addr)
+	fmt.Fprintf(&builder, "}\n\n")
+
+	fmt.Fprintf(&builder, "func (r *%s) StoreBits(mask %s) {\n", registerTypeName, registerUnderlyingType)
+	fmt.Fprintf(&builder, "value := %s\n", load)
+	fmt.Fprintf(&builder, "volatile.StoreUint%d(%s, value|mask)\n", registerWidth, addr)
+	fmt.Fprintf(&builder, "}\n\n")
+
+	fmt.Fprintf(&builder, "func (r *%s) ClearBits(mask %s) {\n", registerTypeName, registerUnderlyingType)
+	fmt.Fprintf(&builder, "value := %s\n", load)
+	fmt.Fprintf(&builder, "volatile.StoreUint%d(%s, value &^ mask)\n", registerWidth, addr)
+	fmt.Fprintf(&builder, "}\n\n")
+
+	fmt.Fprintf(&builder, "func (r *%s) HasBits(mask %s) bool {\n", registerTypeName, registerUnderlyingType)
+	fmt.Fprintf(&builder, "value := %s\n", load)
+	fmt.Fprintf(&builder, "return value&mask != 0")
+	fmt.Fprintf(&builder, "}\n\n")
 
 	fields := register.GetValueAsListOfDefs(constRegisterFieldFields)
 	for _, field := range fields {
@@ -201,9 +228,6 @@ func generateRegister(out io.Writer, register *tablegen.Record) (int, error) {
 		fmt.Fprintf(&builder, "%s = %#x\n", constMask, mask)
 		fmt.Fprintf(&builder, ")\n\n")
 
-		addr := fmt.Sprintf("(*%s)(r)", registerUnderlyingType)
-		load := fmt.Sprintf("volatile.LoadUint%d(%s)", registerWidth, addr)
-
 		if strings.Contains(fieldAccess, "R") {
 			// Generate read API.
 			if len(fieldDescription) > 0 {
@@ -265,7 +289,7 @@ func formatRegisterTypeName(def *tablegen.Record) string {
 	registerName := def.GetValueAsString(constObjectFieldName)
 	registerName = formatCamelCase(strings.Split(registerName, "_")...)
 
-	return formatGoIdentifier(formatCamelCase("register", registerName, "Type"), false)
+	return formatGoIdentifier(formatCamelCase("register", registerName, "Type"), true)
 }
 
 func formatRegisterFieldEnumTypeName(register, field *tablegen.Record) string {

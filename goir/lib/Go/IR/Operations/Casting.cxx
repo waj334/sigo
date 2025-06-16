@@ -19,6 +19,11 @@ OpFoldResult BitcastOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
+
+  if (results.empty())
+  {
+    return {};
+  }
   return results.front();
 }
 
