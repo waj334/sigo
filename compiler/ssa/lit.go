@@ -436,50 +436,6 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 			anonData.freeVars = append(anonData.freeVars, fv)
 			anonData.locals[obj] = fv
 		}
-
-		/*
-			for scope.Parent() != nil {
-				scope = scope.Parent()
-				for _, name := range scope.Names() {
-					capturedObj := scope.Lookup(name)
-
-					// Skip variables declared after this anonymous function.
-					if capturedObj.Pos() > expr.Pos() {
-						continue
-					}
-
-					// Ignore some object types.
-					switch capturedObj.(type) {
-					case *types.PkgName:
-						continue
-					}
-
-					varType := b.GetStoredType(ctx, capturedObj.Type())
-					ptrType := mlir.GoCreatePointerType(varType)
-					allocType := mlir.GoCreatePointerType(ptrType)
-
-					// Create an allocation to hold the pointer to the variable in the outer scope.
-					// NOTE: The pointee should reside on the heap.
-					allocaOp := mlir.GoCreateAllocaOperation(b.ctx, allocType, ptrType, 1, false, b.location(scope.Pos()))
-
-					// Create a FreeVar.
-					fv := &FreeVar{
-						obj: capturedObj,
-						ptr: resultOf(allocaOp),
-						T:   varType,
-						b:   b,
-					}
-					captures[capturedObj] = fv
-					anonData.freeVars = append(anonData.freeVars, fv)
-					anonData.locals[capturedObj] = fv
-				}
-
-				if scope == enclosingData.scope {
-					// Stop examining parent scopes.
-					break
-				}
-			}
-		*/
 	}
 
 	// Get and return the address of the function.
