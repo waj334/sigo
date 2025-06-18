@@ -48,10 +48,12 @@ func (t Time) AddDate(years int, months int, days int) Time {
 }
 
 func (t Time) After(u Time) bool {
+	// TODO: Need to check for overflow and underflow.
 	return t.t > u.t
 }
 
 func (t Time) Before(u Time) bool {
+	// TODO: Need to check for overflow and underflow.
 	return t.t < u.t
 }
 

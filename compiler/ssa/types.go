@@ -433,6 +433,7 @@ func findStructField(name string, T *types.Struct) (int, *types.Var) {
 }
 
 func baseStructTypeOf(T types.Type) *types.Struct {
+	T = types.Unalias(T)
 	switch T := T.(type) {
 	case *types.Named:
 		return baseStructTypeOf(T.Underlying())

@@ -348,7 +348,10 @@ func (b *Builder) emitGeneralCall(ctx context.Context, ident *ast.Ident, obj *ty
 		// Need to instantiate this generic function.
 		data, ok := b.genericFuncs[callee]
 		if !ok {
+			b.funcDeclDataMutex.Lock()
 			decl := b.ungeneratedFuncs[callee]
+			b.funcDeclDataMutex.Unlock()
+
 			data = b.addFunctionDecl(ctx, decl)
 		}
 

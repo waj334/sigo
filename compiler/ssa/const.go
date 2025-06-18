@@ -114,6 +114,7 @@ func (b *Builder) emitConstantDecl(ctx context.Context, decl *ast.GenDecl) {
 }
 
 func (b *Builder) emitConstantValue(ctx context.Context, value constant.Value, T types.Type, location mlir.Location) mlir.Value {
+	T = types.Unalias(T)
 	constT, ok := baseType(T).(*types.Basic)
 	if !ok {
 		panic("invalid constant type")
