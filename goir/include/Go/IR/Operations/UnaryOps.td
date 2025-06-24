@@ -1,6 +1,7 @@
 #ifndef GO_OPERATIONS_UNARYOPS_TD
 #define GO_OPERATIONS_UNARYOPS_TD
 
+include "Go/IR/GoInterfaces.td"
 include "Go/IR/GoOpBase.td"
 include "Go/IR/GoEnums.td"
 include "Go/IR/GoTypes.td"
@@ -11,8 +12,19 @@ include "mlir/IR/BuiltinAttributeInterfaces.td"
 include "mlir/IR/OpBase.td"
 
 class Go_UnaryOp<string mnemonic, list<Trait> traits = []> :
-        Go_Op<mnemonic, traits # []> {
+        Go_Op<mnemonic, traits # [
+            DeclareOpInterfaceMethods<UntypedTypeResolverInterface, ["resolveOperandTypes", "resolveResultTypes"]>
+        ]> {
     let assemblyFormat = "$operand attr-dict `:` `(` type($operand) `,` type($result) `)`";
+    let extraClassDefinition = [{
+        ::mlir::SmallVector<::mlir::Type> $cppClass::resolveOperandTypes() {
+            return unOpResolveTypes(this);
+        }
+
+        ::mlir::SmallVector<::mlir::Type> $cppClass::resolveResultTypes() {
+            return unOpResolveTypes(this);
+        }
+    }];
 }
 
 class Go_BoolUnaryOp<string mnemonic, list<Trait> traits = []> :

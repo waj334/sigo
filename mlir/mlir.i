@@ -103,7 +103,7 @@
 %typemap(goin) (N_TYPE N_PARAM, MlirStringRef *ARR_PARAM) %{
     $result = make([]C.MlirStringRef, 0, len($input))
     for _, val := range $input {
-        strVal := C.mlirStringRefCreateFromCString(C.CString(val))
+        strVal := createStringRef(val)
         $result = append($result, strVal)
     }
 %}
@@ -144,7 +144,7 @@ MLIR_STRING_SLICE_TYPEMAP(nMethodNames, methodNames)
 %typemap(gotype) MlirStringRef "string"
 %typemap(imtype) MlirStringRef "C.MlirStringRef"
 %typemap(goin) MlirStringRef %{
-    $result = C.mlirStringRefCreateFromCString(C.CString($input))
+    $result = createStringRef($input)
 %}
 %typemap(goout) MlirStringRef %{
     $result = C.GoStringN($input.data, C.int($input.length))

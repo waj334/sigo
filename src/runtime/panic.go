@@ -15,6 +15,10 @@ func _panic(arg any) {
 		// Begin unwinding the stack.
 		longjmp(&currentGoroutine.deferStack.jb, 1)
 	}
+
+	for currentGoroutine.state == goroutinePanicking {
+		abort()
+	}
 }
 
 func _recover() any {

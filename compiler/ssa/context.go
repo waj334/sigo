@@ -3,6 +3,7 @@ package ssa
 import (
 	"context"
 	"go/types"
+
 	"pkg.si-go.dev/sigo/mlir"
 )
 
@@ -20,7 +21,8 @@ type (
 	globalKey           struct{}
 	jobQueueKey         struct{}
 	infoKey             struct{}
-	nameIndexKey        struct{}
+	typeMapKey          struct{}
+	scopeKey            struct{}
 )
 
 type blockWithArgs struct {
@@ -144,6 +146,7 @@ func currentLabeledBlocks(ctx context.Context) map[string]mlir.Block {
 	return nil
 }
 
+/*
 func newContextWithLhsList(ctx context.Context, lhs []types.Type) context.Context {
 	// Enforce that no type is untyped.
 	for _, T := range lhs {
@@ -171,6 +174,7 @@ func currentRhsIndex(ctx context.Context) int {
 	}
 	return -1
 }
+*/
 
 func newContextWithInfo(ctx context.Context, info *types.Info) context.Context {
 	return context.WithValue(ctx, infoKey{}, info)
@@ -183,13 +187,24 @@ func currentInfo(ctx context.Context) *types.Info {
 	return nil
 }
 
-func newContextWithNameIndex(ctx context.Context, index int) context.Context {
-	return context.WithValue(ctx, nameIndexKey{}, index)
+func newContextWithTypeMap(ctx context.Context, typeMap TypeParamMap) context.Context {
+	return context.WithValue(ctx, typeMapKey{}, typeMap)
 }
 
-func currentNameIndex(ctx context.Context) int {
-	if val := ctx.Value(nameIndexKey{}); val != nil {
-		return val.(int)
+func currentTypeMap(ctx context.Context) TypeParamMap {
+	if val := ctx.Value(typeMapKey{}); val != nil {
+		return val.(TypeParamMap)
 	}
-	return -1
+	return nil
+}
+
+func newContextWithScope(ctx context.Context, attribute mlir.Attribute) context.Context {
+	return context.WithValue(ctx, scopeKey{}, attribute)
+}
+
+func currentScope(ctx context.Context) mlir.Attribute {
+	if val := ctx.Value(scopeKey{}); val != nil {
+		return val.(mlir.Attribute)
+	}
+	return nil
 }

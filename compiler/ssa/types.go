@@ -12,11 +12,6 @@ import (
 type typeCacheNestedLockKey struct{}
 
 func (b *Builder) GetType(ctx context.Context, T types.Type) (result mlir.Type) {
-
-	if typeHasFlags(T, types.IsUntyped) {
-		panic("Untyped type not allowed")
-	}
-
 	// NOTE: The anonymous function usage below exists for making handling the read lock easier.
 	if func() bool {
 		// Lock the type cache for reading while it is accessed if no recursive lock is currently held.
@@ -78,16 +73,21 @@ func (b *Builder) GetType(ctx context.Context, T types.Type) (result mlir.Type) 
 		panic("unreachable")
 	case *types.TypeParam:
 		// Look up the instantiated type in the data of the current function.
-		data := currentFuncData(ctx)
+		typeMap := currentTypeMap(ctx)
+		if typeMap == nil {
+			panic("no type mapping exists in the current context")
+		}
 
-		// Lock the function data for reading while it is accessed below
-		data.mutex.RLock()
-		defer data.mutex.RUnlock()
+		concreteType := typeMap[T.Index()]
+		if concreteType == T {
+			panic("unreachable")
+		} else if concreteType == nil {
+			panic("no concrete type for type parameter could be determined")
+		}
 
-		// Skip the type cache by returning now.
-		return b.GetType(ctx, data.typeMap[T.Index()])
+		return b.GetType(ctx, concreteType)
 	default:
-		panic("unhandled type")
+		panic("unhandled type: ")
 	}
 
 	if result == nil {
@@ -144,6 +144,20 @@ func (b *Builder) createBasicType(T *types.Basic) mlir.Type {
 		return mlir.GoCreateStringType(b.ctx)
 	case types.UnsafePointer:
 		return mlir.GoCreateUnsafePointerType(b.ctx)
+	case types.UntypedBool:
+		return mlir.GoCreateUntypedType(b.ctx, mlir.GoBasicTypeBoolean)
+	case types.UntypedComplex:
+		return mlir.GoCreateUntypedType(b.ctx, mlir.GoBasicTypeComplex)
+	case types.UntypedFloat:
+		return mlir.GoCreateUntypedType(b.ctx, mlir.GoBasicTypeFloat)
+	case types.UntypedInt:
+		return mlir.GoCreateUntypedType(b.ctx, mlir.GoBasicTypeInteger)
+	case types.UntypedNil:
+		return mlir.GoCreateUntypedType(b.ctx, mlir.GoBasicTypeNil)
+	case types.UntypedRune:
+		return mlir.GoCreateUntypedType(b.ctx, mlir.GoBasicTypeRune)
+	case types.UntypedString:
+		return mlir.GoCreateUntypedType(b.ctx, mlir.GoBasicTypeString)
 	default:
 		panic(fmt.Sprintf("unknown basic type %+v", T.Kind()))
 	}
@@ -231,7 +245,7 @@ func (b *Builder) createNamedType(ctx context.Context, T *types.Named) mlir.Type
 	entries := make([]mlir.Attribute, T.NumMethods())
 	for i := 0; i < T.NumMethods(); i++ {
 		method := T.Method(i)
-		symbol := mangleSymbol(qualifiedFuncName(method))
+		symbol := qualifiedFuncName(method)
 		refAttr := mlir.FlatSymbolRefAttrGet(b.ctx, symbol)
 		entries[i] = refAttr
 	}
@@ -355,6 +369,7 @@ func (b *Builder) exprTypeHasFlags(ctx context.Context, expr ast.Expr, flags ...
 }
 
 func typeHasFlags(T types.Type, flags ...types.BasicInfo) bool {
+	T = types.Unalias(T)
 	_T, ok := T.(*types.Basic)
 	if !ok {
 		_T, ok = T.Underlying().(*types.Basic)
@@ -459,6 +474,17 @@ func baseType(T types.Type) types.Type {
 
 func (b *Builder) widthOf(T mlir.Type) int {
 	switch {
+	case mlir.GoTypeIsUntyped(T):
+		switch mlir.GoUntypedTypeGetHBasicKind(T) {
+		case mlir.GoBasicTypeComplex:
+			return 64
+		case mlir.GoBasicTypeFloat:
+			return 64
+		case mlir.GoBasicTypeInteger:
+			return int(b.config.Sizes.WordSize) * 8
+		default:
+			panic("invalid basic type")
+		}
 	case mlir.GoTypeIsInteger(T):
 		width := mlir.GoIntegerTypeGetWidth(T)
 		if width == 0 {
@@ -469,33 +495,44 @@ func (b *Builder) widthOf(T mlir.Type) int {
 		return 32
 	case mlir.TypeIsAF64(T):
 		return 64
+	case mlir.TypeIsAComplex(T):
+		return int(mlir.FloatTypeGetWidth(mlir.ComplexTypeGetElementType(T)))
 	default:
 		panic("unhandled")
 	}
 }
 
 func isSigned(T mlir.Type) bool {
+	if mlir.GoTypeIsUntyped(T) {
+		return true
+	}
+
 	if !mlir.GoTypeIsInteger(T) {
 		panic("invalid type")
 	}
+
 	return mlir.GoIntegerTypeIsSigned(T)
 }
 
 func isUnsigned(T mlir.Type) bool {
+	if mlir.GoTypeIsUntyped(T) {
+		return false
+	}
+
 	if !mlir.GoTypeIsInteger(T) {
 		panic("invalid type")
 	}
+
 	return mlir.GoIntegerTypeIsUnsigned(T)
 }
 
 func resolveType(ctx context.Context, T types.Type) types.Type {
-	if isUntyped(T) {
-		lhsTypes := currentLhsList(ctx)
-		index := currentRhsIndex(ctx)
-		if len(lhsTypes) > 0 {
-			T = lhsTypes[index]
-		} else {
-			T = types.Default(T)
+	if typeParam, ok := T.(*types.TypeParam); ok {
+		typeMap := currentTypeMap(ctx)
+		if typeMap != nil {
+			if resolvedT, ok := typeMap[typeParam.Index()]; ok {
+				return resolvedT
+			}
 		}
 	}
 	return T

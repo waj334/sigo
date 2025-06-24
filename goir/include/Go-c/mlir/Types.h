@@ -12,6 +12,10 @@ extern "C"
 {
 #endif
 
+  MlirType mlirGoCreateUntypedType(MlirContext context, enum mlirGoBasicType basicType);
+
+  enum mlirGoBasicType mlirGoUntypedTypeGetHBasicKind(MlirType type);
+
   MlirType mlirGoCreateNamedType(MlirType underlying, MlirStringRef name, MlirAttribute methods);
 
   MlirType mlirGoGetUnderlyingType(MlirType type);
@@ -88,6 +92,8 @@ extern "C"
   MlirType mlirGoCreateUintptrType(MlirContext ctx);
 
   bool mlirGoTypeIsInteger(MlirType type);
+
+  bool mlirGoTypeIsUntyped(MlirType type);
 
   bool mlirGoIntegerTypeIsSigned(MlirType type);
 

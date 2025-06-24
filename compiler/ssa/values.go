@@ -37,24 +37,36 @@ func (b *Builder) valueOf(ctx context.Context, node ast.Node) Value {
 		}
 
 		// Look up the value by object.
-		return b.lookupValue(obj)
+		return b.lookupValue(ctx, obj)
 	default:
 		return nil
 	}
 }
 
-func (b *Builder) lookupValue(obj types.Object) Value {
+func (b *Builder) lookupValue(ctx context.Context, obj types.Object) Value {
 	// Lock the value cache mutex for reading.
 	b.valueCacheMutex.RLock()
 	defer b.valueCacheMutex.RUnlock()
-	return b.valueCache[obj]
+	value, ok := b.valueCache[obj]
+	if ok {
+		return value
+	}
+
+	data := currentFuncData(ctx)
+	if data != nil {
+		data.mutex.RLock()
+		defer data.mutex.RUnlock()
+		return data.locals[obj]
+	}
+
+	return nil
 }
 
 func (b *Builder) emitLocalVar(ctx context.Context, obj types.Object, T mlir.Type, isArg bool) *LocalValue {
 	// Allocate memory for this local variable on the stack.
 	// NOTE: It may be determined later that this variable escapes to the heap and the following operation will be
 	//       replaced by a heap allocation.
-	location := b.location(obj.Pos())
+	location := b.location(ctx, obj.Pos())
 	ptrValue := b.emitNamedAlloca(ctx, obj.Name(), T, location)
 	op := mlir.ValueGetDefiningOperation(ptrValue)
 	if isArg {
@@ -65,17 +77,26 @@ func (b *Builder) emitLocalVar(ctx context.Context, obj types.Object, T mlir.Typ
 		ptr: ptrValue,
 		T:   T,
 		b:   b,
+		obj: obj,
 	}
 
-	b.valueCacheMutex.Lock()
-	defer b.valueCacheMutex.Unlock()
-	b.valueCache[obj] = value
+	data := currentFuncData(ctx)
+	if data == nil {
+		b.valueCacheMutex.Lock()
+		defer b.valueCacheMutex.Unlock()
+		b.valueCache[obj] = value
+	} else {
+		data.mutex.Lock()
+		data.locals[obj] = value
+		data.mutex.Unlock()
+	}
+
 	return value
 }
 
 func (b *Builder) emitGlobalVar(ctx context.Context, ident *ast.Ident) *GlobalValue {
 	obj := b.objectOf(ctx, ident).(*types.Var)
-	symbol := mangleSymbol(qualifiedName(obj.Name(), obj.Pkg()))
+	symbol := qualifiedName(obj.Name(), obj.Pkg())
 	info := b.config.Program.Symbols.GetSymbolInfo(symbol)
 	T := b.GetStoredType(ctx, obj.Type())
 
@@ -91,7 +112,7 @@ func (b *Builder) emitGlobalVar(ctx context.Context, ident *ast.Ident) *GlobalVa
 	}
 
 	// Fuse the location with the compile unit if applicable.
-	location := b.location(obj.Pos())
+	location := b.location(ctx, obj.Pos())
 	if file := b.config.Fset.File(obj.Pos()); file != nil {
 		if compileUnitAttr, ok := b.compileUnits[file]; ok {
 			location = mlir.LocationFusedGet(b.ctx, []mlir.Location{location}, compileUnitAttr)
@@ -199,8 +220,8 @@ func (b *Builder) emitConstInt(ctx context.Context, value int64, T mlir.Type, lo
 	return resultOf(op)
 }
 
-func (b *Builder) emitConstString(ctx context.Context, value string, location mlir.Location) mlir.Value {
-	op := mlir.GoCreateConstantOperation(b.ctx, mlir.StringAttrGet(b.ctx, value), nil, b.str, location)
+func (b *Builder) emitConstString(ctx context.Context, value string, T mlir.Type, location mlir.Location) mlir.Value {
+	op := mlir.GoCreateConstantOperation(b.ctx, mlir.StringAttrGet(b.ctx, value), nil, T, location)
 	appendOperation(ctx, op)
 	return resultOf(op)
 }
@@ -341,33 +362,4 @@ func (b *Builder) values(value ...mlir.Value) []mlir.Value {
 
 func (b *Builder) locations(locs ...mlir.Location) []mlir.Location {
 	return locs
-}
-
-func cacheLoad(ctx context.Context, obj types.Object, value mlir.Value) {
-	if data := currentFuncData(ctx); data != nil {
-		data.mutex.Lock()
-		defer data.mutex.Unlock()
-		if block := currentBlock(ctx); block != nil {
-			loadMap, ok := data.loads[block]
-			if !ok {
-				loadMap = make(map[types.Object]mlir.Value)
-				data.loads[block] = loadMap
-			}
-			loadMap[obj] = value
-		}
-	}
-}
-
-func lookUpLoad(ctx context.Context, obj types.Object) (mlir.Value, bool) {
-	if data := currentFuncData(ctx); data != nil {
-		data.mutex.Lock()
-		defer data.mutex.Unlock()
-		if block := currentBlock(ctx); block != nil {
-			if loadMap, ok := data.loads[block]; ok {
-				result, ok := loadMap[obj]
-				return result, ok
-			}
-		}
-	}
-	return nil, false
 }

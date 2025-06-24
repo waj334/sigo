@@ -4,8 +4,26 @@
 include "mlir/IR/OpBase.td"
 include "mlir/Interfaces/ControlFlowInterfaces.td"
 
-def RangeOpInterface : OpInterface<"RangeOpInterface"> {
+class Go_OpInterface<string name, list<Interface> baseInterfaces = []>
+        : OpInterface<name, baseInterfaces>
+{
     let cppNamespace = "::mlir::go";
+}
+
+class Go_NativeOpTrait<string name, list<Trait> traits = [],
+                        code extraOpDeclaration = [{}],
+                        code extraOpDefinition = [{}]> :
+                            NativeOpTrait<name, traits, extraOpDeclaration, extraOpDefinition> {
+    let cppNamespace = "::mlir::go";
+}
+
+class Go_TypeInterface<string name, list<Interface> baseInterfaces = []>
+        : TypeInterface<name, baseInterfaces>
+{
+    let cppNamespace = "::mlir::go";
+}
+
+def RangeOpInterface : Go_OpInterface<"RangeOpInterface"> {
     let description = [{
         Interface providing common methods for range operation.
     }];
@@ -54,8 +72,7 @@ def RangeOpInterface : OpInterface<"RangeOpInterface"> {
     */
 }
 
-def RuntimeTypeModuleOpInterface : OpInterface<"RuntimeTypeModuleOpInterface"> {
-    let cppNamespace = "::mlir::go";
+def RuntimeTypeModuleOpInterface : Go_OpInterface<"RuntimeTypeModuleOpInterface"> {
     let description = [{
         Module interface for retrieving registered types by name
     }];
@@ -79,8 +96,7 @@ def RuntimeTypeModuleOpInterface : OpInterface<"RuntimeTypeModuleOpInterface"> {
     }];
 }
 
-def RuntimeTypeInterface : TypeInterface<"RuntimeTypeInterface"> {
-    let cppNamespace = "::mlir::go";
+def RuntimeTypeInterface : Go_TypeInterface<"RuntimeTypeInterface"> {
     let description = [{
         Provides common functions for type that have runtime representations.
     }];
@@ -103,5 +119,21 @@ def RuntimeTypeInterface : TypeInterface<"RuntimeTypeInterface"> {
             }]>
     ];
 }
+
+def UntypedTypeResolverInterface : Go_OpInterface<"UntypedTypeResolverInterface"> {
+    let methods = [
+        InterfaceMethod<"Resolves any untyped types that exist in the operation's operands",
+                            "::mlir::SmallVector<::mlir::Type>", "resolveOperandTypes", (ins), [{}], [{
+            return ::mlir::go::defaultResolveOperandTypes($_op);
+        }]>,
+        InterfaceMethod<"Resolves any untyped types that exist in the operation's results",
+                            "::mlir::SmallVector<::mlir::Type>", "resolveResultTypes", (ins), [{}], [{
+            return ::mlir::go::defaultResolveResultTypes($_op);
+        }]>
+    ];
+}
+
+def HasCompatibleOperandsAndResultTypes : Go_NativeOpTrait<"HasCompatibleOperandsAndResultTypes">;
+def HasCompatibleOperandsTypes : Go_NativeOpTrait<"HasCompatibleOperandsTypes">;
 
 #endif // GO_INTERFACES_TD

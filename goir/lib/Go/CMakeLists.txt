@@ -20,7 +20,9 @@ add_mlir_dialect_library(GoIR
         IR/Types/Interface.cxx
         IR/Types/Pointer.cxx
         IR/Types/Struct.cxx
+        IR/Types/Untyped.cxx
         IR/GoDialect.cxx
+        IR/GoInterfaces.cxx
         IR/GoOps.cxx
         IR/StructBuilder.cxx
         Transforms/AttachDebugInfoPass.cxx
@@ -36,6 +38,7 @@ add_mlir_dialect_library(GoIR
         Transforms/PreprocessingPass.cxx
         Transforms/TypeConverter.cxx
         Transforms/TypeInfo.cxx
+        Transforms/ValueNormalizationPass.cxx
         Util.cxx
         ADDITIONAL_HEADER_DIRS
         ${PROJECT_SOURCE_DIR}/include/Go

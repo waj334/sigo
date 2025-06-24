@@ -76,7 +76,7 @@ func sliceCopy(dst, src _slice, elementType *_type) int {
 	}
 
 	// Copy N elements from the src into dst
-	memcpy(dst.array, src.array, uintptr(n)*uintptr(elementType.size))
+	memcpy(dst.array, src.array, uintptr(n)*elementType.size)
 
 	// Return the number elements copied
 	return n

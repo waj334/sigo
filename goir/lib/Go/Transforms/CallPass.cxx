@@ -185,283 +185,130 @@ struct CallPass : public mlir::PassWrapper<CallPass, mlir::OperationPass<mlir::M
     }
 
     auto typeConverter = mlir::go::LLVMTypeConverter(module, options);
-
     const auto ptrType = PointerType::get(context, std::nullopt);
-    // const auto interfaceType = typeConverter.lookupRuntimeType("interface");
     const auto funcType = typeConverter.lookupRuntimeType("func");
-
-    /*
-    auto createGeneralCallThunk =
-      [&](OpBuilder& builder, FunctionType fnT, Type argPackType) -> std::string
-    {
-      mlir::OpBuilder::InsertionGuard guard(builder);
-      builder.setInsertionPointToStart(module.getBody());
-
-      // Note: Since thunks can be reused for calls with matching signature, no fixed location for
-      // the resulting operations can be known.
-      const auto loc = UnknownLoc::get(context);
-
-      // Hash the call argument types.
-      llvm::hash_code argsHash{};
-      for (const auto& argType : fnT.getInputs())
-      {
-        // Hash the type's unique storage pointer value.
-        argsHash = llvm::hash_value(argType.getImpl());
-      }
-
-      // Integrate the call arguments hash into the thunk function symbol name.
-      std::string funcSymbolName = "thunk_func_" + std::to_string(argsHash);
-
-      // Look up the thunk symbol by hash value and create the function if it is not found in the
-      // cache.
-      if (const auto it = this->m_thunkSymbols.find(argsHash); it == this->m_thunkSymbols.end())
-      {
-        FunctionType signature = FunctionType::get(context, { ptrType }, fnT.getResults());
-
-        // Create a function operation for the thunk.
-        auto funcOp = builder.create<FuncOp>(loc, funcSymbolName, signature);
-        auto entryBlock = funcOp.addEntryBlock();
-
-        // Build the function body.
-        {
-          mlir::OpBuilder::InsertionGuard guard2(builder);
-          builder.setInsertionPointToStart(entryBlock);
-          Value argsPtr = entryBlock->getArgument(0);
-
-          // Unpack the callee function pointer.
-          Value funcPtr = builder.create<LoadOp>(loc, fnT, argsPtr, UnitAttr(), UnitAttr());
-
-          // Unpack the call arguments.
-          SmallVector<Value> callArgs(fnT.getNumInputs());
-          for (int32_t i = 0; i < static_cast<int32_t>(callArgs.size()); ++i)
-          {
-            const auto argType = fnT.getInput(i);
-            Value callArgPtr = builder.create<GetElementPointerOp>(
-              loc, ptrType, argsPtr, argPackType, ValueRange{}, SmallVector<int32_t>{ 0, i + 1 });
-            callArgs[i] = builder.create<LoadOp>(loc, argType, callArgPtr, UnitAttr(), UnitAttr());
-          }
-
-          // Call the function being wrapped.
-          ValueRange results =
-            builder.create<CallIndirectOp>(loc, fnT.getResults(), funcPtr, callArgs).getResults();
-
-          // Create return operation.
-          builder.create<func::ReturnOp>(loc, results);
-        }
-
-        // Cache the symbol.
-        this->m_thunkSymbols[argsHash] = funcSymbolName;
-      }
-      return funcSymbolName;
-    };
-
-    auto createInterfaceCallThunk = [&](
-                                      OpBuilder& builder,
-                                      FunctionType fnT,
-                                      Type interfaceType,
-                                      StringRef callee,
-                                      ValueRange args,
-                                      Type argPackType) -> std::string
-    {
-      mlir::OpBuilder::InsertionGuard guard(builder);
-      builder.setInsertionPointToStart(module.getBody());
-
-      // Note: Since thunks can be reused for calls with matching signature, no fixed location for
-      // the
-      //       resulting operations can be known.
-      const auto loc = UnknownLoc::get(context);
-
-      // Hash the call argument types.
-      // TODO: This can be optimized further by lowering directly to runtime calls so the runtime
-      //       representation of the interface type can be used.
-      llvm::hash_code argsHash{};
-      SmallVector<Type> argTypes = { interfaceType };
-      llvm::append_range(argTypes, args.getTypes());
-      for (const auto& argType : argTypes)
-      {
-        // Hash the type's unique storage pointer value.
-        argsHash = llvm::hash_value(argType.getImpl());
-      }
-
-      // Integrate the call arguments hash into the thunk function symbol name.
-      std::string funcSymbolName = "thunk_iface_func_" + std::to_string(argsHash);
-
-      // Look up the thunk symbol by hash value and create the function if it is not found in the
-      // cache.
-      if (const auto it = this->m_thunkSymbols.find(argsHash); it == this->m_thunkSymbols.end())
-      {
-        FunctionType signature = FunctionType::get(context, { ptrType }, fnT.getResults());
-
-        // Create a function operation for the thunk.
-        auto funcOp = builder.create<FuncOp>(loc, funcSymbolName, signature);
-        auto entryBlock = funcOp.addEntryBlock();
-
-        // Build the function body.
-        {
-          mlir::OpBuilder::InsertionGuard guard(builder);
-          builder.setInsertionPointToStart(entryBlock);
-          Value argsPtr = entryBlock->getArgument(0);
-
-          // Unpack the interface receiver value.
-          Value interfaceValue =
-            builder.create<LoadOp>(loc, interfaceType, argsPtr, UnitAttr(), UnitAttr());
-
-          // Unpack the call arguments.
-          SmallVector<Value> callArgs(fnT.getNumInputs());
-          for (int32_t i = 0; i < static_cast<int32_t>(args.size()); ++i)
-          {
-            const auto argType = fnT.getInput(i);
-            Value callArgPtr = builder.create<GetElementPointerOp>(
-              loc, ptrType, argsPtr, argPackType, ValueRange{}, SmallVector<int32_t>{ 0, i + 1 });
-            callArgs[i] = builder.create<LoadOp>(loc, argType, callArgPtr, UnitAttr(), UnitAttr());
-          }
-
-          // Call the function being wrapped.
-          auto results =
-            builder.create<InterfaceCallOp>(loc, TypeRange{}, callee, interfaceValue, callArgs)
-              .getResults();
-
-          // Create return operation.
-          builder.create<func::ReturnOp>(loc, results);
-        }
-
-        // Cache the symbol.
-        this->m_thunkSymbols[argsHash] = funcSymbolName;
-      }
-      return funcSymbolName;
-    };
-*/
 
     // Walk all defer calls and make sure all return paths in the parent function run defers before
     // exiting.
     mlir::DenseSet<mlir::Operation*> visitedFuncs;
     module.walk(
-      [&](DeferOp deferOp)
+      [&](mlir::Operation* op)
       {
-        const auto loc = deferOp.getLoc();
-        std::optional<std::pair<mlir::FlatSymbolRefAttr, mlir::Value>> wrappedCallee;
-        OpBuilder builder(deferOp);
-        if (mlir::go::isa<mlir::go::GoStructType>(deferOp.getCallee().getType()))
-        {
-          if (deferOp.getCalleeOperands().size() > 0)
-          {
-            // Create a call wrapper for any previously wrapped call that specifies more arguments.
-            wrappedCallee = createCallWrapper(
-              builder,
-              module,
-              deferOp.getLoc(),
-              deferOp.getCallee(),
-              deferOp.getCalleeOperands(),
-              deferOp.getMethodNameAttr());
-          }
-        }
-        else
-        {
-          wrappedCallee = createCallWrapper(
-            builder,
-            module,
-            deferOp.getLoc(),
-            deferOp.getCallee(),
-            deferOp.getCalleeOperands(),
-            deferOp.getMethodNameAttr());
-        }
+        mlir::TypeSwitch<mlir::Operation*>(op)
+          .Case([&](mlir::go::CallOp op) { this->processCallOp(module, op, ptrType, funcType); })
+          .Case(
+            [&](mlir::go::DeferOp op)
+            {
+              // Insert RunDefersOp while we know what this operation's parent is.
+              // NOTE: This MUST be done before the following call to processSpecialCallOp because
+              //       this defer operation may be removed by it.
+              auto parentOp = op->getParentOfType<mlir::go::FuncOp>();
+              parentOp.walk(
+                [&](mlir::go::ReturnOp returnOp)
+                {
+                  OpBuilder builder(returnOp);
+                  builder.create<mlir::go::RunDefersOp>(returnOp.getLoc());
+                });
 
-        if (wrappedCallee.has_value())
-        {
-          const auto symbol = wrappedCallee.value().first;
-          const auto args = wrappedCallee.value().second;
-
-          // Get the call wrapper function by symbol.
-          Value funcPtr = builder.create<AddressOfOp>(loc, ptrType, symbol);
-
-          // Allocate memory to store the call args.
-          Value argsPtr = builder.create<AllocaOp>(
-            loc, ptrType, args.getType(), 1, builder.getUnitAttr(), StringAttr());
-          builder.create<StoreOp>(loc, args, argsPtr, UnitAttr(), UnitAttr());
-
-          // Create the func value.
-          mlir::Value funcValue = builder.create<ZeroOp>(loc, funcType);
-          funcValue = builder.create<InsertOp>(loc, funcType, funcPtr, 0, funcValue);
-          funcValue = builder.create<InsertOp>(loc, funcType, argsPtr, 1, funcValue);
-
-          // Replace the defer op call.
-          const auto newDeferOp = builder.create<mlir::go::DeferOp>(
-            loc, funcValue, mlir::StringAttr(), mlir::ValueRange());
-          deferOp->erase();
-          deferOp = newDeferOp;
-        }
-
-        // Handle RunDefersOp insertion for the parent function.
-        auto parentFunction = deferOp->getParentOfType<mlir::go::FuncOp>();
-        if (visitedFuncs.contains(parentFunction))
-        {
-          return mlir::WalkResult::skip();
-        }
-
-        parentFunction.walk(
-          [&](mlir::go::ReturnOp returnOp)
-          {
-            OpBuilder builder(returnOp);
-            builder.create<mlir::go::RunDefersOp>(returnOp.getLoc());
-          });
-
-        return mlir::WalkResult::advance();
+              this->processSpecialCallOp(module, op, ptrType, funcType);
+            })
+          .Case([&](mlir::go::GoOp op)
+                { this->processSpecialCallOp(module, op, ptrType, funcType); });
       });
+  }
 
-    module.walk(
-      [&](GoOp goOp)
+  static void
+  processCallOp(mlir::ModuleOp module, mlir::go::CallOp op, mlir::Type ptrType, mlir::Type funcType)
+  {
+    OpBuilder builder(op);
+    const auto loc = op.getLoc();
+    auto callOperands = op.getCallOperands();
+
+    if (const auto callee = op.getCalleeValue(); callee && callee.getType() == funcType)
+    {
+      // Create an indirect call from the closure value.
+      const mlir::Value fptr = builder.create<mlir::go::ExtractOp>(loc, ptrType, 0, callee);
+      const mlir::Value args = builder.create<mlir::go::ExtractOp>(loc, ptrType, 1, callee);
+
+      mlir::SmallVector<mlir::Value> allArgs;
+      allArgs.push_back(args);
+      allArgs.insert(allArgs.end(), callOperands.begin(), callOperands.end());
+
+      auto callIndirectOp =
+        builder.create<mlir::go::CallIndirectOp>(loc, op.getResultTypes(), fptr, allArgs);
+      op->replaceAllUsesWith(callIndirectOp);
+      op->erase();
+    }
+  }
+
+  template<typename T>
+  void processSpecialCallOp(mlir::ModuleOp module, T op, mlir::Type ptrType, mlir::Type funcType)
+  {
+    const auto loc = op.getLoc();
+    std::optional<std::pair<mlir::FlatSymbolRefAttr, mlir::Value>> wrappedCallee;
+    OpBuilder builder(op);
+    mlir::go::FunctionType signature;
+    if (op.getSymName())
+    {
+      auto funcOp = mlir::cast<mlir::go::FuncOp>(module.lookupSymbol(*op.getSymName()));
+      signature = funcOp.getFunctionType();
+      const auto fptrT = mlir::go::PointerType::get(module->getContext(), signature);
+      const mlir::Value fptr = builder.create<AddressOfOp>(loc, fptrT, *op.getSymName());
+      wrappedCallee = createCallWrapper(builder, module, loc, fptr, op.getCalleeOperands());
+    }
+    else if (op.getCalleeValue())
+    {
+      signature = mlir::cast<mlir::go::FunctionType>(*op.getSignature());
+      if (op.getCalleeOperands().size() > 0)
       {
-        const auto loc = goOp.getLoc();
-        std::optional<std::pair<mlir::FlatSymbolRefAttr, mlir::Value>> wrappedCallee;
-        OpBuilder builder(goOp);
-        if (mlir::go::isa<mlir::go::GoStructType>(goOp.getCallee().getType()))
-        {
-          if (goOp.getCalleeOperands().size() > 0)
-          {
-            // Create a call wrapper for any previously wrapped call that specifies more arguments.
-            wrappedCallee = createCallWrapper(
-              builder,
-              module,
-              goOp.getLoc(),
-              goOp.getCallee(),
-              goOp.getCalleeOperands(),
-              goOp.getMethodNameAttr());
-          }
-        }
-        else
-        {
-          wrappedCallee = createCallWrapper(
-            builder,
-            module,
-            goOp.getLoc(),
-            goOp.getCallee(),
-            goOp.getCalleeOperands(),
-            goOp.getMethodNameAttr());
-        }
+        // Create a call wrapper for any previously wrapped call that specifies more arguments.
+        wrappedCallee = createCallWrapper(
+          builder, module, op.getLoc(), op.getCalleeValue(), op.getCalleeOperands());
+      }
+    }
+    else if (op.getIfaceValue())
+    {
+      wrappedCallee = createCallWrapper(
+        builder,
+        module,
+        op.getLoc(),
+        op.getIfaceValue(),
+        op.getCalleeOperands(),
+        op.getMethodNameAttr());
+      const auto ifaceType = mlir::go::cast<mlir::go::InterfaceType>(op.getIfaceValue().getType());
+      signature =
+        mlir::cast<mlir::go::FunctionType>(ifaceType.getMethods().at(op.getMethodName()->str()));
+    }
+    else
+    {
+      assert(false && "unhandled");
+    }
 
-        if (wrappedCallee.has_value())
-        {
-          const auto symbol = wrappedCallee.value().first;
-          const auto args = wrappedCallee.value().second;
+    assert(signature && "signature is nullptr");
 
-          // Get the call wrapper function by symbol.
-          Value funcPtr = builder.create<AddressOfOp>(loc, ptrType, symbol);
+    if (wrappedCallee.has_value())
+    {
+      const auto symbol = wrappedCallee.value().first;
+      const auto args = wrappedCallee.value().second;
 
-          // Allocate memory to store the call args.
-          Value argsPtr = builder.create<AllocaOp>(
-            loc, ptrType, args.getType(), 1, builder.getUnitAttr(), StringAttr());
-          builder.create<StoreOp>(loc, args, argsPtr, UnitAttr(), UnitAttr());
+      // Get the call wrapper function by symbol.
+      Value funcPtr = builder.create<AddressOfOp>(loc, ptrType, symbol);
 
-          // Create the func value.
-          mlir::Value funcValue = builder.create<ZeroOp>(loc, funcType);
-          funcValue = builder.create<InsertOp>(loc, funcType, funcPtr, 0, funcValue);
-          funcValue = builder.create<InsertOp>(loc, funcType, argsPtr, 1, funcValue);
+      // Allocate memory to store the call args.
+      Value argsPtr = builder.create<AllocaOp>(
+        loc, ptrType, args.getType(), 1, builder.getUnitAttr(), StringAttr());
+      builder.create<StoreOp>(loc, args, argsPtr, UnitAttr(), UnitAttr());
 
-          // Replace the defer op call.
-          builder.create<mlir::go::GoOp>(loc, funcValue, mlir::StringAttr(), mlir::ValueRange());
-          goOp->erase();
-        }
-      });
+      // Create the func value.
+      mlir::Value funcValue = builder.create<ZeroOp>(loc, funcType);
+      funcValue = builder.create<InsertOp>(loc, funcType, funcPtr, 0, funcValue);
+      funcValue = builder.create<InsertOp>(loc, funcType, argsPtr, 1, funcValue);
+
+      // Replace the defer op call.
+      const auto signatureAttr = mlir::TypeAttr::get(signature);
+      builder.create<T>(loc, signatureAttr, funcValue);
+      op->erase();
+    }
   }
 };
 

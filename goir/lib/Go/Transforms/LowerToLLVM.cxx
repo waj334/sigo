@@ -5,7 +5,6 @@
 #include <mlir/Conversion/LLVMCommon/Pattern.h>
 #include <mlir/Dialect/DLTI/DLTI.h>
 #include <mlir/Dialect/DLTI/Traits.h>
-#include <mlir/Dialect/LLVMIR/NVVMOpsEnums.h.inc>
 #include <mlir/IR/BuiltinTypes.h>
 #include <mlir/IR/IRMapping.h>
 
@@ -1464,14 +1463,8 @@ struct DeferOpLowering : ConvertOpToLLVMPattern<DeferOp>
     OpBuilder::InsertionGuard guard(rewriter);
     const Location loc = op.getLoc();
 
-    mlir::Value fnValue =
-      llvm::TypeSwitch<mlir::Type, mlir::Value>(mlir::go::baseType(op.getCallee().getType()))
-        .Case([&](mlir::go::GoStructType) -> mlir::Value { return adaptor.getCallee(); });
+    const auto fnValue = adaptor.getCalleeValue();
     assert(fnValue && "func value is invalid");
-
-    // Locate the head of the defer frame list for this function.
-    //  mlir::Value deferStackPtrValue =
-    //    locateOrCreateDeferStack(op, this->getTypeConverter(), rewriter);
 
     mlir::Value deferStackPtrValue;
     op->getParentOp()->walk(
@@ -1605,9 +1598,7 @@ struct GoOpLowering : ConvertOpToLLVMPattern<GoOp>
     OpBuilder::InsertionGuard guard(rewriter);
     const mlir::Location loc = op.getLoc();
 
-    mlir::Value fnValue =
-      llvm::TypeSwitch<mlir::Type, mlir::Value>(mlir::go::baseType(op.getCallee().getType()))
-        .Case([&](mlir::go::GoStructType) -> mlir::Value { return adaptor.getCallee(); });
+    const auto fnValue = adaptor.getCalleeValue();
     assert(fnValue && "func value is invalid");
 
     // Create the runtime call to push the defer frame to the defer stack
@@ -2660,28 +2651,7 @@ struct UnrealizedConversionCastOpLowering : ConvertOpToLLVMPattern<mlir::Unreali
     OpAdaptor adaptor,
     ConversionPatternRewriter& rewriter) const override
   {
-    /*
-    const auto inputType = op.getInputs()[0].getType();
-    for (auto user : op->getUsers())
-    {
-      if (mlir::isa<mlir::UnrealizedConversionCastOp>(user))
-      {
-        const auto userResultType = user->getResult(0).getType();
-        inputType.dump();
-        userResultType.dump();
-        if (userResultType == inputType)
-        {
-          // Replace the user.
-          rewriter.replaceOp(user, op.getInputs()[0]);
-        }
-      }
-    }
-    // Erase this operation.
-    rewriter.eraseOp(op);
-    */
-
     rewriter.replaceOp(op, op.getInputs());
-
     return success();
   }
 };

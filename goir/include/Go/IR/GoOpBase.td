@@ -8,6 +8,6 @@ include "mlir/IR/OpBase.td"
 include "mlir/Interfaces/SideEffectInterfaces.td"
 
 class Go_Op<string mnemonic, list<Trait> traits = []> :
-    Op<Go_Dialect, mnemonic, traits>;
+    Op<Go_Dialect, mnemonic, traits # [ DeclareOpInterfaceMethods<UntypedTypeResolverInterface> ]>;
 
 #endif // GO_OP_BASE_TD

@@ -47,91 +47,115 @@ std::optional<resultT> getOrFold(opT op, adaptorT adaptor, const size_t index)
 ::mlir::LogicalResult DeferOp::verify()
 {
   FunctionType Fn;
-  size_t offset = 0;
 
-  auto result =
-    llvm::TypeSwitch<mlir::Type, LogicalResult>(baseType(this->getCallee().getType()))
-      .Case<FunctionType>(
-        [&](auto T) -> LogicalResult
-        {
-          if (this->getMethodNameAttr())
-          {
-            return this->emitOpError()
-              << "a method can only be specified if the callee is an interface";
-          }
+  // Validate attribute combinations.
+  const bool hasIface = !!this->getIfaceValue();
+  const bool hasSym = this->getSymName().has_value();
+  const bool hasCallee = !!this->getCalleeValue();
 
-          Fn = T;
-          return success();
-        })
-      .Case<InterfaceType>(
-        [&](InterfaceType T) -> LogicalResult
-        {
-          if (!this->getMethodNameAttr())
-          {
-            return this->emitOpError()
-              << "a method must be specified if the callee is an interface";
-          }
-
-          auto methods = T.getMethods();
-          if (auto it = methods.find(this->getMethodNameAttr().str()); it != methods.end())
-          {
-            Fn = mlir::cast<FunctionType>(it->second);
-
-            // Skip the receiver value.
-            offset = 1;
-
-            return success();
-          }
-          return this->emitOpError() << "interface has no method " << this->getMethodNameAttr();
-        })
-      .Case(
-        [&](PointerType T) -> LogicalResult
-        {
-          if (auto elementType = T.getElementType(); elementType.has_value())
-          {
-            // Must be a pointer to a function.
-            if (mlir::go::isa<mlir::go::FunctionType>(*elementType))
-            {
-              Fn = mlir::go::dyn_cast<mlir::go::FunctionType>(*elementType);
-              return success();
-            }
-          }
-          return this->emitOpError() << "pointer must be to a function. got " << T;
-        })
-      .Case(
-        [&](GoStructType) -> LogicalResult
-        {
-          // The struct must be the "func" struct type.
-          auto namedType = mlir::dyn_cast<NamedType>(this->getCallee().getType());
-          if (namedType && namedType.getName() == "runtime._func")
-          {
-            return success();
-          }
-          return this->emitOpError()
-            << "expected \"runtime._func\" struct type, but got " << namedType;
-        })
-      .Default([&](auto T) { return this->emitOpError() << "unsupported callee type " << T; });
-
-  if (failed(result))
+  const int calleeCount =
+    static_cast<int>(hasIface) + static_cast<int>(hasSym) + static_cast<int>(hasCallee);
+  if (calleeCount != 1)
   {
-    return result;
+    return this->emitOpError()
+      << "must have exactly one of callee_value, iface_value, or sym_name set";
   }
 
-  if (Fn)
+  if (hasSym && (hasIface || hasCallee))
   {
-    // Assert args actually match the function operand's signature
-    if (this->getCalleeOperands().size() != Fn.getNumInputs())
+    return this->emitOpError()
+      << "sym_name cannot be specified together with callee_value or iface_value";
+  }
+
+  if (hasIface && !this->getMethodName())
+  {
+    return this->emitOpError() << "method_name must be specified when iface_value is used";
+  }
+
+  if (hasIface)
+  {
+    auto ifaceType = mlir::go::dyn_cast<InterfaceType>(this->getIfaceValue().getType());
+    if (!ifaceType)
     {
-      return this->emitOpError() << "number of operands does not match function signature";
+      return this->emitOpError() << "iface_value must have an interface type";
     }
 
-    // Check each type to ensure that they match the function signature
-    for (size_t i = offset; i < Fn.getNumInputs(); i++)
+    auto methods = ifaceType.getMethods();
+    auto it = methods.find(this->getMethodNameAttr().str());
+    if (it == methods.end())
     {
-      if (Fn.getInput(i) != this->getCalleeOperands()[i].getType())
-      {
-        return this->emitOpError() << "operand type " << i << " does not match signature";
-      }
+      return this->emitOpError() << "method \"" << this->getMethodNameAttr()
+                                 << "\" not found in interface";
+    }
+
+    Fn = mlir::cast<mlir::go::FunctionType>(it->second);
+  }
+
+  if (hasSym)
+  {
+    auto moduleOp = this->getOperation()->getParentOfType<mlir::ModuleOp>();
+    auto funcOp = moduleOp.lookupSymbol(*this->getSymName());
+    if (!funcOp)
+    {
+      return this->emitOpError() << "callee with symbol \"" << *this->getSymName()
+                                 << "\" not found in module";
+    }
+
+    // TODO: GoOp is lowered in a later LLVM lowering pass. So, the following check will fail when
+    //       functions are lowered to func.func.
+
+    auto goFuncOp = mlir::dyn_cast<mlir::go::FuncOp>(funcOp);
+    if (!goFuncOp)
+    {
+      // TODO: For now, no further verification can take place.
+      return success();
+
+      // return this->emitOpError() << "callee symbol must reference a mlir::go::FuncOp, but got "
+      //                            << funcOp;
+    }
+
+    Fn = mlir::go::dyn_cast<mlir::go::FunctionType>(goFuncOp.getFunctionType());
+  }
+
+  if (hasCallee)
+  {
+    // TODO: support passing a signature with the callee value.
+    // Skipping function signature validation for now.
+    return success();
+  }
+
+  // Validate operands against function signature.
+  const auto numOperands = this->getCalleeOperands().size();
+  const auto expectedNumArgs =
+    Fn.hasReceiver() ? (hasSym ? Fn.getNumInputs() + 1 : Fn.getNumInputs()) : Fn.getNumInputs();
+  if (numOperands != expectedNumArgs)
+  {
+    return this->emitOpError() << "expected " << expectedNumArgs
+                               << " operands for function call, but got " << numOperands;
+  }
+
+  // Validate receiver type.
+  size_t operandIdx = 0;
+  if (Fn.hasReceiver())
+  {
+    auto got = this->getCalleeOperands()[0].getType();
+    auto expected = Fn.getReceiver();
+    if (got != expected)
+    {
+      return this->emitOpError() << "expected receiver type " << expected << ", but got " << got;
+    }
+    operandIdx = 1;
+  }
+
+  // Validate parameter types.
+  for (size_t i = 0; i < Fn.getNumInputs(); ++i, ++operandIdx)
+  {
+    auto got = this->getCalleeOperands()[operandIdx].getType();
+    auto expected = Fn.getInput(i);
+    if (got != expected)
+    {
+      return this->emitOpError() << "expected type " << expected << " for parameter " << i
+                                 << ", but got " << got;
     }
   }
   return success();
@@ -140,91 +164,115 @@ std::optional<resultT> getOrFold(opT op, adaptorT adaptor, const size_t index)
 ::mlir::LogicalResult GoOp::verify()
 {
   FunctionType Fn;
-  size_t offset = 0;
 
-  auto result =
-    llvm::TypeSwitch<mlir::Type, LogicalResult>(baseType(this->getCallee().getType()))
-      .Case(
-        [&](FunctionType T) -> LogicalResult
-        {
-          if (this->getMethodNameAttr())
-          {
-            return this->emitOpError()
-              << "a method can only be specified if the callee is an interface";
-          }
+  // Validate attribute combinations.
+  const bool hasIface = !!this->getIfaceValue();
+  const bool hasSym = this->getSymName().has_value();
+  const bool hasCallee = !!this->getCalleeValue();
 
-          Fn = T;
-          return success();
-        })
-      .Case(
-        [&](InterfaceType T) -> LogicalResult
-        {
-          if (!this->getMethodNameAttr())
-          {
-            return this->emitOpError()
-              << "a method must be specified if the callee is an interface";
-          }
-
-          auto methods = T.getMethods();
-          if (auto it = methods.find(this->getMethodNameAttr().str()); it != methods.end())
-          {
-            Fn = mlir::cast<FunctionType>(it->second);
-
-            // Skip the receiver value.
-            offset = 1;
-
-            return success();
-          }
-          return this->emitOpError() << "interface has no method " << this->getMethodNameAttr();
-        })
-      .Case(
-        [&](PointerType T) -> LogicalResult
-        {
-          if (auto elementType = T.getElementType())
-          {
-            // Must be a pointer to a function.
-            if (mlir::go::isa<FunctionType>(*elementType))
-            {
-              Fn = mlir::go::dyn_cast<mlir::go::FunctionType>(*elementType);
-              return success();
-            }
-          }
-          return this->emitOpError() << "pointer must be to a function. got " << T;
-        })
-      .Case(
-        [&](GoStructType) -> LogicalResult
-        {
-          // The struct must be the "func" struct type.
-          auto namedType = mlir::dyn_cast<NamedType>(this->getCallee().getType());
-          if (namedType && namedType.getName() == runtimeFuncTypeName)
-          {
-            return success();
-          }
-          return this->emitOpError()
-            << "expected \"" << runtimeFuncTypeName << "\" struct type, but got " << namedType;
-        })
-      .Default([&](auto T) { return this->emitOpError() << "unsupported callee type " << T; });
-
-  if (failed(result))
+  const int calleeCount =
+    static_cast<int>(hasIface) + static_cast<int>(hasSym) + static_cast<int>(hasCallee);
+  if (calleeCount != 1)
   {
-    return result;
+    return this->emitOpError()
+      << "must have exactly one of callee_value, iface_value, or sym_name set";
   }
 
-  if (Fn)
+  if (hasSym && (hasIface || hasCallee))
   {
-    // Assert args actually match the function operand's signature
-    if (this->getCalleeOperands().size() != Fn.getNumInputs())
+    return this->emitOpError()
+      << "sym_name cannot be specified together with callee_value or iface_value";
+  }
+
+  if (hasIface && !this->getMethodName())
+  {
+    return this->emitOpError() << "method_name must be specified when iface_value is used";
+  }
+
+  if (hasIface)
+  {
+    auto ifaceType = mlir::go::dyn_cast<InterfaceType>(this->getIfaceValue().getType());
+    if (!ifaceType)
     {
-      return this->emitOpError() << "number of operands does not match function signature";
+      return this->emitOpError() << "iface_value must have an interface type";
     }
 
-    // Check each type to ensure that they match the function signature
-    for (size_t i = offset; i < Fn.getNumInputs(); i++)
+    auto methods = ifaceType.getMethods();
+    auto it = methods.find(this->getMethodNameAttr().str());
+    if (it == methods.end())
     {
-      if (Fn.getInput(i) != this->getCalleeOperands()[i].getType())
-      {
-        return this->emitOpError() << "operand type " << i << " does not match signature";
-      }
+      return this->emitOpError() << "method \"" << this->getMethodNameAttr()
+                                 << "\" not found in interface";
+    }
+
+    Fn = mlir::cast<mlir::go::FunctionType>(it->second);
+  }
+
+  if (hasSym)
+  {
+    auto moduleOp = this->getOperation()->getParentOfType<mlir::ModuleOp>();
+    auto funcOp = moduleOp.lookupSymbol(*this->getSymName());
+    if (!funcOp)
+    {
+      return this->emitOpError() << "callee with symbol \"" << *this->getSymName()
+                                 << "\" not found in module";
+    }
+
+    // TODO: GoOp is lowered in a later LLVM lowering pass. So, the following check will fail when
+    //       functions are lowered to func.func.
+
+    auto goFuncOp = mlir::dyn_cast<mlir::go::FuncOp>(funcOp);
+    if (!goFuncOp)
+    {
+      // TODO: For now, no further verification can take place.
+      return success();
+
+      // return this->emitOpError() << "callee symbol must reference a mlir::go::FuncOp, but got "
+      //                            << funcOp;
+    }
+
+    Fn = mlir::go::dyn_cast<mlir::go::FunctionType>(goFuncOp.getFunctionType());
+  }
+
+  if (hasCallee)
+  {
+    // TODO: support passing a signature with the callee value.
+    // Skipping function signature validation for now.
+    return success();
+  }
+
+  // Validate operands against function signature.
+  const auto numOperands = this->getCalleeOperands().size();
+  const auto expectedNumArgs =
+    Fn.hasReceiver() ? (hasSym ? Fn.getNumInputs() + 1 : Fn.getNumInputs()) : Fn.getNumInputs();
+  if (numOperands != expectedNumArgs)
+  {
+    return this->emitOpError() << "expected " << expectedNumArgs
+                               << " operands for function call, but got " << numOperands;
+  }
+
+  // Validate receiver type.
+  size_t operandIdx = 0;
+  if (Fn.hasReceiver())
+  {
+    auto got = this->getCalleeOperands()[0].getType();
+    auto expected = Fn.getReceiver();
+    if (got != expected)
+    {
+      return this->emitOpError() << "expected receiver type " << expected << ", but got " << got;
+    }
+    operandIdx = 1;
+  }
+
+  // Validate parameter types.
+  for (size_t i = 0; i < Fn.getNumInputs(); ++i, ++operandIdx)
+  {
+    auto got = this->getCalleeOperands()[operandIdx].getType();
+    auto expected = Fn.getInput(i);
+    if (got != expected)
+    {
+      return this->emitOpError() << "expected type " << expected << " for parameter " << i
+      << ", but got " << got;
     }
   }
   return success();
@@ -504,7 +552,8 @@ LogicalResult BuiltInCallOp::fold(FoldAdaptor adaptor, SmallVectorImpl<OpFoldRes
 
   if (callee == "unsafe.Offsetof")
   {
-    const auto structType = mlir::dyn_cast_or_null<GoStructType>(this->getCalleeOperands()[0].getType());
+    const auto structType =
+      mlir::dyn_cast_or_null<GoStructType>(this->getCalleeOperands()[0].getType());
     if (!structType)
     {
       return failure();
@@ -559,7 +608,7 @@ mlir::LogicalResult BuiltInCallOp::verify()
     }
 
     // First operand MUST be a slice.
-    if (!go::isa<SliceType>(this->getOperand(0).getType()))
+    if (!go::isCompatibleType<SliceType>(this->getOperand(0).getType()))
     {
       return this->emitOpError() << callee << ": "
                                  << "expected slice but got " << this->getOperand(0).getType()
@@ -603,8 +652,8 @@ mlir::LogicalResult BuiltInCallOp::verify()
     // Input value MUST be a chan, map or slice.
     const auto inputType = this->getOperand(0).getType();
     if (
-      !go::isa<ArrayType>(inputType) && !go::isa<ChanType>(inputType) &&
-      !go::isa<SliceType>(inputType))
+      !go::isCompatibleType<ArrayType>(inputType) && !go::isCompatibleType<ChanType>(inputType) &&
+      !go::isCompatibleType<SliceType>(inputType))
     {
       return this->emitOpError() << callee << ": "
                                  << "expected input of type array, chan or slice. Got "
@@ -637,7 +686,7 @@ mlir::LogicalResult BuiltInCallOp::verify()
 
     // Input value MUST be a map or a slice.
     const auto inputType = this->getOperand(0).getType();
-    if (!go::isa<MapType>(inputType) && !go::isa<SliceType>(inputType))
+    if (!go::isCompatibleType<MapType>(inputType) && !go::isCompatibleType<SliceType>(inputType))
     {
       return this->emitOpError() << callee << ": "
                                  << "expected input of type map or slice. Got " << inputType;
@@ -661,7 +710,7 @@ mlir::LogicalResult BuiltInCallOp::verify()
 
     // Input value MUST be an array, chan, map, slice or string.
     const auto inputType = this->getOperand(0).getType();
-    if (!go::isa<ChanType>(inputType))
+    if (!go::isCompatibleType<ChanType>(inputType))
     {
       return this->emitOpError() << callee << ": "
                                  << "expected a chan input type. Got " << inputType;
@@ -684,14 +733,14 @@ mlir::LogicalResult BuiltInCallOp::verify()
     }
 
     // The input operands MUST be floating-point values.
-    if (!go::isa<FloatType>(this->getOperand(0).getType()))
+    if (!go::isCompatibleType<FloatType>(this->getOperand(0).getType()))
     {
       return this->emitOpError() << callee << ": "
                                  << "expected floating-point operand type for operand 0 but got "
                                  << this->getOperand(0).getType();
     }
 
-    if (!go::isa<FloatType>(this->getOperand(1).getType()))
+    if (!go::isCompatibleType<FloatType>(this->getOperand(1).getType()))
     {
       return this->emitOpError() << callee << ": "
                                  << "expected floating-point operand type for operand 1 but got "
@@ -699,7 +748,7 @@ mlir::LogicalResult BuiltInCallOp::verify()
     }
 
     // The result MUST be a complex number type.
-    if (!go::isa<ComplexType>(this->getResult(0).getType()))
+    if (!go::isCompatibleType<ComplexType>(this->getResult(0).getType()))
     {
       return this->emitOpError() << callee << ": "
                                  << "expected a floating-point result type but got "
@@ -751,14 +800,14 @@ mlir::LogicalResult BuiltInCallOp::verify()
     }
 
     // The first operand MUST be a slice.
-    if (!go::isa<SliceType>(this->getOperand(0).getType()))
+    if (!go::isCompatibleType<SliceType>(this->getOperand(0).getType()))
     {
       return this->emitOpError() << callee << ": "
                                  << "expected slice but got " << this->getOperand(0).getType()
                                  << "for operand 0";
     }
 
-    const auto inputSliceType = go::cast<SliceType>(this->getOperand(1).getType());
+    const auto inputSliceType = go::cast<SliceType>(this->getOperand(0).getType());
 
     // Verify based on the type of the second operand.
     return TypeSwitch<Type, LogicalResult>(this->getOperand(1).getType())
@@ -813,7 +862,7 @@ mlir::LogicalResult BuiltInCallOp::verify()
 
     // Input value MUST be a map.
     const auto inputType = this->getOperand(0).getType();
-    if (!go::isa<MapType>(inputType))
+    if (!go::isCompatibleType<MapType>(inputType))
     {
       return this->emitOpError() << callee << ": "
                                  << "expected map operand type. Got " << inputType;
@@ -836,7 +885,7 @@ mlir::LogicalResult BuiltInCallOp::verify()
     }
 
     // The input operand MUST be a complex number.
-    if (!go::isa<ComplexType>(this->getOperand(0).getType()))
+    if (!go::isCompatibleType<ComplexType>(this->getOperand(0).getType()))
     {
       return this->emitOpError() << callee << ": "
                                  << "expected complex operand type but got "
@@ -844,7 +893,7 @@ mlir::LogicalResult BuiltInCallOp::verify()
     }
 
     // The result MUST be a float type.
-    if (!go::isa<FloatType>(this->getResult(0).getType()))
+    if (!go::isCompatibleType<FloatType>(this->getResult(0).getType()))
     {
       return this->emitOpError() << callee << ": "
                                  << "expected a floating-point result type but got "
@@ -880,9 +929,9 @@ mlir::LogicalResult BuiltInCallOp::verify()
     // Input value MUST be an array, chan, map, slice or string.
     const auto inputType = this->getOperand(0).getType();
     if (
-      !go::isa<ArrayType>(inputType) && !go::isa<ChanType>(inputType) &&
-      !go::isa<MapType>(inputType) && !go::isa<SliceType>(inputType) &&
-      !go::isa<StringType>(inputType))
+      !go::isCompatibleType<ArrayType>(inputType) && !go::isCompatibleType<ChanType>(inputType) &&
+      !go::isCompatibleType<MapType>(inputType) && !go::isCompatibleType<SliceType>(inputType) &&
+      !go::isCompatibleType<StringType>(inputType))
     {
       return this->emitOpError() << callee << ": "
                                  << "expected input of type array, chan, map, slice or string. Got "
@@ -1035,7 +1084,7 @@ mlir::LogicalResult BuiltInCallOp::verify()
 
     // Result type MUST be a pointer.
     const auto resultType = this->getResultTypes()[0];
-    if (!go::isa<PointerType>(resultType))
+    if (!go::isCompatibleType<PointerType>(resultType))
     {
       return this->emitOpError() << callee << ": "
                                  << "expected result of a pointer type but got " << resultType;

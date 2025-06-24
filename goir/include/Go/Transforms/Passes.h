@@ -30,6 +30,10 @@ std::unique_ptr<mlir::Pass> createFunctionPass();
 
 std::unique_ptr<mlir::Pass> createPreprocessingPass();
 
+std::unique_ptr<mlir::Pass> createValueNormalizationFuncPass();
+
+std::unique_ptr<mlir::Pass> createValueNormalizationGlobalPass();
+
 void populateGoToCoreConversionPatterns(
   mlir::MLIRContext* context,
   TypeConverter& converter,

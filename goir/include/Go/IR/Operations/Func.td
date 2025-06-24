@@ -70,13 +70,31 @@ def FuncOp : Go_Op<"func", [
 // ReturnOp
 //===----------------------------------------------------------------------===//
 
-def ReturnOp : Go_Op<"return", [Pure, ParentOneOf<["mlir::go::FuncOp", "mlir::func::FuncOp", "mlir::LLVM::LLVMFuncOp"]>, ReturnLike, Terminator]> {
+def ReturnOp : Go_Op<"return", [
+            Pure,
+            ParentOneOf<["mlir::go::FuncOp", "mlir::func::FuncOp", "mlir::LLVM::LLVMFuncOp"]>,
+            ReturnLike,
+            Terminator,
+            DeclareOpInterfaceMethods<UntypedTypeResolverInterface, ["resolveOperandTypes", "resolveResultTypes"]>
+        ]> {
     let arguments = (ins
         Variadic<Go_Type>:$operands);
+
     let builders = [
         OpBuilder<(ins), [{build($_builder, $_state, std::nullopt);}]>
     ];
+
     let assemblyFormat = "attr-dict ( $operands^ `:` type($operands) )?";
+
+    let extraClassDefinition = [{
+        ::mlir::SmallVector<::mlir::Type> $cppClass::resolveOperandTypes() {
+            return returnOpResolveOperandTypes(this);
+        }
+
+        ::mlir::SmallVector<::mlir::Type> $cppClass::resolveResultTypes() {
+            return {};
+        }
+    }];
 }
 
 #endif // GO_OPERATIONS_FUNC_TD

@@ -141,7 +141,7 @@ func (b *Builder) emitArith(ctx context.Context, op token.Token, X, Y mlir.Value
 
 func (b *Builder) emitIncDecStatement(ctx context.Context, stmt *ast.IncDecStmt) {
 	var result mlir.Value
-	location := b.location(stmt.Pos())
+	location := b.location(ctx, stmt.Pos())
 
 	// Get address of the LHS value to store the result at later.
 	var value Value

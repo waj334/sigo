@@ -93,6 +93,7 @@ CSP_GEN_EXE=$(BINDIR)/csp-gen$(EXECUTABLE_POSTFIX)
 DEF_GEN_EXE=$(BINDIR)/def-gen$(EXECUTABLE_POSTFIX)
 TBDEF_GEN_EXE=$(BINDIR)/tbdef-gen$(EXECUTABLE_POSTFIX)
 TABLEGEN_CSP_EXE := $(BINDIR)/tablegen-csp$(EXECUTABLE_POSTFIX)
+BIN2STR_EXE := $(BINDIR)/bin2str$(EXECUTABLE_POSTFIX)
 
 TARGETS_DEVICE_SRCS += $(wildcard $(ROOT_DIR)/targets/device/*.go)
 TARGETS_DEVICE_SRCS += $(wildcard $(ROOT_DIR)/targets/device/importer/*.go)
@@ -276,6 +277,19 @@ $(TABLEGEN_CSP_EXE): generate-llvm-bindings $(GO_SRCS) $(LIBS)
 tablegen-csp: $(TABLEGEN_CSP_EXE)
 	@if [ $(DEBUG) -eq 1 ]; then \
     	dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(TABLEGEN_CSP_EXE) -- $(args); \
+	fi
+
+$(BIN2STR_EXE):
+	rm -f $(BIN2STR_EXE)
+	@if [ $(SIGO_BUILD_RELEASE) -eq 1 ]; then \
+  		go build -o $(BIN2STR_EXE) -ldflags="-linkmode external" $(ROOT_DIR)/cmd/bin2str; \
+  	else \
+		go build -o $(BIN2STR_EXE) -gcflags "all=-N -l" -ldflags="-linkmode external" $(ROOT_DIR)/cmd/bin2str; \
+  	fi
+
+bin2str: $(BIN2STR_EXE)
+	@if [ $(DEBUG) -eq 1 ]; then \
+    	dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(BIN2STR_EXE) -- $(args); \
 	fi
 
 release: sigo

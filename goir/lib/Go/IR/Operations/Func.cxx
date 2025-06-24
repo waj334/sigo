@@ -158,58 +158,68 @@ void FuncOp::print(::mlir::OpAsmPrinter& p)
   const bool isExternal =
     linkageAttr ? linkageAttr.getLinkage() == mlir::LLVM::Linkage::External : false;
 
-  unsigned argIndex = 0;
+  if (!this->getBody().empty())
+  {
+    unsigned argOffset = 0;
 
-  // Print optional receiver.
-  if (fnT.getReceiver())
-  {
-    p << " [" << this->getBody().getArgument(0) << "] ";
-    argIndex++;
-  }
-  else
-  {
-    p << " ";
-  }
-
-  p << symbolName << "(";
-  for (; argIndex < body.getNumArguments(); argIndex++)
-  {
-    if (!isExternal)
+    // Print optional receiver.
+    if (fnT.getReceiver())
     {
-      p.printRegionArgument(body.getArgument(argIndex));
+      p << " [" << this->getBody().getArgument(0) << "] ";
+      argOffset = 1;
     }
     else
     {
-      p << fnT.getInput(argIndex);
+      p << " ";
     }
-    if (argIndex != body.getNumArguments() - 1)
+
+    p.printSymbolName(symbolName);
+    p << " (";
+    for (size_t i = 0; i < fnT.getNumInputs(); i++)
     {
-      p << ", ";
+      const auto argIndex = i + argOffset;
+      if (!isExternal)
+      {
+        p.printRegionArgument(body.getArgument(argIndex));
+      }
+      else
+      {
+        p << fnT.getInput(i);
+      }
+      if (i != fnT.getNumInputs() - 1)
+      {
+        p << ", ";
+      }
+    }
+    p << ")";
+
+    // Print optional result types.
+    if (!resultTypes.empty())
+    {
+      p << " -> ";
+      const auto wrapped =
+        !llvm::hasSingleElement(resultTypes) || llvm::isa<FunctionType>((*resultTypes.begin()));
+      if (wrapped)
+        p << '(';
+      llvm::interleaveComma(resultTypes, p);
+      if (wrapped)
+        p << ')';
+    }
+
+    // Print the optional function body.
+    if (!body.empty())
+    {
+      p << ' ';
+      p.printRegion(
+        body,
+        /*printEntryBlockArgs=*/false,
+        /*printBlockTerminators=*/true);
     }
   }
-  p << ")";
-
-  // Print optional result types.
-  if (!resultTypes.empty())
+  else
   {
-    p << " -> ";
-    auto wrapped =
-      !llvm::hasSingleElement(resultTypes) || llvm::isa<FunctionType>((*resultTypes.begin()));
-    if (wrapped)
-      p << '(';
-    llvm::interleaveComma(resultTypes, p);
-    if (wrapped)
-      p << ')';
-  }
-
-  // Print the optional function body.
-  if (!body.empty())
-  {
-    p << ' ';
-    p.printRegion(
-      body,
-      /*printEntryBlockArgs=*/false,
-      /*printBlockTerminators=*/true);
+    // Just print the symbol name.
+    p << "@" << symbolName;
   }
 }
 

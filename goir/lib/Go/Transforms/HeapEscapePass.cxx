@@ -112,8 +112,15 @@ struct HeapEscapePass : public PassWrapper<HeapEscapePass, OperationPass<mlir::g
             [&](CallOp callOp)
             {
               auto moduleOp = callOp->getParentOfType<mlir::ModuleOp>();
+              const auto symbol = callOp.getCallee();
+              if (!symbol)
+              {
+                // Cannot analyze the callee function, so assume it escapes to the heap.
+                return Result::EscapesToHeap;
+              }
+
               auto calleeFuncOp =
-                mlir::dyn_cast<mlir::go::FuncOp>(moduleOp.lookupSymbol(callOp.getCallee()));
+                mlir::dyn_cast<mlir::go::FuncOp>(moduleOp.lookupSymbol(*symbol));
 
               // Check if our op is passed as the receiver
               size_t argStart = 0;

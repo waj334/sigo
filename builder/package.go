@@ -1,8 +1,10 @@
 package builder
 
 import (
+	"crypto/sha256"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -175,6 +177,8 @@ const (
 )
 
 type Package struct {
+	Name        string
+	Version     string
 	PathPrefix  string
 	Sources     []string
 	IncludeDirs []string
@@ -183,16 +187,60 @@ type Package struct {
 }
 
 func (p *Package) Compile(toolchain Toolchain, triplet string, cpu string, fpu string, debug bool, opt string, floatEnabled bool,
-	numjobs int, outputDir string) ([]string, error) {
+	numjobs int) ([]string, error) {
+
+	// Compute hash of settings.
+	hasher := sha256.New()
+	hasher.Write([]byte(triplet))
+	hasher.Write([]byte(cpu))
+	hasher.Write([]byte(fpu))
+	hasher.Write([]byte(opt))
+
+	if debug {
+		hasher.Write([]byte("debug"))
+	}
+
+	if floatEnabled {
+		hasher.Write([]byte("float"))
+	}
+
+	buildHash := fmt.Sprintf("%#x", hasher.Sum(nil))
+
+	env, err := Environment()
+	if err != nil {
+		return nil, err
+	}
+
+	gocache := env.Value("GOCACHE")
+	buildDir := filepath.Join(gocache, "thirdparty", p.Name, p.Version, buildHash)
+
+	artifactsFname := filepath.Join(buildDir, "artifacts.txt")
+	_, err = os.Stat(artifactsFname)
+	if err == nil {
+		// Read the artifacts file and return contents as a slice of strings representing the previously compiled
+		// artifacts.
+		file, err := os.Open(artifactsFname)
+		defer file.Close()
+		if err != nil {
+			return nil, err
+		}
+
+		b, err := io.ReadAll(file)
+		if err != nil {
+			return nil, err
+		}
+		artifacts := strings.Split(string(b), "\n")
+		return artifacts, nil
+	}
 
 	var artifacts []string
 	var defines []string
 
-	includes := []string{"-I" + outputDir}
+	includes := []string{"-I" + buildDir}
 
 	// Create files.
 	for p, content := range p.Files {
-		fname := filepath.Join(outputDir, p)
+		fname := filepath.Join(buildDir, p)
 		err := os.MkdirAll(filepath.Dir(fname), os.ModePerm)
 		if err != nil {
 			return nil, err
@@ -229,7 +277,7 @@ func (p *Package) Compile(toolchain Toolchain, triplet string, cpu string, fpu s
 					<-semaphore
 				}()
 
-				artifact := filepath.Join(outputDir, filepath.Base(p.PathPrefix), filepath.Dir(src), filepath.Base(src)+".o")
+				artifact := filepath.Join(buildDir, filepath.Base(p.PathPrefix), filepath.Dir(src), filepath.Base(src)+".o")
 
 				// Create the directory to where the artifact should be stored.
 				err := os.MkdirAll(filepath.Dir(artifact), os.ModePerm)
@@ -312,6 +360,18 @@ func (p *Package) Compile(toolchain Toolchain, triplet string, cpu string, fpu s
 		return nil, errors.Join(errs...)
 	}
 
+	// Write artifacts to a file.
+	fname := filepath.Join(buildDir, "artifacts.txt")
+	file, err := os.Create(fname)
+	defer file.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, artifact := range artifacts {
+		fmt.Fprintln(file, artifact)
+	}
+
 	return artifacts, nil
 }
 
@@ -323,6 +383,8 @@ func pkgPicolibc(arch string) (Package, error) {
 
 	prefix := filepath.Join(env["SIGOROOT"], "thirdparty", "picolibc")
 	pkg := Package{
+		Name:       "picolibc",
+		Version:    "1.8.1",
 		PathPrefix: prefix,
 		IncludeDirs: []string{
 			filepath.Join(prefix, "newlib/libc/include"),
@@ -384,6 +446,8 @@ func pkgCompilerRT(triplet string, features []string, floatEnabled bool) (Packag
 
 	prefix := filepath.Join(env["SIGOROOT"], "thirdparty", "llvm-project", "compiler-rt")
 	pkg := Package{
+		Name:       "llvm-compiler-rt",
+		Version:    "20.1.7",
 		PathPrefix: prefix,
 		IncludeDirs: []string{
 			filepath.Join(prefix, "include"),

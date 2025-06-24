@@ -55,6 +55,9 @@ type Builder struct {
 	addToModuleMutex sync.Mutex
 	addToModule      map[string]mlir.Operation
 
+	forwardDeclarationsMutex sync.Mutex
+	forwardDeclarations      map[string]mlir.Operation
+
 	thunkMutex sync.Mutex
 	thunks     map[string]struct{}
 	thunkTypes map[string]mlir.Type
@@ -97,9 +100,7 @@ type Builder struct {
 	initPackageCounter map[*packages.Package]*atomic.Uint32
 }
 
-type jobQueue struct {
-	jobs []*funcData
-}
+type TypeParamMap map[int]types.Type
 
 func NewBuilder(config Config) *Builder {
 	builder := &Builder{
@@ -117,9 +118,10 @@ func NewBuilder(config Config) *Builder {
 
 		declaredTypes: map[types.Type]struct{}{},
 
-		ungeneratedFuncs: map[string]*ast.FuncDecl{},
-		funcDeclData:     map[string]*funcData{},
-		addToModule:      map[string]mlir.Operation{},
+		ungeneratedFuncs:    map[string]*ast.FuncDecl{},
+		funcDeclData:        map[string]*funcData{},
+		addToModule:         map[string]mlir.Operation{},
+		forwardDeclarations: map[string]mlir.Operation{},
 
 		diFiles:            map[*token.File]mlir.Attribute{},
 		compileUnits:       map[*token.File]mlir.Attribute{},
@@ -162,7 +164,7 @@ func NewBuilder(config Config) *Builder {
 	mlir.GoBindRuntimeTypeToType(config.Module, mlir.GoCreateSliceType(builder.i1), builder._slice)
 	mlir.GoBindRuntimeTypeToType(config.Module, builder.str, builder._string)
 
-	builder._noLoc = builder.location(0)
+	builder._noLoc = builder.unscopedLocation(0)
 
 	// Bind dialect types to runtime types.
 	typeMap := map[string]string{
@@ -202,6 +204,10 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 	moduleBlock := mlir.ModuleGetBody(b.config.Module)
 	setCurrentBlock(ctx, moduleBlock)
 
+	// Create a new job queue for when functions need other functions to be generated.
+	queue := newJobQueue(1024)
+	ctx = context.WithValue(ctx, jobQueueKey{}, queue)
+
 	// Create debug information for each file.
 	producerAttr := mlir.StringAttrGet(b.ctx, "SiGo")
 	b.config.Fset.Iterate(func(file *token.File) bool {
@@ -232,12 +238,6 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 		return true
 	})
 
-	// Create the initial work queue.
-	initialWork := &jobQueue{
-		jobs: make([]*funcData, 0, 1000),
-	}
-	ctx = context.WithValue(ctx, jobQueueKey{}, initialWork)
-
 	// Map declarations to their respective type checked info.
 	for _, pkg := range pkgs {
 		for _, file := range pkg.Syntax {
@@ -254,7 +254,7 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 			for _, decl := range file.Decls {
 				if decl, ok := decl.(*ast.FuncDecl); ok {
 					obj := b.objectOf(ctx, decl.Name).(*types.Func)
-					symbol := mangleSymbol(qualifiedFuncName(obj))
+					symbol := qualifiedFuncName(obj)
 					if symbol == b.config.Program.MainFunc {
 						symbol = "main.main"
 					}
@@ -318,13 +318,10 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 				}
 
 				gv := gvars[lhs]
-				location := b.location(lhs.Pos())
+				location := b.location(ctx, lhs.Pos())
 
 				// Initialize this global.
 				gv.Initialize(ctx, b, globalPriority, func(ctx context.Context, builder *Builder) mlir.Value {
-					// Nil types will be untyped, so set up type inference.
-					ctx = newContextWithLhsList(ctx, []types.Type{lhs.Type()})
-					ctx = newContextWithRhsIndex(ctx, 0)
 					ctx = newContextWithInfo(ctx, pkg.TypesInfo)
 					rhsType := b.typeOf(ctx, initializer.Rhs)
 
@@ -362,10 +359,10 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 	// Zero initialize all other globals that are NOT externally linked.
 	for obj, gv := range gvars {
 		if _, ok := initializedGlobals[gv]; !ok {
-			location := b.location(obj.Pos())
+			location := b.location(ctx, obj.Pos())
 
 			// Get the symbol information.
-			symbol := mangleSymbol(qualifiedName(obj.Name(), obj.Pkg()))
+			symbol := qualifiedName(obj.Name(), obj.Pkg())
 			info := b.config.Program.Symbols.GetSymbolInfo(symbol)
 
 			// Is this global NOT externally linked?
@@ -388,10 +385,10 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 			for _, decl := range file.Decls {
 				if decl, ok := decl.(*ast.FuncDecl); ok {
 					obj := b.objectOf(ctx, decl.Name).(*types.Func)
-					symbol := mangleSymbol(qualifiedFuncName(obj))
+					symbol := qualifiedFuncName(obj)
 					isMain := false
 					if symbol == b.config.Program.MainFunc {
-						symbol = mangleSymbol("main.main")
+						symbol = "main.main"
 						isMain = true
 					}
 
@@ -452,7 +449,7 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 						}
 
 						// Queue this function to be generated.
-						initialWork.jobs = append(initialWork.jobs, data)
+						queue.push(data)
 					}
 				}
 			}
@@ -463,70 +460,41 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 	g := max(1, b.config.NumWorkers)
 
 	// Fast-path: Do nothing if there are no functions to generate.
-	if len(initialWork.jobs) == 0 {
+	if len(queue.jobs) == 0 {
 		return
 	}
-
-	generateQueue := make(chan *funcData)
-
-	// Track the number of pending jobs.
-	var pendingJobs sync.WaitGroup
-	pendingJobs.Add(len(initialWork.jobs))
-
-	// Define a function to queue new jobs.
-	queueFunc := func(queue *jobQueue) {
-		// Queue each job.
-		for _, job := range queue.jobs {
-			generateQueue <- job
-		}
-	}
-
-	// Queue all initial jobs.
-	// NOTE: This should guarantee each function has a chance to queue new jobs, causing the job queue channel to be
-	//       closed later.
-	go queueFunc(initialWork)
 
 	// Begin consuming the queue.
 	var activeWorkers sync.WaitGroup
 	activeWorkers.Add(g)
+
 	for c := 0; c < g; c++ {
 		go func() {
 			defer activeWorkers.Done()
-			for job := range generateQueue {
-				// Create a new job queue for when functions need other functions to be generated.
-				queue := &jobQueue{jobs: make([]*funcData, 0, 1000)}
-				ctx = context.WithValue(ctx, jobQueueKey{}, queue)
-				b.emitFunc(ctx, job)
-
-				if len(queue.jobs) > 0 {
-					// Add to the work counter.
-					pendingJobs.Add(len(queue.jobs))
-
-					// Queue new jobs requested by the last job.
-					go queueFunc(queue)
+			for {
+				job := queue.pop()
+				if job == nil {
+					break
 				}
-
-				// Finally, signal that this job is done.
-				pendingJobs.Done()
+				b.emitFunc(ctx, job)
 			}
 		}()
 	}
 
-	// Wait for queuing to be completed.
-	go func() {
-		// Wait for all pending jobs to be done.
-		pendingJobs.Wait()
-
-		// Close the queue channel so that the worker goroutines can exit.
-		close(generateQueue)
-	}()
-
 	// Wait for all workers to exit.
+	queue.close()
 	activeWorkers.Wait()
 
 	// Sort module-level operations by symbol name.
 	symbolKeys := maps.Keys(b.addToModule)
 	slices.Sort(symbolKeys)
+
+	// Add any forward declarations whose functions should be resolved at link time.
+	for linkname, op := range b.forwardDeclarations {
+		if _, found := b.addToModule[linkname]; !found {
+			b.appendToModule(op)
+		}
+	}
 
 	// Add all module-level operations to the module's body block now.
 	for _, symbol := range symbolKeys {
@@ -543,19 +511,23 @@ func (b *Builder) lookUpUngeneratedJob(symbol string) *ast.FuncDecl {
 func (b *Builder) queueNamedTypeJobs(ctx context.Context, T *types.Named) {
 	for i := 0; i < T.NumMethods(); i++ {
 		// Need to generate methods for this named type in order for interfaces to function correctly.
-		symbol := mangleSymbol(qualifiedFuncName(T.Method(i)))
+		symbol := qualifiedFuncName(T.Method(i))
 		b.queueJob(ctx, symbol)
 	}
 }
 
 func (b *Builder) queueJob(ctx context.Context, symbol string) {
-	if val := ctx.Value(jobQueueKey{}); val != nil {
-		if decl := b.lookUpUngeneratedJob(symbol); decl != nil {
-			if job := b.addFunctionDecl(ctx, decl); job != nil {
-				queue := val.(*jobQueue)
-				queue.jobs = append(queue.jobs, job)
-			}
+	if decl := b.lookUpUngeneratedJob(symbol); decl != nil {
+		if job := b.addFunctionDecl(ctx, decl); job != nil {
+			b.addToJobQueue(ctx, job)
 		}
+	}
+}
+
+func (b *Builder) addToJobQueue(ctx context.Context, data *funcData) {
+	if val := ctx.Value(jobQueueKey{}); val != nil {
+		queue := val.(*jobQueue)
+		queue.push(data)
 	}
 }
 
@@ -571,9 +543,9 @@ func (b *Builder) addFunctionDecl(ctx context.Context, decl *ast.FuncDecl) *func
 	}
 
 	obj := b.objectOf(ctx, decl.Name).(*types.Func)
-	symbol := mangleSymbol(qualifiedFuncName(obj))
+	symbol := qualifiedFuncName(obj)
 	if symbol == b.config.Program.MainFunc {
-		symbol = mangleSymbol("main.main")
+		symbol = "main.main"
 	}
 
 	signature := baseType(obj.Type()).(*types.Signature)
@@ -597,9 +569,8 @@ func (b *Builder) addFunctionDecl(ctx context.Context, decl *ast.FuncDecl) *func
 		isGeneric:      signature.RecvTypeParams() != nil || signature.TypeParams() != nil,
 		locals:         map[types.Object]Value{},
 		anonymousFuncs: map[*ast.FuncLit]*funcData{},
-		instances:      map[*types.Signature]*funcData{},
+		instances:      []*funcData{},
 		typeMap:        map[int]types.Type{},
-		loads:          map[mlir.Block]map[types.Object]mlir.Value{},
 		decl:           decl,
 		info:           info,
 		scope:          obj.Scope(),
@@ -678,6 +649,16 @@ func (b *Builder) setAddr(ctx context.Context, ident *ast.Ident, addr Value) {
 	}
 
 	obj := info.ObjectOf(ident)
+	data := currentFuncData(ctx)
+	if data != nil {
+		_, ok := data.locals[obj]
+		if ok {
+			data.mutex.Lock()
+			defer data.mutex.Unlock()
+			data.locals[obj] = addr
+			return
+		}
+	}
 
 	b.valueCacheMutex.Lock()
 	defer b.valueCacheMutex.Unlock()

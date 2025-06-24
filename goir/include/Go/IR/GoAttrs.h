@@ -2,11 +2,11 @@
 #pragma once
 
 #include "Go/IR/GoDialect.h"
-#include "Go/IR/GoTypes.h"
 
 #include <mlir/IR/OpImplementation.h>
 #include <mlir/IR/BuiltinAttributes.h>
 #include <mlir/IR/Types.h>
+#include <mlir/Interfaces/DataLayoutInterfaces.h>
 
 #include <optional>
 

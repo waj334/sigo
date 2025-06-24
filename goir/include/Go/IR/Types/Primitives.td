@@ -2,6 +2,57 @@
 #define GO_IntegerType_TD
 
 include "Go/IR/GoDialect.td"
+include "Go/IR/GoEnums.td"
+
+def UntypedType : GoDialect_Type<"Untyped", "untyped"> {
+    let parameters = (ins
+        Go_UntypedBasicKindAttr:$basicKind
+    );
+
+    let builders = [
+        TypeBuilder<(ins "::mlir::go::UntypedBasicKind":$basicKind), [{
+            return Base::get($_ctxt, ::mlir::go::UntypedBasicKindAttr::get($_ctxt, basicKind));
+        }]>
+    ];
+
+    let extraClassDeclaration = [{
+        static ::mlir::Type defaultType(MLIRContext* context, const mlir::go::UntypedBasicKind basicType);
+
+        ::mlir::Type getDefaultType() const {
+            return defaultType(this->getContext(), this->getBasicKind().getValue());
+        }
+    }];
+
+    let extraClassDefinition = [{
+        ::mlir::Type UntypedType::defaultType(MLIRContext* context, const mlir::go::UntypedBasicKind basicKind) {
+            mlir::Type result;
+            switch (basicKind)
+            {
+            case mlir::go::UntypedBasicKind::Complex:
+                result = mlir::ComplexType::get(mlir::Float64Type::get(context));
+                break;
+            case mlir::go::UntypedBasicKind::Boolean:
+                result = mlir::go::BooleanType::get(context);
+                break;
+            case mlir::go::UntypedBasicKind::Float:
+                result = mlir::Float64Type::get(context);
+                break;
+            case mlir::go::UntypedBasicKind::Integer:
+                result = mlir::go::IntegerType::get(context, mlir::go::IntegerType::Signed);
+                break;
+            case mlir::go::UntypedBasicKind::Rune:
+                result = mlir::go::IntegerType::get(context, mlir::go::IntegerType::Signed, 32);
+                break;
+            case mlir::go::UntypedBasicKind::String:
+                result = mlir::go::StringType::get(context);
+                break;
+            }
+            return result;
+        }
+    }];
+
+    let hasCustomAssemblyFormat = 1;
+}
 
 def BooleanType : GoDialect_Type<"Boolean", "bool", [
             DeclareTypeInterfaceMethods<DataLayoutTypeInterface,

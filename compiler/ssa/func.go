@@ -37,9 +37,8 @@ type funcData struct {
 
 	locals         map[types.Object]Value
 	anonymousFuncs map[*ast.FuncLit]*funcData
-	instances      map[*types.Signature]*funcData
-	typeMap        map[int]types.Type
-	loads          map[mlir.Block]map[types.Object]mlir.Value
+	instances      []*funcData
+	typeMap        TypeParamMap
 
 	decl *ast.FuncDecl
 	info *types.Info
@@ -74,7 +73,7 @@ func (f *funcData) createContextStructValue(ctx context.Context, b *Builder, loc
 	// Collect the addresses of each value captured by this function.
 	var values []mlir.Value
 	for _, fv := range f.freeVars {
-		ptr := b.lookupValue(fv.obj).Pointer(ctx, location)
+		ptr := b.lookupValue(ctx, fv.obj).Pointer(ctx, location)
 		values = append(values, ptr)
 	}
 	return b.createArgumentPack(ctx, values, location)
@@ -86,6 +85,8 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 		return
 	}
 
+	isForwardDeclaration := data.body == nil
+
 	var queue *jobQueue
 	if val := ctx.Value(jobQueueKey{}); val != nil {
 		queue = val.(*jobQueue)
@@ -94,13 +95,14 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 	// Set the current data in a fresh context.
 	ctx = newContextWithFuncData(context.Background(), data)
 	ctx = newContextWithInfo(ctx, data.info)
+	ctx = newContextWithTypeMap(ctx, data.typeMap)
 
 	if queue != nil {
 		ctx = context.WithValue(ctx, jobQueueKey{}, queue)
 	}
 
 	// Get the location of the input function.
-	loc := b.location(data.pos)
+	loc := b.location(ctx, data.pos)
 
 	// Fuse the location with the compile unit if applicable.
 	if data.pos.IsValid() {
@@ -128,13 +130,13 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 		// The receiver is the first parameter to this function. So, offset by 1.
 		argOffset = 1
 		inputs[0].t = mlir.GoFunctionTypeGetReceiver(data.mlirType)
-		inputs[0].l = b.location(data.signature.Recv().Pos())
+		inputs[0].l = b.location(ctx, data.signature.Recv().Pos())
 	}
 
 	for i := 0; i < data.signature.Params().Len(); i++ {
 		param := data.signature.Params().At(i)
 		inputs[argOffset+i].t = mlir.GoFunctionTypeGetInput(data.mlirType, i)
-		inputs[argOffset+i].l = b.location(param.Pos())
+		inputs[argOffset+i].l = b.location(ctx, param.Pos())
 	}
 
 	if data.isAnonymous {
@@ -148,7 +150,7 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 	mlir.OperationStateAddOwnedRegions(state, []mlir.Region{region})
 
 	// NOTE: Forward declarations will not have any block.
-	if data.body != nil {
+	if !isForwardDeclaration {
 		// Create the entry block for the current function.
 		entryBlock := mlir.BlockCreate2(inputs.types(), inputs.locations())
 		mlir.RegionAppendOwnedBlock(region, entryBlock)
@@ -257,7 +259,7 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 			// Control flow fell off the end of the function block. Insert tail operations.
 			// TODO: Run defers.
 
-			endLocation := b.location(data.body.End())
+			endLocation := b.location(ctx, data.body.End())
 			zeroValues := make([]mlir.Value, 0, data.signature.Results().Len())
 			for i := 0; i < data.signature.Results().Len(); i++ {
 				result := data.signature.Results().At(i)
@@ -271,7 +273,7 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 	}
 
 	visibility := "public"
-	if !data.isExported || data.body == nil {
+	if !data.isExported || isForwardDeclaration {
 		// NOTE: Forward declarations MUST be private.
 		visibility = "private"
 	}
@@ -301,71 +303,100 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 	funcOp := mlir.OperationCreate(state)
 
 	// This operation will be added later safely.
-	b.addToModuleMutex.Lock()
-	b.addToModule[data.symbol] = funcOp
-	b.addToModuleMutex.Unlock()
+	if isForwardDeclaration {
+		b.forwardDeclarationsMutex.Lock()
+		b.forwardDeclarations[data.linkname] = funcOp
+		b.forwardDeclarationsMutex.Unlock()
+	} else {
+		b.addToModuleMutex.Lock()
+		b.addToModule[data.linkname] = funcOp
+		b.addToModuleMutex.Unlock()
+	}
 }
 
-func (b *Builder) createFuncInstance(ctx context.Context, genericSignature *types.Signature, instance types.Instance, data *funcData) *funcData {
-	var signature *types.Signature
-
+func (b *Builder) createFuncInstance(ctx context.Context, signature *types.Signature, data *funcData, typeMap TypeParamMap) *funcData {
 	data.mutex.Lock()
 	defer data.mutex.Unlock()
 
 	// Look up an existing instantiation.
-	if instanceData, ok := data.instances[signature]; ok {
-		return instanceData
+	for _, instanceData := range data.instances {
+		if len(typeMap) != len(instanceData.typeMap) {
+			continue
+		}
+		match := true
+		for key, T := range typeMap {
+			otherT, ok := instanceData.typeMap[key]
+			if !ok || !types.Identical(T, otherT) {
+				match = false
+				break
+			}
+		}
+		if match {
+			return instanceData
+		}
 	}
 
-	// Create the type map.
-	typeMap := map[int]types.Type{}
+	// Create a new instantiated signature.
+	var recv *types.Var
+	var params []*types.Var
+	var results []*types.Var
 
-	// Map the receiver type parameter to the concrete receiver type.
-	if recv := genericSignature.Recv(); recv != nil {
-		signature = genericSignature
-
-		// Determine the underlying named type.
-		var namedType *types.Named
-		switch T := types.Unalias(signature.Recv().Type()).(type) {
+	var convertType func(types.Type) types.Type
+	convertType = func(T types.Type) types.Type {
+		switch T := T.(type) {
+		case *types.Array:
+			return types.NewArray(convertType(T.Elem()), T.Len())
+		case *types.Chan:
+			return types.NewChan(T.Dir(), convertType(T.Elem()))
+		case *types.Map:
+			return types.NewMap(convertType(T.Key()), convertType(T.Elem()))
 		case *types.Pointer:
-			namedType = T.Elem().(*types.Named)
-		case *types.Named:
-			namedType = T
+			return types.NewPointer(convertType(T.Elem()))
+		case *types.Slice:
+			return types.NewSlice(convertType(T.Elem()))
+		case *types.TypeParam:
+			return typeMap[T.Index()]
 		default:
-			panic("unhandled")
-		}
-
-		targs := namedType.TypeArgs()
-		tparams := namedType.TypeParams()
-		for i := 0; i < targs.Len(); i++ {
-			typeMap[tparams.At(i).Index()] = targs.At(i)
-		}
-	} else {
-		signature = instance.Type.(*types.Signature)
-
-		// Map the type parameters to the concrete types.
-		for i := 0; i < genericSignature.TypeParams().Len(); i++ {
-			param := genericSignature.TypeParams().At(i)
-			typeMap[param.Index()] = instance.TypeArgs.At(i)
+			return T
 		}
 	}
+
+	if signature.Recv() != nil {
+		src := signature.Recv()
+		T := convertType(src.Type())
+		recv = types.NewParam(src.Pos(), src.Pkg(), src.Name(), T)
+	}
+
+	for src := range signature.Params().Variables() {
+		T := convertType(src.Type())
+		param := types.NewParam(src.Pos(), src.Pkg(), src.Name(), T)
+		params = append(params, param)
+	}
+
+	for src := range signature.Results().Variables() {
+		T := convertType(src.Type())
+		result := types.NewVar(src.Pos(), src.Pkg(), src.Name(), T)
+		results = append(results, result)
+	}
+
+	newSignature := types.NewSignatureType(recv, nil, nil, types.NewTuple(params...), types.NewTuple(results...),
+		signature.Variadic())
 
 	// Create the function data for this instance.
 	instanceNo := len(data.instances)
 	instanceData := &funcData{
 		symbol:         fmt.Sprintf("%s$instance_%d", data.symbol, instanceNo),
 		linkname:       fmt.Sprintf("%s$instance_%d", data.linkname, instanceNo),
-		locals:         data.locals,
+		locals:         map[types.Object]Value{},
 		scope:          data.scope,
 		funcType:       data.funcType,
-		signature:      signature,
+		signature:      newSignature,
 		anonymousFuncs: data.anonymousFuncs,
 		freeVars:       data.freeVars,
 		recv:           data.recv,
 		body:           data.body,
 		pos:            data.pos,
 		typeMap:        typeMap,
-		loads:          map[mlir.Block]map[types.Object]mlir.Value{},
 		isExported:     data.isExported,
 		isInstance:     true,
 		instance:       instanceNo,
@@ -373,13 +404,13 @@ func (b *Builder) createFuncInstance(ctx context.Context, genericSignature *type
 	}
 
 	// Create the instantiated function type.
-	instanceData.mlirType = b.createSignatureType(newContextWithFuncData(ctx, instanceData), signature)
+	instanceData.mlirType = b.createSignatureType(newContextWithTypeMap(ctx, typeMap), newSignature)
 
 	// Emit the instance.
-	b.emitFunc(ctx, instanceData)
+	b.addToJobQueue(ctx, instanceData)
 
 	// Cache this instantiation and return the data.
-	data.instances[signature] = instanceData
+	data.instances = append(data.instances, instanceData)
 	return instanceData
 }
 

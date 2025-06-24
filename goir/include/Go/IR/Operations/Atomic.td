@@ -45,8 +45,8 @@ def AtomicSwapIOp : Go_Op<"atomic.swap"> {
         %0 = go.atomic.swap %a, %b : i32
         ```
     }];
-    let arguments = (ins Go_Pointer:$addr, AnyTypeOrNamedOf<[Go_Integral, Go_Pointer]>:$rhs);
-    let results = (outs AnyTypeOrNamedOf<[Go_Integral, Go_Pointer]>:$result);
+    let arguments = (ins Go_Pointer:$addr, AnyTypeOrNamedOf<[Go_IntegerLike, Go_Pointer]>:$rhs);
+    let results = (outs AnyTypeOrNamedOf<[Go_IntegerLike, Go_Pointer]>:$result);
     let assemblyFormat = "`(` $addr `:` type($addr) `)` `,` `(` $rhs `:` type($rhs) `)` attr-dict `:` type($result)";
 }
 
@@ -65,8 +65,8 @@ def AtomicCompareAndSwapIOp : Go_Op<"atomic.cmpswap"> {
         %0 = go.atomic.cmpswap %a, %b, %c : i32
         ```
     }];
-    let arguments = (ins Go_Pointer:$addr, AnyTypeOrNamedOf<[Go_Integral, Go_Pointer]>:$old, AnyTypeOrNamedOf<[Go_Integral, Go_Pointer]>:$value);
-    let results = (outs AnyTypeOrNamedOf<[Go_Integral, Go_Pointer]>:$result);
+    let arguments = (ins Go_Pointer:$addr, AnyTypeOrNamedOf<[Go_IntegerLike, Go_Pointer]>:$old, AnyTypeOrNamedOf<[Go_IntegerLike, Go_Pointer]>:$value);
+    let results = (outs AnyTypeOrNamedOf<[Go_IntegerLike, Go_Pointer]>:$result);
     let assemblyFormat = "`(` $addr `:` type($addr) `)` `,` `(` $old `:` type($old) `)` `,` `(` $value `:` type($value) `)` attr-dict `:` type($result)";
 }
 

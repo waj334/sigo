@@ -326,6 +326,12 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 		mlir.ModuleDumpToFile(mlirModule, options.Output+".dump.mlir")
 	}
 
+	// Verify the initial IR.
+	if mlir.LogicalResultIsFailure(mlir.VerifyModule(mlirModule)) {
+		// TODO: This should probably
+		fmt.Fprintf(os.Stderr, "\n\nThe compiler produced invalid IR. The resulting binary may not be valid!\nPlease submit a bug ticket.\n\n")
+	}
+
 	// Run the optimization passes
 	passDumpDir, _ := filepath.Abs(options.Output)
 	passDumpDir = filepath.Dir(passDumpDir)
@@ -406,8 +412,8 @@ func link(options Options, triplet string, arch string, cpu string, fpu string, 
 		return err
 	}
 
-	objs, err := picolibc.Compile(toolchain, triplet, cpu, fpu, options.GenerateDebugInfo, options.Optimization, floatEnabled,
-		options.NumJobs, options.BuildDir)
+	objs, err := picolibc.Compile(toolchain, triplet, cpu, fpu, options.GenerateDebugInfo, options.Optimization,
+		floatEnabled, options.NumJobs)
 	if err != nil {
 		return err
 	}
@@ -420,8 +426,8 @@ func link(options Options, triplet string, arch string, cpu string, fpu string, 
 		return err
 	}
 
-	objs, err = compilerRT.Compile(toolchain, triplet, cpu, fpu, options.GenerateDebugInfo, options.Optimization, floatEnabled,
-		options.NumJobs, options.BuildDir)
+	objs, err = compilerRT.Compile(toolchain, triplet, cpu, fpu, options.GenerateDebugInfo, options.Optimization,
+		floatEnabled, options.NumJobs)
 
 	if err != nil {
 		return err
@@ -602,7 +608,7 @@ func addConstantGlobals(module llvm.LLVMModuleRef, options Options, floatEnabled
 	boolType := llvm.Int1TypeInContext(ctx)
 
 	// Stack size for goroutines
-	globalGoroutineStackSize := findOrCreateGlobal(module, intPtrType, ssa.MangleSymbol("runtime._goroutineStackSize"))
+	globalGoroutineStackSize := findOrCreateGlobal(module, intPtrType, "runtime._goroutineStackSize")
 	alignment := llvm.PreferredAlignmentOfGlobal(dataLayout, globalGoroutineStackSize)
 	constGoroutineStackSize := llvm.ConstInt(intPtrType, uint64(align(uint(options.StackSize), alignment)), false)
 	llvm.SetAlignment(globalGoroutineStackSize, alignment)
@@ -611,7 +617,7 @@ func addConstantGlobals(module llvm.LLVMModuleRef, options Options, floatEnabled
 	llvm.SetGlobalConstant(globalGoroutineStackSize, true)
 
 	// FPU enable flag.
-	globalFpuEnableFlag := findOrCreateGlobal(module, boolType, ssa.MangleSymbol("runtime._fpuEnabled"))
+	globalFpuEnableFlag := findOrCreateGlobal(module, boolType, "runtime._fpuEnabled")
 	alignment = llvm.PreferredAlignmentOfGlobal(dataLayout, globalFpuEnableFlag)
 
 	var constFpuEnableFlag llvm.LLVMValueRef

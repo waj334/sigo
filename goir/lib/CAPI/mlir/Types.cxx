@@ -9,6 +9,61 @@
 #include "Go/IR/GoTypes.h"
 #include "Go/Util.h"
 
+MlirType mlirGoCreateUntypedType(MlirContext context, enum mlirGoBasicType basicType)
+{
+  auto _context = unwrap(context);
+  mlir::go::UntypedBasicKind _basicType = {};
+  switch (basicType)
+  {
+    case mlirGoBasicTypeComplex:
+      _basicType = mlir::go::UntypedBasicKind::Complex;
+      break;
+    case mlirGoBasicTypeBoolean:
+      _basicType = mlir::go::UntypedBasicKind::Boolean;
+      break;
+    case mlirGoBasicTypeFloat:
+      _basicType = mlir::go::UntypedBasicKind::Float;
+      break;
+    case mlirGoBasicTypeInteger:
+      _basicType = mlir::go::UntypedBasicKind::Integer;
+      break;
+    case mlirGoBasicTypeNil:
+      _basicType = mlir::go::UntypedBasicKind::Nil;
+      break;
+    case mlirGoBasicTypeRune:
+      _basicType = mlir::go::UntypedBasicKind::Rune;
+      break;
+    case mlirGoBasicTypeString:
+      _basicType = mlir::go::UntypedBasicKind::String;
+      break;
+  }
+  return wrap(mlir::go::UntypedType::get(_context, _basicType));
+}
+
+enum mlirGoBasicType mlirGoUntypedTypeGetHBasicKind(MlirType type)
+{
+  switch (const auto _type = mlir::cast<mlir::go::UntypedType>(unwrap(type));
+          _type.getBasicKind().getValue())
+  {
+    case mlir::go::UntypedBasicKind::Complex:
+      return mlirGoBasicType::mlirGoBasicTypeComplex;
+    case mlir::go::UntypedBasicKind::Boolean:
+      return mlirGoBasicType::mlirGoBasicTypeBoolean;
+    case mlir::go::UntypedBasicKind::Float:
+      return mlirGoBasicType::mlirGoBasicTypeFloat;
+    case mlir::go::UntypedBasicKind::Integer:
+      return mlirGoBasicType::mlirGoBasicTypeInteger;
+    case mlir::go::UntypedBasicKind::Nil:
+      return mlirGoBasicType::mlirGoBasicTypeNil;
+    case mlir::go::UntypedBasicKind::Rune:
+      return mlirGoBasicType::mlirGoBasicTypeRune;
+    case mlir::go::UntypedBasicKind::String:
+      return mlirGoBasicType::mlirGoBasicTypeString;
+    default:
+      assert(false && "unreachable");
+  }
+}
+
 MlirType mlirGoCreateNamedType(MlirType underlying, MlirStringRef name, MlirAttribute methods)
 {
   const auto _underlying = unwrap(underlying);
@@ -379,12 +434,14 @@ MlirType mlirGoCreateUintptrType(MlirContext ctx)
 
 bool mlirGoTypeIsInteger(MlirType type)
 {
-  const auto _type = mlir::go::dyn_cast<mlir::go::IntegerType>(unwrap(type));
-  if (!_type)
-  {
-    return false;
-  }
-  return true;
+  return mlir::TypeSwitch<mlir::Type, bool>(unwrap(type))
+    .Case([&](mlir::go::IntegerType) { return true; })
+    .Default([&](auto) { return false; });
+}
+
+bool mlirGoTypeIsUntyped(MlirType type)
+{
+  return mlir::go::isa<mlir::go::UntypedType>(unwrap(type));
 }
 
 bool mlirGoIntegerTypeIsSigned(MlirType type)
@@ -450,7 +507,8 @@ bool mlirGoFunctionTypeHasReceiver(MlirType type)
   return false;
 }
 
-bool mlirGoTypeIsAFunctionType(MlirType type) {
+bool mlirGoTypeIsAFunctionType(MlirType type)
+{
   const auto _type = mlir::go::cast<mlir::go::FunctionType>(unwrap(type));
   return mlir::go::isa<mlir::go::FunctionType>(_type);
 }

@@ -71,7 +71,7 @@ namespace mlir::go {
             auto inputT = this->getValue().getType();
 
             // Assert that the type being extracted matches that of the respective field in the struct
-            if (elemT != inputT) {
+            if (elemT != inputT && !mlir::go::isa<UntypedType>(inputT)) {
                 return this->emitOpError() << "element type at index " << this->getIndex() <<
                        " (" << elemT << ") does not match input value type (" << inputT << ")";
             }

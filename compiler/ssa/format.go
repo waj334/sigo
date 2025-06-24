@@ -4,33 +4,6 @@ import (
 	"go/types"
 )
 
-func MangleSymbol(symbol string) string {
-	return mangleSymbol(symbol)
-}
-
-func mangleSymbol(symbol string) string {
-	return symbol
-}
-
-func demangleSymbol(symbol string) string {
-	return symbol
-}
-
-/*
-// NOTE: Name mangling is disabled for now.
-func mangleSymbol(symbol string) string {
-	symbol = strings.ReplaceAll(symbol, "/", "$")
-	symbol = strings.ReplaceAll(symbol, ".", "@")
-	return symbol
-}
-
-func demangleSymbol(symbol string) string {
-	symbol = strings.ReplaceAll(symbol, "$", "/")
-	symbol = strings.ReplaceAll(symbol, "@", ".")
-	return symbol
-}
-*/
-
 func qualifiedName(name string, p *types.Package) string {
 	if p != nil {
 		name = p.Path() + "." + name
@@ -68,5 +41,5 @@ func (b *Builder) resolveSymbol(symbol string) string {
 	if len(symbolInfo.LinkName) > 0 {
 		symbol = symbolInfo.LinkName
 	}
-	return mangleSymbol(symbol)
+	return symbol
 }

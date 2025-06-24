@@ -18,7 +18,7 @@ std::optional<resultT> getOrFold(opT op, adaptorT adaptor)
   else if (auto definingOp = op->getOperand().getDefiningOp())
   {
     mlir::SmallVector<OpFoldResult, 4> results;
-    if (failed(definingOp->fold(results)))
+    if (failed(definingOp->fold(results)) || results.empty())
     {
       return std::nullopt;
     }

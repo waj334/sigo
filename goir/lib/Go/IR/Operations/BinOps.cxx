@@ -23,7 +23,7 @@ std::optional<std::tuple<resultT, resultT>> getOrFold(opT op, adaptorT adaptor)
   else if (auto definingOp = larg.getDefiningOp())
   {
     mlir::SmallVector<OpFoldResult, 4> results;
-    if (failed(definingOp->fold(results)))
+    if (failed(definingOp->fold(results)) || results.empty())
     {
       return std::nullopt;
     }
@@ -56,7 +56,7 @@ std::optional<std::tuple<resultT, resultT>> getOrFold(opT op, adaptorT adaptor)
   else if (auto definingOp = op->getRhs().getDefiningOp())
   {
     mlir::SmallVector<OpFoldResult, 4> results;
-    if (failed(definingOp->fold(results)))
+    if (failed(definingOp->fold(results)) || results.empty())
     {
       return std::nullopt;
     }

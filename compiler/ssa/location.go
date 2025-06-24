@@ -1,6 +1,7 @@
 package ssa
 
 import (
+	"context"
 	"encoding/binary"
 	"fmt"
 	"go/token"
@@ -13,7 +14,7 @@ import (
 	"pkg.si-go.dev/sigo/mlir"
 )
 
-func (b *Builder) location(p token.Pos) mlir.Location {
+func (b *Builder) unscopedLocation(p token.Pos) mlir.Location {
 	// Get the file positioning information associated with the location.
 	pos := b.config.Fset.Position(p)
 	if !pos.IsValid() {
@@ -27,6 +28,17 @@ func (b *Builder) location(p token.Pos) mlir.Location {
 	}
 
 	return mlir.LocationFileLineColGet(b.config.Ctx, filename, uint(pos.Line), uint(pos.Column))
+}
+
+func (b *Builder) location(ctx context.Context, p token.Pos) mlir.Location {
+	locAttr := b.unscopedLocation(p)
+
+	// Fuse the current scope information with the location.
+	if scope := currentScope(ctx); scope != nil {
+		locAttr = mlir.LocationFusedGet(b.ctx, []mlir.Location{locAttr}, scope)
+	}
+
+	return locAttr
 }
 
 func (b *Builder) locationHashString(p token.Pos) string {
