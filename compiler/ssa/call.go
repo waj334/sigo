@@ -4,20 +4,204 @@ import (
 	"context"
 	"go/ast"
 	"go/types"
-
 	"pkg.si-go.dev/sigo/mlir"
 )
 
+type calleeType int
+
+const (
+	calleeIsSymbol calleeType = iota
+	calleeIsClosure
+	calleeIsInterface
+)
+
+type callOpArgs struct {
+	calleeType calleeType
+	function   string
+	callee     mlir.Value
+	args       []mlir.Value
+	results    []mlir.Type
+	expr       *ast.CallExpr
+	load       bool
+	typeMap    TypeParamMap
+	signature  *types.Signature
+}
+
+func (b *Builder) extractCallOpArgs(ctx context.Context, expr *ast.CallExpr) callOpArgs {
+	var signature *types.Signature
+	var call callOpArgs
+
+	location := b.location(ctx, expr.Pos())
+	info := currentInfo(ctx)
+	funcObj := b.objectOf(ctx, expr.Fun)
+	calleeExpr := expr.Fun
+
+	for {
+		// Determine what the callee is.
+		switch Fun := calleeExpr.(type) {
+		case *ast.Ident:
+			switch obj := funcObj.(type) {
+			case *types.Func:
+				call.calleeType = calleeIsSymbol
+				call.function = qualifiedFuncName(obj)
+				signature = baseType(obj.Type()).(*types.Signature)
+			case *types.Var:
+				call.calleeType = calleeIsClosure
+				call.callee = b.emitExpr(ctx, Fun)[0]
+				signature = baseType(obj.Type()).(*types.Signature)
+			default:
+				panic("unhandled")
+			}
+		case *ast.FuncLit:
+			call.calleeType = calleeIsClosure
+			call.callee = b.emitExpr(ctx, Fun)[0]
+			signature = b.typeOf(ctx, Fun).(*types.Signature)
+		case *ast.SelectorExpr:
+			sel := info.Selections[Fun]
+			signature = baseType(funcObj.Type()).(*types.Signature)
+
+			if sel != nil {
+				switch sel.Kind() {
+				case types.FieldVal:
+					call.calleeType = calleeIsClosure
+					call.callee = b.emitExpr(ctx, Fun)[0]
+				case types.MethodVal, types.MethodExpr:
+					funcObj := funcObj.(*types.Func)
+					recvT := sel.Recv()
+					if typeParam, ok := recvT.(*types.TypeParam); ok {
+						recvT = resolveType(ctx, typeParam)
+						namedRecvT := recvT.(*types.Named)
+
+						// Find the matching method of the concrete type.
+						ok := false
+						for method := range namedRecvT.Methods() {
+							if method.Name() == funcObj.Name() {
+								funcObj = method
+								ok = true
+							}
+						}
+
+						if !ok {
+							panic("concrete method not found")
+						}
+					}
+
+					// Update the signature.
+					signature = funcObj.Signature()
+
+					if types.IsInterface(types.Unalias(recvT)) {
+						call.calleeType = calleeIsInterface
+						call.callee = b.emitExpr(ctx, Fun.X)[0]
+						call.function = funcObj.Name()
+					} else {
+						call.calleeType = calleeIsSymbol
+						call.function = qualifiedFuncName(funcObj)
+
+						var recvArg mlir.Value
+						exprType := baseType(recvT)
+						sigRecvType := baseType(signature.Recv().Type())
+						if isPointer(exprType) {
+							// The expression yields *T
+							if isPointer(sigRecvType) {
+								// signature wants *T: use directly
+								recvArg = b.emitExpr(ctx, Fun.X)[0]
+							} else {
+								// signature wants T: load
+								ptr := b.emitExpr(ctx, Fun.X)[0]
+								recvArg = b.NewTempValue(ptr).Load(ctx, location)
+							}
+						} else {
+							// The expression yields T
+							addr := b.addressOf(ctx, Fun.X, location)
+							if isPointer(sigRecvType) {
+								// signature wants *T: pass address
+								recvArg = addr
+							} else {
+								// signature wants T: load
+								recvArg = b.NewTempValue(addr).Load(ctx, location)
+							}
+						}
+
+						// Append the receiver value to the argument list.
+						call.args = append(call.args, recvArg)
+					}
+
+				default:
+					panic("unhandled")
+				}
+
+			} else {
+				// The selection is actually a qualified identifier.
+				funcObj := funcObj.(*types.Func)
+				call.calleeType = calleeIsSymbol
+				call.function = qualifiedFuncName(funcObj)
+			}
+		case *ast.IndexExpr:
+			// Resolve type parameters.
+			call.typeMap = resolveTypeParams(ctx, expr, info)
+			ctx = newContextWithTypeMap(ctx, call.typeMap)
+			calleeExpr = Fun.X
+			continue
+		case *ast.IndexListExpr:
+			// Resolve type parameters.
+			call.typeMap = resolveTypeParams(ctx, expr, info)
+			calleeExpr = Fun.X
+			ctx = newContextWithTypeMap(ctx, call.typeMap)
+			continue
+		default:
+			panic("unhandled")
+		}
+
+		if signature == nil {
+			panic("signature is nil")
+		}
+
+		// Is the callee a generic function?
+		if signature.TypeParams().Len() > 0 || signature.RecvTypeParams().Len() > 0 {
+			// Need to instantiate this generic function.
+			data, ok := b.genericFuncs[call.function]
+			if !ok {
+				b.funcDeclDataMutex.Lock()
+				decl := b.ungeneratedFuncs[call.function]
+				b.funcDeclDataMutex.Unlock()
+
+				if decl != nil {
+					data = b.addFunctionDecl(ctx, decl)
+				}
+			}
+
+			if data != nil {
+				typeMap := resolveTypeParams(ctx, expr, info)
+				instanceData := b.createFuncInstance(ctx, signature, data, typeMap)
+				call.function = instanceData.linkname
+				signature = instanceData.signature
+			}
+		}
+
+		// Evaluate all arguments to the call.
+		callArgs := b.emitCallArgs(ctx, signature, expr)
+		if len(callArgs) != signature.Params().Len() {
+			panic("len(callArgs) != signature.Params().Len()")
+		}
+
+		call.args = append(call.args, callArgs...)
+
+		// Collect result types.
+		call.results = make([]mlir.Type, 0, signature.Results().Len())
+		for result := range signature.Results().Variables() {
+			call.results = append(call.results, b.GetStoredType(ctx, result.Type()))
+		}
+
+		call.signature = signature
+
+		return call
+	}
+}
+
 func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.Value {
-	location := b.location(expr.Pos())
+	location := b.location(ctx, expr.Lparen)
 	info := currentInfo(ctx)
 	tv := info.Types[expr.Fun]
-
-	if F, ok := b.objectOf(ctx, expr.Fun).(*types.Func); ok {
-		// Set up type inference.
-		signature := F.Type().(*types.Signature)
-		ctx = newContextWithLhsList(ctx, tupleTypes(signature.Params()))
-	}
 
 	if tv.IsBuiltin() {
 		// Emit the respective runtime call.
@@ -25,9 +209,6 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 	} else if b.isIntrinsic(ctx, expr) {
 		return b.emitIntrinsic(ctx, expr)
 	} else if tv.IsType() {
-		// Set up type inference.
-		ctx = newContextWithLhsList(ctx, []types.Type{tv.Type})
-
 		// Evaluate the value to convert.
 		X := b.emitExpr(ctx, expr.Args[0])[0]
 
@@ -37,226 +218,29 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 		value := b.emitTypeConversion(ctx, X, srcType, destType, location)
 		return []mlir.Value{value}
 	} else {
-		signature := baseType(b.typeOf(ctx, expr.Fun)).(*types.Signature)
+		opArgs := b.extractCallOpArgs(ctx, expr)
+		switch opArgs.calleeType {
+		case calleeIsClosure:
+			signatureTypeAttr := mlir.TypeAttrGet(b.GetType(ctx, opArgs.signature))
+			op := mlir.GoCreateClosureCallOperation(
+				b.ctx, signatureTypeAttr, opArgs.callee, opArgs.results, opArgs.args, location)
+			appendOperation(ctx, op)
+			return resultsOf(op)
+		case calleeIsInterface:
+			op := mlir.GoCreateInterfaceCall(
+				b.ctx, opArgs.function, opArgs.results, opArgs.callee, opArgs.args, location)
+			appendOperation(ctx, op)
+			return resultsOf(op)
+		case calleeIsSymbol:
+			// Emit the function that will be called.
+			symbol := b.resolveSymbol(opArgs.function)
+			b.queueJob(ctx, symbol)
 
-		// Evaluate call arguments.
-		argValues := b.emitCallArgs(ctx, signature, expr)
-
-		switch Fun := expr.Fun.(type) {
-		case *ast.SelectorExpr:
-			T := b.typeOf(ctx, Fun.X)
-			obj := b.objectOf(ctx, Fun.Sel)
-
-			if paramT, ok := T.(*types.TypeParam); ok {
-				data := currentFuncData(ctx)
-				namedT := data.typeMap[paramT.Index()].(*types.Named)
-				T = namedT
-
-				// Lookup the actual function being called.
-				for method := range namedT.Methods() {
-					if method.Name() == obj.Name() {
-						obj = method
-						break
-					}
-				}
-			}
-
-			switch T.Underlying().(type) {
-			case *types.Interface:
-				funcObj := obj.(*types.Func)
-
-				// Evaluate the interface value.
-				X := b.emitExpr(ctx, Fun.X)[0]
-
-				// Emit the interface call.
-				return b.emitInterfaceCall(ctx, X, funcObj, argValues, location)
-			default:
-				var signature *types.Signature
-				switch obj := obj.Type().(type) {
-				case *types.Signature:
-					signature = obj
-				case *types.Named:
-					fobj := b.objectOf(ctx, expr.Fun)
-					signature = baseType(fobj.Type()).(*types.Signature)
-				}
-
-				if signature.Recv() != nil {
-					recvType := signature.Recv().Type()
-					actualRecvType := b.typeOf(ctx, Fun.X)
-
-					addr := b.addressOf(ctx, Fun.X, location)
-					recvValue := b.NewTempValue(addr)
-
-					// Handle deriving the expected receiver value for the method call.
-					var recv mlir.Value
-					if isPointer(actualRecvType) {
-						// Load the pointer value stored at the address.
-						recv = recvValue.Load(ctx, location)
-					} else {
-						// Take the address of the value.
-						recv = recvValue.Pointer(ctx, location)
-					}
-
-					// The callee is from an embedded type if it matches a receiver from any method of a type embedded
-					// in a struct.
-					actualStructType := baseStructTypeOf(actualRecvType)
-					if actualStructType != nil {
-						embeddedType := recvType
-						if ptrType, ok := recvType.(*types.Pointer); ok {
-							embeddedType = ptrType.Elem()
-						}
-
-						for i := 0; i < actualStructType.NumFields(); i++ {
-							field := actualStructType.Field(i)
-							if field.Embedded() {
-								matches := false
-								load := false
-								switch fieldType := field.Type().(type) {
-								case *types.Pointer:
-									matches = types.Identical(embeddedType, fieldType.Elem())
-									load = true
-								default:
-									matches = types.Identical(embeddedType, fieldType)
-								}
-
-								if matches {
-									ptrT := b.pointerOf(ctx, field.Type())
-									structT := b.GetStoredType(ctx, actualStructType)
-									gepOp := mlir.GoCreateGepOperation2(b.ctx, recv, structT, []any{0, i}, ptrT, location)
-									appendOperation(ctx, gepOp)
-									recv = resultOf(gepOp)
-									if load {
-										recvValue = b.NewTempValue(recv)
-										recv = recvValue.Load(ctx, location)
-									}
-									break
-								}
-							}
-						}
-					}
-
-					// Load the value if the receiver should NOT be a pointer.
-					if !isPointer(recvType) {
-						recvValue = b.NewTempValue(recv)
-						recv = recvValue.Load(ctx, location)
-					}
-
-					// Prepend the receiver value to the call args.
-					argValues = append([]mlir.Value{recv}, argValues...)
-				}
-
-				switch obj := obj.(type) {
-				case *types.Var:
-					// Evaluate the function literal symbol to call indirectly.
-					fnValue := b.emitExpr(ctx, expr.Fun)[0]
-
-					// Create the expected synthetic signature type.
-					T := b.createSyntheticClosureSignature(ctx, signature)
-					resultTypes := make([]mlir.Type, mlir.GoFunctionTypeGetNumResults(T))
-					for i := range resultTypes {
-						resultTypes[i] = mlir.GoFunctionTypeGetResult(T, i)
-					}
-
-					// Extract the callee ptr from the func value struct.
-					extractOp := mlir.GoCreateExtractOperation(b.ctx, 0, b.ptr, fnValue, location)
-					appendOperation(ctx, extractOp)
-					fn := resultOf(extractOp)
-
-					fPtrType := mlir.GoCreatePointerType(T)
-					fn = b.bitcastTo(ctx, fn, fPtrType, location)
-
-					// Extract the context pointer from the func value struct.
-					extractOp = mlir.GoCreateExtractOperation(b.ctx, 1, b.ptr, fnValue, location)
-					appendOperation(ctx, extractOp)
-					contextPtr := resultOf(extractOp)
-
-					// Prepend the context pointer to the arg list.
-					argValues = append([]mlir.Value{contextPtr}, argValues...)
-
-					// Emit the indirect call.
-					op := mlir.GoCreateCallIndirectOperation(b.ctx, fn, resultTypes, argValues, location)
-					appendOperation(ctx, op)
-					return resultsOf(op)
-				case *types.Func:
-					return b.emitGeneralCall(ctx, Fun.Sel, obj, argValues, location)
-				default:
-					panic("unhandled")
-				}
-			}
-		case *ast.FuncLit:
-			// Evaluate the function literal symbol to call indirectly.
-			fnValue := b.emitExpr(ctx, expr.Fun)[0]
-
-			// Create the expected synthetic signature type.
-			T := b.createSyntheticClosureSignature(ctx, signature)
-			resultTypes := make([]mlir.Type, mlir.GoFunctionTypeGetNumResults(T))
-			for i := range resultTypes {
-				resultTypes[i] = mlir.GoFunctionTypeGetResult(T, i)
-			}
-
-			// Extract the callee ptr from the func value struct.
-			extractOp := mlir.GoCreateExtractOperation(b.ctx, 0, b.ptr, fnValue, location)
-			appendOperation(ctx, extractOp)
-			fn := resultOf(extractOp)
-			fn = b.bitcastTo(ctx, fn, T, location)
-
-			// Extract the context pointer from the func value struct.
-			extractOp = mlir.GoCreateExtractOperation(b.ctx, 1, b.ptr, fnValue, location)
-			appendOperation(ctx, extractOp)
-			contextPtr := resultOf(extractOp)
-
-			// Prepend the context pointer to the arg list.
-			argValues = append([]mlir.Value{contextPtr}, argValues...)
-
-			// Emit the indirect call.
-			callOp := mlir.GoCreateCallIndirectOperation(b.ctx, fn, resultTypes, argValues, location)
-			appendOperation(ctx, callOp)
-			return resultsOf(callOp)
+			op := mlir.GoCreateCallOperation(b.ctx, symbol, opArgs.results, opArgs.args, location)
+			appendOperation(ctx, op)
+			return resultsOf(op)
 		default:
-			switch funcObj := b.objectOf(ctx, Fun).(type) {
-			case *types.Func:
-				return b.emitGeneralCall(ctx, Fun.(*ast.Ident), funcObj, argValues, location)
-			case *types.Var:
-				// Evaluate the func value.
-				fnValue := b.emitExpr(ctx, expr.Fun)[0]
-
-				// Gather parameter types.
-				// NOTE: This starts with zero length so that the environment pointer can be appended even when there's
-				//       no parameters.
-				paramTypes := make([]mlir.Type, 0, signature.Params().Len())
-				for i := 0; i < signature.Params().Len(); i++ {
-					paramTypes = append(paramTypes, b.GetStoredType(ctx, signature.Params().At(i).Type()))
-				}
-
-				// Gather call result types from its signature.
-				resultTypes := make([]mlir.Type, signature.Results().Len())
-				for i := 0; i < signature.Results().Len(); i++ {
-					resultTypes[i] = b.GetStoredType(ctx, signature.Results().At(i).Type())
-				}
-
-				// Create the closure function type
-				closureFnType := mlir.GoCreateFunctionType(b.ctx, nil, append(paramTypes, b.ptr), resultTypes)
-				fptrType := mlir.GoCreatePointerType(closureFnType)
-
-				// Extract the callee ptr from the func value struct.
-				extractOp := mlir.GoCreateExtractOperation(b.ctx, 0, b.ptr, fnValue, location)
-				appendOperation(ctx, extractOp)
-				funcPtr := resultOf(extractOp)
-				funcPtr = b.bitcastTo(ctx, funcPtr, fptrType, location)
-
-				// Extract the environment pointer from the func value struct.
-				extractOp = mlir.GoCreateExtractOperation(b.ctx, 1, b.ptr, fnValue, location)
-				appendOperation(ctx, extractOp)
-				envPtr := resultOf(extractOp)
-
-				// Emit the indirect call.
-				argValues = append([]mlir.Value{envPtr}, argValues...)
-				op := mlir.GoCreateCallIndirectOperation(b.ctx, funcPtr, resultTypes, argValues, location)
-				appendOperation(ctx, op)
-				return resultsOf(op)
-			default:
-				panic("unhandled")
-			}
+			panic("unhandled")
 		}
 	}
 }
@@ -282,10 +266,9 @@ func (b *Builder) createSyntheticClosureSignature(ctx context.Context, signature
 }
 
 func (b *Builder) emitCallArgs(ctx context.Context, signature *types.Signature, expr *ast.CallExpr) []mlir.Value {
-	location := b.location(expr.Pos())
+	location := b.location(ctx, expr.Pos())
 	argValues := make([]mlir.Value, len(expr.Args))
 	for i, expr := range expr.Args {
-		ctx = newContextWithRhsIndex(ctx, i)
 		argValues[i] = b.emitExpr(ctx, expr)[0]
 		switch expr := expr.(type) {
 		case *ast.Ident:
@@ -325,242 +308,47 @@ func (b *Builder) emitCallArgs(ctx context.Context, signature *types.Signature, 
 	return b.emitVariadicArgs(ctx, signature, argTypes, argValues, location)
 }
 
-func (b *Builder) emitGeneralCall(ctx context.Context, ident *ast.Ident, obj *types.Func, args []mlir.Value, location mlir.Location) []mlir.Value {
-	callee := mangleSymbol(qualifiedFuncName(obj))
-	signature := obj.Type().Underlying().(*types.Signature)
-	info := currentInfo(ctx)
-
-	if signature.Recv() != nil {
-		// Get the name of the method receiver's named type.
-		var typename string
-		if isPointer(signature.Recv().Type()) {
-			typename = signature.Recv().Type().(*types.Pointer).Elem().(*types.Named).Obj().Name()
-		} else {
-			typename = signature.Recv().Type().(*types.Named).Obj().Name()
-		}
-
-		// Format the callee.
-		callee = mangleSymbol(qualifiedName(typename+"."+obj.Name(), obj.Pkg()))
-	}
-
-	// Is the callee a generic function?
-	if signature.TypeParams().Len() > 0 || signature.RecvTypeParams().Len() > 0 {
-		// Need to instantiate this generic function.
-		data, ok := b.genericFuncs[callee]
-		if !ok {
-			b.funcDeclDataMutex.Lock()
-			decl := b.ungeneratedFuncs[callee]
-			b.funcDeclDataMutex.Unlock()
-
-			data = b.addFunctionDecl(ctx, decl)
-		}
-
-		instance := info.Instances[ident]
-		instanceData := b.createFuncInstance(ctx, signature, instance, data)
-		callee = instanceData.linkname
-		signature = instanceData.signature
-	}
-
-	// Gather call result types from its signature.
-	resultTypes := make([]mlir.Type, signature.Results().Len())
-	for i := 0; i < signature.Results().Len(); i++ {
-		resultTypes[i] = b.GetStoredType(ctx, signature.Results().At(i).Type())
-	}
-
-	// Create the function call.
-	symbol := b.resolveSymbol(callee)
-	b.queueJob(ctx, symbol)
-
-	callOp := mlir.GoCreateCallOperation(b.ctx, symbol, resultTypes, args, location)
-	appendOperation(ctx, callOp)
-	return resultsOf(callOp)
-}
-
-func (b *Builder) emitInterfaceCall(ctx context.Context, X mlir.Value, obj *types.Func, args []mlir.Value, location mlir.Location) []mlir.Value {
-	method := obj.Name()
-	T := b.createSignatureType(ctx, obj.Type().(*types.Signature))
-
-	// Create the interface call operation
-	op := mlir.GoCreateInterfaceCall(b.ctx, method, T, X, args, location)
-	appendOperation(ctx, op)
-	return resultsOf(op)
-}
-
 func (b *Builder) emitGoStatement(ctx context.Context, stmt *ast.GoStmt) {
-	location := b.location(stmt.Pos())
-	signature := b.typeOf(ctx, stmt.Call.Fun).Underlying().(*types.Signature)
-
-	// Evaluate the call arguments
-	callArgs := b.emitCallArgs(ctx, signature, stmt.Call)
-
-	// Evaluate the function based on the statement's callee expression.
-	switch Fun := stmt.Call.Fun.(type) {
-	case *ast.FuncLit:
-		// Emit the literal function.
-		F := b.emitExpr(ctx, Fun)[0]
-
-		// Emit the goroutine operation.
-		op := mlir.GoCreateGoOperation(b.ctx, F, "", callArgs, location)
+	location := b.location(ctx, stmt.Pos())
+	opArgs := b.extractCallOpArgs(ctx, stmt.Call)
+	switch opArgs.calleeType {
+	case calleeIsClosure:
+		signatureTypeAttr := mlir.TypeAttrGet(b.GetType(ctx, opArgs.signature))
+		op := mlir.GoCreateGoOperation3(b.ctx, signatureTypeAttr, opArgs.callee, opArgs.args, location)
 		appendOperation(ctx, op)
-	case *ast.Ident:
-		// Evaluate the callee.
-		var F mlir.Value
-		switch Fun := stmt.Call.Fun.(type) {
-		case *ast.Ident:
-			info := currentInfo(ctx)
-			tv := info.Types[Fun]
-			if tv.IsBuiltin() {
-				symbol := b.emitBuiltinCallWrapper(ctx, Fun)
-
-				// Get the address of the builtin wrapper function.
-				signature := b.typeOf(ctx, Fun).(*types.Signature)
-				fptrType := b.funcPointerOf(ctx, signature)
-				F = b.addressOfSymbol(ctx, symbol, fptrType, location)
-			} else {
-				F = b.emitExpr(ctx, Fun)[0]
-			}
-		default:
-			F = b.emitExpr(ctx, Fun)[0]
-		}
-
-		// Emit the goroutine operation.
-		op := mlir.GoCreateGoOperation(b.ctx, F, "", callArgs, location)
+	case calleeIsInterface:
+		op := mlir.GoCreateGoOperation4(b.ctx, opArgs.callee, opArgs.function, opArgs.args, location)
 		appendOperation(ctx, op)
-	case *ast.SelectorExpr:
-		T := b.typeOf(ctx, Fun.X)
-		switch T.Underlying().(type) {
-		case *types.Interface:
-			// Evaluate the interface value.
-			F := b.emitExpr(ctx, Fun.X)[0]
+	case calleeIsSymbol:
+		// Emit the function that will be called.
+		symbol := b.resolveSymbol(opArgs.function)
+		b.queueJob(ctx, symbol)
 
-			// Emit the goroutine operation.
-			op := mlir.GoCreateGoOperation(b.ctx, F, Fun.Sel.Name, callArgs, location)
-			appendOperation(ctx, op)
-			return
-		default:
-			// This is a named type method or a package function.
-			// Evaluate the callee.
-			F := b.emitExpr(ctx, Fun)[0]
-
-			switch b.objectOf(ctx, Fun.X).(type) {
-			case *types.Var:
-				// Evaluate the receiver value.
-				recv := b.emitExpr(ctx, Fun.X)[0]
-
-				// Prepend the receiver value to the call args.
-				callArgs = append([]mlir.Value{recv}, callArgs...)
-			}
-
-			// Emit the goroutine operation.
-			op := mlir.GoCreateGoOperation(b.ctx, F, "", callArgs, location)
-			appendOperation(ctx, op)
-		}
+		op := mlir.GoCreateGoOperation1(b.ctx, symbol, opArgs.args, location)
+		appendOperation(ctx, op)
 	default:
 		panic("unhandled")
 	}
 }
 
 func (b *Builder) emitDeferStatement(ctx context.Context, stmt *ast.DeferStmt) {
-	location := b.location(stmt.Pos())
-
-	// Evaluate the call arguments
-	callArgs := b.exprValues(ctx, stmt.Call.Args...)
-
-	// Evaluate the function based on the statement's callee expression.
-	switch Fun := stmt.Call.Fun.(type) {
-	case *ast.FuncLit:
-		// Emit the literal function.
-		F := b.emitExpr(ctx, Fun)[0]
-
-		// Get the data for this function.
-		enclosingFuncData := currentFuncData(ctx)
-		data := enclosingFuncData.anonymousFuncs[Fun]
-
-		if len(data.freeVars) > 0 {
-			// Create the context struct value.
-			if contextValue, contextType := data.createContextStructValue(ctx, b, location); contextValue != nil {
-
-				// Allocate heap for the context value.
-				allocOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, contextType, 1, true, location)
-				appendOperation(ctx, allocOp)
-
-				// Store the context value at the heap address.
-				storeOp := mlir.GoCreateStoreOperation(b.ctx, contextValue, resultOf(allocOp), location)
-				appendOperation(ctx, storeOp)
-
-				// Prepend the context value to the call args.
-				callArgs = append([]mlir.Value{resultOf(allocOp)}, callArgs...)
-			} else {
-				// Pass nullptr as the context pointer value.
-				contextValue = b.emitZeroValue(ctx, types.Typ[types.UnsafePointer], location)
-			}
-		}
-
-		// Emit the defer operation.
-		op := mlir.GoCreateDeferOperation(b.ctx, F, nil, callArgs, location)
+	location := b.location(ctx, stmt.Pos())
+	opArgs := b.extractCallOpArgs(ctx, stmt.Call)
+	switch opArgs.calleeType {
+	case calleeIsClosure:
+		signatureTypeAttr := mlir.TypeAttrGet(b.GetType(ctx, opArgs.signature))
+		op := mlir.GoCreateDeferOperation3(b.ctx, signatureTypeAttr, opArgs.callee, opArgs.args, location)
 		appendOperation(ctx, op)
-	case *ast.Ident:
-		// Evaluate the callee.
-		var F mlir.Value
-		switch Fun := stmt.Call.Fun.(type) {
-		case *ast.Ident:
-			info := currentInfo(ctx)
-			tv := info.Types[Fun]
-			if tv.IsBuiltin() {
-				symbol := b.emitBuiltinCallWrapper(ctx, Fun)
-
-				// Get the address of the builtin wrapper function.
-				signature := b.typeOf(ctx, Fun).(*types.Signature)
-				fptrType := b.funcPointerOf(ctx, signature)
-				F = b.addressOfSymbol(ctx, symbol, fptrType, location)
-			} else {
-				F = b.emitExpr(ctx, Fun)[0]
-			}
-		default:
-			F = b.emitExpr(ctx, Fun)[0]
-		}
-
-		// Emit the goroutine operation.
-		op := mlir.GoCreateDeferOperation(b.ctx, F, nil, callArgs, location)
+	case calleeIsInterface:
+		op := mlir.GoCreateDeferOperation4(b.ctx, opArgs.callee, opArgs.function, opArgs.args, location)
 		appendOperation(ctx, op)
-	case *ast.SelectorExpr:
-		T := b.typeOf(ctx, Fun.X)
+	case calleeIsSymbol:
+		// Emit the function that will be called.
+		symbol := b.resolveSymbol(opArgs.function)
+		b.queueJob(ctx, symbol)
 
-		switch T.Underlying().(type) {
-		case *types.Interface:
-			// Evaluate the interface value.
-			F := b.emitExpr(ctx, Fun.X)[0]
-
-			// Emit the goroutine operation.
-			op := mlir.GoCreateDeferOperation(b.ctx, F, mlir.StringAttrGet(b.ctx, Fun.Sel.Name), callArgs, location)
-			appendOperation(ctx, op)
-			return
-		default:
-			// Evaluate the callee.
-			F := b.emitExpr(ctx, Fun)[0]
-			signature := b.typeOf(ctx, Fun.Sel).(*types.Signature)
-
-			switch b.objectOf(ctx, Fun.X).(type) {
-			case *types.Var:
-				recvAddr := b.valueOf(ctx, Fun.X)
-
-				var recv mlir.Value
-				if isPointer(signature.Recv().Type()) {
-					// Take the address of the receiver object.
-					recv = recvAddr.Pointer(ctx, location)
-				} else {
-					// Load the receiver value.
-					recv = recvAddr.Load(ctx, location)
-				}
-
-				// Prepend the receiver value to the call args.
-				callArgs = append([]mlir.Value{recv}, callArgs...)
-			}
-
-			// Emit the goroutine operation.
-			op := mlir.GoCreateDeferOperation(b.ctx, F, nil, callArgs, location)
-			appendOperation(ctx, op)
-		}
+		op := mlir.GoCreateDeferOperation1(b.ctx, symbol, opArgs.args, location)
+		appendOperation(ctx, op)
 	default:
 		panic("unhandled")
 	}
@@ -588,7 +376,8 @@ func (b *Builder) emitVariadicArgs(ctx context.Context, signature *types.Signatu
 			argT := argTypes[i]
 
 			// Gep into the backing array to the position where the current argument should be stored.
-			gepOp := mlir.GoCreateGepOperation2(b.ctx, resultOf(allocaOp), b._any, []any{i}, mlir.GoCreatePointerType(elementT), location)
+			gepOp := mlir.GoCreateGepOperation2(
+				b.ctx, resultOf(allocaOp), b._any, []any{i}, mlir.GoCreatePointerType(elementT), location)
 			appendOperation(ctx, gepOp)
 
 			// Handle interface type conversion.
@@ -666,8 +455,7 @@ func (b *Builder) createInterfaceCallWrapper(ctx context.Context, symbol string,
 			}
 
 			// Call the method.
-			signatureType := b.createSignatureType(ctx, signature)
-			callOp := mlir.GoCreateInterfaceCall(b.ctx, callee, signatureType, args[0], args[1:], b._noLoc)
+			callOp := mlir.GoCreateInterfaceCall(b.ctx, callee, resultTypes, args[0], args[1:], b._noLoc)
 			appendOperation(ctx, callOp)
 
 			// Return the results.
@@ -703,8 +491,191 @@ func (b *Builder) createInterfaceCallWrapper(ctx context.Context, symbol string,
 func (b *Builder) emitCallArgs2(ctx context.Context, args []ast.Expr) []mlir.Value {
 	values := make([]mlir.Value, len(args))
 	for i, expr := range args {
-		ctx := newContextWithRhsIndex(ctx, i)
 		values[i] = b.emitExpr(ctx, expr)[0]
 	}
 	return values
+}
+
+func resolveTypeParams(ctx context.Context, callExpr *ast.CallExpr, info *types.Info) TypeParamMap {
+	currentMapping := currentTypeMap(ctx)
+
+	mapping := TypeParamMap{}
+	switch Fun := callExpr.Fun.(type) {
+	case *ast.Ident:
+		// Look up this instance from the type checker info directly.
+		instance, ok := info.Instances[Fun]
+		if !ok {
+			return nil
+		}
+
+		signature, ok := instance.Type.(*types.Signature)
+		if !ok {
+			return nil
+		}
+
+		var createTypeMapping func(generic types.Type, concrete types.Type)
+		createTypeMapping = func(generic types.Type, concrete types.Type) {
+			switch generic := generic.(type) {
+			case *types.Array:
+				concrete := concrete.(*types.Array)
+				createTypeMapping(generic.Elem(), concrete.Elem())
+			case *types.Chan:
+				concrete := concrete.(*types.Chan)
+				createTypeMapping(generic.Elem(), concrete.Elem())
+			case *types.Map:
+				concrete := concrete.(*types.Map)
+				createTypeMapping(generic.Key(), concrete.Key())
+				createTypeMapping(generic.Elem(), concrete.Elem())
+			case *types.Pointer:
+				concrete := concrete.(*types.Pointer)
+				createTypeMapping(generic.Elem(), concrete.Elem())
+			case *types.Slice:
+				concrete := concrete.(*types.Slice)
+				createTypeMapping(generic.Elem(), concrete.Elem())
+			case *types.TypeParam:
+				mapping[generic.Index()] = concrete
+			}
+		}
+
+		if signature.Recv() != nil {
+			createTypeMapping(signature.Recv().Origin().Type(), signature.Recv().Type())
+		}
+
+		for obj := range signature.Params().Variables() {
+			createTypeMapping(obj.Origin().Type(), obj.Type())
+		}
+
+		for obj := range signature.Results().Variables() {
+			createTypeMapping(obj.Origin().Type(), obj.Type())
+		}
+
+	case *ast.IndexExpr:
+		var ident *ast.Ident
+		switch X := Fun.X.(type) {
+		case *ast.Ident:
+			ident = X
+		case *ast.SelectorExpr:
+			ident = X.Sel
+		default:
+			panic("unhandled")
+		}
+
+		obj, ok := info.Uses[ident]
+		if !ok {
+			return nil
+		}
+
+		signature, ok := obj.Type().(*types.Signature)
+		if !ok {
+			return nil
+		}
+
+		typeParams := signature.TypeParams()
+		argExpr := Fun.Index
+		param := typeParams.At(0)
+		argType := info.TypeOf(argExpr) // Resolve the type from the AST expression.
+		if argType == nil {
+			return nil
+		}
+
+		switch argType := argType.(type) {
+		case *types.TypeParam:
+			// Look up in the current map.
+			if currentMapping == nil {
+				panic("type parameter cannot be resolved")
+			}
+			mapping[param.Index()] = currentMapping[param.Index()]
+		default:
+			mapping[param.Index()] = argType
+		}
+	case *ast.IndexListExpr:
+		var ident *ast.Ident
+		switch X := Fun.X.(type) {
+		case *ast.Ident:
+			ident = X
+		case *ast.SelectorExpr:
+			ident = X.Sel
+		default:
+			panic("unhandled")
+		}
+
+		obj, ok := info.Uses[ident]
+		if !ok {
+			return nil
+		}
+
+		signature, ok := obj.Type().(*types.Signature)
+		if !ok {
+			return nil
+		}
+
+		typeParams := signature.TypeParams()
+		typeArgExprs := Fun.Indices
+		for i, argExpr := range typeArgExprs {
+			param := typeParams.At(i)
+			argType := info.TypeOf(argExpr) // Resolve the type from the AST expression.
+			if argType == nil {
+				return nil
+			}
+
+			switch argType := argType.(type) {
+			case *types.TypeParam:
+				// Look up in the current map.
+				if currentMapping == nil {
+					panic("type parameter cannot be resolved")
+				}
+				mapping[param.Index()] = currentMapping[param.Index()]
+			default:
+				mapping[param.Index()] = argType
+			}
+		}
+	case *ast.SelectorExpr:
+		receiverType := info.TypeOf(Fun.X)
+		if receiverType == nil {
+			return nil
+		}
+
+		var namedType *types.Named
+		if ptr, isPtr := receiverType.(*types.Pointer); isPtr {
+			namedType, _ = ptr.Elem().(*types.Named)
+		} else {
+			namedType, _ = receiverType.(*types.Named)
+		}
+
+		if namedType == nil {
+			return nil
+		}
+
+		typeArgs := namedType.TypeArgs()
+		if typeArgs == nil || typeArgs.Len() == 0 {
+			return nil
+		}
+
+		origin := namedType.Origin()
+		if origin == nil {
+			return nil
+		}
+		typeParams := origin.TypeParams()
+
+		if typeParams.Len() != typeArgs.Len() {
+			return nil
+		}
+
+		for i := 0; i < typeParams.Len(); i++ {
+			param := typeParams.At(i)
+			argType := typeArgs.At(i)
+			switch argType := argType.(type) {
+			case *types.TypeParam:
+				// Look up in the current map.
+				if currentMapping == nil {
+					panic("type parameter cannot be resolved")
+				}
+				mapping[param.Index()] = currentMapping[param.Index()]
+			default:
+				mapping[param.Index()] = argType
+			}
+		}
+	}
+
+	return mapping
 }

@@ -68,7 +68,9 @@ def LoadOp : Go_Op<"load", [AlwaysSpeculatable]> {
 // Store
 //===----------------------------------------------------------------------===//
 
-def StoreOp : Go_Op<"store"> {
+def StoreOp : Go_Op<"store", [
+            DeclareOpInterfaceMethods<UntypedTypeResolverInterface, ["resolveOperandTypes"]>
+        ]> {
     let summary = "Store operation";
     let description = [{
         The `go.store` operation stores a value at the specified memory
@@ -89,6 +91,11 @@ def StoreOp : Go_Op<"store"> {
         $value `into` $addr (`volatile` $isVolatile^)? (`atomic` $isAtomic^)? attr-dict-with-keyword `:` functional-type(operands, results)
     }];
     let hasVerifier = 1;
+    let extraClassDefinition = [{
+        ::mlir::SmallVector<::mlir::Type> $cppClass::resolveOperandTypes() {
+            return storeOpResolveOperandTypes(this);
+        }
+    }];
 }
 
 //===----------------------------------------------------------------------===//
@@ -123,7 +130,8 @@ def GetElementPointerOp : Go_Op<"gep", [NoMemoryEffect]> {
 //===----------------------------------------------------------------------===//
 
 def YieldOp : Go_Op<"yield", [Pure, ReturnLike, Terminator,
-            ParentOneOf<["GlobalOp", "ConstantOp", "GlobalConstantOp"]>
+            ParentOneOf<["GlobalOp", "ConstantOp", "GlobalConstantOp"]>,
+            DeclareOpInterfaceMethods<UntypedTypeResolverInterface, ["resolveOperandTypes", "resolveResultTypes"]>
         ]> {
     let arguments = (ins Go_Type:$initializerValue);
     let assemblyFormat = [{
@@ -131,6 +139,15 @@ def YieldOp : Go_Op<"yield", [Pure, ReturnLike, Terminator,
     }];
     let builders = [OpBuilder<(ins), [{ /* nothing to do */ }]>];
     let hasVerifier = 1;
+    let extraClassDefinition = [{
+        ::mlir::SmallVector<::mlir::Type> $cppClass::resolveOperandTypes() {
+            return yieldOpResolveOperandTypes(this);
+        }
+
+        ::mlir::SmallVector<::mlir::Type> $cppClass::resolveResultTypes() {
+            return yieldOpResolveResultTypes(this);
+        }
+    }];
 }
 
 //===----------------------------------------------------------------------===//

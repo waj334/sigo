@@ -9,9 +9,9 @@ import (
 )
 
 func (b *Builder) emitSliceRange(ctx context.Context, stmt *ast.RangeStmt) {
-	location := b.location(stmt.Pos())
-	endLocation := b.location(stmt.End())
-	tokLocation := b.location(stmt.TokPos)
+	location := b.location(ctx, stmt.Pos())
+	endLocation := b.location(ctx, stmt.End())
+	tokLocation := b.location(ctx, stmt.TokPos)
 
 	sliceType := b.typeOf(ctx, stmt.X).(*types.Slice)
 	elementT := b.GetStoredType(ctx, sliceType.Elem())
@@ -88,7 +88,7 @@ func (b *Builder) emitSliceRange(ctx context.Context, stmt *ast.RangeStmt) {
 			if identIsValid(ident) {
 				// A copy should be emitted into this block. Heap escape analysis should handle converting the stack
 				// allocation to a heap allocation in the event that the loop variable escapes the current scope.
-				copyAddr := b.emitNamedAlloca(ctx, ident.Name, keyT, b.location(stmt.Key.Pos()))
+				copyAddr := b.emitNamedAlloca(ctx, ident.Name, keyT, b.location(ctx, stmt.Key.Pos()))
 				keyVar = b.NewTempValue(copyAddr)
 				b.setAddr(ctx, ident, keyVar)
 			}
@@ -99,7 +99,7 @@ func (b *Builder) emitSliceRange(ctx context.Context, stmt *ast.RangeStmt) {
 			if identIsValid(ident) {
 				// A copy should be emitted into this block. Heap escape analysis should handle converting the stack
 				// allocation to a heap allocation in the event that the loop variable escapes the current scope.
-				copyAddr := b.emitNamedAlloca(ctx, ident.Name, elementT, b.location(stmt.Value.Pos()))
+				copyAddr := b.emitNamedAlloca(ctx, ident.Name, elementT, b.location(ctx, stmt.Value.Pos()))
 				elementVar = b.NewTempValue(copyAddr)
 				b.setAddr(ctx, ident, elementVar)
 			}

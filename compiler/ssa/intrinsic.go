@@ -23,7 +23,7 @@ func (b *Builder) isIntrinsic(ctx context.Context, expr *ast.CallExpr) bool {
 }
 
 func isIntrinsic(symbol string) bool {
-	switch demangleSymbol(symbol) {
+	switch symbol {
 	case "sync/atomic.AddUint32",
 		"sync/atomic.AddInt32",
 		"sync/atomic.AddUint64",
@@ -97,7 +97,7 @@ func (b *Builder) emitIntrinsic(ctx context.Context, expr *ast.CallExpr) []mlir.
 	F := b.objectOf(ctx, expr.Fun).(*types.Func)
 	signature := F.Type().Underlying().(*types.Signature)
 	symbol := qualifiedFuncName(F)
-	location := b.location(expr.Pos())
+	location := b.location(ctx, expr.Pos())
 
 	switch symbol {
 	case "sync/atomic.AddUint32", "sync/atomic.AddInt32", "sync/atomic.AddUint64", "sync/atomic.AddInt64", "sync/atomic.AddUintptr":
@@ -156,7 +156,7 @@ func (b *Builder) emitIntrinsic(ctx context.Context, expr *ast.CallExpr) []mlir.
 }
 
 func (b *Builder) emitInlineAssembly(ctx context.Context, expr *ast.CallExpr) {
-	location := b.location(expr.Pos())
+	location := b.location(ctx, expr.Pos())
 	constAsmStr, ok := expr.Args[0].(*ast.BasicLit)
 	if !ok {
 		panic("TODO: handle error")

@@ -175,20 +175,41 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
     // only the ones that do.
     if (name && !(*name).empty())
     {
-      const auto fusedLoc =
+      const auto locSubprogram =
         op->getParentOp()->getLoc()->findInstanceOf<FusedLocWith<LLVM::DISubprogramAttr>>();
-      if (!fusedLoc)
+      if (!locSubprogram)
         return;
 
       const LLVM::DITypeAttr diType = getDITypeAttr(context, elementType, dataLayout, runtimeTypes);
       if (!diType)
         return;
 
-      const auto scope = fusedLoc.getMetadata();
       const auto loc = op->getLoc()->findInstanceOf<FileLineColLoc>();
       const auto path = std::filesystem::path(loc.getFilename().str());
       const auto diFile =
         LLVM::DIFileAttr::get(context, path.filename().string(), path.parent_path().string());
+
+      // Apply scoping information if present.
+      mlir::LLVM::DIScopeAttr scope = locSubprogram.getMetadata();
+      const auto locScope = op->getLoc()->findInstanceOf<FusedLocWith<mlir::go::ScopeAttr>>();
+      if (locScope)
+      {
+        const auto scopeAttr = locScope.getMetadata();
+        mlir::LLVM::DIScopeAttr parent = locSubprogram.getMetadata();
+        if (const auto parentScopeAttr = scopeAttr.getParent())
+        {
+          const auto start = mlir::cast<mlir::FileLineColLoc>(parentScopeAttr.getStart());
+          const auto line = start.getLine();
+          const auto column = start.getColumn();
+          parent = mlir::LLVM::DILexicalBlockAttr::get(parent, diFile, line, column);
+        }
+
+        const auto start = mlir::cast<mlir::FileLineColLoc>(scopeAttr.getStart());
+        const auto line = start.getLine();
+        const auto column = start.getColumn();
+        scope = mlir::LLVM::DILexicalBlockAttr::get(parent, diFile, line, column);
+      }
+
       const auto diLocalVarAttr = LLVM::DILocalVariableAttr::get(
         scope,
         *name,

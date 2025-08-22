@@ -66,7 +66,7 @@ func (b *Builder) emitSelectStatement(ctx context.Context, stmt *ast.SelectStmt)
 
 			if !blockHasTerminator(currentBlock(ctx)) {
 				// Branch to the successor block.
-				brOp := mlir.GoCreateBranchOperation(b.ctx, successor, nil, b.location(clause.End()))
+				brOp := mlir.GoCreateBranchOperation(b.ctx, successor, nil, b.location(ctx, clause.End()))
 				appendOperation(ctx, brOp)
 			}
 		})
@@ -86,7 +86,7 @@ func (b *Builder) emitSelectStatement(ctx context.Context, stmt *ast.SelectStmt)
 	}
 
 	// Create the select operation.
-	op := mlir.GoCreateChanSelectOp(b.ctx, hasDefault, sendArr, chans, defaultBlock, successor, bodyBlocks, b.location(stmt.Pos()))
+	op := mlir.GoCreateChanSelectOp(b.ctx, hasDefault, sendArr, chans, defaultBlock, successor, bodyBlocks, b.location(ctx, stmt.Pos()))
 	appendOperation(ctx, op)
 
 	// Continue emission in the successor block.
@@ -95,7 +95,7 @@ func (b *Builder) emitSelectStatement(ctx context.Context, stmt *ast.SelectStmt)
 }
 
 func (b *Builder) emitReceiveExpression(ctx context.Context, expr *ast.UnaryExpr) []mlir.Value {
-	loc := b.location(expr.Pos())
+	loc := b.location(ctx, expr.Pos())
 
 	// Get the channel type.
 	chanType := b.typeOf(ctx, expr.X).(*types.Chan)
@@ -121,7 +121,7 @@ func (b *Builder) emitReceiveExpression(ctx context.Context, expr *ast.UnaryExpr
 }
 
 func (b *Builder) emitSendStatement(ctx context.Context, stmt *ast.SendStmt) {
-	loc := b.location(stmt.Pos())
+	loc := b.location(ctx, stmt.Pos())
 
 	// Evaluate the channel over which the value will be sent.
 	channel := b.emitExpr(ctx, stmt.Chan)[0]
@@ -135,9 +135,9 @@ func (b *Builder) emitSendStatement(ctx context.Context, stmt *ast.SendStmt) {
 }
 
 func (b *Builder) emitChanRange(ctx context.Context, stmt *ast.RangeStmt) {
-	location := b.location(stmt.Pos())
-	endLocation := b.location(stmt.End())
-	tokLocation := b.location(stmt.TokPos)
+	location := b.location(ctx, stmt.Pos())
+	endLocation := b.location(ctx, stmt.End())
+	tokLocation := b.location(ctx, stmt.TokPos)
 
 	chanType := b.typeOf(ctx, stmt.X).(*types.Chan)
 	elementT := b.GetStoredType(ctx, chanType.Elem())
@@ -183,7 +183,7 @@ func (b *Builder) emitChanRange(ctx context.Context, stmt *ast.RangeStmt) {
 			if identIsValid(ident) {
 				// A copy should be emitted into this block. Heap escape analysis should handle converting the stack
 				// allocation to a heap allocation in the event that the loop variable escapes the current scope.
-				copyAddr := b.emitNamedAlloca(ctx, ident.Name, elementT, b.location(stmt.Value.Pos()))
+				copyAddr := b.emitNamedAlloca(ctx, ident.Name, elementT, b.location(ctx, stmt.Value.Pos()))
 				elementVar = b.NewTempValue(copyAddr)
 				b.setAddr(ctx, ident, elementVar)
 			}

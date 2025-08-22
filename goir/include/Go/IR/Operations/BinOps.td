@@ -1,6 +1,7 @@
 #ifndef GO_OPERATIONS_BINOPS_TD
 #define GO_OPERATIONS_BINOPS_TD
 
+include "Go/IR/GoInterfaces.td"
 include "Go/IR/GoOpBase.td"
 include "Go/IR/GoEnums.td"
 include "Go/IR/GoTypes.td"
@@ -11,8 +12,19 @@ include "mlir/IR/BuiltinAttributeInterfaces.td"
 include "mlir/IR/OpBase.td"
 
 class Go_BinOp<string mnemonic, list<Trait> traits = []> :
-        Go_Op<mnemonic, traits # []> {
+        Go_Op<mnemonic, traits # [
+            DeclareOpInterfaceMethods<UntypedTypeResolverInterface, ["resolveOperandTypes", "resolveResultTypes"]>
+        ]> {
     let assemblyFormat = "$lhs `,` $rhs attr-dict-with-keyword `:` functional-type(operands, results)";
+    let extraClassDefinition = [{
+        ::mlir::SmallVector<::mlir::Type> $cppClass::resolveOperandTypes() {
+            return binOpResolveTypes(this, 2);
+        }
+
+        ::mlir::SmallVector<::mlir::Type> $cppClass::resolveResultTypes() {
+            return binOpResolveTypes(this, 1);
+        }
+    }];
 }
 
 class Go_IntBinOp<string mnemonic, list<Trait> traits = []> :
@@ -23,31 +35,43 @@ class Go_IntBinOp<string mnemonic, list<Trait> traits = []> :
         Arguments<(ins Go_Integer:$lhs, Go_Integer:$rhs)>,
         Results<(outs Go_Integer:$result)>;
 
-class Go_FloatBinOp<string mnemonic, list<Trait> traits = [Pure]> :
+class Go_FloatBinOp<string mnemonic, list<Trait> traits = []> :
         Go_BinOp<mnemonic, traits #
                 [Pure]>,
         Arguments<(ins Go_Float:$lhs, Go_Float:$rhs)>,
         Results<(outs Go_Float:$result)>;
 
-class Go_ComplexBinOp<string mnemonic, list<Trait> traits = [Pure]> :
+class Go_ComplexBinOp<string mnemonic, list<Trait> traits = []> :
         Go_BinOp<mnemonic, traits #
                 [Pure]>,
         Arguments<(ins Go_Complex:$lhs, Go_Complex:$rhs)>,
         Results<(outs Go_Complex:$result)>;
 
 class Go_CompareOp<string mnemonic, list<Trait> traits = []> :
-        Go_Op<mnemonic, traits # [Pure, AllTypesMatch<["lhs", "rhs"]>,
-            TypesMatchWith<"result type has i1 element type and same shape as operands", "lhs", "result", "::mlir::go::getI1SameShape($_self)">
+        Go_Op<mnemonic, traits # [
+            Pure,
+            TypesMatchWith<"result type has i1 element type and same shape as operands", "lhs", "result", "::mlir::go::getI1SameShape($_self)">,
+            HasCompatibleOperandsTypes,
+            DeclareOpInterfaceMethods<UntypedTypeResolverInterface, ["resolveOperandTypes", "resolveResultTypes"]>
         ]>{
     let results = (outs Go_Bool:$result);
-    let assemblyFormat = "$predicate `,` $lhs `,` $rhs attr-dict-with-keyword `:` type($lhs)";
+    let assemblyFormat = "$lhs ` ` $predicate ` ` $rhs attr-dict-with-keyword `:` functional-type(operands, results)";
+    let extraClassDefinition = [{
+        ::mlir::SmallVector<::mlir::Type> $cppClass::resolveOperandTypes() {
+            return binOpResolveTypes(this, 2);
+        }
+
+        ::mlir::SmallVector<::mlir::Type> $cppClass::resolveResultTypes() {
+            return binOpResolveTypes(this, 1);
+        }
+    }];
 }
 
 //===----------------------------------------------------------------------===//
 // addc
 //===----------------------------------------------------------------------===//
 
-def AddCOp : Go_ComplexBinOp<"addc", [Commutative, SameOperandsAndResultType,
+def AddCOp : Go_ComplexBinOp<"addc", [Commutative, HasCompatibleOperandsAndResultTypes,
             NoMemoryEffect]> {
     let summary = "Accepts two complex inputs and yields their sum.";
     let description = [{
@@ -66,7 +90,7 @@ def AddCOp : Go_ComplexBinOp<"addc", [Commutative, SameOperandsAndResultType,
 // addf
 //===----------------------------------------------------------------------===//
 
-def AddFOp : Go_FloatBinOp<"addf", [Commutative, SameOperandsAndResultType,
+def AddFOp : Go_FloatBinOp<"addf", [Commutative, HasCompatibleOperandsAndResultTypes,
             NoMemoryEffect]> {
     let summary = "Accepts two floating-point inputs and yields their sum.";
     let description = [{
@@ -85,7 +109,7 @@ def AddFOp : Go_FloatBinOp<"addf", [Commutative, SameOperandsAndResultType,
 // addi
 //===----------------------------------------------------------------------===//
 
-def AddIOp : Go_IntBinOp<"addi", [Pure, Commutative, SameOperandsAndResultType,
+def AddIOp : Go_IntBinOp<"addi", [Pure, Commutative, HasCompatibleOperandsAndResultTypes,
             NoMemoryEffect]> {
     let summary = "Accepts two integer inputs and yields their sum.";
     let description = [{
@@ -104,7 +128,7 @@ def AddIOp : Go_IntBinOp<"addi", [Pure, Commutative, SameOperandsAndResultType,
 // addstr
 //===----------------------------------------------------------------------===//
 
-def AddStrOp : Go_BinOp<"addstr", [Pure, SameOperandsAndResultType]>,
+def AddStrOp : Go_BinOp<"addstr", [Pure, HasCompatibleOperandsAndResultTypes]>,
         Arguments<(ins Go_String:$lhs, Go_String:$rhs)>,
         Results<(outs Go_String:$result)>{
     let summary = "Accepts two string inputs and concatenates them.";
@@ -124,7 +148,7 @@ def AddStrOp : Go_BinOp<"addstr", [Pure, SameOperandsAndResultType]>,
 // and
 //===----------------------------------------------------------------------===//
 
-def AndOp : Go_IntBinOp<"and", [Commutative, SameOperandsAndResultType,
+def AndOp : Go_IntBinOp<"and", [Commutative, HasCompatibleOperandsAndResultTypes,
             NoMemoryEffect]> {
     let summary = "Accepts two operands and indicates whether both are true.";
     let description = [{
@@ -143,7 +167,7 @@ def AndOp : Go_IntBinOp<"and", [Commutative, SameOperandsAndResultType,
 // andnot
 //===----------------------------------------------------------------------===//
 
-def AndNotOp : Go_IntBinOp<"andnot", [SameOperandsAndResultType,
+def AndNotOp : Go_IntBinOp<"andnot", [HasCompatibleOperandsAndResultTypes,
             NoMemoryEffect]> {
     let summary = "Accepts two operands and effectively performs a bit clear";
     let description = [{
@@ -224,8 +248,8 @@ def CmpIOp : Go_CompareOp<"cmpi", [NoMemoryEffect]> {
         ```
     }];
     let arguments = (ins Go_CmpIPredicate:$predicate,
-                               Go_Integral:$lhs,
-                               Go_Integral:$rhs);
+                               Go_IntegerLike:$lhs,
+                               Go_IntegerLike:$rhs);
     let hasFolder = 1;
 }
 
@@ -264,7 +288,7 @@ def CmpStringOp : Go_BinOp<"cmp.string", [Commutative]> {
 // divc
 //===----------------------------------------------------------------------===//
 
-def DivCOp : Go_ComplexBinOp<"divc", [SameOperandsAndResultType,
+def DivCOp : Go_ComplexBinOp<"divc", [HasCompatibleOperandsAndResultTypes,
             NoMemoryEffect]> {
     let summary = "Accepts two signed complex inputs and yields their quotient.";
     let description = [{
@@ -283,7 +307,7 @@ def DivCOp : Go_ComplexBinOp<"divc", [SameOperandsAndResultType,
 // divf
 //===----------------------------------------------------------------------===//
 
-def DivFOp : Go_FloatBinOp<"divf", [SameOperandsAndResultType,
+def DivFOp : Go_FloatBinOp<"divf", [HasCompatibleOperandsAndResultTypes,
             NoMemoryEffect]> {
     let summary = "Accepts two signed floating-point inputs and yields their quotient.";
     let description = [{
@@ -302,7 +326,7 @@ def DivFOp : Go_FloatBinOp<"divf", [SameOperandsAndResultType,
 // divsi
 //===----------------------------------------------------------------------===//
 
-def DivSIOp : Go_IntBinOp<"divsi", [Pure, SameOperandsAndResultType,
+def DivSIOp : Go_IntBinOp<"divsi", [Pure, HasCompatibleOperandsAndResultTypes,
             NoMemoryEffect]> {
     let summary = "Accepts two signed integer inputs and yields their quotient.";
     let description = [{
@@ -321,7 +345,7 @@ def DivSIOp : Go_IntBinOp<"divsi", [Pure, SameOperandsAndResultType,
 // divui
 //===----------------------------------------------------------------------===//
 
-def DivUIOp : Go_IntBinOp<"divui", [Pure, SameOperandsAndResultType,
+def DivUIOp : Go_IntBinOp<"divui", [Pure, HasCompatibleOperandsAndResultTypes,
             NoMemoryEffect]> {
     let summary = "Accepts two unsigned integer inputs and yields their quotient.";
     let description = [{
@@ -340,7 +364,7 @@ def DivUIOp : Go_IntBinOp<"divui", [Pure, SameOperandsAndResultType,
 // mulc
 //===----------------------------------------------------------------------===//
 
-def MulCOp : Go_ComplexBinOp<"mulc", [Commutative, SameOperandsAndResultType,
+def MulCOp : Go_ComplexBinOp<"mulc", [Commutative, HasCompatibleOperandsAndResultTypes,
             NoMemoryEffect]> {
     let summary = "Accepts two complex inputs and yields their product.";
     let description = [{
@@ -359,7 +383,7 @@ def MulCOp : Go_ComplexBinOp<"mulc", [Commutative, SameOperandsAndResultType,
 // mulf
 //===----------------------------------------------------------------------===//
 
-def MulFOp : Go_FloatBinOp<"mulf", [Commutative, SameOperandsAndResultType,
+def MulFOp : Go_FloatBinOp<"mulf", [Commutative, HasCompatibleOperandsAndResultTypes,
             NoMemoryEffect]> {
     let summary = "Accepts two floating-point inputs and yields their product.";
     let description = [{
@@ -378,7 +402,7 @@ def MulFOp : Go_FloatBinOp<"mulf", [Commutative, SameOperandsAndResultType,
 // muli
 //===----------------------------------------------------------------------===//
 
-def MulIOp : Go_IntBinOp<"muli", [Pure, Commutative, SameOperandsAndResultType,
+def MulIOp : Go_IntBinOp<"muli", [Pure, Commutative, HasCompatibleOperandsAndResultTypes,
             NoMemoryEffect]> {
     let summary = "Accepts two integer inputs and yields their product.";
     let description = [{
@@ -397,7 +421,7 @@ def MulIOp : Go_IntBinOp<"muli", [Pure, Commutative, SameOperandsAndResultType,
 // or
 //===----------------------------------------------------------------------===//
 
-def OrOp : Go_IntBinOp<"or", [Commutative, SameOperandsAndResultType,
+def OrOp : Go_IntBinOp<"or", [Commutative, HasCompatibleOperandsAndResultTypes,
             NoMemoryEffect]> {
     let summary = "Accepts two operands and indicates whether either are true.";
     let description = [{
@@ -416,7 +440,7 @@ def OrOp : Go_IntBinOp<"or", [Commutative, SameOperandsAndResultType,
 // remf
 //===----------------------------------------------------------------------===//
 
-def RemFOp : Go_FloatBinOp<"remf", [SameOperandsAndResultType,
+def RemFOp : Go_FloatBinOp<"remf", [HasCompatibleOperandsAndResultTypes,
             NoMemoryEffect]> {
     let summary = "Floating-point division remainder operation.";
     let description = [{
@@ -435,7 +459,7 @@ def RemFOp : Go_FloatBinOp<"remf", [SameOperandsAndResultType,
 // remsi
 //===----------------------------------------------------------------------===//
 
-def RemSIOp : Go_IntBinOp<"remsi", [SameOperandsAndResultType,
+def RemSIOp : Go_IntBinOp<"remsi", [HasCompatibleOperandsAndResultTypes,
             NoMemoryEffect]> {
     let summary = "Signed integer division remainder operation.";
     let description = [{
@@ -455,7 +479,7 @@ def RemSIOp : Go_IntBinOp<"remsi", [SameOperandsAndResultType,
 // remui
 //===----------------------------------------------------------------------===//
 
-def RemUIOp : Go_IntBinOp<"remui", [SameOperandsAndResultType,
+def RemUIOp : Go_IntBinOp<"remui", [HasCompatibleOperandsAndResultTypes,
             NoMemoryEffect]> {
     let summary = "Unsigned integer division remainder operation.";
     let description = [{
@@ -534,7 +558,7 @@ def ShrSIOp : Go_IntBinOp<"shrsi", [NoMemoryEffect]> {
 // subc
 //===----------------------------------------------------------------------===//
 
-def SubCOp : Go_ComplexBinOp<"subc", [SameOperandsAndResultType,
+def SubCOp : Go_ComplexBinOp<"subc", [HasCompatibleOperandsAndResultTypes,
             NoMemoryEffect]> {
     let summary = "Accepts two complex inputs and yields their difference.";
     let description = [{
@@ -553,7 +577,7 @@ def SubCOp : Go_ComplexBinOp<"subc", [SameOperandsAndResultType,
 // subf
 //===----------------------------------------------------------------------===//
 
-def SubFOp : Go_FloatBinOp<"subf", [SameOperandsAndResultType,
+def SubFOp : Go_FloatBinOp<"subf", [HasCompatibleOperandsAndResultTypes,
             NoMemoryEffect]> {
     let summary = "Accepts two floating-point inputs and yields their difference.";
     let description = [{
@@ -572,7 +596,7 @@ def SubFOp : Go_FloatBinOp<"subf", [SameOperandsAndResultType,
 // subi
 //===----------------------------------------------------------------------===//
 
-def SubIOp : Go_IntBinOp<"subi", [Pure, SameOperandsAndResultType,
+def SubIOp : Go_IntBinOp<"subi", [Pure, HasCompatibleOperandsAndResultTypes,
             NoMemoryEffect]> {
     let summary = "Accepts two integer inputs and yields their difference.";
     let description = [{
@@ -591,7 +615,7 @@ def SubIOp : Go_IntBinOp<"subi", [Pure, SameOperandsAndResultType,
 // xor
 //===----------------------------------------------------------------------===//
 
-def XorOp : Go_IntBinOp<"xor", [SameOperandsAndResultType,
+def XorOp : Go_IntBinOp<"xor", [HasCompatibleOperandsAndResultTypes,
             NoMemoryEffect]> {
     let summary = "Accepts two operands and indicates whether either are true or false if both are true.";
     let description = [{
@@ -604,8 +628,8 @@ def XorOp : Go_IntBinOp<"xor", [SameOperandsAndResultType,
         ```
     }];
 
-    let arguments = (ins Go_Integral:$lhs, Go_Integral:$rhs);
-    let results = (outs Go_Integral:$result);
+    let arguments = (ins Go_IntegerLike:$lhs, Go_IntegerLike:$rhs);
+    let results = (outs Go_IntegerLike:$result);
     let hasFolder = 1;
 }
 

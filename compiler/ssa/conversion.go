@@ -9,19 +9,9 @@ import (
 )
 
 func (b *Builder) emitTypeConversion(ctx context.Context, X mlir.Value, src types.Type, dest types.Type, location mlir.Location) mlir.Value {
-	if typeHasFlags(src, types.IsUntyped) {
-		// Attempt to infer the type.
-		lhsTypes := currentLhsList(ctx)
-		index := currentRhsIndex(ctx)
-		if len(lhsTypes) > 0 {
-			src = lhsTypes[index]
-		} else {
-			src = types.Default(src)
-		}
-	}
-
-	if typeHasFlags(dest, types.IsUntyped) {
-		dest = types.Default(dest)
+	if typeHasFlags(src, types.IsUntyped) && typeHasFlags(dest, types.IsUntyped) {
+		// TODO: Determine the best action to take here.
+		return X
 	}
 
 	srcType := b.GetStoredType(ctx, baseType(src))
@@ -99,8 +89,8 @@ func (b *Builder) emitTypeConversion(ctx context.Context, X mlir.Value, src type
 				panic("unhandled")
 			}
 		case typeHasFlags(src, types.IsComplex):
-			srcWidth := mlir.FloatTypeGetWidth(mlir.ComplexTypeGetElementType(srcType))
-			destWidth := mlir.FloatTypeGetWidth(mlir.ComplexTypeGetElementType(destType))
+			srcWidth := b.widthOf(mlir.ComplexTypeGetElementType(srcType))
+			destWidth := b.widthOf(mlir.ComplexTypeGetElementType(destType))
 			if destWidth < srcWidth {
 				op := mlir.GoCreateComplexTruncateOperation(b.ctx, X, destType, location)
 				appendOperation(ctx, op)
@@ -142,6 +132,11 @@ func (b *Builder) emitTypeConversion(ctx context.Context, X mlir.Value, src type
 			switch {
 			case typeIs[*types.Slice](dest):
 				op := mlir.GoCreateStringToSliceOperation(b.ctx, X, destType, location)
+				appendOperation(ctx, op)
+				result = resultOf(op)
+			case typeHasFlags(dest, types.IsString):
+				// NOTE: The input is probably untyped. Just perform a bitcast.
+				op := mlir.GoCreateBitcastOperation(b.ctx, X, destType, location)
 				appendOperation(ctx, op)
 				result = resultOf(op)
 			default:

@@ -29,7 +29,7 @@ func (b *Builder) emitIfStatement(ctx context.Context, stmt *ast.IfStmt) {
 
 	// Conditionally branch to either the then block of the else block.
 	condBrOp := mlir.GoCreateCondBranchOperation(b.ctx, condValue, thenBlock, nil, elseBlock, nil,
-		b.location(stmt.Cond.End()))
+		b.location(ctx, stmt.Cond.End()))
 	appendOperation(ctx, condBrOp)
 
 	// Build the then block.
@@ -38,7 +38,7 @@ func (b *Builder) emitIfStatement(ctx context.Context, stmt *ast.IfStmt) {
 		b.emitBlock(ctx, stmt.Body)
 		if !blockHasTerminator(currentBlock(ctx)) {
 			// Branch to the exit block.
-			brOp := mlir.GoCreateBranchOperation(b.ctx, exitBlock, nil, b.location(stmt.End()))
+			brOp := mlir.GoCreateBranchOperation(b.ctx, exitBlock, nil, b.location(ctx, stmt.End()))
 			appendOperation(ctx, brOp)
 		}
 	})
@@ -54,7 +54,7 @@ func (b *Builder) emitIfStatement(ctx context.Context, stmt *ast.IfStmt) {
 		// NOTE: An if-statement may change the current block to a new one that is not the else-block.
 		if !blockHasTerminator(currentBlock(ctx)) {
 			// Branch to the exit block.
-			brOp := mlir.GoCreateBranchOperation(b.ctx, exitBlock, nil, b.location(stmt.End()))
+			brOp := mlir.GoCreateBranchOperation(b.ctx, exitBlock, nil, b.location(ctx, stmt.End()))
 			appendOperation(ctx, brOp)
 		}
 	})
@@ -125,7 +125,7 @@ func (b *Builder) emitExpressionSwitchStatement(ctx context.Context, stmt *ast.S
 	condBlocks = append(condBlocks, doneBlock)
 
 	// Branch to the first clause condition block to start.
-	brOp := mlir.GoCreateBranchOperation(b.ctx, condBlocks[0], nil, b.location(stmt.Pos()))
+	brOp := mlir.GoCreateBranchOperation(b.ctx, condBlocks[0], nil, b.location(ctx, stmt.Pos()))
 	appendOperation(ctx, brOp)
 
 	// Emit all the clause blocks stopping before the done block.
@@ -134,7 +134,7 @@ func (b *Builder) emitExpressionSwitchStatement(ctx context.Context, stmt *ast.S
 		appendBlock(ctx, condBlock)
 		buildBlock(ctx, condBlock, func() {
 			expr := expressions[i]
-			location := b.location(expr.Pos())
+			location := b.location(ctx, expr.Pos())
 			bodyBlock := bodyBlocks[bodyMap[i]]
 
 			// Evaluate the clause expression.
@@ -177,9 +177,9 @@ func (b *Builder) emitExpressionSwitchStatement(ctx context.Context, stmt *ast.S
 	// Emit the done block.
 	buildBlock(ctx, doneBlock, func() {
 		// Determine where the end of the clauses currently is.
-		location := b.location(stmt.End())
+		location := b.location(ctx, stmt.End())
 		if lastIndex := len(stmt.Body.List) - 1; lastIndex > 0 {
-			location = b.location(stmt.Body.List[lastIndex].End())
+			location = b.location(ctx, stmt.Body.List[lastIndex].End())
 		}
 
 		// NOTE: The position of the default block in the body block slice would have been determined earlier when all
@@ -197,6 +197,9 @@ func (b *Builder) emitExpressionSwitchStatement(ctx context.Context, stmt *ast.S
 
 	// Emit all body blocks.
 	for i, clause := range stmt.Body.List {
+		scope := currentInfo(ctx).Scopes[clause]
+		ctx := newContextWithScope(ctx, b.scopeAttr(scope, currentScope(ctx)))
+
 		// Any break statement should immediately branch to the exit block.
 		ctx = newContextWithSuccessorBlock(ctx, exitBlock, nil)
 
@@ -219,7 +222,7 @@ func (b *Builder) emitExpressionSwitchStatement(ctx context.Context, stmt *ast.S
 			// Some statement could have created a different terminator (IE panic, etc...)
 			if !blockHasTerminator(currentBlock(ctx)) {
 				// Branch to the exit block.
-				brOp := mlir.GoCreateBranchOperation(b.ctx, exitBlock, nil, b.location(clause.End()))
+				brOp := mlir.GoCreateBranchOperation(b.ctx, exitBlock, nil, b.location(ctx, clause.End()))
 				appendOperation(ctx, brOp)
 			}
 		})
@@ -254,7 +257,7 @@ func (b *Builder) emitForStatement(ctx context.Context, stmt *ast.ForStmt) {
 	}
 
 	// Branch to the loop header block to start the loop.
-	brOp := mlir.GoCreateBranchOperation(b.ctx, headerBlock, nil, b.location(stmt.Pos()))
+	brOp := mlir.GoCreateBranchOperation(b.ctx, headerBlock, nil, b.location(ctx, stmt.Pos()))
 	appendOperation(ctx, brOp)
 
 	// Emit the header block.
@@ -267,11 +270,11 @@ func (b *Builder) emitForStatement(ctx context.Context, stmt *ast.ForStmt) {
 
 			// Conditionally branch to either the body block or the exit block.
 			condBrOp := mlir.GoCreateCondBranchOperation(b.config.Ctx, condValue, bodyBlock, nil, exitBlock, nil,
-				b.location(stmt.Cond.Pos()))
+				b.location(ctx, stmt.Cond.Pos()))
 			appendOperation(ctx, condBrOp)
 		} else {
 			// Unconditionally branch to the body block.
-			brOp := mlir.GoCreateBranchOperation(b.ctx, bodyBlock, nil, b.location(stmt.Pos()))
+			brOp := mlir.GoCreateBranchOperation(b.ctx, bodyBlock, nil, b.location(ctx, stmt.Pos()))
 			appendOperation(ctx, brOp)
 		}
 	})
@@ -291,7 +294,7 @@ func (b *Builder) emitForStatement(ctx context.Context, stmt *ast.ForStmt) {
 		if !blockHasTerminator(currentBlock(ctx)) {
 			// Branch to the post-iteration block.
 			// NOTE: This may be directly to the header block if there is no post-iteration expression.
-			brOp := mlir.GoCreateBranchOperation(b.ctx, postIterationBlock, nil, b.location(stmt.Body.End()))
+			brOp := mlir.GoCreateBranchOperation(b.ctx, postIterationBlock, nil, b.location(ctx, stmt.Body.End()))
 			appendOperation(ctx, brOp)
 		}
 	})
@@ -304,7 +307,7 @@ func (b *Builder) emitForStatement(ctx context.Context, stmt *ast.ForStmt) {
 			b.emitStmt(ctx, stmt.Post)
 
 			// Branch to the header block.
-			brOp := mlir.GoCreateBranchOperation(b.ctx, headerBlock, nil, b.location(stmt.Post.Pos()))
+			brOp := mlir.GoCreateBranchOperation(b.ctx, headerBlock, nil, b.location(ctx, stmt.Post.Pos()))
 			appendOperation(ctx, brOp)
 		})
 	}
@@ -339,9 +342,9 @@ func (b *Builder) emitRangeStatement(ctx context.Context, stmt *ast.RangeStmt) {
 }
 
 func (b *Builder) emitIntRange(ctx context.Context, stmt *ast.RangeStmt) {
-	location := b.location(stmt.Pos())
-	endLocation := b.location(stmt.End())
-	tokLocation := b.location(stmt.TokPos)
+	location := b.location(ctx, stmt.Pos())
+	endLocation := b.location(ctx, stmt.End())
+	tokLocation := b.location(ctx, stmt.TokPos)
 
 	elementType := b.typeOf(ctx, stmt.X).(*types.Basic)
 	elementT := b.GetStoredType(ctx, elementType)
@@ -401,7 +404,7 @@ func (b *Builder) emitIntRange(ctx context.Context, stmt *ast.RangeStmt) {
 			if identIsValid(ident) {
 				// A copy should be emitted into this block. Heap escape analysis should handle converting the stack
 				// allocation to a heap allocation in the event that the loop variable escapes the current scope.
-				copyAddr := b.emitNamedAlloca(ctx, ident.Name, elementT, b.location(stmt.Key.Pos()))
+				copyAddr := b.emitNamedAlloca(ctx, ident.Name, elementT, b.location(ctx, stmt.Key.Pos()))
 				valueVar = b.NewTempValue(copyAddr)
 				b.setAddr(ctx, ident, valueVar)
 			}
@@ -475,11 +478,11 @@ func (b *Builder) emitTypeSwitchStatement(ctx context.Context, stmt *ast.TypeSwi
 		}
 
 		// Create the body block
-		bodyBlocks[i] = mlir.BlockCreate2([]mlir.Type{b._interface}, []mlir.Location{b.location(clause.Pos())})
+		bodyBlocks[i] = mlir.BlockCreate2([]mlir.Type{b._interface}, []mlir.Location{b.location(ctx, clause.Pos())})
 		buildBlock(ctx, bodyBlocks[i], func() {
 			if obj := b.objectOf(ctx, clause); obj != nil {
 				var local *LocalValue
-				location := b.location(obj.Pos())
+				location := b.location(ctx, obj.Pos())
 				value := mlir.BlockGetArgument(bodyBlocks[i], 0)
 				if len(clause.List) == 1 {
 					// Extract the underlying pointer from the interface value.
@@ -509,17 +512,20 @@ func (b *Builder) emitTypeSwitchStatement(ctx context.Context, stmt *ast.TypeSwi
 				}
 			}
 
+			scope := currentInfo(ctx).Scopes[clause]
+			ctx := newContextWithScope(ctx, b.scopeAttr(scope, currentScope(ctx)))
+
 			// Emit the body block statements.
 			b.emitStatements(ctx, clause.Body)
 
 			// Branch to the successor block.
-			brOp := mlir.GoCreateBranchOperation(b.ctx, successor, nil, b.location(clause.End()))
+			brOp := mlir.GoCreateBranchOperation(b.ctx, successor, nil, b.location(ctx, clause.End()))
 			appendOperation(ctx, brOp)
 		})
 	}
 
 	// Create the clause evaluator blocks.
-	lastCaseLoc := b.location(stmt.Pos())
+	lastCaseLoc := b.location(ctx, stmt.Pos())
 	for i, clause := range stmt.Body.List {
 		clause := clause.(*ast.CaseClause)
 
@@ -532,21 +538,21 @@ func (b *Builder) emitTypeSwitchStatement(ctx context.Context, stmt *ast.TypeSwi
 		}
 
 		for _, expr := range clause.List {
-			lastCaseLoc = b.location(clause.Pos())
+			lastCaseLoc = b.location(ctx, clause.Pos())
 
 			// Create the successor block in which will compute the next case comparison.
 			exprSuccessor := mlir.BlockCreate2(nil, nil)
 
 			// Emit the operation to perform the type assertion.
 			assertedT := b.GetType(ctx, b.typeOf(ctx, expr))
-			op := mlir.GoCreateTypeAssertOperation(b.ctx, ifaceValue, b.types(assertedT, b.i1), b.location(expr.Pos()))
+			op := mlir.GoCreateTypeAssertOperation(b.ctx, ifaceValue, b.types(assertedT, b.i1), b.location(ctx, expr.Pos()))
 			appendOperation(ctx, op)
 			results := resultsOf(op)
 
 			// Conditionally branch to the body block if the type assertion was successful. Otherwise, branch to the
 			// next expression evaluator block.
 			condBrOp := mlir.GoCreateCondBranchOperation(b.ctx, results[1], bodyBlocks[i], []mlir.Value{results[0]}, exprSuccessor, nil,
-				b.location(clause.Pos()))
+				b.location(ctx, clause.Pos()))
 			appendOperation(ctx, condBrOp)
 
 			// Continue emission in the expression successor block.

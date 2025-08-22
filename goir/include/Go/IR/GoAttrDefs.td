@@ -126,5 +126,17 @@ def AsmConstraintAttr : GoDialect_Attr<"AsmConstraint", "asm_constraint"> {
     let assemblyFormat = "`<` $registerClass ` ` $direction (` ` $alias^)? (` ` $operand_index^)? (` ` $reserve^ `reserve`)? `>`";
 }
 
+//===----------------------------------------------------------------------===//
+// ScopeAttr
+//===----------------------------------------------------------------------===//
+
+def ScopeAttr : GoDialect_Attr<"Scope", "scope"> {
+    let parameters = (ins
+        OptionalParameter<"ScopeAttr">:$parent,
+        "LocationAttr":$start,
+        "LocationAttr":$end
+    );
+    let assemblyFormat = "( `(` $parent^ `)` )? `[` $start `:` $end `]`";
+}
 
 #endif // GO_ATTR_TD

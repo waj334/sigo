@@ -210,7 +210,8 @@ MlirOperation mlirGoCreateCmpStringOperation(
   auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::CmpStringOp>(_location, _resultType, _predicate, _x, _y);
+  mlir::Operation* op =
+    builder.create<::mlir::go::CmpStringOp>(_location, _resultType, _predicate, _x, _y);
   return wrap(op);
 }
 
@@ -912,8 +913,7 @@ MlirOperation mlirGoCreateGlobalConstantOperation(
   mlir::StringAttr _symbol = mlir::cast<mlir::StringAttr>(unwrap(symbol));
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op =
-    builder.create<::mlir::go::GlobalConstantOp>(_location, _symbol, _value);
+  mlir::Operation* op = builder.create<::mlir::go::GlobalConstantOp>(_location, _symbol, _value);
   return wrap(op);
 }
 
@@ -1443,8 +1443,35 @@ MlirOperation mlirGoCreateCallOperation(
   (void)unwrapList(nOperands, operands, _operands);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op =
-    builder.create<mlir::go::CallOp>(_location, _resultTypes, _callee, _operands);
+  auto op = builder.create<mlir::go::CallOp>(_location, _resultTypes, _callee, _operands);
+
+  return wrap(op);
+}
+
+MlirOperation mlirGoCreateClosureCallOperation(
+  MlirContext context,
+  MlirAttribute signature,
+  MlirValue callee,
+  int nResultTypes,
+  MlirType* resultTypes,
+  int nOperands,
+  MlirValue* operands,
+  MlirLocation location)
+{
+  auto _context = unwrap(context);
+  auto _callee = unwrap(callee);
+  auto _signature = mlir::cast<mlir::TypeAttr>(unwrap(signature));
+  auto _location = unwrap(location);
+
+  ::llvm::SmallVector<::mlir::Type> _resultTypes;
+  (void)unwrapList(nResultTypes, resultTypes, _resultTypes);
+
+  ::llvm::SmallVector<::mlir::Value> _operands;
+  (void)unwrapList(nOperands, operands, _operands);
+
+  mlir::OpBuilder builder(_context);
+  auto op =
+    builder.create<mlir::go::CallOp>(_location, _signature, _resultTypes, _callee, _operands);
   return wrap(op);
 }
 
@@ -1473,63 +1500,241 @@ MlirOperation mlirGoCreateCallIndirectOperation(
   return wrap(op);
 }
 
-MlirOperation mlirGoCreateDeferOperation(
+MlirOperation mlirGoCreateDeferOperation1(
   MlirContext context,
-  MlirValue fn,
-  MlirAttribute* method,
+  MlirStringRef sym_name,
   int nArgs,
   MlirValue* args,
   MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _fn = unwrap(fn);
-  StringAttr _method;
-  if (method != nullptr)
-  {
-    _method = mlir::cast<StringAttr>(unwrap(*method));
-  }
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _sym_name = unwrap(sym_name);
+  const auto _location = unwrap(location);
 
   ::llvm::SmallVector<::mlir::Value> _args;
   (void)unwrapList(nArgs, args, _args);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::DeferOp>(_location, _fn, _method, _args);
+  mlir::Operation* op = builder.create<::mlir::go::DeferOp>(_location, _sym_name, _args);
   return wrap(op);
 }
 
-MlirOperation mlirGoCreateGoOperation(
+MlirOperation mlirGoCreateDeferOperation2(
   MlirContext context,
-  MlirValue fn,
-  MlirStringRef method,
+  MlirAttribute sym_name,
   int nArgs,
   MlirValue* args,
   MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _fn = unwrap(fn);
-
-  StringAttr _method;
-  const auto _methodStr = unwrap(method);
-  if (!_methodStr.empty())
-  {
-    _method = StringAttr::get(_context, _methodStr);
-  }
-
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _sym_name = unwrap(sym_name);
+  const auto _location = unwrap(location);
 
   ::llvm::SmallVector<::mlir::Value> _args;
   (void)unwrapList(nArgs, args, _args);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::GoOp>(_location, _fn, _method, _args);
+  mlir::Operation* op =
+    mlir::TypeSwitch<mlir::Attribute, mlir::Operation*>(_sym_name)
+      .Case([&](mlir::StringAttr attr)
+            { return builder.create<::mlir::go::DeferOp>(_location, attr, _args); })
+      .Case([&](mlir::SymbolRefAttr attr)
+            { return builder.create<::mlir::go::DeferOp>(_location, attr, _args); })
+      .Default(
+        [&](mlir::Attribute)
+        {
+          assert(false && "invalid attribute type");
+          return nullptr;
+        });
+  return wrap(op);
+}
+
+MlirOperation mlirGoCreateDeferOperation3(
+  MlirContext context,
+  MlirAttribute signature,
+  MlirValue callee_value,
+  int nArgs,
+  MlirValue* args,
+  MlirLocation location)
+{
+  const auto _context = unwrap(context);
+  const auto _signature = mlir::cast<mlir::TypeAttr>(unwrap(signature));
+  const auto _callee_value = unwrap(callee_value);
+  const auto _location = unwrap(location);
+
+  ::llvm::SmallVector<::mlir::Value> _args;
+  (void)unwrapList(nArgs, args, _args);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op =
+    builder.create<::mlir::go::DeferOp>(_location, _signature, _callee_value, _args);
+  return wrap(op);
+}
+
+MlirOperation mlirGoCreateDeferOperation4(
+  MlirContext context,
+  MlirValue iface_value,
+  MlirStringRef method_name,
+  int nArgs,
+  MlirValue* args,
+  MlirLocation location)
+{
+  const auto _context = unwrap(context);
+  const auto _iface_value = unwrap(iface_value);
+  const auto _method_name = unwrap(method_name);
+  const auto _location = unwrap(location);
+
+  ::llvm::SmallVector<::mlir::Value> _args;
+  (void)unwrapList(nArgs, args, _args);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op =
+    builder.create<::mlir::go::DeferOp>(_location, _iface_value, _method_name, _args);
+  return wrap(op);
+}
+
+MlirOperation mlirGoCreateDeferOperation5(
+  MlirContext context,
+  MlirValue iface_value,
+  MlirAttribute method_name,
+  int nArgs,
+  MlirValue* args,
+  MlirLocation location)
+{
+  const auto _context = unwrap(context);
+  const auto _iface_value = unwrap(iface_value);
+  const auto _method_name = mlir::cast<mlir::StringAttr>(unwrap(method_name));
+  const auto _location = unwrap(location);
+
+  ::llvm::SmallVector<::mlir::Value> _args;
+  (void)unwrapList(nArgs, args, _args);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op =
+    builder.create<::mlir::go::DeferOp>(_location, _iface_value, _method_name, _args);
+  return wrap(op);
+}
+
+MlirOperation mlirGoCreateGoOperation1(
+  MlirContext context,
+  MlirStringRef sym_name,
+  int nArgs,
+  MlirValue* args,
+  MlirLocation location)
+{
+  const auto _context = unwrap(context);
+  const auto _sym_name = unwrap(sym_name);
+  const auto _location = unwrap(location);
+
+  ::llvm::SmallVector<::mlir::Value> _args;
+  (void)unwrapList(nArgs, args, _args);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op = builder.create<::mlir::go::GoOp>(_location, _sym_name, _args);
+  return wrap(op);
+}
+
+MlirOperation mlirGoCreateGoOperation2(
+  MlirContext context,
+  MlirAttribute sym_name,
+  int nArgs,
+  MlirValue* args,
+  MlirLocation location)
+{
+  const auto _context = unwrap(context);
+  const auto _sym_name = unwrap(sym_name);
+  const auto _location = unwrap(location);
+
+  ::llvm::SmallVector<::mlir::Value> _args;
+  (void)unwrapList(nArgs, args, _args);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op =
+    mlir::TypeSwitch<mlir::Attribute, mlir::Operation*>(_sym_name)
+      .Case([&](mlir::StringAttr attr)
+            { return builder.create<::mlir::go::GoOp>(_location, attr, _args); })
+      .Case([&](mlir::SymbolRefAttr attr)
+            { return builder.create<::mlir::go::GoOp>(_location, attr, _args); })
+      .Default(
+        [&](mlir::Attribute)
+        {
+          assert(false && "invalid attribute type");
+          return nullptr;
+        });
+  return wrap(op);
+}
+
+MlirOperation mlirGoCreateGoOperation3(
+  MlirContext context,
+  MlirAttribute signature,
+  MlirValue callee_value,
+  int nArgs,
+  MlirValue* args,
+  MlirLocation location)
+{
+  const auto _context = unwrap(context);
+  const auto _signature = mlir::cast<mlir::TypeAttr>(unwrap(signature));
+  const auto _callee_value = unwrap(callee_value);
+  const auto _location = unwrap(location);
+
+  ::llvm::SmallVector<::mlir::Value> _args;
+  (void)unwrapList(nArgs, args, _args);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op =
+    builder.create<::mlir::go::GoOp>(_location, _signature, _callee_value, _args);
+  return wrap(op);
+}
+
+MlirOperation mlirGoCreateGoOperation4(
+  MlirContext context,
+  MlirValue iface_value,
+  MlirStringRef method_name,
+  int nArgs,
+  MlirValue* args,
+  MlirLocation location)
+{
+  const auto _context = unwrap(context);
+  const auto _iface_value = unwrap(iface_value);
+  const auto _method_name = unwrap(method_name);
+  const auto _location = unwrap(location);
+
+  ::llvm::SmallVector<::mlir::Value> _args;
+  (void)unwrapList(nArgs, args, _args);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op =
+    builder.create<::mlir::go::GoOp>(_location, _iface_value, _method_name, _args);
+  return wrap(op);
+}
+
+MlirOperation mlirGoCreateGoOperation5(
+  MlirContext context,
+  MlirValue iface_value,
+  MlirAttribute method_name,
+  int nArgs,
+  MlirValue* args,
+  MlirLocation location)
+{
+  const auto _context = unwrap(context);
+  const auto _iface_value = unwrap(iface_value);
+  const auto _method_name = mlir::cast<mlir::StringAttr>(unwrap(method_name));
+  const auto _location = unwrap(location);
+
+  ::llvm::SmallVector<::mlir::Value> _args;
+  (void)unwrapList(nArgs, args, _args);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op =
+    builder.create<::mlir::go::GoOp>(_location, _iface_value, _method_name, _args);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateInterfaceCall(
   MlirContext context,
   MlirStringRef callee,
-  MlirType signature,
+  int nResultTypes,
+  MlirType* resultTypes,
   MlirValue ifaceValue,
   int nArgs,
   MlirValue* args,
@@ -1537,16 +1742,18 @@ MlirOperation mlirGoCreateInterfaceCall(
 {
   auto _context = unwrap(context);
   auto _callee = unwrap(callee);
-  auto _signature = mlir::cast<mlir::go::FunctionType>(unwrap(signature));
   auto _ifaceValue = unwrap(ifaceValue);
   auto _location = unwrap(location);
+
+  ::llvm::SmallVector<::mlir::Type> _resultTypes;
+  (void)unwrapList(nResultTypes, resultTypes, _resultTypes);
 
   ::llvm::SmallVector<::mlir::Value> _args;
   (void)unwrapList(nArgs, args, _args);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<mlir::go::InterfaceCallOp>(
-    _location, _signature.getResults(), _callee, _ifaceValue, _args);
+  mlir::Operation* op =
+    builder.create<mlir::go::InterfaceCallOp>(_location, _resultTypes, _callee, _ifaceValue, _args);
   return wrap(op);
 }
 

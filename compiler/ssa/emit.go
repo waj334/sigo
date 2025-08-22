@@ -14,7 +14,9 @@ import (
 )
 
 func (b *Builder) emitAssign(ctx context.Context, stmt *ast.AssignStmt) {
-	location := b.location(stmt.Pos())
+	location := b.location(ctx, stmt.Pos())
+	info := currentInfo(ctx)
+
 	switch stmt.Tok {
 	case token.ADD_ASSIGN, token.SUB_ASSIGN, token.MUL_ASSIGN, token.QUO_ASSIGN, token.REM_ASSIGN, token.AND_ASSIGN,
 		token.OR_ASSIGN, token.XOR_ASSIGN, token.SHL_ASSIGN, token.SHR_ASSIGN, token.AND_NOT_ASSIGN:
@@ -40,9 +42,17 @@ func (b *Builder) emitAssign(ctx context.Context, stmt *ast.AssignStmt) {
 			}
 		}
 
-		ctx = newContextWithLhsList(ctx, lhsTypes)
 		lvals := make([]Value, len(stmt.Lhs))
 		rvals := make([]mlir.Value, 0, len(stmt.Rhs))
+
+		// Evaluate the RHS expressions first to guarantee that each is evaluated under the expected context. Otherwise,
+		// doing this in the opposite order will cause incorrect parameters to be passed when define-assignments
+		// "re-purpose" existing Var declarations.
+		for _, rhss := range stmt.Rhs {
+			rval := b.emitExpr(ctx, rhss)
+			rvals = append(rvals, rval...)
+		}
+
 		for i, lhs := range stmt.Lhs {
 			var lval Value
 			switch expr := stmt.Lhs[i].(type) {
@@ -55,19 +65,21 @@ func (b *Builder) emitAssign(ctx context.Context, stmt *ast.AssignStmt) {
 
 			if stmt.Tok == token.DEFINE {
 				// Local variables need to be emitted into the current block.
-				lval = b.emitLocalVar(ctx, b.objectOf(ctx, lhs), b.GetStoredType(ctx, lhsTypes[i]), false)
+				ident := lhs.(*ast.Ident)
+
+				// NOTE: Under some conditions an existing declaration's Var object is re-purposed for a new
+				//       declaration as a Use rather than a Def.
+				obj := info.ObjectOf(ident)
+				if obj == nil {
+					panic("no object found that anchors ident")
+				}
+				lval = b.emitLocalVar(ctx, obj, b.GetStoredType(ctx, lhsTypes[i]), false)
 			} else {
 				// Memory to hold the value should have already been created. Acquire the address of the memory
 				// location.
 				lval = b.valueOf(ctx, lhs)
 			}
 			lvals[i] = lval
-		}
-
-		for i, rhss := range stmt.Rhs {
-			ctx = newContextWithRhsIndex(ctx, i)
-			rval := b.emitExpr(ctx, rhss)
-			rvals = append(rvals, rval...)
 		}
 
 		if len(lvals) > len(rvals) {
@@ -127,7 +139,7 @@ func (b *Builder) emitAssign(ctx context.Context, stmt *ast.AssignStmt) {
 }
 
 func (b *Builder) emitCompoundAssign(ctx context.Context, stmt *ast.AssignStmt) {
-	location := b.location(stmt.Pos())
+	location := b.location(ctx, stmt.Pos())
 
 	var op token.Token
 	switch stmt.Tok {
@@ -177,15 +189,9 @@ func (b *Builder) emitCompoundAssign(ctx context.Context, stmt *ast.AssignStmt) 
 
 	// Set up type inference.
 	lhsT := b.typeOf(ctx, stmt.Lhs[0])
-	ctx = newContextWithLhsList(ctx, []types.Type{lhsT})
-	ctx = newContextWithRhsIndex(ctx, 0)
 
 	// Evaluate the RHS value.
-	rhsT := b.typeOf(ctx, stmt.Rhs[0])
 	Y := b.emitExpr(ctx, stmt.Rhs[0])[0]
-
-	// Make sure operands are the same type.
-	Y = b.emitTypeConversion(ctx, Y, rhsT, lhsT, location)
 
 	// Perform the respective arithmetic operation.
 	T := b.GetStoredType(ctx, lhsT)
@@ -198,83 +204,78 @@ func (b *Builder) emitCompoundAssign(ctx context.Context, stmt *ast.AssignStmt) 
 func (b *Builder) emitBinaryExpression(ctx context.Context, expr *ast.BinaryExpr) mlir.Value {
 	// Get the types of the LHS expressions to use for type inference for untyped types.
 	// NOTE: Use the type of the left-most operand if consecutive right-hand operands are also untyped.
-	var exprT types.Type
+	exprT := b.typeOf(ctx, expr)
 	lhsT := b.typeOf(ctx, expr.X)
 	rhsT := b.typeOf(ctx, expr.Y)
-	if isUntyped(lhsT) || isUntyped(rhsT) {
-		if !isUntyped(lhsT) {
-			exprT = lhsT
-		} else if !isUntyped(rhsT) {
-			exprT = rhsT
-		}
-	}
 
-	if exprT == nil {
-		exprT = b.typeOf(ctx, expr)
-		if isUntyped(exprT) {
-			exprT = resolveType(ctx, exprT)
-		}
-	}
+	// Resolve type parameters.
+	exprT = resolveType(ctx, exprT)
+	lhsT = resolveType(ctx, lhsT)
+	rhsT = resolveType(ctx, rhsT)
 
-	ctx = newContextWithLhsList(ctx, []types.Type{exprT})
-	ctx = newContextWithRhsIndex(ctx, 0)
+	var resultValue mlir.Value
 
 	// Create the respective binary expression operation.
-	location := b.location(expr.Pos())
+	location := b.location(ctx, expr.Pos())
 	switch expr.Op {
 	case token.SHL, token.SHR:
 		X := b.emitExpr(ctx, expr.X)[0]
 		Y := b.emitExpr(ctx, expr.Y)[0]
 
-		// Make sure operands are the same type.
-		X = b.emitTypeConversion(ctx, X, lhsT, exprT, location)
-		Y = b.emitTypeConversion(ctx, Y, rhsT, exprT, location)
-
-		resultT := exprT
-
-		// The terms in the expression must be integers!
-		// NOTE: This is a special case for this expression: float64(r.Int63()) / (1 << 63).
-		if !typeHasFlags(exprT, types.IsInteger) {
-			X = b.emitTypeConversion(ctx, X, exprT, types.Typ[types.Int], location)
-			Y = b.emitTypeConversion(ctx, Y, exprT, types.Typ[types.Int], location)
-			exprT = types.Typ[types.Int]
+		if !types.Identical(lhsT, rhsT) && (!isUntyped(lhsT) && !isUntyped(rhsT)) {
+			// Cast the value on the right side to that of the left since parameters to shifts can be of any integer
+			// type.
+			Y = b.emitTypeConversion(ctx, Y, rhsT, lhsT, location)
 		}
 
 		// Emit the arithmetic operation.
-		T := b.GetStoredType(ctx, exprT)
-		result := b.emitArith(ctx, expr.Op, X, Y, exprT, T, location)
+		T := b.GetStoredType(ctx, lhsT)
+		resultValue = b.emitArith(ctx, expr.Op, X, Y, lhsT, T, location)
 
-		if !types.Identical(resultT, exprT) {
-			// Cast the result the original type (some float type).
-			result = b.emitTypeConversion(ctx, result, exprT, resultT, location)
+		if !types.Identical(lhsT, exprT) {
+			resultValue = b.emitTypeConversion(ctx, resultValue, lhsT, exprT, location)
 		}
-		return result
+
 	case token.ADD, token.SUB, token.MUL, token.QUO, token.REM, token.AND, token.OR, token.XOR, token.AND_NOT:
-		T := b.GetStoredType(ctx, exprT)
+		T := b.GetStoredType(ctx, lhsT)
 
 		// Get the operand values to be used in the binary expression.
 		X := b.emitExpr(ctx, expr.X)[0]
 		Y := b.emitExpr(ctx, expr.Y)[0]
 
-		// Make sure operands are the same type.
-		X = b.emitTypeConversion(ctx, X, lhsT, exprT, location)
-		Y = b.emitTypeConversion(ctx, Y, rhsT, exprT, location)
+		if !types.Identical(lhsT, rhsT) && (!isUntyped(lhsT) && !isUntyped(rhsT)) {
+			// Cast the right side to the left assuming that the untyped type will be resolved to the default if the
+			// basic kind differs.
+			Y = b.emitTypeConversion(ctx, Y, rhsT, lhsT, location)
+		}
 
 		// Emit the arithmetic operation.
-		return b.emitArith(ctx, expr.Op, X, Y, exprT, T, location)
+		resultValue = b.emitArith(ctx, expr.Op, X, Y, lhsT, T, location)
 	case token.EQL, token.NEQ, token.GTR, token.LSS, token.LEQ, token.GEQ:
-		return b.emitComparison(ctx, expr)
+		resultValue = b.emitComparison(ctx, expr)
 	case token.LAND, token.LOR:
-		return b.emitLogicalComparison(ctx, expr)
+		resultValue = b.emitLogicalComparison(ctx, expr)
 	default:
 		panic("unhandled binary expression " + expr.Op.String())
 	}
+
+	return resultValue
 }
 
 func (b *Builder) emitBlock(ctx context.Context, stmt *ast.BlockStmt) {
 	if stmt == nil {
 		// There are no statements nested in this block.
 		return
+	}
+
+	info := currentInfo(ctx)
+	if info != nil {
+		scope, ok := info.Scopes[stmt]
+		if ok {
+			parentScope := currentScope(ctx)
+			scopeAttr := b.scopeAttr(scope, parentScope)
+			ctx = newContextWithScope(ctx, scopeAttr)
+		}
 	}
 
 	// Emit operations for every statement in the input block.
@@ -305,7 +306,7 @@ func (b *Builder) emitBranchStatement(ctx context.Context, stmt *ast.BranchStmt)
 			// Immediately branch to the specified predecessor block.
 			block = currentLabeledBlocks(ctx)[stmt.Label.Name]
 		} // Otherwise, branch to the successor block.
-		brOp := mlir.GoCreateBranchOperation(b.ctx, block, succArgs, b.location(stmt.Pos()))
+		brOp := mlir.GoCreateBranchOperation(b.ctx, block, succArgs, b.location(ctx, stmt.Pos()))
 		appendOperation(ctx, brOp)
 		return
 	case token.GOTO:
@@ -315,16 +316,16 @@ func (b *Builder) emitBranchStatement(ctx context.Context, stmt *ast.BranchStmt)
 			panic("no block with label " + stmt.Label.Name + " found")
 		}
 
-		brOp := mlir.GoCreateBranchOperation(b.ctx, block, nil, b.location(stmt.Pos()))
+		brOp := mlir.GoCreateBranchOperation(b.ctx, block, nil, b.location(ctx, stmt.Pos()))
 		appendOperation(ctx, brOp)
 		return
 	case token.FALLTHROUGH:
 		block, args := currentFallthroughBlock(ctx)
-		brOp := mlir.GoCreateBranchOperation(b.ctx, block, args, b.location(stmt.Pos()))
+		brOp := mlir.GoCreateBranchOperation(b.ctx, block, args, b.location(ctx, stmt.Pos()))
 		appendOperation(ctx, brOp)
 	case token.CONTINUE:
 		// Immediately branch to the predecessor block.
-		brOp := mlir.GoCreateBranchOperation(b.ctx, predecessor, predArgs, b.location(stmt.Pos()))
+		brOp := mlir.GoCreateBranchOperation(b.ctx, predecessor, predArgs, b.location(ctx, stmt.Pos()))
 		appendOperation(ctx, brOp)
 	default:
 		panic("unhandled switch branch statement")
@@ -394,12 +395,6 @@ func (b *Builder) emitExpr(ctx context.Context, expr ast.Expr) []mlir.Value {
 	case *ast.KeyValueExpr:
 		panic("unreachable")
 	case *ast.ParenExpr:
-		exprT := b.typeOf(ctx, expr)
-		if !typeHasFlags(exprT, types.IsUntyped) {
-			// Update the inferred types.
-			ctx = newContextWithLhsList(ctx, []types.Type{b.typeOf(ctx, expr)})
-			ctx = newContextWithRhsIndex(ctx, 0)
-		}
 		return b.emitExpr(ctx, expr.X)
 	case *ast.SelectorExpr:
 		return b.emitSelectorExpr(ctx, expr)
@@ -429,7 +424,7 @@ func (b *Builder) emitGenericDecl(ctx context.Context, decl *ast.GenDecl) {
 		for _, spec := range decl.Specs {
 			spec := spec.(*ast.ValueSpec)
 			vars := make([]Value, len(spec.Names))
-			location := b.location(decl.Pos())
+			location := b.location(ctx, decl.Pos())
 
 			// Local variables need to be emitted into the current block.
 			for i, ident := range spec.Names {
@@ -464,16 +459,15 @@ func (b *Builder) emitGenericDecl(ctx context.Context, decl *ast.GenDecl) {
 }
 
 func (b *Builder) emitIdent(ctx context.Context, expr *ast.Ident) []mlir.Value {
-	location := b.location(expr.Pos())
+	location := b.location(ctx, expr.Pos())
 	obj := b.objectOf(ctx, expr)
 	switch obj := obj.(type) {
 	case *types.Const:
-		exprType := b.typeOf(ctx, expr)
-		T := resolveType(ctx, exprType)
+		T := obj.Type()
 		if obj.Parent() != types.Universe && obj.Parent() == obj.Pkg().Scope() {
 			// Create a reference to the global constant.
 			symbolName := qualifiedName(obj.Name(), obj.Pkg())
-			constRefOp := mlir.GoCreateConstantOperation(b.ctx, nil, b.strAttr(symbolName), b.GetStoredType(ctx, T), location)
+			constRefOp := mlir.GoCreateConstantOperation(b.ctx, nil, b.strAttr(symbolName), b.GetType(ctx, T), location)
 			appendOperation(ctx, constRefOp)
 			return resultsOf(constRefOp)
 		} else {
@@ -481,21 +475,13 @@ func (b *Builder) emitIdent(ctx context.Context, expr *ast.Ident) []mlir.Value {
 			return b.values(val)
 		}
 	case *types.Func:
-		symbol := b.resolveSymbol(mangleSymbol(qualifiedFuncName(obj)))
+		symbol := b.resolveSymbol(qualifiedFuncName(obj))
 		b.queueJob(ctx, symbol)
 		fptrType := b.funcPointerOf(ctx, obj.Signature())
 		return []mlir.Value{b.addressOfSymbol(ctx, symbol, fptrType, location)}
 	case *types.Nil:
-		var T mlir.Type
-		if typeHasFlags(obj.Type(), types.IsUntyped) {
-			// Infer the nil type.
-			lhsTypes := currentLhsList(ctx)
-			index := currentRhsIndex(ctx)
-			T = b.GetStoredType(ctx, lhsTypes[index])
-		} else {
-			T = b.GetStoredType(ctx, obj.Type())
-		}
 		// Create the zero value of the specified type.
+		T := b.GetStoredType(ctx, obj.Type())
 		op := mlir.GoCreateZeroOperation(b.ctx, T, location)
 		appendOperation(ctx, op)
 		return resultsOf(op)
@@ -505,13 +491,8 @@ func (b *Builder) emitIdent(ctx context.Context, expr *ast.Ident) []mlir.Value {
 			panic("value is nil")
 		}
 
-		// Attempt to reuse a previously loaded value of the matching object.
-		result, ok := lookUpLoad(ctx, obj)
-		if !ok {
-			// Evaluate the loaded value.
-			result = value.Load(ctx, location)
-			cacheLoad(ctx, obj, result)
-		}
+		// Evaluate the loaded value.
+		result := value.Load(ctx, location)
 
 		// Load the value
 		return []mlir.Value{result}
@@ -530,7 +511,7 @@ func (b *Builder) emitIndexExpr(ctx context.Context, expr *ast.IndexExpr) []mlir
 		resultType = b.GetStoredType(ctx, T)
 	}
 
-	location := b.location(expr.Pos())
+	location := b.location(ctx, expr.Pos())
 
 	// Perform the specific index operation based on the input value type.
 	T := baseType(b.typeOf(ctx, expr.X))
@@ -587,7 +568,7 @@ func (b *Builder) emitIndexExpr(ctx context.Context, expr *ast.IndexExpr) []mlir
 }
 
 func (b *Builder) emitIndexAddr(ctx context.Context, expr *ast.IndexExpr) mlir.Value {
-	location := b.location(expr.Pos())
+	location := b.location(ctx, expr.Pos())
 
 	// Handle various result type scenarios.
 	var resultType mlir.Type
@@ -664,15 +645,8 @@ func (b *Builder) emitReturn(ctx context.Context, stmt *ast.ReturnStmt) {
 			returnTypes[i] = state.signature.Results().At(i).Type()
 		}
 
-		// Support type inference for nils.
-		ctx = newContextWithLhsList(ctx, returnTypes)
-
 		for i, result := range stmt.Results {
-			location := b.location(result.Pos())
-
-			// Select the inferred type for nils.
-			ctx = newContextWithRhsIndex(ctx, i)
-
+			location := b.location(ctx, result.Pos())
 			v := b.emitExpr(ctx, result)
 			valueType := b.typeOf(ctx, result)
 
@@ -719,7 +693,7 @@ func (b *Builder) emitReturn(ctx context.Context, stmt *ast.ReturnStmt) {
 	}
 
 	// Create the return operation in the current block.
-	op := mlir.GoCreateReturnOperation(b.config.Ctx, results, b.location(stmt.End()))
+	op := mlir.GoCreateReturnOperation(b.config.Ctx, results, b.location(ctx, stmt.End()))
 	appendOperation(ctx, op)
 }
 
@@ -735,7 +709,7 @@ func (b *Builder) emitLabeledStatement(ctx context.Context, stmt *ast.LabeledStm
 
 	if !blockHasTerminator(curr) {
 		// Branch to the labeled block.
-		brOp := mlir.GoCreateBranchOperation(b.ctx, block, nil, b.location(stmt.Pos()))
+		brOp := mlir.GoCreateBranchOperation(b.ctx, block, nil, b.location(ctx, stmt.Pos()))
 		appendOperation(ctx, brOp)
 	}
 
@@ -750,14 +724,14 @@ func (b *Builder) emitLabeledStatement(ctx context.Context, stmt *ast.LabeledStm
 }
 
 func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) []mlir.Value {
-	location := b.location(expr.Pos())
+	location := b.location(ctx, expr.Pos())
 	info := currentInfo(ctx)
 	sel := info.Selections[expr]
 	if sel == nil {
 		// This is actually a qualified identifier.
 		switch obj := b.objectOf(ctx, expr.Sel).(type) {
 		case *types.Func:
-			symbol := mangleSymbol(qualifiedFuncName(obj))
+			symbol := qualifiedFuncName(obj)
 			fptrType := b.funcPointerOf(ctx, obj.Signature())
 			return b.values(b.addressOfSymbol(ctx, symbol, fptrType, location))
 		default:
@@ -807,7 +781,7 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 		switch obj := sel.Obj().(type) {
 		case *types.Func:
 			// Return the address of the selected method.
-			symbol := b.resolveSymbol(mangleSymbol(qualifiedFuncName(obj)))
+			symbol := b.resolveSymbol(qualifiedFuncName(obj))
 			fptrType := b.funcPointerOf(ctx, obj.Signature())
 			b.queueJob(ctx, symbol)
 			return []mlir.Value{
@@ -829,13 +803,13 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 
 func (b *Builder) emitSelectAddr(ctx context.Context, expr *ast.SelectorExpr) mlir.Value {
 	info := currentInfo(ctx)
-	location := b.location(expr.Pos())
+	location := b.location(ctx, expr.Pos())
 	selectedType := b.typeOf(ctx, expr)
 
 	// Handle declared functions separately.
 	if _, isFunc := selectedType.(*types.Signature); isFunc {
 		if funcObj, ok := info.ObjectOf(expr.Sel).(*types.Func); ok {
-			symbol := b.resolveSymbol(mangleSymbol(qualifiedFuncName(funcObj)))
+			symbol := b.resolveSymbol(qualifiedFuncName(funcObj))
 			b.queueJob(ctx, symbol)
 			fptrType := b.funcPointerOf(ctx, funcObj.Signature())
 			return b.addressOfSymbol(ctx, symbol, fptrType, location)
@@ -904,7 +878,7 @@ func (b *Builder) baseAddressOf(ctx context.Context, expr *ast.SelectorExpr, loc
 		case *types.Var:
 			return b.valueOf(ctx, X).Pointer(ctx, location)
 		case *types.PkgName:
-			symbol := mangleSymbol(qualifiedName2(baseObj.Imported().Path(), expr.Sel.Name))
+			symbol := qualifiedName2(baseObj.Imported().Path(), expr.Sel.Name)
 			globalT := b.typeOf(ctx, expr)
 			addressOfOp := mlir.GoCreateAddressOfOperation(b.ctx, symbol, b.pointerOf(ctx, globalT), location)
 			appendOperation(ctx, addressOfOp)
@@ -922,7 +896,7 @@ func (b *Builder) baseAddressOf(ctx context.Context, expr *ast.SelectorExpr, loc
 
 func (b *Builder) emitSliceExpr(ctx context.Context, expr *ast.SliceExpr) []mlir.Value {
 	var lowValue, highValue, maxValue mlir.Value
-	location := b.location(expr.Pos())
+	location := b.location(ctx, expr.Pos())
 	T := b.GetStoredType(ctx, b.typeOf(ctx, expr))
 
 	// Evaluate the input to slice.
@@ -960,7 +934,7 @@ func (b *Builder) emitStarExpr(ctx context.Context, expr *ast.StarExpr) []mlir.V
 	X := b.emitExpr(ctx, expr.X)[0]
 
 	// Load and return the value at the address.
-	op := mlir.GoCreateLoadOperation(b.ctx, X, elementType, b.location(expr.Pos()))
+	op := mlir.GoCreateLoadOperation(b.ctx, X, elementType, b.location(ctx, expr.Pos()))
 	appendOperation(ctx, op)
 	return resultsOf(op)
 }
@@ -1028,13 +1002,10 @@ func (b *Builder) emitStmt(ctx context.Context, stmt ast.Stmt) {
 }
 
 func (b *Builder) emitTypeAssertExpr(ctx context.Context, expr *ast.TypeAssertExpr) []mlir.Value {
-	location := b.location(expr.Pos())
+	location := b.location(ctx, expr.Pos())
 
 	// Evaluate the interface value to type assert on.
 	X := b.emitExpr(ctx, expr.X)[0]
-
-	// Get the type to assert.
-	// T := b.GetType(ctx, b.typeOf(ctx, expr.Type))
 
 	// Create the type assertion operation.
 	op := mlir.GoCreateTypeAssertOperation(b.ctx, X, b.exprTypes(ctx, expr), location)
@@ -1043,12 +1014,7 @@ func (b *Builder) emitTypeAssertExpr(ctx context.Context, expr *ast.TypeAssertEx
 }
 
 func (b *Builder) emitUnaryExpr(ctx context.Context, expr *ast.UnaryExpr) []mlir.Value {
-	location := b.location(expr.Pos())
-	exprT := b.typeOf(ctx, expr)
-	if !typeHasFlags(exprT, types.IsUntyped) {
-		ctx = newContextWithLhsList(ctx, []types.Type{exprT})
-		ctx = newContextWithRhsIndex(ctx, 0)
-	}
+	location := b.location(ctx, expr.Pos())
 
 	switch expr.Op {
 	case token.ADD:

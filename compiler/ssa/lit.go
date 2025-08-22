@@ -13,7 +13,7 @@ import (
 func (b *Builder) emitBasicLiteral(ctx context.Context, expr *ast.BasicLit) mlir.Value {
 	info := currentInfo(ctx)
 	TV := info.Types[expr]
-	location := b.location(expr.Pos())
+	location := b.location(ctx, expr.Pos())
 	T := resolveType(ctx, TV.Type)
 	return b.emitConstantValue(ctx, TV.Value, T, location)
 }
@@ -34,7 +34,7 @@ func (b *Builder) emitCompositeLiteral(ctx context.Context, expr *ast.CompositeL
 }
 
 func (b *Builder) emitArrayLiteral(ctx context.Context, expr *ast.CompositeLit) mlir.Value {
-	location := b.location(expr.Pos())
+	location := b.location(ctx, expr.Pos())
 	litType := b.typeOf(ctx, expr)
 	arrayType := baseType(litType).(*types.Array)
 	T := b.GetStoredType(ctx, litType)
@@ -81,7 +81,7 @@ func (b *Builder) emitArrayLiteral(ctx context.Context, expr *ast.CompositeLit) 
 }
 
 func (b *Builder) emitMapLiteral(ctx context.Context, expr *ast.CompositeLit) mlir.Value {
-	location := b.location(expr.Pos())
+	location := b.location(ctx, expr.Pos())
 	litType := b.typeOf(ctx, expr)
 	mapType := baseType(litType).(*types.Map)
 	mapT := b.GetStoredType(ctx, litType)
@@ -146,7 +146,7 @@ func (b *Builder) emitMapLiteral(ctx context.Context, expr *ast.CompositeLit) ml
 }
 
 func (b *Builder) emitSliceLiteral(ctx context.Context, expr *ast.CompositeLit) mlir.Value {
-	location := b.location(expr.Pos())
+	location := b.location(ctx, expr.Pos())
 	litType := b.typeOf(ctx, expr)
 	sliceType := baseType(litType).(*types.Slice)
 	elementT := sliceType.Elem()
@@ -194,7 +194,7 @@ func (b *Builder) emitSliceLiteral(ctx context.Context, expr *ast.CompositeLit) 
 }
 
 func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit) mlir.Value {
-	location := b.location(expr.Pos())
+	location := b.location(ctx, expr.Pos())
 	litType := b.typeOf(ctx, expr)
 	structType := baseType(litType).(*types.Struct)
 	structT := b.GetStoredType(ctx, litType)
@@ -206,7 +206,7 @@ func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit)
 
 	// Set the struct elements.
 	for i, e := range expr.Elts {
-		elementLoc := b.location(e.Pos())
+		elementLoc := b.location(ctx, e.Pos())
 		var index int
 		var valueExpr ast.Expr
 
@@ -219,18 +219,10 @@ func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit)
 
 			// Look up the struct field.
 			index, field = findStructField(identifier.Name, structType)
-
-			ctx = newContextWithLhsList(ctx, []types.Type{field.Type()})
-			ctx = newContextWithRhsIndex(ctx, 0)
-
 			valueExpr = e.Value
 		default:
 			// Get the struct field information by index.
 			index, field = i, structType.Field(i)
-
-			ctx = newContextWithLhsList(ctx, []types.Type{field.Type()})
-			ctx = newContextWithRhsIndex(ctx, 0)
-
 			valueExpr = e
 		}
 		fieldT := field.Type()
@@ -268,7 +260,7 @@ func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit)
 }
 
 func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.Value {
-	location := b.location(expr.Pos())
+	location := b.location(ctx, expr.Pos())
 	enclosingData := currentFuncData(ctx)
 	info := currentInfo(ctx)
 	scope := info.Scopes[expr.Type]
@@ -317,9 +309,8 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 
 		locals:         map[types.Object]Value{},
 		anonymousFuncs: map[*ast.FuncLit]*funcData{},
-		instances:      map[*types.Signature]*funcData{},
+		instances:      []*funcData{},
 		typeMap:        map[int]types.Type{},
-		loads:          map[mlir.Block]map[types.Object]mlir.Value{},
 		scope:          scope,
 		info:           info,
 
@@ -424,7 +415,7 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 			ptrType := mlir.GoCreatePointerType(varType)
 			allocType := mlir.GoCreatePointerType(ptrType)
 
-			allocaOp := mlir.GoCreateAllocaOperation(b.ctx, allocType, ptrType, 1, false, b.location(obj.Pos()))
+			allocaOp := mlir.GoCreateAllocaOperation(b.ctx, allocType, ptrType, 1, false, b.location(ctx, obj.Pos()))
 			fv := &FreeVar{
 				obj: obj,
 				ptr: resultOf(allocaOp),
@@ -454,7 +445,7 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 	}
 
 	// Emit the anonymous function.
-	b.emitFunc(ctx, anonData)
+	b.addToJobQueue(ctx, anonData)
 
 	// Return a func value.
 	return b.createFunctionValue(ctx, funcPtr, contextPtr, location)

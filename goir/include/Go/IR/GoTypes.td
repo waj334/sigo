@@ -74,16 +74,31 @@ class AnyTypeOrNamedOf<list<Type> allowedTypes, string summary = "",
         summary),
     cppClassName>;
 
+class UntypedOfBasicType<string enumValue, string summary = ""> : Type<
+    And<[
+        CPred<"::mlir::isa<::mlir::go::UntypedType>($_self)">,
+        CPred<!strconcat("::mlir::cast<UntypedType>($_self).getBasicKind().getValue() == ::mlir::go::UntypedBasicKind::", enumValue)>,
+    ]>,
+    summary
+>;
+
+def UntypedComplex : UntypedOfBasicType<"Complex", "untyped complex">;
+def UntypedBoolean : UntypedOfBasicType<"Boolean", "untyped boolean">;
+def UntypedFloat : UntypedOfBasicType<"Float", "untyped float">;
+def UntypedInt : UntypedOfBasicType<"Integer", "untyped integer">;
+def UntypedNil : UntypedOfBasicType<"Nil", "untyped nil">;
+def UntypedRune : UntypedOfBasicType<"Rune", "untyped rune">;
+def UntypedString : UntypedOfBasicType<"String", "untyped string">;
 
 def Go_Array : AnyTypeOrNamedOf<[ArrayType]>;
-def Go_Bool : AnyTypeOrNamedOf<[BooleanType]>;
-def Go_Complex : AnyTypeOrNamedOf<[Complex<F32>, Complex<F64>]>;
+def Go_Bool : AnyTypeOrNamedOf<[UntypedBoolean, BooleanType]>;
+def Go_Complex : AnyTypeOrNamedOf<[UntypedComplex, Complex<F32>, Complex<F64>]>;
 def Go_Chan : AnyTypeOrNamedOf<[ChanType]>;
-def Go_Float : AnyTypeOrNamedOf<[F32, F64]>;
+def Go_Float : AnyTypeOrNamedOf<[UntypedFloat, F32, F64]>;
 def Go_Function : AnyTypeOrNamedOf<[GoFunctionType]>;
-def Go_Integer : AnyTypeOrNamedOf<[GoIntegerType]>;
-def Go_Integral : AnyTypeOrNamedOf<[Go_Integer, Go_Bool]>;
-def Go_String : AnyTypeOrNamedOf<[StringType]>;
+def Go_Integer : AnyTypeOrNamedOf<[UntypedInt, UntypedRune, GoIntegerType]>;
+def Go_IntegerLike : AnyTypeOrNamedOf<[Go_Integer, Go_Bool]>;
+def Go_String : AnyTypeOrNamedOf<[UntypedString, StringType]>;
 def Go_Slice : AnyTypeOrNamedOf<[SliceType]>;
 def Go_Pointer : AnyTypeOrNamedOf<[PointerType]>;
 def Go_Map : AnyTypeOrNamedOf<[MapType]>;
@@ -119,7 +134,8 @@ def Go_Type : AnyTypeOrNamedOf<[
     Go_Pointer,
     Go_Slice,
     Go_String,
-    Go_Struct
+    Go_Struct,
+    UntypedNil
 ]>;
 
 #endif // GO_TYPES

@@ -30,12 +30,15 @@ namespace mlir::go
     return this->emitOpError() << "address type must be a pointer";
   }
 
-  if (
-    addrType.getElementType().has_value() &&
-    *addrType.getElementType() != this->getValue().getType())
+  if (addrType.getElementType())
   {
-    return this->emitOpError() << "value type " << this->getValue().getType()
+    const auto elementType = *addrType.getElementType();
+    const auto valueType = this->getValue().getType();
+    if (!isCompatibleType(valueType, elementType))
+    {
+      return this->emitOpError() << "value type " << this->getValue().getType()
                                << " is incompatible with pointer type " << addrType;
+    }
   }
 
   return success();
@@ -71,7 +74,7 @@ namespace mlir::go
     auto globalOp = mlir::dyn_cast<GlobalOp>(this->getOperation()->getParentOp());
     const auto expectedType = globalOp.getGlobalType();
     const auto actualType = this->getInitializerValue().getType();
-    if (actualType != expectedType)
+    if (actualType != expectedType && !mlir::isa<UntypedType>(actualType))
     {
       return this->emitOpError() << "expected to yield value: " << expectedType
                                  << "\ngot:" << actualType;

@@ -652,6 +652,16 @@ extern "C"
     MlirValue* operands,
     MlirLocation location);
 
+  MlirOperation mlirGoCreateClosureCallOperation(
+    MlirContext context,
+    MlirAttribute signature,
+    MlirValue callee,
+    int nResultTypes,
+    MlirType* resultTypes,
+    int nOperands,
+    MlirValue* operands,
+    MlirLocation location);
+
   MlirOperation mlirGoCreateCallIndirectOperation(
     MlirContext context,
     MlirValue callee,
@@ -661,18 +671,78 @@ extern "C"
     MlirValue* operands,
     MlirLocation location);
 
-  MlirOperation mlirGoCreateDeferOperation(
+  MlirOperation mlirGoCreateDeferOperation1(
     MlirContext context,
-    MlirValue fn,
-    MlirAttribute* method,
+    MlirStringRef sym_name,
     int nArgs,
     MlirValue* args,
     MlirLocation location);
 
-  MlirOperation mlirGoCreateGoOperation(
+  MlirOperation mlirGoCreateDeferOperation2(
     MlirContext context,
-    MlirValue fn,
-    MlirStringRef method,
+    MlirAttribute sym_name,
+    int nArgs,
+    MlirValue* args,
+    MlirLocation location);
+
+  MlirOperation mlirGoCreateDeferOperation3(
+    MlirContext context,
+    MlirAttribute signature,
+    MlirValue callee_value,
+    int nArgs,
+    MlirValue* args,
+    MlirLocation location);
+
+  MlirOperation mlirGoCreateDeferOperation4(
+    MlirContext context,
+    MlirValue iface_value,
+    MlirStringRef method_name,
+    int nArgs,
+    MlirValue* args,
+    MlirLocation location);
+
+  MlirOperation mlirGoCreateDeferOperation5(
+    MlirContext context,
+    MlirValue iface_value,
+    MlirAttribute method_name,
+    int nArgs,
+    MlirValue* args,
+    MlirLocation location);
+
+  MlirOperation mlirGoCreateGoOperation1(
+    MlirContext context,
+    MlirStringRef sym_name,
+    int nArgs,
+    MlirValue* args,
+    MlirLocation location);
+
+  MlirOperation mlirGoCreateGoOperation2(
+    MlirContext context,
+    MlirAttribute sym_name,
+    int nArgs,
+    MlirValue* args,
+    MlirLocation location);
+
+  MlirOperation mlirGoCreateGoOperation3(
+    MlirContext context,
+    MlirAttribute signature,
+    MlirValue callee_value,
+    int nArgs,
+    MlirValue* args,
+    MlirLocation location);
+
+  MlirOperation mlirGoCreateGoOperation4(
+    MlirContext context,
+    MlirValue iface_value,
+    MlirStringRef method_name,
+    int nArgs,
+    MlirValue* args,
+    MlirLocation location);
+
+  MlirOperation mlirGoCreateGoOperation5(
+    MlirContext context,
+    MlirValue iface_value,
+    MlirAttribute method_name,
     int nArgs,
     MlirValue* args,
     MlirLocation location);
@@ -680,7 +750,8 @@ extern "C"
   MlirOperation mlirGoCreateInterfaceCall(
     MlirContext context,
     MlirStringRef callee,
-    MlirType signature,
+    int nResultTypes,
+    MlirType* resultTypes,
     MlirValue value,
     int nArgs,
     MlirValue* args,

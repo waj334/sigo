@@ -1,3 +1,8 @@
+// ─────────────────────────────────────────────────────────
+// Ozone RTOS script: proper register context per goroutine
+// Cortex-M (M4/M7)
+// ─────────────────────────────────────────────────────────
+
 function getOSName() {
     return "SiGo";
 }
@@ -83,18 +88,93 @@ function update() {
     }
 }
 
-function getregs(_g) {
-    var g = Debug.evaluate("*(runtime_goroutine*)" + _g);
-    var regs = new Array(16);
-    if (g == undefined) {
-        return [];
+function decodeSavedRegs(top) {
+    var fpuEnabled = Debug.evaluate("_fpuEnabled");
+
+    var WORD = 4;
+    var SZ_SW_CORE= 9 * WORD;   // r4..r11 + EXC_RETURN
+    var SZ_SW_FP  = 16 * WORD;  // s16..s31 (software-saved)
+    var SZ_HW_FP  = 18 * WORD;  // s0..s15, FPSCR, reserved (hardware)
+    var SZ_HW_CORE= 8 * WORD;   // r0 r1 r2 r3 r12 lr pc xPSR
+
+    // Saved layout at g.stackTop:
+    //   [r4..r11] (8 words) then HW exception frame
+    //   [r0 r1 r2 r3 r12 lr pc xpsr] (8 words)
+
+    var p = 0
+
+    // --- SW core block ---
+    var r4          = TargetInterface.peekWord(top + p); p += WORD;
+    var r5          = TargetInterface.peekWord(top + p); p += WORD;
+    var r6          = TargetInterface.peekWord(top + p); p += WORD;
+    var r7          = TargetInterface.peekWord(top + p); p += WORD;
+    var r8          = TargetInterface.peekWord(top + p); p += WORD;
+    var r9          = TargetInterface.peekWord(top + p); p += WORD;
+    var r10         = TargetInterface.peekWord(top + p); p += WORD;
+    var r11         = TargetInterface.peekWord(top + p); p += WORD;
+    var exc_return  = TargetInterface.peekWord(top + (WORD * 8)); p += WORD;
+
+    // Was FP HW frame present?  (bit4 == 0 means yes)
+    var fpHwPresent = ((exc_return & 0x10) == 0);
+
+    // --- Skip over the optional HW FP extended frame ---
+    if (fpHwPresent) {
+        TargetInterface.message("FPU was active");
+
+        // Skip SW FP block (s16..s31) and HW FP extended frame
+        p += SZ_SW_FP + SZ_HW_FP;
     }
 
-    for (i = 0; i < 16; i++) {
-        regs[i] = TargetInterface.peekWord(g.stackTop + i * 4);
+    // --- HW core exception frame ---
+    var r0   = TargetInterface.peekWord(top + p); p += WORD;
+    var r1   = TargetInterface.peekWord(top + p); p += WORD;
+    var r2   = TargetInterface.peekWord(top + p); p += WORD;
+    var r3   = TargetInterface.peekWord(top + p); p += WORD;
+    var r12  = TargetInterface.peekWord(top + p); p += WORD;
+    var lr   = TargetInterface.peekWord(top + p); p += WORD;
+    var pc   = TargetInterface.peekWord(top + p); p += WORD;
+    var xpsr = TargetInterface.peekWord(top + p); p += WORD;
+
+    // SP should be the PSP *after* stacking (what the thread would see on resume).
+    var sp = top + p;
+
+    var regs = new Array(17);
+    regs[0]  = r0;  regs[1]  = r1;  regs[2]  = r2;  regs[3]  = r3;
+    regs[4]  = r4;  regs[5]  = r5;  regs[6]  = r6;  regs[7]  = r7;
+    regs[8]  = r8;  regs[9]  = r9;  regs[10] = r10; regs[11] = r11;
+    regs[12] = r12; regs[13] = sp;  regs[14] = lr;  regs[15] = pc;
+    regs[16] = xpsr;
+    return regs;
+}
+
+function liveRegs() {
+    // Pull the live CPU regs for the currently running goroutine.
+    // Order: R0..R15, xPSR
+    var names = [
+        "R0","R1","R2","R3","R4","R5","R6","R7",
+        "R8","R9","R10","R11","R12","SP","LR","PC","xPSR"
+    ];
+    var regs = new Array(17);
+    for (var i = 0; i < names.length; i++) {
+        regs[i] = TargetInterface.getRegister(names[i]) >>> 0;
     }
     return regs;
 }
+
+function getregs(_g) {
+    var SP = TargetInterface.getRegister("SP");
+    var g = Debug.evaluate("*(runtime_goroutine*)" + _g);
+
+    // If this goroutine is actually running, feed Ozone the live CPU regs.
+    var currg = Debug.evaluate("*(runtime_goroutine*)currentGoroutine");
+    if (currg != undefined && g.stack == currg.stack) {
+        return liveRegs();
+    }
+
+    // Otherwise, reconstruct from the saved context frame.
+    return decodeSavedRegs(g.stackTop);
+}
+
 
 function getname(_g) {
     var g = Debug.evaluate("*(runtime_goroutine*)" + _g);

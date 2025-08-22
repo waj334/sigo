@@ -85,9 +85,7 @@ private:
   const llvm::StringRef m_dir;
 };
 
-void mlirGoInitializeContext(MlirContext context)
-{
-}
+void mlirGoInitializeContext(MlirContext context) {}
 
 MlirStringRef mlirModuleDump(MlirModule module)
 {
@@ -293,6 +291,16 @@ mlirGoOptimizeModule(MlirModule module, MlirStringRef name, MlirStringRef output
     pm.enableTiming();
   }
 
+  {
+    auto& nestedFuncPM = pm.nest<mlir::go::FuncOp>();
+    nestedFuncPM.addPass(mlir::go::createValueNormalizationFuncPass());
+  }
+
+  {
+    auto& nestedFuncPM = pm.nest<mlir::go::GlobalOp>();
+    nestedFuncPM.addPass(mlir::go::createValueNormalizationGlobalPass());
+  }
+
   // ─────────────────────────────────────────────
   // Phase 1: Top-level module passes
   // ─────────────────────────────────────────────
@@ -370,10 +378,8 @@ MlirAttribute mlirGoCreateTypeMetadataEntryAttr(MlirType type, MlirAttribute dic
   return wrap(mlir::go::TypeMetadataEntryAttr::get(_type.getContext(), _type, _dict));
 }
 
-MlirAttribute mlirGoCreateTypeMetadataDictionaryAttr(
-  MlirContext context,
-  int nEntries,
-  MlirAttribute* entries)
+MlirAttribute
+mlirGoCreateTypeMetadataDictionaryAttr(MlirContext context, int nEntries, MlirAttribute* entries)
 {
   const auto _context = unwrap(context);
   mlir::SmallVector<mlir::Attribute> values;
@@ -432,8 +438,7 @@ MlirOperation mlirValueGetDefiningOperation(MlirValue value)
   return wrap(_value.getDefiningOp());
 }
 
-MlirBlock
-mlirBlockCreate2(int nArgs, MlirType* args, int nLocations, MlirLocation* locations)
+MlirBlock mlirBlockCreate2(int nArgs, MlirType* args, int nLocations, MlirLocation* locations)
 {
   assert(nArgs == nLocations);
   return mlirBlockCreate(nArgs, args, locations);
@@ -465,7 +470,7 @@ void mlirGoMoveBlockAfter(const MlirBlock block, const MlirBlock after)
 {
   const auto _block = unwrap(block);
   const auto _after = unwrap(after);
-  _block->moveBefore( _after->getParent(), std::next(_after->getIterator()));
+  _block->moveBefore(_after->getParent(), std::next(_after->getIterator()));
 }
 
 MlirAttribute mlirGoCreateAsmConstraintAttr(
@@ -517,4 +522,15 @@ MlirAttribute mlirGoCreateAsmConstraintAttr(
   const auto attr = mlir::go::AsmConstraintAttr::get(
     _context, _registerClass, _dir, _alias, _operandIndex, _reserve);
   return wrap(attr);
+}
+
+MlirAttribute
+mlirGoScopeAttrGet(MlirContext context, MlirAttribute* parent, MlirLocation start, MlirLocation end)
+{
+  const auto _context = unwrap(context);
+  const auto _parent =
+    parent ? mlir::cast<mlir::go::ScopeAttr>(unwrap(*parent)) : mlir::go::ScopeAttr();
+  const auto _start = unwrap(start);
+  const auto _end = unwrap(end);
+  return wrap(mlir::go::ScopeAttr::get(_context, _parent, _start, _end));
 }

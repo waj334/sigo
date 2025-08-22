@@ -56,10 +56,8 @@ extern "C"
 
   MlirAttribute mlirGoCreateTypeMetadataEntryAttr(MlirType type, MlirAttribute dict);
 
-  MlirAttribute mlirGoCreateTypeMetadataDictionaryAttr(
-    MlirContext context,
-    int nEntries,
-    MlirAttribute* entries);
+  MlirAttribute
+  mlirGoCreateTypeMetadataDictionaryAttr(MlirContext context, int nEntries, MlirAttribute* entries);
 
   MlirBlock mlirRegionGetLastBlock(MlirRegion region);
 
@@ -72,8 +70,7 @@ extern "C"
 
   MlirOperation mlirValueGetDefiningOperation(MlirValue value);
 
-  MlirBlock
-  mlirBlockCreate2(int nArgs, MlirType* args, int nLocations, MlirLocation* locations);
+  MlirBlock mlirBlockCreate2(int nArgs, MlirType* args, int nLocations, MlirLocation* locations);
 
   MlirAttribute mlirDistinctAttrGet(MlirAttribute attr);
 
@@ -95,6 +92,12 @@ extern "C"
     MlirStringRef alias,
     int operandIndex,
     bool reserve);
+
+  MlirAttribute mlirGoScopeAttrGet(
+    MlirContext context,
+    MlirAttribute* parent,
+    MlirLocation start,
+    MlirLocation end);
 
 #ifdef __cplusplus
 }

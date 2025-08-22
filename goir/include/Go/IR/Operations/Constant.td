@@ -50,7 +50,7 @@ def ConstantOp : Go_Op<"constant", [ConstantLike, Pure, NoMemoryEffect]> {
     let results = (outs Go_Type:$result);
     let regions = (region MaxSizedRegion<1>:$body);
     let assemblyFormat = [{
-        ` ` ( `(` $value^ `)` )? ( $sym_ref^ )? attr-dict `:` type($result) ( $body^ )?
+        ( ` ` `(` $value^ `)` )? ( $sym_ref^ )? attr-dict `:` type($result) ( $body^ )?
     }];
 }
 

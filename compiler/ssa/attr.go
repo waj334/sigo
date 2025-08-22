@@ -1,6 +1,10 @@
 package ssa
 
-import "pkg.si-go.dev/sigo/mlir"
+import (
+	"go/types"
+
+	"pkg.si-go.dev/sigo/mlir"
+)
 
 func (b *Builder) intAttr(value int64) mlir.Attribute {
 	T := mlir.IntegerTypeGet(b.ctx, 64)
@@ -32,4 +36,8 @@ func (b *Builder) strArrayAttr(values ...string) mlir.Attribute {
 		strAttrs[i] = mlir.StringAttrGet(b.ctx, v)
 	}
 	return mlir.ArrayAttrGet(b.ctx, strAttrs)
+}
+
+func (b *Builder) scopeAttr(scope *types.Scope, parent mlir.Attribute) mlir.Attribute {
+	return mlir.GoScopeAttrGet(b.ctx, parent, b.unscopedLocation(scope.Pos()), b.unscopedLocation(scope.End()))
 }

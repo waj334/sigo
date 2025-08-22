@@ -224,10 +224,10 @@ func (b *Builder) emitStructCompare(ctx context.Context, op token.Token, X mlir.
 
 func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir.Value {
 	X := b.emitExpr(ctx, expr.X)[0]
-	location := b.location(expr.OpPos)
+	location := b.location(ctx, expr.OpPos)
 
-	XT := baseType(b.typeOf(ctx, expr.X))
-	YT := baseType(b.typeOf(ctx, expr.Y))
+	XT := resolveType(ctx, baseType(b.typeOf(ctx, expr.X)))
+	YT := resolveType(ctx, baseType(b.typeOf(ctx, expr.Y)))
 
 	switch {
 	case typeHasFlags(XT, types.IsBoolean), typeHasFlags(XT, types.IsInteger):
@@ -313,7 +313,13 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 	case typeIs[*types.Slice](XT), typeIs[*types.Map](XT):
 		op := mlir.GoCreateCmpNilOperation(b.ctx, b.i1, X, location)
 		appendOperation(ctx, op)
-		return resultOf(op)
+		value := resultOf(op)
+		if expr.Op == token.NEQ {
+			// Negate the result.
+			value = b.emitNegation(ctx, value, location)
+		}
+
+		return value
 	default:
 		panic("unhandled comparison operation")
 	}
@@ -330,7 +336,7 @@ func (b *Builder) emitNegation(ctx context.Context, X mlir.Value, location mlir.
 }
 
 func (b *Builder) emitLogicalComparison(ctx context.Context, expr *ast.BinaryExpr) mlir.Value {
-	location := b.location(expr.Pos())
+	location := b.location(ctx, expr.Pos())
 
 	// Create the exit block where execution should continue following the expression.
 	exitBlock := mlir.BlockCreate2([]mlir.Type{b.i1}, []mlir.Location{location})

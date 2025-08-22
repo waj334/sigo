@@ -3,33 +3,22 @@ package mlir
 /*
 #include <stdlib.h>
 #include "mlir-c/IR.h"
+#include <string.h>
 */
 import "C"
+import "unsafe"
 
-/*
-func BlockCreate2(args []Type, locs []Location) Block {
-	if len(args) != len(locs) {
-		panic("len(args) != len(locs)")
-	}
+func createStringRef(input string) C.MlirStringRef {
+	sz := C.size_t(len(input))
+	cstr := C.malloc(sz)
+	gstr := unsafe.Pointer(unsafe.StringData(input))
 
-	argsArr := (*C.MlirType)(C.malloc(C.size_t(len(args)) * C.size_t(unsafe.Sizeof(uintptr(0)))))
-	locsArr := (*C.MlirLocation)(C.malloc(C.size_t(len(locs)) * C.size_t(unsafe.Sizeof(uintptr(0)))))
-	defer C.free(unsafe.Pointer(argsArr))
-	defer C.free(unsafe.Pointer(locsArr))
+	// Copy the bytes from the Go string into the C String.
+	C.memcpy(cstr, gstr, sz)
 
-	for i, arg := range args {
-		*(*C.MlirType)(unsafe.Pointer(uintptr(unsafe.Pointer(argsArr)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = *(*C.MlirType)(unsafe.Pointer(arg.Swigcptr()))
-		*(*C.MlirLocation)(unsafe.Pointer(uintptr(unsafe.Pointer(locsArr)) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = *(*C.MlirLocation)(unsafe.Pointer(locs[i].Swigcptr()))
-	}
-
-	val := C.mlirBlockCreate(C.intptr_t(len(args)), argsArr, locsArr)
-	result := (Block)(SwigcptrBlock(*(*uintptr)(unsafe.Pointer(&val))))
-	if Swig_escape_always_false {
-		Swig_escape_val = result
-	}
-	return result
+	// Create and return the string reference.
+	return C.mlirStringRefCreate((*C.char)(cstr), sz)
 }
-*/
 
 func GoCreateGepOperation2(ctx Context, base Value, baseType Type, indices []any, resultType Type, location Location) Operation {
 	var dynamicIndices []Value

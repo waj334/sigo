@@ -10,6 +10,17 @@ extern "C"
 {
 #endif
 
+  enum mlirGoBasicType
+  {
+    mlirGoBasicTypeComplex = 1,
+    mlirGoBasicTypeBoolean,
+    mlirGoBasicTypeFloat,
+    mlirGoBasicTypeInteger,
+    mlirGoBasicTypeNil,
+    mlirGoBasicTypeRune,
+    mlirGoBasicTypeString,
+  };
+
   enum mlirGoCmpFPredicate
   {
     mlirGoCmpFPredicate_eq = 1,

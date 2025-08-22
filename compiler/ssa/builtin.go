@@ -10,7 +10,7 @@ import (
 )
 
 func (b *Builder) emitBuiltinCall(ctx context.Context, expr *ast.CallExpr) []mlir.Value {
-	location := b.location(expr.Pos())
+	location := b.location(ctx, expr.Pos())
 	anyType := types.NewInterfaceType(nil, nil)
 
 	var signature *types.Signature
@@ -25,6 +25,9 @@ func (b *Builder) emitBuiltinCall(ctx context.Context, expr *ast.CallExpr) []mli
 		inputs := make([]*types.Var, len(expr.Args))
 		for i, arg := range expr.Args {
 			argType := b.typeOf(ctx, arg)
+			if isUntyped(argType) {
+				argType = types.Default(argType)
+			}
 			inputs[i] = types.NewVar(token.NoPos, nil, "", argType)
 		}
 		paramsTuple := types.NewTuple(inputs...)
@@ -80,17 +83,29 @@ func (b *Builder) emitBuiltinCall(ctx context.Context, expr *ast.CallExpr) []mli
 	if signature.Variadic() {
 		operands = b.emitCallArgs(ctx, signature, expr)
 	} else {
-		operands = b.exprValues(ctx, expr.Args[offset:]...)
-		// Handle argument type conversions.
-		argIndex := 0
-		for i := offset; i < signature.Params().Len(); i++ {
-			paramType := signature.Params().At(i).Type()
-			argExpr := expr.Args[i]
-			argType := b.typeOf(ctx, argExpr)
-			if !types.Identical(argType, paramType) {
-				operands[argIndex] = b.emitTypeConversion(ctx, operands[argIndex], argType, paramType, location)
+		for _, argExpr := range expr.Args[offset:] {
+			operands = append(operands, b.emitExpr(ctx, argExpr)...)
+		}
+
+		switch name {
+		case "make":
+			for i := range operands {
+				// Convert to integer type.
+				// TODO: This should be done during IR lowering.
+				operands[i] = b.emitTypeConversion(ctx, operands[i], b.typeOf(ctx, expr.Args[offset+i]), types.Typ[types.Int], location)
 			}
-			argIndex++
+		default:
+			// Handle argument type conversions.
+			argIndex := 0
+			for i := offset; i < signature.Params().Len(); i++ {
+				paramType := signature.Params().At(i).Type()
+				argExpr := expr.Args[i]
+				argType := b.typeOf(ctx, argExpr)
+				if !types.Identical(argType, paramType) {
+					operands[argIndex] = b.emitTypeConversion(ctx, operands[argIndex], argType, paramType, location)
+				}
+				argIndex++
+			}
 		}
 	}
 

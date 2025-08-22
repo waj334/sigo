@@ -107,6 +107,7 @@ type LocalValue struct {
 	ptr mlir.Value
 	T   mlir.Type
 	b   *Builder
+	obj types.Object
 }
 
 func (l LocalValue) Load(ctx context.Context, location mlir.Location) mlir.Value {

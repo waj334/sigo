@@ -214,8 +214,10 @@ struct CallOpLowering : public OpConversionPattern<CallOp>
       return op->emitError("failed to convert result types");
     }
 
+    // NOTE: Closure calls are lowered by CallPass.
+
     rewriter.replaceOpWithNewOp<func::CallOp>(
-      op, op.getCallee(), resultTypes, adaptor.getOperands());
+      op, *op.getCallee(), resultTypes, adaptor.getOperands());
     return success();
   }
 };

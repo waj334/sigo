@@ -44,7 +44,9 @@ def ExtractOp : Go_Op<"extract", [Pure, NoMemoryEffect]> {
 // InsertOp
 //===----------------------------------------------------------------------===//
 
-def InsertOp : Go_Op<"insert", [Pure, NoMemoryEffect]> {
+def InsertOp : Go_Op<"insert", [Pure, NoMemoryEffect,
+                DeclareOpInterfaceMethods<UntypedTypeResolverInterface, ["resolveOperandTypes", "resolveResultTypes"]>
+            ]> {
     let summary = "Aggregate element insertion operator";
     let description = [{
         The `go.insert` operation inserts the value operand into the
@@ -68,6 +70,15 @@ def InsertOp : Go_Op<"insert", [Pure, NoMemoryEffect]> {
         `(` $value `:` type($value) `)` `into` ` ` `(` $aggregate `:` type($aggregate) `)` `at` $index attr-dict `:` type($result)
     }];
     let hasVerifier = 1;
+    let extraClassDefinition = [{
+        ::mlir::SmallVector<::mlir::Type> $cppClass::resolveOperandTypes() {
+            return insertOpResolveOperandTypes(this);
+        }
+
+        ::mlir::SmallVector<::mlir::Type> $cppClass::resolveResultTypes() {
+            return ::mlir::SmallVector<::mlir::Type>(this->getOperation()->getResultTypes());
+        }
+    }];
 }
 
 #endif // GO_OPERATIONS_STRUCT_TD
