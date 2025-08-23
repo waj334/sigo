@@ -355,12 +355,25 @@ struct AtomicAddIOpLowering : ConvertOpToLLVMPattern<AtomicAddIOp>
     OpAdaptor adaptor,
     ConversionPatternRewriter& rewriter) const override
   {
-    rewriter.replaceOpWithNewOp<mlir::LLVM::AtomicRMWOp>(
-      op,
+    const auto loc = op.getLoc();
+    const auto resultType = adaptor.getRhs().getType();
+
+    mlir::Value oldValue = rewriter.create<mlir::LLVM::AtomicRMWOp>(
+      loc,
       mlir::LLVM::AtomicBinOp::add,
       adaptor.getAddr(),
       adaptor.getRhs(),
       mlir::LLVM::AtomicOrdering::acq_rel);
+
+    // NOTE: LLVM's AtomicRMW will yield the old value BEFORE the addition while Go's atomic.AddxInt
+    //       API expects the new value to be returned.
+
+    // Add the delta to the old value.
+    mlir::Value newValue =
+      rewriter.create<mlir::LLVM::AddOp>(loc, resultType, oldValue, adaptor.getRhs());
+
+    // Use the new value as the result.
+    rewriter.replaceOp(op, newValue);
     return success();
   }
 };
