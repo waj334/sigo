@@ -1550,12 +1550,14 @@ struct GlobalOpLowering : ConvertOpToLLVMPattern<GlobalOp>
 
     auto elemT = this->getTypeConverter()->convertType(adaptor.getGlobalType());
 
-    mlir::LLVM::DIGlobalVariableExpressionAttr diGlobalExprAttr;
+
+    mlir::SmallVector<mlir::Attribute> diGlobalExprAttrs;
+
     if (
       const auto fusedLoc =
         loc->findInstanceOf<mlir::FusedLocWith<mlir::LLVM::DIGlobalVariableExpressionAttr>>())
     {
-      diGlobalExprAttr = fusedLoc.getMetadata();
+      diGlobalExprAttrs.push_back(fusedLoc.getMetadata());
     }
 
     // TODO: Any global that is NOT assigned a value in some function can be constant.
@@ -1572,9 +1574,9 @@ struct GlobalOpLowering : ConvertOpToLLVMPattern<GlobalOp>
       0,
       false,
       false,
-      comdat,
-      attrs,
-      diGlobalExprAttr);
+      mlir::SymbolRefAttr(),
+      llvm::ArrayRef<mlir::NamedAttribute>(),
+      diGlobalExprAttrs);
 
     // Copy the initializer regions.
     rewriter.inlineRegionBefore(op.getRegion(), global.getRegion(), global.getRegion().end());

@@ -15,7 +15,6 @@
 int main(int argc, char** argv)
 {
   mlir::registerAllPasses();
-  mlir::registerPass(mlir::go::createAttachDebugInfoPass);
   mlir::registerPass(mlir::go::createLowerToCorePass);
   mlir::registerPass(mlir::go::createGlobalConstantsPass);
   mlir::registerPass(mlir::go::createGlobalInitializerPass);

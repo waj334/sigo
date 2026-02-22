@@ -432,6 +432,11 @@ func pkgPicolibc(arch string) (Package, error) {
 			"newlib/libc/machine/arm/strcpy.S",
 			"newlib/libc/machine/arm/strlen.c",
 			"newlib/libc/machine/arm/strlen.S",
+			"newlib/libc/string/memcmp.c",
+		)
+	default:
+		pkg.Sources = append(pkg.Sources,
+			"newlib/libc/string/memcmp.c",
 		)
 	}
 

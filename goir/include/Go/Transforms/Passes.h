@@ -6,7 +6,10 @@
 
 namespace mlir::go
 {
-std::unique_ptr<Pass> createAttachDebugInfoPass();
+std::unique_ptr<Pass> createAttachDebugInfoToAllocaPass();
+std::unique_ptr<Pass> createAttachDebugInfoToConstantPass();
+std::unique_ptr<Pass> createAttachDebugInfoToFuncPass();
+std::unique_ptr<Pass> createAttachDebugInfoToGlobalPass();
 
 std::unique_ptr<Pass> createExtractTypeMetadataPass();
 

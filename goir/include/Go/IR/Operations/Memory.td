@@ -16,7 +16,7 @@ include "mlir/IR/OpBase.td"
 // alloca
 //===----------------------------------------------------------------------===//
 
-def AllocaOp : Go_Op<"alloca", [AlwaysSpeculatable]> {
+def AllocaOp : Go_Op<"alloca", [IsolatedFromAbove, AlwaysSpeculatable]> {
     let summary = "Stack allocation operation";
     let description = [{
         The `go.alloc` operation allocates memory on the stack or in the heap
