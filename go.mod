@@ -1,6 +1,6 @@
 module pkg.si-go.dev/sigo
 
-go 1.23.0
+go 1.25
 
 require (
 	github.com/sirkon/go-format/v2 v2.0.2
@@ -19,4 +19,9 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	golang.org/x/mod v0.22.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
+	pkg.si-go.dev/go-mlir v0.0.0-20260307195048-84ac501bb1e7 // indirect
+)
+
+replace (
+	pkg.si-go.dev/go-mlir => /home/waj334/Projects/go-mlir
 )

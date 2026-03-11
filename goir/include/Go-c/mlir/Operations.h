@@ -345,12 +345,14 @@ extern "C"
     int32_t* constIndices,
     int nDynamicIndices,
     MlirValue* dynamicIndices,
+    int nIndexFlags,
+    bool* indexFlags,
     MlirType type,
     MlirLocation location);
 
   MlirOperation mlirGoCreateGlobalOperation(
     MlirContext context,
-    MlirAttribute* linkage,
+    MlirAttribute linkage,
     MlirStringRef symbol,
     MlirType type,
     MlirLocation location);
@@ -361,9 +363,9 @@ extern "C"
   MlirOperation mlirGoCreateSliceOperation(
     MlirContext context,
     MlirValue input,
-    MlirValue* low,
-    MlirValue* high,
-    MlirValue* max,
+    MlirValue low,
+    MlirValue high,
+    MlirValue max,
     MlirType resultType,
     MlirLocation location);
 
@@ -427,14 +429,14 @@ extern "C"
 
   MlirOperation mlirGoCreateConstantOperation(
     MlirContext context,
-    MlirAttribute* value,
-    MlirAttribute* symbol,
+    MlirAttribute value,
+    MlirAttribute symbol,
     MlirType type,
     MlirLocation location);
 
   MlirOperation mlirGoCreateGlobalConstantOperation(
     MlirContext context,
-    MlirAttribute* value,
+    MlirAttribute value,
     MlirAttribute symbol,
     MlirLocation location);
 
@@ -795,14 +797,14 @@ extern "C"
   MlirOperation mlirGoCreateMakeMapOperation(
     MlirContext context,
     MlirType resultType,
-    MlirValue* capacity,
+    MlirValue capacity,
     MlirLocation location);
 
   MlirOperation mlirGoCreateMakeSliceOperation(
     MlirContext context,
     MlirType resultType,
     MlirValue length,
-    MlirValue* capacity,
+    MlirValue capacity,
     MlirLocation location);
 
   MlirOperation mlirGoCreateMakeInterfaceOperation(

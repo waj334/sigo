@@ -16,7 +16,7 @@ include "mlir/IR/OpBase.td"
 // alloca
 //===----------------------------------------------------------------------===//
 
-def AllocaOp : Go_Op<"alloca", [AlwaysSpeculatable]> {
+def AllocaOp : Go_Op<"alloca", [IsolatedFromAbove, AlwaysSpeculatable]> {
     let summary = "Stack allocation operation";
     let description = [{
         The `go.alloc` operation allocates memory on the stack or in the heap
@@ -113,14 +113,11 @@ def GetElementPointerOp : Go_Op<"gep", [NoMemoryEffect]> {
             Go_Pointer:$value,
             TypeAttr:$baseType,
             Variadic<Go_Integer>:$dynamicIndices,
-            DenseI32ArrayAttr:$constIndices);
+            DenseI32ArrayAttr:$constIndices,
+            DenseBoolArrayAttr:$indexFlags);
     let results = (outs Go_Pointer:$result);
     let assemblyFormat = [{
-        $value `[` custom<GEPIndices>($dynamicIndices, $constIndices) `]` attr-dict `:` functional-type(operands, results)
-    }];
-    let extraClassDeclaration = [{
-        constexpr static int32_t kValueFlag = 0x80000000;
-        constexpr static int32_t kValueIndexMask = 0x7FFFFFFF;
+        $value `[` custom<GEPIndices>($dynamicIndices, $constIndices, $indexFlags) `]` attr-dict `:` functional-type(operands, results)
     }];
     let hasVerifier = 1;
 }

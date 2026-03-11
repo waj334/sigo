@@ -105,7 +105,7 @@ extern "C"
 
   MlirType mlirGoCreateFunctionType(
     MlirContext ctx,
-    MlirType* receiver,
+    MlirType receiver,
     int nInputs,
     MlirType* inputs,
     int nResults,

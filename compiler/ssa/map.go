@@ -5,7 +5,9 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
-	"pkg.si-go.dev/sigo/mlir"
+
+	"pkg.si-go.dev/go-mlir/mlir"
+	"pkg.si-go.dev/sigo/goir/binding/goir"
 )
 
 func (b *Builder) emitMapRange(ctx context.Context, stmt *ast.RangeStmt) {
@@ -23,13 +25,13 @@ func (b *Builder) emitMapRange(ctx context.Context, stmt *ast.RangeStmt) {
 	elementVar := b.valueOf(ctx, stmt.Value)
 
 	// Create the exit block where execution will continue following the range statement.
-	exitBlock := mlir.BlockCreate2(nil, nil)
+	exitBlock := mlir.NewBlock(nil, nil)
 
 	// Create all blocks involved with the for loop.
-	rangeBlock := mlir.BlockCreate2(nil, nil)
+	rangeBlock := mlir.NewBlock(nil, nil)
 	appendBlock(ctx, rangeBlock)
 
-	bodyBlock := mlir.BlockCreate2(
+	bodyBlock := mlir.NewBlock(
 		b.types(b.GetStoredType(ctx, mapType.Key()), b.GetStoredType(ctx, mapType.Elem())),
 		b.locations(location, location))
 	appendBlock(ctx, bodyBlock)
@@ -38,20 +40,20 @@ func (b *Builder) emitMapRange(ctx context.Context, stmt *ast.RangeStmt) {
 	X := b.emitExpr(ctx, stmt.X)[0]
 
 	// Branch to the condition block from the current block.
-	brOp := mlir.GoCreateBranchOperation(b.ctx, rangeBlock, nil, location)
+	brOp := goir.NewBranchOperation(b.ctx, rangeBlock, nil, location)
 	appendOperation(ctx, brOp)
 
 	// Build the condition block where the loop condition will continuously be evaluated in.
 	buildBlock(ctx, rangeBlock, func() {
 		// Create the map range operation.
-		op := mlir.GoCreateMapRangeOp(b.ctx, X, bodyBlock, exitBlock, location)
+		op := goir.NewMapRangeOp(b.ctx, X, bodyBlock, exitBlock, location)
 		appendOperation(ctx, op)
 	})
 
 	// Build the loop body block.
 	buildBlock(ctx, bodyBlock, func() {
-		keyValue := mlir.BlockGetArgument(bodyBlock, 0)
-		elementValue := mlir.BlockGetArgument(bodyBlock, 1)
+		keyValue := bodyBlock.Argument(0)
+		elementValue := bodyBlock.Argument(1)
 
 		// Any break statement immediately branch to the exit block.
 		ctx = newContextWithSuccessorBlock(ctx, exitBlock, nil)
@@ -97,7 +99,7 @@ func (b *Builder) emitMapRange(ctx context.Context, stmt *ast.RangeStmt) {
 		// NOTE: The loop body can either explicitly terminate or fall off.
 		if !blockHasTerminator(currentBlock(ctx)) {
 			// Control has fallen off. Branch to the post iteration block.
-			brOp := mlir.GoCreateBranchOperation(b.ctx, rangeBlock, nil, endLocation)
+			brOp := goir.NewBranchOperation(b.ctx, rangeBlock, nil, endLocation)
 			appendOperation(ctx, brOp)
 		}
 	})

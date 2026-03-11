@@ -1,6 +1,6 @@
 package builder
 
-type Options struct {
+type BuildOptions struct {
 	Packages          map[string]string
 	Output            string
 	BuildDir          string

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <filesystem>
 
 #include <llvm/BinaryFormat/Dwarf.h>
@@ -12,226 +14,19 @@
 namespace mlir::go
 {
 
-struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<ModuleOp>>
+struct BaseAttachDebugInfoPass
 {
   DenseMap<Type, LLVM::DITypeAttr> m_typeMap;
   DenseMap<Type, DistinctAttr> m_idMap;
   DenseMap<Type, DictionaryAttr> m_typeDataMap;
   DenseMap<Type, LocationAttr> m_typeDeclareLocationMap;
 
-  void runOnOperation() final
-  {
-    MLIRContext* context = &this->getContext();
-    auto module = getOperation();
-
-    auto runtimeTypes = RuntimeTypeLookUp(module);
-    DataLayout dataLayout(module);
-
-    // Create the builder.
-    OpBuilder builder(module.getBodyRegion());
-
-    // Walk the module and create a subprogram for each function.
-    module.walk(
-      [&](mlir::go::FuncOp op)
-      {
-        if (op.getBody().empty())
-        {
-          // Skip forward declared functions.
-          return;
-        }
-
-        // Functions that should generate debug information have a compile unit
-        // fused with its location.
-        if (const auto fusedLocWithCompileUnit =
-              op->getLoc()->findInstanceOf<mlir::FusedLocWith<LLVM::DICompileUnitAttr>>();
-            fusedLocWithCompileUnit)
-        {
-          const auto compileUnitAttr = fusedLocWithCompileUnit.getMetadata();
-          const auto funcNameAttr = op.getSymNameAttr();
-
-          auto baseFuncName = funcNameAttr.strref();
-          if (baseFuncName.contains("."))
-          {
-            // Extract the function's unqualified name.
-            baseFuncName = baseFuncName.substr(baseFuncName.find_last_of(".") + 1);
-          }
-          auto baseFuncNameAttr = StringAttr::get(context, baseFuncName);
-
-          const auto loc = op->getLoc()->findInstanceOf<FileLineColLoc>();
-          const auto filePath = std::filesystem::path(loc.getFilename().str());
-          const auto fileName = filePath.filename().generic_string();
-          const auto fileDir = filePath.parent_path().generic_string();
-          const auto fileAttr = LLVM::DIFileAttr::get(context, fileName, fileDir);
-          const auto subprogramIdAttr = DistinctAttr::create(UnitAttr::get(context));
-          const auto subroutineTypeAttr =
-            LLVM::DISubroutineTypeAttr::get(context, llvm::dwarf::DW_CC_normal, {});
-          const auto subprogramAttr = LLVM::DISubprogramAttr::get(
-            context,
-            subprogramIdAttr,
-            compileUnitAttr,
-            fileAttr,
-            baseFuncNameAttr,
-            funcNameAttr,
-            fileAttr,
-            /*line=*/loc.getLine(),
-            /*scopeline=*/loc.getLine(),
-            LLVM::DISubprogramFlags::Definition | LLVM::DISubprogramFlags::Optimized,
-            subroutineTypeAttr,
-            {},
-            {});
-          op->setLoc(FusedLoc::get(context, { op.getLoc() }, subprogramAttr));
-        }
-      });
-
-    // Walk the module and add metadata for globals.
-    module.walk(
-      [&](GlobalOp op)
-      {
-        const Location loc = op->getLoc();
-        const auto fusedLocWithCompileUnit =
-          loc->findInstanceOf<mlir::FusedLocWith<LLVM::DICompileUnitAttr>>();
-
-        // Globals must have an associated compile unit in order for debug information about it to
-        // be emitted.
-        if (!fusedLocWithCompileUnit)
-          return;
-
-        const auto elementT = op.getGlobalType();
-        const auto typeAttr = getDITypeAttr(context, elementT, dataLayout, runtimeTypes);
-
-        const auto alignment = dataLayout.getTypePreferredAlignment(elementT);
-        const auto compileUnitAttr = fusedLocWithCompileUnit.getMetadata();
-        const auto linknameAttr = op.getSymNameAttr();
-
-        std::string name = op.getSymNameAttr().str();
-        if (const auto index = name.find('.'); index != std::string::npos)
-        {
-          name = name.substr(index + 1);
-        }
-        const auto nameAttr = StringAttr::get(context, name);
-
-        const auto fileLoc = op->getLoc()->findInstanceOf<FileLineColLoc>();
-        const auto filePath = std::filesystem::path(fileLoc.getFilename().str());
-        const auto fileName = filePath.filename().generic_string();
-        const auto fileDir = filePath.parent_path().generic_string();
-        const auto fileAttr = LLVM::DIFileAttr::get(context, fileName, fileDir);
-        const auto diGlobalAttr = LLVM::DIGlobalVariableAttr::get(
-          context,
-          compileUnitAttr,
-          nameAttr,
-          linknameAttr,
-          fileAttr,
-          fileLoc.getLine(),
-          typeAttr,
-          false,
-          true,
-          alignment);
-        const auto diGlobalExprAttr = LLVM::DIGlobalVariableExpressionAttr::get(
-          context, diGlobalAttr, LLVM::DIExpressionAttr());
-        op->setLoc(FusedLoc::get(context, { op.getLoc() }, diGlobalExprAttr));
-      });
-
-    // Walk the module and attach debug info to all alloca operations.
-    module.walk([&](AllocaOp op) { processAllocOp(op, builder, dataLayout, runtimeTypes); });
-
-    // Constants
-    module.walk(
-      [&](ConstantOp op)
-      {
-        mlir::Attribute diVar;
-        mlir::TypeSwitch<mlir::Operation*>(op->getParentOp())
-          .Case(
-            [&](mlir::ModuleOp)
-            {
-              // TODO: Need intrinsic operation for describing named constants.
-            })
-          .Case(
-            [&](mlir::FunctionOpInterface)
-            {
-              // TODO: Need intrinsic operation for describing named constants.
-            });
-
-        if (diVar)
-        {
-          op->setLoc(FusedLoc::get(context, { op.getLoc() }, diVar));
-        }
-      });
-  }
-
-  void processAllocOp(
-    AllocaOp op,
-    OpBuilder& builder,
-    DataLayout& dataLayout,
-    RuntimeTypeLookUp& runtimeTypes)
-  {
-    MLIRContext* context = op->getContext();
-    const auto name = op.getVarName();
-
-    // Get the allocated type that the debug information will be associated
-    // with.
-    const Type elementType = mlir::cast<TypeAttr>(op->getAttr("element")).getValue();
-
-    // Not all allocs have debug information associated with them. Process
-    // only the ones that do.
-    if (name && !(*name).empty())
-    {
-      const auto locSubprogram =
-        op->getParentOp()->getLoc()->findInstanceOf<FusedLocWith<LLVM::DISubprogramAttr>>();
-      if (!locSubprogram)
-        return;
-
-      const LLVM::DITypeAttr diType = getDITypeAttr(context, elementType, dataLayout, runtimeTypes);
-      if (!diType)
-        return;
-
-      const auto loc = op->getLoc()->findInstanceOf<FileLineColLoc>();
-      const auto path = std::filesystem::path(loc.getFilename().str());
-      const auto diFile =
-        LLVM::DIFileAttr::get(context, path.filename().string(), path.parent_path().string());
-
-      // Apply scoping information if present.
-      mlir::LLVM::DIScopeAttr scope = locSubprogram.getMetadata();
-      const auto locScope = op->getLoc()->findInstanceOf<FusedLocWith<mlir::go::ScopeAttr>>();
-      if (locScope)
-      {
-        const auto scopeAttr = locScope.getMetadata();
-        mlir::LLVM::DIScopeAttr parent = locSubprogram.getMetadata();
-        if (const auto parentScopeAttr = scopeAttr.getParent())
-        {
-          const auto start = mlir::cast<mlir::FileLineColLoc>(parentScopeAttr.getStart());
-          const auto line = start.getLine();
-          const auto column = start.getColumn();
-          parent = mlir::LLVM::DILexicalBlockAttr::get(parent, diFile, line, column);
-        }
-
-        const auto start = mlir::cast<mlir::FileLineColLoc>(scopeAttr.getStart());
-        const auto line = start.getLine();
-        const auto column = start.getColumn();
-        scope = mlir::LLVM::DILexicalBlockAttr::get(parent, diFile, line, column);
-      }
-
-      const auto diLocalVarAttr = LLVM::DILocalVariableAttr::get(
-        scope,
-        *name,
-        diFile,
-        loc.getLine(),                  // LINE
-        0,                              // ARG,
-        dataLayout.getStackAlignment(), // ALIGN
-        diType,
-        mlir::LLVM::DIFlags::Zero);
-
-      // Attach the debug information to the operation. The LLVM lowering pass
-      // will actually create the required operations.
-      op->setLoc(FusedLoc::get(context, { op.getLoc() }, diLocalVarAttr));
-    }
-  }
-
   LLVM::DITypeAttr getDITypeAttr(
     MLIRContext* context,
     Type type,
     const DataLayout& dataLayout,
     const RuntimeTypeLookUp& runtimeTypes,
-    StringRef name = StringRef())
+    const StringRef name = StringRef())
   {
     if (m_typeMap.lookup(type))
     {
@@ -385,24 +180,15 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
           IntegerAttr::get(mlir::IntegerType::get(context, 64), arrayType.getLength());
         const auto diSubrange =
           LLVM::DISubrangeAttr::get(context, lengthAttr, 0, IntegerAttr(), sizeAttr);
-        result = LLVM::DICompositeTypeAttr::get(
-          context,
-          recId,
-          false,
-          llvm::dwarf::DW_TAG_array_type,
-          StringAttr::get(context, _name),
-          nullptr,
-          0, // LINE
-          nullptr,
-          getDITypeAttr(context, arrayType.getElementType(), dataLayout, runtimeTypes),
-          LLVM::DIFlags::Zero,
-          size,
-          align,
-          { diSubrange },
-          nullptr,
-          nullptr,
-          nullptr,
-          nullptr);
+
+        result = mlir::LLVM::DICompositeTypeAttr::get(
+          /*context=*/context, /*recId=*/recId,  /*isRecSelf=*/false, llvm::dwarf::DW_TAG_array_type,
+          /*name=*/StringAttr::get(context, _name),
+          /*file=*/nullptr, /*line=*/0, /*scope=*/nullptr,
+          /*baseType=*/getDITypeAttr(context, arrayType.getElementType(), dataLayout, runtimeTypes),
+          /*flags=*/mlir::LLVM::DIFlags::Zero, /*sizeInBits=*/size, /*alignInBits=*/align,
+          /*dataLocation=*/nullptr, /*rank=*/nullptr,
+          /*allocated=*/nullptr, /*associated=*/nullptr, /*elements*/{ diSubrange });
         break;
       }
       case GoTypeId::Chan:
@@ -514,24 +300,13 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
 
         // Create the composite type.
         const auto nameAttr = StringAttr::get(context, _name);
-        result = LLVM::DICompositeTypeAttr::get(
-          context,
-          recId,
-          false,
-          llvm::dwarf::DW_TAG_structure_type,
-          nameAttr,
-          nullptr,
-          0, // LINE
-          nullptr,
-          LLVM::DINullTypeAttr::get(context),
-          LLVM::DIFlags::Zero,
-          structSizeInBits,
-          structAlignmentInBits,
-          elementAttrs,
-          nullptr,
-          nullptr,
-          nullptr,
-          nullptr);
+        result = mlir::LLVM::DICompositeTypeAttr::get(
+          /*context=*/context, /*recId=*/recId,  /*isRecSelf=*/false, llvm::dwarf::DW_TAG_structure_type,
+          /*name=*/nameAttr, /*file=*/nullptr, /*line=*/0, /*scope=*/nullptr,
+          /*baseType=*/LLVM::DINullTypeAttr::get(context),
+          /*flags=*/mlir::LLVM::DIFlags::Zero, /*sizeInBits=*/structSizeInBits,
+          /*alignInBits=*/structAlignmentInBits, /*dataLocation=*/nullptr, /*rank=*/nullptr,
+          /*allocated=*/nullptr, /*associated=*/nullptr, /*elements*/elementAttrs);
       }
       break;
       case GoTypeId::UnsafePointer:
@@ -569,22 +344,6 @@ struct AttachDebugInfoPass : PassWrapper<AttachDebugInfoPass, OperationPass<Modu
     return result;
   }
 
-  StringRef getArgument() const final { return "go-attach-debug-info-pass"; }
-
-  StringRef getDescription() const final
-  {
-    return "Attach debug information to local variable allocations";
-  }
-
-  void getDependentDialects(DialectRegistry& registry) const override
-  {
-    registry.insert<GoDialect>();
-    registry.insert<mlir::LLVM::LLVMDialect>();
-  }
 };
 
-std::unique_ptr<Pass> createAttachDebugInfoPass()
-{
-  return std::make_unique<AttachDebugInfoPass>();
 }
-} // namespace mlir::go

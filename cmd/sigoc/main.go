@@ -11,6 +11,7 @@ var sigoCmd = &cobra.Command{
 
 func init() {
 	sigoCmd.AddCommand(buildCmd)
+	sigoCmd.AddCommand(cleanCmd)
 	sigoCmd.AddCommand(rootCmd)
 }
 

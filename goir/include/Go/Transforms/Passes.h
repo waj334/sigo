@@ -6,33 +6,21 @@
 
 namespace mlir::go
 {
-std::unique_ptr<Pass> createAttachDebugInfoPass();
+
+//===----------------------------------------------------------------------===//
+// Registration
+//===----------------------------------------------------------------------===//
+
+/// Generate the code for registering passes.
+#define GEN_PASS_DECL
+#define GEN_PASS_REGISTRATION
+#include "Go/Transforms/Passes.h.inc"
 
 std::unique_ptr<Pass> createExtractTypeMetadataPass();
-
-std::unique_ptr<mlir::Pass> createGlobalConstantsPass();
-
-std::unique_ptr<Pass> createGlobalInitializerPass();
-
-std::unique_ptr<mlir::Pass> createHeapEscapePass();
-
-std::unique_ptr<mlir::Pass> createLowerToCorePass();
-
-std::unique_ptr<mlir::Pass> createLowerToLLVMPass();
 
 std::unique_ptr<mlir::Pass> createLowerTypeInfoPass();
 
 std::unique_ptr<mlir::Pass> createDumpToFilePass(StringRef name, StringRef dir);
-
-std::unique_ptr<mlir::Pass> createCallPass();
-
-std::unique_ptr<mlir::Pass> createFunctionPass();
-
-std::unique_ptr<mlir::Pass> createPreprocessingPass();
-
-std::unique_ptr<mlir::Pass> createValueNormalizationFuncPass();
-
-std::unique_ptr<mlir::Pass> createValueNormalizationGlobalPass();
 
 void populateGoToCoreConversionPatterns(
   mlir::MLIRContext* context,

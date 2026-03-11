@@ -5,7 +5,8 @@ import (
 	"go/ast"
 	"go/types"
 
-	"pkg.si-go.dev/sigo/mlir"
+	"pkg.si-go.dev/go-mlir/mlir"
+	"pkg.si-go.dev/sigo/goir/binding/goir"
 )
 
 func (b *Builder) valueOf(ctx context.Context, node ast.Node) Value {
@@ -62,15 +63,15 @@ func (b *Builder) lookupValue(ctx context.Context, obj types.Object) Value {
 	return nil
 }
 
-func (b *Builder) emitLocalVar(ctx context.Context, obj types.Object, T mlir.Type, isArg bool) *LocalValue {
+func (b *Builder) emitLocalVar(ctx context.Context, obj types.Object, T mlir.TypeLike, isArg bool) *LocalValue {
 	// Allocate memory for this local variable on the stack.
 	// NOTE: It may be determined later that this variable escapes to the heap and the following operation will be
 	//       replaced by a heap allocation.
 	location := b.location(ctx, obj.Pos())
-	ptrValue := b.emitNamedAlloca(ctx, obj.Name(), T, location)
-	op := mlir.ValueGetDefiningOperation(ptrValue)
+	ptrValue, _ := b.emitNamedAlloca(ctx, obj.Name(), T, location).AsResult()
+	op := ptrValue.OwningOperation()
 	if isArg {
-		mlir.OperationSetAttributeByName(op, "isArgument", mlir.UnitAttrGet(b.ctx))
+		op.SetAttributeByName("isArgument", mlir.NewUnitAttr(b.ctx))
 	}
 
 	value := &LocalValue{
@@ -104,23 +105,23 @@ func (b *Builder) emitGlobalVar(ctx context.Context, ident *ast.Ident) *GlobalVa
 	symbol = b.resolveSymbol(symbol)
 
 	// Determine the linkage of the global variable.
-	var linkage mlir.Attribute
+	var linkage mlir.LLVMLinkageAttr
 	if obj.Exported() || info.Exported || len(info.LinkName) > 0 {
-		linkage = mlir.GetLLVMLinkageAttr(b.ctx, "external")
+		linkage = mlir.NewLLVMLinkageAttr(b.ctx, mlir.LLVMLinkageExternal)
 	} else {
-		linkage = mlir.GetLLVMLinkageAttr(b.ctx, "private")
+		linkage = mlir.NewLLVMLinkageAttr(b.ctx, mlir.LLVMLinkagePrivate)
 	}
 
 	// Fuse the location with the compile unit if applicable.
 	location := b.location(ctx, obj.Pos())
 	if file := b.config.Fset.File(obj.Pos()); file != nil {
 		if compileUnitAttr, ok := b.compileUnits[file]; ok {
-			location = mlir.LocationFusedGet(b.ctx, []mlir.Location{location}, compileUnitAttr)
+			location = mlir.NewFusedLoc(b.ctx, []mlir.LocationLike{location}, compileUnitAttr)
 		}
 	}
 
 	// Emit the global variable.
-	globalOp := mlir.GoCreateGlobalOperation(b.ctx, linkage, symbol, T, location)
+	globalOp := goir.NewGlobalOperation(b.ctx, linkage, symbol, T, location)
 	b.appendToModule(globalOp)
 	value := &GlobalValue{
 		symbol: symbol,
@@ -137,15 +138,15 @@ func (b *Builder) emitGlobalVar(ctx context.Context, ident *ast.Ident) *GlobalVa
 	return value
 }
 
-func (b *Builder) emitCastPointerToInt(ctx context.Context, X mlir.Value, location mlir.Location) mlir.Value {
-	op := mlir.GoCreatePtrToIntOperation(b.ctx, X, b.GetStoredType(ctx, types.Typ[types.Uintptr]), location)
+func (b *Builder) emitCastPointerToInt(ctx context.Context, X mlir.ValueLike, location mlir.LocationLike) mlir.Value {
+	op := goir.NewPtrToIntOperation(b.ctx, X, b.GetStoredType(ctx, types.Typ[types.Uintptr]), location)
 	appendOperation(ctx, op)
-	return resultOf(op)
+	return resultOf(op).AsValue()
 }
 
-func (b *Builder) makeCopyOf(ctx context.Context, X mlir.Value, location mlir.Location) mlir.Value {
-	elementType := mlir.ValueGetType(X)
-	ptrType := mlir.GoCreatePointerType(elementType)
+func (b *Builder) makeCopyOf(ctx context.Context, X mlir.ValueLike, location mlir.LocationLike) mlir.Value {
+	elementType := X.Type()
+	ptrType := goir.NewPointerType(elementType)
 
 	// Taking the address in global initializers causes the allocation to escape to the heap.
 	isHeap := false
@@ -154,120 +155,120 @@ func (b *Builder) makeCopyOf(ctx context.Context, X mlir.Value, location mlir.Lo
 	}
 
 	// Allocate memory on the stack to hold the object.
-	allocaOp := mlir.GoCreateAllocaOperation(b.ctx, ptrType, elementType, 1, isHeap, location)
+	allocaOp := goir.NewAllocaOperation(b.ctx, ptrType, elementType, 1, isHeap, location)
 	appendOperation(ctx, allocaOp)
 
 	// Store the object at the address.
-	storeOp := mlir.GoCreateStoreOperation(b.ctx, X, resultOf(allocaOp), location)
+	storeOp := goir.NewStoreOperation(b.ctx, X, resultOf(allocaOp), location)
 	appendOperation(ctx, storeOp)
 
 	// Return the address.
-	return resultOf(allocaOp)
+	return resultOf(allocaOp).AsValue()
 }
 
-func (b *Builder) emitNamedAlloca(ctx context.Context, name string, T mlir.Type, location mlir.Location) mlir.Value {
-	PT := mlir.GoCreatePointerType(T)
+func (b *Builder) emitNamedAlloca(ctx context.Context, name string, T mlir.TypeLike, location mlir.LocationLike) mlir.Value {
+	PT := goir.NewPointerType(T)
 
 	// Allocate memory on the stack to hold the object.
-	allocaOp := mlir.GoCreateAllocaOperation(b.ctx, PT, T, 1, false, location)
+	allocaOp := goir.NewAllocaOperation(b.ctx, PT, T, 1, false, location)
 	appendOperation(ctx, allocaOp)
 
 	// NOTE: Omitted identifiers ( `_` )  will not have any debug information attached.
 	if len(name) > 0 && name != "_" {
-		mlir.GoAllocaOperationSetName(allocaOp, name)
+		goir.AllocaOperationSetName(allocaOp, name)
 	}
 
 	// Return the address.
-	return resultOf(allocaOp)
+	return resultOf(allocaOp).AsValue()
 }
 
-func (b *Builder) emitConstBool(ctx context.Context, value bool, T mlir.Type, location mlir.Location) mlir.Value {
-	op := mlir.GoCreateConstantOperation(b.ctx, b.boolAttr(value), nil, T, location)
+func (b *Builder) emitConstBool(ctx context.Context, value bool, T mlir.TypeLike, location mlir.LocationLike) mlir.Value {
+	op := goir.NewConstantOperation(b.ctx, b.boolAttr(value), nil, T, location)
 	appendOperation(ctx, op)
-	return resultOf(op)
+	return resultOf(op).AsValue()
 }
 
-func (b *Builder) emitConstComplex64(ctx context.Context, r float32, i float32, T mlir.Type, location mlir.Location) mlir.Value {
-	attr := mlir.GoCreateComplexNumberAttr(b.ctx, T, float64(r), float64(i))
-	op := mlir.GoCreateConstantOperation(b.ctx, attr, nil, T, location)
+func (b *Builder) emitConstComplex64(ctx context.Context, r float32, i float32, T mlir.TypeLike, location mlir.LocationLike) mlir.Value {
+	attr := goir.NewComplexAttr(b.ctx, mlir.NewFloatType(b.ctx, mlir.Float32), float64(r), float64(i))
+	op := goir.NewConstantOperation(b.ctx, attr, nil, T, location)
 	appendOperation(ctx, op)
-	return resultOf(op)
+	return resultOf(op).AsValue()
 }
 
-func (b *Builder) emitConstComplex128(ctx context.Context, r float64, i float64, T mlir.Type, location mlir.Location) mlir.Value {
-	attr := mlir.GoCreateComplexNumberAttr(b.ctx, T, r, i)
-	op := mlir.GoCreateConstantOperation(b.ctx, attr, nil, T, location)
+func (b *Builder) emitConstComplex128(ctx context.Context, r float64, i float64, T mlir.TypeLike, location mlir.LocationLike) mlir.Value {
+	attr := goir.NewComplexAttr(b.ctx, mlir.NewFloatType(b.ctx, mlir.Float64), r, i)
+	op := goir.NewConstantOperation(b.ctx, attr, nil, T, location)
 	appendOperation(ctx, op)
-	return resultOf(op)
+	return resultOf(op).AsValue()
 }
 
-func (b *Builder) emitConstFloat32(ctx context.Context, value float32, T mlir.Type, location mlir.Location) mlir.Value {
-	op := mlir.GoCreateConstantOperation(b.ctx, mlir.FloatAttrDoubleGet(b.ctx, b.f32, float64(value)), nil, T, location)
+func (b *Builder) emitConstFloat32(ctx context.Context, value float32, T mlir.TypeLike, location mlir.LocationLike) mlir.Value {
+	op := goir.NewConstantOperation(b.ctx, mlir.NewFloatAttr(b.ctx, b.f32, float64(value)), nil, T, location)
 	appendOperation(ctx, op)
-	return resultOf(op)
+	return resultOf(op).AsValue()
 }
 
-func (b *Builder) emitConstFloat64(ctx context.Context, value float64, T mlir.Type, location mlir.Location) mlir.Value {
-	op := mlir.GoCreateConstantOperation(b.ctx, mlir.FloatAttrDoubleGet(b.ctx, b.f64, value), nil, T, location)
+func (b *Builder) emitConstFloat64(ctx context.Context, value float64, T mlir.TypeLike, location mlir.LocationLike) mlir.Value {
+	op := goir.NewConstantOperation(b.ctx, mlir.NewFloatAttr(b.ctx, b.f64, value), nil, T, location)
 	appendOperation(ctx, op)
-	return resultOf(op)
+	return resultOf(op).AsValue()
 }
 
-func (b *Builder) emitConstInt(ctx context.Context, value int64, T mlir.Type, location mlir.Location) mlir.Value {
+func (b *Builder) emitConstInt(ctx context.Context, value int64, T mlir.TypeLike, location mlir.LocationLike) mlir.Value {
 	// NOTE: The integer type used with integer attributes must be signless.
-	op := mlir.GoCreateConstantOperation(b.ctx, b.intAttr(value), nil, T, location)
+	op := goir.NewConstantOperation(b.ctx, b.intAttr(value), nil, T, location)
 	appendOperation(ctx, op)
-	return resultOf(op)
+	return resultOf(op).AsValue()
 }
 
-func (b *Builder) emitConstString(ctx context.Context, value string, T mlir.Type, location mlir.Location) mlir.Value {
-	op := mlir.GoCreateConstantOperation(b.ctx, mlir.StringAttrGet(b.ctx, value), nil, T, location)
+func (b *Builder) emitConstString(ctx context.Context, value string, T mlir.TypeLike, location mlir.LocationLike) mlir.Value {
+	op := goir.NewConstantOperation(b.ctx, mlir.NewStringAttr(b.ctx, value), nil, T, location)
 	appendOperation(ctx, op)
-	return resultOf(op)
+	return resultOf(op).AsValue()
 }
 
-func (b *Builder) emitStringValue(ctx context.Context, arr mlir.Value, length mlir.Value, location mlir.Location) mlir.Value {
+func (b *Builder) emitStringValue(ctx context.Context, arr mlir.ValueLike, length mlir.ValueLike, location mlir.LocationLike) mlir.Value {
 	// Create the zero value of the string runtime type.
-	zeroOp := mlir.GoCreateZeroOperation(b.ctx, b._string, location)
+	zeroOp := goir.NewZeroOperation(b.ctx, b._string, location)
 	appendOperation(ctx, zeroOp)
 
 	// Build the string struct.
-	insertOp := mlir.GoCreateInsertOperation(b.ctx, 0, arr, resultOf(zeroOp), b._string, location)
+	insertOp := goir.NewInsertOperation(b.ctx, 0, arr, resultOf(zeroOp), b._string, location)
 	appendOperation(ctx, insertOp)
-	insertOp = mlir.GoCreateInsertOperation(b.ctx, 1, length, resultOf(insertOp), b._string, location)
+	insertOp = goir.NewInsertOperation(b.ctx, 1, length, resultOf(insertOp), b._string, location)
 	appendOperation(ctx, insertOp)
-	return resultOf(insertOp)
+	return resultOf(insertOp).AsValue()
 }
 
-func (b *Builder) emitConstSlice(ctx context.Context, arr mlir.Value, length int, location mlir.Location) mlir.Value {
+func (b *Builder) emitConstSlice(ctx context.Context, arr mlir.ValueLike, length int, location mlir.LocationLike) mlir.Value {
 	// Create the zero value of the slice runtime type.
-	zeroOp := mlir.GoCreateZeroOperation(b.ctx, b._slice, location)
+	zeroOp := goir.NewZeroOperation(b.ctx, b._slice, location)
 	appendOperation(ctx, zeroOp)
 
 	// Create the constant length value.
 	constLen := b.emitConstInt(ctx, int64(length), b.si, location)
 
 	// Build the slice struct.
-	insertOp := mlir.GoCreateInsertOperation(b.ctx, 0, arr, resultOf(zeroOp), b._slice, location)
+	insertOp := goir.NewInsertOperation(b.ctx, 0, arr, resultOf(zeroOp), b._slice, location)
 	appendOperation(ctx, insertOp)
-	insertOp = mlir.GoCreateInsertOperation(b.ctx, 1, constLen, resultOf(insertOp), b._slice, location)
+	insertOp = goir.NewInsertOperation(b.ctx, 1, constLen, resultOf(insertOp), b._slice, location)
 	appendOperation(ctx, insertOp)
-	insertOp = mlir.GoCreateInsertOperation(b.ctx, 2, constLen, resultOf(insertOp), b._slice, location)
+	insertOp = goir.NewInsertOperation(b.ctx, 2, constLen, resultOf(insertOp), b._slice, location)
 	appendOperation(ctx, insertOp)
-	return resultOf(insertOp)
+	return resultOf(insertOp).AsValue()
 }
 
-func (b *Builder) emitZeroValue(ctx context.Context, T types.Type, location mlir.Location) mlir.Value {
-	zeroOp := mlir.GoCreateZeroOperation(b.ctx, b.GetStoredType(ctx, T), location)
+func (b *Builder) emitZeroValue(ctx context.Context, T types.Type, location mlir.LocationLike) mlir.Value {
+	zeroOp := goir.NewZeroOperation(b.ctx, b.GetStoredType(ctx, T), location)
 	appendOperation(ctx, zeroOp)
-	return resultOf(zeroOp)
+	return resultOf(zeroOp).AsValue()
 }
 
-func (b *Builder) emitInterfaceValue(ctx context.Context, T types.Type, valueType types.Type, value mlir.Value, location mlir.Location) mlir.Value {
+func (b *Builder) emitInterfaceValue(ctx context.Context, T types.Type, valueType types.Type, value mlir.ValueLike, location mlir.LocationLike) mlir.Value {
 	var addr mlir.Value
 	if isPointer(valueType) {
 		// Use the pointer value directly.
-		addr = value
+		addr = value.AsValue()
 	} else {
 		// Copy the value onto the stack.
 		// NOTE: This value may escape to the heap later.
@@ -287,31 +288,31 @@ func (b *Builder) emitInterfaceValue(ctx context.Context, T types.Type, valueTyp
 	// Create the interface value.
 	interfaceT := b.GetType(ctx, T)
 	dynamicT := b.GetType(ctx, valueType)
-	makeOp := mlir.GoCreateMakeInterfaceOperation(b.ctx, interfaceT, dynamicT, addr, location)
+	makeOp := goir.NewMakeInterfaceOperation(b.ctx, interfaceT, dynamicT, addr, location)
 	appendOperation(ctx, makeOp)
-	return resultOf(makeOp)
+	return resultOf(makeOp).AsValue()
 }
 
-func (b *Builder) emitChangeType(ctx context.Context, T types.Type, value mlir.Value, location mlir.Location) mlir.Value {
+func (b *Builder) emitChangeType(ctx context.Context, T types.Type, value mlir.ValueLike, location mlir.LocationLike) mlir.Value {
 	interfaceT := b.GetType(ctx, T)
-	changeOp := mlir.GoCreateChangeInterfaceOperation(b.ctx, value, interfaceT, location)
+	changeOp := goir.NewChangeInterfaceOperation(b.ctx, value, interfaceT, location)
 	appendOperation(ctx, changeOp)
-	return resultOf(changeOp)
+	return resultOf(changeOp).AsValue()
 }
 
-func (b *Builder) bitcastTo(ctx context.Context, X mlir.Value, T mlir.Type, location mlir.Location) mlir.Value {
-	bitcastOp := mlir.GoCreateBitcastOperation(b.ctx, X, T, location)
+func (b *Builder) bitcastTo(ctx context.Context, X mlir.ValueLike, T mlir.TypeLike, location mlir.LocationLike) mlir.Value {
+	bitcastOp := goir.NewBitcastOperation(b.ctx, X, T, location)
 	appendOperation(ctx, bitcastOp)
-	return resultOf(bitcastOp)
+	return resultOf(bitcastOp).AsValue()
 }
 
-func (b *Builder) addressOfSymbol(ctx context.Context, symbol string, T mlir.Type, location mlir.Location) mlir.Value {
-	addressOfOp := mlir.GoCreateAddressOfOperation(b.ctx, symbol, T, location)
+func (b *Builder) addressOfSymbol(ctx context.Context, symbol string, T mlir.TypeLike, location mlir.LocationLike) mlir.Value {
+	addressOfOp := goir.NewAddressOfOperation(b.ctx, symbol, T, location)
 	appendOperation(ctx, addressOfOp)
-	return resultOf(addressOfOp)
+	return resultOf(addressOfOp).AsValue()
 }
 
-func (b *Builder) addressOf(ctx context.Context, expr ast.Expr, location mlir.Location) mlir.Value {
+func (b *Builder) addressOf(ctx context.Context, expr ast.Expr, location mlir.LocationLike) mlir.Value {
 	switch expr := expr.(type) {
 	case *ast.Ident:
 		// Return the address of the original allocation for the value.
@@ -322,15 +323,15 @@ func (b *Builder) addressOf(ctx context.Context, expr ast.Expr, location mlir.Lo
 		return b.emitSelectAddr(ctx, expr)
 	default:
 		// Load the value.
-		value := b.emitExpr(ctx, expr)[0]
+		value := b.emitExpr(ctx, expr)[0].AsValue()
 
 		// Create a reference to the loaded value.
 		return b.makeCopyOf(ctx, value, location)
 	}
 }
 
-func (b *Builder) exprTypes(ctx context.Context, expr ...ast.Expr) []mlir.Type {
-	var result []mlir.Type
+func (b *Builder) exprTypes(ctx context.Context, expr ...ast.Expr) []mlir.TypeLike {
+	var result []mlir.TypeLike
 	for _, expr := range expr {
 		switch t := b.typeOf(ctx, expr).(type) {
 		case *types.Tuple:
@@ -344,22 +345,22 @@ func (b *Builder) exprTypes(ctx context.Context, expr ...ast.Expr) []mlir.Type {
 	return result
 }
 
-func (b *Builder) exprValues(ctx context.Context, expr ...ast.Expr) []mlir.Value {
-	var result []mlir.Value
+func (b *Builder) exprValues(ctx context.Context, expr ...ast.Expr) []mlir.ValueLike {
+	var result []mlir.ValueLike
 	for _, expr := range expr {
 		result = append(result, b.emitExpr(ctx, expr)...)
 	}
 	return result
 }
 
-func (b *Builder) types(T ...mlir.Type) []mlir.Type {
+func (b *Builder) types(T ...mlir.TypeLike) []mlir.TypeLike {
 	return T
 }
 
-func (b *Builder) values(value ...mlir.Value) []mlir.Value {
+func (b *Builder) values(value ...mlir.ValueLike) []mlir.ValueLike {
 	return value
 }
 
-func (b *Builder) locations(locs ...mlir.Location) []mlir.Location {
+func (b *Builder) locations(locs ...mlir.LocationLike) []mlir.LocationLike {
 	return locs
 }

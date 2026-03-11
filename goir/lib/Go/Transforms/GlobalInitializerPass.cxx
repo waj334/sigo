@@ -12,16 +12,14 @@ constexpr int32_t packageInitBasePriority = 1000000000;
 
 namespace mlir::go
 {
-struct GlobalInitializerPass : PassWrapper<GlobalInitializerPass, OperationPass<ModuleOp>>
+#define GEN_PASS_DEF_GLOBALINITIALIZERPASS
+#include "Go/Transforms/Passes.h.inc"
+
+struct GlobalInitializerPass : impl::GlobalInitializerPassBase<GlobalInitializerPass>
 {
+  using GlobalInitializerPassBase<GlobalInitializerPass>::GlobalInitializerPassBase;
+
   SmallVector<Operation*> opsToRemove;
-
-  StringRef getArgument() const final { return "global-initializer-pass"; }
-
-  StringRef getDescription() const final
-  {
-    return "Global Initializer Pass - Lowers package initializers to constant globals";
-  }
 
   void getDependentDialects(DialectRegistry& registry) const override
   {
@@ -131,8 +129,4 @@ struct GlobalInitializerPass : PassWrapper<GlobalInitializerPass, OperationPass<
   }
 }; // namespace mlir::go
 
-std::unique_ptr<Pass> createGlobalInitializerPass()
-{
-  return std::make_unique<GlobalInitializerPass>();
-}
 } // namespace mlir::go

@@ -7,39 +7,36 @@ import (
 	"go/token"
 	"go/types"
 
-	"pkg.si-go.dev/sigo/mlir"
+	"pkg.si-go.dev/go-mlir/mlir"
+	"pkg.si-go.dev/sigo/goir/binding/goir"
 )
 
-func (b *Builder) cmpIPredicate(tok token.Token, unsigned bool) mlir.Attribute {
+func (b *Builder) cmpIPredicate(tok token.Token, unsigned bool) mlir.AttributeLike {
 	switch tok {
 	case token.EQL:
-		return mlir.GoCreateCmpIPredicate(b.ctx, mlir.GoCmpIPredicate_eq)
+		return goir.NewCmpIPredicateAttr(b.ctx, goir.CmpIPredicateEq)
 	case token.GEQ:
 		if unsigned {
-			return mlir.GoCreateCmpIPredicate(b.ctx, mlir.GoCmpIPredicate_uge)
-		} else {
-			return mlir.GoCreateCmpIPredicate(b.ctx, mlir.GoCmpIPredicate_sge)
+			return goir.NewCmpIPredicateAttr(b.ctx, goir.CmpIPredicateUge)
 		}
+		return goir.NewCmpIPredicateAttr(b.ctx, goir.CmpIPredicateSge)
 	case token.GTR:
 		if unsigned {
-			return mlir.GoCreateCmpIPredicate(b.ctx, mlir.GoCmpIPredicate_ugt)
-		} else {
-			return mlir.GoCreateCmpIPredicate(b.ctx, mlir.GoCmpIPredicate_sgt)
+			return goir.NewCmpIPredicateAttr(b.ctx, goir.CmpIPredicateUgt)
 		}
+		return goir.NewCmpIPredicateAttr(b.ctx, goir.CmpIPredicateSgt)
 	case token.LEQ:
 		if unsigned {
-			return mlir.GoCreateCmpIPredicate(b.ctx, mlir.GoCmpIPredicate_ule)
-		} else {
-			return mlir.GoCreateCmpIPredicate(b.ctx, mlir.GoCmpIPredicate_sle)
+			return goir.NewCmpIPredicateAttr(b.ctx, goir.CmpIPredicateUle)
 		}
+		return goir.NewCmpIPredicateAttr(b.ctx, goir.CmpIPredicateSle)
 	case token.LSS:
 		if unsigned {
-			return mlir.GoCreateCmpIPredicate(b.ctx, mlir.GoCmpIPredicate_ult)
-		} else {
-			return mlir.GoCreateCmpIPredicate(b.ctx, mlir.GoCmpIPredicate_slt)
+			return goir.NewCmpIPredicateAttr(b.ctx, goir.CmpIPredicateUlt)
 		}
+		return goir.NewCmpIPredicateAttr(b.ctx, goir.CmpIPredicateSlt)
 	case token.NEQ:
-		return mlir.GoCreateCmpIPredicate(b.ctx, mlir.GoCmpIPredicate_ne)
+		return goir.NewCmpIPredicateAttr(b.ctx, goir.CmpIPredicateNe)
 	default:
 		panic("invalid integer comparison predicate")
 	}
@@ -48,53 +45,53 @@ func (b *Builder) cmpIPredicate(tok token.Token, unsigned bool) mlir.Attribute {
 func (b *Builder) cmpFPredicate(tok token.Token) mlir.Attribute {
 	switch tok {
 	case token.EQL:
-		return mlir.GoCreateCmpFPredicate(b.ctx, mlir.GoCmpFPredicate_eq)
+		return goir.NewCmpFPredicateAttr(b.ctx, goir.CmpFPredicateEq)
 	case token.GEQ:
-		return mlir.GoCreateCmpFPredicate(b.ctx, mlir.GoCmpFPredicate_ge)
+		return goir.NewCmpFPredicateAttr(b.ctx, goir.CmpFPredicateGe)
 	case token.GTR:
-		return mlir.GoCreateCmpFPredicate(b.ctx, mlir.GoCmpFPredicate_gt)
+		return goir.NewCmpFPredicateAttr(b.ctx, goir.CmpFPredicateGt)
 	case token.LEQ:
-		return mlir.GoCreateCmpFPredicate(b.ctx, mlir.GoCmpFPredicate_le)
+		return goir.NewCmpFPredicateAttr(b.ctx, goir.CmpFPredicateLe)
 	case token.LSS:
-		return mlir.GoCreateCmpFPredicate(b.ctx, mlir.GoCmpFPredicate_lt)
+		return goir.NewCmpFPredicateAttr(b.ctx, goir.CmpFPredicateLt)
 	case token.NEQ:
-		return mlir.GoCreateCmpFPredicate(b.ctx, mlir.GoCmpFPredicate_ne)
+		return goir.NewCmpFPredicateAttr(b.ctx, goir.CmpFPredicateNe)
 	default:
 		panic("invalid float comparison predicate")
 	}
 }
 
-func (b *Builder) emitIntegerCompare(ctx context.Context, op token.Token, X mlir.Value, Y mlir.Value, location mlir.Location) mlir.Value {
-	baseType := mlir.GoGetBaseType(mlir.ValueGetType(X))
+func (b *Builder) emitIntegerCompare(ctx context.Context, op token.Token, X mlir.ValueLike, Y mlir.ValueLike, location mlir.LocationLike) mlir.Value {
+	baseT := goir.GetBaseType(X.Type())
 	unsigned := true
-	if !mlir.GoTypeIsBoolean(baseType) {
-		unsigned = isUnsigned(baseType)
+	if intT, ok := goir.AsIntegerType(baseT); ok {
+		unsigned = isUnsigned(intT)
 	}
 	predicate := b.cmpIPredicate(op, unsigned)
-	cmpOp := mlir.GoCreateCmpIOperation(b.ctx, b.i1, predicate, X, Y, location)
+	cmpOp := goir.NewCmpIOperation(b.ctx, b.i1, predicate, X, Y, location)
 	appendOperation(ctx, cmpOp)
-	return resultOf(cmpOp)
+	return resultOf(cmpOp).AsValue()
 }
 
-func (b *Builder) emitFloatCompare(ctx context.Context, op token.Token, X mlir.Value, Y mlir.Value, location mlir.Location) mlir.Value {
+func (b *Builder) emitFloatCompare(ctx context.Context, op token.Token, X mlir.ValueLike, Y mlir.ValueLike, location mlir.LocationLike) mlir.Value {
 	predicate := b.cmpFPredicate(op)
-	cmpOp := mlir.GoCreateCmpFOperation(b.ctx, b.i1, predicate, X, Y, location)
+	cmpOp := goir.NewCmpFOperation(b.ctx, b.i1, predicate, X, Y, location)
 	appendOperation(ctx, cmpOp)
-	return resultOf(cmpOp)
+	return resultOf(cmpOp).AsValue()
 }
 
-func (b *Builder) emitComplexCompare(ctx context.Context, op token.Token, X mlir.Value, Y mlir.Value, location mlir.Location) mlir.Value {
+func (b *Builder) emitComplexCompare(ctx context.Context, op token.Token, X mlir.ValueLike, Y mlir.ValueLike, location mlir.LocationLike) mlir.Value {
 	// Get the operand values to be used in the binary expression.
 	predicate := b.cmpFPredicate(op)
-	cmpOp := mlir.GoCreateCmpFOperation(b.ctx, b.i1, predicate, X, Y, location)
+	cmpOp := goir.NewCmpFOperation(b.ctx, b.i1, predicate, X, Y, location)
 	appendOperation(ctx, cmpOp)
-	return resultOf(cmpOp)
+	return resultOf(cmpOp).AsValue()
 }
 
-func (b *Builder) emitInterfaceCompare(ctx context.Context, predicate token.Token, X mlir.Value, Y mlir.Value, location mlir.Location) mlir.Value {
-	op := mlir.GoCreateCmpInterfaceOperation(b.ctx, b.i1, X, Y, location)
+func (b *Builder) emitInterfaceCompare(ctx context.Context, predicate token.Token, X mlir.ValueLike, Y mlir.ValueLike, location mlir.LocationLike) mlir.Value {
+	op := goir.NewCmpInterfaceOperation(b.ctx, b.i1, X, Y, location)
 	appendOperation(ctx, op)
-	result := resultOf(op)
+	result := resultOf(op).AsValue()
 
 	if predicate == token.NEQ {
 		// Negate the result.
@@ -104,30 +101,30 @@ func (b *Builder) emitInterfaceCompare(ctx context.Context, predicate token.Toke
 	return result
 }
 
-func (b *Builder) emitStringCompare(ctx context.Context, predicate token.Token, X mlir.Value, Y mlir.Value, location mlir.Location) mlir.Value {
+func (b *Builder) emitStringCompare(ctx context.Context, predicate token.Token, X mlir.ValueLike, Y mlir.ValueLike, location mlir.LocationLike) mlir.Value {
 	switch predicate {
 	case token.EQL:
-		op := mlir.GoCreateCmpStringOperation(b.ctx, b.i1, mlir.GoCreateCmpPredicate(b.ctx, mlir.GoCmpPredicate_eq), X, Y, location)
+		op := goir.NewCmpStringOperation(b.ctx, b.i1, goir.NewCmpPredicateAttr(b.ctx, goir.CmpPredicateEq), X, Y, location)
 		appendOperation(ctx, op)
-		return resultOf(op)
+		return resultOf(op).AsValue()
 	case token.NEQ:
-		op := mlir.GoCreateCmpStringOperation(b.ctx, b.i1, mlir.GoCreateCmpPredicate(b.ctx, mlir.GoCmpPredicate_ne), X, Y, location)
+		op := goir.NewCmpStringOperation(b.ctx, b.i1, goir.NewCmpPredicateAttr(b.ctx, goir.CmpPredicateNe), X, Y, location)
 		appendOperation(ctx, op)
-		return resultOf(op)
+		return resultOf(op).AsValue()
 	default:
 		panic("unhandled comparison predicate type")
 	}
 }
 
-func (b *Builder) emitPointerCompare(ctx context.Context, op token.Token, X mlir.Value, Y mlir.Value, location mlir.Location) mlir.Value {
+func (b *Builder) emitPointerCompare(ctx context.Context, op token.Token, X mlir.ValueLike, Y mlir.ValueLike, location mlir.LocationLike) mlir.Value {
 	// Reinterpret pointers to integers.
 	X = b.emitCastPointerToInt(ctx, X, location)
 	Y = b.emitCastPointerToInt(ctx, Y, location)
 
 	// Compare the integer values.
-	cmpOp := mlir.GoCreateCmpIOperation(b.ctx, b.i1, mlir.GoCreateCmpIPredicate(b.ctx, mlir.GoCmpIPredicate_eq), X, Y, location)
+	cmpOp := goir.NewCmpIOperation(b.ctx, b.i1, goir.NewCmpIPredicateAttr(b.ctx, goir.CmpIPredicateEq), X, Y, location)
 	appendOperation(ctx, cmpOp)
-	result := resultOf(cmpOp)
+	result := resultOf(cmpOp).AsValue()
 	if op == token.NEQ {
 		// Negate the result.
 		result = b.emitNegation(ctx, result, location)
@@ -135,13 +132,13 @@ func (b *Builder) emitPointerCompare(ctx context.Context, op token.Token, X mlir
 	return result
 }
 
-func (b *Builder) emitFuncCompare(ctx context.Context, op token.Token, X mlir.Value, Y mlir.Value, location mlir.Location) mlir.Value {
+func (b *Builder) emitFuncCompare(ctx context.Context, op token.Token, X mlir.ValueLike, Y mlir.ValueLike, location mlir.LocationLike) mlir.Value {
 	// Convert the functions to pointers.
-	funcToPtrOp := mlir.GoCreateFunctionToPointerOperation(b.ctx, X, b.ptr, location)
+	funcToPtrOp := goir.NewFunctionToPointerOperation(b.ctx, X, b.ptr, location)
 	appendOperation(ctx, funcToPtrOp)
 	X = resultOf(funcToPtrOp)
 
-	funcToPtrOp = mlir.GoCreateFunctionToPointerOperation(b.ctx, Y, b.ptr, location)
+	funcToPtrOp = goir.NewFunctionToPointerOperation(b.ctx, Y, b.ptr, location)
 	appendOperation(ctx, funcToPtrOp)
 	Y = resultOf(funcToPtrOp)
 
@@ -149,8 +146,8 @@ func (b *Builder) emitFuncCompare(ctx context.Context, op token.Token, X mlir.Va
 	return b.emitPointerCompare(ctx, op, X, Y, location)
 }
 
-func (b *Builder) emitStructCompare(ctx context.Context, op token.Token, X mlir.Value, Y mlir.Value, T *types.Struct, location mlir.Location) mlir.Value {
-	successor := mlir.BlockCreate2([]mlir.Type{b.i1}, []mlir.Location{location})
+func (b *Builder) emitStructCompare(ctx context.Context, op token.Token, X mlir.ValueLike, Y mlir.ValueLike, T *types.Struct, location mlir.LocationLike) mlir.Value {
+	successor := mlir.NewBlock([]mlir.TypeLike{b.i1}, []mlir.LocationLike{location})
 
 	// Compare each field until one does not match.
 	for i := 0; i < T.NumFields(); i++ {
@@ -158,13 +155,13 @@ func (b *Builder) emitStructCompare(ctx context.Context, op token.Token, X mlir.
 		elementType := b.GetStoredType(ctx, field.Type())
 
 		// Extract the struct fields at the current index.
-		extractOp := mlir.GoCreateExtractOperation(b.ctx, uint64(i), elementType, X, location)
+		extractOp := goir.NewExtractOperation(b.ctx, uint64(i), elementType, X, location)
 		appendOperation(ctx, extractOp)
-		X := resultOf(extractOp)
+		X := resultOf(extractOp).AsValue()
 
-		extractOp = mlir.GoCreateExtractOperation(b.ctx, uint64(i), elementType, Y, location)
+		extractOp = goir.NewExtractOperation(b.ctx, uint64(i), elementType, Y, location)
 		appendOperation(ctx, extractOp)
-		Y := resultOf(extractOp)
+		Y := resultOf(extractOp).AsValue()
 
 		// Compare the values for equality.
 		var cond mlir.Value
@@ -190,12 +187,12 @@ func (b *Builder) emitStructCompare(ctx context.Context, op token.Token, X mlir.
 		}
 
 		// Create the next block that the next compare will be emitted into.
-		nextBlock := mlir.BlockCreate2(nil, nil)
+		nextBlock := mlir.NewBlock(nil, nil)
 
 		// Conditionally branch to the successor block passing false if the fields don't match. Otherwise, branch to the
 		// next block in order to evaluate the comparison of the next field.
 		falseValue := b.emitConstBool(ctx, false, b.i1, location)
-		condBrOp := mlir.GoCreateCondBranchOperation(b.ctx, cond, nextBlock, nil, successor, []mlir.Value{falseValue}, location)
+		condBrOp := goir.NewCondBranchOperation(b.ctx, cond, nextBlock, nil, successor, []mlir.ValueLike{falseValue}, location)
 		appendOperation(ctx, condBrOp)
 
 		// Continue emission in the next block.
@@ -205,14 +202,14 @@ func (b *Builder) emitStructCompare(ctx context.Context, op token.Token, X mlir.
 
 	// Branch to the successor block passing true.
 	trueValue := b.emitConstBool(ctx, true, b.i1, location)
-	brOp := mlir.GoCreateBranchOperation(b.ctx, successor, []mlir.Value{trueValue}, location)
+	brOp := goir.NewBranchOperation(b.ctx, successor, []mlir.ValueLike{trueValue}, location)
 	appendOperation(ctx, brOp)
 
 	// Continue emission into the successor block.
 	appendBlock(ctx, successor)
 	setCurrentBlock(ctx, successor)
 
-	result := mlir.BlockGetArgument(successor, 0)
+	result := successor.Argument(0).AsValue()
 	if op == token.NEQ {
 		// Negate the result.
 		result = b.emitNegation(ctx, result, location)
@@ -231,7 +228,7 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 
 	switch {
 	case typeHasFlags(XT, types.IsBoolean), typeHasFlags(XT, types.IsInteger):
-		var Y mlir.Value
+		var Y mlir.ValueLike
 		if isNil(YT) {
 			Y = b.emitZeroValue(ctx, XT, location)
 		} else {
@@ -239,7 +236,7 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 		}
 		return b.emitIntegerCompare(ctx, expr.Op, X, Y, location)
 	case typeHasFlags(XT, types.IsFloat):
-		var Y mlir.Value
+		var Y mlir.ValueLike
 		if isNil(YT) {
 			Y = b.emitZeroValue(ctx, XT, location)
 		} else {
@@ -247,7 +244,7 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 		}
 		return b.emitFloatCompare(ctx, expr.Op, X, Y, location)
 	case typeHasFlags(XT, types.IsComplex):
-		var Y mlir.Value
+		var Y mlir.ValueLike
 		if isNil(YT) {
 			Y = b.emitZeroValue(ctx, XT, location)
 		} else {
@@ -255,7 +252,7 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 		}
 		return b.emitComplexCompare(ctx, expr.Op, X, Y, location)
 	case typeHasFlags(XT, types.IsString):
-		var Y mlir.Value
+		var Y mlir.ValueLike
 		if isNil(YT) {
 			Y = b.emitZeroValue(ctx, XT, location)
 		} else {
@@ -263,7 +260,7 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 		}
 		return b.emitStringCompare(ctx, expr.Op, X, Y, location)
 	case isPointer(b.typeOf(ctx, expr.X)):
-		var Y mlir.Value
+		var Y mlir.ValueLike
 		if isNil(YT) {
 			Y = b.emitZeroValue(ctx, XT, location)
 		} else {
@@ -271,7 +268,7 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 		}
 		return b.emitPointerCompare(ctx, expr.Op, X, Y, location)
 	case typeIs[*types.Interface](XT):
-		var Y mlir.Value
+		var Y mlir.ValueLike
 		if isNil(YT) {
 			Y = b.emitZeroValue(ctx, XT, location)
 			YT = XT
@@ -280,7 +277,7 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 		}
 		return b.emitInterfaceCompare(ctx, expr.Op, X, Y, location)
 	case typeIs[*types.Struct](XT):
-		var Y mlir.Value
+		var Y mlir.ValueLike
 		if isNil(YT) {
 			Y = b.emitZeroValue(ctx, XT, location)
 		} else {
@@ -293,27 +290,27 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 		// X is either a function pointer or a struct representing a struct. Create the respective zero value to compare
 		// against.
 
-		zeroOp := mlir.GoCreateZeroOperation(b.ctx, b.ptr, location)
+		zeroOp := goir.NewZeroOperation(b.ctx, b.ptr, location)
 		appendOperation(ctx, zeroOp)
-		Y := resultOf(zeroOp)
+		Y := resultOf(zeroOp).AsValue()
 
-		if mlir.TypeIsAFunction(mlir.ValueGetType(X)) {
+		if goir.TypeIsAFunctionType(X.Type()) {
 			// Compare as pointers.
-			funcToPtrOp := mlir.GoCreateFunctionToPointerOperation(b.ctx, X, b.ptr, location)
+			funcToPtrOp := goir.NewFunctionToPointerOperation(b.ctx, X, b.ptr, location)
 			appendOperation(ctx, funcToPtrOp)
-			X = resultOf(funcToPtrOp)
+			X = resultOf(funcToPtrOp).AsValue()
 			return b.emitPointerCompare(ctx, expr.Op, X, Y, location)
 		}
 
 		// Compare the function pointer struct member to nullptr.
-		extractOp := mlir.GoCreateExtractOperation(b.ctx, 0, b.ptr, X, location)
+		extractOp := goir.NewExtractOperation(b.ctx, 0, b.ptr, X, location)
 		appendOperation(ctx, extractOp)
-		X = resultOf(extractOp)
+		X = resultOf(extractOp).AsValue()
 		return b.emitPointerCompare(ctx, expr.Op, X, Y, location)
 	case typeIs[*types.Slice](XT), typeIs[*types.Map](XT):
-		op := mlir.GoCreateCmpNilOperation(b.ctx, b.i1, X, location)
+		op := goir.NewCmpNilOperation(b.ctx, b.i1, X, location)
 		appendOperation(ctx, op)
-		value := resultOf(op)
+		value := resultOf(op).AsValue()
 		if expr.Op == token.NEQ {
 			// Negate the result.
 			value = b.emitNegation(ctx, value, location)
@@ -325,33 +322,33 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 	}
 }
 
-func (b *Builder) emitNegation(ctx context.Context, X mlir.Value, location mlir.Location) mlir.Value {
+func (b *Builder) emitNegation(ctx context.Context, X mlir.ValueLike, location mlir.LocationLike) mlir.Value {
 	// Negate the input boolean value.
-	constTrueOp := mlir.GoCreateConstantOperation(b.ctx, b.boolAttr(true), nil, b.i1, location)
+	constTrueOp := goir.NewConstantOperation(b.ctx, b.boolAttr(true), nil, b.i1, location)
 	appendOperation(ctx, constTrueOp)
 
-	xorOp := mlir.GoCreateXorOperation(b.ctx, b.i1, X, resultOf(constTrueOp), location)
+	xorOp := goir.NewXorOperation(b.ctx, b.i1, X, resultOf(constTrueOp).AsValue(), location)
 	appendOperation(ctx, xorOp)
-	return resultOf(xorOp)
+	return resultOf(xorOp).AsValue()
 }
 
 func (b *Builder) emitLogicalComparison(ctx context.Context, expr *ast.BinaryExpr) mlir.Value {
 	location := b.location(ctx, expr.Pos())
 
 	// Create the exit block where execution should continue following the expression.
-	exitBlock := mlir.BlockCreate2([]mlir.Type{b.i1}, []mlir.Location{location})
+	exitBlock := mlir.NewBlock([]mlir.TypeLike{b.i1}, []mlir.LocationLike{location})
 
 	// Evaluate X the current block.
 	X := b.emitExpr(ctx, expr.X)[0]
 
 	// Create the block in which to evaluate Y.
-	yBlock := mlir.BlockCreate2(nil, nil)
+	yBlock := mlir.NewBlock(nil, nil)
 	buildBlock(ctx, yBlock, func() {
 		// Evaluate Y in the other block.
 		Y := b.emitExpr(ctx, expr.Y)[0]
 
 		// The result of the above expression is the result of the entire logical comparison.
-		brOp := mlir.GoCreateBranchOperation(b.ctx, exitBlock, []mlir.Value{Y}, location)
+		brOp := goir.NewBranchOperation(b.ctx, exitBlock, []mlir.ValueLike{Y}, location)
 		appendOperation(ctx, brOp)
 	})
 	appendBlock(ctx, yBlock)
@@ -359,12 +356,12 @@ func (b *Builder) emitLogicalComparison(ctx context.Context, expr *ast.BinaryExp
 	switch expr.Op {
 	case token.LAND:
 		// Branch to exit block passing either Y (X = true) or X (X = false) as the block parameter.
-		condBrOp := mlir.GoCreateCondBranchOperation(b.ctx, X, yBlock, []mlir.Value{}, exitBlock, []mlir.Value{X},
+		condBrOp := goir.NewCondBranchOperation(b.ctx, X, yBlock, []mlir.ValueLike{}, exitBlock, []mlir.ValueLike{X},
 			location)
 		appendOperation(ctx, condBrOp)
 	case token.LOR:
 		// Branch to exit block passing either X (X = true) or Y (X = false) as the block parameter.
-		condBrOp := mlir.GoCreateCondBranchOperation(b.ctx, X, exitBlock, []mlir.Value{X}, yBlock, []mlir.Value{},
+		condBrOp := goir.NewCondBranchOperation(b.ctx, X, exitBlock, []mlir.ValueLike{X}, yBlock, []mlir.ValueLike{},
 			location)
 		appendOperation(ctx, condBrOp)
 	default:
@@ -376,5 +373,5 @@ func (b *Builder) emitLogicalComparison(ctx context.Context, expr *ast.BinaryExp
 
 	// Continue emission in the exit block and return the block parameter.
 	setCurrentBlock(ctx, exitBlock)
-	return mlir.BlockGetArgument(exitBlock, 0)
+	return exitBlock.Argument(0).AsValue()
 }

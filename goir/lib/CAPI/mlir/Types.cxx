@@ -475,17 +475,17 @@ int mlirGoIntegerTypeGetWidth(MlirType type)
 
 MlirType mlirGoCreateFunctionType(
   MlirContext ctx,
-  MlirType* receiver,
+  MlirType receiver,
   int nInputs,
   MlirType* inputs,
   int nResults,
   MlirType* results)
 {
-  auto _ctx = unwrap(ctx);
+  const auto _ctx = unwrap(ctx);
   std::optional<mlir::Type> _receiver;
-  if (receiver != nullptr)
+  if (!mlirTypeIsNull(receiver))
   {
-    _receiver = unwrap(*receiver);
+    _receiver = unwrap(receiver);
   }
 
   mlir::SmallVector<mlir::Type> _inputs;
@@ -509,7 +509,7 @@ bool mlirGoFunctionTypeHasReceiver(MlirType type)
 
 bool mlirGoTypeIsAFunctionType(MlirType type)
 {
-  const auto _type = mlir::go::cast<mlir::go::FunctionType>(unwrap(type));
+  const auto _type = unwrap(type);
   return mlir::go::isa<mlir::go::FunctionType>(_type);
 }
 

@@ -1,12 +1,12 @@
 package builder
 
-import "pkg.si-go.dev/sigo/llvm"
+import "pkg.si-go.dev/go-mlir/mlir"
 
 func init() {
 	// Set up compile target
-	llvm.InitializeAllTargets()
-	llvm.InitializeAllTargetInfos()
-	llvm.InitializeAllTargetMCs()
-	llvm.InitializeAllAsmParsers()
-	llvm.InitializeAllAsmPrinters()
+	mlir.LLVMInitializeAllTargets()
+	mlir.LLVMInitializeAllTargetInfos()
+	mlir.LLVMInitializeAllTargetMCs()
+	mlir.LLVMInitializeAllAsmParsers()
+	mlir.LLVMInitializeAllAsmPrinters()
 }

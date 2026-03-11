@@ -6,127 +6,128 @@ import (
 	"go/token"
 	"go/types"
 
-	"pkg.si-go.dev/sigo/mlir"
+	"pkg.si-go.dev/go-mlir/mlir"
+	"pkg.si-go.dev/sigo/goir/binding/goir"
 )
 
-func (b *Builder) emitArith(ctx context.Context, op token.Token, X, Y mlir.Value, XT types.Type, T mlir.Type, location mlir.Location) mlir.Value {
-	var result mlir.Value
+func (b *Builder) emitArith(ctx context.Context, op token.Token, X, Y mlir.ValueLike, XT types.Type, T mlir.TypeLike, location mlir.LocationLike) mlir.Value {
+	var result mlir.ValueLike
 
 	// Create the respective binary expression operation.
 	switch op {
 	case token.ADD:
 		switch {
 		case typeHasFlags(XT, types.IsInteger):
-			op := mlir.GoCreateAddIOperation(b.ctx, T, X, Y, location)
+			op := goir.NewAddIOperation(b.ctx, T, X, Y, location)
 			appendOperation(ctx, op)
-			result = mlir.OperationGetResult(op, 0)
+			result = op.Result(0)
 		case typeHasFlags(XT, types.IsString):
-			op := mlir.GoCreateAddStrOperation(b.ctx, T, X, Y, location)
+			op := goir.NewAddStrOperation(b.ctx, T, X, Y, location)
 			appendOperation(ctx, op)
-			result = mlir.OperationGetResult(op, 0)
+			result = op.Result(0)
 		case typeHasFlags(XT, types.IsFloat):
-			op := mlir.GoCreateAddFOperation(b.ctx, T, X, Y, location)
+			op := goir.NewAddFOperation(b.ctx, T, X, Y, location)
 			appendOperation(ctx, op)
-			result = mlir.OperationGetResult(op, 0)
+			result = op.Result(0)
 		case typeHasFlags(XT, types.IsComplex):
-			op := mlir.GoCreateAddCOperation(b.ctx, T, X, Y, location)
+			op := goir.NewAddCOperation(b.ctx, T, X, Y, location)
 			appendOperation(ctx, op)
-			result = mlir.OperationGetResult(op, 0)
+			result = op.Result(0)
 		}
 	case token.SUB:
 		switch {
 		case typeHasFlags(XT, types.IsInteger):
-			op := mlir.GoCreateSubIOperation(b.ctx, T, X, Y, location)
+			op := goir.NewSubIOperation(b.ctx, T, X, Y, location)
 			appendOperation(ctx, op)
-			result = mlir.OperationGetResult(op, 0)
+			result = op.Result(0)
 		case typeHasFlags(XT, types.IsFloat):
-			op := mlir.GoCreateSubFOperation(b.ctx, T, X, Y, location)
+			op := goir.NewSubFOperation(b.ctx, T, X, Y, location)
 			appendOperation(ctx, op)
-			result = mlir.OperationGetResult(op, 0)
+			result = op.Result(0)
 		case typeHasFlags(XT, types.IsComplex):
-			op := mlir.GoCreateSubCOperation(b.ctx, T, X, Y, location)
+			op := goir.NewSubCOperation(b.ctx, T, X, Y, location)
 			appendOperation(ctx, op)
-			result = mlir.OperationGetResult(op, 0)
+			result = op.Result(0)
 		}
 	case token.MUL:
 		switch {
 		case typeHasFlags(XT, types.IsInteger):
-			op := mlir.GoCreateMulIOperation(b.ctx, T, X, Y, location)
+			op := goir.NewMulIOperation(b.ctx, T, X, Y, location)
 			appendOperation(ctx, op)
-			result = mlir.OperationGetResult(op, 0)
+			result = op.Result(0)
 		case typeHasFlags(XT, types.IsFloat):
-			op := mlir.GoCreateMulFOperation(b.ctx, T, X, Y, location)
+			op := goir.NewMulFOperation(b.ctx, T, X, Y, location)
 			appendOperation(ctx, op)
-			result = mlir.OperationGetResult(op, 0)
+			result = op.Result(0)
 		case typeHasFlags(XT, types.IsComplex):
-			op := mlir.GoCreateMulCOperation(b.ctx, T, X, Y, location)
+			op := goir.NewMulCOperation(b.ctx, T, X, Y, location)
 			appendOperation(ctx, op)
-			result = mlir.OperationGetResult(op, 0)
+			result = op.Result(0)
 		}
 	case token.QUO:
 		switch {
 		case typeHasFlags(XT, types.IsInteger, types.IsUnsigned):
-			op := mlir.GoCreateDivUIOperation(b.ctx, T, X, Y, location)
+			op := goir.NewDivUIOperation(b.ctx, T, X, Y, location)
 			appendOperation(ctx, op)
-			result = mlir.OperationGetResult(op, 0)
+			result = op.Result(0)
 		case typeHasFlags(XT, types.IsInteger):
-			op := mlir.GoCreateDivSIOperation(b.ctx, T, X, Y, location)
+			op := goir.NewDivSIOperation(b.ctx, T, X, Y, location)
 			appendOperation(ctx, op)
-			result = mlir.OperationGetResult(op, 0)
+			result = op.Result(0)
 		case typeHasFlags(XT, types.IsFloat):
-			op := mlir.GoCreateDivFOperation(b.ctx, T, X, Y, location)
+			op := goir.NewDivFOperation(b.ctx, T, X, Y, location)
 			appendOperation(ctx, op)
-			result = mlir.OperationGetResult(op, 0)
+			result = op.Result(0)
 		case typeHasFlags(XT, types.IsComplex):
-			op := mlir.GoCreateDivCOperation(b.ctx, T, X, Y, location)
+			op := goir.NewDivCOperation(b.ctx, T, X, Y, location)
 			appendOperation(ctx, op)
-			result = mlir.OperationGetResult(op, 0)
+			result = op.Result(0)
 		}
 	case token.REM:
 		switch {
 		case typeHasFlags(XT, types.IsInteger, types.IsUnsigned):
-			op := mlir.GoCreateRemUIOperation(b.ctx, T, X, Y, location)
+			op := goir.NewRemUIOperation(b.ctx, T, X, Y, location)
 			appendOperation(ctx, op)
-			result = mlir.OperationGetResult(op, 0)
+			result = op.Result(0)
 		case typeHasFlags(XT, types.IsInteger):
-			op := mlir.GoCreateRemSIOperation(b.ctx, T, X, Y, location)
+			op := goir.NewRemSIOperation(b.ctx, T, X, Y, location)
 			appendOperation(ctx, op)
-			result = mlir.OperationGetResult(op, 0)
+			result = op.Result(0)
 		case typeHasFlags(XT, types.IsFloat):
-			op := mlir.GoCreateRemFOperation(b.ctx, T, X, Y, location)
+			op := goir.NewRemFOperation(b.ctx, T, X, Y, location)
 			appendOperation(ctx, op)
-			result = mlir.OperationGetResult(op, 0)
+			result = op.Result(0)
 		}
 	case token.AND:
-		op := mlir.GoCreateAndOperation(b.ctx, T, X, Y, location)
+		op := goir.NewAndOperation(b.ctx, T, X, Y, location)
 		appendOperation(ctx, op)
-		result = mlir.OperationGetResult(op, 0)
+		result = op.Result(0)
 	case token.OR:
-		op := mlir.GoCreateOrOperation(b.ctx, T, X, Y, location)
+		op := goir.NewOrOperation(b.ctx, T, X, Y, location)
 		appendOperation(ctx, op)
-		result = mlir.OperationGetResult(op, 0)
+		result = op.Result(0)
 	case token.XOR:
-		op := mlir.GoCreateXorOperation(b.ctx, T, X, Y, location)
+		op := goir.NewXorOperation(b.ctx, T, X, Y, location)
 		appendOperation(ctx, op)
-		result = mlir.OperationGetResult(op, 0)
+		result = op.Result(0)
 	case token.AND_NOT:
-		op := mlir.GoCreateAndNotOperation(b.ctx, T, X, Y, location)
+		op := goir.NewAndNotOperation(b.ctx, T, X, Y, location)
 		appendOperation(ctx, op)
-		result = mlir.OperationGetResult(op, 0)
+		result = op.Result(0)
 	case token.SHL:
-		op := mlir.GoCreateShlOperation(b.ctx, T, X, Y, location)
+		op := goir.NewShlOperation(b.ctx, T, X, Y, location)
 		appendOperation(ctx, op)
-		result = mlir.OperationGetResult(op, 0)
+		result = op.Result(0)
 	case token.SHR:
 		switch {
 		case typeHasFlags(XT, types.IsInteger, types.IsUnsigned):
-			op := mlir.GoCreateShrUIOperation(b.ctx, T, X, Y, location)
+			op := goir.NewShrUIOperation(b.ctx, T, X, Y, location)
 			appendOperation(ctx, op)
-			result = mlir.OperationGetResult(op, 0)
+			result = op.Result(0)
 		case typeHasFlags(XT, types.IsInteger):
-			op := mlir.GoCreateShrSIOperation(b.ctx, T, X, Y, location)
+			op := goir.NewShrSIOperation(b.ctx, T, X, Y, location)
 			appendOperation(ctx, op)
-			result = mlir.OperationGetResult(op, 0)
+			result = op.Result(0)
 		}
 	default:
 		panic("unhandled arithmetic operation")
@@ -136,11 +137,11 @@ func (b *Builder) emitArith(ctx context.Context, op token.Token, X, Y mlir.Value
 		panic("operation yielded no result")
 	}
 
-	return result
+	return result.AsValue()
 }
 
 func (b *Builder) emitIncDecStatement(ctx context.Context, stmt *ast.IncDecStmt) {
-	var result mlir.Value
+	var result mlir.ValueLike
 	location := b.location(ctx, stmt.Pos())
 
 	// Get address of the LHS value to store the result at later.
@@ -160,7 +161,7 @@ func (b *Builder) emitIncDecStatement(ctx context.Context, stmt *ast.IncDecStmt)
 	// Create the respective constant one value matching the LHS type.
 	T := b.typeOf(ctx, stmt.X).Underlying()
 	intType := b.GetStoredType(ctx, T)
-	constOneOp := mlir.GoCreateConstantOperation(b.ctx, b.intAttr(1), nil, intType, location)
+	constOneOp := goir.NewConstantOperation(b.ctx, b.intAttr(1), mlir.NewNullAttribute(), intType, location)
 	constOne := resultOf(constOneOp)
 	appendOperation(ctx, constOneOp)
 
@@ -168,12 +169,12 @@ func (b *Builder) emitIncDecStatement(ctx context.Context, stmt *ast.IncDecStmt)
 	switch stmt.Tok {
 	case token.INC:
 		// Add one to the lhs value.
-		op := mlir.GoCreateAddIOperation(b.ctx, intType, lhs, constOne, location)
+		op := goir.NewAddIOperation(b.ctx, intType, lhs, constOne, location)
 		appendOperation(ctx, op)
 		result = resultOf(op)
 	case token.DEC:
 		// Subtract one to the lhs value.
-		op := mlir.GoCreateSubIOperation(b.ctx, intType, lhs, constOne, location)
+		op := goir.NewSubIOperation(b.ctx, intType, lhs, constOne, location)
 		appendOperation(ctx, op)
 		result = resultOf(op)
 	default:

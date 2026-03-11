@@ -7,7 +7,8 @@ import (
 	"go/token"
 	"go/types"
 
-	"pkg.si-go.dev/sigo/mlir"
+	"pkg.si-go.dev/go-mlir/mlir"
+	"pkg.si-go.dev/sigo/goir/binding/goir"
 )
 
 func (b *Builder) emitBasicLiteral(ctx context.Context, expr *ast.BasicLit) mlir.Value {
@@ -40,9 +41,9 @@ func (b *Builder) emitArrayLiteral(ctx context.Context, expr *ast.CompositeLit) 
 	T := b.GetStoredType(ctx, litType)
 
 	// Create the zero value of the array type.
-	zeroOp := mlir.GoCreateZeroOperation(b.ctx, T, location)
+	zeroOp := goir.NewZeroOperation(b.ctx, T, location)
 	appendOperation(ctx, zeroOp)
-	value := resultOf(zeroOp)
+	value := resultOf(zeroOp).AsValue()
 
 	// Insert each array element.
 	for i, e := range expr.Elts {
@@ -52,9 +53,9 @@ func (b *Builder) emitArrayLiteral(ctx context.Context, expr *ast.CompositeLit) 
 		var elementValue mlir.Value
 		switch e := e.(type) {
 		case *ast.KeyValueExpr:
-			elementValue = b.emitExpr(ctx, e.Value)[0]
+			elementValue = b.emitExpr(ctx, e.Value)[0].AsValue()
 		default:
-			elementValue = b.emitExpr(ctx, e)[0]
+			elementValue = b.emitExpr(ctx, e)[0].AsValue()
 		}
 
 		switch baseType(elementT).(type) {
@@ -72,9 +73,9 @@ func (b *Builder) emitArrayLiteral(ctx context.Context, expr *ast.CompositeLit) 
 		}
 
 		// Insert the element value into the array.
-		insertOp := mlir.GoCreateInsertOperation(b.ctx, uint64(i), elementValue, value, T, location)
+		insertOp := goir.NewInsertOperation(b.ctx, uint64(i), elementValue, value, T, location)
 		appendOperation(ctx, insertOp)
-		value = resultOf(insertOp)
+		value = resultOf(insertOp).AsValue()
 	}
 
 	return value
@@ -90,11 +91,11 @@ func (b *Builder) emitMapLiteral(ctx context.Context, expr *ast.CompositeLit) ml
 	capacityVal := b.emitConstInt(ctx, int64(len(expr.Elts)), b.si, location)
 
 	// Create the map value.
-	makeOp := mlir.GoCreateMakeMapOperation(b.ctx, mapT, capacityVal, location)
+	makeOp := goir.NewMakeMapOperation(b.ctx, mapT, capacityVal, location)
 	appendOperation(ctx, makeOp)
 
 	// Spill the map to the stack.
-	mapValue := resultOf(makeOp)
+	mapValue := resultOf(makeOp).AsValue()
 
 	// Insert each value into the map.
 	for _, expr := range expr.Elts {
@@ -137,7 +138,7 @@ func (b *Builder) emitMapLiteral(ctx context.Context, expr *ast.CompositeLit) ml
 		}
 
 		// Update the map.
-		updateOp := mlir.GoCreateMapUpdateOperation(b.ctx, mapValue, keyValue, elementValue, location)
+		updateOp := goir.NewMapUpdateOperation(b.ctx, mapValue, keyValue, elementValue, location)
 		appendOperation(ctx, updateOp)
 	}
 
@@ -154,9 +155,9 @@ func (b *Builder) emitSliceLiteral(ctx context.Context, expr *ast.CompositeLit) 
 
 	// Create the slice value.
 	lengthVal := b.emitConstInt(ctx, int64(len(expr.Elts)), b.si, location)
-	makeOp := mlir.GoCreateMakeSliceOperation(b.ctx, sliceT, lengthVal, lengthVal, location)
+	makeOp := goir.NewMakeSliceOperation(b.ctx, sliceT, lengthVal, lengthVal, location)
 	appendOperation(ctx, makeOp)
-	sliceVal := resultOf(makeOp)
+	sliceVal := resultOf(makeOp).AsValue()
 
 	// Fill the slice.
 	for i, expr := range expr.Elts {
@@ -181,12 +182,12 @@ func (b *Builder) emitSliceLiteral(ctx context.Context, expr *ast.CompositeLit) 
 		// Calculate the address to store the value to.
 		pointerT := b.pointerOf(ctx, sliceType.Elem())
 		indexVal := b.emitConstInt(ctx, int64(i), b.si, location)
-		addrOp := mlir.GoCreateSliceAddrOperation(b.ctx, pointerT, sliceVal, indexVal, location)
+		addrOp := goir.NewSliceAddrOperation(b.ctx, pointerT, sliceVal, indexVal, location)
 		appendOperation(ctx, addrOp)
 		addr := resultOf(addrOp)
 
 		// Store the value at the address.
-		storeOp := mlir.GoCreateStoreOperation(b.ctx, elementValue, addr, location)
+		storeOp := goir.NewStoreOperation(b.ctx, elementValue, addr, location)
 		appendOperation(ctx, storeOp)
 	}
 
@@ -200,9 +201,9 @@ func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit)
 	structT := b.GetStoredType(ctx, litType)
 
 	// Create the zero value of the struct type.
-	zeroOp := mlir.GoCreateZeroOperation(b.ctx, structT, location)
+	zeroOp := goir.NewZeroOperation(b.ctx, structT, location)
 	appendOperation(ctx, zeroOp)
-	value := resultOf(zeroOp)
+	value := resultOf(zeroOp).AsValue()
 
 	// Set the struct elements.
 	for i, e := range expr.Elts {
@@ -232,7 +233,7 @@ func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit)
 
 		switch baseType(fieldT).(type) {
 		case *types.Signature:
-			if mlir.TypeIsAFunction(mlir.ValueGetType(elementValue)) {
+			if goir.TypeIsAFunctionType(elementValue.Type()) {
 				// Convert the function pointer to a func value.
 				elementValue = b.createFunctionValue(ctx, elementValue, nil, elementLoc)
 			}
@@ -251,9 +252,9 @@ func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit)
 		}
 
 		// Insert the value into the struct.
-		insertOp := mlir.GoCreateInsertOperation(b.ctx, uint64(index), elementValue, value, structT, elementLoc)
+		insertOp := goir.NewInsertOperation(b.ctx, uint64(index), elementValue, value, structT, elementLoc)
 		appendOperation(ctx, insertOp)
-		value = resultOf(insertOp)
+		value = resultOf(insertOp).AsValue()
 	}
 
 	return value
@@ -295,7 +296,7 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 	}
 
 	signature := types.NewSignatureType(nil, recvTypeParams, typeParams, types.NewTuple(params...), types.NewTuple(results...), originalSignature.Variadic())
-	T := b.GetType(ctx, signature)
+	T := b.GetType(ctx, signature).(goir.FunctionType)
 
 	// Create the function data for the anonymous function.
 	anonData := &funcData{
@@ -412,13 +413,13 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 		for obj := range used {
 			// You can skip this whole scope walk logic — the object already knows its scope.
 			varType := b.GetStoredType(ctx, obj.Type())
-			ptrType := mlir.GoCreatePointerType(varType)
-			allocType := mlir.GoCreatePointerType(ptrType)
+			ptrType := goir.NewPointerType(varType)
+			allocType := goir.NewPointerType(ptrType)
 
-			allocaOp := mlir.GoCreateAllocaOperation(b.ctx, allocType, ptrType, 1, false, b.location(ctx, obj.Pos()))
+			allocaOp := goir.NewAllocaOperation(b.ctx, allocType, ptrType, 1, false, b.location(ctx, obj.Pos()))
 			fv := &FreeVar{
 				obj: obj,
-				ptr: resultOf(allocaOp),
+				ptr: resultOf(allocaOp).AsValue(),
 				T:   varType,
 				b:   b,
 			}
@@ -436,11 +437,11 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 	var contextPtr mlir.Value
 	if contextValue, contextType := anonData.createContextStructValue(ctx, b, location); contextValue != nil {
 		anonData.contextType = contextType
-		allocaOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, contextType, 1, false, location)
+		allocaOp := goir.NewAllocaOperation(b.ctx, b.ptr, contextType, 1, false, location)
 		appendOperation(ctx, allocaOp)
-		contextPtr = resultOf(allocaOp)
+		contextPtr = resultOf(allocaOp).AsValue()
 
-		storeOp := mlir.GoCreateStoreOperation(b.ctx, contextValue, contextPtr, location)
+		storeOp := goir.NewStoreOperation(b.ctx, contextValue, contextPtr, location)
 		appendOperation(ctx, storeOp)
 	}
 

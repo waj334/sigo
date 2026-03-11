@@ -8,9 +8,14 @@
 
 namespace mlir::go
 {
+#define GEN_PASS_DEF_GLOBALCONSTANTSPASS
+#include "Go/Transforms/Passes.h.inc"
+
 struct GlobalConstantsPass
-  : public mlir::PassWrapper<GlobalConstantsPass, mlir::OperationPass<mlir::ModuleOp>>
+  : public impl::GlobalConstantsPassBase<GlobalConstantsPass>
 {
+  using GlobalConstantsPassBase<GlobalConstantsPass>::GlobalConstantsPassBase;
+
   void runOnOperation() final
   {
     auto module = getOperation();
@@ -41,11 +46,7 @@ struct GlobalConstantsPass
         }
 
         SmallVector<OpFoldResult, 4> foldResults;
-        if (failed(op->fold(foldResults)))
-        {
-          op->fold(foldResults);
-        }
-        //assert(succeeded(op->fold(foldResults)));
+        assert(succeeded(op->fold(foldResults)));
 
         const auto foldedValue = mlir::cast<mlir::Attribute>(foldResults[0]);
         assert(foldedValue);
@@ -54,8 +55,8 @@ struct GlobalConstantsPass
         builder.setInsertionPoint(op);
 
         // Create a new constant operation returning the folded value.
-        auto newConstOp = builder.create<ConstantOp>(
-          op.getLoc(), op.getType(), foldedValue, StringAttr());
+        auto newConstOp =
+          builder.create<ConstantOp>(op.getLoc(), op.getType(), foldedValue, StringAttr());
 
         // Replace the old operation.
         op->replaceAllUsesWith(newConstOp);
@@ -65,11 +66,7 @@ struct GlobalConstantsPass
       });
 
     // Now all global constants can be removed.
-    module.walk(
-      [&](GlobalConstantOp op)
-      {
-        op.erase();
-      });
+    module.walk([&](GlobalConstantOp op) { op.erase(); });
 
     // Collect the values that globals will be created from.
     SmallVector<std::pair<std::string, mlir::Location>> globalStrings;
@@ -228,10 +225,6 @@ struct GlobalConstantsPass
     }
   }
 
-  StringRef getArgument() const final { return "go-global-constants-pass"; }
-
-  StringRef getDescription() const final { return "Create global constants"; }
-
   void getDependentDialects(DialectRegistry& registry) const override
   {
     registry.insert<GoDialect>();
@@ -239,8 +232,4 @@ struct GlobalConstantsPass
   }
 };
 
-std::unique_ptr<mlir::Pass> createGlobalConstantsPass()
-{
-  return std::make_unique<GlobalConstantsPass>();
-}
 } // namespace mlir::go

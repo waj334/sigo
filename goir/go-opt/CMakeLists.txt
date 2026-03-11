@@ -5,6 +5,9 @@ set(LIBS
         ${conversion_libs}
         MLIRArithDialect
         MLIROptLib
+        MLIRRegisterAllDialects
+        MLIRRegisterAllExtensions
+        MLIRRegisterAllPasses
         GoIR
 )
 add_llvm_executable(go-opt go-opt.cxx)

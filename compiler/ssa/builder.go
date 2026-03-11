@@ -14,8 +14,8 @@ import (
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 	"golang.org/x/tools/go/packages"
-	"pkg.si-go.dev/sigo/llvm"
-	"pkg.si-go.dev/sigo/mlir"
+	"pkg.si-go.dev/go-mlir/mlir"
+	"pkg.si-go.dev/sigo/goir/binding/goir"
 )
 
 type Config struct {
@@ -36,8 +36,8 @@ type Builder struct {
 	program       *Program
 	declaredTypes map[types.Type]struct{}
 	genericFuncs  map[string]*funcData
-	diFiles       map[*token.File]mlir.Attribute
-	compileUnits  map[*token.File]mlir.Attribute
+	diFiles       map[*token.File]mlir.LLVMDIFileAttr
+	compileUnits  map[*token.File]mlir.LLVMDICompileUnitAttr
 	symbols       mlir.SymbolTable
 	declInfo      map[ast.Decl]*types.Info
 
@@ -46,7 +46,7 @@ type Builder struct {
 	funcDeclData      map[string]*funcData
 	ungeneratedFuncs  map[string]*ast.FuncDecl
 
-	typeCache      map[types.Type]mlir.Type
+	typeCache      map[types.Type]mlir.TypeLike
 	typeCacheMutex sync.RWMutex
 
 	valueCache      map[types.Object]Value
@@ -60,7 +60,7 @@ type Builder struct {
 
 	thunkMutex sync.Mutex
 	thunks     map[string]struct{}
-	thunkTypes map[string]mlir.Type
+	thunkTypes map[string]mlir.TypeLike
 
 	builtinWrapperMutex sync.Mutex
 	builtinWrappers     map[string]string
@@ -70,32 +70,32 @@ type Builder struct {
 	work               atomic.Int32
 	generateQueueMutex sync.Mutex
 
-	i1    mlir.Type
-	si    mlir.Type
-	si8   mlir.Type
-	si32  mlir.Type
-	si64  mlir.Type
-	ui    mlir.Type
-	ui8   mlir.Type
-	ui32  mlir.Type
-	ui64  mlir.Type
-	f32   mlir.Type
-	f64   mlir.Type
-	c64   mlir.Type
-	c128  mlir.Type
-	ptr   mlir.Type
-	uiptr mlir.Type
-	str   mlir.Type
+	i1    goir.BooleanType
+	si    goir.IntegerType
+	si8   goir.IntegerType
+	si32  goir.IntegerType
+	si64  goir.IntegerType
+	ui    goir.IntegerType
+	ui8   goir.IntegerType
+	ui32  goir.IntegerType
+	ui64  goir.IntegerType
+	f32   mlir.FloatType
+	f64   mlir.FloatType
+	c64   mlir.ComplexType
+	c128  mlir.ComplexType
+	ptr   goir.UnsafePointerType
+	uiptr goir.IntegerType
+	str   goir.StringType
 
-	_chan      mlir.Type
-	_map       mlir.Type
-	_slice     mlir.Type
-	_string    mlir.Type
-	_interface mlir.Type
-	_any       mlir.Type
-	_func      mlir.Type
+	_chan      mlir.TypeLike
+	_map       mlir.TypeLike
+	_slice     mlir.TypeLike
+	_string    mlir.TypeLike
+	_interface mlir.TypeLike
+	_any       mlir.TypeLike
+	_func      mlir.TypeLike
 
-	_noLoc mlir.Location
+	_noLoc mlir.LocationLike
 
 	initPackageCounter map[*packages.Package]*atomic.Uint32
 }
@@ -105,14 +105,14 @@ type TypeParamMap map[int]types.Type
 func NewBuilder(config Config) *Builder {
 	builder := &Builder{
 		config:          config,
-		typeCache:       map[types.Type]mlir.Type{},
+		typeCache:       map[types.Type]mlir.TypeLike{},
 		valueCache:      map[types.Object]Value{},
 		ctx:             config.Ctx,
 		program:         config.Program,
-		symbols:         mlir.SymbolTableCreate(mlir.ModuleGetOperation(config.Module)),
+		symbols:         mlir.NewSymbolTable(config.Module.Operation()),
 		generateQueue:   make(chan *funcData),
 		thunks:          map[string]struct{}{},
-		thunkTypes:      map[string]mlir.Type{},
+		thunkTypes:      map[string]mlir.TypeLike{},
 		genericFuncs:    map[string]*funcData{},
 		builtinWrappers: map[string]string{},
 
@@ -123,29 +123,29 @@ func NewBuilder(config Config) *Builder {
 		addToModule:         map[string]mlir.Operation{},
 		forwardDeclarations: map[string]mlir.Operation{},
 
-		diFiles:            map[*token.File]mlir.Attribute{},
-		compileUnits:       map[*token.File]mlir.Attribute{},
+		diFiles:            map[*token.File]mlir.LLVMDIFileAttr{},
+		compileUnits:       map[*token.File]mlir.LLVMDICompileUnitAttr{},
 		initPackageCounter: map[*packages.Package]*atomic.Uint32{},
 		declInfo:           map[ast.Decl]*types.Info{},
 	}
 
 	// Create all basic types up front for ease of use later.
-	builder.i1 = builder.GetType(context.Background(), types.Typ[types.Bool])
-	builder.si = builder.GetType(context.Background(), types.Typ[types.Int])
-	builder.si8 = builder.GetType(context.Background(), types.Typ[types.Int8])
-	builder.si32 = builder.GetType(context.Background(), types.Typ[types.Int32])
-	builder.si64 = builder.GetType(context.Background(), types.Typ[types.Int64])
-	builder.ui = builder.GetType(context.Background(), types.Typ[types.Uint])
-	builder.ui8 = builder.GetType(context.Background(), types.Typ[types.Uint8])
-	builder.ui32 = builder.GetType(context.Background(), types.Typ[types.Uint32])
-	builder.ui64 = builder.GetType(context.Background(), types.Typ[types.Uint64])
-	builder.f32 = builder.GetType(context.Background(), types.Typ[types.Float32])
-	builder.f64 = builder.GetType(context.Background(), types.Typ[types.Float64])
-	builder.c64 = builder.GetType(context.Background(), types.Typ[types.Complex64])
-	builder.c128 = builder.GetType(context.Background(), types.Typ[types.Complex128])
-	builder.ptr = builder.GetType(context.Background(), types.Typ[types.UnsafePointer])
-	builder.uiptr = builder.GetType(context.Background(), types.Typ[types.Uintptr])
-	builder.str = builder.GetType(context.Background(), types.Typ[types.String])
+	builder.i1 = builder.GetType(context.Background(), types.Typ[types.Bool]).(goir.BooleanType)
+	builder.si = builder.GetType(context.Background(), types.Typ[types.Int]).(goir.IntegerType)
+	builder.si8 = builder.GetType(context.Background(), types.Typ[types.Int8]).(goir.IntegerType)
+	builder.si32 = builder.GetType(context.Background(), types.Typ[types.Int32]).(goir.IntegerType)
+	builder.si64 = builder.GetType(context.Background(), types.Typ[types.Int64]).(goir.IntegerType)
+	builder.ui = builder.GetType(context.Background(), types.Typ[types.Uint]).(goir.IntegerType)
+	builder.ui8 = builder.GetType(context.Background(), types.Typ[types.Uint8]).(goir.IntegerType)
+	builder.ui32 = builder.GetType(context.Background(), types.Typ[types.Uint32]).(goir.IntegerType)
+	builder.ui64 = builder.GetType(context.Background(), types.Typ[types.Uint64]).(goir.IntegerType)
+	builder.f32 = builder.GetType(context.Background(), types.Typ[types.Float32]).(mlir.FloatType)
+	builder.f64 = builder.GetType(context.Background(), types.Typ[types.Float64]).(mlir.FloatType)
+	builder.c64 = builder.GetType(context.Background(), types.Typ[types.Complex64]).(mlir.ComplexType)
+	builder.c128 = builder.GetType(context.Background(), types.Typ[types.Complex128]).(mlir.ComplexType)
+	builder.ptr = builder.GetType(context.Background(), types.Typ[types.UnsafePointer]).(goir.UnsafePointerType)
+	builder.uiptr = builder.GetType(context.Background(), types.Typ[types.Uintptr]).(goir.IntegerType)
+	builder.str = builder.GetType(context.Background(), types.Typ[types.String]).(goir.StringType)
 
 	builder._chan = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_channel"))
 	builder._interface = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_interface"))
@@ -158,11 +158,11 @@ func NewBuilder(config Config) *Builder {
 	// Bind the runtime type representations to the dialect's primitive type representation.
 	// NOTE: The specific type does not matter since DLTI relies on a type's type ID which is the same each variation of
 	//       a specific type in MLIR.
-	mlir.GoBindRuntimeTypeToType(config.Module, mlir.GoCreateChanType(builder.i1, mlir.GoChanDirection_RecvOnly), builder._chan)
-	mlir.GoBindRuntimeTypeToType(config.Module, builder._any, builder._interface)
-	mlir.GoBindRuntimeTypeToType(config.Module, mlir.GoCreateMapType(builder.i1, builder.i1), builder._map)
-	mlir.GoBindRuntimeTypeToType(config.Module, mlir.GoCreateSliceType(builder.i1), builder._slice)
-	mlir.GoBindRuntimeTypeToType(config.Module, builder.str, builder._string)
+	goir.BindRuntimeTypeToType(config.Module, goir.NewChanType(builder.i1, goir.ChanDirectionRecvOnly), builder._chan)
+	goir.BindRuntimeTypeToType(config.Module, builder._any, builder._interface)
+	goir.BindRuntimeTypeToType(config.Module, goir.NewMapType(builder.i1, builder.i1), builder._map)
+	goir.BindRuntimeTypeToType(config.Module, goir.NewSliceType(builder.i1), builder._slice)
+	goir.BindRuntimeTypeToType(config.Module, builder.str, builder._string)
 
 	builder._noLoc = builder.unscopedLocation(0)
 
@@ -190,7 +190,7 @@ func NewBuilder(config Config) *Builder {
 	for k, v := range typeMap {
 		Tstr := strings.Split(v, ".")
 		T := config.Program.LookupType(Tstr[0], Tstr[1])
-		mlir.GoBindRuntimeType(config.Module, k, builder.GetType(context.Background(), T))
+		goir.BindRuntimeType(config.Module, k, builder.GetType(context.Background(), T))
 	}
 
 	return builder
@@ -199,9 +199,9 @@ func NewBuilder(config Config) *Builder {
 func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package) {
 	// All operations should go to the module body by default.
 	ctx = newContextWithCurrentBlock(ctx)
-	moduleRegion := mlir.OperationGetFirstRegion(mlir.ModuleGetOperation(b.config.Module))
+	moduleRegion := b.config.Module.Operation().Region(0)
 	ctx = newContextWithRegion(ctx, moduleRegion)
-	moduleBlock := mlir.ModuleGetBody(b.config.Module)
+	moduleBlock := b.config.Module.Body()
 	setCurrentBlock(ctx, moduleBlock)
 
 	// Create a new job queue for when functions need other functions to be generated.
@@ -209,30 +209,30 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 	ctx = context.WithValue(ctx, jobQueueKey{}, queue)
 
 	// Create debug information for each file.
-	producerAttr := mlir.StringAttrGet(b.ctx, "SiGo")
+	producerAttr := mlir.NewStringAttr(b.ctx, "SiGo")
 	b.config.Fset.Iterate(func(file *token.File) bool {
 		fname := file.Name()
 		if evalPath, err := filepath.EvalSymlinks(fname); err == nil {
 			fname = evalPath
 		}
 
-		nameAttr := mlir.StringAttrGet(b.ctx, filepath.Base(fname))
-		fnameAttr := mlir.StringAttrGet(b.ctx, filepath.Dir(fname))
-		diFileAttr := mlir.LLVMDIFileAttrGet(b.ctx, nameAttr, fnameAttr)
+		nameAttr := mlir.NewStringAttr(b.ctx, filepath.Base(fname))
+		fnameAttr := mlir.NewStringAttr(b.ctx, filepath.Dir(fname))
+		diFileAttr := mlir.NewLLVMDIFileAttr(b.ctx, nameAttr, fnameAttr)
 		b.diFiles[file] = diFileAttr
 
 		// Create a matching compile unit for this file.
-		idAttr := mlir.DistinctAttrGet(fnameAttr)
-		compileUnitAttr := mlir.LLVMDICompileUnitAttrGet(
+		idAttr := goir.NewDistinctAttr(fnameAttr)
+		compileUnitAttr := mlir.NewLLVMDICompileUnitAttr(
 			b.ctx,
 			idAttr,
-			uint(llvm.DWARFSourceLanguageC)+1,
+			mlir.LLVMDWARFSourceLanguageC,
 			diFileAttr,
 			producerAttr,
 			false,
 			mlir.LLVMDIEmissionKindFull,
-			mlir.LLVMDINameTableKindNone,
-			// mlir.LLVMDINameTableKindDefault,
+			mlir.LLVMDINameTableKindDefault,
+			b.strAttr(""),
 		)
 		b.compileUnits[file] = compileUnitAttr
 		return true
@@ -346,7 +346,7 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 						}
 					}
 
-					return result
+					return result.AsValue()
 				}, location)
 				initializedGlobals[gv] = struct{}{}
 			}
@@ -370,9 +370,9 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 				// Zero initialize the value.
 				gv.Initialize(ctx, b, 0, func(ctx context.Context, b *Builder) mlir.Value {
 					T := b.GetStoredType(ctx, obj.Type())
-					zeroOp := mlir.GoCreateZeroOperation(b.ctx, T, location)
+					zeroOp := goir.NewZeroOperation(b.ctx, T, location)
 					appendOperation(ctx, zeroOp)
-					return resultOf(zeroOp)
+					return resultOf(zeroOp).AsValue()
 				}, location)
 			}
 		}
@@ -581,7 +581,7 @@ func (b *Builder) addFunctionDecl(ctx context.Context, decl *ast.FuncDecl) *func
 	// NOTE: Have to create the function type after the func object has been initialized if the function is
 	//       NOT generic.
 	if !data.isGeneric {
-		data.mlirType = b.GetType(ctx, obj.Type())
+		data.mlirType = b.GetType(ctx, obj.Type()).(goir.FunctionType)
 	} else {
 		b.genericFuncs[data.symbol] = data
 	}
@@ -673,13 +673,9 @@ func (b *Builder) addWork(job *funcData) {
 }
 
 func (b *Builder) addSymbol(op mlir.Operation) {
-	mlir.SymbolTableInsert(b.symbols, op)
+	b.symbols.Insert(op)
 }
 
 func (b *Builder) lookupSymbol(symbol string) mlir.Operation {
-	op := mlir.SymbolTableLookup(b.symbols, symbol)
-	if mlir.OperationIsNull(op) {
-		return nil
-	}
-	return op
+	return b.symbols.Lookup(symbol)
 }

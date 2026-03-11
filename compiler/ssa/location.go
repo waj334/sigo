@@ -11,14 +11,14 @@ import (
 	"path/filepath"
 	"strings"
 
-	"pkg.si-go.dev/sigo/mlir"
+	"pkg.si-go.dev/go-mlir/mlir"
 )
 
-func (b *Builder) unscopedLocation(p token.Pos) mlir.Location {
+func (b *Builder) unscopedLocation(p token.Pos) mlir.FileLineColLoc {
 	// Get the file positioning information associated with the location.
 	pos := b.config.Fset.Position(p)
 	if !pos.IsValid() {
-		return mlir.LocationFileLineColGet(b.config.Ctx, "<unknown>", 0, 0)
+		return mlir.NewFileLineCol(b.config.Ctx, "<unknown>", 0, 0)
 	}
 
 	// Evaluate symlinks.
@@ -27,15 +27,15 @@ func (b *Builder) unscopedLocation(p token.Pos) mlir.Location {
 		filename = pos.Filename
 	}
 
-	return mlir.LocationFileLineColGet(b.config.Ctx, filename, uint(pos.Line), uint(pos.Column))
+	return mlir.NewFileLineCol(b.config.Ctx, filename, pos.Line, pos.Column)
 }
 
-func (b *Builder) location(ctx context.Context, p token.Pos) mlir.Location {
+func (b *Builder) location(ctx context.Context, p token.Pos) mlir.LocationLike {
 	locAttr := b.unscopedLocation(p)
 
 	// Fuse the current scope information with the location.
-	if scope := currentScope(ctx); scope != nil {
-		locAttr = mlir.LocationFusedGet(b.ctx, []mlir.Location{locAttr}, scope)
+	if scope := currentScope(ctx); !scope.IsNull() {
+		return mlir.NewFusedLoc(b.ctx, []mlir.LocationLike{locAttr}, scope)
 	}
 
 	return locAttr

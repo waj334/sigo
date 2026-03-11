@@ -359,7 +359,7 @@ void LLVMDisposeRecordKeeper(LLVMRecordKeeper* RK)
 
 const char* LLVMRecordKeeperGetInputFilename(LLVMRecordKeeper* RK)
 {
-    return LLVMCreateCString(RK->PTR->getInputFilename());
+    return LLVMCreateCString(RK->PTR->getInputFilename().str());
 }
 
 LLVMRecordMap* LLVMRecordKeeperGetClasses(LLVMRecordKeeper* RK)

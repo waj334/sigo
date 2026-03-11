@@ -24,8 +24,7 @@ var sleepQueueMutex sync.Mutex
 
 //sigo:export addsleep runtime.addsleep
 //sigo:linkage addsleep weak
-func addsleep(uint64) bool {
-	return true
+func addsleep(uint64) {
 	// By default, this does nothing. When implemented, this function can be the entry point for setting up hardware
 	// timing mechanisms.
 }
@@ -59,10 +58,11 @@ func sleep(d uint64) {
 	}
 	sleepQueueMutex.Unlock()
 
-	if addsleep(deadline) {
-		// Schedule another goroutine to begin running.
-		gopark(g)
-	}
+	// Arm the timer.
+	addsleep(deadline)
+
+	// Schedule another goroutine to begin running.
+	gopark(g)
 }
 
 //go:export wake runtime.wake

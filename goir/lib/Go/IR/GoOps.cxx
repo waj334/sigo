@@ -17,8 +17,10 @@ static ::mlir::Type getI1SameShape(::mlir::Type type)
 ParseResult parseGEPIndices(
   OpAsmParser& parser,
   SmallVectorImpl<OpAsmParser::UnresolvedOperand>& dynamicIndices,
-  DenseI32ArrayAttr& constIndices)
+  DenseI32ArrayAttr& constIndicesAttr,
+  DenseBoolArrayAttr& indexFlagsAttr)
 {
+  SmallVector<bool> indexFlags;
   SmallVector<int32_t> constantIndices;
   int32_t index = 0;
   if (parser.parseCommaSeparatedList(
@@ -32,40 +34,46 @@ ParseResult parseGEPIndices(
             {
               return failure();
             }
+
+            // The operand is a constant.
             constantIndices.push_back(constValue);
+            indexFlags.push_back(false);
             return success();
           }
 
-          constantIndices.push_back(GetElementPointerOp::kValueFlag | index++);
+          // The operand is a value.
+          indexFlags.push_back(true);
           return parser.parseOperand(dynamicIndices.emplace_back());
         }))
   {
     return failure();
   }
 
-  constIndices = DenseI32ArrayAttr::get(parser.getContext(), constantIndices);
+  indexFlagsAttr = DenseBoolArrayAttr::get(parser.getContext(), indexFlags);
+  constIndicesAttr = DenseI32ArrayAttr::get(parser.getContext(), constantIndices);
   return success();
 }
 
 void printGEPIndices(
   OpAsmPrinter& printer,
   GetElementPointerOp gepOp,
-  OperandRange dynamicIndices,
-  DenseI32ArrayAttr constIndices)
+  const OperandRange dynamicIndices,
+  const DenseI32ArrayAttr constIndicesAttr,
+  const DenseBoolArrayAttr indexFlagsAttr)
 {
+  size_t valuesIndex = 0;
+  size_t constsIndex = 0;
   llvm::interleaveComma(
-    constIndices.asArrayRef(),
+    indexFlagsAttr.asArrayRef(),
     printer,
-    [&](int32_t value)
+    [&](const bool isValue)
     {
-      if (value & GetElementPointerOp::kValueFlag)
+      if (isValue)
       {
-        const auto index = value & GetElementPointerOp::kValueIndexMask;
-        printer.printOperand(dynamicIndices[index]);
-      }
-      else
+        printer.printOperand(dynamicIndices[valuesIndex++]);
+      } else
       {
-        printer << value;
+        printer << constIndicesAttr[constsIndex++];
       }
     });
 }

@@ -21,9 +21,13 @@
 
 namespace mlir::go
 {
-struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
+#define GEN_PASS_DEF_LOWERTOCOREPASS
+#define GEN_PASS_DEF_LOWERTOLLVMPASS
+#include "Go/Transforms/Passes.h.inc"
+
+struct LowerToCorePass : impl::LowerToCorePassBase<LowerToCorePass>
 {
-  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(LowerToCorePass)
+  using LowerToCorePassBase<LowerToCorePass>::LowerToCorePassBase;
 
   void runOnOperation() final
   {
@@ -208,10 +212,6 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
     }
   }
 
-  StringRef getArgument() const final { return "lower-go-to-core"; }
-
-  StringRef getDescription() const final { return "Lower Go IR to core dialects"; }
-
   void getDependentDialects(DialectRegistry& registry) const override
   {
     registry.insert<GoDialect>();
@@ -223,9 +223,9 @@ struct LowerToCorePass : PassWrapper<LowerToCorePass, OperationPass<ModuleOp>>
   }
 };
 
-struct LowerToLLVMPass : PassWrapper<LowerToLLVMPass, OperationPass<ModuleOp>>
+struct LowerToLLVMPass : impl::LowerToLLVMPassBase<LowerToLLVMPass>
 {
-  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(LowerToLLVMPass)
+  using LowerToLLVMPassBase<LowerToLLVMPass>::LowerToLLVMPassBase;
 
   void runOnOperation() final
   {
@@ -271,10 +271,6 @@ struct LowerToLLVMPass : PassWrapper<LowerToLLVMPass, OperationPass<ModuleOp>>
     }
   }
 
-  StringRef getArgument() const final { return "lower-go-to-llvm"; }
-
-  StringRef getDescription() const final { return "Lower Go IR to LLVM IR"; }
-
   void getDependentDialects(DialectRegistry& registry) const override
   {
     registry.insert<GoDialect>();
@@ -285,14 +281,4 @@ struct LowerToLLVMPass : PassWrapper<LowerToLLVMPass, OperationPass<ModuleOp>>
     registry.insert<LLVM::LLVMDialect>();
   }
 };
-
-std::unique_ptr<Pass> createLowerToCorePass()
-{
-  return std::make_unique<LowerToCorePass>();
-}
-
-std::unique_ptr<Pass> createLowerToLLVMPass()
-{
-  return std::make_unique<LowerToLLVMPass>();
-}
 } // namespace mlir::go

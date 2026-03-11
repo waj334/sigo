@@ -10,16 +10,19 @@
 
 namespace mlir::go
 {
+#define GEN_PASS_DEF_VALUENORMALIZATIONFUNCPASS
+#define GEN_PASS_DEF_VALUENORMALIZATIONGLOBALPASS
+#include "Go/Transforms/Passes.h.inc"
 
-template <typename OpT>
-struct ValueNormalizationPass final
-  : public mlir::PassWrapper<ValueNormalizationPass<OpT>, mlir::OperationPass<OpT>>
+template <typename OpT, typename BaseT>
+struct ValueNormalizationPass : public BaseT
 {
-  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(ValueNormalizationPass<OpT>)
+  using BaseT::BaseT;
+
   void runOnOperation() override
   {
     const auto parentOp = this->getOperation();
-    auto moduleOp = this->getOperation()->template getParentOfType<mlir::ModuleOp>();
+    auto module = this->getOperation()->template getParentOfType<mlir::ModuleOp>();
 
     // Set up the rewriter so the operations can be replaced.
     mlir::IRRewriter rewriter(&this->getContext());
@@ -36,7 +39,7 @@ struct ValueNormalizationPass final
         }
 
         auto globalConstantOp =
-          moduleOp.template lookupSymbol<mlir::go::GlobalConstantOp>(*constantRefOp.getSymRef());
+          module.template lookupSymbol<mlir::go::GlobalConstantOp>(*constantRefOp.getSymRef());
         if (!globalConstantOp)
         {
           constantRefOp->emitOpError()
@@ -238,26 +241,22 @@ struct ValueNormalizationPass final
     erasures.insert(erasures.begin(), originalOp);
     return newOp;
   }
-
-  StringRef getArgument() const override final { return "go-value-normalization-pass"; }
-  StringRef getDescription() const override final
-  {
-    return "normalizes values at the function level";
-  }
-  void getDependentDialects(DialectRegistry& registry) const override
-  {
-    registry.insert<GoDialect>();
-  }
 };
 
-std::unique_ptr<mlir::Pass> createValueNormalizationFuncPass()
+struct ValueNormalizationFuncPass
+  : public ValueNormalizationPass<
+      mlir::go::FuncOp,
+      impl::ValueNormalizationFuncPassBase<ValueNormalizationFuncPass>>
 {
-  return std::make_unique<ValueNormalizationPass<mlir::go::FuncOp>>();
-}
+  using ValueNormalizationPass::ValueNormalizationPass;
+};
 
-std::unique_ptr<mlir::Pass> createValueNormalizationGlobalPass()
+struct ValueNormalizationGlobalPass
+  : public ValueNormalizationPass<
+      mlir::go::GlobalOp,
+      impl::ValueNormalizationGlobalPassBase<ValueNormalizationGlobalPass>>
 {
-  return std::make_unique<ValueNormalizationPass<mlir::go::GlobalOp>>();
-}
+  using ValueNormalizationPass::ValueNormalizationPass;
+};
 
 } // namespace mlir::go

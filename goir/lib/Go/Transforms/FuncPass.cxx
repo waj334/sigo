@@ -6,9 +6,15 @@
 
 namespace mlir::go
 {
+#define GEN_PASS_DEF_FUNCPASS
+#include "Go/Transforms/Passes.h.inc"
 
-struct FunctionPass : public PassWrapper<FunctionPass, OperationPass<mlir::go::FuncOp>>
+namespace
 {
+struct FuncPass : ::mlir::go::impl::FuncPassBase<FuncPass>
+{
+  using FuncPassBase<FuncPass>::FuncPassBase;
+
   void runOnOperation() override
   {
     const auto context = &this->getContext();
@@ -103,7 +109,8 @@ struct FunctionPass : public PassWrapper<FunctionPass, OperationPass<mlir::go::F
         deferStackPtrValue,
         deferStackType,
         ValueRange{},
-        mlir::SmallVector<int32_t>{ 0, 2 });
+        mlir::SmallVector<int32_t>{ 0, 2 },
+        mlir::SmallVector<bool>{false, false});
 
       // Set the jump point for defer stack unwinding.
       mlir::Value setJmpResult =
@@ -163,9 +170,5 @@ struct FunctionPass : public PassWrapper<FunctionPass, OperationPass<mlir::go::F
   }
 };
 
-std::unique_ptr<mlir::Pass> createFunctionPass()
-{
-  return std::make_unique<FunctionPass>();
-}
-
+} // namespace
 } // namespace mlir::go

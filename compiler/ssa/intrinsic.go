@@ -9,7 +9,8 @@ import (
 	"go/types"
 	"strings"
 
-	"pkg.si-go.dev/sigo/mlir"
+	"pkg.si-go.dev/go-mlir/mlir"
+	"pkg.si-go.dev/sigo/goir/binding/goir"
 )
 
 func (b *Builder) isIntrinsic(ctx context.Context, expr *ast.CallExpr) bool {
@@ -93,7 +94,7 @@ func isIntrinsic(symbol string) bool {
 	}
 }
 
-func (b *Builder) emitIntrinsic(ctx context.Context, expr *ast.CallExpr) []mlir.Value {
+func (b *Builder) emitIntrinsic(ctx context.Context, expr *ast.CallExpr) []mlir.ValueLike {
 	F := b.objectOf(ctx, expr.Fun).(*types.Func)
 	signature := F.Type().Underlying().(*types.Signature)
 	symbol := qualifiedFuncName(F)
@@ -103,41 +104,41 @@ func (b *Builder) emitIntrinsic(ctx context.Context, expr *ast.CallExpr) []mlir.
 	case "sync/atomic.AddUint32", "sync/atomic.AddInt32", "sync/atomic.AddUint64", "sync/atomic.AddInt64", "sync/atomic.AddUintptr":
 		args := b.emitCallArgs2(ctx, expr.Args)
 		T := b.GetType(ctx, signature.Results().At(0).Type())
-		op := mlir.GoCreateAtomicAddIOperation(b.ctx, T, args[0], args[1], location)
+		op := goir.NewAtomicAddIOperation(b.ctx, T, args[0], args[1], location)
 		appendOperation(ctx, op)
 		return resultsOf(op)
 	case "sync/atomic.CompareAndSwapUint32", "sync/atomic.CompareAndSwapInt32", "sync/atomic.CompareAndSwapUint64", "sync/atomic.CompareAndSwapInt64", "sync/atomic.CompareAndSwapUintptr", "sync/atomic.CompareAndSwapPointer":
 		args := b.emitCallArgs2(ctx, expr.Args)
 		T := b.GetType(ctx, signature.Results().At(0).Type())
-		op := mlir.GoCreateAtomicCompareAndSwapOperation(b.ctx, T, args[0], args[1], args[2], location)
+		op := goir.NewAtomicCompareAndSwapOperation(b.ctx, T, args[0], args[1], args[2], location)
 		appendOperation(ctx, op)
 		return resultsOf(op)
 	case "sync/atomic.LoadUint32", "sync/atomic.LoadInt32", "sync/atomic.LoadUint64", "sync/atomic.LoadInt64", "sync/atomic.LoadUintptr", "sync/atomic.LoadPointer":
 		args := b.emitCallArgs2(ctx, expr.Args)
 		T := b.GetType(ctx, signature.Results().At(0).Type())
-		op := mlir.GoCreateAtomicLoadOperation(b.ctx, args[0], T, location)
+		op := goir.NewAtomicLoadOperation(b.ctx, args[0], T, location)
 		appendOperation(ctx, op)
 		return resultsOf(op)
 	case "sync/atomic.StoreUint32", "sync/atomic.StoreInt32", "sync/atomic.StoreUint64", "sync/atomic.StoreInt64", "sync/atomic.StoreUintptr", "sync/atomic.StorePointer":
 		args := b.emitCallArgs2(ctx, expr.Args)
-		op := mlir.GoCreateAtomicStoreOperation(b.ctx, args[1], args[0], location)
+		op := goir.NewAtomicStoreOperation(b.ctx, args[1], args[0], location)
 		appendOperation(ctx, op)
 		return resultsOf(op)
 	case "sync/atomic.SwapUint32", "sync/atomic.SwapInt32", "sync/atomic.SwapUint64", "sync/atomic.SwapInt64", "sync/atomic.SwapUintptr", "sync/atomic.SwapPointer":
 		args := b.emitCallArgs2(ctx, expr.Args)
 		T := b.GetType(ctx, signature.Results().At(0).Type())
-		op := mlir.GoCreateAtomicSwapOperation(b.ctx, T, args[0], args[1], location)
+		op := goir.NewAtomicSwapOperation(b.ctx, T, args[0], args[1], location)
 		appendOperation(ctx, op)
 		return resultsOf(op)
 	case "volatile.LoadInt8", "volatile.LoadInt16", "volatile.LoadInt32", "volatile.LoadInt64", "volatile.LoadUint8", "volatile.LoadUint16", "volatile.LoadUint32", "volatile.LoadUint64", "volatile.LoadUintptr", "volatile.LoadPointer":
 		args := b.emitCallArgs2(ctx, expr.Args)
 		T := b.GetType(ctx, signature.Results().At(0).Type())
-		op := mlir.GoCreateVolatileLoadOperation(b.ctx, args[0], T, location)
+		op := goir.NewVolatileLoadOperation(b.ctx, args[0], T, location)
 		appendOperation(ctx, op)
 		return resultsOf(op)
 	case "volatile.StoreInt8", "volatile.StoreInt16", "volatile.StoreInt32", "volatile.StoreInt64", "volatile.StoreUint8", "volatile.StoreUint16", "volatile.StoreUint32", "volatile.StoreUint64", "volatile.StoreUintptr", "volatile.StorePointer":
 		args := b.emitCallArgs2(ctx, expr.Args)
-		op := mlir.GoCreateVolatileStoreOperation(b.ctx, args[1], args[0], location)
+		op := goir.NewVolatileStoreOperation(b.ctx, args[1], args[0], location)
 		appendOperation(ctx, op)
 		return resultsOf(op)
 	case "asm.In", "asm.Out", "asm.InOut", "asm.Clobber":
@@ -166,9 +167,9 @@ func (b *Builder) emitInlineAssembly(ctx context.Context, expr *ast.CallExpr) {
 		panic("TODO: handle invalid asm string type error")
 	}
 
-	var operands []mlir.Value
-	var clobberRegisters []mlir.Attribute
-	var constraintAttrs []mlir.Attribute
+	var operands []mlir.ValueLike
+	var clobberRegisters []mlir.AttributeLike
+	var constraintAttrs []mlir.AttributeLike
 
 	args := expr.Args[1:]
 	for _, arg := range args {
@@ -206,7 +207,7 @@ func (b *Builder) emitInlineAssembly(ctx context.Context, expr *ast.CallExpr) {
 									}
 								}
 							case *types.Var:
-								operandValue = b.emitExpr(ctx, argExpr)[0]
+								operandValue = b.emitExpr(ctx, argExpr)[0].AsValue()
 							}
 						case *ast.CallExpr:
 							obj := b.objectOf(ctx, argExpr.Fun)
@@ -225,19 +226,19 @@ func (b *Builder) emitInlineAssembly(ctx context.Context, expr *ast.CallExpr) {
 							if len(operandName) == 0 {
 								operandName = ident.Name
 							}
-							operandValue = b.emitExpr(ctx, argExpr)[0]
+							operandValue = b.emitExpr(ctx, argExpr)[0].AsValue()
 						case *ast.Ident:
 							if len(operandName) == 0 {
 								operandName = argExpr.Name
 							}
-							operandValue = b.emitExpr(ctx, argExpr)[0]
+							operandValue = b.emitExpr(ctx, argExpr)[0].AsValue()
 						default:
 							panic("unhandled")
 						}
 					}
 
 					operandIndex := -1
-					if operandValue != nil {
+					if !operandValue.IsNull() {
 						operandIndex = len(operands)
 						operands = append(operands, operandValue)
 					}
@@ -245,24 +246,24 @@ func (b *Builder) emitInlineAssembly(ctx context.Context, expr *ast.CallExpr) {
 					switch obj.Name() {
 					case "InOut":
 						constraintAttrs = append(constraintAttrs,
-							mlir.GoCreateAsmConstraintAttr(b.ctx, class, mlir.InOut, operandName, operandIndex, earlyClobber))
+							goir.NewAsmConstraintAttr(b.ctx, class, goir.AsmConstraintDirectionInOut, operandName, operandIndex, earlyClobber))
 					case "In":
 						constraintAttrs = append(constraintAttrs,
-							mlir.GoCreateAsmConstraintAttr(b.ctx, class, mlir.In, operandName, operandIndex, false))
+							goir.NewAsmConstraintAttr(b.ctx, class, goir.AsmConstraintDirectionIn, operandName, operandIndex, false))
 					case "Out":
 						constraintAttrs = append(constraintAttrs,
-							mlir.GoCreateAsmConstraintAttr(b.ctx, class, mlir.Out, operandName, operandIndex, earlyClobber))
+							goir.NewAsmConstraintAttr(b.ctx, class, goir.AsmConstraintDirectionOut, operandName, operandIndex, earlyClobber))
 					}
 				case "Clobber":
 					switch reg := arg.Args[0].(type) {
 					case *ast.CallExpr:
 						lit := reg.Args[0].(*ast.BasicLit)
 						clobberRegisters = append(clobberRegisters,
-							mlir.StringAttrGet(b.ctx, cleanConstString(lit.Value)))
+							mlir.NewStringAttr(b.ctx, cleanConstString(lit.Value)))
 					case *ast.SelectorExpr:
 						obj := b.objectOf(ctx, reg.Sel).(*types.Const)
 						clobberRegisters = append(clobberRegisters,
-							mlir.StringAttrGet(b.ctx, cleanConstString(constant.StringVal(obj.Val()))))
+							mlir.NewStringAttr(b.ctx, cleanConstString(constant.StringVal(obj.Val()))))
 					}
 				default:
 					panic("unhandled")
@@ -274,10 +275,10 @@ func (b *Builder) emitInlineAssembly(ctx context.Context, expr *ast.CallExpr) {
 	}
 
 	asmStr := cleanConstString(constAsmStr.Value)
-	asmStrAttr := mlir.StringAttrGet(b.ctx, asmStr)
+	asmStrAttr := mlir.NewStringAttr(b.ctx, asmStr)
 
 	// NOTE: Output operands must appear first then input operands.
-	op := mlir.GoCreateInlineAssemblyOperation(b.ctx, asmStrAttr, constraintAttrs, clobberRegisters, operands, location)
+	op := goir.NewInlineAssemblyOperation(b.ctx, asmStrAttr, constraintAttrs, clobberRegisters, operands, location)
 	appendOperation(ctx, op)
 }
 

@@ -55,13 +55,15 @@ MlirOperation _createUnOp(MlirContext context, MlirValue x, MlirLocation locatio
 ParseResult parseGEPIndices(
   OpAsmParser& parser,
   SmallVectorImpl<OpAsmParser::UnresolvedOperand>& dynamicIndices,
-  DenseI32ArrayAttr& constIndices);
+  DenseI32ArrayAttr& constIndicesAttr,
+  DenseBoolArrayAttr& indexFlagsAttr);
 
 void printGEPIndices(
   OpAsmPrinter& printer,
   GetElementPointerOp gepOp,
-  OperandRange dynamicIndices,
-  DenseI32ArrayAttr constIndices);
+  const OperandRange dynamicIndices,
+  const DenseI32ArrayAttr constIndicesAttr,
+  const DenseBoolArrayAttr indexFlagsAttr);
 } // namespace mlir::go
 
 inline bool hasUntypedTypes(mlir::Operation* op)
