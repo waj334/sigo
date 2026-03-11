@@ -9,8 +9,6 @@
 #include "Go/IR/GoOps.h"
 #include "Go/Util.h"
 
-constexpr std::string_view runtimeFuncTypeName = "runtime._func";
-
 namespace mlir::go
 {
 

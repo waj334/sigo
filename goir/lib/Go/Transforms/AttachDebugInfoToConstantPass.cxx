@@ -12,10 +12,19 @@
 
 namespace mlir::go
 {
+#define GEN_PASS_DEF_ATTACHDEBUGINFOTOCONSTANTPASS
+#include "Go/Transforms/Passes.h.inc"
+
+namespace
+{
 
 struct AttachDebugInfoToConstantPass final
-  : BaseAttachDebugInfoPass<AttachDebugInfoToConstantPass, mlir::go::GlobalConstantOp>
+  : ::mlir::go::impl::AttachDebugInfoToConstantPassBase<AttachDebugInfoToConstantPass>
+  , BaseAttachDebugInfoPass
 {
+  using AttachDebugInfoToConstantPassBase<
+    AttachDebugInfoToConstantPass>::AttachDebugInfoToConstantPassBase;
+
   void runOnOperation() override
   {
     /*
@@ -70,18 +79,8 @@ struct AttachDebugInfoToConstantPass final
         op->setLoc(FusedLoc::get(context, { op.getLoc() }, diGlobalExprAttr));
     */
   }
-
-  StringRef getArgument() const override { return "go-attach-debug-info-to-constant-pass"; }
-
-  StringRef getDescription() const override
-  {
-    return "Attach debug information to constant value declarations";
-  }
 };
 
-std::unique_ptr<Pass> createAttachDebugInfoToConstantPass()
-{
-  return std::make_unique<AttachDebugInfoToConstantPass>();
-}
+} // namespace
 
 } // namespace mlir::go

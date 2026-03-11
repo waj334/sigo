@@ -14,6 +14,8 @@ extern "C"
 
   MLIR_DECLARE_CAPI_DIALECT_REGISTRATION(Go, go);
 
+  MlirDialectHandle mlirGoDialectHandleGet(void);
+
   void mlirGoInitializeContext(MlirContext context);
 
   MlirStringRef mlirModuleDump(MlirModule module);
@@ -51,9 +53,6 @@ extern "C"
 
   void mlirInitModuleTranslation(MlirContext context);
 
-  LLVMModuleRef
-  mlirTranslateModuleToLLVMIR(MlirModule module, LLVMContextRef llvmContext, MlirStringRef name);
-
   MlirAttribute mlirGoCreateTypeMetadataEntryAttr(MlirType type, MlirAttribute dict);
 
   MlirAttribute
@@ -78,24 +77,17 @@ extern "C"
 
   void mlirGoMoveBlockAfter(const MlirBlock block, const MlirBlock after);
 
-  enum MlirGoAsmConstraintDirection
-  {
-    In,
-    Out,
-    InOut
-  };
-
   MlirAttribute mlirGoCreateAsmConstraintAttr(
     MlirContext context,
     MlirStringRef registerClass,
-    enum MlirGoAsmConstraintDirection direction,
+    MlirGoAsmConstraintDirection direction,
     MlirStringRef alias,
     int operandIndex,
     bool reserve);
 
   MlirAttribute mlirGoScopeAttrGet(
     MlirContext context,
-    MlirAttribute* parent,
+    MlirAttribute parent,
     MlirLocation start,
     MlirLocation end);
 

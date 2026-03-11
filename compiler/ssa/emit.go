@@ -10,7 +10,8 @@ import (
 	"path/filepath"
 	"runtime/debug"
 
-	"pkg.si-go.dev/sigo/mlir"
+	"pkg.si-go.dev/go-mlir/mlir"
+	"pkg.si-go.dev/sigo/goir/binding/goir"
 )
 
 func (b *Builder) emitAssign(ctx context.Context, stmt *ast.AssignStmt) {
@@ -43,7 +44,7 @@ func (b *Builder) emitAssign(ctx context.Context, stmt *ast.AssignStmt) {
 		}
 
 		lvals := make([]Value, len(stmt.Lhs))
-		rvals := make([]mlir.Value, 0, len(stmt.Rhs))
+		rvals := make([]mlir.ValueLike, 0, len(stmt.Rhs))
 
 		// Evaluate the RHS expressions first to guarantee that each is evaluated under the expected context. Otherwise,
 		// doing this in the opposite order will cause incorrect parameters to be passed when define-assignments
@@ -306,7 +307,7 @@ func (b *Builder) emitBranchStatement(ctx context.Context, stmt *ast.BranchStmt)
 			// Immediately branch to the specified predecessor block.
 			block = currentLabeledBlocks(ctx)[stmt.Label.Name]
 		} // Otherwise, branch to the successor block.
-		brOp := mlir.GoCreateBranchOperation(b.ctx, block, succArgs, b.location(ctx, stmt.Pos()))
+		brOp := goir.NewBranchOperation(b.ctx, block, succArgs, b.location(ctx, stmt.Pos()))
 		appendOperation(ctx, brOp)
 		return
 	case token.GOTO:
@@ -316,16 +317,16 @@ func (b *Builder) emitBranchStatement(ctx context.Context, stmt *ast.BranchStmt)
 			panic("no block with label " + stmt.Label.Name + " found")
 		}
 
-		brOp := mlir.GoCreateBranchOperation(b.ctx, block, nil, b.location(ctx, stmt.Pos()))
+		brOp := goir.NewBranchOperation(b.ctx, block, nil, b.location(ctx, stmt.Pos()))
 		appendOperation(ctx, brOp)
 		return
 	case token.FALLTHROUGH:
 		block, args := currentFallthroughBlock(ctx)
-		brOp := mlir.GoCreateBranchOperation(b.ctx, block, args, b.location(ctx, stmt.Pos()))
+		brOp := goir.NewBranchOperation(b.ctx, block, args, b.location(ctx, stmt.Pos()))
 		appendOperation(ctx, brOp)
 	case token.CONTINUE:
 		// Immediately branch to the predecessor block.
-		brOp := mlir.GoCreateBranchOperation(b.ctx, predecessor, predArgs, b.location(ctx, stmt.Pos()))
+		brOp := goir.NewBranchOperation(b.ctx, predecessor, predArgs, b.location(ctx, stmt.Pos()))
 		appendOperation(ctx, brOp)
 	default:
 		panic("unhandled switch branch statement")
@@ -355,7 +356,7 @@ func (b *Builder) emitDecl(ctx context.Context, decl ast.Decl) {
 	}
 }
 
-func (b *Builder) emitExpr(ctx context.Context, expr ast.Expr) []mlir.Value {
+func (b *Builder) emitExpr(ctx context.Context, expr ast.Expr) []mlir.ValueLike {
 	defer func() {
 		if v := recover(); v != nil {
 			pos := b.config.Fset.Position(expr.Pos())
@@ -365,9 +366,9 @@ func (b *Builder) emitExpr(ctx context.Context, expr ast.Expr) []mlir.Value {
 			fmt.Fprintf(os.Stderr, "failure while emitting %T: %+v\n%s\n\n%s\n\n%s\n",
 				expr, v, fname, line, string(debug.Stack()))
 
-			if currentBlock(ctx) != nil {
+			if !currentBlock(ctx).IsNull() {
 				fmt.Fprint(os.Stderr, "\n\nlast emitted IR: \n\n")
-				mlir.GoBlockDumpTail(currentBlock(ctx), 10)
+				goir.DumpTail(currentBlock(ctx), 10)
 			}
 			os.Exit(-1)
 		}
@@ -375,17 +376,17 @@ func (b *Builder) emitExpr(ctx context.Context, expr ast.Expr) []mlir.Value {
 
 	switch expr := expr.(type) {
 	case *ast.BasicLit:
-		return []mlir.Value{b.emitBasicLiteral(ctx, expr)}
+		return []mlir.ValueLike{b.emitBasicLiteral(ctx, expr)}
 	case *ast.BinaryExpr:
-		return []mlir.Value{b.emitBinaryExpression(ctx, expr)}
+		return []mlir.ValueLike{b.emitBinaryExpression(ctx, expr)}
 	case *ast.CallExpr:
 		return b.emitCallExpr(ctx, expr)
 	case *ast.CompositeLit:
-		return []mlir.Value{b.emitCompositeLiteral(ctx, expr)}
+		return []mlir.ValueLike{b.emitCompositeLiteral(ctx, expr)}
 	case *ast.Ellipsis:
 		panic("unreachable")
 	case *ast.FuncLit:
-		return []mlir.Value{b.emitFuncLiteral(ctx, expr)}
+		return []mlir.ValueLike{b.emitFuncLiteral(ctx, expr)}
 	case *ast.Ident:
 		return b.emitIdent(ctx, expr)
 	case *ast.IndexExpr:
@@ -458,7 +459,7 @@ func (b *Builder) emitGenericDecl(ctx context.Context, decl *ast.GenDecl) {
 	}
 }
 
-func (b *Builder) emitIdent(ctx context.Context, expr *ast.Ident) []mlir.Value {
+func (b *Builder) emitIdent(ctx context.Context, expr *ast.Ident) []mlir.ValueLike {
 	location := b.location(ctx, expr.Pos())
 	obj := b.objectOf(ctx, expr)
 	switch obj := obj.(type) {
@@ -467,7 +468,7 @@ func (b *Builder) emitIdent(ctx context.Context, expr *ast.Ident) []mlir.Value {
 		if obj.Parent() != types.Universe && obj.Parent() == obj.Pkg().Scope() {
 			// Create a reference to the global constant.
 			symbolName := qualifiedName(obj.Name(), obj.Pkg())
-			constRefOp := mlir.GoCreateConstantOperation(b.ctx, nil, b.strAttr(symbolName), b.GetType(ctx, T), location)
+			constRefOp := goir.NewConstantOperation(b.ctx, nil, b.strAttr(symbolName), b.GetType(ctx, T), location)
 			appendOperation(ctx, constRefOp)
 			return resultsOf(constRefOp)
 		} else {
@@ -478,11 +479,11 @@ func (b *Builder) emitIdent(ctx context.Context, expr *ast.Ident) []mlir.Value {
 		symbol := b.resolveSymbol(qualifiedFuncName(obj))
 		b.queueJob(ctx, symbol)
 		fptrType := b.funcPointerOf(ctx, obj.Signature())
-		return []mlir.Value{b.addressOfSymbol(ctx, symbol, fptrType, location)}
+		return []mlir.ValueLike{b.addressOfSymbol(ctx, symbol, fptrType, location)}
 	case *types.Nil:
 		// Create the zero value of the specified type.
 		T := b.GetStoredType(ctx, obj.Type())
-		op := mlir.GoCreateZeroOperation(b.ctx, T, location)
+		op := goir.NewZeroOperation(b.ctx, T, location)
 		appendOperation(ctx, op)
 		return resultsOf(op)
 	default:
@@ -495,12 +496,12 @@ func (b *Builder) emitIdent(ctx context.Context, expr *ast.Ident) []mlir.Value {
 		result := value.Load(ctx, location)
 
 		// Load the value
-		return []mlir.Value{result}
+		return []mlir.ValueLike{result}
 	}
 }
 
-func (b *Builder) emitIndexExpr(ctx context.Context, expr *ast.IndexExpr) []mlir.Value {
-	var resultType mlir.Type
+func (b *Builder) emitIndexExpr(ctx context.Context, expr *ast.IndexExpr) []mlir.ValueLike {
+	var resultType mlir.TypeLike
 
 	// Handle various result type scenarios.
 	switch T := b.typeOf(ctx, expr).(type) {
@@ -521,7 +522,7 @@ func (b *Builder) emitIndexExpr(ctx context.Context, expr *ast.IndexExpr) []mlir
 		addr := b.emitIndexAddr(ctx, expr)
 
 		// Load the value at the resulting address and return it.
-		loadOp := mlir.GoCreateLoadOperation(b.ctx, addr, resultType, location)
+		loadOp := goir.NewLoadOperation(b.ctx, addr, resultType, location)
 		appendOperation(ctx, loadOp)
 		return resultsOf(loadOp)
 	case *types.Basic:
@@ -529,7 +530,7 @@ func (b *Builder) emitIndexExpr(ctx context.Context, expr *ast.IndexExpr) []mlir
 		addr := b.emitIndexAddr(ctx, expr)
 
 		// Load the byte value at the address and return the result.
-		loadOp := mlir.GoCreateLoadOperation(b.ctx, addr, resultType, location)
+		loadOp := goir.NewLoadOperation(b.ctx, addr, resultType, location)
 		appendOperation(ctx, loadOp)
 		return resultsOf(loadOp)
 	case *types.Pointer:
@@ -537,7 +538,7 @@ func (b *Builder) emitIndexExpr(ctx context.Context, expr *ast.IndexExpr) []mlir
 		addr := b.emitIndexAddr(ctx, expr)
 
 		// Load the value at the resulting address and return it.
-		loadOp := mlir.GoCreateLoadOperation(b.ctx, addr, resultType, location)
+		loadOp := goir.NewLoadOperation(b.ctx, addr, resultType, location)
 		appendOperation(ctx, loadOp)
 		return resultsOf(loadOp)
 	case *types.Slice:
@@ -545,7 +546,7 @@ func (b *Builder) emitIndexExpr(ctx context.Context, expr *ast.IndexExpr) []mlir
 		addr := b.emitIndexAddr(ctx, expr)
 
 		// Load the slice element value at the address and return the result.
-		loadOp := mlir.GoCreateLoadOperation(b.ctx, addr, resultType, location)
+		loadOp := goir.NewLoadOperation(b.ctx, addr, resultType, location)
 		appendOperation(ctx, loadOp)
 		return resultsOf(loadOp)
 	case *types.Map:
@@ -557,7 +558,7 @@ func (b *Builder) emitIndexExpr(ctx context.Context, expr *ast.IndexExpr) []mlir
 
 		// Perform the map lookup.
 		// TODO: Properly detect if the `ok` value is present.
-		lookupOp := mlir.GoCreateMapLookupOperation(b.ctx, resultType, X, index, true, location)
+		lookupOp := goir.NewMapLookupOperation(b.ctx, resultType, X, index, true, location)
 		appendOperation(ctx, lookupOp)
 		return resultsOf(lookupOp)
 	case *types.TypeParam:
@@ -571,7 +572,7 @@ func (b *Builder) emitIndexAddr(ctx context.Context, expr *ast.IndexExpr) mlir.V
 	location := b.location(ctx, expr.Pos())
 
 	// Handle various result type scenarios.
-	var resultType mlir.Type
+	var resultType mlir.TypeLike
 	switch T := b.typeOf(ctx, expr).(type) {
 	case *types.Tuple:
 		// The result type of the index operation is that of the first member of the tuple.
@@ -580,7 +581,7 @@ func (b *Builder) emitIndexAddr(ctx context.Context, expr *ast.IndexExpr) mlir.V
 		resultType = b.GetStoredType(ctx, T)
 	}
 
-	pointerT := mlir.GoCreatePointerType(resultType)
+	pointerT := goir.NewPointerType(resultType)
 
 	// Evaluate the index value.
 	index := b.emitExpr(ctx, expr.Index)[0]
@@ -594,35 +595,35 @@ func (b *Builder) emitIndexAddr(ctx context.Context, expr *ast.IndexExpr) mlir.V
 		ptr := b.addressOf(ctx, expr.X, location)
 
 		// GEP to the address of the element at the specified index.
-		gepOp := mlir.GoCreateGepOperation2(b.ctx, ptr, arrayT, []any{0, index}, pointerT, location)
+		gepOp := goir.NewGepOperation(b.ctx, ptr, arrayT, []int{0}, []mlir.ValueLike{index}, []bool{false, true}, pointerT, location)
 		appendOperation(ctx, gepOp)
-		return resultOf(gepOp)
+		return resultOf(gepOp).AsValue()
 	case *types.Basic:
 		// This is a string.
 		X := b.emitExpr(ctx, expr.X)[0]
-		addrOp := mlir.GoCreateStringAddrOperation(b.ctx, pointerT, X, index, location)
+		addrOp := goir.NewStringAddrOperation(b.ctx, pointerT, X, index, location)
 		appendOperation(ctx, addrOp)
-		return resultOf(addrOp)
+		return resultOf(addrOp).AsValue()
 	case *types.Pointer:
 		// This is a pointer to an array.
 		X := b.emitExpr(ctx, expr.X)[0]
 
 		// GEP into the array at the address
-		gepOp := mlir.GoCreateGepOperation2(b.ctx, X, resultType, []any{index}, pointerT, location)
+		gepOp := goir.NewGepOperation(b.ctx, X, resultType, nil, []mlir.ValueLike{index}, []bool{true}, pointerT, location)
 		appendOperation(ctx, gepOp)
-		return resultOf(gepOp)
+		return resultOf(gepOp).AsValue()
 	case *types.Slice:
 		X := b.emitExpr(ctx, expr.X)[0]
-		addrOp := mlir.GoCreateSliceAddrOperation(b.ctx, pointerT, X, index, location)
+		addrOp := goir.NewSliceAddrOperation(b.ctx, pointerT, X, index, location)
 		appendOperation(ctx, addrOp)
-		return resultOf(addrOp)
+		return resultOf(addrOp).AsValue()
 	default:
 		panic("attempting to index non-addressable value")
 	}
 }
 
 func (b *Builder) emitReturn(ctx context.Context, stmt *ast.ReturnStmt) {
-	var results []mlir.Value
+	var results []mlir.ValueLike
 	info := currentInfo(ctx)
 
 	// Get the current function declaration being built.
@@ -693,7 +694,7 @@ func (b *Builder) emitReturn(ctx context.Context, stmt *ast.ReturnStmt) {
 	}
 
 	// Create the return operation in the current block.
-	op := mlir.GoCreateReturnOperation(b.config.Ctx, results, b.location(ctx, stmt.End()))
+	op := goir.NewReturnOperation(b.config.Ctx, results, b.location(ctx, stmt.End()))
 	appendOperation(ctx, op)
 }
 
@@ -709,12 +710,13 @@ func (b *Builder) emitLabeledStatement(ctx context.Context, stmt *ast.LabeledStm
 
 	if !blockHasTerminator(curr) {
 		// Branch to the labeled block.
-		brOp := mlir.GoCreateBranchOperation(b.ctx, block, nil, b.location(ctx, stmt.Pos()))
+		brOp := goir.NewBranchOperation(b.ctx, block, nil, b.location(ctx, stmt.Pos()))
 		appendOperation(ctx, brOp)
 	}
 
 	// Move block after current block.
-	mlir.GoMoveBlockAfter(block, curr)
+	block.Detach()
+	curr.ParentRegion().InsertOwnedBlockAfter(curr, block)
 
 	// Continue emission in the labeled block.
 	setCurrentBlock(ctx, block)
@@ -723,7 +725,7 @@ func (b *Builder) emitLabeledStatement(ctx context.Context, stmt *ast.LabeledStm
 	b.emitStmt(ctx, stmt.Stmt)
 }
 
-func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) []mlir.Value {
+func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) []mlir.ValueLike {
 	location := b.location(ctx, expr.Pos())
 	info := currentInfo(ctx)
 	sel := info.Selections[expr]
@@ -745,7 +747,7 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 		signature := sel.Type().(*types.Signature)
 
 		// Collect argument types.
-		var argTypes []mlir.Type
+		var argTypes []mlir.TypeLike
 		for i := 0; i < signature.Params().Len(); i++ {
 			argTypes = append(argTypes, b.GetStoredType(ctx, signature.Params().At(i).Type()))
 		}
@@ -757,11 +759,11 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 		argsValue, argsType := b.createArgumentPack(ctx, ifaceValue, location)
 
 		// Allocate heap to store the argument pack.
-		allocOp := mlir.GoCreateAllocaOperation(b.ctx, mlir.GoCreatePointerType(argsType), argsType, 1, true, location)
+		allocOp := goir.NewAllocaOperation(b.ctx, goir.NewPointerType(argsType), argsType, 1, true, location)
 		appendOperation(ctx, allocOp)
 
 		// Store the argument pack value at the heap address.
-		storeOp := mlir.GoCreateStoreOperation(b.ctx, argsValue, resultOf(allocOp), location)
+		storeOp := goir.NewStoreOperation(b.ctx, argsValue, resultOf(allocOp), location)
 		appendOperation(ctx, storeOp)
 		argsValue = resultOf(allocOp)
 
@@ -772,11 +774,11 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 		fnT := b.createInterfaceCallWrapper(ctx, wrapperSymbol, expr.Sel.Name, recvType, signature, argTypes)
 
 		// Get the address of the thunk.
-		fptrType := mlir.GoCreatePointerType(fnT)
+		fptrType := goir.NewPointerType(fnT)
 		wrapperAddr := b.addressOfSymbol(ctx, wrapperSymbol, fptrType, b._noLoc)
 
 		// Create the function value.
-		return []mlir.Value{b.createFunctionValue(ctx, wrapperAddr, argsValue, location)}
+		return []mlir.ValueLike{b.createFunctionValue(ctx, wrapperAddr, argsValue, location)}
 	default:
 		switch obj := sel.Obj().(type) {
 		case *types.Func:
@@ -784,7 +786,7 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 			symbol := b.resolveSymbol(qualifiedFuncName(obj))
 			fptrType := b.funcPointerOf(ctx, obj.Signature())
 			b.queueJob(ctx, symbol)
-			return []mlir.Value{
+			return []mlir.ValueLike{
 				b.addressOfSymbol(ctx, symbol, fptrType, location),
 			}
 		case *types.Var:
@@ -792,7 +794,7 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 			baseAddr := b.emitSelectAddr(ctx, expr)
 
 			// Load the member value.
-			loadOp := mlir.GoCreateLoadOperation(b.ctx, baseAddr, b.GetStoredType(ctx, b.typeOf(ctx, expr)), location)
+			loadOp := goir.NewLoadOperation(b.ctx, baseAddr, b.GetStoredType(ctx, b.typeOf(ctx, expr)), location)
 			appendOperation(ctx, loadOp)
 			return resultsOf(loadOp)
 		default:
@@ -827,7 +829,7 @@ func (b *Builder) emitSelectAddr(ctx context.Context, expr *ast.SelectorExpr) ml
 		}
 	}
 
-	if basePtr == nil {
+	if basePtr.IsNull() {
 		// Get the base pointer to begin pointer arithmetic on.
 		basePtr = b.baseAddressOf(ctx, expr, location)
 	}
@@ -840,9 +842,9 @@ func (b *Builder) emitSelectAddr(ctx context.Context, expr *ast.SelectorExpr) ml
 			if isPointer(currentType) {
 				// Load the pointer value.
 				ptrType := b.GetType(ctx, currentType)
-				loadOp := mlir.GoCreateLoadOperation(b.ctx, basePtr, ptrType, location)
+				loadOp := goir.NewLoadOperation(b.ctx, basePtr, ptrType, location)
 				appendOperation(ctx, loadOp)
-				basePtr = resultOf(loadOp)
+				basePtr = resultOf(loadOp).AsValue()
 				currentType = currentType.(*types.Pointer).Elem()
 			}
 
@@ -856,9 +858,10 @@ func (b *Builder) emitSelectAddr(ctx context.Context, expr *ast.SelectorExpr) ml
 			fieldPtrType := b.pointerOf(ctx, fieldType)
 
 			// GEP to the struct field at the specified index.
-			gepOp := mlir.GoCreateGepOperation2(b.ctx, basePtr, b.GetType(ctx, structType), []any{0, index}, fieldPtrType, location)
+			gepOp := goir.NewGepOperation(b.ctx,
+				basePtr, b.GetType(ctx, structType), []int{0, index}, nil, []bool{false, false}, fieldPtrType, location)
 			appendOperation(ctx, gepOp)
-			basePtr = resultOf(gepOp)
+			basePtr = resultOf(gepOp).AsValue()
 
 			// Update the current type.
 			currentType = fieldType.Underlying()
@@ -869,7 +872,7 @@ func (b *Builder) emitSelectAddr(ctx context.Context, expr *ast.SelectorExpr) ml
 	return basePtr
 }
 
-func (b *Builder) baseAddressOf(ctx context.Context, expr *ast.SelectorExpr, location mlir.Location) mlir.Value {
+func (b *Builder) baseAddressOf(ctx context.Context, expr *ast.SelectorExpr, location mlir.LocationLike) mlir.Value {
 	info := currentInfo(ctx)
 	switch X := expr.X.(type) {
 	case *ast.Ident:
@@ -880,9 +883,9 @@ func (b *Builder) baseAddressOf(ctx context.Context, expr *ast.SelectorExpr, loc
 		case *types.PkgName:
 			symbol := qualifiedName2(baseObj.Imported().Path(), expr.Sel.Name)
 			globalT := b.typeOf(ctx, expr)
-			addressOfOp := mlir.GoCreateAddressOfOperation(b.ctx, symbol, b.pointerOf(ctx, globalT), location)
+			addressOfOp := goir.NewAddressOfOperation(b.ctx, symbol, b.pointerOf(ctx, globalT), location)
 			appendOperation(ctx, addressOfOp)
-			return resultOf(addressOfOp)
+			return resultOf(addressOfOp).AsValue()
 		default:
 			panic("unhandled")
 		}
@@ -894,7 +897,7 @@ func (b *Builder) baseAddressOf(ctx context.Context, expr *ast.SelectorExpr, loc
 	}
 }
 
-func (b *Builder) emitSliceExpr(ctx context.Context, expr *ast.SliceExpr) []mlir.Value {
+func (b *Builder) emitSliceExpr(ctx context.Context, expr *ast.SliceExpr) []mlir.ValueLike {
 	var lowValue, highValue, maxValue mlir.Value
 	location := b.location(ctx, expr.Pos())
 	T := b.GetStoredType(ctx, b.typeOf(ctx, expr))
@@ -907,34 +910,34 @@ func (b *Builder) emitSliceExpr(ctx context.Context, expr *ast.SliceExpr) []mlir
 		X = b.addressOf(ctx, expr.X, location)
 	default:
 		// Evaluate a slice or string.
-		X = b.emitExpr(ctx, expr.X)[0]
+		X = b.emitExpr(ctx, expr.X)[0].AsValue()
 	}
 
 	// Evaluate each available index.
 	if expr.Low != nil {
-		lowValue = b.emitExpr(ctx, expr.Low)[0]
+		lowValue = b.emitExpr(ctx, expr.Low)[0].AsValue()
 	}
 
 	if expr.High != nil {
-		highValue = b.emitExpr(ctx, expr.High)[0]
+		highValue = b.emitExpr(ctx, expr.High)[0].AsValue()
 	}
 
 	if expr.Max != nil {
-		maxValue = b.emitExpr(ctx, expr.Max)[0]
+		maxValue = b.emitExpr(ctx, expr.Max)[0].AsValue()
 	}
 
 	// Emit the slice operation.
-	sliceOp := mlir.GoCreateSliceOperation(b.ctx, X, lowValue, highValue, maxValue, T, location)
+	sliceOp := goir.NewSliceOperation(b.ctx, X, lowValue, highValue, maxValue, T, location)
 	appendOperation(ctx, sliceOp)
 	return resultsOf(sliceOp)
 }
 
-func (b *Builder) emitStarExpr(ctx context.Context, expr *ast.StarExpr) []mlir.Value {
+func (b *Builder) emitStarExpr(ctx context.Context, expr *ast.StarExpr) []mlir.ValueLike {
 	elementType := b.GetStoredType(ctx, b.typeOf(ctx, expr))
-	X := b.emitExpr(ctx, expr.X)[0]
+	X := b.emitExpr(ctx, expr.X)[0].AsValue()
 
 	// Load and return the value at the address.
-	op := mlir.GoCreateLoadOperation(b.ctx, X, elementType, b.location(ctx, expr.Pos()))
+	op := goir.NewLoadOperation(b.ctx, X, elementType, b.location(ctx, expr.Pos()))
 	appendOperation(ctx, op)
 	return resultsOf(op)
 }
@@ -1001,49 +1004,49 @@ func (b *Builder) emitStmt(ctx context.Context, stmt ast.Stmt) {
 	}
 }
 
-func (b *Builder) emitTypeAssertExpr(ctx context.Context, expr *ast.TypeAssertExpr) []mlir.Value {
+func (b *Builder) emitTypeAssertExpr(ctx context.Context, expr *ast.TypeAssertExpr) []mlir.ValueLike {
 	location := b.location(ctx, expr.Pos())
 
 	// Evaluate the interface value to type assert on.
 	X := b.emitExpr(ctx, expr.X)[0]
 
 	// Create the type assertion operation.
-	op := mlir.GoCreateTypeAssertOperation(b.ctx, X, b.exprTypes(ctx, expr), location)
+	op := goir.NewTypeAssertOperation(b.ctx, X, b.exprTypes(ctx, expr), location)
 	appendOperation(ctx, op)
 	return resultsOf(op)
 }
 
-func (b *Builder) emitUnaryExpr(ctx context.Context, expr *ast.UnaryExpr) []mlir.Value {
+func (b *Builder) emitUnaryExpr(ctx context.Context, expr *ast.UnaryExpr) []mlir.ValueLike {
 	location := b.location(ctx, expr.Pos())
 
 	switch expr.Op {
 	case token.ADD:
 		// This basically returns the same value as its input.
 		X := b.emitExpr(ctx, expr.X)[0]
-		return []mlir.Value{X}
+		return []mlir.ValueLike{X}
 	case token.SUB:
 		var op mlir.Operation
 		X := b.emitExpr(ctx, expr.X)[0]
 		switch {
 		case b.exprTypeHasFlags(ctx, expr, types.IsInteger):
-			op = mlir.GoCreateNegIOperation(b.ctx, X, location)
+			op = goir.NewNegIOperation(b.ctx, X, location)
 		case b.exprTypeHasFlags(ctx, expr, types.IsFloat):
-			op = mlir.GoCreateNegFOperation(b.ctx, X, location)
+			op = goir.NewNegFOperation(b.ctx, X, location)
 		case b.exprTypeHasFlags(ctx, expr, types.IsComplex):
-			op = mlir.GoCreateNegCOperation(b.ctx, X, location)
+			op = goir.NewNegCOperation(b.ctx, X, location)
 		}
 		appendOperation(ctx, op)
-		return []mlir.Value{resultOf(op)}
+		return []mlir.ValueLike{resultOf(op)}
 	case token.NOT:
 		X := b.emitExpr(ctx, expr.X)[0]
-		op := mlir.GoCreateNotOperation(b.ctx, X, location)
+		op := goir.NewNotOperation(b.ctx, X, location)
 		appendOperation(ctx, op)
-		return []mlir.Value{resultOf(op)}
+		return []mlir.ValueLike{resultOf(op)}
 	case token.XOR:
 		X := b.emitExpr(ctx, expr.X)[0]
-		op := mlir.GoCreateComplementOperation(b.ctx, X, location)
+		op := goir.NewComplementOperation(b.ctx, X, location)
 		appendOperation(ctx, op)
-		return []mlir.Value{resultOf(op)}
+		return []mlir.ValueLike{resultOf(op)}
 	case token.MUL:
 		panic("unreachable")
 	case token.AND:
@@ -1051,7 +1054,7 @@ func (b *Builder) emitUnaryExpr(ctx context.Context, expr *ast.UnaryExpr) []mlir
 		if T, ok := T.(*types.Named); ok {
 			b.queueNamedTypeJobs(ctx, T)
 		}
-		return []mlir.Value{b.addressOf(ctx, expr.X, location)}
+		return []mlir.ValueLike{b.addressOf(ctx, expr.X, location)}
 	case token.ARROW:
 		return b.emitReceiveExpression(ctx, expr)
 	default:

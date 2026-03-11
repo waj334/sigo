@@ -604,6 +604,8 @@ MlirOperation mlirGoCreateGepOperation(
   int32_t* constIndices,
   int nDynamicIndices,
   MlirValue* dynamicIndices,
+  int nIndexFlags,
+  bool* indexFlags,
   MlirType type,
   MlirLocation location)
 {
@@ -617,16 +619,17 @@ MlirOperation mlirGoCreateGepOperation(
   (void)unwrapList(nDynamicIndices, dynamicIndices, _dynamicIndices);
 
   ::llvm::ArrayRef<int32_t> _constIndices(constIndices, nConstIndices);
+  ::llvm::ArrayRef<bool> _indexFlags(indexFlags, nIndexFlags);
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op = builder.create<::mlir::go::GetElementPointerOp>(
-    _location, _type, _addr, _baseType, _dynamicIndices, _constIndices);
+    _location, _type, _addr, _baseType, _dynamicIndices, _constIndices, _indexFlags);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateGlobalOperation(
   MlirContext context,
-  MlirAttribute* linkage,
+  MlirAttribute linkage,
   MlirStringRef symbol,
   MlirType type,
   MlirLocation location)
@@ -640,9 +643,9 @@ MlirOperation mlirGoCreateGlobalOperation(
   mlir::Operation* op = builder.create<::mlir::go::GlobalOp>(
     _location, _type, mlir::StringAttr::get(_context, _symbol));
 
-  if (linkage)
+  if (!mlirAttributeIsNull(linkage))
   {
-    const auto _linkage = unwrap(*linkage);
+    const auto _linkage = unwrap(linkage);
     op->setAttr("llvm.linkage", _linkage);
   }
 
@@ -714,17 +717,17 @@ MlirOperation mlirGoCreateAtomicStoreOperation(
 MlirOperation mlirGoCreateSliceOperation(
   MlirContext context,
   MlirValue input,
-  MlirValue* low,
-  MlirValue* high,
-  MlirValue* max,
+  MlirValue low,
+  MlirValue high,
+  MlirValue max,
   MlirType resultType,
   MlirLocation location)
 {
   auto _context = unwrap(context);
   auto _input = unwrap(input);
-  auto _low = low ? unwrap(*low) : mlir::Value();
-  auto _high = high ? unwrap(*high) : mlir::Value();
-  auto _max = max ? unwrap(*max) : mlir::Value();
+  auto _low = !mlirValueIsNull(low) ? unwrap(low) : mlir::Value();
+  auto _high = !mlirValueIsNull(high) ? unwrap(high) : mlir::Value();
+  auto _max = !mlirValueIsNull(max) ? unwrap(max) : mlir::Value();
   auto _resultType = unwrap(resultType);
   auto _location = unwrap(location);
 
@@ -869,25 +872,20 @@ MlirOperation mlirGoCreateInsertOperation(
 
 MlirOperation mlirGoCreateConstantOperation(
   MlirContext context,
-  MlirAttribute* value,
-  MlirAttribute* symbol,
+  MlirAttribute value,
+  MlirAttribute symbol,
   MlirType type,
   MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
-
-  mlir::Attribute _value;
-  if (value)
-  {
-    _value = unwrap(*value);
-  }
+  const auto _context = unwrap(context);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
+  const auto _value = unwrap(value);
 
   mlir::StringAttr _symbol;
-  if (symbol)
+  if (!mlirAttributeIsNull(symbol))
   {
-    _symbol = mlir::cast<mlir::StringAttr>(unwrap(*symbol));
+    _symbol = mlir::cast<mlir::StringAttr>(unwrap(symbol));
   }
 
   mlir::OpBuilder builder(_context);
@@ -897,23 +895,21 @@ MlirOperation mlirGoCreateConstantOperation(
 
 MlirOperation mlirGoCreateGlobalConstantOperation(
   MlirContext context,
-  MlirAttribute* value,
+  MlirAttribute value,
   MlirAttribute symbol,
-  MlirLocation location)
-{
-  auto _context = unwrap(context);
-  auto _location = unwrap(location);
+  MlirLocation location) {
+
+  const auto _context  = unwrap(context);
+  const auto _location = unwrap(location);
+  const auto _symbol = mlir::cast<mlir::StringAttr>(unwrap(symbol));
 
   mlir::Attribute _value;
-  if (value)
-  {
-    _value = unwrap(*value);
+  if (!mlirAttributeIsNull(value)) {          // nullable handle
+    _value = unwrap(value);
   }
 
-  mlir::StringAttr _symbol = mlir::cast<mlir::StringAttr>(unwrap(symbol));
-
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::GlobalConstantOp>(_location, _symbol, _value);
+  mlir::Operation *op = ::mlir::go::GlobalConstantOp::create(builder, _location, _symbol, _value);
   return wrap(op);
 }
 
@@ -1850,7 +1846,7 @@ MlirOperation mlirGoCreateRealOperation(
 MlirOperation mlirGoCreateMakeMapOperation(
   MlirContext context,
   MlirType resultType,
-  MlirValue* capacity,
+  MlirValue capacity,
   MlirLocation location)
 {
   auto _context = unwrap(context);
@@ -1858,9 +1854,9 @@ MlirOperation mlirGoCreateMakeMapOperation(
   auto _location = unwrap(location);
 
   mlir::Value _capacity;
-  if (capacity)
+  if (!mlirValueIsNull(capacity))
   {
-    _capacity = unwrap(*capacity);
+    _capacity = unwrap(capacity);
   }
 
   mlir::OpBuilder builder(_context);
@@ -1872,7 +1868,7 @@ MlirOperation mlirGoCreateMakeSliceOperation(
   MlirContext context,
   MlirType resultType,
   MlirValue length,
-  MlirValue* capacity,
+  MlirValue capacity,
   MlirLocation location)
 {
   auto _context = unwrap(context);
@@ -1881,9 +1877,9 @@ MlirOperation mlirGoCreateMakeSliceOperation(
   auto _location = unwrap(location);
 
   mlir::Value _capacity;
-  if (capacity)
+  if (!mlirValueIsNull(capacity))
   {
-    _capacity = unwrap(*capacity);
+    _capacity = unwrap(capacity);
   }
 
   mlir::OpBuilder builder(_context);

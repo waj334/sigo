@@ -10,6 +10,14 @@ extern "C"
 {
 #endif
 
+  enum MlirGoAsmConstraintDirection
+  {
+    MlirGoAsmConstraintDirectionIn,
+    MlirGoAsmConstraintDirectionOut,
+    MlirGoAsmConstraintDirectionInOut
+  };
+  typedef enum MlirGoAsmConstraintDirection MlirGoAsmConstraintDirection;
+
   enum mlirGoBasicType
   {
     mlirGoBasicTypeComplex = 1,
@@ -20,6 +28,7 @@ extern "C"
     mlirGoBasicTypeRune,
     mlirGoBasicTypeString,
   };
+  typedef enum mlirGoBasicType mlirGoBasicType;
 
   enum mlirGoCmpFPredicate
   {
@@ -30,6 +39,7 @@ extern "C"
     mlirGoCmpFPredicate_le,
     mlirGoCmpFPredicate_ne
   };
+  typedef enum mlirGoCmpFPredicate mlirGoCmpFPredicate;
 
   enum mlirGoCmpIPredicate
   {
@@ -44,12 +54,16 @@ extern "C"
     mlirGoCmpIPredicate_ugt,
     mlirGoCmpIPredicate_uge
   };
+  typedef enum mlirGoCmpIPredicate mlirGoCmpIPredicate;
+
 
   enum mlirGoCmpPredicate
   {
     mlirGoCmpPredicate_eq = 1,
     mlirGoCmpPredicate_ne
   };
+  typedef enum mlirGoCmpPredicate mlirGoCmpPredicate;
+
 
   enum mlirGoChanDirection
   {
@@ -57,6 +71,8 @@ extern "C"
     mlirGoChanDirection_SendOnly,
     mlirGoChanDirection_RecvOnly
   };
+  typedef enum mlirGoChanDirection mlirGoChanDirection;
+
 
   enum mlirDISubprogramFlags
   {
@@ -72,6 +88,7 @@ extern "C"
     mlirDISubprogramFlags_Deleted = 512,
     mlirDISubprogramFlags_ObjCDirect = 2048,
   };
+  typedef enum mlirDISubprogramFlags mlirDISubprogramFlags;
 
   enum mlirDIFlags
   {
@@ -110,11 +127,12 @@ extern "C"
     DIFlags_LittleEndian = 268435456,
     DIFlags_AllCallsDescribed = 536870912,
   };
+  typedef enum mlirDIFlags mlirDIFlags;
 
-  MlirAttribute mlirGoCreateCmpFPredicate(MlirContext context, enum mlirGoCmpFPredicate predicate);
-  MlirAttribute mlirGoCreateCmpIPredicate(MlirContext context, enum mlirGoCmpIPredicate predicate);
-  MlirAttribute mlirGoCreateCmpPredicate(MlirContext context, enum mlirGoCmpPredicate predicate);
-  MlirAttribute mlirGoCreateChanDirection(MlirContext context, enum mlirGoChanDirection direction);
+  MlirAttribute mlirGoCreateCmpFPredicate(MlirContext context, mlirGoCmpFPredicate predicate);
+  MlirAttribute mlirGoCreateCmpIPredicate(MlirContext context, mlirGoCmpIPredicate predicate);
+  MlirAttribute mlirGoCreateCmpPredicate(MlirContext context, mlirGoCmpPredicate predicate);
+  MlirAttribute mlirGoCreateChanDirection(MlirContext context, mlirGoChanDirection direction);
 
 #ifdef __cplusplus
 }

@@ -14,17 +14,17 @@ import (
 
 	"golang.org/x/tools/go/packages"
 
+	"pkg.si-go.dev/go-mlir/mlir"
 	"pkg.si-go.dev/sigo/compiler/ssa"
-	"pkg.si-go.dev/sigo/llvm"
+	"pkg.si-go.dev/sigo/goir/binding/goir"
 	"pkg.si-go.dev/sigo/llvm/tablegen"
-	"pkg.si-go.dev/sigo/mlir"
 )
 
 type (
 	optionsContextKey struct{}
 )
 
-func BuildPackages(ctx context.Context, options Options) error {
+func BuildPackages(ctx context.Context, options BuildOptions) error {
 	// Add the options to the context
 	ctx = context.WithValue(ctx, optionsContextKey{}, options)
 
@@ -57,7 +57,7 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 	}()
 
 	// Get the options from the context
-	options := ctx.Value(optionsContextKey{}).(Options)
+	options := ctx.Value(optionsContextKey{}).(BuildOptions)
 	pathMappings := map[string]string{}
 
 	// Create the build directory
@@ -151,7 +151,7 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 	var archType string
 	var cpuType string
 	var fpuType string
-	var machine llvm.LLVMTargetMachineRef
+	var machine mlir.LLVMTargetMachineRef
 
 	for _, pkg := range allPkgs {
 		fname := filepath.Join(pkg.Dir, "platform.td")
@@ -235,22 +235,19 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 		featureStr := strings.Join(formattedFeatures, ",")
 
 		// Get the target from the triple
-		target, errMsg, ok := llvm.GetTargetFromTriple(triplet)
-		if !ok {
-			if len(errMsg) > 0 {
-				return errors.Join(ErrCodeGeneratorError, errors.New(errMsg))
-			}
-			return ErrCodeGeneratorError
+		target, err := mlir.NewTargetFromTriple(triplet)
+		if err != nil {
+			return errors.Join(ErrCodeGeneratorError, err)
 		}
 
-		machine = llvm.CreateTargetMachine(
+		machine = mlir.NewTargetMachine(
 			target,
 			triplet,
 			cpuType,
 			featureStr,
-			llvm.LLVMCodeGenOptLevel(llvm.CodeGenLevelNone),
-			llvm.LLVMRelocMode(llvm.RelocDefault),
-			llvm.LLVMCodeModel(llvm.CodeModelDefault))
+			mlir.LLVMCodeGenLevelNone,
+			mlir.LLVMRelocDefault,
+			mlir.LLVMCodeModelDefault)
 		break
 	}
 
@@ -258,11 +255,11 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 		return errors.New("no target platform could be determined")
 	}
 
-	targetLayout := llvm.CreateTargetDataLayout(machine)
+	targetLayout := mlir.NewTargetDataLayout(machine)
 
 	// Set up sizes.
 	sizes := types.StdSizes{
-		WordSize: int64(llvm.PointerSize(targetLayout)),
+		WordSize: int64(targetLayout.PointerSize()),
 		MaxAlign: alignment,
 	}
 
@@ -286,17 +283,19 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 	fmt.Println("done")
 
 	// Initialize MLIR.
-	mlirCtx := mlir.ContextCreate()
-	mlir.DialectHandleRegisterDialect(mlir.GetDialectHandle__go__(), mlirCtx)
-	mlir.ContextLoadAllAvailableDialects(mlirCtx)
+	mlirCtx := mlir.NewContext()
+	mlirCtx.RegisterAllLLVMTranslations()
+	goir.DialectHandle().RegisterDialect(mlirCtx)
+	mlirCtx.LoadAllAvailableDialects()
+
+	mlir.RegisterAllPasses()
 
 	// Create the MLIR module.
-	mlirModule := mlir.ModuleCreateEmpty(mlir.LocationUnknownGet(mlirCtx))
+	mlirModule := mlir.NewModule(mlir.NewUnknownLoc(mlirCtx))
 
 	// Set module attributes before creating the SSA builder.
-	dataLayout := llvm.CreateTargetDataLayout(machine)
-	mlir.GoSetTargetDataLayout(mlirModule, dataLayout)
-	mlir.GoSetTargetTriple(mlirModule, triplet)
+	goir.SetTargetDataLayout(mlirModule, targetLayout)
+	goir.SetTargetTriple(mlirModule, triplet)
 
 	// Create the SSA builder.
 	builder := ssa.NewBuilder(ssa.Config{
@@ -323,48 +322,55 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 
 	// Post IR generation:
 	if options.DumpIR {
-		mlir.ModuleDumpToFile(mlirModule, options.Output+".dump.mlir")
+		filename := options.Output + ".dump.mlir"
+		err := dumpMLIRModuleToFile(mlirModule, filename)
+		if err != nil {
+			return err
+		}
 	}
 
 	// Verify the initial IR.
-	if mlir.LogicalResultIsFailure(mlir.VerifyModule(mlirModule)) {
-		// TODO: This should probably
-		fmt.Fprintf(os.Stderr, "\n\nThe compiler produced invalid IR. The resulting binary may not be valid!\nPlease submit a bug ticket.\n\n")
+	if !mlirModule.Operation().Verify() {
+		fmt.Fprintf(os.Stderr, "\n\nThe compiler produced invalid IR. The resulting binary may not be valid!\n"+
+			"Please submit a bug ticket.\n\n")
+		return ErrCodeGeneratorError
 	}
 
 	// Run the optimization passes
-	passDumpDir, _ := filepath.Abs(options.Output)
-	passDumpDir = filepath.Dir(passDumpDir)
-	passDumpName := filepath.Base(options.Output)
 	fmt.Print("Optimizing Go IR...")
-	if mlir.LogicalResultIsFailure(mlir.GoOptimizeModule(mlirModule, passDumpName, passDumpDir, options.DebugLowering)) {
+	if runOptimizerPass(mlirModule, options.DebugLowering).IsFailure() {
 		fmt.Println()
 		return errors.Join(ErrCodeGeneratorError, err, errors.New("optimization passes failed"))
 	}
 	fmt.Println("done")
 
 	if options.DumpIR {
-		mlir.ModuleDumpToFile(mlirModule, options.Output+".dump.llvm.mlir")
+		filename := options.Output + ".dump.llvm.mlir"
+		err := dumpMLIRModuleToFile(mlirModule, filename)
+		if err != nil {
+			return err
+		}
 	}
 
-	// Initialize the LLVMIR translator
-	mlir.InitModuleTranslation(mlir.ModuleGetContext(mlirModule))
-
 	// Generate the LLVM module
-	llvmContext := llvm.ContextCreate()
+	llvmContext := mlir.NewLLVMContext()
 	fmt.Print("Translating Go IR to LLVM IR...")
-	llvmModule := mlir.TranslateModuleToLLVMIR(mlirModule, llvmContext, "module")
+	llvmModule := mlir.TranslateModuleToLLVMIR(mlirModule.Operation(), llvmContext)
+
 	if !options.GenerateDebugInfo {
 		// Strip debug info
-		llvm.StripModuleDebugInfo(llvmModule)
+		llvmModule.StripModuleDebugInfo()
 	}
 	fmt.Println("done")
 
 	// Add required constant globals to the LLVM module directly
-	addConstantGlobals(llvmModule, options, fpuEnabled, dataLayout)
+	addConstantGlobals(llvmModule, options, fpuEnabled, targetLayout)
 
 	if options.DumpIR {
-		dumpModule(llvmModule, options.Output+".dump.ll")
+		err := dumpModule(llvmModule, options.Output+".dump.ll")
+		if err != nil {
+			return err
+		}
 	}
 
 	// Optimize modules
@@ -376,11 +382,25 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 	fmt.Println("done")
 
 	if options.DumpIR {
-		dumpModule(llvmModule, options.Output+".dump.opt.ll")
+		err := dumpModule(llvmModule, options.Output+".dump.opt.ll")
+		if err != nil {
+			return err
+		}
 	}
 
 	fmt.Print("Linking firmware image...")
-	if err := link(options, triplet, archType, cpuType, fpuType, fpuEnabled, features, program, machine, llvmModule); err != nil {
+	if err := link(linkOptions{
+		triplet:       triplet,
+		arch:          archType,
+		cpu:           cpuType,
+		fpu:           fpuType,
+		floatEnabled:  fpuEnabled,
+		features:      features,
+		prog:          program,
+		targetMachine: machine,
+		module:        llvmModule,
+	}, options,
+	); err != nil {
 		fmt.Println()
 		return err
 	}
@@ -391,15 +411,31 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 	return nil
 }
 
-func link(options Options, triplet string, arch string, cpu string, fpu string, floatEnabled bool, features []string, prog *ssa.Program, targetMachine llvm.LLVMTargetMachineRef, module llvm.LLVMModuleRef) error {
+type linkOptions struct {
+	triplet       string
+	arch          string
+	cpu           string
+	fpu           string
+	floatEnabled  bool
+	features      []string
+	prog          *ssa.Program
+	targetMachine mlir.LLVMTargetMachineRef
+	module        mlir.LLVMModuleRef
+}
+
+func link(options linkOptions, buildOptions BuildOptions) error {
 	// Create the object file
-	objectOut := filepath.Join(options.BuildDir, "firmware.o")
-	if ok, errMsg := llvm.TargetMachineEmitToFile2(targetMachine, module, objectOut, llvm.LLVMCodeGenFileType(llvm.ObjectFile)); !ok {
-		return errors.Join(ErrCodeGeneratorError, errors.New(errMsg))
+	objectOut := filepath.Join(buildOptions.BuildDir, "firmware.o")
+	if err := options.targetMachine.EmitToFile(
+		options.module,
+		objectOut,
+		mlir.LLVMObjectFile,
+	); err != nil {
+		return errors.Join(ErrCodeGeneratorError, err)
 	}
 
 	// Get the toolchain.
-	toolchain, err := findToolchain(options.Environment)
+	toolchain, err := findToolchain(buildOptions.Environment)
 	if err != nil {
 		return err
 	}
@@ -407,13 +443,22 @@ func link(options Options, triplet string, arch string, cpu string, fpu string, 
 	var artifacts []string
 
 	// Compile picolibc for the current target machine.
-	picolibc, err := pkgPicolibc(arch)
+	picolibc, err := pkgPicolibc(options.arch)
 	if err != nil {
 		return err
 	}
 
-	objs, err := picolibc.Compile(toolchain, triplet, cpu, fpu, options.GenerateDebugInfo, options.Optimization,
-		floatEnabled, options.NumJobs)
+	objs, err := picolibc.Compile(
+		toolchain,
+		options.triplet,
+		options.cpu,
+		options.fpu,
+		buildOptions.GenerateDebugInfo,
+		buildOptions.Optimization,
+		options.floatEnabled,
+		buildOptions.NumJobs,
+	)
+
 	if err != nil {
 		return err
 	}
@@ -421,13 +466,21 @@ func link(options Options, triplet string, arch string, cpu string, fpu string, 
 	artifacts = append(artifacts, objs...)
 
 	// Compile compiler-rt for the current target machine.
-	compilerRT, err := pkgCompilerRT(triplet, features, floatEnabled)
+	compilerRT, err := pkgCompilerRT(options.triplet, options.features, options.floatEnabled)
 	if err != nil {
 		return err
 	}
 
-	objs, err = compilerRT.Compile(toolchain, triplet, cpu, fpu, options.GenerateDebugInfo, options.Optimization,
-		floatEnabled, options.NumJobs)
+	objs, err = compilerRT.Compile(
+		toolchain,
+		options.triplet,
+		options.cpu,
+		options.fpu,
+		buildOptions.GenerateDebugInfo,
+		buildOptions.Optimization,
+		options.floatEnabled,
+		buildOptions.NumJobs,
+	)
 
 	if err != nil {
 		return err
@@ -435,29 +488,29 @@ func link(options Options, triplet string, arch string, cpu string, fpu string, 
 
 	artifacts = append(artifacts, objs...)
 
-	if len(prog.LinkerScript) == 0 {
+	if len(options.prog.LinkerScript) == 0 {
 		return errors.New("no linker script found")
 	}
 
 	// Other arguments
-	targetTriple := "--target=" + triplet
-	elfOut := filepath.Join(options.BuildDir, "package.elf")
+	targetTriple := "--target=" + options.triplet
+	elfOut := filepath.Join(buildOptions.BuildDir, "package.elf")
 	args := []string{
 		"-v",
 		"--gc-sections",
 		"-o", elfOut,
 		"-nostdlib",
-		"-L" + filepath.Join(options.Environment.Value("SIGOROOT"), "runtime"),
-		"-L" + filepath.Dir(prog.LinkerScript),
-		"-T" + prog.LinkerScript,
+		"-L" + filepath.Join(buildOptions.Environment.Value("SIGOROOT"), "runtime"),
+		"-L" + filepath.Dir(options.prog.LinkerScript),
+		"-T" + options.prog.LinkerScript,
 	}
 
-	if options.GenerateDebugInfo {
+	if buildOptions.GenerateDebugInfo {
 		args = append(args, "-g")
 	}
 
 	// Add all linker files
-	for _, ld := range append(prog.Files[".ld"], prog.Files[".linker"]...) {
+	for _, ld := range append(options.prog.Files[".ld"], options.prog.Files[".linker"]...) {
 		args = append(args, "-L"+filepath.Dir(ld))
 	}
 
@@ -465,21 +518,21 @@ func link(options Options, triplet string, arch string, cpu string, fpu string, 
 	args = append(args, artifacts...)
 
 	// Compile all assembly files
-	for _, asm := range append(prog.Files[".s"], prog.Files[".asm"]...) {
+	for _, asm := range append(options.prog.Files[".s"], options.prog.Files[".asm"]...) {
 		// Format object file name
 		fname, _ := filepath.EvalSymlinks(asm)
-		objFile := filepath.Join(options.BuildDir, fmt.Sprintf("%s-%d.o", filepath.Base(asm), rand.Int()))
+		objFile := filepath.Join(buildOptions.BuildDir, fmt.Sprintf("%s-%d.o", filepath.Base(asm), rand.Int()))
 
 		assemblerArgs := []string{targetTriple,
 			"-c", fname,
 			func() string {
-				if options.GenerateDebugInfo {
+				if buildOptions.GenerateDebugInfo {
 					return "-g"
 				}
 				return ""
 			}(),
 			func() string {
-				if !floatEnabled {
+				if !options.floatEnabled {
 					return "-mfloat-abi=softfp"
 				}
 				return "-mfloat-abi=hard"
@@ -487,7 +540,7 @@ func link(options Options, triplet string, arch string, cpu string, fpu string, 
 			"-o", objFile}
 
 		// Append defines to the assembler arguments
-		for def, val := range prog.Defines {
+		for def, val := range options.prog.Defines {
 			if len(val) == 0 {
 				assemblerArgs = append(assemblerArgs,
 					"-D"+def)
@@ -523,15 +576,15 @@ func link(options Options, triplet string, arch string, cpu string, fpu string, 
 	}
 
 	// Convert the final binary image to the specified output binary type
-	switch filepath.Ext(options.Output) {
+	switch filepath.Ext(buildOptions.Output) {
 	case ".bin":
-		objCopyCmd := exec.Command(toolchain.ObjCopy, "-O", "binary", elfOut, options.Output)
+		objCopyCmd := exec.Command(toolchain.ObjCopy, "-O", "binary", elfOut, buildOptions.Output)
 		if err := objCopyCmd.Run(); err != nil {
 			output, _ := lldCmd.Output()
 			return errors.Join(ErrCompilerFailed, err, errors.New(string(output)))
 		}
 	case ".hex":
-		objCopyCmd := exec.Command(toolchain.ObjCopy, "-O", "ihex", elfOut, options.Output)
+		objCopyCmd := exec.Command(toolchain.ObjCopy, "-O", "ihex", elfOut, buildOptions.Output)
 		if err := objCopyCmd.Run(); err != nil {
 			output, _ := lldCmd.Output()
 			return errors.Join(ErrCompilerFailed, err, errors.New(string(output)))
@@ -544,16 +597,15 @@ func link(options Options, triplet string, arch string, cpu string, fpu string, 
 		}
 
 		// Write the ELF as is to the output file
-		if err = os.WriteFile(options.Output, elfBytes, 0644); err != nil {
+		if err = os.WriteFile(buildOptions.Output, elfBytes, 0644); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func dumpModule(module llvm.LLVMModuleRef, fname string) error {
-	llvm.PrintModuleToFile(module, fname, nil)
-	return nil
+func dumpModule(module mlir.LLVMModuleRef, filename string) error {
+	return os.WriteFile(filename, []byte(module.String()), 0644)
 }
 
 func symbolName(pkg *types.Package, name string) string {
@@ -566,12 +618,12 @@ func symbolName(pkg *types.Package, name string) string {
 	return path + "." + name
 }
 
-func optimize(module llvm.LLVMModuleRef, level string, machine llvm.LLVMTargetMachineRef) (err error) {
+func optimize(module mlir.LLVMModuleRef, level string, machine mlir.LLVMTargetMachineRef) (err error) {
 	var passes string
 
 	// Create the pass builder options
-	opts := llvm.CreatePassBuilderOptions()
-	defer llvm.DisposePassBuilderOptions(opts)
+	opts := mlir.NewPassBuilderOptions()
+	defer opts.Dispose()
 
 	// Match Clang's optimization settings
 	switch level {
@@ -592,52 +644,56 @@ func optimize(module llvm.LLVMModuleRef, level string, machine llvm.LLVMTargetMa
 	}
 
 	// Run the passes
-	llvm.RunPasses(module, passes, machine, opts)
-
-	// Verfiy the IR
-	if ok, errMsg := llvm.VerifyModule2(module, llvm.LLVMVerifierFailureAction(llvm.ReturnStatusAction)); !ok {
-		return errors.New(errMsg)
+	err = mlir.LLVMRunPasses(module, passes, machine, opts)
+	if err != nil {
+		return err
 	}
 
-	return
+	// Verify the IR
+	err = module.Verify(mlir.LLVMReturnStatusAction)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func addConstantGlobals(module llvm.LLVMModuleRef, options Options, floatEnabled bool, dataLayout llvm.LLVMTargetDataRef) {
-	ctx := llvm.GetModuleContext(module)
-	intPtrType := llvm.IntPtrTypeInContext(ctx, dataLayout)
-	boolType := llvm.Int1TypeInContext(ctx)
+func addConstantGlobals(module mlir.LLVMModuleRef, options BuildOptions, floatEnabled bool, dataLayout mlir.LLVMTargetDataRef) {
+	ctx := module.Context()
+	intPtrType := ctx.IntPtrType(dataLayout)
+	boolType := ctx.Int1Type()
 
 	// Stack size for goroutines
 	globalGoroutineStackSize := findOrCreateGlobal(module, intPtrType, "runtime._goroutineStackSize")
-	alignment := llvm.PreferredAlignmentOfGlobal(dataLayout, globalGoroutineStackSize)
-	constGoroutineStackSize := llvm.ConstInt(intPtrType, uint64(align(uint(options.StackSize), alignment)), false)
-	llvm.SetAlignment(globalGoroutineStackSize, alignment)
-	llvm.SetInitializer(globalGoroutineStackSize, constGoroutineStackSize)
-	llvm.SetLinkage(globalGoroutineStackSize, llvm.ExternalLinkage)
-	llvm.SetGlobalConstant(globalGoroutineStackSize, true)
+	alignment := dataLayout.PreferredAlignmentOfGlobal(globalGoroutineStackSize)
+	constGoroutineStackSize := mlir.NewConstInt(intPtrType, uint64(align(uint(options.StackSize), alignment)), false)
+	globalGoroutineStackSize.SetAlignment(alignment)
+	globalGoroutineStackSize.SetInitializer(constGoroutineStackSize)
+	globalGoroutineStackSize.SetLinkage(mlir.LLVMLinkageExternal)
+	globalGoroutineStackSize.SetGlobalConstant(true)
 
 	// FPU enable flag.
 	globalFpuEnableFlag := findOrCreateGlobal(module, boolType, "runtime._fpuEnabled")
-	alignment = llvm.PreferredAlignmentOfGlobal(dataLayout, globalFpuEnableFlag)
+	alignment = dataLayout.PreferredAlignmentOfGlobal(globalFpuEnableFlag)
 
-	var constFpuEnableFlag llvm.LLVMValueRef
+	var constFpuEnableFlag mlir.LLVMValueRef
 	if floatEnabled {
-		constFpuEnableFlag = llvm.ConstInt(boolType, 1, false)
+		constFpuEnableFlag = mlir.NewConstInt(boolType, 1, false)
 	} else {
-		constFpuEnableFlag = llvm.ConstInt(boolType, 0, false)
+		constFpuEnableFlag = mlir.NewConstInt(boolType, 0, false)
 	}
 
-	llvm.SetAlignment(globalFpuEnableFlag, alignment)
-	llvm.SetInitializer(globalFpuEnableFlag, constFpuEnableFlag)
-	llvm.SetLinkage(globalFpuEnableFlag, llvm.ExternalLinkage)
-	llvm.SetGlobalConstant(globalFpuEnableFlag, true)
+	globalFpuEnableFlag.SetAlignment(alignment)
+	globalFpuEnableFlag.SetInitializer(constFpuEnableFlag)
+	globalFpuEnableFlag.SetLinkage(mlir.LLVMLinkageExternal)
+	globalFpuEnableFlag.SetGlobalConstant(true)
 }
 
-func findOrCreateGlobal(module llvm.LLVMModuleRef, ty llvm.LLVMTypeRef, name string) llvm.LLVMValueRef {
+func findOrCreateGlobal(module mlir.LLVMModuleRef, ty mlir.LLVMTypeRef, name string) mlir.LLVMValueRef {
 	// Attempt to find the global value first
-	for value := llvm.GetFirstGlobal(module); !value.IsNil(); value = llvm.GetNextGlobal(value) {
-		if llvm.GetValueName2(value) == name {
-			if !llvm.TypeIsEqual(llvm.GlobalGetValueType(value), ty) {
+	for value := module.FirstGlobal(); !value.IsNull(); value = value.NextGlobal() {
+		if value.Name() == name {
+			if value.GlobalValueType() != ty {
 				panic("global value type mismatch")
 			}
 			return value
@@ -645,7 +701,7 @@ func findOrCreateGlobal(module llvm.LLVMModuleRef, ty llvm.LLVMTypeRef, name str
 	}
 
 	// Create the global value
-	return llvm.AddGlobal(module, ty, name)
+	return module.AddGlobal(ty, name)
 }
 
 func align(n uint, m uint) uint {
@@ -672,4 +728,19 @@ func collectAllPackages(pkgs []*packages.Package) []*packages.Package {
 		visit(pkg)
 	}
 	return all
+}
+
+func dumpMLIRModuleToFile(module mlir.Module, filename string) error {
+	_ = os.MkdirAll(filepath.Dir(filename), 0755)
+	file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
+	if err != nil {
+		return err
+	}
+
+	dumpStr := module.Operation().String()
+	_, err = file.WriteString(dumpStr)
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -64,8 +64,8 @@ class AnyTypeOrNamedOf<list<Type> allowedTypes, string summary = "",
     // Satisfy any of the allowed types' conditions.
     Or<[
         And<[
-            CPred<"::mlir::isa<NamedType>($_self)">,
-            Or<!foreach(type, allowedTypes, SubstLeaves<"$_self", "::mlir::cast<NamedType>($_self).getUnderlying()", type.predicate>)>
+            CPred<"::mlir::isa<::mlir::go::NamedType>($_self)">,
+            Or<!foreach(type, allowedTypes, SubstLeaves<"$_self", "::mlir::cast<::mlir::go::NamedType>($_self).getUnderlying()", type.predicate>)>
         ]>,
         Or<!foreach(type, allowedTypes, type.predicate)>
     ]>,
@@ -77,7 +77,7 @@ class AnyTypeOrNamedOf<list<Type> allowedTypes, string summary = "",
 class UntypedOfBasicType<string enumValue, string summary = ""> : Type<
     And<[
         CPred<"::mlir::isa<::mlir::go::UntypedType>($_self)">,
-        CPred<!strconcat("::mlir::cast<UntypedType>($_self).getBasicKind().getValue() == ::mlir::go::UntypedBasicKind::", enumValue)>,
+        CPred<!strconcat("::mlir::cast<::mlir::go::UntypedType>($_self).getBasicKind().getValue() == ::mlir::go::UntypedBasicKind::", enumValue)>,
     ]>,
     summary
 >;

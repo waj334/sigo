@@ -14,8 +14,7 @@
 namespace mlir::go
 {
 
-template <typename SelfT, typename OpT>
-struct BaseAttachDebugInfoPass : PassWrapper<SelfT, OperationPass<OpT>>
+struct BaseAttachDebugInfoPass
 {
   DenseMap<Type, LLVM::DITypeAttr> m_typeMap;
   DenseMap<Type, DistinctAttr> m_idMap;
@@ -181,24 +180,15 @@ struct BaseAttachDebugInfoPass : PassWrapper<SelfT, OperationPass<OpT>>
           IntegerAttr::get(mlir::IntegerType::get(context, 64), arrayType.getLength());
         const auto diSubrange =
           LLVM::DISubrangeAttr::get(context, lengthAttr, 0, IntegerAttr(), sizeAttr);
-        result = LLVM::DICompositeTypeAttr::get(
-          context,
-          recId,
-          false,
-          llvm::dwarf::DW_TAG_array_type,
-          StringAttr::get(context, _name),
-          nullptr,
-          0, // LINE
-          nullptr,
-          getDITypeAttr(context, arrayType.getElementType(), dataLayout, runtimeTypes),
-          LLVM::DIFlags::Zero,
-          size,
-          align,
-          { diSubrange },
-          nullptr,
-          nullptr,
-          nullptr,
-          nullptr);
+
+        result = mlir::LLVM::DICompositeTypeAttr::get(
+          /*context=*/context, /*recId=*/recId,  /*isRecSelf=*/false, llvm::dwarf::DW_TAG_array_type,
+          /*name=*/StringAttr::get(context, _name),
+          /*file=*/nullptr, /*line=*/0, /*scope=*/nullptr,
+          /*baseType=*/getDITypeAttr(context, arrayType.getElementType(), dataLayout, runtimeTypes),
+          /*flags=*/mlir::LLVM::DIFlags::Zero, /*sizeInBits=*/size, /*alignInBits=*/align,
+          /*dataLocation=*/nullptr, /*rank=*/nullptr,
+          /*allocated=*/nullptr, /*associated=*/nullptr, /*elements*/{ diSubrange });
         break;
       }
       case GoTypeId::Chan:
@@ -310,24 +300,13 @@ struct BaseAttachDebugInfoPass : PassWrapper<SelfT, OperationPass<OpT>>
 
         // Create the composite type.
         const auto nameAttr = StringAttr::get(context, _name);
-        result = LLVM::DICompositeTypeAttr::get(
-          context,
-          recId,
-          false,
-          llvm::dwarf::DW_TAG_structure_type,
-          nameAttr,
-          nullptr,
-          0, // LINE
-          nullptr,
-          LLVM::DINullTypeAttr::get(context),
-          LLVM::DIFlags::Zero,
-          structSizeInBits,
-          structAlignmentInBits,
-          elementAttrs,
-          nullptr,
-          nullptr,
-          nullptr,
-          nullptr);
+        result = mlir::LLVM::DICompositeTypeAttr::get(
+          /*context=*/context, /*recId=*/recId,  /*isRecSelf=*/false, llvm::dwarf::DW_TAG_structure_type,
+          /*name=*/nameAttr, /*file=*/nullptr, /*line=*/0, /*scope=*/nullptr,
+          /*baseType=*/LLVM::DINullTypeAttr::get(context),
+          /*flags=*/mlir::LLVM::DIFlags::Zero, /*sizeInBits=*/structSizeInBits,
+          /*alignInBits=*/structAlignmentInBits, /*dataLocation=*/nullptr, /*rank=*/nullptr,
+          /*allocated=*/nullptr, /*associated=*/nullptr, /*elements*/elementAttrs);
       }
       break;
       case GoTypeId::UnsafePointer:

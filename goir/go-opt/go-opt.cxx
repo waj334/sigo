@@ -1,8 +1,12 @@
 // clang-format off
 #include <mlir/Dialect/Arith/IR/Arith.h>
 #include <mlir/IR/Dialect.h>
-#include <mlir/InitAllDialects.h>
 #include <mlir/InitAllPasses.h>
+#include <mlir/Dialect/ControlFlow/IR/ControlFlow.h>
+#include <mlir/Dialect/Complex/IR/Complex.h>
+#include <mlir/Dialect/Func/IR/FuncOps.h>
+#include <mlir/Dialect/DLTI/DLTI.h>
+#include <mlir/Dialect/LLVMIR/LLVMDialect.h>
 #include <mlir/Pass/Pass.h>
 #include <mlir/Pass/PassManager.h>
 #include <mlir/Support/FileUtilities.h>

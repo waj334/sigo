@@ -4,7 +4,9 @@ import (
 	"context"
 	"go/ast"
 	"go/types"
-	"pkg.si-go.dev/sigo/mlir"
+
+	"pkg.si-go.dev/go-mlir/mlir"
+	"pkg.si-go.dev/sigo/goir/binding/goir"
 )
 
 type calleeType int
@@ -18,9 +20,9 @@ const (
 type callOpArgs struct {
 	calleeType calleeType
 	function   string
-	callee     mlir.Value
-	args       []mlir.Value
-	results    []mlir.Type
+	callee     mlir.ValueLike
+	args       []mlir.ValueLike
+	results    []mlir.TypeLike
 	expr       *ast.CallExpr
 	load       bool
 	typeMap    TypeParamMap
@@ -97,7 +99,7 @@ func (b *Builder) extractCallOpArgs(ctx context.Context, expr *ast.CallExpr) cal
 						call.calleeType = calleeIsSymbol
 						call.function = qualifiedFuncName(funcObj)
 
-						var recvArg mlir.Value
+						var recvArg mlir.ValueLike
 						exprType := baseType(recvT)
 						sigRecvType := baseType(signature.Recv().Type())
 						if isPointer(exprType) {
@@ -187,7 +189,7 @@ func (b *Builder) extractCallOpArgs(ctx context.Context, expr *ast.CallExpr) cal
 		call.args = append(call.args, callArgs...)
 
 		// Collect result types.
-		call.results = make([]mlir.Type, 0, signature.Results().Len())
+		call.results = make([]mlir.TypeLike, 0, signature.Results().Len())
 		for result := range signature.Results().Variables() {
 			call.results = append(call.results, b.GetStoredType(ctx, result.Type()))
 		}
@@ -198,7 +200,7 @@ func (b *Builder) extractCallOpArgs(ctx context.Context, expr *ast.CallExpr) cal
 	}
 }
 
-func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.Value {
+func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.ValueLike {
 	location := b.location(ctx, expr.Lparen)
 	info := currentInfo(ctx)
 	tv := info.Types[expr.Fun]
@@ -216,18 +218,18 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 		srcType := b.typeOf(ctx, expr.Args[0])
 		destType := tv.Type
 		value := b.emitTypeConversion(ctx, X, srcType, destType, location)
-		return []mlir.Value{value}
+		return []mlir.ValueLike{value}
 	} else {
 		opArgs := b.extractCallOpArgs(ctx, expr)
 		switch opArgs.calleeType {
 		case calleeIsClosure:
-			signatureTypeAttr := mlir.TypeAttrGet(b.GetType(ctx, opArgs.signature))
-			op := mlir.GoCreateClosureCallOperation(
+			signatureTypeAttr := mlir.NewTypeAttr(b.GetType(ctx, opArgs.signature))
+			op := goir.NewClosureCallOperation(
 				b.ctx, signatureTypeAttr, opArgs.callee, opArgs.results, opArgs.args, location)
 			appendOperation(ctx, op)
 			return resultsOf(op)
 		case calleeIsInterface:
-			op := mlir.GoCreateInterfaceCall(
+			op := goir.NewInterfaceCall(
 				b.ctx, opArgs.function, opArgs.results, opArgs.callee, opArgs.args, location)
 			appendOperation(ctx, op)
 			return resultsOf(op)
@@ -236,7 +238,7 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 			symbol := b.resolveSymbol(opArgs.function)
 			b.queueJob(ctx, symbol)
 
-			op := mlir.GoCreateCallOperation(b.ctx, symbol, opArgs.results, opArgs.args, location)
+			op := goir.NewCallOperation(b.ctx, symbol, opArgs.results, opArgs.args, location)
 			appendOperation(ctx, op)
 			return resultsOf(op)
 		default:
@@ -245,29 +247,29 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 	}
 }
 
-func (b *Builder) createSyntheticClosureSignature(ctx context.Context, signature *types.Signature) mlir.Type {
-	inputTypes := make([]mlir.Type, signature.Params().Len()+1)
+func (b *Builder) createSyntheticClosureSignature(ctx context.Context, signature *types.Signature) goir.FunctionType {
+	inputTypes := make([]mlir.TypeLike, signature.Params().Len()+1)
 	inputTypes[0] = b.ptr
 	for i := 0; i < signature.Params().Len(); i++ {
 		if signature.Variadic() && (i == signature.Params().Len()-1) {
-			inputTypes[i+1] = mlir.GoCreateSliceType(b.GetStoredType(ctx, signature.Params().At(i).Type()))
+			inputTypes[i+1] = goir.NewSliceType(b.GetStoredType(ctx, signature.Params().At(i).Type()))
 		} else {
 			inputTypes[i+1] = b.GetStoredType(ctx, signature.Params().At(i).Type())
 		}
 	}
 
-	resultTypes := make([]mlir.Type, signature.Results().Len())
+	resultTypes := make([]mlir.TypeLike, signature.Results().Len())
 	for i := 0; i < signature.Results().Len(); i++ {
 		resultTypes[i] = b.GetStoredType(ctx, signature.Results().At(i).Type())
 	}
 
-	T := mlir.GoCreateFunctionType(b.ctx, nil, inputTypes, resultTypes)
+	T := goir.NewFunctionType(b.ctx, nil, inputTypes, resultTypes)
 	return T
 }
 
-func (b *Builder) emitCallArgs(ctx context.Context, signature *types.Signature, expr *ast.CallExpr) []mlir.Value {
+func (b *Builder) emitCallArgs(ctx context.Context, signature *types.Signature, expr *ast.CallExpr) []mlir.ValueLike {
 	location := b.location(ctx, expr.Pos())
-	argValues := make([]mlir.Value, len(expr.Args))
+	argValues := make([]mlir.ValueLike, len(expr.Args))
 	for i, expr := range expr.Args {
 		argValues[i] = b.emitExpr(ctx, expr)[0]
 		switch expr := expr.(type) {
@@ -313,18 +315,18 @@ func (b *Builder) emitGoStatement(ctx context.Context, stmt *ast.GoStmt) {
 	opArgs := b.extractCallOpArgs(ctx, stmt.Call)
 	switch opArgs.calleeType {
 	case calleeIsClosure:
-		signatureTypeAttr := mlir.TypeAttrGet(b.GetType(ctx, opArgs.signature))
-		op := mlir.GoCreateGoOperation3(b.ctx, signatureTypeAttr, opArgs.callee, opArgs.args, location)
+		signatureTypeAttr := mlir.NewTypeAttr(b.GetType(ctx, opArgs.signature))
+		op := goir.NewGoOperation3(b.ctx, signatureTypeAttr, opArgs.callee, opArgs.args, location)
 		appendOperation(ctx, op)
 	case calleeIsInterface:
-		op := mlir.GoCreateGoOperation4(b.ctx, opArgs.callee, opArgs.function, opArgs.args, location)
+		op := goir.NewGoOperation4(b.ctx, opArgs.callee, opArgs.function, opArgs.args, location)
 		appendOperation(ctx, op)
 	case calleeIsSymbol:
 		// Emit the function that will be called.
 		symbol := b.resolveSymbol(opArgs.function)
 		b.queueJob(ctx, symbol)
 
-		op := mlir.GoCreateGoOperation1(b.ctx, symbol, opArgs.args, location)
+		op := goir.NewGoOperation1(b.ctx, symbol, opArgs.args, location)
 		appendOperation(ctx, op)
 	default:
 		panic("unhandled")
@@ -336,25 +338,25 @@ func (b *Builder) emitDeferStatement(ctx context.Context, stmt *ast.DeferStmt) {
 	opArgs := b.extractCallOpArgs(ctx, stmt.Call)
 	switch opArgs.calleeType {
 	case calleeIsClosure:
-		signatureTypeAttr := mlir.TypeAttrGet(b.GetType(ctx, opArgs.signature))
-		op := mlir.GoCreateDeferOperation3(b.ctx, signatureTypeAttr, opArgs.callee, opArgs.args, location)
+		signatureTypeAttr := mlir.NewTypeAttr(b.GetType(ctx, opArgs.signature))
+		op := goir.NewDeferOperation3(b.ctx, signatureTypeAttr, opArgs.callee, opArgs.args, location)
 		appendOperation(ctx, op)
 	case calleeIsInterface:
-		op := mlir.GoCreateDeferOperation4(b.ctx, opArgs.callee, opArgs.function, opArgs.args, location)
+		op := goir.NewDeferOperation4(b.ctx, opArgs.callee, opArgs.function, opArgs.args, location)
 		appendOperation(ctx, op)
 	case calleeIsSymbol:
 		// Emit the function that will be called.
 		symbol := b.resolveSymbol(opArgs.function)
 		b.queueJob(ctx, symbol)
 
-		op := mlir.GoCreateDeferOperation1(b.ctx, symbol, opArgs.args, location)
+		op := goir.NewDeferOperation1(b.ctx, symbol, opArgs.args, location)
 		appendOperation(ctx, op)
 	default:
 		panic("unhandled")
 	}
 }
 
-func (b *Builder) emitVariadicArgs(ctx context.Context, signature *types.Signature, argTypes []types.Type, args []mlir.Value, location mlir.Location) []mlir.Value {
+func (b *Builder) emitVariadicArgs(ctx context.Context, signature *types.Signature, argTypes []types.Type, args []mlir.ValueLike, location mlir.LocationLike) []mlir.ValueLike {
 	if signature.Variadic() {
 		variadicBegin := signature.Params().Len() - 1
 		numVariadicArgs := len(args) - variadicBegin
@@ -362,13 +364,13 @@ func (b *Builder) emitVariadicArgs(ctx context.Context, signature *types.Signatu
 		elementType := variadicArgType.Elem()
 		elementT := b.GetStoredType(ctx, elementType)
 
-		if mlir.TypeEqual(mlir.ValueGetType(args[variadicBegin]), b.GetStoredType(ctx, variadicArgType)) {
+		if args[variadicBegin].Type().Equal(b.GetStoredType(ctx, variadicArgType)) {
 			// This is ellipsis (...).
 			return args
 		}
 
 		// Create the backing array for the slice that will contain the variadic arguments.
-		allocaOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, elementT, numVariadicArgs, false, location)
+		allocaOp := goir.NewAllocaOperation(b.ctx, b.ptr, elementT, numVariadicArgs, false, location)
 		appendOperation(ctx, allocaOp)
 
 		// Fill the backing array.
@@ -376,8 +378,8 @@ func (b *Builder) emitVariadicArgs(ctx context.Context, signature *types.Signatu
 			argT := argTypes[i]
 
 			// Gep into the backing array to the position where the current argument should be stored.
-			gepOp := mlir.GoCreateGepOperation2(
-				b.ctx, resultOf(allocaOp), b._any, []any{i}, mlir.GoCreatePointerType(elementT), location)
+			gepOp := goir.NewGepOperation(
+				b.ctx, resultOf(allocaOp), b._any, []int{i}, nil, []bool{false}, goir.NewPointerType(elementT), location)
 			appendOperation(ctx, gepOp)
 
 			// Handle interface type conversion.
@@ -395,7 +397,7 @@ func (b *Builder) emitVariadicArgs(ctx context.Context, signature *types.Signatu
 			}
 
 			// Store the argument value.
-			storeOp := mlir.GoCreateStoreOperation(b.ctx, arg, resultOf(gepOp), location)
+			storeOp := goir.NewStoreOperation(b.ctx, arg, resultOf(gepOp), location)
 			appendOperation(ctx, storeOp)
 		}
 
@@ -412,68 +414,66 @@ func (b *Builder) emitVariadicArgs(ctx context.Context, signature *types.Signatu
 	return args
 }
 
-func (b *Builder) createInterfaceCallWrapper(ctx context.Context, symbol string, callee string, iface *types.Interface, signature *types.Signature, argTypes []mlir.Type) mlir.Type {
+func (b *Builder) createInterfaceCallWrapper(ctx context.Context, symbol string, callee string, iface *types.Interface, signature *types.Signature, argTypes []mlir.TypeLike) goir.FunctionType {
 	b.thunkMutex.Lock()
 	defer b.thunkMutex.Unlock()
 
 	// Look up the thunk in the symbol table first.
 	if _, ok := b.thunks[symbol]; !ok {
 		// Prepend the interface type to the beginning of the argument pack type list.
-		argTypes = append([]mlir.Type{b.GetStoredType(ctx, iface)}, argTypes...)
+		argTypes = append([]mlir.TypeLike{b.GetStoredType(ctx, iface)}, argTypes...)
 
 		// Create the argument struct type.
-		argPackType := mlir.GoCreateBasicStructType(b.ctx, argTypes)
+		argPackType := goir.NewBasicStructType(b.ctx, argTypes)
 
 		// Any argument excluded from the argument pack MUST be passed to the resulting thunk directly.
 		// NOTE: The interface value is added to the parameter count.
-		paramTypes := []mlir.Type{mlir.GoCreatePointerType(argPackType)}
+		paramTypes := []mlir.TypeLike{goir.NewPointerType(argPackType)}
 		for i := len(argTypes); i < signature.Params().Len()+1; i++ {
 			paramTypes = append(paramTypes, b.GetStoredType(ctx, signature.Params().At(i).Type()))
 		}
-		paramLocs := make([]mlir.Location, len(paramTypes))
+		paramLocs := make([]mlir.LocationLike, len(paramTypes))
 		fill(paramLocs, b._noLoc)
 
 		// Collect the result types.
-		resultTypes := make([]mlir.Type, 0, signature.Results().Len())
+		resultTypes := make([]mlir.TypeLike, 0, signature.Results().Len())
 		for i := 0; i < signature.Results().Len(); i++ {
 			resultTypes = append(resultTypes, b.GetStoredType(ctx, signature.Results().At(i).Type()))
 		}
 
 		// Create thunk to wrap the method call.
-		region := mlir.RegionCreate()
+		region := mlir.NewRegion()
 		ctx = newContextWithRegion(ctx, region)
 
-		entryBlock := mlir.BlockCreate2(paramTypes, paramLocs)
-		mlir.RegionAppendOwnedBlock(region, entryBlock)
+		entryBlock := mlir.NewBlock(paramTypes, paramLocs)
+		region.AppendOwnedBlock(entryBlock)
 		buildBlock(ctx, entryBlock, func() {
-			argPackPtrValue := mlir.BlockGetArgument(entryBlock, 0)
+			argPackPtrValue := entryBlock.Argument(0)
 			args := b.unpackArgPack(ctx, argTypes, argPackPtrValue, b._noLoc)
 
 			// Gather the remaining arguments
-			for i := 1; i < mlir.BlockGetNumArguments(entryBlock); i++ {
-				args = append(args, mlir.BlockGetArgument(entryBlock, i))
+			for i := 1; i < entryBlock.NumArguments(); i++ {
+				args = append(args, entryBlock.Argument(i))
 			}
 
 			// Call the method.
-			callOp := mlir.GoCreateInterfaceCall(b.ctx, callee, resultTypes, args[0], args[1:], b._noLoc)
+			callOp := goir.NewInterfaceCall(b.ctx, callee, resultTypes, args[0], args[1:], b._noLoc)
 			appendOperation(ctx, callOp)
 
 			// Return the results.
-			returnOp := mlir.GoCreateReturnOperation(b.ctx, resultsOf(callOp), b._noLoc)
+			returnOp := goir.NewReturnOperation(b.ctx, resultsOf(callOp), b._noLoc)
 			appendOperation(ctx, returnOp)
 		})
 
 		// Create the function operation for this thunk.
-		thunkFuncType := mlir.GoCreateFunctionType(b.ctx, nil, paramTypes, resultTypes)
-		state := mlir.OperationStateGet("go.func", b._noLoc)
-		mlir.OperationStateAddOwnedRegions(state, []mlir.Region{region})
-		mlir.OperationStateAddAttributes(state, []mlir.NamedAttribute{
-			b.namedOf("function_type", mlir.TypeAttrGet(thunkFuncType)),
-			b.namedOf("sym_name", mlir.StringAttrGet(b.config.Ctx, symbol)),
-			b.namedOf("sym_visibility", mlir.StringAttrGet(b.config.Ctx, "private")),
-		})
-
-		funcOp := mlir.OperationCreate(state)
+		thunkFuncType := goir.NewFunctionType(b.ctx, nil, paramTypes, resultTypes)
+		funcOp := mlir.NewOperationState("go.func", b._noLoc).
+			AddOwnedRegions(region).
+			AddAttributes(
+				mlir.NewNamedAttribute("function_type", mlir.NewTypeAttr(thunkFuncType)),
+				mlir.NewNamedAttribute("sym_name", mlir.NewStringAttr(b.config.Ctx, symbol)),
+				mlir.NewNamedAttribute("sym_visibility", mlir.NewStringAttr(b.config.Ctx, "private"))).
+			Create()
 
 		// This operation will be added later safely.
 		b.addToModuleMutex.Lock()
@@ -485,11 +485,11 @@ func (b *Builder) createInterfaceCallWrapper(ctx context.Context, symbol string,
 		return thunkFuncType
 	}
 
-	return b.thunkTypes[symbol]
+	return b.thunkTypes[symbol].(goir.FunctionType)
 }
 
-func (b *Builder) emitCallArgs2(ctx context.Context, args []ast.Expr) []mlir.Value {
-	values := make([]mlir.Value, len(args))
+func (b *Builder) emitCallArgs2(ctx context.Context, args []ast.Expr) []mlir.ValueLike {
+	values := make([]mlir.ValueLike, len(args))
 	for i, expr := range args {
 		values[i] = b.emitExpr(ctx, expr)[0]
 	}

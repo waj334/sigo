@@ -34,6 +34,7 @@ else
 	CMAKE_BUILD_TYPE := Release
 endif
 
+LLVM_SRC_DIR=$(ROOT_DIR)/thirdparty/llvm-project
 LLVM_BUILD_DIR=$(ROOT_DIR)/build/$(CMAKE_BUILD_TYPE)/llvm-build
 LLVM_CMAKE_CACHE=$(LLVM_BUILD_DIR)/CMakeCache.txt
 LLVM_CONFIG_EXECUTABLE=${LLVM_BUILD_DIR}/bin/llvm-config$(EXECUTABLE_POSTFIX)
@@ -55,7 +56,7 @@ CGO_LDFLAGS += -lLLVMTableGen
 CGO_CFLAGS += -fPIC -ffunction-sections -fdata-sections $(shell ${LLVM_CONFIG_EXECUTABLE} --cflags)
 
 # Add MLIR libraries
-CGO_LDFLAGS += @link.rsp
+#CGO_LDFLAGS += @link.rsp
 CGO_LDFLAGS += -lGoIR -lCGoIR
 CGO_LDFLAGS += -lstdc++
 
@@ -116,16 +117,16 @@ define run-test
 	CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS) -lstdc++" go test -v -gcflags "all=-N -l" -ldflags="-linkmode external -extldflags=-Wl,--allow-multiple-definition" $(1) -args ${args}
 endef
 
-.PHONY: all build-goir build-llvm build-mlir build-tests clean clean-clang-bindings clean-llvm-bindings clean-mlir-bindings clean-tests clean-sigo configure-goir configure-llvm configure-mlir debug generate-clang-bindings generate-csp generate-llvm-bindings generate-mlir-bindings sigo ssa_test
+.PHONY: all build-goir build-llvm build-mlir build-tests clean clean-tests clean-sigo configure-goir configure-llvm configure-mlir debug generate-csp sigo ssa_test
 
 all: sigo
 
 env:
 	CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" go env
 
-clean: clean-sigo clean-llvm-bindings clean-clang-bindings clean-mlir-bindings clean-tests
+clean: clean-sigo clean-tests
 
-$(SIGO_EXE): build-goir generate-llvm-bindings generate-mlir-bindings $(GO_SRCS) $(LIBS)
+$(SIGO_EXE): build-goir $(GO_SRCS) $(LIBS)
 	rm -f $(SIGO_EXE)
 	@if [ $(SIGO_BUILD_RELEASE) -eq 1 ]; then \
   		CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" CGO_CXXFLAGS="$(CGO_CXXFLAGS)" go build -o $(SIGO_EXE) -ldflags="-linkmode external" $(ROOT_DIR)/cmd/sigoc; \
@@ -200,60 +201,13 @@ configure-goir: build-llvm $(GOIR_CMAKE_CACHE)
 $(GOIR_LIB): configure-goir
 	cmake --build ${GOIR_BUILD_DIR} -j$(NUM_JOBS)
 
-build-goir: $(GOIR_LIB) ./mlir/mlir.go
+build-goir: $(GOIR_LIB)
 
 configure: configure-llvm configure-goir
 
 reconfigure:
 	rm -f $(LLVM_CMAKE_CACHE) $(GOIR_CMAKE_CACHE)
 	"$(MAKE)" configure
-
-generate-llvm-bindings: ./llvm/llvm.go
-./llvm/llvm.go: ./llvm/llvm.i
-	@echo "Generating LLVM bindings using SWIG..."
-	@swig -DSWIGWORDSIZE64 -go -intgosize 64 -cgo \
-	-I$(ROOT_DIR)/build/llvm-build/lib/clang/16/include \
-	-I$(ROOT_DIR)/build/llvm-build/include \
-	-I$(ROOT_DIR)/build/llvm-headers/include \
-	-I$(ROOT_DIR)/build/llvm-build/include \
-	-I$(ROOT_DIR)/thirdparty/llvm-project/llvm/include \
-	$(ROOT_DIR)/llvm/llvm.i
-	@echo "Done."
-
-clean-llvm-bindings:
-	rm $(ROOT_DIR)/llvm/llvm.go \
-	   $(ROOT_DIR)/llvm/llvm_wrap.c
-
-generate-clang-bindings: ./clang/clang.go
-./clang/clang.go: ./clang/clang.i
-	@echo "Generating Clang bindings using SWIG..."
-	@swig -DSWIGWORDSIZE64 -go -intgosize 64 -cgo \
-	-I$(ROOT_DIR)/build/llvm-build/lib/clang/16/include \
-	-I$(ROOT_DIR)/build/llvm-build/include \
-	-I$(ROOT_DIR)/build/llvm-build/include \
-	-I$(ROOT_DIR)/thirdparty/llvm-project/clang/include \
-	$(ROOT_DIR)/clang/clang.i
-	@echo "Done."
-
-clean-clang-bindings:
-	rm $(ROOT_DIR)/clang/clang.go \
-	   $(ROOT_DIR)/clang/clang_wrap.c
-
-generate-mlir-bindings: ./mlir/mlir.go
-./mlir/mlir.go: ./mlir/mlir.i $(GOIR_ROOT)/include/Go-c/mlir/Dialects.h $(GOIR_ROOT)/include/Go-c/mlir/Enums.h $(GOIR_ROOT)/include/Go-c/mlir/Operations.h $(GOIR_ROOT)/include/Go-c/mlir/Types.h
-	@echo "Generating MLIR bindings using SWIG..."
-	@swig -DSWIGWORDSIZE64 -go -intgosize 64 -cgo \
-	-I$(ROOT_DIR)/build/llvm-build/lib/clang/16/include \
-	-I$(ROOT_DIR)/build/llvm-build/include \
-	-I${GOIR_ROOT}/include \
-	-I$(ROOT_DIR)/thirdparty/llvm-project/mlir/include \
-	-I$(ROOT_DIR)/thirdparty/llvm-project/llvm/include \
-	$(ROOT_DIR)/mlir/mlir.i
-	@echo "Done."
-
-clean-mlir-bindings:
-	rm $(ROOT_DIR)/mlir/mlir.go \
-	   $(ROOT_DIR)/mlir/mlir_wrap.c
 
 $(TBDEF_GEN_EXE): $(wildcard $(ROOT_DIR)/cmd/tbdef-gen/*.go) $(TARGETS_DEVICE_SRCS)
 	@if [ $(SIGO_BUILD_RELEASE) -eq 1 ]; then \
@@ -293,4 +247,3 @@ bin2str: $(BIN2STR_EXE)
 	fi
 
 release: sigo
-generate-bindings: generate-mlir-bindings generate-llvm-bindings

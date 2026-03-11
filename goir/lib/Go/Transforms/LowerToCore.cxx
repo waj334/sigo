@@ -1,6 +1,5 @@
 #include <llvm/ADT/TypeSwitch.h>
 
-#include <mlir/Conversion/LLVMCommon/ConversionTarget.h>
 #include <mlir/Dialect/Arith/IR/Arith.h>
 #include <mlir/Dialect/Complex/IR/Complex.h>
 #include <mlir/Dialect/ControlFlow/IR/ControlFlowOps.h>
@@ -117,7 +116,7 @@ struct AndNotOpLowering : public OpConversionPattern<AndNotOp>
     }
 
     // Calculate the complement of the RHS by XOR'ing the RHS and all ones
-    auto allOnesConstOp = rewriter.create<mlir::arith::ConstantIntOp>(loc, allOnes, rhsType);
+    auto allOnesConstOp = rewriter.create<mlir::arith::ConstantIntOp>(loc, rhsType, allOnes);
     auto xOrOp =
       rewriter.create<mlir::arith::XOrIOp>(loc, rhsType, rhsValue, allOnesConstOp.getResult());
 
@@ -723,9 +722,7 @@ struct ConstantOpLowering : public OpConversionPattern<ConstantOp>
           return success();
         })
       .Default([&](mlir::Type type)
-      {
-        return op->emitOpError("unhandled constant result type ") << type;
-      });
+               { return op->emitOpError("unhandled constant result type ") << type; });
   }
 };
 
@@ -914,7 +911,7 @@ struct ComplementOpLowering : public OpConversionPattern<ComplementOp>
     OpAdaptor adaptor,
     ConversionPatternRewriter& rewriter) const override
   {
-    uint64_t allOnes;
+    int64_t allOnes;
     if (mlir::go::cast<IntegerType>(op.getOperand().getType()).isSigned())
     {
       allOnes = INT64_MAX;

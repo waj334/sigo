@@ -6,10 +6,11 @@ import (
 	"go/token"
 	"go/types"
 
-	"pkg.si-go.dev/sigo/mlir"
+	"pkg.si-go.dev/go-mlir/mlir"
+	"pkg.si-go.dev/sigo/goir/binding/goir"
 )
 
-func (b *Builder) emitBuiltinCall(ctx context.Context, expr *ast.CallExpr) []mlir.Value {
+func (b *Builder) emitBuiltinCall(ctx context.Context, expr *ast.CallExpr) []mlir.ValueLike {
 	location := b.location(ctx, expr.Pos())
 	anyType := types.NewInterfaceType(nil, nil)
 
@@ -46,7 +47,7 @@ func (b *Builder) emitBuiltinCall(ctx context.Context, expr *ast.CallExpr) []mli
 		panic("unhandled")
 	}
 
-	var results []mlir.Type
+	var results []mlir.TypeLike
 
 	offset := 0
 	switch name {
@@ -58,11 +59,11 @@ func (b *Builder) emitBuiltinCall(ctx context.Context, expr *ast.CallExpr) []mli
 		valueType := b.typeOf(ctx, expr.Args[0])
 		value := b.emitExpr(ctx, expr.Args[0])[0]
 		value = b.emitInterfaceValue(ctx, anyType, valueType, value, location)
-		op := mlir.GoCreatePanicOperation(b.ctx, value, location)
+		op := goir.NewPanicOperation(b.ctx, value, location)
 		appendOperation(ctx, op)
 		return nil
 	case "recover":
-		op := mlir.GoCreateRecoverOperation(b.ctx, b._any, location)
+		op := goir.NewRecoverOperation(b.ctx, b._any, location)
 		appendOperation(ctx, op)
 		return resultsOf(op)
 	default:
@@ -72,14 +73,14 @@ func (b *Builder) emitBuiltinCall(ctx context.Context, expr *ast.CallExpr) []mli
 			case *types.Tuple:
 				// Do nothing.
 			default:
-				results = []mlir.Type{b.GetStoredType(ctx, resultType)}
+				results = []mlir.TypeLike{b.GetStoredType(ctx, resultType)}
 			}
 		}
 	}
 
 	// Emit argument values.
 	// TODO: The logic below could probably be simplified.
-	var operands []mlir.Value
+	var operands []mlir.ValueLike
 	if signature.Variadic() {
 		operands = b.emitCallArgs(ctx, signature, expr)
 	} else {
@@ -110,7 +111,7 @@ func (b *Builder) emitBuiltinCall(ctx context.Context, expr *ast.CallExpr) []mli
 	}
 
 	// Finally, emit the built-in call.
-	op := mlir.GoCreateBuiltInCallOperation(b.ctx, name, results, operands, location)
+	op := goir.NewBuiltInCallOperation(b.ctx, name, results, operands, location)
 	appendOperation(ctx, op)
 	return resultsOf(op)
 }

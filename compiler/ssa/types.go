@@ -6,12 +6,13 @@ import (
 	"go/ast"
 	"go/types"
 
-	"pkg.si-go.dev/sigo/mlir"
+	"pkg.si-go.dev/go-mlir/mlir"
+	"pkg.si-go.dev/sigo/goir/binding/goir"
 )
 
 type typeCacheNestedLockKey struct{}
 
-func (b *Builder) GetType(ctx context.Context, T types.Type) (result mlir.Type) {
+func (b *Builder) GetType(ctx context.Context, T types.Type) (result mlir.TypeLike) {
 	// NOTE: The anonymous function usage below exists for making handling the read lock easier.
 	if func() bool {
 		// Lock the type cache for reading while it is accessed if no recursive lock is currently held.
@@ -98,91 +99,91 @@ func (b *Builder) GetType(ctx context.Context, T types.Type) (result mlir.Type) 
 	return result
 }
 
-func (b *Builder) createArrayType(ctx context.Context, T *types.Array) mlir.Type {
+func (b *Builder) createArrayType(ctx context.Context, T *types.Array) goir.ArrayType {
 	// Create the element type.
 	elementType := b.GetStoredType(ctx, T.Elem())
 
 	// Return the array type.
-	return mlir.GoCreateArrayType(elementType, int(T.Len()))
+	return goir.NewArrayType(elementType, int(T.Len()))
 }
 
-func (b *Builder) createBasicType(T *types.Basic) mlir.Type {
+func (b *Builder) createBasicType(T *types.Basic) mlir.TypeLike {
 	switch T.Kind() {
 	case types.Bool:
-		return mlir.GoCreateBooleanType(b.ctx)
+		return goir.NewBooleanType(b.ctx)
 	case types.Int:
-		return mlir.GoCreateSignedIntType(b.ctx, 0)
+		return goir.NewSignedIntType(b.ctx, 0)
 	case types.Uint:
-		return mlir.GoCreateUnsignedIntType(b.ctx, 0)
+		return goir.NewUnsignedIntType(b.ctx, 0)
 	case types.Uintptr:
-		return mlir.GoCreateUintptrType(b.ctx)
+		return goir.NewUintptrType(b.ctx)
 	case types.Int8:
-		return mlir.GoCreateSignedIntType(b.ctx, 8)
+		return goir.NewSignedIntType(b.ctx, 8)
 	case types.Uint8:
-		return mlir.GoCreateUnsignedIntType(b.ctx, 8)
+		return goir.NewUnsignedIntType(b.ctx, 8)
 	case types.Int16:
-		return mlir.GoCreateSignedIntType(b.ctx, 16)
+		return goir.NewSignedIntType(b.ctx, 16)
 	case types.Uint16:
-		return mlir.GoCreateUnsignedIntType(b.ctx, 16)
+		return goir.NewUnsignedIntType(b.ctx, 16)
 	case types.Int32:
-		return mlir.GoCreateSignedIntType(b.ctx, 32)
+		return goir.NewSignedIntType(b.ctx, 32)
 	case types.Uint32:
-		return mlir.GoCreateUnsignedIntType(b.ctx, 32)
+		return goir.NewUnsignedIntType(b.ctx, 32)
 	case types.Int64:
-		return mlir.GoCreateSignedIntType(b.ctx, 64)
+		return goir.NewSignedIntType(b.ctx, 64)
 	case types.Uint64:
-		return mlir.GoCreateUnsignedIntType(b.ctx, 64)
+		return goir.NewUnsignedIntType(b.ctx, 64)
 	case types.Float32:
-		return mlir.F32TypeGet(b.ctx)
+		return mlir.NewFloatType(b.ctx, mlir.Float32)
 	case types.Float64:
-		return mlir.F64TypeGet(b.ctx)
+		return mlir.NewFloatType(b.ctx, mlir.Float64)
 	case types.Complex64:
-		return mlir.ComplexTypeGet(mlir.F32TypeGet(b.ctx))
+		return mlir.NewComplexType(mlir.NewFloatType(b.ctx, mlir.Float32))
 	case types.Complex128:
-		return mlir.ComplexTypeGet(mlir.F64TypeGet(b.ctx))
+		return mlir.NewComplexType(mlir.NewFloatType(b.ctx, mlir.Float64))
 	case types.String:
-		return mlir.GoCreateStringType(b.ctx)
+		return goir.NewStringType(b.ctx)
 	case types.UnsafePointer:
-		return mlir.GoCreateUnsafePointerType(b.ctx)
+		return goir.NewUnsafePointerType(b.ctx)
 	case types.UntypedBool:
-		return mlir.GoCreateUntypedType(b.ctx, mlir.GoBasicTypeBoolean)
+		return goir.NewUntypedType(b.ctx, goir.BasicTypeBoolean)
 	case types.UntypedComplex:
-		return mlir.GoCreateUntypedType(b.ctx, mlir.GoBasicTypeComplex)
+		return goir.NewUntypedType(b.ctx, goir.BasicTypeComplex)
 	case types.UntypedFloat:
-		return mlir.GoCreateUntypedType(b.ctx, mlir.GoBasicTypeFloat)
+		return goir.NewUntypedType(b.ctx, goir.BasicTypeFloat)
 	case types.UntypedInt:
-		return mlir.GoCreateUntypedType(b.ctx, mlir.GoBasicTypeInteger)
+		return goir.NewUntypedType(b.ctx, goir.BasicTypeInteger)
 	case types.UntypedNil:
-		return mlir.GoCreateUntypedType(b.ctx, mlir.GoBasicTypeNil)
+		return goir.NewUntypedType(b.ctx, goir.BasicTypeNil)
 	case types.UntypedRune:
-		return mlir.GoCreateUntypedType(b.ctx, mlir.GoBasicTypeRune)
+		return goir.NewUntypedType(b.ctx, goir.BasicTypeRune)
 	case types.UntypedString:
-		return mlir.GoCreateUntypedType(b.ctx, mlir.GoBasicTypeString)
+		return goir.NewUntypedType(b.ctx, goir.BasicTypeString)
 	default:
 		panic(fmt.Sprintf("unknown basic type %+v", T.Kind()))
 	}
 }
 
-func (b *Builder) createChanType(ctx context.Context, T *types.Chan) mlir.Type {
+func (b *Builder) createChanType(ctx context.Context, T *types.Chan) goir.ChanType {
 	// Create the element type.
 	elementType := b.GetStoredType(ctx, T.Elem())
 
 	// Return the chan type
 	switch T.Dir() {
 	case types.SendRecv:
-		return mlir.GoCreateChanType(elementType, mlir.GoChanDirection_SendRecv)
+		return goir.NewChanType(elementType, goir.ChanDirectionSendRecv)
 	case types.SendOnly:
-		return mlir.GoCreateChanType(elementType, mlir.GoChanDirection_SendOnly)
+		return goir.NewChanType(elementType, goir.ChanDirectionSendOnly)
 	case types.RecvOnly:
-		return mlir.GoCreateChanType(elementType, mlir.GoChanDirection_RecvOnly)
+		return goir.NewChanType(elementType, goir.ChanDirectionRecvOnly)
 	default:
 		panic("invalid chan direction")
 	}
 }
 
-func (b *Builder) createInterfaceType(ctx context.Context, T *types.Interface) mlir.Type {
+func (b *Builder) createInterfaceType(ctx context.Context, T *types.Interface) goir.InterfaceType {
 	var methodNames []string
-	var methods []mlir.Type
+	var methods []goir.FunctionType
 
 	// Get the identifier if this is actually a named interface type.
 	identifier := currentIdentifier(ctx)
@@ -194,7 +195,7 @@ func (b *Builder) createInterfaceType(ctx context.Context, T *types.Interface) m
 	//       infinite recursion.
 	if len(identifier) > 0 {
 		// Create a named interface.
-		result := mlir.GoCreateNamedInterfaceType(b.ctx, identifier)
+		result := goir.NewNamedInterfaceType(b.ctx, identifier)
 
 		// Prevent infinite recursion when mutually recursive types are encountered.
 		b.typeCache[T] = result
@@ -208,7 +209,7 @@ func (b *Builder) createInterfaceType(ctx context.Context, T *types.Interface) m
 		}
 
 		// Set the interface methods.
-		mlir.GoSetNamedInterfaceMethods(b.ctx, result, methodNames, methods)
+		goir.SetNamedInterfaceMethods(b.ctx, result, methodNames, methods)
 
 		// Return the interface type.
 		return result
@@ -222,11 +223,11 @@ func (b *Builder) createInterfaceType(ctx context.Context, T *types.Interface) m
 		}
 
 		// Create a literal interface
-		return mlir.GoCreateInterfaceType(b.ctx, methodNames, methods)
+		return goir.NewInterfaceType(b.ctx, methodNames, methods)
 	}
 }
 
-func (b *Builder) createNamedType(ctx context.Context, T *types.Named) mlir.Type {
+func (b *Builder) createNamedType(ctx context.Context, T *types.Named) goir.NamedType {
 	// Format the qualified identifier for this type with respect to its origin package.
 	identifier := qualifiedName(T.Obj().Name(), T.Obj().Pkg())
 
@@ -235,24 +236,24 @@ func (b *Builder) createNamedType(ctx context.Context, T *types.Named) mlir.Type
 
 	// Create the underlying type.
 	underlyingType := b.GetType(ctx, T.Underlying())
-	underlyingTypeHash := mlir.TypeHash(underlyingType)
+	underlyingTypeHash := goir.TypeHash(underlyingType)
 
 	if T.TypeArgs().Len() > 0 {
 		identifier += fmt.Sprintf("$%X", underlyingTypeHash)
 	}
 
 	// Collect method symbols.
-	entries := make([]mlir.Attribute, T.NumMethods())
+	entries := make([]mlir.AttributeLike, T.NumMethods())
 	for i := 0; i < T.NumMethods(); i++ {
 		method := T.Method(i)
 		symbol := qualifiedFuncName(method)
-		refAttr := mlir.FlatSymbolRefAttrGet(b.ctx, symbol)
+		refAttr := mlir.NewFlatSymbolRefAttr(b.ctx, symbol)
 		entries[i] = refAttr
 	}
-	methodSymbols := mlir.ArrayAttrGet(b.ctx, entries)
+	methodSymbols := mlir.NewArrayAttr(b.ctx, entries)
 
 	// Create the named type now.
-	result := mlir.GoCreateNamedType(underlyingType, identifier, methodSymbols)
+	result := goir.NewNamedType(underlyingType, identifier, methodSymbols)
 
 	// Prevent infinite recursion within metadata and mutually recursive types by mapping the named type now.
 	b.typeCache[T] = result
@@ -260,7 +261,7 @@ func (b *Builder) createNamedType(ctx context.Context, T *types.Named) mlir.Type
 	return result
 }
 
-func (b *Builder) createMapType(ctx context.Context, T *types.Map) mlir.Type {
+func (b *Builder) createMapType(ctx context.Context, T *types.Map) goir.MapType {
 	// Create the key type.
 	keyType := b.GetStoredType(ctx, T.Key())
 
@@ -268,36 +269,36 @@ func (b *Builder) createMapType(ctx context.Context, T *types.Map) mlir.Type {
 	elementType := b.GetStoredType(ctx, T.Elem())
 
 	// Return the map type.
-	return mlir.GoCreateMapType(keyType, elementType)
+	return goir.NewMapType(keyType, elementType)
 }
 
-func (b *Builder) createPointerType(ctx context.Context, T *types.Pointer) mlir.Type {
+func (b *Builder) createPointerType(ctx context.Context, T *types.Pointer) goir.PointerType {
 	elementType := b.GetStoredType(ctx, T.Elem())
-	return mlir.GoCreatePointerType(elementType)
+	return goir.NewPointerType(elementType)
 }
 
-func (b *Builder) pointerOf(ctx context.Context, T types.Type) mlir.Type {
+func (b *Builder) pointerOf(ctx context.Context, T types.Type) goir.PointerType {
 	ptrType := types.NewPointer(T)
-	return b.GetStoredType(ctx, ptrType)
+	return b.GetStoredType(ctx, ptrType).(goir.PointerType)
 }
 
-func (b *Builder) funcPointerOf(ctx context.Context, T *types.Signature) mlir.Type {
+func (b *Builder) funcPointerOf(ctx context.Context, T *types.Signature) goir.PointerType {
 	fnT := b.GetType(ctx, T)
-	return mlir.GoCreatePointerType(fnT)
+	return goir.NewPointerType(fnT)
 }
 
-func (b *Builder) createSliceType(ctx context.Context, T *types.Slice) mlir.Type {
+func (b *Builder) createSliceType(ctx context.Context, T *types.Slice) goir.SliceType {
 	// Create the element type
 	elementType := b.GetStoredType(ctx, T.Elem())
 
 	// Create the slice type
-	return mlir.GoCreateSliceType(elementType)
+	return goir.NewSliceType(elementType)
 }
 
-func (b *Builder) createSignatureType(ctx context.Context, T *types.Signature) mlir.Type {
-	var receiver mlir.Type
-	var inputs []mlir.Type
-	var results []mlir.Type
+func (b *Builder) createSignatureType(ctx context.Context, T *types.Signature) goir.FunctionType {
+	var receiver mlir.TypeLike
+	var inputs []mlir.TypeLike
+	var results []mlir.TypeLike
 
 	if T.Recv() != nil {
 		// The receiver is always the first parameter to a method.
@@ -312,45 +313,45 @@ func (b *Builder) createSignatureType(ctx context.Context, T *types.Signature) m
 		results = append(results, b.GetStoredType(ctx, T.Results().At(i).Type()))
 	}
 
-	return mlir.GoCreateFunctionType(b.ctx, receiver, inputs, results)
+	return goir.NewFunctionType(b.ctx, receiver, inputs, results)
 }
 
-func (b *Builder) createStructType(ctx context.Context, T *types.Struct) mlir.Type {
+func (b *Builder) createStructType(ctx context.Context, T *types.Struct) goir.StructType {
 	identifier := currentIdentifier(ctx)
 
 	// Unset the name in a new context
 	ctx = context.WithValue(ctx, identifierKey{}, "")
 
-	var structType mlir.Type
+	var structType goir.StructType
 	if len(identifier) > 0 {
-		structType = mlir.GoCreateNamedStructType(b.ctx, identifier)
+		structType = goir.NewNamedStructType(b.ctx, identifier)
 
 		// Prevent infinite recursion when mutually recursive types are encountered
 		b.typeCache[T] = structType
 	}
 
 	// Create the struct field types
-	var fieldNames []mlir.Attribute
-	var fieldTags []mlir.Attribute
-	var fieldTypes []mlir.Type
+	var fieldNames []mlir.StringAttr
+	var fieldTags []mlir.StringAttr
+	var fieldTypes []mlir.TypeLike
 	for i := 0; i < T.NumFields(); i++ {
-		fieldNames = append(fieldNames, mlir.StringAttrGet(b.ctx, T.Field(i).Name()))
+		fieldNames = append(fieldNames, mlir.NewStringAttr(b.ctx, T.Field(i).Name()))
 		fieldTypes = append(fieldTypes, b.GetStoredType(ctx, T.Field(i).Type()))
-		fieldTags = append(fieldTags, mlir.StringAttrGet(b.ctx, T.Tag(i)))
+		fieldTags = append(fieldTags, mlir.NewStringAttr(b.ctx, T.Tag(i)))
 	}
 
 	if len(identifier) > 0 {
 		// Set the struct body
-		mlir.GoSetStructTypeBody(structType, fieldNames, fieldTypes, fieldTags)
+		goir.SetStructTypeBody(structType, fieldNames, fieldTypes, fieldTags)
 	} else {
 		// Create a literal struct
-		structType = mlir.GoCreateLiteralStructType(b.ctx, fieldNames, fieldTypes, fieldTags)
+		structType = goir.NewLiteralStructType(b.ctx, fieldNames, fieldTypes, fieldTags)
 	}
 
 	return structType
 }
 
-func (b *Builder) GetStoredType(ctx context.Context, T types.Type) mlir.Type {
+func (b *Builder) GetStoredType(ctx context.Context, T types.Type) mlir.TypeLike {
 	switch baseType(T).(type) {
 	case *types.Signature:
 		// This variable is a function, so use the _func struct type.
@@ -472,58 +473,66 @@ func baseType(T types.Type) types.Type {
 	}
 }
 
-func (b *Builder) widthOf(T mlir.Type) int {
-	switch {
-	case mlir.GoTypeIsUntyped(T):
-		switch mlir.GoUntypedTypeGetHBasicKind(T) {
-		case mlir.GoBasicTypeComplex:
-			return 64
-		case mlir.GoBasicTypeFloat:
-			return 64
-		case mlir.GoBasicTypeInteger:
-			return int(b.config.Sizes.WordSize) * 8
-		default:
-			panic("invalid basic type")
-		}
-	case mlir.GoTypeIsInteger(T):
-		width := mlir.GoIntegerTypeGetWidth(T)
+func (b *Builder) widthOf(T mlir.TypeLike) int {
+	if complexType, ok := mlir.AsComplexType(T); ok {
+		return b.widthOf(complexType.ElementType()) * 2
+	} else if floatType, ok := mlir.AsFloatType(T); ok {
+		return floatType.Width()
+	} else if intType, ok := goir.AsIntegerType(T); ok {
+		width := intType.Width()
 		if width == 0 {
 			return int(b.config.Sizes.WordSize * 8)
 		}
 		return width
-	case mlir.TypeIsAF32(T):
-		return 32
-	case mlir.TypeIsAF64(T):
-		return 64
-	case mlir.TypeIsAComplex(T):
-		return int(mlir.FloatTypeGetWidth(mlir.ComplexTypeGetElementType(T)))
-	default:
-		panic("unhandled")
+	} else if untyped, ok := goir.AsUntypedType(T); ok {
+		switch untyped.BasicKind() {
+		case goir.BasicTypeComplex:
+			return 64
+		case goir.BasicTypeFloat:
+			return 64
+		case goir.BasicTypeInteger:
+			return int(b.config.Sizes.WordSize) * 8
+		default:
+			panic("invalid basic type")
+		}
 	}
+	panic("unreachable")
 }
 
-func isSigned(T mlir.Type) bool {
-	if mlir.GoTypeIsUntyped(T) {
+func isSigned(T mlir.TypeLike) bool {
+	if goir.TypeIsUntyped(T) {
 		return true
 	}
 
-	if !mlir.GoTypeIsInteger(T) {
+	intT, ok := goir.AsIntegerType(T)
+	if !ok {
 		panic("invalid type")
 	}
-
-	return mlir.GoIntegerTypeIsSigned(T)
+	return intT.IsSigned()
 }
 
-func isUnsigned(T mlir.Type) bool {
-	if mlir.GoTypeIsUntyped(T) {
-		return false
+func isUnsigned(T mlir.TypeLike) bool {
+	if goir.TypeIsUntyped(T) {
+		return true
 	}
 
-	if !mlir.GoTypeIsInteger(T) {
+	intT, ok := goir.AsIntegerType(T)
+	if !ok {
 		panic("invalid type")
 	}
+	return intT.IsUnsigned()
+}
 
-	return mlir.GoIntegerTypeIsUnsigned(T)
+func isUintptr(T mlir.TypeLike) bool {
+	if goir.TypeIsUntyped(T) {
+		return true
+	}
+
+	intT, ok := goir.AsIntegerType(T)
+	if !ok {
+		panic("invalid type")
+	}
+	return intT.IsUintptr()
 }
 
 func resolveType(ctx context.Context, T types.Type) types.Type {

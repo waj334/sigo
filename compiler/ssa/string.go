@@ -4,7 +4,9 @@ import (
 	"context"
 	"go/ast"
 	"go/token"
-	"pkg.si-go.dev/sigo/mlir"
+
+	"pkg.si-go.dev/go-mlir/mlir"
+	"pkg.si-go.dev/sigo/goir/binding/goir"
 )
 
 func (b *Builder) emitStringRange(ctx context.Context, stmt *ast.RangeStmt) {
@@ -12,19 +14,19 @@ func (b *Builder) emitStringRange(ctx context.Context, stmt *ast.RangeStmt) {
 	endLocation := b.location(ctx, stmt.End())
 	tokLocation := b.location(ctx, stmt.TokPos)
 
-	keyT := b.si
+	var keyT mlir.TypeLike = b.si
 	if keyType := b.typeOf(ctx, stmt.Key); keyType != nil {
 		keyT = b.GetStoredType(ctx, keyType)
 	}
 
 	// Create the exit block where execution will continue following the range statement.
-	exitBlock := mlir.BlockCreate2(nil, nil)
+	exitBlock := mlir.NewBlock(nil, nil)
 
 	// Create all blocks involved with the for loop.
-	rangeBlock := mlir.BlockCreate2(nil, nil)
+	rangeBlock := mlir.NewBlock(nil, nil)
 	appendBlock(ctx, rangeBlock)
 
-	bodyBlock := mlir.BlockCreate2(b.types(keyT, b.si32), b.locations(location, location))
+	bodyBlock := mlir.NewBlock(b.types(keyT, b.si32), b.locations(location, location))
 	appendBlock(ctx, bodyBlock)
 
 	keyVar := b.valueOf(ctx, stmt.Key)
@@ -34,19 +36,19 @@ func (b *Builder) emitStringRange(ctx context.Context, stmt *ast.RangeStmt) {
 	X := b.emitExpr(ctx, stmt.X)[0]
 
 	// Branch to the condition block from the current block.
-	brOp := mlir.GoCreateBranchOperation(b.ctx, rangeBlock, nil, location)
+	brOp := goir.NewBranchOperation(b.ctx, rangeBlock, nil, location)
 	appendOperation(ctx, brOp)
 
 	// Build the condition block where the loop condition will continuously be evaluated in.
 	buildBlock(ctx, rangeBlock, func() {
-		op := mlir.GoCreateStringRangeOp(b.ctx, X, bodyBlock, exitBlock, location)
+		op := goir.NewStringRangeOp(b.ctx, X, bodyBlock, exitBlock, location)
 		appendOperation(ctx, op)
 	})
 
 	// Build the loop body block.
 	buildBlock(ctx, bodyBlock, func() {
-		keyValue := mlir.BlockGetArgument(bodyBlock, 0)
-		elementValue := mlir.BlockGetArgument(bodyBlock, 1)
+		keyValue := bodyBlock.Argument(0)
+		elementValue := bodyBlock.Argument(1)
 
 		// Any break statement immediately branch to the exit block.
 		ctx = newContextWithSuccessorBlock(ctx, exitBlock, nil)
@@ -92,7 +94,7 @@ func (b *Builder) emitStringRange(ctx context.Context, stmt *ast.RangeStmt) {
 		// NOTE: The loop body can either explicitly terminate or falls off.
 		if !blockHasTerminator(currentBlock(ctx)) {
 			// Control has fallen off. Branch to the post iteration block.
-			brOp := mlir.GoCreateBranchOperation(b.ctx, rangeBlock, nil, endLocation)
+			brOp := goir.NewBranchOperation(b.ctx, rangeBlock, nil, endLocation)
 			appendOperation(ctx, brOp)
 		}
 	})

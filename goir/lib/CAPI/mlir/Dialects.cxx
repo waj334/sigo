@@ -87,6 +87,11 @@ private:
 
 void mlirGoInitializeContext(MlirContext context) {}
 
+MlirDialectHandle mlirGoDialectHandleGet()
+{
+  return mlirGetDialectHandle__go__();
+}
+
 MlirStringRef mlirModuleDump(MlirModule module)
 {
   auto _module = unwrap(module);
@@ -295,7 +300,7 @@ mlirGoOptimizeModule(MlirModule module, MlirStringRef name, MlirStringRef output
     auto& nestedPM = pm.nest<mlir::go::FuncOp>();
     nestedPM.addPass(mlir::go::createValueNormalizationFuncPass());
     nestedPM.addPass(mlir::go::createHeapEscapePass());
-    nestedPM.addPass(mlir::go::createFunctionPass());
+    nestedPM.addPass(mlir::go::createFuncPass());
     nestedPM.addPass(mlir::go::createAttachDebugInfoToFuncPass());
     nestedPM.addNestedPass<mlir::go::AllocaOp>(mlir::go::createAttachDebugInfoToAllocaPass());
   }
@@ -377,7 +382,7 @@ mlirGoOptimizeModule(MlirModule module, MlirStringRef name, MlirStringRef output
   // ─────────────────────────────────────────────
   // Phase 7: LLVM export + cleanup
   // ─────────────────────────────────────────────
-  pm.addNestedPass<mlir::LLVM::LLVMFuncOp>(mlir::LLVM::createLegalizeForExportPass());
+  pm.addNestedPass<mlir::LLVM::LLVMFuncOp>(mlir::LLVM::createLLVMLegalizeForExportPass());
   pm.addPass(mlir::createCanonicalizerPass());
   pm.addPass(mlir::createSymbolDCEPass());
   pm.addPass(mlir::createCanonicalizerPass());
@@ -406,15 +411,6 @@ void mlirInitModuleTranslation(MlirContext context)
   // Register the translation to LLVM IR with the MLIR context.
   mlir::registerBuiltinDialectTranslation(*_context);
   mlir::registerLLVMDialectTranslation(*_context);
-}
-
-LLVMModuleRef
-mlirTranslateModuleToLLVMIR(MlirModule module, LLVMContextRef llvmContext, MlirStringRef name)
-{
-  auto _module = unwrap(module);
-  auto _llvmContext = llvm::unwrap(llvmContext);
-  auto _name = unwrap(name);
-  return llvm::wrap(translateModuleToLLVMIR(_module, *_llvmContext, _name).release());
 }
 
 MlirAttribute mlirGoCreateTypeMetadataEntryAttr(MlirType type, MlirAttribute dict)
@@ -536,15 +532,15 @@ MlirAttribute mlirGoCreateAsmConstraintAttr(
   const auto _registerClass = mlir::StringAttr::get(_context, unwrap(registerClass));
   switch (direction)
   {
-    case MlirGoAsmConstraintDirection::In:
+    case MlirGoAsmConstraintDirection::MlirGoAsmConstraintDirectionIn:
       _dir = mlir::go::AsmConstraintDirectionAttr::get(
         _context, mlir::UnitAttr::get(_context), mlir::UnitAttr());
       break;
-    case MlirGoAsmConstraintDirection::Out:
+    case MlirGoAsmConstraintDirection::MlirGoAsmConstraintDirectionOut:
       _dir = mlir::go::AsmConstraintDirectionAttr::get(
         _context, mlir::UnitAttr(), mlir::UnitAttr::get(_context));
       break;
-    case MlirGoAsmConstraintDirection::InOut:
+    case MlirGoAsmConstraintDirection::MlirGoAsmConstraintDirectionInOut:
       _dir = mlir::go::AsmConstraintDirectionAttr::get(
         _context, mlir::UnitAttr::get(_context), mlir::UnitAttr::get(_context));
       break;
@@ -571,11 +567,16 @@ MlirAttribute mlirGoCreateAsmConstraintAttr(
 }
 
 MlirAttribute
-mlirGoScopeAttrGet(MlirContext context, MlirAttribute* parent, MlirLocation start, MlirLocation end)
+mlirGoScopeAttrGet(MlirContext context, MlirAttribute parent, MlirLocation start, MlirLocation end)
 {
   const auto _context = unwrap(context);
-  const auto _parent =
-    parent ? mlir::cast<mlir::go::ScopeAttr>(unwrap(*parent)) : mlir::go::ScopeAttr();
+
+  mlir::go::ScopeAttr _parent;
+  if (!mlirAttributeIsNull(parent))
+  {
+    _parent = mlir::cast<mlir::go::ScopeAttr>(unwrap(parent));
+  }
+
   const auto _start = unwrap(start);
   const auto _end = unwrap(end);
   return wrap(mlir::go::ScopeAttr::get(_context, _parent, _start, _end));

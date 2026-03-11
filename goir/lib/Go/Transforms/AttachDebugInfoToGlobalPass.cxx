@@ -12,10 +12,19 @@
 
 namespace mlir::go
 {
+#define GEN_PASS_DEF_ATTACHDEBUGINFOTOGLOBALPASS
+#include "Go/Transforms/Passes.h.inc"
+
+namespace
+{
 
 struct AttachDebugInfoToGlobalPass final
-  : BaseAttachDebugInfoPass<AttachDebugInfoToGlobalPass, mlir::go::GlobalOp>
+  : ::mlir::go::impl::AttachDebugInfoToGlobalPassBase<AttachDebugInfoToGlobalPass>
+  , BaseAttachDebugInfoPass
 {
+  using AttachDebugInfoToGlobalPassBase<
+    AttachDebugInfoToGlobalPass>::AttachDebugInfoToGlobalPassBase;
+
   void runOnOperation() override
   {
     const auto context = &this->getContext();
@@ -72,17 +81,7 @@ struct AttachDebugInfoToGlobalPass final
       LLVM::DIExpressionAttr::get(context, mlir::SmallVector<mlir::LLVM::DIExpressionElemAttr>()));
     op->setLoc(FusedLoc::get(context, { op.getLoc() }, diGlobalExprAttr));
   }
-
-  StringRef getArgument() const override { return "go-attach-debug-info-to-global-pass"; }
-  StringRef getDescription() const override
-  {
-    return "Attach debug information to global variable declarations";
-  }
 };
 
-std::unique_ptr<Pass> createAttachDebugInfoToGlobalPass()
-{
-  return std::make_unique<AttachDebugInfoToGlobalPass>();
-}
-
+} // namespace
 } // namespace mlir::go

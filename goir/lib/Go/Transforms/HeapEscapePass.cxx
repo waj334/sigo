@@ -1,12 +1,18 @@
 #include <llvm/ADT/TypeSwitch.h>
+#include <mlir/Dialect/Func/IR/FuncOps.h>
 
 #include "Go/IR/GoOps.h"
 #include "Go/Transforms/Passes.h"
 
 namespace mlir::go
 {
-struct HeapEscapePass : public PassWrapper<HeapEscapePass, OperationPass<mlir::go::FuncOp>>
+#define GEN_PASS_DEF_HEAPESCAPEPASS
+#include "Go/Transforms/Passes.h.inc"
+
+struct HeapEscapePass : public impl::HeapEscapePassBase<HeapEscapePass>
 {
+  using HeapEscapePassBase<HeapEscapePass>::HeapEscapePassBase;
+
   enum class Result
   {
     DoesNotEscape = 0,
@@ -251,13 +257,6 @@ struct HeapEscapePass : public PassWrapper<HeapEscapePass, OperationPass<mlir::g
       .Default([&](auto op) -> std::pair<bool, Operation*> { return { false, nullptr }; });
   }
 
-  StringRef getArgument() const final { return "go-heap-escape-pass"; }
-
-  StringRef getDescription() const final
-  {
-    return "Analyzes stack allocations that escape the stack.";
-  }
-
   void getDependentDialects(DialectRegistry& registry) const override
   {
     registry.insert<GoDialect>();
@@ -265,8 +264,4 @@ struct HeapEscapePass : public PassWrapper<HeapEscapePass, OperationPass<mlir::g
   }
 };
 
-std::unique_ptr<mlir::Pass> createHeapEscapePass()
-{
-  return std::make_unique<HeapEscapePass>();
-}
 } // namespace mlir::go

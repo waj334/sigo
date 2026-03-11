@@ -37,7 +37,7 @@ namespace mlir::go
     if (!isCompatibleType(valueType, elementType))
     {
       return this->emitOpError() << "value type " << this->getValue().getType()
-                               << " is incompatible with pointer type " << addrType;
+                                 << " is incompatible with pointer type " << addrType;
     }
   }
 
@@ -46,12 +46,15 @@ namespace mlir::go
 
 ::mlir::LogicalResult GetElementPointerOp::verify()
 {
-  // No constant index should be negative.
-  for (auto value : this->getConstIndices())
+  size_t constsIndex = 0;
+  for (const auto isValue : this->getIndexFlags())
   {
-    if (value < 0 && (value & kValueIndexMask) > this->getDynamicIndices().size())
+    if (!isValue)
     {
-      return this->emitOpError() << "constant indices cannot be negative";
+      if (const auto constValue = this->getConstIndices()[constsIndex++]; constValue < 0)
+      {
+        return this->emitOpError() << "constant indices cannot be negative";
+      }
     }
   }
   return success();

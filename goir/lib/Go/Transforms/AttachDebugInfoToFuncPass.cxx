@@ -12,10 +12,18 @@
 
 namespace mlir::go
 {
+#define GEN_PASS_DEF_ATTACHDEBUGINFOTOFUNCPASS
+#include "Go/Transforms/Passes.h.inc"
 
-struct AttachDebugInfoToFuncPass final
-  : BaseAttachDebugInfoPass<AttachDebugInfoToFuncPass, mlir::go::FuncOp>
+namespace
 {
+struct AttachDebugInfoToFuncPass final
+  : ::mlir::go::impl::AttachDebugInfoToFuncPassBase<AttachDebugInfoToFuncPass>
+  , BaseAttachDebugInfoPass
+{
+  using AttachDebugInfoToFuncPassBase<
+    AttachDebugInfoToFuncPass>::AttachDebugInfoToFuncPassBase;
+
   void runOnOperation() override
   {
     const auto context = &this->getContext();
@@ -68,18 +76,8 @@ struct AttachDebugInfoToFuncPass final
       op->setLoc(FusedLoc::get(context, { op.getLoc() }, subprogramAttr));
     }
   }
-
-  StringRef getArgument() const override { return "go-attach-debug-info-to-func-pass"; }
-
-  StringRef getDescription() const override
-  {
-    return "Attach debug information to function declarations";
-  }
 };
 
-std::unique_ptr<Pass> createAttachDebugInfoToFuncPass()
-{
-  return std::make_unique<AttachDebugInfoToFuncPass>();
-}
+} // namespace
 
 } // namespace mlir::go

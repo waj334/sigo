@@ -65,7 +65,7 @@ var (
 				return
 			}
 
-			builderOptions := builder.Options{
+			builderOptions := builder.BuildOptions{
 				Output:      buildOpts.output,
 				DumpIR:      buildOpts.dumpIR,
 				Environment: env,

@@ -12,10 +12,19 @@
 
 namespace mlir::go
 {
+#define GEN_PASS_DEF_ATTACHDEBUGINFOTOALLOCAPASS
+#include "Go/Transforms/Passes.h.inc"
+
+namespace
+{
 
 struct AttachDebugInfoToAllocaPass final
-  : BaseAttachDebugInfoPass<AttachDebugInfoToAllocaPass, mlir::go::AllocaOp>
+  : ::mlir::go::impl::AttachDebugInfoToAllocaPassBase<AttachDebugInfoToAllocaPass>
+  , BaseAttachDebugInfoPass
 {
+  using AttachDebugInfoToAllocaPassBase<
+    AttachDebugInfoToAllocaPass>::AttachDebugInfoToAllocaPassBase;
+
   void runOnOperation() override
   {
     const auto context = &this->getContext();
@@ -85,24 +94,8 @@ struct AttachDebugInfoToAllocaPass final
       op->setLoc(FusedLoc::get(context, { op.getLoc() }, diLocalVarAttr));
     }
   }
-
-  StringRef getArgument() const override { return "go-attach-debug-info-to-alloca-pass"; }
-
-  StringRef getDescription() const override
-  {
-    return "Attach debug information to local variable declarations";
-  }
-
-  void getDependentDialects(DialectRegistry& registry) const override
-  {
-    registry.insert<GoDialect>();
-    registry.insert<mlir::LLVM::LLVMDialect>();
-  }
 };
 
-std::unique_ptr<Pass> createAttachDebugInfoToAllocaPass()
-{
-  return std::make_unique<AttachDebugInfoToAllocaPass>();
-}
+} // namespace
 
 } // namespace mlir::go

@@ -8,7 +8,8 @@ import (
 	"go/types"
 	"sync"
 
-	"pkg.si-go.dev/sigo/mlir"
+	"pkg.si-go.dev/go-mlir/mlir"
+	"pkg.si-go.dev/sigo/goir/binding/goir"
 )
 
 type funcData struct {
@@ -16,10 +17,10 @@ type funcData struct {
 	linkname    string
 	scope       *types.Scope
 	funcType    *ast.FuncType
-	mlirType    mlir.Type
+	mlirType    goir.FunctionType
 	signature   *types.Signature
 	freeVars    []*FreeVar
-	contextType mlir.Type
+	contextType mlir.TypeLike
 	recv        *ast.FieldList
 	body        *ast.BlockStmt
 	pos         token.Pos
@@ -47,31 +48,31 @@ type funcData struct {
 }
 
 type inputParam struct {
-	t mlir.Type
-	l mlir.Location
+	t mlir.TypeLike
+	l mlir.LocationLike
 }
 
 type inputParams []inputParam
 
-func (i inputParams) types() []mlir.Type {
-	result := make([]mlir.Type, 0, len(i))
+func (i inputParams) types() []mlir.TypeLike {
+	result := make([]mlir.TypeLike, 0, len(i))
 	for _, i := range i {
 		result = append(result, i.t)
 	}
 	return result
 }
 
-func (i inputParams) locations() []mlir.Location {
-	result := make([]mlir.Location, 0, len(i))
+func (i inputParams) locations() []mlir.LocationLike {
+	result := make([]mlir.LocationLike, 0, len(i))
 	for _, i := range i {
 		result = append(result, i.l)
 	}
 	return result
 }
 
-func (f *funcData) createContextStructValue(ctx context.Context, b *Builder, location mlir.Location) (mlir.Value, mlir.Type) {
+func (f *funcData) createContextStructValue(ctx context.Context, b *Builder, location mlir.LocationLike) (mlir.ValueLike, mlir.TypeLike) {
 	// Collect the addresses of each value captured by this function.
-	var values []mlir.Value
+	var values []mlir.ValueLike
 	for _, fv := range f.freeVars {
 		ptr := b.lookupValue(ctx, fv.obj).Pointer(ctx, location)
 		values = append(values, ptr)
@@ -108,18 +109,18 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 	if data.pos.IsValid() {
 		if file := b.config.Fset.File(data.pos); file != nil {
 			if compileUnitAttr, ok := b.compileUnits[file]; ok {
-				loc = mlir.LocationFusedGet(b.ctx, []mlir.Location{loc}, compileUnitAttr)
+				loc = mlir.NewFusedLoc(b.ctx, []mlir.LocationLike{loc}, compileUnitAttr)
 			}
 		}
 	}
 
 	// Create the function operation.
-	state := mlir.OperationStateGet("go.func", loc)
+	state := mlir.NewOperationState("go.func", loc)
 
 	argOffset := 0
 
 	// Determine this number of inputs required to call this function.
-	numInputs := mlir.GoFunctionTypeGetNumInputs(data.mlirType)
+	numInputs := data.mlirType.NumInputs()
 	if data.signature.Recv() != nil {
 		numInputs++
 	}
@@ -129,13 +130,13 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 	if data.signature.Recv() != nil {
 		// The receiver is the first parameter to this function. So, offset by 1.
 		argOffset = 1
-		inputs[0].t = mlir.GoFunctionTypeGetReceiver(data.mlirType)
+		inputs[0].t = data.mlirType.Receiver()
 		inputs[0].l = b.location(ctx, data.signature.Recv().Pos())
 	}
 
 	for i := 0; i < data.signature.Params().Len(); i++ {
 		param := data.signature.Params().At(i)
-		inputs[argOffset+i].t = mlir.GoFunctionTypeGetInput(data.mlirType, i)
+		inputs[argOffset+i].t = data.mlirType.Input(i)
 		inputs[argOffset+i].l = b.location(ctx, param.Pos())
 	}
 
@@ -145,15 +146,15 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 	}
 
 	// Create the region in which all blocks will be placed in.
-	region := mlir.RegionCreate()
+	region := mlir.NewRegion()
 	ctx = newContextWithRegion(ctx, region)
-	mlir.OperationStateAddOwnedRegions(state, []mlir.Region{region})
+	state.AddOwnedRegions(region)
 
 	// NOTE: Forward declarations will not have any block.
 	if !isForwardDeclaration {
 		// Create the entry block for the current function.
-		entryBlock := mlir.BlockCreate2(inputs.types(), inputs.locations())
-		mlir.RegionAppendOwnedBlock(region, entryBlock)
+		entryBlock := mlir.NewBlock(inputs.types(), inputs.locations())
+		region.AppendOwnedBlock(entryBlock)
 
 		ctx = newContextWithCurrentBlock(ctx)
 		setCurrentBlock(ctx, entryBlock)
@@ -162,25 +163,27 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 		data.mutex.RLock()
 		if len(data.freeVars) > 0 {
 			// Update free variable pointers.
-			ctxValue := mlir.BlockGetArgument(entryBlock, 0)
+			ctxValue := entryBlock.Argument(0)
 			for i, fv := range data.freeVars {
 				// Append the freevar's alloca operation to the current block.
-				allocaOp := mlir.ValueGetDefiningOperation(fv.ptr)
-				mlir.GoAllocaOperationSetName(allocaOp, fv.obj.Name())
+				resultVal, _ := fv.ptr.AsResult()
+				allocaOp := resultVal.OwningOperation()
+				goir.AllocaOperationSetName(allocaOp, fv.obj.Name())
 				appendOperation(ctx, allocaOp)
 
-				ptrType := mlir.GoCreatePointerType(fv.T)
+				ptrType := goir.NewPointerType(fv.T)
 
 				// GEP into the context to derive the address of the free variable.
-				gepOp := mlir.GoCreateGepOperation2(b.ctx, ctxValue, data.contextType, []any{0, i}, mlir.GoCreatePointerType(ptrType), loc)
+				gepOp := goir.NewGepOperation(b.ctx,
+					ctxValue, data.contextType, []int{0, i}, nil, []bool{false, false}, goir.NewPointerType(ptrType), loc)
 				appendOperation(ctx, gepOp)
 
 				// Load the address of the external local variable.
-				loadOp := mlir.GoCreateLoadOperation(b.ctx, resultOf(gepOp), ptrType, loc)
+				loadOp := goir.NewLoadOperation(b.ctx, resultOf(gepOp), ptrType, loc)
 				appendOperation(ctx, loadOp)
 
 				// Store the address of the free variable at the address of the stack allocation.
-				storeOp := mlir.GoCreateStoreOperation(b.ctx, resultOf(loadOp), fv.ptr, loc)
+				storeOp := goir.NewStoreOperation(b.ctx, resultOf(loadOp), fv.ptr, loc)
 				appendOperation(ctx, storeOp)
 			}
 
@@ -193,10 +196,10 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 			for _, field := range data.recv.List {
 				for _, name := range field.Names {
 					recvVar := b.objectOf(ctx, name)
-					recvVal := mlir.BlockGetArgument(entryBlock, 0)
+					recvVal := entryBlock.Argument(0)
 
 					// Emit a local variable allocation to hold the argument value.
-					addr := b.emitLocalVar(ctx, recvVar, mlir.ValueGetType(recvVal), true)
+					addr := b.emitLocalVar(ctx, recvVar, recvVal.Type(), true)
 
 					// Store the parameter value at the address.
 					addr.Store(ctx, recvVal, loc)
@@ -210,7 +213,7 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 			for _, field := range data.funcType.Params.List {
 				for _, name := range field.Names {
 					argVar := b.objectOf(ctx, name)
-					argVal := mlir.BlockGetArgument(entryBlock, arg)
+					argVal := entryBlock.Argument(arg)
 					arg++
 
 					// Emit a local variable allocation to hold the argument value.
@@ -239,7 +242,7 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 		labeledBlocks := map[string]mlir.Block{}
 		ast.Inspect(data.body, func(node ast.Node) bool {
 			if stmt, ok := node.(*ast.LabeledStmt); ok {
-				labeledBlock := mlir.BlockCreate2(nil, nil)
+				labeledBlock := mlir.NewBlock(nil, nil)
 				labeledBlocks[stmt.Label.Name] = labeledBlock
 
 				// Append the block now.
@@ -260,14 +263,14 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 			// TODO: Run defers.
 
 			endLocation := b.location(ctx, data.body.End())
-			zeroValues := make([]mlir.Value, 0, data.signature.Results().Len())
+			zeroValues := make([]mlir.ValueLike, 0, data.signature.Results().Len())
 			for i := 0; i < data.signature.Results().Len(); i++ {
 				result := data.signature.Results().At(i)
 				value := b.emitZeroValue(ctx, result.Type(), endLocation)
 				zeroValues = append(zeroValues, value)
 			}
 
-			returnOp := mlir.GoCreateReturnOperation(b.ctx, zeroValues, endLocation)
+			returnOp := goir.NewReturnOperation(b.ctx, zeroValues, endLocation)
 			appendOperation(ctx, returnOp)
 		}
 	}
@@ -284,23 +287,49 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 		linkage = data.linkage
 	}
 
-	mlir.OperationStateAddAttributes(state, []mlir.NamedAttribute{
-		b.namedOf("function_type", mlir.TypeAttrGet(data.mlirType)),
-		b.namedOf("sym_name", mlir.StringAttrGet(b.config.Ctx, data.linkname)),
-		b.namedOf("sym_visibility", mlir.StringAttrGet(b.config.Ctx, visibility)),
-		b.namedOf("llvm.linkage", mlir.GetLLVMLinkageAttr(b.ctx, linkage)),
+	var linkageAttr mlir.LLVMLinkageAttr
+	switch linkage {
+	case "appending":
+		linkageAttr = mlir.NewLLVMLinkageAttr(b.ctx, mlir.LLVMLinkageAppending)
+	case "available_externally":
+		linkageAttr = mlir.NewLLVMLinkageAttr(b.ctx, mlir.LLVMLinkageAvailableExternally)
+	case "common":
+		linkageAttr = mlir.NewLLVMLinkageAttr(b.ctx, mlir.LLVMLinkageCommon)
+	case "external":
+		linkageAttr = mlir.NewLLVMLinkageAttr(b.ctx, mlir.LLVMLinkageExternal)
+	case "extern_weak":
+		linkageAttr = mlir.NewLLVMLinkageAttr(b.ctx, mlir.LLVMLinkageExternWeak)
+	case "internal":
+		linkageAttr = mlir.NewLLVMLinkageAttr(b.ctx, mlir.LLVMLinkageInternal)
+	case "linkonce":
+		linkageAttr = mlir.NewLLVMLinkageAttr(b.ctx, mlir.LLVMLinkageLinkonce)
+	case "linkonce_odr":
+		linkageAttr = mlir.NewLLVMLinkageAttr(b.ctx, mlir.LLVMLinkageLinkonceODR)
+	case "weak":
+		linkageAttr = mlir.NewLLVMLinkageAttr(b.ctx, mlir.LLVMLinkageWeak)
+	case "weak_odr":
+		linkageAttr = mlir.NewLLVMLinkageAttr(b.ctx, mlir.LLVMLinkageWeakODR)
+	default:
+		linkageAttr = mlir.NewLLVMLinkageAttr(b.ctx, mlir.LLVMLinkageExternal)
+	}
+
+	state.AddAttributes(
+		b.namedOf("function_type", mlir.NewTypeAttr(data.mlirType)),
+		b.namedOf("sym_name", mlir.NewStringAttr(b.config.Ctx, data.linkname)),
+		b.namedOf("sym_visibility", mlir.NewStringAttr(b.config.Ctx, visibility)),
+		b.namedOf("llvm.linkage", linkageAttr),
 		b.namedOf("passthrough", b.strArrayAttr(data.attributes...)),
-	})
+	)
 
 	if data.isPackageInit {
-		mlir.OperationStateAddAttributes(state, []mlir.NamedAttribute{
-			b.namedOf("package_initializer", mlir.UnitAttrGet(b.ctx)),
+		state.AddAttributes(
+			b.namedOf("package_initializer", mlir.NewUnitAttr(b.ctx)),
 			b.namedOf("priority", b.int32Attr(int32(data.priority))),
-		})
+		)
 	}
 
 	// Create the operation, but don't add it to the module yet.
-	funcOp := mlir.OperationCreate(state)
+	funcOp := state.Create()
 
 	// This operation will be added later safely.
 	if isForwardDeclaration {
@@ -414,12 +443,12 @@ func (b *Builder) createFuncInstance(ctx context.Context, signature *types.Signa
 	return instanceData
 }
 
-func (b *Builder) createFunctionValue(ctx context.Context, fn mlir.Value, args mlir.Value, location mlir.Location) mlir.Value {
+func (b *Builder) createFunctionValue(ctx context.Context, fn mlir.ValueLike, args mlir.ValueLike, location mlir.LocationLike) mlir.Value {
 	// Examine the input function value.
-	fnT := mlir.ValueGetType(fn)
-	if mlir.GoTypeIsAPointer(fnT) {
-		elementT := mlir.GoPointerTypeGetElementType(fnT)
-		if !mlir.TypeIsNull(elementT) && mlir.GoTypeIsAFunctionType(elementT) {
+	fnT := fn.Type()
+	if ptrT, ok := goir.AsPointerType(fnT); ok {
+		elementT := ptrT.ElementType()
+		if !elementT.IsNull() && goir.TypeIsAFunctionType(elementT) {
 			// Cast to an opaque pointer.
 			fn = b.bitcastTo(ctx, fn, b.ptr, location)
 		}
@@ -428,35 +457,35 @@ func (b *Builder) createFunctionValue(ctx context.Context, fn mlir.Value, args m
 	}
 
 	// Create the function value.
-	zeroOp := mlir.GoCreateZeroOperation(b.ctx, b._func, location)
+	zeroOp := goir.NewZeroOperation(b.ctx, b._func, location)
 	appendOperation(ctx, zeroOp)
 
 	// Insert the function pointer.
-	insertOp := mlir.GoCreateInsertOperation(b.ctx, 0, fn, resultOf(zeroOp), b._func, location)
+	insertOp := goir.NewInsertOperation(b.ctx, 0, fn, resultOf(zeroOp), b._func, location)
 	appendOperation(ctx, insertOp)
 
-	if args != nil {
-		if !mlir.TypeIsNull(mlir.GoPointerTypeGetElementType(mlir.ValueGetType(args))) {
+	if args != nil && !args.IsNull() {
+		if ptrT, ok := goir.AsPointerType(args.Type()); ok && !ptrT.ElementType().IsNull() {
 			args = b.bitcastTo(ctx, args, b.ptr, location)
 		}
 
 		// Insert the argument pack pointer value.
-		insertOp = mlir.GoCreateInsertOperation(b.ctx, 1, args, resultOf(insertOp), b._func, location)
+		insertOp = goir.NewInsertOperation(b.ctx, 1, args, resultOf(insertOp), b._func, location)
 		appendOperation(ctx, insertOp)
 	}
 
 	// Return the struct value.
-	return resultOf(insertOp)
+	return resultOf(insertOp).AsValue()
 }
 
-func (b *Builder) createThunk(ctx context.Context, symbol string, callee string, signature *types.Signature, argTypes []mlir.Type, hasReceiver bool) {
+func (b *Builder) createThunk(ctx context.Context, symbol string, callee string, signature *types.Signature, argTypes []mlir.TypeLike, hasReceiver bool) {
 	b.thunkMutex.Lock()
 	defer b.thunkMutex.Unlock()
 
 	// Look up the thunk in the symbol table first.
 	if _, ok := b.thunks[symbol]; !ok {
 		// Create the argument struct type.
-		argsType := mlir.GoCreateBasicStructType(b.ctx, argTypes)
+		argsType := goir.NewBasicStructType(b.ctx, argTypes)
 
 		nArgs := len(argTypes)
 		if hasReceiver {
@@ -465,54 +494,52 @@ func (b *Builder) createThunk(ctx context.Context, symbol string, callee string,
 		}
 
 		// Any argument excluded from the argument pack MUST be passed to the resulting thunk directly.
-		paramTypes := []mlir.Type{mlir.GoCreatePointerType(argsType)}
+		paramTypes := []mlir.TypeLike{goir.NewPointerType(argsType)}
 		for i := nArgs; i < signature.Params().Len(); i++ {
 			paramTypes = append(paramTypes, b.GetStoredType(ctx, signature.Params().At(i).Type()))
 		}
-		paramLocs := make([]mlir.Location, len(paramTypes))
+		paramLocs := make([]mlir.LocationLike, len(paramTypes))
 		fill(paramLocs, b._noLoc)
 
 		// Collect the result types.
-		resultTypes := make([]mlir.Type, 0, signature.Results().Len())
+		resultTypes := make([]mlir.TypeLike, 0, signature.Results().Len())
 		for i := 0; i < signature.Results().Len(); i++ {
 			resultTypes = append(resultTypes, b.GetStoredType(ctx, signature.Results().At(i).Type()))
 		}
 
 		// Create thunk to wrap the method call.
-		region := mlir.RegionCreate()
+		region := mlir.NewRegion()
 		ctx = newContextWithRegion(ctx, region)
 
-		entryBlock := mlir.BlockCreate2(paramTypes, paramLocs)
-		mlir.RegionAppendOwnedBlock(region, entryBlock)
+		entryBlock := mlir.NewBlock(paramTypes, paramLocs)
+		region.AppendOwnedBlock(entryBlock)
 		buildBlock(ctx, entryBlock, func() {
-			argPackPtrValue := mlir.BlockGetArgument(entryBlock, 0)
+			argPackPtrValue := entryBlock.Argument(0)
 			args := b.unpackArgPack(ctx, argTypes, argPackPtrValue, b._noLoc)
 
 			// Gather the remaining arguments
-			for i := 1; i < mlir.BlockGetNumArguments(entryBlock); i++ {
-				args = append(args, mlir.BlockGetArgument(entryBlock, i))
+			for i := 1; i < entryBlock.NumArguments(); i++ {
+				args = append(args, entryBlock.Argument(i))
 			}
 
 			// Call the method.
-			callOp := mlir.GoCreateCallOperation(b.ctx, callee, resultTypes, args, b._noLoc)
+			callOp := goir.NewCallOperation(b.ctx, callee, resultTypes, args, b._noLoc)
 			appendOperation(ctx, callOp)
 
 			// Return the results.
-			returnOp := mlir.GoCreateReturnOperation(b.ctx, resultsOf(callOp), b._noLoc)
+			returnOp := goir.NewReturnOperation(b.ctx, resultsOf(callOp), b._noLoc)
 			appendOperation(ctx, returnOp)
 		})
 
 		// Create the function operation for this thunk.
-		thunkFuncType := mlir.GoCreateFunctionType(b.ctx, nil, paramTypes, resultTypes)
-		state := mlir.OperationStateGet("go.func", b._noLoc)
-		mlir.OperationStateAddOwnedRegions(state, []mlir.Region{region})
-		mlir.OperationStateAddAttributes(state, []mlir.NamedAttribute{
-			b.namedOf("function_type", mlir.TypeAttrGet(thunkFuncType)),
-			b.namedOf("sym_name", mlir.StringAttrGet(b.ctx, symbol)),
-			b.namedOf("sym_visibility", mlir.StringAttrGet(b.ctx, "private")),
-		})
-
-		funcOp := mlir.OperationCreate(state)
+		thunkFuncType := goir.NewFunctionType(b.ctx, nil, paramTypes, resultTypes)
+		funcOp := mlir.NewOperationState("go.func", b._noLoc).
+			AddOwnedRegions(region).
+			AddAttributes(
+				b.namedOf("function_type", mlir.NewTypeAttr(thunkFuncType)),
+				b.namedOf("sym_name", mlir.NewStringAttr(b.ctx, symbol)),
+				b.namedOf("sym_visibility", mlir.NewStringAttr(b.ctx, "private")),
+			).Create()
 
 		// This operation will be added later safely.
 		b.addToModuleMutex.Lock()
@@ -522,37 +549,38 @@ func (b *Builder) createThunk(ctx context.Context, symbol string, callee string,
 	}
 }
 
-func (b *Builder) createArgumentPack(ctx context.Context, args []mlir.Value, location mlir.Location) (mlir.Value, mlir.Type) {
+func (b *Builder) createArgumentPack(ctx context.Context, args []mlir.ValueLike, location mlir.LocationLike) (mlir.ValueLike, mlir.TypeLike) {
 	if len(args) == 0 {
 		return nil, nil
 	}
 
 	// Collect the argument types.
-	argTypes := make([]mlir.Type, len(args))
+	argTypes := make([]mlir.TypeLike, len(args))
 	for i := range args {
-		argTypes[i] = mlir.ValueGetType(args[i])
+		argTypes[i] = args[i].Type()
 	}
 
 	// Create the argument struct.
-	argsType := mlir.GoCreateBasicStructType(b.ctx, argTypes)
-	zeroOp := mlir.GoCreateZeroOperation(b.ctx, argsType, location)
+	argsType := goir.NewBasicStructType(b.ctx, argTypes)
+	zeroOp := goir.NewZeroOperation(b.ctx, argsType, location)
 	appendOperation(ctx, zeroOp)
 	argsValue := resultOf(zeroOp)
 	for i, arg := range args {
-		insertOp := mlir.GoCreateInsertOperation(b.ctx, uint64(i), arg, argsValue, argsType, location)
+		insertOp := goir.NewInsertOperation(b.ctx, uint64(i), arg, argsValue, argsType, location)
 		appendOperation(ctx, insertOp)
 		argsValue = resultOf(insertOp)
 	}
 	return argsValue, argsType
 }
 
-func (b *Builder) unpackArgPack(ctx context.Context, argTypes []mlir.Type, pack mlir.Value, location mlir.Location) []mlir.Value {
-	result := make([]mlir.Value, len(argTypes))
-	argPackT := mlir.GoPointerTypeGetElementType(mlir.ValueGetType(pack))
+func (b *Builder) unpackArgPack(ctx context.Context, argTypes []mlir.TypeLike, pack mlir.ValueLike, location mlir.LocationLike) []mlir.ValueLike {
+	result := make([]mlir.ValueLike, len(argTypes))
+	ptrT, _ := goir.AsPointerType(pack.Type())
+	argPackT := ptrT.ElementType()
 	for i, T := range argTypes {
-		gepOp := mlir.GoCreateGepOperation2(b.ctx, pack, argPackT, []any{0, i}, mlir.GoCreatePointerType(T), location)
+		gepOp := goir.NewGepOperation(b.ctx, pack, argPackT, []int{0, i}, nil, []bool{false, false}, goir.NewPointerType(T), location)
 		appendOperation(ctx, gepOp)
-		loadOp := mlir.GoCreateLoadOperation(b.ctx, resultOf(gepOp), T, location)
+		loadOp := goir.NewLoadOperation(b.ctx, resultOf(gepOp), T, location)
 		appendOperation(ctx, loadOp)
 		result[i] = resultOf(loadOp)
 	}
@@ -571,53 +599,50 @@ func (b *Builder) emitBuiltinCallWrapper(ctx context.Context, ident *ast.Ident) 
 	signature := b.typeOf(ctx, ident).(*types.Signature)
 
 	// Collect the argument types.
-	paramTypes := make([]mlir.Type, signature.Params().Len())
+	paramTypes := make([]mlir.TypeLike, signature.Params().Len())
 	for i := 0; i < signature.Params().Len(); i++ {
 		paramTypes[i] = b.GetStoredType(ctx, signature.Params().At(i).Type())
 	}
 
-	paramLocs := make([]mlir.Location, len(paramTypes))
+	paramLocs := make([]mlir.LocationLike, len(paramTypes))
 	fill(paramLocs, b._noLoc)
 
 	// Collect the result types.
-	resultTypes := make([]mlir.Type, signature.Results().Len())
+	resultTypes := make([]mlir.TypeLike, signature.Results().Len())
 	for i := 0; i < signature.Results().Len(); i++ {
 		resultTypes[i] = b.GetStoredType(ctx, signature.Results().At(i).Type())
 	}
 
 	// Create the wrapper function body.
-	region := mlir.RegionCreate()
+	region := mlir.NewRegion()
 	ctx = newContextWithRegion(ctx, region)
 
-	entryBlock := mlir.BlockCreate2(paramTypes, paramLocs)
-	mlir.RegionAppendOwnedBlock(region, entryBlock)
+	entryBlock := mlir.NewBlock(paramTypes, paramLocs)
+	region.AppendOwnedBlock(entryBlock)
 	buildBlock(ctx, entryBlock, func() {
-		args := make([]mlir.Value, signature.Params().Len())
+		args := make([]mlir.ValueLike, signature.Params().Len())
 		for i := 0; i < signature.Params().Len(); i++ {
-			args[i] = mlir.BlockGetArgument(entryBlock, i)
+			args[i] = entryBlock.Argument(i)
 		}
 
 		// Emit the builtin call into the wrapper function.
-		op := mlir.GoCreateBuiltInCallOperation(b.ctx, ident.Name, resultTypes, args, b._noLoc)
+		op := goir.NewBuiltInCallOperation(b.ctx, ident.Name, resultTypes, args, b._noLoc)
 		appendOperation(ctx, op)
 
 		// Return the results.
-		returnOp := mlir.GoCreateReturnOperation(b.ctx, resultsOf(op), b._noLoc)
+		returnOp := goir.NewReturnOperation(b.ctx, resultsOf(op), b._noLoc)
 		appendOperation(ctx, returnOp)
 	})
 
 	// Create the function operation.
 	symbol := fmt.Sprintf("_builtin_wrapper_%s", ident.Name)
 	wrapperFuncT := b.createSignatureType(ctx, signature)
-	state := mlir.OperationStateGet("go.func", b._noLoc)
-	mlir.OperationStateAddOwnedRegions(state, []mlir.Region{region})
-	mlir.OperationStateAddAttributes(state, []mlir.NamedAttribute{
-		b.namedOf("function_type", mlir.TypeAttrGet(wrapperFuncT)),
-		b.namedOf("sym_name", mlir.StringAttrGet(b.ctx, symbol)),
-		b.namedOf("sym_visibility", mlir.StringAttrGet(b.ctx, "private")),
-	})
-
-	funcOp := mlir.OperationCreate(state)
+	funcOp := mlir.NewOperationState("go.func", b._noLoc).
+		AddOwnedRegions(region).AddAttributes(
+		b.namedOf("function_type", mlir.NewTypeAttr(wrapperFuncT)),
+		b.namedOf("sym_name", mlir.NewStringAttr(b.ctx, symbol)),
+		b.namedOf("sym_visibility", mlir.NewStringAttr(b.ctx, "private")),
+	).Create()
 
 	// This operation will be added later safely.
 	b.addToModuleMutex.Lock()

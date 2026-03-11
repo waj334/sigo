@@ -4,7 +4,8 @@ import (
 	"context"
 	"go/types"
 
-	"pkg.si-go.dev/sigo/mlir"
+	"pkg.si-go.dev/go-mlir/mlir"
+	"pkg.si-go.dev/sigo/goir/binding/goir"
 )
 
 type (
@@ -27,7 +28,7 @@ type (
 
 type blockWithArgs struct {
 	block mlir.Block
-	args  []mlir.Value
+	args  []mlir.ValueLike
 }
 
 func newGlobalContext(ctx context.Context) context.Context {
@@ -49,7 +50,7 @@ func currentRegion(ctx context.Context) mlir.Region {
 	if val := ctx.Value(regionKey{}); val != nil {
 		return val.(mlir.Region)
 	}
-	return nil
+	return mlir.Region{}
 }
 
 func newContextWithIdentifier(ctx context.Context, identifier string) context.Context {
@@ -87,7 +88,7 @@ func currentBlock(ctx context.Context) mlir.Block {
 			return *blockPtr
 		}
 	}
-	return nil
+	return mlir.Block{}
 }
 
 func setCurrentBlock(ctx context.Context, target mlir.Block) {
@@ -99,40 +100,40 @@ func setCurrentBlock(ctx context.Context, target mlir.Block) {
 	panic("No block pointer in context")
 }
 
-func newContextWithSuccessorBlock(ctx context.Context, block mlir.Block, args []mlir.Value) context.Context {
+func newContextWithSuccessorBlock(ctx context.Context, block mlir.Block, args []mlir.ValueLike) context.Context {
 	return context.WithValue(ctx, successorBlockKey{}, blockWithArgs{block, args})
 }
 
-func currentSuccessorBlock(ctx context.Context) (mlir.Block, []mlir.Value) {
+func currentSuccessorBlock(ctx context.Context) (mlir.Block, []mlir.ValueLike) {
 	if val := ctx.Value(successorBlockKey{}); val != nil {
 		b := val.(blockWithArgs)
 		return b.block, b.args
 	}
-	return nil, nil
+	return mlir.Block{}, nil
 }
 
-func newContextWithPredecessorBlock(ctx context.Context, block mlir.Block, args []mlir.Value) context.Context {
+func newContextWithPredecessorBlock(ctx context.Context, block mlir.Block, args []mlir.ValueLike) context.Context {
 	return context.WithValue(ctx, predecessorBlockKey{}, blockWithArgs{block, args})
 }
 
-func currentPredecessorBlock(ctx context.Context) (mlir.Block, []mlir.Value) {
+func currentPredecessorBlock(ctx context.Context) (mlir.Block, []mlir.ValueLike) {
 	if val := ctx.Value(predecessorBlockKey{}); val != nil {
 		b := val.(blockWithArgs)
 		return b.block, b.args
 	}
-	return nil, nil
+	return mlir.Block{}, nil
 }
 
-func newContextWithFallthroughBlock(ctx context.Context, block mlir.Block, args []mlir.Value) context.Context {
+func newContextWithFallthroughBlock(ctx context.Context, block mlir.Block, args []mlir.ValueLike) context.Context {
 	return context.WithValue(ctx, fallthroughBlockKey{}, blockWithArgs{block, args})
 }
 
-func currentFallthroughBlock(ctx context.Context) (mlir.Block, []mlir.Value) {
+func currentFallthroughBlock(ctx context.Context) (mlir.Block, []mlir.ValueLike) {
 	if val := ctx.Value(fallthroughBlockKey{}); val != nil {
 		b := val.(blockWithArgs)
 		return b.block, b.args
 	}
-	return nil, nil
+	return mlir.Block{}, nil
 }
 
 func newContextWithLabeledBlocks(ctx context.Context, block map[string]mlir.Block) context.Context {
@@ -198,13 +199,13 @@ func currentTypeMap(ctx context.Context) TypeParamMap {
 	return nil
 }
 
-func newContextWithScope(ctx context.Context, attribute mlir.Attribute) context.Context {
+func newContextWithScope(ctx context.Context, attribute goir.ScopeAttr) context.Context {
 	return context.WithValue(ctx, scopeKey{}, attribute)
 }
 
-func currentScope(ctx context.Context) mlir.Attribute {
+func currentScope(ctx context.Context) goir.ScopeAttr {
 	if val := ctx.Value(scopeKey{}); val != nil {
-		return val.(mlir.Attribute)
+		return val.(goir.ScopeAttr)
 	}
-	return nil
+	return goir.ScopeAttr{}
 }

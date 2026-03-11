@@ -416,6 +416,7 @@ func pkgPicolibc(arch string) (Package, error) {
 			"newlib/libc/string/memcpy.c",
 			"newlib/libc/string/strncmp.c",
 			"newlib/libc/string/strncpy.c",
+			"newlib/libc/string/memcmp.c",
 		},
 	}
 
@@ -432,12 +433,9 @@ func pkgPicolibc(arch string) (Package, error) {
 			"newlib/libc/machine/arm/strcpy.S",
 			"newlib/libc/machine/arm/strlen.c",
 			"newlib/libc/machine/arm/strlen.S",
-			"newlib/libc/string/memcmp.c",
 		)
 	default:
-		pkg.Sources = append(pkg.Sources,
-			"newlib/libc/string/memcmp.c",
-		)
+		//pkg.Sources = append(pkg.Sources)
 	}
 
 	return pkg, nil

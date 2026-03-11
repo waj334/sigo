@@ -51,7 +51,7 @@ type Type interface {
 	String() string
 
 	// Elem returns a type's element type.
-	// It panics if the type's Kind is not Ptr.
+	// It panics if the type's Kind is not C.
 	Elem() Type
 
 	//common() *rtype

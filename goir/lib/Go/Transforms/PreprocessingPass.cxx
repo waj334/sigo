@@ -3,14 +3,19 @@
 #include <mlir/Pass/Pass.h>
 
 #include "Go/IR/GoOps.h"
+#include "Go/Transforms/Passes.h"
 #include "Go/Transforms/TypeConverter.h"
 
 namespace mlir::go
 {
+#define GEN_PASS_DEF_PREPROCESSINGPASS
+#include "Go/Transforms/Passes.h.inc"
 
 struct PreprocessingPass final
-  : public mlir::PassWrapper<PreprocessingPass, mlir::OperationPass<mlir::ModuleOp>>
+  : public impl::PreprocessingPassBase<PreprocessingPass>
 {
+  using PreprocessingPassBase<PreprocessingPass>::PreprocessingPassBase;
+
   void runOnOperation() override
   {
     auto context = &this->getContext();
@@ -97,10 +102,5 @@ struct PreprocessingPass final
     }
   }
 };
-
-std::unique_ptr<mlir::Pass> createPreprocessingPass()
-{
-  return std::make_unique<PreprocessingPass>();
-}
 
 } // namespace mlir::go

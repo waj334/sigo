@@ -5,18 +5,19 @@ import (
 
 	"go/types"
 
-	"pkg.si-go.dev/sigo/mlir"
+	"pkg.si-go.dev/go-mlir/mlir"
+	"pkg.si-go.dev/sigo/goir/binding/goir"
 )
 
-func (b *Builder) emitTypeConversion(ctx context.Context, X mlir.Value, src types.Type, dest types.Type, location mlir.Location) mlir.Value {
+func (b *Builder) emitTypeConversion(ctx context.Context, X mlir.ValueLike, src types.Type, dest types.Type, location mlir.LocationLike) mlir.Value {
 	if typeHasFlags(src, types.IsUntyped) && typeHasFlags(dest, types.IsUntyped) {
 		// TODO: Determine the best action to take here.
-		return X
+		return X.AsValue()
 	}
 
 	srcType := b.GetStoredType(ctx, baseType(src))
 	destType := b.GetStoredType(ctx, baseType(dest))
-	result := X
+	result := X.AsValue()
 
 	if !types.Identical(src, dest) {
 		if types.Identical(baseType(src), baseType(dest)) {
@@ -42,38 +43,38 @@ func (b *Builder) emitTypeConversion(ctx context.Context, X mlir.Value, src type
 				srcWidth := b.widthOf(srcType)
 				destWidth := b.widthOf(destType)
 				if srcWidth > destWidth {
-					op := mlir.GoCreateIntTruncateOperation(b.ctx, X, destType, location)
+					op := goir.NewIntTruncateOperation(b.ctx, X, destType, location)
 					appendOperation(ctx, op)
-					result = resultOf(op)
+					result = resultOf(op).AsValue()
 				} else if srcWidth == destWidth {
 					result = b.bitcastTo(ctx, result, destType, location)
 				} else if isUnsigned(destType) {
-					op := mlir.GoCreateZeroExtendOperation(b.ctx, X, destType, location)
+					op := goir.NewZeroExtendOperation(b.ctx, X, destType, location)
 					appendOperation(ctx, op)
-					result = resultOf(op)
+					result = resultOf(op).AsValue()
 				} else {
-					op := mlir.GoCreateSignedExtendOperation(b.ctx, X, destType, location)
+					op := goir.NewSignedExtendOperation(b.ctx, X, destType, location)
 					appendOperation(ctx, op)
-					result = resultOf(op)
+					result = resultOf(op).AsValue()
 				}
 			case typeHasFlags(dest, types.IsFloat):
 				if isSigned(srcType) {
-					op := mlir.GoCreateSignedIntToFloatOperation(b.ctx, X, destType, location)
+					op := goir.NewSignedIntToFloatOperation(b.ctx, X, destType, location)
 					appendOperation(ctx, op)
-					result = resultOf(op)
+					result = resultOf(op).AsValue()
 				} else {
-					op := mlir.GoCreateUnsignedIntToFloatOperation(b.ctx, X, destType, location)
+					op := goir.NewUnsignedIntToFloatOperation(b.ctx, X, destType, location)
 					appendOperation(ctx, op)
-					result = resultOf(op)
+					result = resultOf(op).AsValue()
 				}
 			case typeHasFlags(dest, types.IsComplex):
 				// TODO: Need operation for this.
 				panic("unimplemented")
 			case typeHasFlags(dest, types.IsString): // Rune conversion
 				// Allocate memory to hold the rune.
-				allocOp := mlir.GoCreateAllocaOperation(b.ctx, b.ptr, srcType, 1, true, location)
+				allocOp := goir.NewAllocaOperation(b.ctx, b.ptr, srcType, 1, true, location)
 				appendOperation(ctx, allocOp)
-				storeOp := mlir.GoCreateStoreOperation(b.ctx, X, resultOf(allocOp), location)
+				storeOp := goir.NewStoreOperation(b.ctx, X, resultOf(allocOp), location)
 				appendOperation(ctx, storeOp)
 
 				// Create and return a string value.
@@ -82,45 +83,49 @@ func (b *Builder) emitTypeConversion(ctx context.Context, X mlir.Value, src type
 				// Reinterpret as !go.string type.
 				result = b.bitcastTo(ctx, value, destType, location)
 			case isUnsafePointer(dest):
-				op := mlir.GoCreateIntToPtrOperation(b.ctx, X, destType, location)
+				op := goir.NewIntToPtrOperation(b.ctx, X, destType, location)
 				appendOperation(ctx, op)
-				result = resultOf(op)
+				result = resultOf(op).AsValue()
 			default:
 				panic("unhandled")
 			}
 		case typeHasFlags(src, types.IsComplex):
-			srcWidth := b.widthOf(mlir.ComplexTypeGetElementType(srcType))
-			destWidth := b.widthOf(mlir.ComplexTypeGetElementType(destType))
+			srcComplexType, _ := mlir.AsComplexType(srcType)
+			destComplexType, _ := mlir.AsComplexType(destType)
+			srcWidth := b.widthOf(srcComplexType.ElementType())
+			destWidth := b.widthOf(destComplexType.ElementType())
 			if destWidth < srcWidth {
-				op := mlir.GoCreateComplexTruncateOperation(b.ctx, X, destType, location)
+				op := goir.NewComplexTruncateOperation(b.ctx, X, destType, location)
 				appendOperation(ctx, op)
-				result = resultOf(op)
+				result = resultOf(op).AsValue()
 			} else {
-				op := mlir.GoCreateComplexExtendOperation(b.ctx, X, destType, location)
+				op := goir.NewComplexExtendOperation(b.ctx, X, destType, location)
 				appendOperation(ctx, op)
-				result = resultOf(op)
+				result = resultOf(op).AsValue()
 			}
 		case typeHasFlags(src, types.IsFloat):
 			switch {
 			case typeHasFlags(dest, types.IsInteger):
 				if isSigned(destType) {
-					op := mlir.GoCreateFloatToSignedIntOperation(b.ctx, X, destType, location)
+					op := goir.NewFloatToSignedIntOperation(b.ctx, X, destType, location)
 					appendOperation(ctx, op)
-					result = resultOf(op)
+					result = resultOf(op).AsValue()
 				} else {
-					op := mlir.GoCreateFloatToUnsignedIntOperation(b.ctx, X, destType, location)
+					op := goir.NewFloatToUnsignedIntOperation(b.ctx, X, destType, location)
 					appendOperation(ctx, op)
-					result = resultOf(op)
+					result = resultOf(op).AsValue()
 				}
 			case typeHasFlags(dest, types.IsFloat):
-				if mlir.TypeIsAF32(srcType) && mlir.TypeIsAF64(destType) {
-					op := mlir.GoCreateFloatExtendOperation(b.ctx, X, destType, location)
+				srcWidth := b.widthOf(srcType)
+				destWidth := b.widthOf(destType)
+				if srcWidth < destWidth {
+					op := goir.NewFloatExtendOperation(b.ctx, X, destType, location)
 					appendOperation(ctx, op)
-					result = resultOf(op)
+					result = resultOf(op).AsValue()
 				} else {
-					op := mlir.GoCreateFloatTruncateOperation(b.ctx, X, destType, location)
+					op := goir.NewFloatTruncateOperation(b.ctx, X, destType, location)
 					appendOperation(ctx, op)
-					result = resultOf(op)
+					result = resultOf(op).AsValue()
 				}
 			case typeHasFlags(dest, types.IsComplex):
 				// TODO: Need operation for this.
@@ -131,14 +136,14 @@ func (b *Builder) emitTypeConversion(ctx context.Context, X mlir.Value, src type
 		case typeHasFlags(src, types.IsString):
 			switch {
 			case typeIs[*types.Slice](dest):
-				op := mlir.GoCreateStringToSliceOperation(b.ctx, X, destType, location)
+				op := goir.NewStringToSliceOperation(b.ctx, X, destType, location)
 				appendOperation(ctx, op)
-				result = resultOf(op)
+				result = resultOf(op).AsValue()
 			case typeHasFlags(dest, types.IsString):
 				// NOTE: The input is probably untyped. Just perform a bitcast.
-				op := mlir.GoCreateBitcastOperation(b.ctx, X, destType, location)
+				op := goir.NewBitcastOperation(b.ctx, X, destType, location)
 				appendOperation(ctx, op)
-				result = resultOf(op)
+				result = resultOf(op).AsValue()
 			default:
 				panic("unhandled")
 			}
@@ -152,18 +157,18 @@ func (b *Builder) emitTypeConversion(ctx context.Context, X mlir.Value, src type
 		case typeIs[*types.Slice](src):
 			switch {
 			case typeHasFlags(dest, types.IsString):
-				op := mlir.GoCreateSliceToStringOperation(b.ctx, X, destType, location)
+				op := goir.NewSliceToStringOperation(b.ctx, X, destType, location)
 				appendOperation(ctx, op)
-				result = resultOf(op)
+				result = resultOf(op).AsValue()
 			default:
 				panic("unhandled")
 			}
 		case isUnsafePointer(src):
 			switch {
 			case typeHasFlags(dest, types.IsInteger):
-				op := mlir.GoCreatePtrToIntOperation(b.ctx, X, destType, location)
+				op := goir.NewPtrToIntOperation(b.ctx, X, destType, location)
 				appendOperation(ctx, op)
-				result = resultOf(op)
+				result = resultOf(op).AsValue()
 			case typeIs[*types.Pointer](dest):
 				result = b.bitcastTo(ctx, X, destType, location)
 			default:

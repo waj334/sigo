@@ -9,8 +9,13 @@
 
 namespace mlir::go
 {
+#define GEN_PASS_DEF_CALLPASS
+#include "Go/Transforms/Passes.h.inc"
 
-struct CallPass : public mlir::PassWrapper<CallPass, mlir::OperationPass<mlir::ModuleOp>>
+namespace
+{
+
+struct CallPass : ::mlir::go::impl::CallPassBase<CallPass>
 {
   llvm::SmallDenseMap<llvm::hash_code, std::string> m_thunkSymbols;
   llvm::SmallDenseMap<llvm::hash_code, std::string> m_wrapperSymbols;
@@ -129,7 +134,8 @@ struct CallPass : public mlir::PassWrapper<CallPass, mlir::OperationPass<mlir::M
             closureValue,
             ctxStructType,
             ValueRange{},
-            SmallVector<int32_t>{ 0, i + 1 });
+            SmallVector<int32_t>{ 0, i + 1 },
+            SmallVector<bool>{ false, false });
           callArgs[i] = builder.create<LoadOp>(loc, argType, callArgPtr, UnitAttr(), UnitAttr());
         }
 
@@ -312,9 +318,5 @@ struct CallPass : public mlir::PassWrapper<CallPass, mlir::OperationPass<mlir::M
   }
 };
 
-std::unique_ptr<mlir::Pass> createCallPass()
-{
-  return std::make_unique<CallPass>();
-}
-
+} // namespace
 } // namespace mlir::go
