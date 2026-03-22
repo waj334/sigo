@@ -18,10 +18,6 @@ func NewAttachDebugInfoToAllocaPass() mlir.Pass {
 	return mlir.WrapExternalPass(unsafe.Pointer(C.mlirCreateGoAttachDebugInfoToAllocaPass().ptr))
 }
 
-func NewAttachDebugInfoToConstantPass() mlir.Pass {
-	return mlir.WrapExternalPass(unsafe.Pointer(C.mlirCreateGoAttachDebugInfoToConstantPass().ptr))
-}
-
 func NewAttachDebugInfoToFuncPass() mlir.Pass {
 	return mlir.WrapExternalPass(unsafe.Pointer(C.mlirCreateGoAttachDebugInfoToFuncPass().ptr))
 }
@@ -32,6 +28,10 @@ func NewAttachDebugInfoToGlobalPass() mlir.Pass {
 
 func NewCallPass() mlir.Pass {
 	return mlir.WrapExternalPass(unsafe.Pointer(C.mlirCreateGoCallPass().ptr))
+}
+
+func NewEliminateRedundantNilChecksPass() mlir.Pass {
+	return mlir.WrapExternalPass(unsafe.Pointer(C.mlirCreateGoEliminateRedundantNilChecksPass().ptr))
 }
 
 func NewFuncPass() mlir.Pass {
@@ -48,6 +48,10 @@ func NewGlobalInitializerPass() mlir.Pass {
 
 func NewHeapEscapePass() mlir.Pass {
 	return mlir.WrapExternalPass(unsafe.Pointer(C.mlirCreateGoHeapEscapePass().ptr))
+}
+
+func NewInsertGCWriteBarrierPass() mlir.Pass {
+	return mlir.WrapExternalPass(unsafe.Pointer(C.mlirCreateGoInsertGCWriteBarrierPass().ptr))
 }
 
 func NewLowerToCorePass() mlir.Pass {

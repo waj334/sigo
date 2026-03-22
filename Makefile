@@ -46,6 +46,8 @@ GOIR_BUILD_DIR=$(ROOT_DIR)/build/$(CMAKE_BUILD_TYPE)/goir-build
 GOIR_CMAKE_CACHE=$(GOIR_BUILD_DIR)/CMakeCache.txt
 GOIR_LIB=$(GOIR_BUILD_DIR)/libGoIR.a
 
+INSTALL_DIR=$(ROOT_DIR)/build/$(CMAKE_BUILD_TYPE)/install
+
 # Build a semicolon separated list that CMake can accept
 CMAKE_LLVM_COMPONENTS :=
 $(foreach item, $(LLVM_BUILD_COMPONENTS),$(if $(CMAKE_LLVM_COMPONENTS),$(eval CMAKE_LLVM_COMPONENTS := $(CMAKE_LLVM_COMPONENTS);))$(eval CMAKE_LLVM_COMPONENTS := $(CMAKE_LLVM_COMPONENTS)$(strip $(item))))
@@ -124,9 +126,9 @@ all: sigo
 env:
 	CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" go env
 
-clean: clean-sigo clean-tests
+clean: clean-sigo clean-tests clean-sysroots
 
-$(SIGO_EXE): build-goir $(GO_SRCS) $(LIBS)
+$(SIGO_EXE): build-goir sysroots $(GO_SRCS) $(LIBS)
 	rm -f $(SIGO_EXE)
 	@if [ $(SIGO_BUILD_RELEASE) -eq 1 ]; then \
   		CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" CGO_CXXFLAGS="$(CGO_CXXFLAGS)" go build -o $(SIGO_EXE) -ldflags="-linkmode external" $(ROOT_DIR)/cmd/sigoc; \
@@ -169,6 +171,7 @@ $(LLVM_CMAKE_CACHE):
 		${CMAKE_COMPILER_ARGS} \
 		${CMAKE_COMPILER_TARGET_ARGS} \
 		${CMAKE_LINKER_ARGS} \
+		-DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) \
         -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}" \
         -DCMAKE_CXX_STANDARD_LIBRARIES="${CMAKE_CXX_STANDARD_LIBRARIES}" \
 		-DLLVM_ENABLE_PROJECTS="llvm;mlir" \
@@ -186,12 +189,16 @@ configure-llvm: $(LLVM_CMAKE_CACHE)
 build-llvm: configure-llvm
 	cmake --build ${LLVM_BUILD_DIR} -j$(NUM_JOBS)
 
+install-llvm: build-llvm
+	cmake --install ${LLVM_BUILD_DIR} --prefix $(INSTALL_DIR)
+
 $(GOIR_CMAKE_CACHE):
 	CC=${CC} CXX=${CXX} LD=${LD}  cmake -G "Ninja" -B ${GOIR_BUILD_DIR} ${GOIR_ROOT} \
 		-DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) \
 		${CMAKE_COMPILER_ARGS} \
 		${CMAKE_COMPILER_TARGET_ARGS} \
 		${CMAKE_LINKER_ARGS} \
+		-DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) \
 		-DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}" \
 		-DCMAKE_CXX_STANDARD_LIBRARIES="${CMAKE_CXX_STANDARD_LIBRARIES}" \
 		-DCMAKE_PREFIX_PATH=${LLVM_BUILD_DIR}/lib/cmake
@@ -202,6 +209,9 @@ $(GOIR_LIB): configure-goir
 	cmake --build ${GOIR_BUILD_DIR} -j$(NUM_JOBS)
 
 build-goir: $(GOIR_LIB)
+
+install-goir: build-goir
+	cmake --install ${GOIR_BUILD_DIR} --prefix $(INSTALL_DIR)
 
 configure: configure-llvm configure-goir
 
@@ -247,3 +257,6 @@ bin2str: $(BIN2STR_EXE)
 	fi
 
 release: sigo
+
+include sysroot.mk
+

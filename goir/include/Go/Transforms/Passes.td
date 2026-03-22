@@ -11,14 +11,6 @@ def AttachDebugInfoToAllocaPass : Pass<"attach-debug-info-to-alloca-pass", "::ml
     let dependentDialects = ["mlir::go::GoDialect", "mlir::LLVM::LLVMDialect"];
 }
 
-def AttachDebugInfoToConstantPass : Pass<"attach-debug-info-to-constant-pass", "::mlir::go::GlobalConstantOp"> {
-    let summary = "Generates debug information describing constant values.";
-    let description = [{
-        Generates debug information describing constant values.
-    }];
-    let dependentDialects = ["mlir::go::GoDialect", "mlir::LLVM::LLVMDialect"];
-}
-
 def AttachDebugInfoToFuncPass : Pass<"attach-debug-info-to-func-pass", "::mlir::go::FuncOp"> {
     let summary = "Generates debug information describing functions.";
     let description = [{
@@ -69,6 +61,23 @@ def HeapEscapePass : Pass<"go-heap-escape-pass", "::mlir::go::FuncOp"> {
     let summary = "Analyzes stack allocations that escape the stack.";
     let description = [{
         Analyzes stack allocations that escape the stack.
+    }];
+}
+
+def EliminateRedundantNilChecksPass : Pass<"go-eliminate-redundant-nil-checks-pass", "::mlir::go::FuncOp"> {
+    let summary = "Eliminates provably redundant nil pointer checks.";
+    let description = [{
+        Eliminates nil pointer checks that are provably unnecessary:
+        - Checks on freshly allocated pointers (go.alloca)
+        - Checks on addresses of globals (go.addressOf)
+        - Redundant checks on the same value within a basic block
+    }];
+}
+
+def InsertGCWriteBarrierPass : Pass<"go-insert-gc-write-barrier-pass", "::mlir::go::FuncOp"> {
+    let summary = "Analyzes stores to heap allocations owned by the GC.";
+    let description = [{
+        Analyzes stores to heap allocations owned by the GC.
     }];
 }
 

@@ -36,6 +36,7 @@ type goroutine struct {
 //sigo:extern alignStack runtime.alignStack
 //sigo:extern gosched runtime.gosched
 
+//sigo:export headGoroutine runtime.headGoroutine
 //go:export lastGoroutine runtime.lastGoroutine
 //go:export currentGoroutine runtime.currentGoroutine
 //go:export schedule runtime.schedule
@@ -45,8 +46,6 @@ type goroutine struct {
 //go:export gopark runtime.gopark
 //go:export goresume runtime.goresume
 //go:export getg runtime.getg
-
-//sigo:required runScheduler
 
 var (
 	headGoroutine      *goroutine = nil
@@ -146,7 +145,8 @@ func addGoroutine(f _func) {
 	// Create the new goroutine
 	newGoroutine := &goroutine{
 		stack: stack,
-		// initGoroutine may move the top of stack pointer depending on the target machine's stack growth direction.
+		// NOTE: initGoroutine may move the top of the stack pointer depending on the target machine's stack growth
+		//       direction.
 		stackTop: stack,
 		__func:   f,
 		state:    goroutineNotStarted,
@@ -155,7 +155,7 @@ func addGoroutine(f _func) {
 	// Initialize the stack for this goroutine.
 	initGoroutine(unsafe.Pointer(newGoroutine))
 
-	// Insert into ring
+	// Insert into the goroutine ring.
 	oldHead := headGoroutine
 	headGoroutine = newGoroutine
 	if oldHead == nil {
@@ -212,6 +212,26 @@ func gopark(ptr unsafe.Pointer) {
 	state := DisableInterrupts()
 	g := (*goroutine)(ptr)
 	g.state = goroutineParked
+	EnableInterrupts(state)
+	for g.state == goroutineParked {
+		gosched()
+	}
+}
+
+// goparkWithCallback parks the goroutine and executes a callback atomically
+// after marking as parked but before enabling interrupts. This prevents races
+// where an interrupt could fire between parking and the callback execution.
+//
+//go:export goparkWithCallback runtime.goparkWithCallback
+func goparkWithCallback(ptr unsafe.Pointer, callback func()) {
+	state := DisableInterrupts()
+	g := (*goroutine)(ptr)
+	g.state = goroutineParked
+	// Execute callback while interrupts are still disabled
+	// This ensures atomicity between parking and callback
+	if callback != nil {
+		callback()
+	}
 	EnableInterrupts(state)
 	for g.state == goroutineParked {
 		gosched()

@@ -179,12 +179,10 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 				appendOperation(ctx, gepOp)
 
 				// Load the address of the external local variable.
-				loadOp := goir.NewLoadOperation(b.ctx, resultOf(gepOp), ptrType, loc)
-				appendOperation(ctx, loadOp)
+				addr := b.emitLoad(ctx, resultOf(gepOp), ptrType, loc)
 
 				// Store the address of the free variable at the address of the stack allocation.
-				storeOp := goir.NewStoreOperation(b.ctx, resultOf(loadOp), fv.ptr, loc)
-				appendOperation(ctx, storeOp)
+				b.emitStore(ctx, addr, fv.ptr, loc)
 			}
 
 			// Function arguments start after the capture list.
@@ -318,8 +316,11 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 		b.namedOf("sym_name", mlir.NewStringAttr(b.config.Ctx, data.linkname)),
 		b.namedOf("sym_visibility", mlir.NewStringAttr(b.config.Ctx, visibility)),
 		b.namedOf("llvm.linkage", linkageAttr),
-		b.namedOf("passthrough", b.strArrayAttr(data.attributes...)),
 	)
+
+	for _, attr := range data.attributes {
+		state.AddAttributes(b.namedOf(attr, mlir.NewUnitAttr(b.ctx)))
+	}
 
 	if data.isPackageInit {
 		state.AddAttributes(
@@ -580,9 +581,7 @@ func (b *Builder) unpackArgPack(ctx context.Context, argTypes []mlir.TypeLike, p
 	for i, T := range argTypes {
 		gepOp := goir.NewGepOperation(b.ctx, pack, argPackT, []int{0, i}, nil, []bool{false, false}, goir.NewPointerType(T), location)
 		appendOperation(ctx, gepOp)
-		loadOp := goir.NewLoadOperation(b.ctx, resultOf(gepOp), T, location)
-		appendOperation(ctx, loadOp)
-		result[i] = resultOf(loadOp)
+		result[i] = b.emitLoad(ctx, resultOf(gepOp), T, location)
 	}
 	return result
 }

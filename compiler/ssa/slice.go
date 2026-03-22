@@ -118,11 +118,10 @@ func (b *Builder) emitSliceRange(ctx context.Context, stmt *ast.RangeStmt) {
 			appendOperation(ctx, gepOp)
 
 			// Load the value from the array.
-			loadOp := goir.NewLoadOperation(b.ctx, resultOf(gepOp), elementT, location)
-			appendOperation(ctx, loadOp)
+			value := b.emitLoad(ctx, resultOf(gepOp), elementT, location)
 
 			// Store it at the element variable address.
-			elementVar.Store(ctx, resultOf(loadOp), tokLocation)
+			elementVar.Store(ctx, value, tokLocation)
 		}
 
 		// Emit the loop body.

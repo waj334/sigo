@@ -492,9 +492,7 @@ func (b *Builder) emitTypeSwitchStatement(ctx context.Context, stmt *ast.TypeSwi
 
 					// Load the concrete value.
 					assertedType := b.GetStoredType(ctx, obj.Type())
-					loadOp := goir.NewLoadOperation(b.ctx, resultOf(extractOp), assertedType, location)
-					value = resultOf(loadOp).AsValue()
-					appendOperation(ctx, loadOp)
+					value = b.emitLoad(ctx, resultOf(extractOp), assertedType, location)
 
 					// Allocate local storage for the asserted value.
 					local = b.emitLocalVar(ctx, obj, assertedType, false)

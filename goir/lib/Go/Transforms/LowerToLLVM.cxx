@@ -89,7 +89,8 @@ static mlir::SmallVector<Value> createRuntimeCall(
   const mlir::Location location,
   const std::string& funcName,
   const mlir::LLVMTypeConverter* typeConverter,
-  const mlir::ArrayRef<mlir::Value>& args)
+  const mlir::ArrayRef<mlir::Value>& args,
+  const mlir::NamedAttrList& attrs = mlir::NamedAttrList())
 {
   // Format the fully qualified function name
   const std::string qualifiedFuncName = formatPackageSymbol("runtime", funcName);
@@ -123,9 +124,13 @@ static mlir::SmallVector<Value> createRuntimeCall(
   }
 
   // Create the call.
-  auto callOp = rewriter.create<LLVM::CallOp>(location, funcType, callee, args);
+  auto callOp = mlir::LLVM::CallOp::create(rewriter, location, funcType, callee, args);
   callOp.getProperties().operandSegmentSizes = { { static_cast<int32_t>(args.size()), 0 } };
   callOp.getProperties().op_bundle_sizes = rewriter.getDenseI32ArrayAttr({});
+  for (const auto& attr : attrs)
+  {
+    callOp->setAttr(attr.getName(), attr.getValue());
+  }
 
   // Handle the call results.
   if (numResults < 2)
@@ -161,12 +166,9 @@ Value locateOrCreateDeferStack(
   {
     for (Operation& innerOp : block.getOperations())
     {
-      if (auto allocaOp = dyn_cast<LLVM::AllocaOp>(&innerOp))
+      if (innerOp.hasAttrOfType<UnitAttr>("deferStack"))
       {
-        if (allocaOp->hasAttrOfType<UnitAttr>("deferStack"))
-        {
-          return allocaOp.getResult();
-        }
+        return innerOp.getResult(0);
       }
     }
   }
@@ -250,6 +252,46 @@ struct AddressOfOpLowering : ConvertOpToLLVMPattern<AddressOfOp>
   }
 };
 
+struct NilPointerCheckOpLowering : ConvertOpToLLVMPattern<NilPointerCheckOp>
+{
+  using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
+  LogicalResult matchAndRewrite(
+    NilPointerCheckOp op,
+    OpAdaptor adaptor,
+    ConversionPatternRewriter& rewriter) const override
+  {
+    const auto loc = op.getLoc();
+    const auto ptrType = this->getPtrType();
+    const mlir::Value nilPtrValue = mlir::LLVM::ZeroOp::create(rewriter, loc, ptrType);
+
+    const auto compareBlock = rewriter.getBlock();
+    const auto continueBlock = rewriter.splitBlock(op->getBlock(), op->getIterator());
+    const auto panicBlock = rewriter.createBlock(continueBlock);
+
+    // Emit the compare block.
+    {
+      OpBuilder::InsertionGuard guard(rewriter);
+      rewriter.setInsertionPointToEnd(compareBlock);
+      const mlir::Value cmpResult = mlir::LLVM::ICmpOp::create(
+        rewriter, loc, mlir::LLVM::ICmpPredicate::eq, adaptor.getAddr(), nilPtrValue);
+      mlir::LLVM::CondBrOp::create(rewriter, loc, cmpResult, panicBlock, continueBlock);
+    }
+
+    // Emit the panic block.
+    {
+      OpBuilder::InsertionGuard guard(rewriter);
+      rewriter.setInsertionPointToStart(panicBlock);
+      createRuntimeCall(rewriter, loc, "panicmem", this->getTypeConverter(), {});
+      mlir::LLVM::UnreachableOp::create(rewriter, loc);
+    }
+
+    // Remove the original operation.
+    rewriter.eraseOp(op);
+
+    return success();
+  }
+};
+
 struct AddStrOpLowering : ConvertOpToLLVMPattern<AddStrOp>
 {
   using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
@@ -276,7 +318,8 @@ class AllocaOpLowering : public ConvertOpToLLVMPattern<AllocaOp>
   LogicalResult matchAndRewrite(AllocaOp op, OpAdaptor adaptor, ConversionPatternRewriter& rewriter)
     const override
   {
-    OpBuilder::InsertionGuard guard(rewriter);
+    const auto module = op->getParentOfType<mlir::ModuleOp>();
+    const DataLayout dataLayout(module);
     const Location loc = op.getLoc();
     auto elementType = this->getTypeConverter()->convertType(adaptor.getElement());
     auto parentFunc = op->getParentOfType<mlir::LLVM::LLVMFuncOp>();
@@ -284,19 +327,33 @@ class AllocaOpLowering : public ConvertOpToLLVMPattern<AllocaOp>
 
     if (adaptor.getHeap().has_value() && *adaptor.getHeap())
     {
-      const auto module = op->getParentOfType<ModuleOp>();
-      const DataLayout dataLayout(module);
       auto wordType =
         mlir::IntegerType::get(rewriter.getContext(), getTypeConverter()->getPointerBitwidth());
 
       // Get the size of the element type
       const auto allocationSize = dataLayout.getTypeSize(elementType);
-      Value sizeValue = rewriter.create<mlir::LLVM::ConstantOp>(
-        loc, wordType, allocationSize * adaptor.getNumElements());
+      const auto numElements = adaptor.getNumElements();
+
+      // Check for integer overflow: allocationSize * numElements
+      // Use the runtime to handle overflow checking and allocation
+      Value elementSizeValue =
+        rewriter.create<mlir::LLVM::ConstantOp>(loc, wordType, allocationSize);
+      Value numElementsValue = rewriter.create<mlir::LLVM::ConstantOp>(loc, wordType, numElements);
+
+      // Multiply with overflow check by calling runtime helper
+      Value sizeValue =
+        rewriter.create<mlir::LLVM::MulOp>(loc, wordType, elementSizeValue, numElementsValue);
+
+      NamedAttrList attrs;
+      for (const auto attr : adaptor.getAttributes())
+      {
+        attrs.append(attr.getName(), attr.getValue());
+      }
 
       // Create the runtime call to allocate memory on the heap
       const auto runtimeCallResults =
-        createRuntimeCall(rewriter, loc, "alloc", this->getTypeConverter(), { sizeValue });
+        createRuntimeCall(rewriter, loc, "alloc", this->getTypeConverter(), { sizeValue }, attrs);
+
       // Replace the original operation.
       rewriter.replaceOp(op, runtimeCallResults);
       allocValue = runtimeCallResults[0];
@@ -318,9 +375,12 @@ class AllocaOpLowering : public ConvertOpToLLVMPattern<AllocaOp>
       // Move the constant operation before the alloca operation.
       sizeValue.getDefiningOp()->moveBefore(allocValue.getDefiningOp());
 
-      // Zero initialize the value.
-      Value zeroValue = rewriter.create<mlir::LLVM::ZeroOp>(funcLoc, elementType);
-      rewriter.create<mlir::LLVM::StoreOp>(funcLoc, zeroValue, allocValue);
+      if (const auto size = dataLayout.getTypeSize(elementType).getFixedValue(); size > 0)
+      {
+        // Zero initialize the value.
+        Value zeroValue = rewriter.create<mlir::LLVM::ZeroOp>(funcLoc, elementType);
+        rewriter.create<mlir::LLVM::StoreOp>(funcLoc, zeroValue, allocValue);
+      }
 
       auto newOp = allocValue.getDefiningOp();
       for (const auto attr : adaptor.getAttributes())
@@ -365,7 +425,8 @@ struct AtomicAddIOpLowering : ConvertOpToLLVMPattern<AtomicAddIOp>
       adaptor.getRhs(),
       mlir::LLVM::AtomicOrdering::acq_rel);
 
-    // NOTE: LLVM's AtomicRMW will yield the old value BEFORE the addition while Go's atomic.AddxInt
+    // NOTE: LLVM's AtomicRMW will yield the old value BEFORE the addition while Go's
+    // atomic.AddxInt
     //       API expects the new value to be returned.
 
     // Add the delta to the old value.
@@ -387,8 +448,10 @@ struct AtomicCompareAndSwapIOpLowering : ConvertOpToLLVMPattern<AtomicCompareAnd
     OpAdaptor adaptor,
     ConversionPatternRewriter& rewriter) const override
   {
+    const auto loc = op.getLoc();
+
     auto cmpxchg = rewriter.create<mlir::LLVM::AtomicCmpXchgOp>(
-      op.getLoc(),
+      loc,
       adaptor.getAddr(),
       adaptor.getOld(),
       adaptor.getValue(),
@@ -615,7 +678,15 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
       Value sizeValue = rewriter.create<mlir::LLVM::ConstantOp>(loc, this->getIntPtrType(), 1);
       Value keyValue =
         rewriter.create<mlir::LLVM::AllocaOp>(loc, ptrType, operands[1].getType(), sizeValue);
-      rewriter.create<mlir::LLVM::StoreOp>(loc, operands[1], keyValue);
+
+      // Only store if key type is non-zero-sized
+      const auto module = op->getParentOfType<ModuleOp>();
+      const mlir::DataLayout dataLayout(module);
+      if (const auto size = dataLayout.getTypeSize(operands[1].getType()).getFixedValue(); size > 0)
+      {
+        rewriter.create<mlir::LLVM::StoreOp>(loc, operands[1], keyValue);
+      }
+
       createRuntimeCall(
         rewriter, loc, "mapDelete", this->getTypeConverter(), { operands[0], keyValue });
       rewriter.eraseOp(op);
@@ -974,24 +1045,17 @@ struct ChangeInterfaceOpLowering : ConvertOpToLLVMPattern<ChangeInterfaceOp>
 
     Value infoValue = rewriter.create<mlir::LLVM::AddressOfOp>(loc, typeInfoGlobalOp);
 
-    // Alloca stack for the new value
-    Value sizeValue = rewriter.create<mlir::LLVM::ConstantOp>(loc, rewriter.getI64Type(), 1);
-    Value addr = rewriter.create<mlir::LLVM::AllocaOp>(loc, getPtrType(), resultType, sizeValue);
-
     // Get the underlying pointer value from the original interface
     Value ptrValue =
       rewriter.create<mlir::LLVM::ExtractValueOp>(loc, getPtrType(), adaptor.getValue(), 1);
 
-    // Store the pointer value in the new interface value
+    // Build the new interface value directly in registers (no unnecessary stack allocation)
     Value newValue = rewriter.create<mlir::LLVM::UndefOp>(loc, resultType);
     newValue = rewriter.create<mlir::LLVM::InsertValueOp>(loc, newValue, infoValue, 0);
     newValue = rewriter.create<mlir::LLVM::InsertValueOp>(loc, newValue, ptrValue, 1);
 
-    // Store the new type information
-    rewriter.create<mlir::LLVM::StoreOp>(loc, newValue, addr);
-
-    // Load the value
-    rewriter.replaceOpWithNewOp<mlir::LLVM::LoadOp>(op, resultType, addr);
+    // Replace with the new value directly
+    rewriter.replaceOp(op, newValue);
     return success();
   }
 };
@@ -1211,7 +1275,13 @@ struct ChanSendOpLowering : ConvertOpToLLVMPattern<ChanSendOp>
       sendValuePtr = rewriter.create<mlir::LLVM::AllocaOp>(loc, ptrType, elementType, oneValue);
     }
 
-    rewriter.create<mlir::LLVM::StoreOp>(loc, adaptor.getValue(), sendValuePtr);
+    // Only store if element type is non-zero-sized
+    const auto module = op->getParentOfType<ModuleOp>();
+    const mlir::DataLayout dataLayout(module);
+    if (const auto size = dataLayout.getTypeSize(elementType).getFixedValue(); size > 0)
+    {
+      rewriter.create<mlir::LLVM::StoreOp>(loc, adaptor.getValue(), sendValuePtr);
+    }
 
     // Replace the operation with the channel send runtime call.
     const auto result = createRuntimeCall(
@@ -1578,7 +1648,8 @@ struct GlobalOpLowering : ConvertOpToLLVMPattern<GlobalOp>
     }
 
     // TODO: Any global that is NOT assigned a value in some function can be constant.
-    auto global = rewriter.create<mlir::LLVM::GlobalOp>(
+    auto global = mlir::LLVM::GlobalOp::create(
+      rewriter,
       loc,
       elemT,
       false,
@@ -1758,7 +1829,15 @@ struct LoadOpLowering : ConvertOpToLLVMPattern<LoadOp>
     const auto module = op->getParentOfType<ModuleOp>();
     const auto layout =
       llvm::DataLayout(mlir::dyn_cast<StringAttr>(module->getAttr("llvm.data_layout")));
-    intptr_t alignment = static_cast<intptr_t>(layout.getPointerPrefAlignment().value());
+
+    const mlir::DataLayout dataLayout(module);
+    const auto alignment = dataLayout.getTypeABIAlignment(type);
+    if (const auto size = dataLayout.getTypeSize(type).getFixedValue(); size == 0)
+    {
+      // Return the zero value.
+      rewriter.replaceOpWithNewOp<mlir::LLVM::ZeroOp>(op, type);
+      return success();
+    }
 
     bool isVolatile = false;
     if (adaptor.getIsVolatile())
@@ -1920,7 +1999,15 @@ struct MapLookupOpLowering : ConvertOpToLLVMPattern<MapLookupOp>
         mlir::go::transforms::LLVM::MapLookupOpLowering::createIndexAttrConstant(
           rewriter, loc, rewriter.getI64Type(), 1));
     }
-    rewriter.create<mlir::LLVM::StoreOp>(loc, adaptor.getKey(), keyAddr);
+
+    // Only store if key type is non-zero-sized
+    const auto module = op->getParentOfType<ModuleOp>();
+    const mlir::DataLayout dataLayout(module);
+    if (const auto size = dataLayout.getTypeSize(adaptor.getKey().getType()).getFixedValue();
+        size > 0)
+    {
+      rewriter.create<mlir::LLVM::StoreOp>(loc, adaptor.getKey(), keyAddr);
+    }
 
     // Create runtime call to perform the map lookup.
     const auto results = createRuntimeCall(
@@ -2013,8 +2100,20 @@ struct MapUpdateOpLowering : ConvertOpToLLVMPattern<MapUpdateOp>
         mlir::go::transforms::LLVM::MapUpdateOpLowering::createIndexAttrConstant(
           rewriter, loc, rewriter.getI64Type(), 1));
     }
-    rewriter.create<mlir::LLVM::StoreOp>(loc, adaptor.getKey(), keyAddr);
-    rewriter.create<mlir::LLVM::StoreOp>(loc, adaptor.getValue(), elementAddr);
+
+    // Only store if types are non-zero-sized
+    const auto module = op->getParentOfType<ModuleOp>();
+    const mlir::DataLayout dataLayout(module);
+    if (const auto size = dataLayout.getTypeSize(adaptor.getKey().getType()).getFixedValue();
+        size > 0)
+    {
+      rewriter.create<mlir::LLVM::StoreOp>(loc, adaptor.getKey(), keyAddr);
+    }
+    if (const auto size = dataLayout.getTypeSize(adaptor.getValue().getType()).getFixedValue();
+        size > 0)
+    {
+      rewriter.create<mlir::LLVM::StoreOp>(loc, adaptor.getValue(), elementAddr);
+    }
 
     // Create runtime call to perform the map lookup.
     createRuntimeCall(
@@ -2553,9 +2652,10 @@ struct StoreOpLowering : ConvertOpToLLVMPattern<StoreOp>
     const auto module = op->getParentOfType<ModuleOp>();
     const auto layout =
       llvm::DataLayout(mlir::dyn_cast<mlir::StringAttr>(module->getAttr("llvm.data_layout")));
-    intptr_t alignment = static_cast<intptr_t>(layout.getPointerPrefAlignment().value());
 
+    const mlir::DataLayout dataLayout(module);
     auto value = adaptor.getValue();
+    const auto alignment = dataLayout.getTypeABIAlignment(value.getType());
 
     bool isVolatile = false;
     if (adaptor.getIsVolatile())
@@ -2951,6 +3051,7 @@ void populateGoToLLVMConversionPatterns(
       transforms::LLVM::MapLookupOpLowering,
       transforms::LLVM::MapUpdateOpLowering,
       transforms::LLVM::MapRangeOpLowering,
+      transforms::LLVM::NilPointerCheckOpLowering,
       transforms::LLVM::PanicOpLowering,
       transforms::LLVM::PointerToFunctionOpLowering,
       transforms::LLVM::PtrToIntOpLowering,

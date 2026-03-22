@@ -74,8 +74,7 @@ func (b *Builder) emitTypeConversion(ctx context.Context, X mlir.ValueLike, src 
 				// Allocate memory to hold the rune.
 				allocOp := goir.NewAllocaOperation(b.ctx, b.ptr, srcType, 1, true, location)
 				appendOperation(ctx, allocOp)
-				storeOp := goir.NewStoreOperation(b.ctx, X, resultOf(allocOp), location)
-				appendOperation(ctx, storeOp)
+				b.emitStore(ctx, X, resultOf(allocOp), location)
 
 				// Create and return a string value.
 				value := b.emitStringValue(ctx, resultOf(allocOp), b.emitConstInt(ctx, 1, b.si, location), location)

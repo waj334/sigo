@@ -15,6 +15,34 @@ type Value interface {
 	Type() mlir.Type
 }
 
+// needsNilCheck returns true if the pointer value could potentially be nil and needs a check.
+// Returns false only for pointers that are provably non-nil (allocations, address-of operations).
+func needsNilCheck(ptr mlir.Value) bool {
+	if ptr.IsNull() {
+		return false
+	}
+
+	result, ok := ptr.AsResult()
+	if !ok {
+		return false
+	}
+
+	defOp := result.OwningOperation()
+	opName := defOp.Name()
+
+	// Pointers from these operations are probably never nil:
+	// - go.alloca: any allocation always returns a valid address.
+	// - go.addressOf: address of the global symbol is always valid.
+	switch opName.String() {
+	case "go.alloca", "go.addressOf":
+		return false
+	}
+
+	// All other cases (loads, function calls, struct field access, etc.)
+	// could potentially be nil and need checking
+	return true
+}
+
 type ConstantValue struct {
 	Emitter func(context.Context, mlir.LocationLike) mlir.Value
 	T       mlir.TypeLike
@@ -45,13 +73,25 @@ type GlobalValue struct {
 }
 
 func (g GlobalValue) Load(ctx context.Context, location mlir.LocationLike) mlir.Value {
-	op := goir.NewLoadOperation(g.ctx, g.Pointer(ctx, location), g.Type(), location)
+	ptr := g.Pointer(ctx, location)
+	// Emit nil pointer check only if needed.
+	if needsNilCheck(ptr) {
+		nilCheckOp := goir.NewNilPointerCheckOperation(g.ctx, ptr, location)
+		appendOperation(ctx, nilCheckOp)
+	}
+	op := goir.NewLoadOperation(g.ctx, ptr, g.Type(), location)
 	appendOperation(ctx, op)
 	return resultOf(op).AsValue()
 }
 
 func (g GlobalValue) Store(ctx context.Context, value mlir.ValueLike, location mlir.LocationLike) {
-	op := goir.NewStoreOperation(g.ctx, value, g.Pointer(ctx, location), location)
+	ptr := g.Pointer(ctx, location)
+	// Emit nil pointer check only if needed.
+	if needsNilCheck(ptr) {
+		nilCheckOp := goir.NewNilPointerCheckOperation(g.ctx, ptr, location)
+		appendOperation(ctx, nilCheckOp)
+	}
+	op := goir.NewStoreOperation(g.ctx, value, ptr, location)
 	appendOperation(ctx, op)
 }
 
@@ -113,12 +153,22 @@ type LocalValue struct {
 }
 
 func (l LocalValue) Load(ctx context.Context, location mlir.LocationLike) mlir.Value {
+	// Emit nil pointer check only if needed.
+	if needsNilCheck(l.ptr.AsValue()) {
+		nilCheckOp := goir.NewNilPointerCheckOperation(l.b.ctx, l.ptr, location)
+		appendOperation(ctx, nilCheckOp)
+	}
 	op := goir.NewLoadOperation(l.b.ctx, l.ptr, l.Type(), location)
 	appendOperation(ctx, op)
 	return resultOf(op).AsValue()
 }
 
 func (l LocalValue) Store(ctx context.Context, value mlir.ValueLike, location mlir.LocationLike) {
+	// Emit nil pointer check only if needed.
+	if needsNilCheck(l.ptr.AsValue()) {
+		nilCheckOp := goir.NewNilPointerCheckOperation(l.b.ctx, l.ptr, location)
+		appendOperation(ctx, nilCheckOp)
+	}
 	op := goir.NewStoreOperation(l.b.ctx, value, l.ptr, location)
 	appendOperation(ctx, op)
 }
@@ -142,6 +192,12 @@ func (f FreeVar) Load(ctx context.Context, location mlir.LocationLike) mlir.Valu
 	// Get the address of the value.
 	addr := f.Pointer(ctx, location)
 
+	// Emit nil pointer check only if needed.
+	if needsNilCheck(addr) {
+		nilCheckOp := goir.NewNilPointerCheckOperation(f.b.ctx, addr, location)
+		appendOperation(ctx, nilCheckOp)
+	}
+
 	// Load the actual value.
 	loadOp := goir.NewLoadOperation(f.b.ctx, addr, f.T, location)
 	appendOperation(ctx, loadOp)
@@ -152,12 +208,24 @@ func (f FreeVar) Store(ctx context.Context, value mlir.ValueLike, location mlir.
 	// Get the address of the value.
 	addr := f.Pointer(ctx, location)
 
+	// Emit nil pointer check only if needed.
+	if needsNilCheck(addr) {
+		nilCheckOp := goir.NewNilPointerCheckOperation(f.b.ctx, addr, location)
+		appendOperation(ctx, nilCheckOp)
+	}
+
 	// Store the value at the address.
 	op := goir.NewStoreOperation(f.b.ctx, value, addr, location)
 	appendOperation(ctx, op)
 }
 
 func (f FreeVar) Pointer(ctx context.Context, location mlir.LocationLike) mlir.Value {
+	// Emit nil pointer check for the double-pointer only if needed.
+	if needsNilCheck(f.ptr) {
+		nilCheckOp := goir.NewNilPointerCheckOperation(f.b.ctx, f.ptr, location)
+		appendOperation(ctx, nilCheckOp)
+	}
+
 	// Load the address of the value.
 	loadOp := goir.NewLoadOperation(f.b.ctx, f.ptr, goir.NewPointerType(f.T), location)
 	appendOperation(ctx, loadOp)
@@ -175,12 +243,22 @@ type TempValue struct {
 }
 
 func (t *TempValue) Load(ctx context.Context, location mlir.LocationLike) mlir.Value {
+	// Emit nil pointer check only if needed.
+	if needsNilCheck(t.ptr.AsValue()) {
+		nilCheckOp := goir.NewNilPointerCheckOperation(t.b.ctx, t.ptr, location)
+		appendOperation(ctx, nilCheckOp)
+	}
 	op := goir.NewLoadOperation(t.b.ctx, t.ptr, t.Type(), location)
 	appendOperation(ctx, op)
 	return resultOf(op).AsValue()
 }
 
 func (t *TempValue) Store(ctx context.Context, value mlir.ValueLike, location mlir.LocationLike) {
+	// Emit nil pointer check only if needed.
+	if needsNilCheck(t.ptr.AsValue()) {
+		nilCheckOp := goir.NewNilPointerCheckOperation(t.b.ctx, t.ptr, location)
+		appendOperation(ctx, nilCheckOp)
+	}
 	op := goir.NewStoreOperation(t.b.ctx, value, t.ptr, location)
 	appendOperation(ctx, op)
 }

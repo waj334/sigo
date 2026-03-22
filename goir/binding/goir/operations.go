@@ -272,11 +272,12 @@ func NewGepOperation(ctx mlir.Context, addr mlir.ValueLike, baseType mlir.TypeLi
 	))
 }
 
-func NewGlobalOperation(ctx mlir.Context, linkage mlir.AttributeLike, symbol string, typ mlir.TypeLike, location mlir.LocationLike) mlir.Operation {
+func NewGlobalOperation(ctx mlir.Context, linkage mlir.AttributeLike, symbol string, section string, typ mlir.TypeLike, location mlir.LocationLike) mlir.Operation {
 	return wrapOperation(C.mlirGoCreateGlobalOperation(
 		unwrapContext(ctx),
 		unwrapAttribute(linkage),
 		unwrapStringRef(mlir.NewStringRef(symbol)),
+		unwrapStringRef(mlir.NewStringRef(section)),
 		unwrapType(typ),
 		unwrapLocation(location),
 	))
@@ -300,6 +301,10 @@ func NewSliceOperation(ctx mlir.Context, input mlir.ValueLike, low, high, max ml
 
 func NewAddressOfOperation(ctx mlir.Context, symbol string, resultType mlir.TypeLike, location mlir.LocationLike) mlir.Operation {
 	return wrapOperation(C.mlirGoCreateAddressOfOperation(unwrapContext(ctx), unwrapStringRef(mlir.NewStringRef(symbol)), unwrapType(resultType), unwrapLocation(location)))
+}
+
+func NewNilPointerCheckOperation(ctx mlir.Context, addr mlir.ValueLike, location mlir.LocationLike) mlir.Operation {
+	return wrapOperation(C.mlirGoCreateNilPointerCheckOperation(unwrapContext(ctx), unwrapValue(addr), unwrapLocation(location)))
 }
 
 //===----------------------------------------------------------------------===//

@@ -17,839 +17,843 @@ extern "C"
   //===----------------------------------------------------------------------===//
 
   MlirOperation mlirGoCreateInlineAssemblyOperation(
-    MlirContext context,
-    MlirAttribute asmStr,
-    int nConstraints,
-    MlirAttribute* constraints,
-    int nRegisterClobbers,
-    MlirAttribute* registerClobbers,
-    int nOperands,
-    MlirValue* operands,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirAttribute asmStr,
+    const int nConstraints,
+    const MlirAttribute* constraints,
+    const int nRegisterClobbers,
+    const MlirAttribute* registerClobbers,
+    const int nOperands,
+    const MlirValue* operands,
+    const MlirLocation location);
 
   //===----------------------------------------------------------------------===//
   // Binary Operations
   //===----------------------------------------------------------------------===//
 
   MlirOperation mlirGoCreateAddCOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateAddFOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateAddIOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateAddStrOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateAndOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateAndNotOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateCmpCOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirAttribute predicate,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirAttribute predicate,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateCmpFOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirAttribute predicate,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirAttribute predicate,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateCmpIOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirAttribute predicate,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirAttribute predicate,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateCmpInterfaceOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateCmpStringOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirAttribute predicate,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirAttribute predicate,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateCmpNilOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateDivCOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateDivFOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateDivSIOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateDivUIOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateMulCOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateMulFOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateMulIOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateOrOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateRemFOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateRemSIOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateRemUIOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateShlOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateShrUIOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateShrSIOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateSubCOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateSubFOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateSubIOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateXorOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue x,
-    MlirValue y,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue x,
+    const MlirValue y,
+    const MlirLocation location);
 
   //===----------------------------------------------------------------------===//
   // Unary Operations
   //===----------------------------------------------------------------------===//
 
   MlirOperation
-  mlirGoCreateComplementOperation(MlirContext context, MlirValue x, MlirLocation location);
+  mlirGoCreateComplementOperation(const MlirContext context, const MlirValue x, const MlirLocation location);
 
-  MlirOperation mlirGoCreateNegCOperation(MlirContext context, MlirValue x, MlirLocation location);
+  MlirOperation mlirGoCreateNegCOperation(const MlirContext context, const MlirValue x, const MlirLocation location);
 
-  MlirOperation mlirGoCreateNegFOperation(MlirContext context, MlirValue x, MlirLocation location);
+  MlirOperation mlirGoCreateNegFOperation(const MlirContext context, const MlirValue x, const MlirLocation location);
 
-  MlirOperation mlirGoCreateNegIOperation(MlirContext context, MlirValue x, MlirLocation location);
+  MlirOperation mlirGoCreateNegIOperation(const MlirContext context, const MlirValue x, const MlirLocation location);
 
-  MlirOperation mlirGoCreateNotOperation(MlirContext context, MlirValue x, MlirLocation location);
+  MlirOperation mlirGoCreateNotOperation(const MlirContext context, const MlirValue x, const MlirLocation location);
 
   //===----------------------------------------------------------------------===//
   // Map Operations
   //===----------------------------------------------------------------------===//
 
   MlirOperation mlirGoCreateMapUpdateOperation(
-    MlirContext context,
-    MlirValue map,
-    MlirValue key,
-    MlirValue value,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue map,
+    const MlirValue key,
+    const MlirValue value,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateMapLookupOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue map,
-    MlirValue key,
-    bool hasOk,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue map,
+    const MlirValue key,
+    const bool hasOk,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateMapRangeOp(
-    MlirContext context,
-    MlirValue value,
-    MlirBlock bodyDest,
-    MlirBlock exitDest,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirBlock bodyDest,
+    const MlirBlock exitDest,
+    const MlirLocation location);
 
   //===----------------------------------------------------------------------===//
   // Memory Operations
   //===----------------------------------------------------------------------===//
 
   MlirOperation mlirGoCreateAllocaOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirType elementType,
-    int numElements,
-    bool isHeap,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirType elementType,
+    const int numElements,
+    const bool isHeap,
+    const MlirLocation location);
 
-  void mlirGoAllocaOperationSetName(MlirOperation op, MlirStringRef name);
+  void mlirGoAllocaOperationSetName(const MlirOperation op, const MlirStringRef name);
 
-  void mlirGoAllocaOperationSetIsHeap(MlirOperation op, bool isHeap);
+  void mlirGoAllocaOperationSetIsHeap(const MlirOperation op, const bool isHeap);
 
   MlirOperation mlirGoCreateLoadOperation(
-    MlirContext context,
-    MlirValue x,
-    MlirType resultType,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue x,
+    const MlirType resultType,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateVolatileLoadOperation(
-    MlirContext context,
-    MlirValue x,
-    MlirType resultType,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue x,
+    const MlirType resultType,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateAtomicLoadOperation(
-    MlirContext context,
-    MlirValue x,
-    MlirType resultType,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue x,
+    const MlirType resultType,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateStoreOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirValue address,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirValue address,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateVolatileStoreOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirValue address,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirValue address,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateAtomicStoreOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirValue address,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirValue address,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateGepOperation(
-    MlirContext context,
-    MlirValue addr,
-    MlirType baseType,
-    int nConstIndices,
-    int32_t* constIndices,
-    int nDynamicIndices,
-    MlirValue* dynamicIndices,
-    int nIndexFlags,
-    bool* indexFlags,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue addr,
+    const MlirType baseType,
+    const int nConstIndices,
+    const int32_t* constIndices,
+    const int nDynamicIndices,
+    const MlirValue* dynamicIndices,
+    const int nIndexFlags,
+    const bool* indexFlags,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateGlobalOperation(
-    MlirContext context,
-    MlirAttribute linkage,
-    MlirStringRef symbol,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirAttribute linkage,
+    const MlirStringRef symbol,
+    const MlirStringRef section,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation
-  mlirGoCreateYieldOperation(MlirContext context, MlirValue value, MlirLocation location);
+  mlirGoCreateYieldOperation(const MlirContext context, const MlirValue value, const MlirLocation location);
 
   MlirOperation mlirGoCreateSliceOperation(
-    MlirContext context,
-    MlirValue input,
-    MlirValue low,
-    MlirValue high,
-    MlirValue max,
-    MlirType resultType,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue input,
+    const MlirValue low,
+    const MlirValue high,
+    const MlirValue max,
+    const MlirType resultType,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateAddressOfOperation(
-    MlirContext context,
-    MlirStringRef symbol,
-    MlirType resultType,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirStringRef symbol,
+    const MlirType resultType,
+    const MlirLocation location);
+
+  MlirOperation
+  mlirGoCreateNilPointerCheckOperation(const MlirContext context, const MlirValue addr, const MlirLocation location);
 
   //===----------------------------------------------------------------------===//
   // Slice Operations
   //===----------------------------------------------------------------------===//
 
   MlirOperation mlirGoCreateSliceAddrOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue slice,
-    MlirValue index,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue slice,
+    const MlirValue index,
+    const MlirLocation location);
 
   //===----------------------------------------------------------------------===//
   // String Operations
   //===----------------------------------------------------------------------===//
 
   MlirOperation mlirGoCreateStringAddrOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue slice,
-    MlirValue index,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue slice,
+    const MlirValue index,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateStringRangeOp(
-    MlirContext context,
-    MlirValue value,
-    MlirBlock bodyDest,
-    MlirBlock exitDest,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirBlock bodyDest,
+    const MlirBlock exitDest,
+    const MlirLocation location);
 
   //===----------------------------------------------------------------------===//
   // Struct Operations
   //===----------------------------------------------------------------------===//
 
   MlirOperation mlirGoCreateExtractOperation(
-    MlirContext context,
-    uint64_t index,
-    MlirType fieldType,
-    MlirValue structValue,
-    MlirLocation location);
+    const MlirContext context,
+    const uint64_t index,
+    const MlirType fieldType,
+    const MlirValue structValue,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateInsertOperation(
-    MlirContext context,
-    uint64_t index,
-    MlirValue value,
-    MlirValue structValue,
-    MlirType structType,
-    MlirLocation location);
+    const MlirContext context,
+    const uint64_t index,
+    const MlirValue value,
+    const MlirValue structValue,
+    const MlirType structType,
+    const MlirLocation location);
 
   //===----------------------------------------------------------------------===//
   // Constant Operations
   //===----------------------------------------------------------------------===//
 
   MlirOperation mlirGoCreateConstantOperation(
-    MlirContext context,
-    MlirAttribute value,
-    MlirAttribute symbol,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirAttribute value,
+    const MlirAttribute symbol,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateGlobalConstantOperation(
-    MlirContext context,
-    MlirAttribute value,
-    MlirAttribute symbol,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirAttribute value,
+    const MlirAttribute symbol,
+    const MlirLocation location);
 
-  void mlirGoGlobalConstantOperationAddBody(MlirOperation op, MlirBlock body);
+  void mlirGoGlobalConstantOperationAddBody(const MlirOperation op, const MlirBlock body);
 
   //===----------------------------------------------------------------------===//
   // Casting Operations
   //===----------------------------------------------------------------------===//
 
   MlirOperation mlirGoCreateBitcastOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateComplexExtendOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateComplexTruncateOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateIntToPtrOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreatePtrToIntOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateFloatTruncateOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateIntTruncateOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateFloatExtendOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateSignedExtendOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateZeroExtendOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateFloatToUnsignedIntOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateFloatToSignedIntOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateUnsignedIntToFloatOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateSignedIntToFloatOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateFunctionToPointerOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreatePointerToFunctionOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateChangeInterfaceOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateTypeAssertOperation(
-    MlirContext context,
-    MlirValue value,
-    int nResults,
-    MlirType* results,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const int nResults,
+    const MlirType* results,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateStringToSliceOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateSliceToStringOperation(
-    MlirContext context,
-    MlirValue value,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue value,
+    const MlirType type,
+    const MlirLocation location);
 
   //===----------------------------------------------------------------------===//
   // Function Operations
   //===----------------------------------------------------------------------===//
 
   MlirOperation mlirGoGetFunction(
-    MlirContext context,
-    MlirStringRef symbol,
-    MlirType type,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirStringRef symbol,
+    const MlirType type,
+    const MlirLocation location);
 
   //===----------------------------------------------------------------------===//
   // Builtin Operations
   //===----------------------------------------------------------------------===//
 
   MlirOperation
-  mlirGoCreatePanicOperation(MlirContext context, MlirValue value, MlirLocation location);
+  mlirGoCreatePanicOperation(const MlirContext context, const MlirValue value, const MlirLocation location);
 
   MlirOperation
-  mlirGoCreateRecoverOperation(MlirContext context, MlirType type, MlirLocation location);
+  mlirGoCreateRecoverOperation(const MlirContext context, const MlirType type, const MlirLocation location);
 
   //===----------------------------------------------------------------------===//
   // Atomic Operations
   //===----------------------------------------------------------------------===//
 
   MlirOperation mlirGoCreateAtomicAddIOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue addr,
-    MlirValue delta,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue addr,
+    const MlirValue delta,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateAtomicCompareAndSwapOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue addr,
-    MlirValue old,
-    MlirValue value,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue addr,
+    const MlirValue old,
+    const MlirValue value,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateAtomicSwapOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue addr,
-    MlirValue value,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue addr,
+    const MlirValue value,
+    const MlirLocation location);
 
   //===----------------------------------------------------------------------===//
   // Control Flow Operations
   //===----------------------------------------------------------------------===//
 
   MlirOperation mlirGoCreateBranchOperation(
-    MlirContext context,
-    MlirBlock dest,
-    int nDestOperands,
-    MlirValue* destOperands,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirBlock dest,
+    const int nDestOperands,
+    const MlirValue* destOperands,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateCondBranchOperation(
-    MlirContext context,
-    MlirValue condition,
-    MlirBlock trueDest,
-    int nTrueDestOperands,
-    MlirValue* trueDestOperands,
-    MlirBlock falseDest,
-    int nFalseDestOperands,
-    MlirValue* falseDestOperands,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue condition,
+    const MlirBlock trueDest,
+    const int nTrueDestOperands,
+    const MlirValue* trueDestOperands,
+    const MlirBlock falseDest,
+    const int nFalseDestOperands,
+    const MlirValue* falseDestOperands,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateReturnOperation(
-    MlirContext context,
-    int nOperands,
-    MlirValue* operands,
-    MlirLocation location);
+    const MlirContext context,
+    const int nOperands,
+    const MlirValue* operands,
+    const MlirLocation location);
 
   //===----------------------------------------------------------------------===//
   // Call Operations
   //===----------------------------------------------------------------------===//
 
   MlirOperation mlirGoCreateCallOperation(
-    MlirContext context,
-    MlirStringRef callee,
-    int nResultTypes,
-    MlirType* resultTypes,
-    int nOperands,
-    MlirValue* operands,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirStringRef callee,
+    const int nResultTypes,
+    const MlirType* resultTypes,
+    const int nOperands,
+    const MlirValue* operands,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateClosureCallOperation(
-    MlirContext context,
-    MlirAttribute signature,
-    MlirValue callee,
-    int nResultTypes,
-    MlirType* resultTypes,
-    int nOperands,
-    MlirValue* operands,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirAttribute signature,
+    const MlirValue callee,
+    const int nResultTypes,
+    const MlirType* resultTypes,
+    const int nOperands,
+    const MlirValue* operands,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateCallIndirectOperation(
-    MlirContext context,
-    MlirValue callee,
-    int nResultTypes,
-    MlirType* resultTypes,
-    int nOperands,
-    MlirValue* operands,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue callee,
+    const int nResultTypes,
+    const MlirType* resultTypes,
+    const int nOperands,
+    const MlirValue* operands,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateDeferOperation1(
-    MlirContext context,
-    MlirStringRef sym_name,
-    int nArgs,
-    MlirValue* args,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirStringRef sym_name,
+    const int nArgs,
+    const MlirValue* args,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateDeferOperation2(
-    MlirContext context,
-    MlirAttribute sym_name,
-    int nArgs,
-    MlirValue* args,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirAttribute sym_name,
+    const int nArgs,
+    const MlirValue* args,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateDeferOperation3(
-    MlirContext context,
-    MlirAttribute signature,
-    MlirValue callee_value,
-    int nArgs,
-    MlirValue* args,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirAttribute signature,
+    const MlirValue callee_value,
+    const int nArgs,
+    const MlirValue* args,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateDeferOperation4(
-    MlirContext context,
-    MlirValue iface_value,
-    MlirStringRef method_name,
-    int nArgs,
-    MlirValue* args,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue iface_value,
+    const MlirStringRef method_name,
+    const int nArgs,
+    const MlirValue* args,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateDeferOperation5(
-    MlirContext context,
-    MlirValue iface_value,
-    MlirAttribute method_name,
-    int nArgs,
-    MlirValue* args,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue iface_value,
+    const MlirAttribute method_name,
+    const int nArgs,
+    const MlirValue* args,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateGoOperation1(
-    MlirContext context,
-    MlirStringRef sym_name,
-    int nArgs,
-    MlirValue* args,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirStringRef sym_name,
+    const int nArgs,
+    const MlirValue* args,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateGoOperation2(
-    MlirContext context,
-    MlirAttribute sym_name,
-    int nArgs,
-    MlirValue* args,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirAttribute sym_name,
+    const int nArgs,
+    const MlirValue* args,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateGoOperation3(
-    MlirContext context,
-    MlirAttribute signature,
-    MlirValue callee_value,
-    int nArgs,
-    MlirValue* args,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirAttribute signature,
+    const MlirValue callee_value,
+    const int nArgs,
+    const MlirValue* args,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateGoOperation4(
-    MlirContext context,
-    MlirValue iface_value,
-    MlirStringRef method_name,
-    int nArgs,
-    MlirValue* args,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue iface_value,
+    const MlirStringRef method_name,
+    const int nArgs,
+    const MlirValue* args,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateGoOperation5(
-    MlirContext context,
-    MlirValue iface_value,
-    MlirAttribute method_name,
-    int nArgs,
-    MlirValue* args,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue iface_value,
+    const MlirAttribute method_name,
+    const int nArgs,
+    const MlirValue* args,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateInterfaceCall(
-    MlirContext context,
-    MlirStringRef callee,
-    int nResultTypes,
-    MlirType* resultTypes,
-    MlirValue value,
-    int nArgs,
-    MlirValue* args,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirStringRef callee,
+    const int nResultTypes,
+    const MlirType* resultTypes,
+    const MlirValue value,
+    const int nArgs,
+    const MlirValue* args,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateBuiltInCallOperation(
-    MlirContext context,
-    MlirStringRef identifier,
-    int nResultTypes,
-    MlirType* resultTypes,
-    int nOperands,
-    MlirValue* operands,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirStringRef identifier,
+    const int nResultTypes,
+    const MlirType* resultTypes,
+    const int nOperands,
+    const MlirValue* operands,
+    const MlirLocation location);
 
   //===----------------------------------------------------------------------===//
   // Value Operations
   //===----------------------------------------------------------------------===//
 
   MlirOperation
-  mlirGoCreateZeroOperation(MlirContext context, MlirType type, MlirLocation location);
+  mlirGoCreateZeroOperation(const MlirContext context, const MlirType type, const MlirLocation location);
 
   MlirOperation mlirGoCreateComplexOperation(
-    MlirContext context,
-    MlirType type,
-    MlirValue real,
-    MlirValue imag,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType type,
+    const MlirValue real,
+    const MlirValue imag,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateImagOperation(
-    MlirContext context,
-    MlirType type,
-    MlirValue value,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType type,
+    const MlirValue value,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateRealOperation(
-    MlirContext context,
-    MlirType type,
-    MlirValue value,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType type,
+    const MlirValue value,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateMakeMapOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue capacity,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue capacity,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateMakeSliceOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirValue length,
-    MlirValue capacity,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirValue length,
+    const MlirValue capacity,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateMakeInterfaceOperation(
-    MlirContext context,
-    MlirType resultType,
-    MlirType type,
-    MlirValue value,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirType resultType,
+    const MlirType type,
+    const MlirValue value,
+    const MlirLocation location);
 
   //===----------------------------------------------------------------------===//
   // Channel Operations
   //===----------------------------------------------------------------------===//
 
   MlirOperation mlirGoCreateChanRecvOp(
-    MlirContext context,
-    int nResultTypes,
-    MlirType* resultTypes,
-    MlirValue channel,
-    MlirLocation location);
+    const MlirContext context,
+    const int nResultTypes,
+    const MlirType* resultTypes,
+    const MlirValue channel,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateChanSendOp(
-    MlirContext context,
-    MlirValue channel,
-    MlirValue value,
+    const MlirContext context,
+    const MlirValue channel,
+    const MlirValue value,
 
-    MlirLocation location);
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateChanRangeOp(
-    MlirContext context,
-    MlirValue channel,
-    MlirBlock bodyDest,
-    MlirBlock exitDest,
-    MlirLocation location);
+    const MlirContext context,
+    const MlirValue channel,
+    const MlirBlock bodyDest,
+    const MlirBlock exitDest,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateChanSelectOp(
-    MlirContext context,
-    bool hasDefault,
-    MlirAttribute send,
-    int nChans,
-    MlirValue* chans,
-    MlirBlock defaultDest,
-    MlirBlock exitDest,
-    int nCases,
-    MlirBlock* cases,
-    MlirLocation location);
+    const MlirContext context,
+    const bool hasDefault,
+    const MlirAttribute send,
+    const int nChans,
+    const MlirValue* chans,
+    const MlirBlock defaultDest,
+    const MlirBlock exitDest,
+    const int nCases,
+    const MlirBlock* cases,
+    const MlirLocation location);
 
 #ifdef __cplusplus
 }

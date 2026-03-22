@@ -47,3 +47,20 @@ func goPersonality(version int32, actions int32, class uint64, e *exception, ctx
 	}
 	return 0
 }
+
+// An errorString represents a runtime error described by a single string.
+type errorString string
+
+func (e errorString) RuntimeError() {}
+
+func (e errorString) Error() string {
+	return "runtime error: " + string(e)
+}
+
+var memoryError = error(errorString("invalid memory address or nil pointer dereference"))
+
+//sigo:export panicmem runtime.panicmem
+func panicmem() {
+	//panicCheck2("invalid memory address or nil pointer dereference")
+	panic(memoryError)
+}

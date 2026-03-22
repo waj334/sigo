@@ -211,12 +211,20 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 	} else if b.isIntrinsic(ctx, expr) {
 		return b.emitIntrinsic(ctx, expr)
 	} else if tv.IsType() {
+		srcType := b.typeOf(ctx, expr.Args[0])
+		destType := tv.Type
+
+		if isNil(srcType) {
+			// Emit the zero value of the destination type.
+			return []mlir.ValueLike{
+				b.emitZeroValue(ctx, destType, location),
+			}
+		}
+
 		// Evaluate the value to convert.
 		X := b.emitExpr(ctx, expr.Args[0])[0]
 
 		// Perform type conversion.
-		srcType := b.typeOf(ctx, expr.Args[0])
-		destType := tv.Type
 		value := b.emitTypeConversion(ctx, X, srcType, destType, location)
 		return []mlir.ValueLike{value}
 	} else {
@@ -397,8 +405,7 @@ func (b *Builder) emitVariadicArgs(ctx context.Context, signature *types.Signatu
 			}
 
 			// Store the argument value.
-			storeOp := goir.NewStoreOperation(b.ctx, arg, resultOf(gepOp), location)
-			appendOperation(ctx, storeOp)
+			b.emitStore(ctx, arg, resultOf(gepOp), location)
 		}
 
 		// Create the variadic argument slice.

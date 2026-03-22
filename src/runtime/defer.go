@@ -1,5 +1,7 @@
 package runtime
 
+import "unsafe"
+
 type deferStack struct {
 	head *deferFrame
 	next *deferStack
@@ -23,6 +25,7 @@ func deferStackCreate() deferStack {
 	return deferStack{}
 }
 
+//go:nowritebarrier
 func deferInit(isLongjmp int32, stack *deferStack) bool {
 	if isLongjmp != 0 {
 		nextStack := currentGoroutine.deferStack.next
@@ -47,18 +50,21 @@ func deferInit(isLongjmp int32, stack *deferStack) bool {
 	}
 }
 
+//go:nowritebarrier
 func deferPush(s *deferStack, fn _func) {
 	// Push the defer frame to the top of the defer stack for the current function
-	s.head = &deferFrame{
-		fn:   fn,
-		next: s.head,
-	}
+	ptr := alloc(unsafe.Sizeof(deferFrame{}))
+	frame := (*deferFrame)(ptr)
+	frame.fn = fn
+	frame.next = s.head
+	s.head = frame
 }
 
+//go:nowritebarrier
 func deferRun(s *deferStack) {
 	lastState := currentGoroutine.state
 	for s.head != nil {
-		// Pop frame from stack
+		// Pop a frame from the stack
 		frame := s.head
 		s.head = frame.next
 

@@ -15,30 +15,41 @@ func runOptimizerPass(module mlir.Module, debug bool) mlir.LogicalResult {
 
 	if debug {
 		module.Context().EnableMultithreading(false)
-		pm.EnableIRPrinting(mlir.IRPrinterConfig{}).
+		flags := mlir.NewOpPrintingFlags().
+			WithEnableDebugInfo(true, true).
+			WithPrintNameLocAsPrefix()
+		defer flags.Destroy()
+
+		pm.EnableIRPrinting(mlir.IRPrinterConfig{
+			PrintBeforeAll: true,
+			PrintAfterAll:  true,
+			Flags:          flags,
+		}).
 			EnableStatistics(mlir.PassDisplayModePipeline).
 			EnableTiming()
 	}
 
 	pm.NestedUnder("go.func").
 		AddOwnedPass(goir.NewValueNormalizationFuncPass()).
-		AddOwnedPass(goir.NewFuncPass()).
-		AddOwnedPass(goir.NewAttachDebugInfoToFuncPass()).
-		NestedUnder("go.alloca").
-		AddOwnedPass(goir.NewAttachDebugInfoToAllocaPass())
-
-	pm.NestedUnder("go.global").
-		AddOwnedPass(goir.NewValueNormalizationGlobalPass()).
-		AddOwnedPass(goir.NewAttachDebugInfoToGlobalPass())
+		AddOwnedPass(goir.NewEliminateRedundantNilChecksPass())
 
 	pm.AddOwnedPass(goir.NewPreprocessingPass()).
 		AddOwnedPass(goir.NewCallPass()).
 		AddOwnedPass(goir.NewGlobalConstantsPass()).
 		AddOwnedPass(goir.NewGlobalInitializerPass())
 
+	pm.NestedUnder("go.global").
+		AddOwnedPass(goir.NewValueNormalizationGlobalPass()).
+		AddOwnedPass(goir.NewAttachDebugInfoToGlobalPass())
+
 	// Handle heap and stack allocations after lowering globals.
 	pm.NestedUnder("go.func").
-		AddOwnedPass(goir.NewHeapEscapePass())
+		AddOwnedPass(goir.NewHeapEscapePass()).
+		AddOwnedPass(goir.NewFuncPass()).
+		AddOwnedPass(goir.NewInsertGCWriteBarrierPass()).
+		AddOwnedPass(goir.NewAttachDebugInfoToFuncPass()).
+		NestedUnder("go.alloca").
+		AddOwnedPass(goir.NewAttachDebugInfoToAllocaPass())
 
 	// Lower GoIR dialect to builtin dialects.
 	pm.AddOwnedPass(mlir.NewTransformsCanonicalizer()).

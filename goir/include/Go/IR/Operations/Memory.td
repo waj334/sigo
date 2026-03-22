@@ -163,10 +163,11 @@ def GlobalOp : Go_Op<"global", [IsolatedFromAbove, Symbol]> {
     }];
     let arguments = (ins
         TypeAttr:$global_type,
-        StrAttr:$sym_name
+        StrAttr:$sym_name,
+        OptionalAttr<StrAttr>:$section
     );
     let assemblyFormat = [{
-        $sym_name attr-dict `:` $global_type ( `init` $initializer^ )?
+        $sym_name ( `section` $section^ )? attr-dict `:` $global_type ( `init` $initializer^ )?
     }];
     let regions = (region AnyRegion:$initializer);
     let extraClassDeclaration = [{
@@ -234,6 +235,15 @@ def AddressOfOp : Go_Op<"addressOf", [Pure, NoMemoryEffect]> {
     let arguments = (ins FlatSymbolRefAttr:$symbol);
     let results = (outs Go_Addressable:$result);
     let assemblyFormat = "$symbol attr-dict `:` type($result)";
+}
+
+//===----------------------------------------------------------------------===//
+// NilPointerCheckOp
+//===----------------------------------------------------------------------===//
+
+def NilPointerCheckOp : Go_Op<"nilPtrCheck"> {
+    let arguments = (ins Go_Pointer:$addr);
+    let assemblyFormat = "$addr attr-dict `:` functional-type(operands, results)";
 }
 
 #endif // GO_OPERATIONS_MEMORY_TD

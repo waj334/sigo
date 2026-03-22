@@ -35,3 +35,4 @@
 /mlir/mlir.go
 /mlir/mlir_wrap.c
 /goir/.idea
+/sysroots/

@@ -353,7 +353,66 @@ func (p *Program) LookupType(pkgname, typename string) types.Type {
 }
 
 func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) {
+	// Build a map of declaration positions to their declarations for quick lookup
+	declsByPos := make(map[token.Pos]ast.Decl)
+	for _, decl := range file.Decls {
+		declsByPos[decl.Pos()] = decl
+	}
+
+	// Process each comment group
 	for _, commentGroup := range file.Comments {
+		// Find the declaration immediately following this comment group
+		var targetDecl ast.Decl
+		var targetDeclPos token.Pos = token.NoPos
+
+		// Find the nearest declaration after this comment
+		for pos, decl := range declsByPos {
+			if pos > commentGroup.End() {
+				if targetDeclPos == token.NoPos || pos < targetDeclPos {
+					targetDeclPos = pos
+					targetDecl = decl
+				}
+			}
+		}
+
+		// Extract symbol name from the target declaration if found
+		var symbolName string
+		if targetDecl != nil {
+			switch decl := targetDecl.(type) {
+			case *ast.FuncDecl:
+				// Function declaration
+				if decl.Recv != nil && len(decl.Recv.List) > 0 {
+					// Method: extract receiver type
+					recvType := decl.Recv.List[0].Type
+					// Handle pointer receivers
+					if star, ok := recvType.(*ast.StarExpr); ok {
+						recvType = star.X
+					}
+					if ident, ok := recvType.(*ast.Ident); ok {
+						symbolName = qualifiedName(ident.Name+"."+decl.Name.Name, pkg)
+					}
+				} else {
+					// Regular function
+					symbolName = qualifiedName(decl.Name.Name, pkg)
+				}
+			case *ast.GenDecl:
+				// Variable, constant, or type declaration
+				if len(decl.Specs) > 0 {
+					switch spec := decl.Specs[0].(type) {
+					case *ast.ValueSpec:
+						// Variable or constant
+						if len(spec.Names) > 0 {
+							symbolName = qualifiedName(spec.Names[0].Name, pkg)
+						}
+					case *ast.TypeSpec:
+						// Type declaration
+						symbolName = qualifiedName(spec.Name.Name, pkg)
+					}
+				}
+			}
+		}
+
+		// Process each comment in the group
 		for _, comment := range commentGroup.List {
 			matches := pragmaRegex.FindStringSubmatch(comment.Text)
 			if len(matches) == 0 {
@@ -362,73 +421,129 @@ func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) {
 
 			// Split the arguments on the space character
 			parts := strings.Fields(matches[1])
+			if len(parts) == 0 {
+				continue
+			}
 
-			if count := len(parts); count > 1 {
-				// Process the comment based of the first part
+			// Determine which symbol this pragma applies to
+			var targetSymbol string
+			count := len(parts)
+
+			// Check if the pragma explicitly names a symbol (old style)
+			if count > 1 {
+				// Some pragmas like "extern", "export", etc. include the symbol name
+				// These still work with explicit symbol names for backwards compatibility
 				switch parts[0] {
-				case "extern":
-					if count == 3 {
-						_symbolName := qualifiedName(parts[1], pkg)
-						info := p.Symbols.GetSymbolInfo(_symbolName)
-						info.LinkName = parts[2]
-						info.ExternalLinkage = true
-					} else {
-						// TODO: Return syntax error
-					}
-				case "interrupt":
-					if count == 3 {
-						funcName := qualifiedName(parts[1], pkg)
-						info := p.Symbols.GetSymbolInfo(funcName)
-						info.LinkName = parts[2]
-						info.IsInterrupt = true
-						info.Exported = true
-					} else {
-						// TODO: Return syntax error
-					}
-				case "define":
-					if count == 2 {
-						p.Defines[parts[1]] = ""
-					} else {
-						p.Defines[parts[1]] = parts[2]
-					}
-				case "linkname":
-					if count == 3 {
-						_symbolName := qualifiedName(parts[1], pkg)
-						info := p.Symbols.GetSymbolInfo(_symbolName)
-
-						// NOTE: Allow multiple functions to use the same linkname. The compiler will assert
-						//       that there is only one definition of it
-						info.LinkName = parts[2]
-					} else {
-						// TODO: Return syntax error
-					}
-				case "export":
+				case "extern", "interrupt", "linkname", "export", "linkage", "required", "section":
+					// These pragmas include the symbol name as the second argument.
 					if count >= 2 {
-						funcName := qualifiedName(parts[1], pkg)
-						info := p.Symbols.GetSymbolInfo(funcName)
-						info.Exported = true
-						if count == 3 {
-							info.LinkName = parts[2]
-						}
-					} else {
-						// TODO: Return syntax error
+						targetSymbol = qualifiedName(parts[1], pkg)
 					}
-				case "linkage":
+				}
+			}
+
+			// If no explicit symbol, use the symbol from the following declaration
+			if targetSymbol == "" && symbolName != "" {
+				targetSymbol = symbolName
+			}
+
+			// Process the pragma
+			switch parts[0] {
+			case "extern":
+				if count == 3 {
+					info := p.Symbols.GetSymbolInfo(targetSymbol)
+					info.LinkName = parts[2]
+					info.ExternalLinkage = true
+				} else if count == 2 && targetSymbol != "" {
+					// New style: //go:extern linkname
+					info := p.Symbols.GetSymbolInfo(targetSymbol)
+					info.LinkName = parts[1]
+					info.ExternalLinkage = true
+				}
+			case "interrupt":
+				if count == 3 {
+					info := p.Symbols.GetSymbolInfo(targetSymbol)
+					info.LinkName = parts[2]
+					info.IsInterrupt = true
+					info.Exported = true
+					info.Attributes["nowritebarrier"] = struct{}{}
+				} else if count == 2 && targetSymbol != "" {
+					// New style: //go:interrupt linkname
+					info := p.Symbols.GetSymbolInfo(targetSymbol)
+					info.LinkName = parts[1]
+					info.IsInterrupt = true
+					info.Exported = true
+					info.Attributes["nowritebarrier"] = struct{}{}
+				}
+			case "define":
+				if count == 2 {
+					p.Defines[parts[1]] = ""
+				} else if count >= 3 {
+					p.Defines[parts[1]] = strings.Join(parts[2:], " ")
+				}
+			case "linkname":
+				if count == 3 {
+					info := p.Symbols.GetSymbolInfo(targetSymbol)
+					info.LinkName = parts[2]
+				} else if count == 2 && targetSymbol != "" {
+					// New style: //go:linkname externalname
+					info := p.Symbols.GetSymbolInfo(targetSymbol)
+					info.LinkName = parts[1]
+				}
+			case "export":
+				if count >= 2 {
+					info := p.Symbols.GetSymbolInfo(targetSymbol)
+					info.Exported = true
 					if count == 3 {
-						funcName := qualifiedName(parts[1], pkg)
-						info := p.Symbols.GetSymbolInfo(funcName)
-						info.Linkage = strings.ToLower(parts[2])
+						info.LinkName = parts[2]
+					} else if count == 2 && targetSymbol != symbolName {
+						// Old style with explicit symbol name
+						info.LinkName = parts[1]
 					}
-				case "required":
+				} else if count == 1 && targetSymbol != "" {
+					// New style: //go:export (uses symbol name as linkname)
+					info := p.Symbols.GetSymbolInfo(targetSymbol)
+					info.Exported = true
+				}
+			case "linkage":
+				if count == 3 {
+					info := p.Symbols.GetSymbolInfo(targetSymbol)
+					info.Linkage = strings.ToLower(parts[2])
+				} else if count == 2 && targetSymbol != "" {
+					// New style: //go:linkage weak
+					info := p.Symbols.GetSymbolInfo(targetSymbol)
+					info.Linkage = strings.ToLower(parts[1])
+				}
+			case "required":
+				if targetSymbol != "" {
+					info := p.Symbols.GetSymbolInfo(targetSymbol)
+					info.IsRequired = true
+				} else if count >= 2 {
+					// Old style with explicit symbol name
 					funcName := qualifiedName(parts[1], pkg)
 					info := p.Symbols.GetSymbolInfo(funcName)
 					info.IsRequired = true
-				case "attribute":
-					if len(parts) > 2 {
-						funcName := qualifiedName(parts[1], pkg)
-						info := p.Symbols.GetSymbolInfo(funcName)
-						info.Attributes = parts[2:]
-					}
+				}
+			case "nosplit", "nowritebarrier":
+				if targetSymbol != "" {
+					// New style: //go:nosplit or //go:nowritebarrier
+					info := p.Symbols.GetSymbolInfo(targetSymbol)
+					info.Attributes[parts[0]] = struct{}{}
+				} else if count > 2 {
+					// Old style with explicit symbol name and attributes
+					funcName := qualifiedName(parts[1], pkg)
+					info := p.Symbols.GetSymbolInfo(funcName)
+					info.Attributes[parts[2]] = struct{}{}
+				}
+			case "section":
+				if count >= 2 && targetSymbol != "" {
+					info := p.Symbols.GetSymbolInfo(targetSymbol)
+					info.Section = parts[1]
+				} else if count > 2 {
+					// Old style with explicit symbol name
+					funcName := qualifiedName(parts[1], pkg)
+					info := p.Symbols.GetSymbolInfo(funcName)
+					info.Section = parts[2]
 				}
 			}
 		}

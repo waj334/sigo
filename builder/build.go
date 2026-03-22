@@ -424,6 +424,21 @@ type linkOptions struct {
 }
 
 func link(options linkOptions, buildOptions BuildOptions) error {
+	sigoRoot := buildOptions.Environment.Value("SIGOROOT")
+
+	// Determine sysroot.
+	abi := strings.Split(options.triplet, "-")[0]
+	if options.floatEnabled {
+		abi += "-fp"
+	} else {
+		abi += "-no-fp"
+	}
+
+	sysroot := filepath.Join(sigoRoot, "sysroots", abi)
+	if _, err := os.Stat(sysroot); errors.Is(err, os.ErrNotExist) {
+		return errors.Join(ErrCompilerFailed, fmt.Errorf("sysroot not found: %s", sysroot))
+	}
+
 	// Create the object file
 	objectOut := filepath.Join(buildOptions.BuildDir, "firmware.o")
 	if err := options.targetMachine.EmitToFile(
@@ -441,53 +456,6 @@ func link(options linkOptions, buildOptions BuildOptions) error {
 	}
 
 	var artifacts []string
-
-	// Compile picolibc for the current target machine.
-	picolibc, err := pkgPicolibc(options.arch)
-	if err != nil {
-		return err
-	}
-
-	objs, err := picolibc.Compile(
-		toolchain,
-		options.triplet,
-		options.cpu,
-		options.fpu,
-		buildOptions.GenerateDebugInfo,
-		buildOptions.Optimization,
-		options.floatEnabled,
-		buildOptions.NumJobs,
-	)
-
-	if err != nil {
-		return err
-	}
-
-	artifacts = append(artifacts, objs...)
-
-	// Compile compiler-rt for the current target machine.
-	compilerRT, err := pkgCompilerRT(options.triplet, options.features, options.floatEnabled)
-	if err != nil {
-		return err
-	}
-
-	objs, err = compilerRT.Compile(
-		toolchain,
-		options.triplet,
-		options.cpu,
-		options.fpu,
-		buildOptions.GenerateDebugInfo,
-		buildOptions.Optimization,
-		options.floatEnabled,
-		buildOptions.NumJobs,
-	)
-
-	if err != nil {
-		return err
-	}
-
-	artifacts = append(artifacts, objs...)
-
 	if len(options.prog.LinkerScript) == 0 {
 		return errors.New("no linker script found")
 	}
@@ -496,13 +464,20 @@ func link(options linkOptions, buildOptions BuildOptions) error {
 	targetTriple := "--target=" + options.triplet
 	elfOut := filepath.Join(buildOptions.BuildDir, "package.elf")
 	args := []string{
+		"--sysroot=" + sysroot,
+		"--defsym=sigo_headGoroutine=runtime.headGoroutine",
+		"--defsym=sigo_currentGoroutine=runtime.currentGoroutine",
+		"--defsym=sigo_goroutineStackSize=runtime._goroutineStackSize",
 		"-v",
 		"--gc-sections",
 		"-o", elfOut,
 		"-nostdlib",
-		"-L" + filepath.Join(buildOptions.Environment.Value("SIGOROOT"), "runtime"),
+		"-L" + filepath.Join(sysroot, "lib"),
+		"-L" + filepath.Join(sigoRoot, "runtime"),
 		"-L" + filepath.Dir(options.prog.LinkerScript),
 		"-T" + options.prog.LinkerScript,
+		"-lc",
+		"-lclang_rt.builtins",
 	}
 
 	if buildOptions.GenerateDebugInfo {
@@ -737,7 +712,14 @@ func dumpMLIRModuleToFile(module mlir.Module, filename string) error {
 		return err
 	}
 
-	dumpStr := module.Operation().String()
+	defer file.Close()
+
+	flags := mlir.NewOpPrintingFlags().
+		WithEnableDebugInfo(true, true).
+		WithPrintNameLocAsPrefix()
+	defer flags.Destroy()
+
+	dumpStr := module.Operation().StringWithFlags(flags)
 	_, err = file.WriteString(dumpStr)
 	if err != nil {
 		return err

@@ -435,7 +435,7 @@ struct GlobalOpLowering : public OpConversionPattern<GlobalOp>
   {
     // Create a replacement global operation with no initializer body.
     auto newGlobalOp =
-      rewriter.create<GlobalOp>(op.getLoc(), adaptor.getGlobalTypeAttr(), adaptor.getSymNameAttr());
+      rewriter.create<GlobalOp>(op.getLoc(), adaptor.getGlobalTypeAttr(), adaptor.getSymNameAttr(), adaptor.getSectionAttr());
     newGlobalOp->setAttr("llvm.linkage", op->getAttr("llvm.linkage"));
 
     // Remove the original global operation.

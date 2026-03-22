@@ -522,33 +522,29 @@ func (b *Builder) emitIndexExpr(ctx context.Context, expr *ast.IndexExpr) []mlir
 		addr := b.emitIndexAddr(ctx, expr)
 
 		// Load the value at the resulting address and return it.
-		loadOp := goir.NewLoadOperation(b.ctx, addr, resultType, location)
-		appendOperation(ctx, loadOp)
-		return resultsOf(loadOp)
+		value := b.emitLoad(ctx, addr, resultType, location)
+		return []mlir.ValueLike{value}
 	case *types.Basic:
 		// Evaluate the address.
 		addr := b.emitIndexAddr(ctx, expr)
 
 		// Load the byte value at the address and return the result.
-		loadOp := goir.NewLoadOperation(b.ctx, addr, resultType, location)
-		appendOperation(ctx, loadOp)
-		return resultsOf(loadOp)
+		value := b.emitLoad(ctx, addr, resultType, location)
+		return []mlir.ValueLike{value}
 	case *types.Pointer:
 		// Evaluate the address.
 		addr := b.emitIndexAddr(ctx, expr)
 
 		// Load the value at the resulting address and return it.
-		loadOp := goir.NewLoadOperation(b.ctx, addr, resultType, location)
-		appendOperation(ctx, loadOp)
-		return resultsOf(loadOp)
+		value := b.emitLoad(ctx, addr, resultType, location)
+		return []mlir.ValueLike{value}
 	case *types.Slice:
 		// Evaluate the address.
 		addr := b.emitIndexAddr(ctx, expr)
 
 		// Load the slice element value at the address and return the result.
-		loadOp := goir.NewLoadOperation(b.ctx, addr, resultType, location)
-		appendOperation(ctx, loadOp)
-		return resultsOf(loadOp)
+		value := b.emitLoad(ctx, addr, resultType, location)
+		return []mlir.ValueLike{value}
 	case *types.Map:
 		// Evaluate the map value.
 		X := b.emitExpr(ctx, expr.X)[0]
@@ -763,8 +759,7 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 		appendOperation(ctx, allocOp)
 
 		// Store the argument pack value at the heap address.
-		storeOp := goir.NewStoreOperation(b.ctx, argsValue, resultOf(allocOp), location)
-		appendOperation(ctx, storeOp)
+		b.emitStore(ctx, argsValue, resultOf(allocOp), location)
 		argsValue = resultOf(allocOp)
 
 		// Format the wrapper function symbol name.
@@ -794,9 +789,8 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 			baseAddr := b.emitSelectAddr(ctx, expr)
 
 			// Load the member value.
-			loadOp := goir.NewLoadOperation(b.ctx, baseAddr, b.GetStoredType(ctx, b.typeOf(ctx, expr)), location)
-			appendOperation(ctx, loadOp)
-			return resultsOf(loadOp)
+			value := b.emitLoad(ctx, baseAddr, b.GetStoredType(ctx, b.typeOf(ctx, expr)), location)
+			return []mlir.ValueLike{value}
 		default:
 			panic("unhandled")
 		}
@@ -842,9 +836,7 @@ func (b *Builder) emitSelectAddr(ctx context.Context, expr *ast.SelectorExpr) ml
 			if isPointer(currentType) {
 				// Load the pointer value.
 				ptrType := b.GetType(ctx, currentType)
-				loadOp := goir.NewLoadOperation(b.ctx, basePtr, ptrType, location)
-				appendOperation(ctx, loadOp)
-				basePtr = resultOf(loadOp).AsValue()
+				basePtr = b.emitLoad(ctx, basePtr, ptrType, location)
 				currentType = currentType.(*types.Pointer).Elem()
 			}
 
@@ -937,9 +929,8 @@ func (b *Builder) emitStarExpr(ctx context.Context, expr *ast.StarExpr) []mlir.V
 	X := b.emitExpr(ctx, expr.X)[0].AsValue()
 
 	// Load and return the value at the address.
-	op := goir.NewLoadOperation(b.ctx, X, elementType, b.location(ctx, expr.Pos()))
-	appendOperation(ctx, op)
-	return resultsOf(op)
+	value := b.emitLoad(ctx, X, elementType, b.location(ctx, expr.Pos()))
+	return []mlir.ValueLike{value}
 }
 
 func (b *Builder) emitStmt(ctx context.Context, stmt ast.Stmt) {

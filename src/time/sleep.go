@@ -6,10 +6,12 @@ import (
 )
 
 //sigo:extern gopark runtime.gopark
+//sigo:extern goparkWithCallback runtime.goparkWithCallback
 //sigo:extern goresume runtime.goresume
 //sigo:extern getg runtime.getg
 
 func gopark(unsafe.Pointer)
+func goparkWithCallback(unsafe.Pointer, func())
 func goresume(unsafe.Pointer)
 func getg() unsafe.Pointer
 
@@ -43,14 +45,16 @@ func sleep(d uint64) {
 		deadline: deadline,
 	}
 
-	// Insert into the linked list.
+	// Insert into the linked list sorted by deadline.
 	sleepQueueMutex.Lock()
-	if sleepQueue == nil {
+	if sleepQueue == nil || deadline < sleepQueue.deadline {
+		// Insert at head (either empty list or earliest deadline)
+		entry.next = sleepQueue
 		sleepQueue = entry
 	} else {
-		// Insert into the list at the appropriate location sorted by deadline.
+		// Insert after an existing entry
 		curr := sleepQueue
-		for curr.next != nil && curr.next.deadline <= entry.deadline {
+		for curr.next != nil && curr.next.deadline <= deadline {
 			curr = curr.next
 		}
 		entry.next = curr.next
@@ -58,43 +62,56 @@ func sleep(d uint64) {
 	}
 	sleepQueueMutex.Unlock()
 
-	// Arm the timer.
-	addsleep(deadline)
-
-	// Schedule another goroutine to begin running.
-	gopark(g)
+	// CRITICAL: Use goparkWithCallback to arm timer atomically with parking.
+	// This ensures the timer is armed only after the goroutine is marked as parked,
+	// preventing race where timer fires before goroutine is parked.
+	//
+	// The sequence (all atomic):
+	//   1. Disable interrupts (inside goparkWithCallback)
+	//   2. Mark goroutine as parked
+	//   3. Arm timer (in callback)
+	//   4. Enable interrupts
+	//   5. Yield
+	goparkWithCallback(g, func() {
+		addsleep(deadline)
+	})
 }
 
 //go:export wake runtime.wake
 func wake(t uint64) {
-	entry := sleepQueue
-	var last *sleepEntry
+	sleepQueueMutex.Lock()
 
-	for entry != nil {
-		if t > entry.deadline {
-			g := entry.g
+	// Wake all goroutines whose deadlines have passed
+	var prev *sleepEntry
+	curr := sleepQueue
 
-			// Remove from sleep queue.
-			sleepQueueMutex.Lock()
-			if last != nil {
-				last.next = entry.next
+	for curr != nil {
+		if t >= curr.deadline {
+			g := curr.g
+			next := curr.next
+
+			// Remove from sleep queue
+			if prev == nil {
+				sleepQueue = next
 			} else {
-				sleepQueue = entry.next
+				prev.next = next
 			}
+
+			// Unlock before resuming (goresume may trigger scheduling)
 			sleepQueueMutex.Unlock()
-
-			// Advance to the next entry.
-			entry = entry.next
-
-			// Resume this goroutine.
 			goresume(g)
-			continue
-		}
+			sleepQueueMutex.Lock()
 
-		// Advance last and entry if not removed.
-		last = entry
-		entry = entry.next
+			// Continue from the next entry (prev stays the same)
+			curr = next
+		} else {
+			// Entry not ready yet, move to next
+			prev = curr
+			curr = curr.next
+		}
 	}
+
+	sleepQueueMutex.Unlock()
 }
 
 func Sleep(d Duration) {

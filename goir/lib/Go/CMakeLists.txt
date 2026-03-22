@@ -26,14 +26,15 @@ add_mlir_dialect_library(GoIR
         IR/GoOps.cxx
         IR/StructBuilder.cxx
         Transforms/AttachDebugInfoToAllocaPass.cxx
-        Transforms/AttachDebugInfoToConstantPass.cxx
         Transforms/AttachDebugInfoToFuncPass.cxx
         Transforms/AttachDebugInfoToGlobalPass.cxx
         Transforms/CallPass.cxx
+        Transforms/EliminateRedundantNilChecksPass.cxx
         Transforms/FuncPass.cxx
         Transforms/GlobalConstantsPass.cxx
         Transforms/GlobalInitializerPass.cxx
         Transforms/HeapEscapePass.cxx
+        Transforms/InsertGCWriteBarrierPass.cxx
         Transforms/LowerToCore.cxx
         Transforms/LowerToLLVM.cxx
         Transforms/Passes.cxx

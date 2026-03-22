@@ -16,19 +16,19 @@ using namespace mlir;
 //===----------------------------------------------------------------------===//
 
 MlirOperation mlirGoCreateInlineAssemblyOperation(
-  MlirContext context,
-  MlirAttribute asmStr,
-  int nConstraints,
-  MlirAttribute* constraints,
-  int nRegisterClobbers,
-  MlirAttribute* registerClobbers,
-  int nOperands,
-  MlirValue* operands,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirAttribute asmStr,
+  const int nConstraints,
+  const MlirAttribute* constraints,
+  const int nRegisterClobbers,
+  const MlirAttribute* registerClobbers,
+  const int nOperands,
+  const MlirValue* operands,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _location = unwrap(location);
-  auto _asmStr = mlir::cast<mlir::StringAttr>(unwrap(asmStr));
+  const auto _context = unwrap(context);
+  const auto _location = unwrap(location);
+  const auto _asmStr = mlir::cast<mlir::StringAttr>(unwrap(asmStr));
 
   ::llvm::SmallVector<::mlir::Attribute> _constraints;
   (void)unwrapList(nConstraints, constraints, _constraints);
@@ -40,7 +40,8 @@ MlirOperation mlirGoCreateInlineAssemblyOperation(
   (void)unwrapList(nOperands, operands, _operands);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::InlineAsmOp>(
+  mlir::Operation* op = ::mlir::go::InlineAsmOp::create(
+    builder,
     _location,
     _asmStr,
     ::mlir::ArrayAttr::get(_context, _constraints),
@@ -54,359 +55,359 @@ MlirOperation mlirGoCreateInlineAssemblyOperation(
 //===----------------------------------------------------------------------===//
 
 MlirOperation mlirGoCreateAddCOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::AddCOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateAddFOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::AddFOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateAddIOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::AddIOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateAddStrOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::AddStrOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateAndOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::AndOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateAndNotOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::AndNotOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateCmpCOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirAttribute predicate,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirAttribute predicate,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _predicate = mlir::cast<::mlir::go::CmpFPredicateAttr>(unwrap(predicate));
-  auto _x = unwrap(x);
-  auto _y = unwrap(y);
-  auto _resultType = unwrap(resultType);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _predicate = mlir::cast<::mlir::go::CmpFPredicateAttr>(unwrap(predicate));
+  const auto _x = unwrap(x);
+  const auto _y = unwrap(y);
+  const auto _resultType = unwrap(resultType);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<::mlir::go::CmpCOp>(_location, _resultType, _predicate.getValue(), _x, _y);
+    ::mlir::go::CmpCOp::create(builder, _location, _resultType, _predicate.getValue(), _x, _y);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateCmpFOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirAttribute predicate,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirAttribute predicate,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _predicate = mlir::cast<::mlir::go::CmpFPredicateAttr>(unwrap(predicate));
-  auto _x = unwrap(x);
-  auto _y = unwrap(y);
-  auto _resultType = unwrap(resultType);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _predicate = mlir::cast<::mlir::go::CmpFPredicateAttr>(unwrap(predicate));
+  const auto _x = unwrap(x);
+  const auto _y = unwrap(y);
+  const auto _resultType = unwrap(resultType);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<::mlir::go::CmpFOp>(_location, _resultType, _predicate.getValue(), _x, _y);
+    ::mlir::go::CmpFOp::create(builder, _location, _resultType, _predicate.getValue(), _x, _y);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateCmpIOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirAttribute predicate,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirAttribute predicate,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _predicate = mlir::cast<::mlir::go::CmpIPredicateAttr>(unwrap(predicate));
-  auto _x = unwrap(x);
-  auto _y = unwrap(y);
-  auto _resultType = unwrap(resultType);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _predicate = mlir::cast<::mlir::go::CmpIPredicateAttr>(unwrap(predicate));
+  const auto _x = unwrap(x);
+  const auto _y = unwrap(y);
+  const auto _resultType = unwrap(resultType);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<::mlir::go::CmpIOp>(_location, _resultType, _predicate.getValue(), _x, _y);
+    ::mlir::go::CmpIOp::create(builder, _location, _resultType, _predicate.getValue(), _x, _y);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateCmpInterfaceOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _x = unwrap(x);
-  auto _y = unwrap(y);
-  auto _resultType = unwrap(resultType);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _x = unwrap(x);
+  const auto _y = unwrap(y);
+  const auto _resultType = unwrap(resultType);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::CmpInterfaceOp>(_location, _resultType, _x, _y);
+  mlir::Operation* op = ::mlir::go::CmpInterfaceOp::create(builder, _location, _resultType, _x, _y);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateCmpStringOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirAttribute predicate,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirAttribute predicate,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _predicate = mlir::cast<::mlir::go::CmpPredicateAttr>(unwrap(predicate));
-  auto _x = unwrap(x);
-  auto _y = unwrap(y);
-  auto _resultType = unwrap(resultType);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _predicate = mlir::cast<::mlir::go::CmpPredicateAttr>(unwrap(predicate));
+  const auto _x = unwrap(x);
+  const auto _y = unwrap(y);
+  const auto _resultType = unwrap(resultType);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<::mlir::go::CmpStringOp>(_location, _resultType, _predicate, _x, _y);
+    ::mlir::go::CmpStringOp::create(builder, _location, _resultType, _predicate, _x, _y);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateCmpNilOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _x = unwrap(x);
-  auto _resultType = unwrap(resultType);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _x = unwrap(x);
+  const auto _resultType = unwrap(resultType);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::CmpNilOp>(_location, _resultType, _x);
+  mlir::Operation* op = ::mlir::go::CmpNilOp::create(builder, _location, _resultType, _x);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateDivCOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::DivCOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateDivFOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::DivFOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateDivSIOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::DivSIOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateDivUIOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::DivUIOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateMulCOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::MulCOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateMulFOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::MulFOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateMulIOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::MulIOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateOrOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::OrOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateRemFOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::RemFOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateRemSIOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::RemSIOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateRemUIOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::RemUIOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateShlOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::ShlOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateShrUIOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::ShrUIOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateShrSIOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::ShrSIOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateSubCOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::SubCOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateSubFOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::SubFOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateSubIOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::SubIOp>(context, resultType, x, y, location);
 }
 
 MlirOperation mlirGoCreateXorOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue x,
-  MlirValue y,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue x,
+  const MlirValue y,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::XorOp>(context, resultType, x, y, location);
 }
@@ -415,28 +416,34 @@ MlirOperation mlirGoCreateXorOperation(
 // Unary Operations
 //===----------------------------------------------------------------------===//
 
-MlirOperation
-mlirGoCreateComplementOperation(MlirContext context, MlirValue x, MlirLocation location)
+MlirOperation mlirGoCreateComplementOperation(
+  const MlirContext context,
+  const MlirValue x,
+  const MlirLocation location)
 {
   return ::mlir::go::_createUnOp<::mlir::go::ComplementOp>(context, x, location);
 }
 
-MlirOperation mlirGoCreateNegCOperation(MlirContext context, MlirValue x, MlirLocation location)
+MlirOperation
+mlirGoCreateNegCOperation(const MlirContext context, const MlirValue x, const MlirLocation location)
 {
   return ::mlir::go::_createUnOp<::mlir::go::NegCOp>(context, x, location);
 }
 
-MlirOperation mlirGoCreateNegFOperation(MlirContext context, MlirValue x, MlirLocation location)
+MlirOperation
+mlirGoCreateNegFOperation(const MlirContext context, const MlirValue x, const MlirLocation location)
 {
   return ::mlir::go::_createUnOp<::mlir::go::NegFOp>(context, x, location);
 }
 
-MlirOperation mlirGoCreateNegIOperation(MlirContext context, MlirValue x, MlirLocation location)
+MlirOperation
+mlirGoCreateNegIOperation(const MlirContext context, const MlirValue x, const MlirLocation location)
 {
   return ::mlir::go::_createUnOp<::mlir::go::NegIOp>(context, x, location);
 }
 
-MlirOperation mlirGoCreateNotOperation(MlirContext context, MlirValue x, MlirLocation location)
+MlirOperation
+mlirGoCreateNotOperation(const MlirContext context, const MlirValue x, const MlirLocation location)
 {
   return ::mlir::go::_createUnOp<::mlir::go::NotOp>(context, x, location);
 }
@@ -446,61 +453,61 @@ MlirOperation mlirGoCreateNotOperation(MlirContext context, MlirValue x, MlirLoc
 //===----------------------------------------------------------------------===//
 
 MlirOperation mlirGoCreateMapUpdateOperation(
-  MlirContext context,
-  MlirValue map,
-  MlirValue key,
-  MlirValue value,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue map,
+  const MlirValue key,
+  const MlirValue value,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _map = unwrap(map);
-  auto _key = unwrap(key);
-  auto _value = unwrap(value);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _map = unwrap(map);
+  const auto _key = unwrap(key);
+  const auto _value = unwrap(value);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::MapUpdateOp>(_location, _map, _key, _value);
+  mlir::Operation* op = ::mlir::go::MapUpdateOp::create(builder, _location, _map, _key, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateMapLookupOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue map,
-  MlirValue key,
-  bool hasOk,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue map,
+  const MlirValue key,
+  const bool hasOk,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _resultType = unwrap(resultType);
-  auto _map = unwrap(map);
-  auto _key = unwrap(key);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _resultType = unwrap(resultType);
+  const auto _map = unwrap(map);
+  const auto _key = unwrap(key);
+  const auto _location = unwrap(location);
 
-  auto boolType = mlir::go::BooleanType::get(_context);
+  const auto boolType = hasOk ? mlir::go::BooleanType::get(_context) : mlir::Type();
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::MapLookupOp>(
-    _location, _resultType, hasOk ? boolType : Type(), _map, _key);
+  mlir::Operation* op =
+    ::mlir::go::MapLookupOp::create(builder, _location, _resultType, boolType, _map, _key);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateMapRangeOp(
-  MlirContext context,
-  MlirValue value,
-  MlirBlock bodyDest,
-  MlirBlock exitDest,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const MlirBlock bodyDest,
+  const MlirBlock exitDest,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _bodyDest = unwrap(bodyDest);
-  auto _exitDest = unwrap(exitDest);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _bodyDest = unwrap(bodyDest);
+  const auto _exitDest = unwrap(exitDest);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<mlir::go::MapRangeOp>(_location, _value, _bodyDest, _exitDest);
+    ::mlir::go::MapRangeOp::create(builder, _location, _value, _bodyDest, _exitDest);
   return wrap(op);
 }
 
@@ -509,139 +516,196 @@ MlirOperation mlirGoCreateMapRangeOp(
 //===----------------------------------------------------------------------===//
 
 MlirOperation mlirGoCreateAllocaOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirType elementType,
-  int numElements,
-  bool isHeap,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirType elementType,
+  const int numElements,
+  const bool isHeap,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _resultType = unwrap(resultType);
-  auto _elementType = unwrap(elementType);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _resultType = unwrap(resultType);
+  const auto _elementType = unwrap(elementType);
+  const auto _location = unwrap(location);
   int _numElements = 1;
   if (numElements > 0)
   {
     _numElements = numElements;
   }
-  auto _heap = isHeap ? UnitAttr::get(_context) : UnitAttr();
+  const auto _heap = isHeap ? UnitAttr::get(_context) : UnitAttr();
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::AllocaOp>(
-    _location, _resultType, _elementType, _numElements, _heap, StringAttr());
+  mlir::Operation* op = ::mlir::go::AllocaOp::create(
+    builder, _location, _resultType, _elementType, _numElements, _heap, StringAttr());
   return wrap(op);
 }
 
-void mlirGoAllocaOperationSetName(MlirOperation op, MlirStringRef name)
+void mlirGoAllocaOperationSetName(const MlirOperation op, const MlirStringRef name)
 {
   auto _op = mlir::cast<::mlir::go::AllocaOp>(unwrap(op));
-  auto _name = unwrap(name);
+  const auto _name = unwrap(name);
   _op.setVarName(_name);
 }
 
-void mlirGoAllocaOperationSetIsHeap(MlirOperation op, bool isHeap)
+void mlirGoAllocaOperationSetIsHeap(const MlirOperation op, const bool isHeap)
 {
   auto _op = mlir::cast<::mlir::go::AllocaOp>(unwrap(op));
   _op.setHeap(isHeap);
 }
 
 MlirOperation mlirGoCreateLoadOperation(
-  MlirContext context,
-  MlirValue x,
-  MlirType resultType,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue x,
+  const MlirType resultType,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _x = unwrap(x);
-  auto _resultType = unwrap(resultType);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _x = unwrap(x);
+  const auto _resultType = unwrap(resultType);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::LoadOp>(_location, _resultType, _x);
+  mlir::Operation* op = ::mlir::go::LoadOp::create(builder, _location, _resultType, _x);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateVolatileLoadOperation(
-  MlirContext context,
-  MlirValue x,
-  MlirType resultType,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue x,
+  const MlirType resultType,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _x = unwrap(x);
-  auto _resultType = unwrap(resultType);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _x = unwrap(x);
+  const auto _resultType = unwrap(resultType);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::LoadOp>(
-    _location, _resultType, _x, mlir::UnitAttr::get(_context), mlir::UnitAttr());
+  mlir::Operation* op = ::mlir::go::LoadOp::create(
+    builder, _location, _resultType, _x, mlir::UnitAttr::get(_context), mlir::UnitAttr());
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateAtomicLoadOperation(
-  MlirContext context,
-  MlirValue x,
-  MlirType resultType,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue x,
+  const MlirType resultType,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _x = unwrap(x);
-  auto _resultType = unwrap(resultType);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _x = unwrap(x);
+  const auto _resultType = unwrap(resultType);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::LoadOp>(
-    _location, _resultType, _x, mlir::UnitAttr(), mlir::UnitAttr::get(_context));
+  mlir::Operation* op = ::mlir::go::LoadOp::create(
+    builder, _location, _resultType, _x, mlir::UnitAttr(), mlir::UnitAttr::get(_context));
+  return wrap(op);
+}
+
+MlirOperation mlirGoCreateStoreOperation(
+  const MlirContext context,
+  const MlirValue value,
+  const MlirValue address,
+  const MlirLocation location)
+{
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _address = unwrap(address);
+  const auto _location = unwrap(location);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op = ::mlir::go::StoreOp::create(
+    builder, _location, _value, _address, mlir::UnitAttr(), mlir::UnitAttr());
+  return wrap(op);
+}
+
+MlirOperation mlirGoCreateVolatileStoreOperation(
+  const MlirContext context,
+  const MlirValue value,
+  const MlirValue address,
+  const MlirLocation location)
+{
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _address = unwrap(address);
+  const auto _location = unwrap(location);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op = ::mlir::go::StoreOp::create(
+    builder, _location, _value, _address, mlir::UnitAttr::get(_context), mlir::UnitAttr());
+  return wrap(op);
+}
+
+MlirOperation mlirGoCreateAtomicStoreOperation(
+  const MlirContext context,
+  const MlirValue value,
+  const MlirValue address,
+  const MlirLocation location)
+{
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _address = unwrap(address);
+  const auto _location = unwrap(location);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op = ::mlir::go::StoreOp::create(
+    builder, _location, _value, _address, mlir::UnitAttr(), mlir::UnitAttr::get(_context));
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateGepOperation(
-  MlirContext context,
-  MlirValue addr,
-  MlirType baseType,
-  int nConstIndices,
-  int32_t* constIndices,
-  int nDynamicIndices,
-  MlirValue* dynamicIndices,
-  int nIndexFlags,
-  bool* indexFlags,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue addr,
+  const MlirType baseType,
+  const int nConstIndices,
+  const int32_t* constIndices,
+  const int nDynamicIndices,
+  const MlirValue* dynamicIndices,
+  const int nIndexFlags,
+  const bool* indexFlags,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _addr = unwrap(addr);
-  auto _baseType = unwrap(baseType);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _addr = unwrap(addr);
+  const auto _baseType = unwrap(baseType);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   ::llvm::SmallVector<::mlir::Value> _dynamicIndices;
   (void)unwrapList(nDynamicIndices, dynamicIndices, _dynamicIndices);
 
-  ::llvm::ArrayRef<int32_t> _constIndices(constIndices, nConstIndices);
-  ::llvm::ArrayRef<bool> _indexFlags(indexFlags, nIndexFlags);
+  const ::llvm::ArrayRef<int32_t> _constIndices(constIndices, nConstIndices);
+  const ::llvm::ArrayRef<bool> _indexFlags(indexFlags, nIndexFlags);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::GetElementPointerOp>(
-    _location, _type, _addr, _baseType, _dynamicIndices, _constIndices, _indexFlags);
+  mlir::Operation* op = ::mlir::go::GetElementPointerOp::create(
+    builder, _location, _type, _addr, _baseType, _dynamicIndices, _constIndices, _indexFlags);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateGlobalOperation(
-  MlirContext context,
-  MlirAttribute linkage,
-  MlirStringRef symbol,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirAttribute linkage,
+  const MlirStringRef symbol,
+  const MlirStringRef section,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
-  auto _symbol = unwrap(symbol);
+  const auto _context = unwrap(context);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
+  const auto _symbol = unwrap(symbol);
+  const auto _section = unwrap(section);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::GlobalOp>(
-    _location, _type, mlir::StringAttr::get(_context, _symbol));
+  mlir::Operation* op = ::mlir::go::GlobalOp::create(
+    builder,
+    _location,
+    _type,
+    mlir::StringAttr::get(_context, _symbol),
+    _section.size() == 0 ? mlir::StringAttr() : mlir::StringAttr::get(_context, _section));
 
   if (!mlirAttributeIsNull(linkage))
   {
@@ -652,90 +716,41 @@ MlirOperation mlirGoCreateGlobalOperation(
   return wrap(op);
 }
 
-MlirOperation
-mlirGoCreateYieldOperation(MlirContext context, MlirValue value, MlirLocation location)
+MlirOperation mlirGoCreateYieldOperation(
+  const MlirContext context,
+  const MlirValue value,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _location = unwrap(location);
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::YieldOp>(_location, _value);
-  return wrap(op);
-}
-
-MlirOperation mlirGoCreateStoreOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirValue address,
-  MlirLocation location)
-{
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _address = unwrap(address);
-  auto _location = unwrap(location);
-
-  mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::StoreOp>(
-    _location, _value, _address, mlir::UnitAttr(), mlir::UnitAttr());
-  return wrap(op);
-}
-
-MlirOperation mlirGoCreateVolatileStoreOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirValue address,
-  MlirLocation location)
-{
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _address = unwrap(address);
-  auto _location = unwrap(location);
-
-  mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::StoreOp>(
-    _location, _value, _address, mlir::UnitAttr::get(_context), mlir::UnitAttr());
-  return wrap(op);
-}
-
-MlirOperation mlirGoCreateAtomicStoreOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirValue address,
-  MlirLocation location)
-{
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _address = unwrap(address);
-  auto _location = unwrap(location);
-
-  mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::StoreOp>(
-    _location, _value, _address, mlir::UnitAttr(), mlir::UnitAttr::get(_context));
+  mlir::Operation* op = ::mlir::go::YieldOp::create(builder, _location, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateSliceOperation(
-  MlirContext context,
-  MlirValue input,
-  MlirValue low,
-  MlirValue high,
-  MlirValue max,
-  MlirType resultType,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue input,
+  const MlirValue low,
+  const MlirValue high,
+  const MlirValue max,
+  const MlirType resultType,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _input = unwrap(input);
-  auto _low = !mlirValueIsNull(low) ? unwrap(low) : mlir::Value();
-  auto _high = !mlirValueIsNull(high) ? unwrap(high) : mlir::Value();
-  auto _max = !mlirValueIsNull(max) ? unwrap(max) : mlir::Value();
-  auto _resultType = unwrap(resultType);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _input = unwrap(input);
+  const auto _low = !mlirValueIsNull(low) ? unwrap(low) : mlir::Value();
+  const auto _high = !mlirValueIsNull(high) ? unwrap(high) : mlir::Value();
+  const auto _max = !mlirValueIsNull(max) ? unwrap(max) : mlir::Value();
+  const auto _resultType = unwrap(resultType);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<::mlir::go::SliceOp>(_location, _resultType, _input, _low, _high, _max);
+    ::mlir::go::SliceOp::create(builder, _location, _resultType, _input, _low, _high, _max);
 
-  auto operandSegmentSizesAttr =
+  const auto operandSegmentSizesAttr =
     DenseI32ArrayAttr::get(_context, { _low ? 1 : 0, _high ? 1 : 0, _max ? 1 : 0 });
   op->setAttr("operandSegmentSizes", operandSegmentSizesAttr);
 
@@ -743,20 +758,33 @@ MlirOperation mlirGoCreateSliceOperation(
 }
 
 MlirOperation mlirGoCreateAddressOfOperation(
-  MlirContext context,
-  MlirStringRef symbol,
-  MlirType resultType,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirStringRef symbol,
+  const MlirType resultType,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _resultType = unwrap(resultType);
-  auto _location = unwrap(location);
-  auto _symbol = unwrap(symbol);
+  const auto _context = unwrap(context);
+  const auto _resultType = unwrap(resultType);
+  const auto _location = unwrap(location);
+  const auto _symbol = unwrap(symbol);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::AddressOfOp>(
-    _location, _resultType, mlir::FlatSymbolRefAttr::get(_context, _symbol));
+  mlir::Operation* op = ::mlir::go::AddressOfOp::create(
+    builder, _location, _resultType, mlir::FlatSymbolRefAttr::get(_context, _symbol));
   return wrap(op);
+}
+
+MlirOperation mlirGoCreateNilPointerCheckOperation(
+  const MlirContext context,
+  const MlirValue addr,
+  const MlirLocation location)
+{
+  const auto _context = unwrap(context);
+  const auto _addr = unwrap(addr);
+  const auto _location = unwrap(location);
+
+  mlir::OpBuilder builder(_context);
+  return wrap(mlir::go::NilPointerCheckOp::create(builder, _location, _addr));
 }
 
 //===----------------------------------------------------------------------===//
@@ -764,21 +792,21 @@ MlirOperation mlirGoCreateAddressOfOperation(
 //===----------------------------------------------------------------------===//
 
 MlirOperation mlirGoCreateSliceAddrOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue slice,
-  MlirValue index,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue slice,
+  const MlirValue index,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _resultType = unwrap(resultType);
-  auto _slice = unwrap(slice);
-  auto _index = unwrap(index);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _resultType = unwrap(resultType);
+  const auto _slice = unwrap(slice);
+  const auto _index = unwrap(index);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<::mlir::go::SliceAddrOp>(_location, _resultType, _slice, _index);
+    ::mlir::go::SliceAddrOp::create(builder, _location, _resultType, _slice, _index);
   return wrap(op);
 }
 
@@ -787,40 +815,40 @@ MlirOperation mlirGoCreateSliceAddrOperation(
 //===----------------------------------------------------------------------===//
 
 MlirOperation mlirGoCreateStringAddrOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue slice,
-  MlirValue index,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue slice,
+  const MlirValue index,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _resultType = unwrap(resultType);
-  auto _slice = unwrap(slice);
-  auto _index = unwrap(index);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _resultType = unwrap(resultType);
+  const auto _slice = unwrap(slice);
+  const auto _index = unwrap(index);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<::mlir::go::StringAddrOp>(_location, _resultType, _slice, _index);
+    ::mlir::go::StringAddrOp::create(builder, _location, _resultType, _slice, _index);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateStringRangeOp(
-  MlirContext context,
-  MlirValue value,
-  MlirBlock bodyDest,
-  MlirBlock exitDest,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const MlirBlock bodyDest,
+  const MlirBlock exitDest,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _bodyDest = unwrap(bodyDest);
-  auto _exitDest = unwrap(exitDest);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _bodyDest = unwrap(bodyDest);
+  const auto _exitDest = unwrap(exitDest);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<mlir::go::StringRangeOp>(_location, _value, _bodyDest, _exitDest);
+    ::mlir::go::StringRangeOp::create(builder, _location, _value, _bodyDest, _exitDest);
   return wrap(op);
 }
 
@@ -829,40 +857,40 @@ MlirOperation mlirGoCreateStringRangeOp(
 //===----------------------------------------------------------------------===//
 
 MlirOperation mlirGoCreateExtractOperation(
-  MlirContext context,
-  uint64_t index,
-  MlirType fieldType,
-  MlirValue structValue,
-  MlirLocation location)
+  const MlirContext context,
+  const uint64_t index,
+  const MlirType fieldType,
+  const MlirValue structValue,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _fieldType = unwrap(fieldType);
-  auto _structValue = unwrap(structValue);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _fieldType = unwrap(fieldType);
+  const auto _structValue = unwrap(structValue);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<::mlir::go::ExtractOp>(_location, _fieldType, index, _structValue);
+    ::mlir::go::ExtractOp::create(builder, _location, _fieldType, index, _structValue);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateInsertOperation(
-  MlirContext context,
-  uint64_t index,
-  MlirValue value,
-  MlirValue structValue,
-  MlirType structType,
-  MlirLocation location)
+  const MlirContext context,
+  const uint64_t index,
+  const MlirValue value,
+  const MlirValue structValue,
+  const MlirType structType,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _structType = unwrap(structType);
-  auto _structValue = unwrap(structValue);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _structType = unwrap(structType);
+  const auto _structValue = unwrap(structValue);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<::mlir::go::InsertOp>(_location, _structType, _value, index, _structValue);
+    ::mlir::go::InsertOp::create(builder, _location, _structType, _value, index, _structValue);
   return wrap(op);
 }
 
@@ -871,11 +899,11 @@ MlirOperation mlirGoCreateInsertOperation(
 //===----------------------------------------------------------------------===//
 
 MlirOperation mlirGoCreateConstantOperation(
-  MlirContext context,
-  MlirAttribute value,
-  MlirAttribute symbol,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirAttribute value,
+  const MlirAttribute symbol,
+  const MlirType type,
+  const MlirLocation location)
 {
   const auto _context = unwrap(context);
   const auto _type = unwrap(type);
@@ -889,31 +917,33 @@ MlirOperation mlirGoCreateConstantOperation(
   }
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::ConstantOp>(_location, _type, _value, _symbol);
+  mlir::Operation* op = ::mlir::go::ConstantOp::create(builder, _location, _type, _value, _symbol);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateGlobalConstantOperation(
-  MlirContext context,
-  MlirAttribute value,
-  MlirAttribute symbol,
-  MlirLocation location) {
+  const MlirContext context,
+  const MlirAttribute value,
+  const MlirAttribute symbol,
+  const MlirLocation location)
+{
 
-  const auto _context  = unwrap(context);
+  const auto _context = unwrap(context);
   const auto _location = unwrap(location);
   const auto _symbol = mlir::cast<mlir::StringAttr>(unwrap(symbol));
 
   mlir::Attribute _value;
-  if (!mlirAttributeIsNull(value)) {          // nullable handle
+  if (!mlirAttributeIsNull(value))
+  { // nullable handle
     _value = unwrap(value);
   }
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation *op = ::mlir::go::GlobalConstantOp::create(builder, _location, _symbol, _value);
+  mlir::Operation* op = ::mlir::go::GlobalConstantOp::create(builder, _location, _symbol, _value);
   return wrap(op);
 }
 
-void mlirGoGlobalConstantOperationAddBody(MlirOperation op, MlirBlock body)
+void mlirGoGlobalConstantOperationAddBody(const MlirOperation op, const MlirBlock body)
 {
   auto _op = mlir::cast<mlir::go::GlobalConstantOp>(unwrap(op));
   const auto _body = unwrap(body);
@@ -925,286 +955,286 @@ void mlirGoGlobalConstantOperationAddBody(MlirOperation op, MlirBlock body)
 //===----------------------------------------------------------------------===//
 
 MlirOperation mlirGoCreateBitcastOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::BitcastOp>(_location, _type, _value);
+  mlir::Operation* op = ::mlir::go::BitcastOp::create(builder, _location, _type, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateComplexExtendOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::ComplexExtendOp>(_location, _type, _value);
+  mlir::Operation* op = ::mlir::go::ComplexExtendOp::create(builder, _location, _type, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateComplexTruncateOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::ComplexTruncateOp>(_location, _type, _value);
+  mlir::Operation* op = ::mlir::go::ComplexTruncateOp::create(builder, _location, _type, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateIntToPtrOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::IntToPtrOp>(_location, _type, _value);
+  mlir::Operation* op = ::mlir::go::IntToPtrOp::create(builder, _location, _type, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreatePtrToIntOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::PtrToIntOp>(_location, _type, _value);
+  mlir::Operation* op = ::mlir::go::PtrToIntOp::create(builder, _location, _type, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateFloatTruncateOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::FloatTruncateOp>(_location, _type, _value);
+  mlir::Operation* op = ::mlir::go::FloatTruncateOp::create(builder, _location, _type, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateIntTruncateOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::IntTruncateOp>(_location, _type, _value);
+  mlir::Operation* op = ::mlir::go::IntTruncateOp::create(builder, _location, _type, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateFloatExtendOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::FloatExtendOp>(_location, _type, _value);
+  mlir::Operation* op = ::mlir::go::FloatExtendOp::create(builder, _location, _type, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateSignedExtendOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::SignedExtendOp>(_location, _type, _value);
+  mlir::Operation* op = ::mlir::go::SignedExtendOp::create(builder, _location, _type, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateZeroExtendOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::ZeroExtendOp>(_location, _type, _value);
+  mlir::Operation* op = ::mlir::go::ZeroExtendOp::create(builder, _location, _type, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateFloatToUnsignedIntOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::FloatToUnsignedIntOp>(_location, _type, _value);
+  mlir::Operation* op = ::mlir::go::FloatToUnsignedIntOp::create(builder, _location, _type, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateFloatToSignedIntOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::FloatToSignedIntOp>(_location, _type, _value);
+  mlir::Operation* op = ::mlir::go::FloatToSignedIntOp::create(builder, _location, _type, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateUnsignedIntToFloatOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::UnsignedIntToFloatOp>(_location, _type, _value);
+  mlir::Operation* op = ::mlir::go::UnsignedIntToFloatOp::create(builder, _location, _type, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateSignedIntToFloatOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::SignedIntToFloatOp>(_location, _type, _value);
+  mlir::Operation* op = ::mlir::go::SignedIntToFloatOp::create(builder, _location, _type, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateFunctionToPointerOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::FunctionToPointerOp>(_location, _type, _value);
+  mlir::Operation* op = ::mlir::go::FunctionToPointerOp::create(builder, _location, _type, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreatePointerToFunctionOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::PointerToFunctionOp>(_location, _type, _value);
+  mlir::Operation* op = ::mlir::go::PointerToFunctionOp::create(builder, _location, _type, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateChangeInterfaceOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::ChangeInterfaceOp>(_location, _type, _value);
+  mlir::Operation* op = ::mlir::go::ChangeInterfaceOp::create(builder, _location, _type, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateTypeAssertOperation(
-  MlirContext context,
-  MlirValue value,
-  int nResults,
-  MlirType* results,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const int nResults,
+  const MlirType* results,
+  const MlirLocation location)
 {
   const auto _context = unwrap(context);
-  auto _value = unwrap(value);
+  const auto _value = unwrap(value);
 
   SmallVector<mlir::Type> _results;
   (void)unwrapList(nResults, results, _results);
@@ -1212,39 +1242,39 @@ MlirOperation mlirGoCreateTypeAssertOperation(
   const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::TypeAssertOp>(_location, _results, _value);
+  mlir::Operation* op = ::mlir::go::TypeAssertOp::create(builder, _location, _results, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateStringToSliceOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::StringToSliceOp>(_location, _type, _value);
+  mlir::Operation* op = ::mlir::go::StringToSliceOp::create(builder, _location, _type, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateSliceToStringOperation(
-  MlirContext context,
-  MlirValue value,
-  MlirType type,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue value,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _value = unwrap(value);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _value = unwrap(value);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::SliceToStringOp>(_location, _type, _value);
+  mlir::Operation* op = ::mlir::go::SliceToStringOp::create(builder, _location, _type, _value);
   return wrap(op);
 }
 
@@ -1252,17 +1282,20 @@ MlirOperation mlirGoCreateSliceToStringOperation(
 // Function Operations
 //===----------------------------------------------------------------------===//
 
-MlirOperation
-mlirGoGetFunction(MlirContext context, MlirStringRef symbol, MlirType type, MlirLocation location)
+MlirOperation mlirGoGetFunction(
+  const MlirContext context,
+  const MlirStringRef symbol,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _symbol = unwrap(symbol);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _symbol = unwrap(symbol);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::func::ConstantOp>(
-    _location, _type, ::mlir::SymbolRefAttr::get(_context, _symbol));
+  mlir::Operation* op = ::mlir::func::ConstantOp::create(
+    builder, _location, _type, ::mlir::SymbolRefAttr::get(_context, _symbol));
   return wrap(op);
 }
 
@@ -1270,28 +1303,31 @@ mlirGoGetFunction(MlirContext context, MlirStringRef symbol, MlirType type, Mlir
 // Builtin Operations
 //===----------------------------------------------------------------------===//
 
-MlirOperation
-mlirGoCreatePanicOperation(MlirContext context, MlirValue value, MlirLocation location)
+MlirOperation mlirGoCreatePanicOperation(
+  const MlirContext context,
+  const MlirValue value,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _location = unwrap(location);
-  auto _value = unwrap(value);
+  const auto _context = unwrap(context);
+  const auto _location = unwrap(location);
+  const auto _value = unwrap(value);
 
-  mlir::Operation* op;
   mlir::OpBuilder builder(_context);
-  op = builder.create<::mlir::go::PanicOp>(_location, _value);
+  mlir::Operation* op = ::mlir::go::PanicOp::create(builder, _location, _value);
   return wrap(op);
 }
 
-MlirOperation
-mlirGoCreateRecoverOperation(MlirContext context, MlirType type, MlirLocation location)
+MlirOperation mlirGoCreateRecoverOperation(
+  const MlirContext context,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::RecoverOp>(_location, _type);
+  mlir::Operation* op = ::mlir::go::RecoverOp::create(builder, _location, _type);
   return wrap(op);
 }
 
@@ -1300,43 +1336,43 @@ mlirGoCreateRecoverOperation(MlirContext context, MlirType type, MlirLocation lo
 //===----------------------------------------------------------------------===//
 
 MlirOperation mlirGoCreateAtomicAddIOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue addr,
-  MlirValue delta,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue addr,
+  const MlirValue delta,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::AtomicAddIOp>(
     context, resultType, addr, delta, location);
 }
 
 MlirOperation mlirGoCreateAtomicCompareAndSwapOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue addr,
-  MlirValue old,
-  MlirValue value,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue addr,
+  const MlirValue old,
+  const MlirValue value,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _resultType = unwrap(resultType);
-  auto _addr = unwrap(addr);
-  auto _old = unwrap(old);
-  auto _value = unwrap(value);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _resultType = unwrap(resultType);
+  const auto _addr = unwrap(addr);
+  const auto _old = unwrap(old);
+  const auto _value = unwrap(value);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::AtomicCompareAndSwapIOp>(
-    _location, _resultType, _addr, _old, _value);
+  mlir::Operation* op = ::mlir::go::AtomicCompareAndSwapIOp::create(
+    builder, _location, _resultType, _addr, _old, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateAtomicSwapOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue addr,
-  MlirValue value,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue addr,
+  const MlirValue value,
+  const MlirLocation location)
 {
   return ::mlir::go::_createBinOp<::mlir::go::AtomicSwapIOp>(
     context, resultType, addr, value, location);
@@ -1347,40 +1383,40 @@ MlirOperation mlirGoCreateAtomicSwapOperation(
 //===----------------------------------------------------------------------===//
 
 MlirOperation mlirGoCreateBranchOperation(
-  MlirContext context,
-  MlirBlock dest,
-  int nDestOperands,
-  MlirValue* destOperands,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirBlock dest,
+  const int nDestOperands,
+  const MlirValue* destOperands,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _dest = unwrap(dest);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _dest = unwrap(dest);
+  const auto _location = unwrap(location);
 
   ::llvm::SmallVector<::mlir::Value> _destOperands;
   (void)unwrapList(nDestOperands, destOperands, _destOperands);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::BranchOp>(_location, _destOperands, _dest);
+  mlir::Operation* op = ::mlir::go::BranchOp::create(builder, _location, _destOperands, _dest);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateCondBranchOperation(
-  MlirContext context,
-  MlirValue condition,
-  MlirBlock trueDest,
-  int nTrueDestOperands,
-  MlirValue* trueDestOperands,
-  MlirBlock falseDest,
-  int nFalseDestOperands,
-  MlirValue* falseDestOperands,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue condition,
+  const MlirBlock trueDest,
+  const int nTrueDestOperands,
+  const MlirValue* trueDestOperands,
+  const MlirBlock falseDest,
+  const int nFalseDestOperands,
+  const MlirValue* falseDestOperands,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _condition = unwrap(condition);
-  auto _trueDest = unwrap(trueDest);
-  auto _falseDest = unwrap(falseDest);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _condition = unwrap(condition);
+  const auto _trueDest = unwrap(trueDest);
+  const auto _falseDest = unwrap(falseDest);
+  const auto _location = unwrap(location);
 
   ::llvm::SmallVector<::mlir::Value> _trueDestOperands;
   (void)unwrapList(nTrueDestOperands, trueDestOperands, _trueDestOperands);
@@ -1388,30 +1424,30 @@ MlirOperation mlirGoCreateCondBranchOperation(
   ::llvm::SmallVector<::mlir::Value> _falseDestOperands;
   (void)unwrapList(nFalseDestOperands, falseDestOperands, _falseDestOperands);
 
-  auto operandSegmentSizesAttr = DenseI32ArrayAttr::get(
+  const auto operandSegmentSizesAttr = DenseI32ArrayAttr::get(
     _context, { 1, static_cast<int>(nTrueDestOperands), static_cast<int>(nFalseDestOperands) });
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::CondBranchOp>(
-    _location, _condition, _trueDestOperands, _falseDestOperands, _trueDest, _falseDest);
+  mlir::Operation* op = ::mlir::go::CondBranchOp::create(
+    builder, _location, _condition, _trueDestOperands, _falseDestOperands, _trueDest, _falseDest);
   op->setAttr("operandSegmentSizes", operandSegmentSizesAttr);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateReturnOperation(
-  MlirContext context,
-  int nOperands,
-  MlirValue* operands,
-  MlirLocation location)
+  const MlirContext context,
+  const int nOperands,
+  const MlirValue* operands,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _location = unwrap(location);
 
   ::llvm::SmallVector<::mlir::Value> _operands;
   (void)unwrapList(nOperands, operands, _operands);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<mlir::go::ReturnOp>(_location, _operands);
+  mlir::Operation* op = ::mlir::go::ReturnOp::create(builder, _location, _operands);
   return wrap(op);
 }
 
@@ -1420,17 +1456,17 @@ MlirOperation mlirGoCreateReturnOperation(
 //===----------------------------------------------------------------------===//
 
 MlirOperation mlirGoCreateCallOperation(
-  MlirContext context,
-  MlirStringRef callee,
-  int nResultTypes,
-  MlirType* resultTypes,
-  int nOperands,
-  MlirValue* operands,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirStringRef callee,
+  const int nResultTypes,
+  const MlirType* resultTypes,
+  const int nOperands,
+  const MlirValue* operands,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _callee = unwrap(callee);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _callee = unwrap(callee);
+  const auto _location = unwrap(location);
 
   ::llvm::SmallVector<::mlir::Type> _resultTypes;
   (void)unwrapList(nResultTypes, resultTypes, _resultTypes);
@@ -1439,25 +1475,25 @@ MlirOperation mlirGoCreateCallOperation(
   (void)unwrapList(nOperands, operands, _operands);
 
   mlir::OpBuilder builder(_context);
-  auto op = builder.create<mlir::go::CallOp>(_location, _resultTypes, _callee, _operands);
+  auto op = ::mlir::go::CallOp::create(builder, _location, _resultTypes, _callee, _operands);
 
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateClosureCallOperation(
-  MlirContext context,
-  MlirAttribute signature,
-  MlirValue callee,
-  int nResultTypes,
-  MlirType* resultTypes,
-  int nOperands,
-  MlirValue* operands,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirAttribute signature,
+  const MlirValue callee,
+  const int nResultTypes,
+  const MlirType* resultTypes,
+  const int nOperands,
+  const MlirValue* operands,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _callee = unwrap(callee);
-  auto _signature = mlir::cast<mlir::TypeAttr>(unwrap(signature));
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _callee = unwrap(callee);
+  const auto _signature = mlir::cast<mlir::TypeAttr>(unwrap(signature));
+  const auto _location = unwrap(location);
 
   ::llvm::SmallVector<::mlir::Type> _resultTypes;
   (void)unwrapList(nResultTypes, resultTypes, _resultTypes);
@@ -1467,22 +1503,22 @@ MlirOperation mlirGoCreateClosureCallOperation(
 
   mlir::OpBuilder builder(_context);
   auto op =
-    builder.create<mlir::go::CallOp>(_location, _signature, _resultTypes, _callee, _operands);
+    ::mlir::go::CallOp::create(builder, _location, _signature, _resultTypes, _callee, _operands);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateCallIndirectOperation(
-  MlirContext context,
-  MlirValue callee,
-  int nResultTypes,
-  MlirType* resultTypes,
-  int nOperands,
-  MlirValue* operands,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue callee,
+  const int nResultTypes,
+  const MlirType* resultTypes,
+  const int nOperands,
+  const MlirValue* operands,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _callee = unwrap(callee);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _callee = unwrap(callee);
+  const auto _location = unwrap(location);
 
   ::llvm::SmallVector<::mlir::Type> _resultTypes;
   (void)unwrapList(nResultTypes, resultTypes, _resultTypes);
@@ -1492,16 +1528,16 @@ MlirOperation mlirGoCreateCallIndirectOperation(
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<::mlir::go::CallIndirectOp>(_location, _resultTypes, _callee, _operands);
+    ::mlir::go::CallIndirectOp::create(builder, _location, _resultTypes, _callee, _operands);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateDeferOperation1(
-  MlirContext context,
-  MlirStringRef sym_name,
-  int nArgs,
-  MlirValue* args,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirStringRef sym_name,
+  const int nArgs,
+  const MlirValue* args,
+  const MlirLocation location)
 {
   const auto _context = unwrap(context);
   const auto _sym_name = unwrap(sym_name);
@@ -1511,16 +1547,16 @@ MlirOperation mlirGoCreateDeferOperation1(
   (void)unwrapList(nArgs, args, _args);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::DeferOp>(_location, _sym_name, _args);
+  mlir::Operation* op = ::mlir::go::DeferOp::create(builder, _location, _sym_name, _args);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateDeferOperation2(
-  MlirContext context,
-  MlirAttribute sym_name,
-  int nArgs,
-  MlirValue* args,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirAttribute sym_name,
+  const int nArgs,
+  const MlirValue* args,
+  const MlirLocation location)
 {
   const auto _context = unwrap(context);
   const auto _sym_name = unwrap(sym_name);
@@ -1532,10 +1568,10 @@ MlirOperation mlirGoCreateDeferOperation2(
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
     mlir::TypeSwitch<mlir::Attribute, mlir::Operation*>(_sym_name)
-      .Case([&](mlir::StringAttr attr)
-            { return builder.create<::mlir::go::DeferOp>(_location, attr, _args); })
-      .Case([&](mlir::SymbolRefAttr attr)
-            { return builder.create<::mlir::go::DeferOp>(_location, attr, _args); })
+      .Case([&](const mlir::StringAttr attr)
+            { return ::mlir::go::DeferOp::create(builder, _location, attr, _args); })
+      .Case([&](const mlir::SymbolRefAttr attr)
+            { return ::mlir::go::DeferOp::create(builder, _location, attr, _args); })
       .Default(
         [&](mlir::Attribute)
         {
@@ -1546,12 +1582,12 @@ MlirOperation mlirGoCreateDeferOperation2(
 }
 
 MlirOperation mlirGoCreateDeferOperation3(
-  MlirContext context,
-  MlirAttribute signature,
-  MlirValue callee_value,
-  int nArgs,
-  MlirValue* args,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirAttribute signature,
+  const MlirValue callee_value,
+  const int nArgs,
+  const MlirValue* args,
+  const MlirLocation location)
 {
   const auto _context = unwrap(context);
   const auto _signature = mlir::cast<mlir::TypeAttr>(unwrap(signature));
@@ -1563,17 +1599,17 @@ MlirOperation mlirGoCreateDeferOperation3(
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<::mlir::go::DeferOp>(_location, _signature, _callee_value, _args);
+    ::mlir::go::DeferOp::create(builder, _location, _signature, _callee_value, _args);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateDeferOperation4(
-  MlirContext context,
-  MlirValue iface_value,
-  MlirStringRef method_name,
-  int nArgs,
-  MlirValue* args,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue iface_value,
+  const MlirStringRef method_name,
+  const int nArgs,
+  const MlirValue* args,
+  const MlirLocation location)
 {
   const auto _context = unwrap(context);
   const auto _iface_value = unwrap(iface_value);
@@ -1585,17 +1621,17 @@ MlirOperation mlirGoCreateDeferOperation4(
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<::mlir::go::DeferOp>(_location, _iface_value, _method_name, _args);
+    ::mlir::go::DeferOp::create(builder, _location, _iface_value, _method_name, _args);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateDeferOperation5(
-  MlirContext context,
-  MlirValue iface_value,
-  MlirAttribute method_name,
-  int nArgs,
-  MlirValue* args,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue iface_value,
+  const MlirAttribute method_name,
+  const int nArgs,
+  const MlirValue* args,
+  const MlirLocation location)
 {
   const auto _context = unwrap(context);
   const auto _iface_value = unwrap(iface_value);
@@ -1607,16 +1643,16 @@ MlirOperation mlirGoCreateDeferOperation5(
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<::mlir::go::DeferOp>(_location, _iface_value, _method_name, _args);
+    ::mlir::go::DeferOp::create(builder, _location, _iface_value, _method_name, _args);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateGoOperation1(
-  MlirContext context,
-  MlirStringRef sym_name,
-  int nArgs,
-  MlirValue* args,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirStringRef sym_name,
+  const int nArgs,
+  const MlirValue* args,
+  const MlirLocation location)
 {
   const auto _context = unwrap(context);
   const auto _sym_name = unwrap(sym_name);
@@ -1626,16 +1662,16 @@ MlirOperation mlirGoCreateGoOperation1(
   (void)unwrapList(nArgs, args, _args);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::GoOp>(_location, _sym_name, _args);
+  mlir::Operation* op = ::mlir::go::GoOp::create(builder, _location, _sym_name, _args);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateGoOperation2(
-  MlirContext context,
-  MlirAttribute sym_name,
-  int nArgs,
-  MlirValue* args,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirAttribute sym_name,
+  const int nArgs,
+  const MlirValue* args,
+  const MlirLocation location)
 {
   const auto _context = unwrap(context);
   const auto _sym_name = unwrap(sym_name);
@@ -1648,9 +1684,9 @@ MlirOperation mlirGoCreateGoOperation2(
   mlir::Operation* op =
     mlir::TypeSwitch<mlir::Attribute, mlir::Operation*>(_sym_name)
       .Case([&](mlir::StringAttr attr)
-            { return builder.create<::mlir::go::GoOp>(_location, attr, _args); })
+            { return ::mlir::go::GoOp::create(builder, _location, attr, _args); })
       .Case([&](mlir::SymbolRefAttr attr)
-            { return builder.create<::mlir::go::GoOp>(_location, attr, _args); })
+            { return ::mlir::go::GoOp::create(builder, _location, attr, _args); })
       .Default(
         [&](mlir::Attribute)
         {
@@ -1661,12 +1697,12 @@ MlirOperation mlirGoCreateGoOperation2(
 }
 
 MlirOperation mlirGoCreateGoOperation3(
-  MlirContext context,
-  MlirAttribute signature,
-  MlirValue callee_value,
-  int nArgs,
-  MlirValue* args,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirAttribute signature,
+  const MlirValue callee_value,
+  const int nArgs,
+  const MlirValue* args,
+  const MlirLocation location)
 {
   const auto _context = unwrap(context);
   const auto _signature = mlir::cast<mlir::TypeAttr>(unwrap(signature));
@@ -1678,17 +1714,17 @@ MlirOperation mlirGoCreateGoOperation3(
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<::mlir::go::GoOp>(_location, _signature, _callee_value, _args);
+    ::mlir::go::GoOp::create(builder, _location, _signature, _callee_value, _args);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateGoOperation4(
-  MlirContext context,
-  MlirValue iface_value,
-  MlirStringRef method_name,
-  int nArgs,
-  MlirValue* args,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue iface_value,
+  const MlirStringRef method_name,
+  const int nArgs,
+  const MlirValue* args,
+  const MlirLocation location)
 {
   const auto _context = unwrap(context);
   const auto _iface_value = unwrap(iface_value);
@@ -1700,17 +1736,17 @@ MlirOperation mlirGoCreateGoOperation4(
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<::mlir::go::GoOp>(_location, _iface_value, _method_name, _args);
+    ::mlir::go::GoOp::create(builder, _location, _iface_value, _method_name, _args);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateGoOperation5(
-  MlirContext context,
-  MlirValue iface_value,
-  MlirAttribute method_name,
-  int nArgs,
-  MlirValue* args,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue iface_value,
+  const MlirAttribute method_name,
+  const int nArgs,
+  const MlirValue* args,
+  const MlirLocation location)
 {
   const auto _context = unwrap(context);
   const auto _iface_value = unwrap(iface_value);
@@ -1722,24 +1758,24 @@ MlirOperation mlirGoCreateGoOperation5(
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<::mlir::go::GoOp>(_location, _iface_value, _method_name, _args);
+    ::mlir::go::GoOp::create(builder, _location, _iface_value, _method_name, _args);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateInterfaceCall(
-  MlirContext context,
-  MlirStringRef callee,
-  int nResultTypes,
-  MlirType* resultTypes,
-  MlirValue ifaceValue,
-  int nArgs,
-  MlirValue* args,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirStringRef callee,
+  const int nResultTypes,
+  const MlirType* resultTypes,
+  const MlirValue ifaceValue,
+  const int nArgs,
+  const MlirValue* args,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _callee = unwrap(callee);
-  auto _ifaceValue = unwrap(ifaceValue);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _callee = unwrap(callee);
+  const auto _ifaceValue = unwrap(ifaceValue);
+  const auto _location = unwrap(location);
 
   ::llvm::SmallVector<::mlir::Type> _resultTypes;
   (void)unwrapList(nResultTypes, resultTypes, _resultTypes);
@@ -1748,23 +1784,23 @@ MlirOperation mlirGoCreateInterfaceCall(
   (void)unwrapList(nArgs, args, _args);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op =
-    builder.create<mlir::go::InterfaceCallOp>(_location, _resultTypes, _callee, _ifaceValue, _args);
+  mlir::Operation* op = ::mlir::go::InterfaceCallOp::create(
+    builder, _location, _resultTypes, _callee, _ifaceValue, _args);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateBuiltInCallOperation(
-  MlirContext context,
-  MlirStringRef identifier,
-  int nResultTypes,
-  MlirType* resultTypes,
-  int nOperands,
-  MlirValue* operands,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirStringRef identifier,
+  const int nResultTypes,
+  const MlirType* resultTypes,
+  const int nOperands,
+  const MlirValue* operands,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _identifier = unwrap(identifier);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _identifier = unwrap(identifier);
+  const auto _location = unwrap(location);
 
   ::llvm::SmallVector<::mlir::Type> _resultTypes;
   (void)unwrapList(nResultTypes, resultTypes, _resultTypes);
@@ -1774,7 +1810,7 @@ MlirOperation mlirGoCreateBuiltInCallOperation(
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<::mlir::go::BuiltInCallOp>(_location, _resultTypes, _identifier, _operands);
+    ::mlir::go::BuiltInCallOp::create(builder, _location, _resultTypes, _identifier, _operands);
   return wrap(op);
 }
 
@@ -1782,76 +1818,79 @@ MlirOperation mlirGoCreateBuiltInCallOperation(
 // Value Operations
 //===----------------------------------------------------------------------===//
 
-MlirOperation mlirGoCreateZeroOperation(MlirContext context, MlirType type, MlirLocation location)
+MlirOperation mlirGoCreateZeroOperation(
+  const MlirContext context,
+  const MlirType type,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _type = unwrap(type);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::ZeroOp>(_location, _type);
+  mlir::Operation* op = ::mlir::go::ZeroOp::create(builder, _location, _type);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateComplexOperation(
-  MlirContext context,
-  MlirType type,
-  MlirValue real,
-  MlirValue imag,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType type,
+  const MlirValue real,
+  const MlirValue imag,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _type = unwrap(type);
-  auto _real = unwrap(real);
-  auto _imag = unwrap(imag);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _type = unwrap(type);
+  const auto _real = unwrap(real);
+  const auto _imag = unwrap(imag);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::ComplexOp>(_location, _type, _real, _imag);
+  mlir::Operation* op = ::mlir::go::ComplexOp::create(builder, _location, _type, _real, _imag);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateImagOperation(
-  MlirContext context,
-  MlirType type,
-  MlirValue value,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType type,
+  const MlirValue value,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _type = unwrap(type);
-  auto _value = unwrap(value);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _type = unwrap(type);
+  const auto _value = unwrap(value);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::ImagOp>(_location, _type, _value);
+  mlir::Operation* op = ::mlir::go::ImagOp::create(builder, _location, _type, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateRealOperation(
-  MlirContext context,
-  MlirType type,
-  MlirValue value,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType type,
+  const MlirValue value,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _type = unwrap(type);
-  auto _value = unwrap(value);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _type = unwrap(type);
+  const auto _value = unwrap(value);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::RealOp>(_location, _type, _value);
+  mlir::Operation* op = ::mlir::go::RealOp::create(builder, _location, _type, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateMakeMapOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue capacity,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue capacity,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _resultType = unwrap(resultType);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _resultType = unwrap(resultType);
+  const auto _location = unwrap(location);
 
   mlir::Value _capacity;
   if (!mlirValueIsNull(capacity))
@@ -1860,21 +1899,21 @@ MlirOperation mlirGoCreateMakeMapOperation(
   }
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<::mlir::go::MakeMapOp>(_location, _resultType, _capacity);
+  mlir::Operation* op = ::mlir::go::MakeMapOp::create(builder, _location, _resultType, _capacity);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateMakeSliceOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirValue length,
-  MlirValue capacity,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirValue length,
+  const MlirValue capacity,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _resultType = unwrap(resultType);
-  auto _length = unwrap(length);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _resultType = unwrap(resultType);
+  const auto _length = unwrap(length);
+  const auto _location = unwrap(location);
 
   mlir::Value _capacity;
   if (!mlirValueIsNull(capacity))
@@ -1884,112 +1923,112 @@ MlirOperation mlirGoCreateMakeSliceOperation(
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<::mlir::go::MakeSliceOp>(_location, _resultType, _length, _capacity);
+    ::mlir::go::MakeSliceOp::create(builder, _location, _resultType, _length, _capacity);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateMakeInterfaceOperation(
-  MlirContext context,
-  MlirType resultType,
-  MlirType type,
-  MlirValue value,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirType resultType,
+  const MlirType type,
+  const MlirValue value,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _resultType = unwrap(resultType);
-  auto _type = unwrap(type);
-  auto _value = unwrap(value);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _resultType = unwrap(resultType);
+  const auto _type = unwrap(type);
+  const auto _value = unwrap(value);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<::mlir::go::MakeInterfaceOp>(_location, _resultType, _type, _value);
+    ::mlir::go::MakeInterfaceOp::create(builder, _location, _resultType, _type, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateChanRecvOp(
-  MlirContext context,
-  int nResultTypes,
-  MlirType* resultTypes,
-  MlirValue channel,
-  MlirLocation location)
+  const MlirContext context,
+  const int nResultTypes,
+  const MlirType* resultTypes,
+  const MlirValue channel,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _channel = unwrap(channel);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _channel = unwrap(channel);
+  const auto _location = unwrap(location);
 
   mlir::SmallVector<mlir::Type> _resultTypes;
   (void)unwrapList(nResultTypes, resultTypes, _resultTypes);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<mlir::go::ChanRecvOp>(_location, _resultTypes, _channel);
+  mlir::Operation* op = ::mlir::go::ChanRecvOp::create(builder, _location, _resultTypes, _channel);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateChanSendOp(
-  MlirContext context,
-  MlirValue channel,
-  MlirValue value,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue channel,
+  const MlirValue value,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _channel = unwrap(channel);
-  auto _value = unwrap(value);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _channel = unwrap(channel);
+  const auto _value = unwrap(value);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<mlir::go::ChanSendOp>(_location, _channel, _value);
+  mlir::Operation* op = ::mlir::go::ChanSendOp::create(builder, _location, _channel, _value);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateChanRangeOp(
-  MlirContext context,
-  MlirValue channel,
-  MlirBlock bodyDest,
-  MlirBlock exitDest,
-  MlirLocation location)
+  const MlirContext context,
+  const MlirValue channel,
+  const MlirBlock bodyDest,
+  const MlirBlock exitDest,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
-  auto _channel = unwrap(channel);
-  auto _bodyDest = unwrap(bodyDest);
-  auto _exitDest = unwrap(exitDest);
-  auto _location = unwrap(location);
+  const auto _context = unwrap(context);
+  const auto _channel = unwrap(channel);
+  const auto _bodyDest = unwrap(bodyDest);
+  const auto _exitDest = unwrap(exitDest);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op =
-    builder.create<mlir::go::ChanRangeOp>(_location, _channel, _bodyDest, _exitDest);
+    ::mlir::go::ChanRangeOp::create(builder, _location, _channel, _bodyDest, _exitDest);
   return wrap(op);
 }
 
 MlirOperation mlirGoCreateChanSelectOp(
-  MlirContext context,
-  bool hasDefault,
-  MlirAttribute send,
-  int nChans,
-  MlirValue* chans,
-  MlirBlock defaultDest,
-  MlirBlock exitDest,
-  int nCases,
-  MlirBlock* cases,
-  MlirLocation location)
+  const MlirContext context,
+  const bool hasDefault,
+  const MlirAttribute send,
+  const int nChans,
+  const MlirValue* chans,
+  const MlirBlock defaultDest,
+  const MlirBlock exitDest,
+  const int nCases,
+  const MlirBlock* cases,
+  const MlirLocation location)
 {
-  auto _context = unwrap(context);
+  const auto _context = unwrap(context);
   const auto _hasDefault = hasDefault ? mlir::UnitAttr::get(_context) : mlir::UnitAttr();
   const auto _send = mlir::cast<mlir::DenseBoolArrayAttr>(unwrap(send));
 
   mlir::SmallVector<mlir::Value> _chans;
   (void)unwrapList(nChans, chans, _chans);
 
-  auto _defaultDest = unwrap(defaultDest);
-  auto _exitDest = unwrap(exitDest);
+  const auto _defaultDest = unwrap(defaultDest);
+  const auto _exitDest = unwrap(exitDest);
 
   mlir::SmallVector<mlir::Block*> _cases;
   (void)unwrapList(nCases, cases, _cases);
 
-  auto _location = unwrap(location);
+  const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = builder.create<mlir::go::ChanSelectOp>(
-    _location, _hasDefault, _send, _chans, _defaultDest, _exitDest, _cases);
+  mlir::Operation* op = ::mlir::go::ChanSelectOp::create(
+    builder, _location, _hasDefault, _send, _chans, _defaultDest, _exitDest, _cases);
   return wrap(op);
 }

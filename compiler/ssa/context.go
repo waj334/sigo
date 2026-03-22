@@ -16,8 +16,6 @@ type (
 	fallthroughBlockKey struct{}
 	labeledBlocksKey    struct{}
 	identifierKey       struct{}
-	lhsListKey          struct{}
-	rhsIndexKey         struct{}
 	funcDataKey         struct{}
 	globalKey           struct{}
 	jobQueueKey         struct{}
@@ -146,36 +144,6 @@ func currentLabeledBlocks(ctx context.Context) map[string]mlir.Block {
 	}
 	return nil
 }
-
-/*
-func newContextWithLhsList(ctx context.Context, lhs []types.Type) context.Context {
-	// Enforce that no type is untyped.
-	for _, T := range lhs {
-		if T != nil && typeHasFlags(T, types.IsUntyped) {
-			panic("untyped type are forbidden")
-		}
-	}
-	return context.WithValue(ctx, lhsListKey{}, lhs)
-}
-
-func currentLhsList(ctx context.Context) []types.Type {
-	if val := ctx.Value(lhsListKey{}); val != nil {
-		return val.([]types.Type)
-	}
-	return nil
-}
-
-func newContextWithRhsIndex(ctx context.Context, rhs int) context.Context {
-	return context.WithValue(ctx, rhsIndexKey{}, rhs)
-}
-
-func currentRhsIndex(ctx context.Context) int {
-	if val := ctx.Value(rhsIndexKey{}); val != nil {
-		return val.(int)
-	}
-	return -1
-}
-*/
 
 func newContextWithInfo(ctx context.Context, info *types.Info) context.Context {
 	return context.WithValue(ctx, infoKey{}, info)

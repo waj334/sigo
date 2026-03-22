@@ -392,7 +392,7 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 						isMain = true
 					}
 
-					// Is this function an intrinsic?
+					// Is this function intrinsic?
 					if isIntrinsic(symbol) {
 						// Skip intrinsic functions.
 						continue
@@ -401,7 +401,7 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 					symbolInfo := b.config.Program.Symbols.GetSymbolInfo(symbol)
 
 					isPackageInit := false
-					if strings.HasSuffix(symbol, ".init") {
+					if strings.HasSuffix(symbol, ".init") && obj.Signature().Recv() == nil {
 						isPackageInit = true
 					}
 
@@ -575,7 +575,7 @@ func (b *Builder) addFunctionDecl(ctx context.Context, decl *ast.FuncDecl) *func
 		info:           info,
 		scope:          obj.Scope(),
 		linkage:        symbolInfo.Linkage,
-		attributes:     symbolInfo.Attributes,
+		attributes:     maps.Keys(symbolInfo.Attributes),
 	}
 
 	// NOTE: Have to create the function type after the func object has been initialized if the function is

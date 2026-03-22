@@ -121,7 +121,7 @@ func (b *Builder) emitGlobalVar(ctx context.Context, ident *ast.Ident) *GlobalVa
 	}
 
 	// Emit the global variable.
-	globalOp := goir.NewGlobalOperation(b.ctx, linkage, symbol, T, location)
+	globalOp := goir.NewGlobalOperation(b.ctx, linkage, symbol, info.Section, T, location)
 	b.appendToModule(globalOp)
 	value := &GlobalValue{
 		symbol: symbol,
@@ -159,8 +159,7 @@ func (b *Builder) makeCopyOf(ctx context.Context, X mlir.ValueLike, location mli
 	appendOperation(ctx, allocaOp)
 
 	// Store the object at the address.
-	storeOp := goir.NewStoreOperation(b.ctx, X, resultOf(allocaOp), location)
-	appendOperation(ctx, storeOp)
+	b.emitStore(ctx, X, resultOf(allocaOp), location)
 
 	// Return the address.
 	return resultOf(allocaOp).AsValue()
@@ -363,4 +362,25 @@ func (b *Builder) values(value ...mlir.ValueLike) []mlir.ValueLike {
 
 func (b *Builder) locations(locs ...mlir.LocationLike) []mlir.LocationLike {
 	return locs
+}
+
+func (b *Builder) emitLoad(ctx context.Context, value mlir.ValueLike, typ mlir.TypeLike, location mlir.LocationLike) mlir.Value {
+	// Emit a nil pointer check operation before the load.
+	nilCheckOp := goir.NewNilPointerCheckOperation(b.ctx, value, location)
+	appendOperation(ctx, nilCheckOp)
+
+	// Emit the load operation.
+	loadOp := goir.NewLoadOperation(b.ctx, value, typ, location)
+	appendOperation(ctx, loadOp)
+	return resultOf(loadOp).AsValue()
+}
+
+func (b *Builder) emitStore(ctx context.Context, value mlir.ValueLike, address mlir.ValueLike, location mlir.LocationLike) {
+	// Emit a nil pointer check operation before the store.
+	nilCheckOp := goir.NewNilPointerCheckOperation(b.ctx, address, location)
+	appendOperation(ctx, nilCheckOp)
+
+	// Emit the store operation.
+	storeOp := goir.NewStoreOperation(b.ctx, value, address, location)
+	appendOperation(ctx, storeOp)
 }

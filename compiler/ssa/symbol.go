@@ -9,7 +9,8 @@ type SymbolInfo struct {
 	IsInterrupt     bool
 	IsRequired      bool
 	Linkage         string
-	Attributes      []string
+	Attributes      map[string]struct{}
+	Section         string
 }
 
 type SymbolInfoStore struct {
@@ -29,7 +30,9 @@ func (s *SymbolInfoStore) GetSymbolInfo(symbol string) *SymbolInfo {
 
 	info, ok := s.info[symbol]
 	if !ok {
-		info = &SymbolInfo{}
+		info = &SymbolInfo{
+			Attributes: map[string]struct{}{},
+		}
 		s.info[symbol] = info
 	}
 	return info

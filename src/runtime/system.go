@@ -8,8 +8,7 @@ func abort()
 //sigo:extern exec runtime.exec
 func exec(args, fn unsafe.Pointer)
 
-func nilCheck(ptr unsafe.Pointer) {
-	if ptr == nil {
-		panic("runtime error: invalid memory address or nil pointer dereference")
-	}
+//sigo:export exit _exit
+func exit(code int) {
+	abort()
 }

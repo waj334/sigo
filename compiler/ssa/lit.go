@@ -187,8 +187,7 @@ func (b *Builder) emitSliceLiteral(ctx context.Context, expr *ast.CompositeLit) 
 		addr := resultOf(addrOp)
 
 		// Store the value at the address.
-		storeOp := goir.NewStoreOperation(b.ctx, elementValue, addr, location)
-		appendOperation(ctx, storeOp)
+		b.emitStore(ctx, elementValue, addr, location)
 	}
 
 	return sliceVal
@@ -441,8 +440,7 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 		appendOperation(ctx, allocaOp)
 		contextPtr = resultOf(allocaOp).AsValue()
 
-		storeOp := goir.NewStoreOperation(b.ctx, contextValue, contextPtr, location)
-		appendOperation(ctx, storeOp)
+		b.emitStore(ctx, contextValue, contextPtr, location)
 	}
 
 	// Emit the anonymous function.

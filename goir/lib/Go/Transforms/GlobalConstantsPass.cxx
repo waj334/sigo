@@ -66,7 +66,66 @@ struct GlobalConstantsPass
       });
 
     // Now all global constants can be removed.
-    module.walk([&](GlobalConstantOp op) { op.erase(); });
+    module.walk(
+      [&](GlobalConstantOp op)
+      {
+        if (const auto fusedLoc = op.getLoc()->findInstanceOf<mlir::FusedLoc>())
+        {
+          if (const auto diGlobalExprAttr =
+                mlir::dyn_cast_or_null<mlir::LLVM::DIGlobalVariableExpressionAttr>(
+                  fusedLoc.getMetadata()))
+          {
+            mlir::OpBuilder::InsertionGuard guard(builder);
+            builder.setInsertionPointToStart(module.getBody());
+
+            mlir::Type elementT;
+
+            if (op.getValue())
+            {
+              elementT =
+                mlir::TypeSwitch<mlir::Attribute, mlir::Type>(*op.getValue())
+                  .Case([&](const mlir::go::ComplexNumberAttr attr)
+                        { return mlir::ComplexType::get(attr.getImag().getType()); })
+                  .Case([&](const mlir::FloatAttr attr) { return attr.getType(); })
+                  .Case([&](const mlir::IntegerAttr attr) -> mlir::Type
+                  {
+                    if (mlir::cast<mlir::IntegerType>(attr.getType()).getWidth() == 1)
+                    {
+                      return mlir::go::BooleanType::get(&getContext());
+                    }
+                    return mlir::go::IntegerType::get(&getContext(), mlir::go::IntegerType::Signed);
+                  })
+                  .Case([&](const mlir::StringAttr) { return mlir::go::StringType::get(&getContext()); });
+            }
+
+            if (elementT)
+            {
+              auto resultType = converter.convertType(elementT);
+              
+              auto globalOp = builder.create<mlir::LLVM::GlobalOp>(
+                op.getLoc(),
+                resultType,
+                true,
+                mlir::LLVM::Linkage::Internal,
+                op.getSymName(),
+                Attribute());
+
+              globalOp.setDbgExprsAttr(mlir::ArrayAttr::get(
+                module->getContext(), SmallVector<mlir::Attribute>{ diGlobalExprAttr }));
+
+              {
+                mlir::OpBuilder::InsertionGuard initGuard(builder);
+                auto initBlock = builder.createBlock(&globalOp.getInitializerRegion());
+                builder.setInsertionPointToStart(initBlock);
+                mlir::Value undefValue = builder.create<mlir::LLVM::UndefOp>(op.getLoc(), resultType);
+                builder.create<mlir::LLVM::ReturnOp>(op.getLoc(), undefValue);
+              }
+            }
+          }
+        }
+
+        op.erase();
+      });
 
     // Collect the values that globals will be created from.
     SmallVector<std::pair<std::string, mlir::Location>> globalStrings;
