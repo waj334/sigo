@@ -9,22 +9,48 @@ namespace mlir::go {
 
 OpFoldResult BitcastOp::fold(FoldAdaptor adaptor)
 {
-  if (adaptor.getValue())
+  // No-op bitcast: types identical.
+  if (getValue().getType() == getType())
   {
-    return adaptor.getValue();
-  }
+    if (adaptor.getValue())
+      return adaptor.getValue();
 
-  mlir::SmallVector<OpFoldResult, 4> results;
-  if (const auto definingOp = this->getValue().getDefiningOp(); failed(definingOp->fold(results)))
-  {
+    mlir::SmallVector<OpFoldResult, 4> results;
+    if (auto definingOp = getValue().getDefiningOp();
+        definingOp && succeeded(definingOp->fold(results)) && !results.empty())
+      return results.front();
+
     return {};
   }
 
-  if (results.empty())
+  // Try to fold the source operand to get a constant attribute.
+  mlir::Attribute srcAttr = adaptor.getValue();
+  if (!srcAttr)
   {
-    return {};
+    mlir::SmallVector<OpFoldResult, 4> results;
+    if (auto definingOp = getValue().getDefiningOp();
+        definingOp && succeeded(definingOp->fold(results)) && !results.empty())
+      srcAttr = mlir::dyn_cast<mlir::Attribute>(results.front());
   }
-  return results.front();
+
+  if (!srcAttr)
+    return {};
+
+  // Allow folding IntegerAttr across integer-compatible types (including
+  // untyped integers, sized integers, and named types that wrap integers).
+  // This is safe because IntegerAttr carries a value + width, and the
+  // GlobalConstantsPass preserves the original result type when creating
+  // the replacement ConstantOp.
+  if (mlir::isa<mlir::IntegerAttr>(srcAttr))
+    return srcAttr;
+
+  // Allow folding FloatAttr across float-compatible types.
+  if (mlir::isa<mlir::FloatAttr>(srcAttr))
+    return srcAttr;
+
+  // For other attribute kinds (e.g., StringAttr), don't fold across
+  // different types — the lowering passes can't handle the mismatch.
+  return {};
 }
 
 ::mlir::LogicalResult BitcastOp::verify()

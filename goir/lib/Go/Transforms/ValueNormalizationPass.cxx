@@ -48,40 +48,48 @@ struct ValueNormalizationPass : public BaseT
           return mlir::WalkResult::interrupt();
         }
 
-        // Get the body of the constant expression that will be copied to the location of the
-        // referring operation.
-        auto& constantRegion = globalConstantOp.getBody();
+        mlir::Value replacementValue;
 
-        mlir::IRMapping mapping;
-        mlir::Value yieldedValue;
-
-        // Begin inserting new operations at the location of the reference.
-        rewriter.setInsertionPoint(constantRefOp);
-        for (auto& op : constantRegion.front())
+        if (globalConstantOp.getValue())
         {
-          if (auto yieldOp = dyn_cast<mlir::go::YieldOp>(op))
+          // The global constant has a direct value attribute. Create a new
+          // constant operation with that value at the reference site.
+          rewriter.setInsertionPoint(constantRefOp);
+          auto newConstOp = rewriter.create<mlir::go::ConstantOp>(
+            loc, constantRefOp.getType(), *globalConstantOp.getValue(), mlir::StringAttr());
+          replacementValue = newConstOp.getResult();
+        }
+        else
+        {
+          // The global constant has a body region. Inline it at the reference
+          // site.
+          auto& constantRegion = globalConstantOp.getBody();
+
+          mlir::IRMapping mapping;
+
+          rewriter.setInsertionPoint(constantRefOp);
+          for (auto& op : constantRegion.front())
           {
-            // Capture the yielded value.
-            yieldedValue = mapping.lookup(yieldOp.getOperand());
-            continue;
+            if (auto yieldOp = dyn_cast<mlir::go::YieldOp>(op))
+            {
+              replacementValue = mapping.lookup(yieldOp.getOperand());
+              continue;
+            }
+
+            const auto newOp = rewriter.clone(op, mapping);
+            newOp->setLoc(loc);
           }
-
-          // Clone this operation into the current block.
-          const auto newOp = rewriter.clone(op, mapping);
-
-          // Update the location of this operation.
-          newOp->setLoc(loc);
         }
 
-        if (!yieldedValue)
+        if (!replacementValue)
         {
           globalConstantOp->emitOpError() << "global does not yield a value";
           this->signalPassFailure();
           return mlir::WalkResult::interrupt();
         }
 
-        // Replace the original constant with the yielded value.
-        rewriter.replaceOp(constantRefOp, yieldedValue);
+        // Replace the original constant with the resolved value.
+        rewriter.replaceOp(constantRefOp, replacementValue);
 
         // Continue...
         return mlir::WalkResult::advance();

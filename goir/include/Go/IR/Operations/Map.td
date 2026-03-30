@@ -9,20 +9,19 @@ include "mlir/IR/BuiltinAttributes.td"
 include "mlir/IR/OpBase.td"
 
 //===----------------------------------------------------------------------===//
-// MapUpdateOp
+// MapAddrOp
 //===----------------------------------------------------------------------===//
 
-def MapUpdateOp : Go_Op<"map.update"> {
-    let description = [{
-        (%0 : !go.map<!go.i, !go.i>)[0 : !go.i] = (1 : !go.i)
-    }];
+def MapAddrOp : Go_Op<"map.addr", [AlwaysSpeculatable]> {
     let arguments = (ins
         Go_Map:$map,
-        Go_Type:$key,
-        Go_Type:$value
+        Go_Pointer:$key
+    );
+    let results = (outs
+        Go_Pointer:$result
     );
     let assemblyFormat = [{
-        `(` $map `:` type($map) `)` `` `[` $key  `:` type($key) `]` `=` `(` $value `:` type($value) `)` attr-dict-with-keyword
+        $map```[` $key `]` attr-dict-with-keyword `:` functional-type(operands, results)
     }];
 }
 

@@ -3,12 +3,15 @@ package ssa
 import (
 	"context"
 	"errors"
+	"fmt"
 	"go/ast"
 	"go/importer"
 	"go/token"
 	"go/types"
 	"hash/fnv"
 	"io/fs"
+	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 	"slices"
@@ -22,6 +25,7 @@ import (
 )
 
 var pragmaRegex = regexp.MustCompile(`^//[\t\f\v ]*(?:go|sigo):[\t\f\v ]*([a-zA-Z0-9 ./_]+)$`)
+var embedRegex = regexp.MustCompile(`^//[\t\f\v ]*go:embed[\t\f\v ]+(.+)$`)
 
 type ProgramConfig struct {
 	Tags               []string
@@ -46,6 +50,7 @@ type Program struct {
 	Config          *ProgramConfig
 	MainFunc        string
 	PackageInits    []*ast.Ident
+	EmbedContents   map[string][]byte // keyed by qualified symbol name
 
 	packageNodes    map[*packages.Package]*packageNode
 	defaultImporter types.Importer
@@ -78,6 +83,7 @@ func NewProgram(config *ProgramConfig) *Program {
 		Types:           map[*packages.Package]map[string]types.Type{},
 		Defines:         map[string]string{},
 		Files:           map[string][]string{},
+		EmbedContents:   map[string][]byte{},
 		FileSet:         token.NewFileSet(),
 		Symbols:         NewSymbolInfoStore(),
 		Config:          config,
@@ -330,6 +336,11 @@ func (p *Program) AddPackage(pkg *packages.Package) (err error) {
 		}
 	}
 
+	// Resolve any //go:embed directives in this package.
+	if embedErr := p.resolveEmbedData(pkg); embedErr != nil {
+		err = errors.Join(err, embedErr)
+	}
+
 	// Add any imported package.
 	for _, imported := range pkg.Imports {
 		pkgErr := p.AddPackage(imported)
@@ -349,6 +360,62 @@ func (p *Program) LookupType(pkgname, typename string) types.Type {
 			}
 		}
 	}
+	return nil
+}
+
+func (p *Program) resolveEmbedData(pkg *packages.Package) error {
+	// Build a set of files that go/packages says are embeddable for this package.
+	if len(pkg.EmbedFiles) == 0 {
+		return nil
+	}
+
+	// Iterate all symbols looking for those with embed patterns in this package.
+	p.Symbols.mu.Lock()
+	defer p.Symbols.mu.Unlock()
+
+	prefix := pkg.PkgPath + "."
+	for symbol, info := range p.Symbols.info {
+		if len(info.EmbedPatterns) == 0 {
+			continue
+		}
+		if !strings.HasPrefix(symbol, prefix) {
+			continue
+		}
+
+		// Match patterns against embeddable files.
+		var matched []string
+		for _, pattern := range info.EmbedPatterns {
+			for _, f := range pkg.EmbedFiles {
+				// Match against the relative path from the package directory.
+				rel, err := filepath.Rel(pkg.Dir, f)
+				if err != nil {
+					continue
+				}
+				// Use forward slashes for matching (Go embed uses forward slashes).
+				rel = filepath.ToSlash(rel)
+				if ok, _ := path.Match(pattern, rel); ok {
+					matched = append(matched, f)
+				}
+			}
+		}
+
+		if len(matched) == 0 {
+			return fmt.Errorf("//go:embed: pattern %v matches no files for %s", info.EmbedPatterns, symbol)
+		}
+
+		if len(matched) > 1 {
+			return fmt.Errorf("//go:embed: patterns match multiple files for %s (string and []byte require exactly one file)", symbol)
+		}
+
+		// Read the file content.
+		content, err := os.ReadFile(matched[0])
+		if err != nil {
+			return fmt.Errorf("//go:embed: cannot read %s: %w", matched[0], err)
+		}
+
+		p.EmbedContents[symbol] = content
+	}
+
 	return nil
 }
 
@@ -414,6 +481,17 @@ func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) {
 
 		// Process each comment in the group
 		for _, comment := range commentGroup.List {
+			// Check for //go:embed directive first (separate regex due to glob chars)
+			if embedMatches := embedRegex.FindStringSubmatch(comment.Text); len(embedMatches) > 0 {
+				if symbolName != "" {
+					info := p.Symbols.GetSymbolInfo(symbolName)
+					// Split on whitespace to support multiple patterns on one line
+					patterns := strings.Fields(embedMatches[1])
+					info.EmbedPatterns = append(info.EmbedPatterns, patterns...)
+				}
+				continue
+			}
+
 			matches := pragmaRegex.FindStringSubmatch(comment.Text)
 			if len(matches) == 0 {
 				continue

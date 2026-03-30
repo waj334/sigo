@@ -452,21 +452,21 @@ mlirGoCreateNotOperation(const MlirContext context, const MlirValue x, const Mli
 // Map Operations
 //===----------------------------------------------------------------------===//
 
-MlirOperation mlirGoCreateMapUpdateOperation(
+MlirOperation mlirGoCreateMapAddrOperation(
   const MlirContext context,
+  const MlirType resultType,
   const MlirValue map,
   const MlirValue key,
-  const MlirValue value,
   const MlirLocation location)
 {
   const auto _context = unwrap(context);
+  const auto _resultType = unwrap(resultType);
   const auto _map = unwrap(map);
   const auto _key = unwrap(key);
-  const auto _value = unwrap(value);
   const auto _location = unwrap(location);
 
   mlir::OpBuilder builder(_context);
-  mlir::Operation* op = ::mlir::go::MapUpdateOp::create(builder, _location, _map, _key, _value);
+  mlir::Operation* op = ::mlir::go::MapAddrOp::create(builder, _location, _resultType, _map, _key);
   return wrap(op);
 }
 

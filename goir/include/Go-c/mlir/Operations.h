@@ -263,11 +263,11 @@ extern "C"
   // Map Operations
   //===----------------------------------------------------------------------===//
 
-  MlirOperation mlirGoCreateMapUpdateOperation(
+  MlirOperation mlirGoCreateMapAddrOperation(
     const MlirContext context,
+    const MlirType resultType,
     const MlirValue map,
     const MlirValue key,
-    const MlirValue value,
     const MlirLocation location);
 
   MlirOperation mlirGoCreateMapLookupOperation(

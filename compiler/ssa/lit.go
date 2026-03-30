@@ -86,6 +86,9 @@ func (b *Builder) emitMapLiteral(ctx context.Context, expr *ast.CompositeLit) ml
 	litType := b.typeOf(ctx, expr)
 	mapType := baseType(litType).(*types.Map)
 	mapT := b.GetStoredType(ctx, litType)
+	keyT := mapType.Key()
+	elementT := mapType.Elem()
+	elementPtrT := b.pointerOf(ctx, elementT)
 
 	// Emit the capacity value.
 	capacityVal := b.emitConstInt(ctx, int64(len(expr.Elts)), b.si, location)
@@ -104,9 +107,6 @@ func (b *Builder) emitMapLiteral(ctx context.Context, expr *ast.CompositeLit) ml
 		// Evaluate the key and element values.
 		keyValue := b.emitExpr(ctx, expr.Key)[0]
 		elementValue := b.emitExpr(ctx, expr.Value)[0]
-
-		keyT := mapType.Key()
-		elementT := mapType.Elem()
 
 		// Handle interface conversions.
 		switch baseType(keyT).(type) {
@@ -138,8 +138,10 @@ func (b *Builder) emitMapLiteral(ctx context.Context, expr *ast.CompositeLit) ml
 		}
 
 		// Update the map.
-		updateOp := goir.NewMapUpdateOperation(b.ctx, mapValue, keyValue, elementValue, location)
+		updateOp := goir.NewMapAddrOperation(b.ctx, elementPtrT, mapValue, keyValue, location)
 		appendOperation(ctx, updateOp)
+		addr := resultOf(updateOp)
+		b.emitStore(ctx, elementValue, addr, location)
 	}
 
 	// Finally, return the map value.

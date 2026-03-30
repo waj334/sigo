@@ -11,8 +11,7 @@ namespace mlir::go
 #define GEN_PASS_DEF_GLOBALCONSTANTSPASS
 #include "Go/Transforms/Passes.h.inc"
 
-struct GlobalConstantsPass
-  : public impl::GlobalConstantsPassBase<GlobalConstantsPass>
+struct GlobalConstantsPass : public impl::GlobalConstantsPassBase<GlobalConstantsPass>
 {
   using GlobalConstantsPassBase<GlobalConstantsPass>::GlobalConstantsPassBase;
 
@@ -40,16 +39,26 @@ struct GlobalConstantsPass
     module.walk(
       [&](ConstantOp op)
       {
-        if (!op.getSymRef() && op.getBody().empty())
+        if ((!op.getSymRef() && op.getBody().empty()) || op.getValue())
         {
           return;
         }
 
         SmallVector<OpFoldResult, 4> foldResults;
-        assert(succeeded(op->fold(foldResults)));
+        if (failed(op->fold(foldResults)) || foldResults.empty())
+        {
+          op->emitOpError("failed to fold constant");
+          signalPassFailure();
+          return;
+        }
 
-        const auto foldedValue = mlir::cast<mlir::Attribute>(foldResults[0]);
-        assert(foldedValue);
+        const auto foldedValue = mlir::dyn_cast<mlir::Attribute>(foldResults[0]);
+        if (!foldedValue)
+        {
+          op->emitOpError("fold did not produce an attribute");
+          signalPassFailure();
+          return;
+        }
 
         OpBuilder::InsertionGuard guard(builder);
         builder.setInsertionPoint(op);
@@ -71,9 +80,10 @@ struct GlobalConstantsPass
       {
         if (const auto fusedLoc = op.getLoc()->findInstanceOf<mlir::FusedLoc>())
         {
-          if (const auto diGlobalExprAttr =
-                mlir::dyn_cast_or_null<mlir::LLVM::DIGlobalVariableExpressionAttr>(
-                  fusedLoc.getMetadata()))
+          if (
+            const auto diGlobalExprAttr =
+              mlir::dyn_cast_or_null<mlir::LLVM::DIGlobalVariableExpressionAttr>(
+                fusedLoc.getMetadata()))
           {
             mlir::OpBuilder::InsertionGuard guard(builder);
             builder.setInsertionPointToStart(module.getBody());
@@ -82,26 +92,28 @@ struct GlobalConstantsPass
 
             if (op.getValue())
             {
-              elementT =
-                mlir::TypeSwitch<mlir::Attribute, mlir::Type>(*op.getValue())
-                  .Case([&](const mlir::go::ComplexNumberAttr attr)
-                        { return mlir::ComplexType::get(attr.getImag().getType()); })
-                  .Case([&](const mlir::FloatAttr attr) { return attr.getType(); })
-                  .Case([&](const mlir::IntegerAttr attr) -> mlir::Type
-                  {
-                    if (mlir::cast<mlir::IntegerType>(attr.getType()).getWidth() == 1)
-                    {
-                      return mlir::go::BooleanType::get(&getContext());
-                    }
-                    return mlir::go::IntegerType::get(&getContext(), mlir::go::IntegerType::Signed);
-                  })
-                  .Case([&](const mlir::StringAttr) { return mlir::go::StringType::get(&getContext()); });
+              elementT = mlir::TypeSwitch<mlir::Attribute, mlir::Type>(*op.getValue())
+                           .Case([&](const mlir::go::ComplexNumberAttr attr)
+                                 { return mlir::ComplexType::get(attr.getImag().getType()); })
+                           .Case([&](const mlir::FloatAttr attr) { return attr.getType(); })
+                           .Case(
+                             [&](const mlir::IntegerAttr attr) -> mlir::Type
+                             {
+                               if (mlir::cast<mlir::IntegerType>(attr.getType()).getWidth() == 1)
+                               {
+                                 return mlir::go::BooleanType::get(&getContext());
+                               }
+                               return mlir::go::IntegerType::get(
+                                 &getContext(), mlir::go::IntegerType::Signed);
+                             })
+                           .Case([&](const mlir::StringAttr)
+                                 { return mlir::go::StringType::get(&getContext()); });
             }
 
             if (elementT)
             {
               auto resultType = converter.convertType(elementT);
-              
+
               auto globalOp = builder.create<mlir::LLVM::GlobalOp>(
                 op.getLoc(),
                 resultType,
@@ -110,14 +122,16 @@ struct GlobalConstantsPass
                 op.getSymName(),
                 Attribute());
 
-              globalOp.setDbgExprsAttr(mlir::ArrayAttr::get(
-                module->getContext(), SmallVector<mlir::Attribute>{ diGlobalExprAttr }));
+              globalOp.setDbgExprsAttr(
+                mlir::ArrayAttr::get(
+                  module->getContext(), SmallVector<mlir::Attribute>{ diGlobalExprAttr }));
 
               {
                 mlir::OpBuilder::InsertionGuard initGuard(builder);
                 auto initBlock = builder.createBlock(&globalOp.getInitializerRegion());
                 builder.setInsertionPointToStart(initBlock);
-                mlir::Value undefValue = builder.create<mlir::LLVM::UndefOp>(op.getLoc(), resultType);
+                mlir::Value undefValue =
+                  builder.create<mlir::LLVM::UndefOp>(op.getLoc(), resultType);
                 builder.create<mlir::LLVM::ReturnOp>(op.getLoc(), undefValue);
               }
             }

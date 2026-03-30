@@ -549,12 +549,11 @@ func (b *Builder) emitIndexExpr(ctx context.Context, expr *ast.IndexExpr) []mlir
 		// Evaluate the map value.
 		X := b.emitExpr(ctx, expr.X)[0]
 
-		// Evaluate the index value.
-		index := b.emitExpr(ctx, expr.Index)[0]
+		// Evaluate the address index value.
+		indexAddr := b.addressOf(ctx, expr.Index, location)
 
 		// Perform the map lookup.
-		// TODO: Properly detect if the `ok` value is present.
-		lookupOp := goir.NewMapLookupOperation(b.ctx, resultType, X, index, true, location)
+		lookupOp := goir.NewMapLookupOperation(b.ctx, resultType, X, indexAddr, true, location)
 		appendOperation(ctx, lookupOp)
 		return resultsOf(lookupOp)
 	case *types.TypeParam:
@@ -579,13 +578,13 @@ func (b *Builder) emitIndexAddr(ctx context.Context, expr *ast.IndexExpr) mlir.V
 
 	pointerT := goir.NewPointerType(resultType)
 
-	// Evaluate the index value.
-	index := b.emitExpr(ctx, expr.Index)[0]
-
 	// Perform the specific index operation based on the input value type.
 	switch underlyingType := baseType(b.typeOf(ctx, expr.X)).(type) {
 	case *types.Array:
 		arrayT := b.GetType(ctx, underlyingType)
+
+		// Evaluate the index value.
+		index := b.emitExpr(ctx, expr.Index)[0]
 
 		// Get the address of the array.
 		ptr := b.addressOf(ctx, expr.X, location)
@@ -595,12 +594,18 @@ func (b *Builder) emitIndexAddr(ctx context.Context, expr *ast.IndexExpr) mlir.V
 		appendOperation(ctx, gepOp)
 		return resultOf(gepOp).AsValue()
 	case *types.Basic:
+		// Evaluate the index value.
+		index := b.emitExpr(ctx, expr.Index)[0]
+
 		// This is a string.
 		X := b.emitExpr(ctx, expr.X)[0]
 		addrOp := goir.NewStringAddrOperation(b.ctx, pointerT, X, index, location)
 		appendOperation(ctx, addrOp)
 		return resultOf(addrOp).AsValue()
 	case *types.Pointer:
+		// Evaluate the index value.
+		index := b.emitExpr(ctx, expr.Index)[0]
+
 		// This is a pointer to an array.
 		X := b.emitExpr(ctx, expr.X)[0]
 
@@ -609,8 +614,17 @@ func (b *Builder) emitIndexAddr(ctx context.Context, expr *ast.IndexExpr) mlir.V
 		appendOperation(ctx, gepOp)
 		return resultOf(gepOp).AsValue()
 	case *types.Slice:
+		// Evaluate the index value.
+		index := b.emitExpr(ctx, expr.Index)[0]
+
 		X := b.emitExpr(ctx, expr.X)[0]
 		addrOp := goir.NewSliceAddrOperation(b.ctx, pointerT, X, index, location)
+		appendOperation(ctx, addrOp)
+		return resultOf(addrOp).AsValue()
+	case *types.Map:
+		indexAddr := b.addressOf(ctx, expr.Index, location)
+		X := b.emitExpr(ctx, expr.X)[0]
+		addrOp := goir.NewMapAddrOperation(b.ctx, pointerT, X, indexAddr, location)
 		appendOperation(ctx, addrOp)
 		return resultOf(addrOp).AsValue()
 	default:

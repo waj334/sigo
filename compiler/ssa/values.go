@@ -257,6 +257,35 @@ func (b *Builder) emitConstSlice(ctx context.Context, arr mlir.ValueLike, length
 	return resultOf(insertOp).AsValue()
 }
 
+func (b *Builder) emitEmbedSlice(ctx context.Context, data []byte, T mlir.TypeLike, location mlir.LocationLike) mlir.Value {
+	// Emit the data as a string constant (reuses the existing GlobalConstantsPass pipeline
+	// which materializes string data into LLVM globals).
+	strVal := b.emitConstString(ctx, string(data), b.str, location)
+	rawStrVal := b.bitcastTo(ctx, strVal, b._string, location)
+
+	// Extract the pointer from the string struct (index 0).
+	extractOp := goir.NewExtractOperation(b.ctx, 0, b.ptr, rawStrVal, location)
+	appendOperation(ctx, extractOp)
+	arr := resultOf(extractOp).AsValue()
+
+	// Create the constant length value.
+	constLen := b.emitConstInt(ctx, int64(len(data)), b.si, location)
+
+	// Build the slice struct using the actual Go slice type (e.g., !go.slice<!go.ui8>).
+	zeroOp := goir.NewZeroOperation(b.ctx, b._slice, location)
+	appendOperation(ctx, zeroOp)
+	insertOp := goir.NewInsertOperation(b.ctx, 0, arr, resultOf(zeroOp), b._slice, location)
+	appendOperation(ctx, insertOp)
+	insertOp = goir.NewInsertOperation(b.ctx, 1, constLen, resultOf(insertOp), b._slice, location)
+	appendOperation(ctx, insertOp)
+	insertOp = goir.NewInsertOperation(b.ctx, 2, constLen, resultOf(insertOp), b._slice, location)
+	appendOperation(ctx, insertOp)
+	rawSlice := resultOf(insertOp).AsValue()
+
+	// Bitcast to the expected slice type.
+	return b.bitcastTo(ctx, rawSlice, T, location)
+}
+
 func (b *Builder) emitZeroValue(ctx context.Context, T types.Type, location mlir.LocationLike) mlir.Value {
 	zeroOp := goir.NewZeroOperation(b.ctx, b.GetStoredType(ctx, T), location)
 	appendOperation(ctx, zeroOp)

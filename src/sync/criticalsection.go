@@ -15,9 +15,16 @@ func NewCriticalSection(mutex *Mutex) CriticalSection {
 func (c *CriticalSection) Begin() {
 	if !c.entered {
 		if c.mutex != nil {
-			c.mutex.Lock()
+			for {
+				c.state = disableInterrupts()
+				if !c.mutex.TryLock() {
+					enableInterrupts(c.state)
+					gosched()
+					continue
+				}
+				break
+			}
 		}
-		c.state = disableInterrupts()
 		c.entered = true
 	}
 }

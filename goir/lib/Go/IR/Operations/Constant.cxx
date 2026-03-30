@@ -36,11 +36,10 @@ OpFoldResult ConstantOp::fold(FoldAdaptor adaptor)
 
         // Try to fold the operation.
         SmallVector<OpFoldResult, 4> foldResults;
-        if (failed(yieldValueOp->fold(foldResults)))
+        if (succeeded(yieldValueOp->fold(foldResults)) && !foldResults.empty())
         {
-          return {};
+          return foldResults.front();
         }
-        return foldResults.front();
       }
     }
   }
@@ -53,12 +52,10 @@ OpFoldResult ConstantOp::fold(FoldAdaptor adaptor)
 
     // Try to fold the operation.
     SmallVector<OpFoldResult, 4> foldResults;
-    if (failed(valueOp->fold(foldResults)))
+    if (succeeded(valueOp->fold(foldResults)) && !foldResults.empty())
     {
-      return {};
+      return foldResults.front();
     }
-
-    return foldResults.front();
   }
 
   return {};

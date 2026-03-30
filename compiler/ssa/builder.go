@@ -356,6 +356,35 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 		}
 	}
 
+	// Handle embed-initialized globals.
+	for obj, gv := range gvars {
+		if _, ok := initializedGlobals[gv]; ok {
+			continue
+		}
+		symbol := qualifiedName(obj.Name(), obj.Pkg())
+		embedData, ok := b.config.Program.EmbedContents[symbol]
+		if !ok {
+			continue
+		}
+		location := b.location(ctx, obj.Pos())
+		varType := obj.Type()
+
+		gv.Initialize(ctx, b, globalPriority, func(ctx context.Context, b *Builder) mlir.Value {
+			T := b.GetStoredType(ctx, varType)
+			switch t := baseType(varType).(type) {
+			case *types.Basic:
+				if t.Kind() == types.String {
+					return b.emitConstString(ctx, string(embedData), T, location)
+				}
+			case *types.Slice:
+				return b.emitEmbedSlice(ctx, embedData, T, location)
+			}
+			panic(fmt.Sprintf("unsupported embed variable type: %s", varType))
+		}, location)
+		initializedGlobals[gv] = struct{}{}
+		globalPriority++
+	}
+
 	// Zero initialize all other globals that are NOT externally linked.
 	for obj, gv := range gvars {
 		if _, ok := initializedGlobals[gv]; !ok {

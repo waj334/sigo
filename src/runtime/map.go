@@ -1,5 +1,24 @@
 package runtime
 
+// Map Runtime Implementation
+//
+// This implementation provides pointer-based map access semantics:
+//
+// - mapAddr(m, key) -> *value
+//   Returns a pointer to the value slot for the given key.
+//   If the key doesn't exist, allocates a new entry with zero value.
+//   Used by compiler for both reads (v := m[k]) and writes (m[k] = v).
+//
+// - mapLookup(m, key) -> (*value, bool)
+//   Returns pointer to value and true if key exists, nil and false otherwise.
+//   Does NOT allocate if key is missing.
+//   Used by compiler for comma-ok idiom (v, ok := m[k]).
+//
+// The compiler generates:
+//   m[k] = v    →  *mapAddr(m, &k) = v
+//   v := m[k]   →  v := *mapAddr(m, &k)
+//   v, ok := m[k] → vPtr, ok := mapLookup(m, &k); v := *vPtr (if ok)
+
 import "unsafe"
 
 const (
@@ -65,42 +84,50 @@ func mapLen(m _map) int {
 	return m.state.size
 }
 
-func mapUpdate(m _map, key unsafe.Pointer, value unsafe.Pointer) {
+// mapAddr returns a pointer to the value slot for the given key.
+// If the key doesn't exist, it allocates a new entry with a zero value.
+// The compiler uses this for both reads (m[k]) and writes (m[k] = v).
+//
+//go:export mapAddr runtime.mapAddr
+func mapAddr(m _map, key unsafe.Pointer) unsafe.Pointer {
 	// Perform key lookup
 	if entry := _mapLookup(m, key); entry != nil {
-		// Update the value
-		memcpy(entry.value, value, uintptr(m.valueType.size))
-	} else {
-		// Resize if necessary
-		if m.state.size+1 > m.state.capacity {
-			mapResize(m)
-		}
-
-		// Calculate hash of the key
-		keyHash := mapKeyHash(key, m.keyType)
-
-		// Locate bucket to place value into
-		bucketIdx := keyHash % uint64(len(m.state.data))
-		bucket := m.state.data[bucketIdx]
-
-		// Insert a new entry into the hash map
-		entry = &mapEntry{
-			hash:  keyHash,
-			key:   alloc(uintptr(m.keyType.size)),
-			value: alloc(uintptr(m.valueType.size)),
-			next:  bucket,
-		}
-
-		// Copy the key and value
-		memcpy(entry.key, key, uintptr(m.keyType.size))
-		memcpy(entry.value, value, uintptr(m.valueType.size))
-
-		// Update the head of the map
-		m.state.data[bucketIdx] = entry
-
-		// Increase the size of the map
-		m.state.size++
+		// Key exists, return pointer to value slot
+		return entry.value
 	}
+
+	// Key doesn't exist - allocate a new entry
+	// Resize if necessary
+	if m.state.size+1 > m.state.capacity {
+		mapResize(m)
+	}
+
+	// Calculate hash of the key
+	keyHash := mapKeyHash(key, m.keyType)
+
+	// Locate bucket to place value into
+	bucketIdx := keyHash % uint64(len(m.state.data))
+	bucket := m.state.data[bucketIdx]
+
+	// Insert a new entry into the hash map
+	entry := &mapEntry{
+		hash:  keyHash,
+		key:   alloc(uintptr(m.keyType.size)),
+		value: alloc(uintptr(m.valueType.size)),
+		next:  bucket,
+	}
+
+	// Copy the key (value starts as zero from alloc)
+	memcpy(entry.key, key, uintptr(m.keyType.size))
+
+	// Update the head of the bucket
+	m.state.data[bucketIdx] = entry
+
+	// Increase the size of the map
+	m.state.size++
+
+	// Return pointer to the value slot
+	return entry.value
 }
 
 func mapResize(m _map) {
@@ -149,25 +176,18 @@ func mapDelete(m _map, key unsafe.Pointer) {
 	}
 }
 
+// mapLookup performs a lookup with the comma-ok idiom: v, ok := m[k]
+// Returns a pointer to the value and true if the key exists, or nil and false if not.
+// Unlike mapAddr, this does NOT allocate a new entry if the key is missing.
+//
+//go:export mapLookup runtime.mapLookup
 func mapLookup(m _map, key unsafe.Pointer) (unsafe.Pointer, bool) {
 	if entry := _mapLookup(m, key); entry != nil {
+		// Return the pointer to the value slot (not a copy of the value)
 		return entry.value, true
 	}
 	return nil, false
 }
-
-/*
-func mapLookup(m _map, key, result unsafe.Pointer) (unsafe.Pointer, bool) {
-	if entry := _mapLookup(m, key); entry != nil {
-		// Copy the mapped value to the address given by the result pointer
-		memcpy(result, entry.value, uintptr(m.valueType.size))
-		return result, true
-	}
-	// Store the zero value in the result and return false
-	memset(result, 0, uintptr(m.valueType.size))
-	return result, false
-}
-*/
 
 func _mapLookup(m _map, K unsafe.Pointer) *mapEntry {
 	keyHash := mapKeyHash(K, m.keyType)

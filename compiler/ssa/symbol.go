@@ -11,6 +11,7 @@ type SymbolInfo struct {
 	Linkage         string
 	Attributes      map[string]struct{}
 	Section         string
+	EmbedPatterns   []string
 }
 
 type SymbolInfoStore struct {

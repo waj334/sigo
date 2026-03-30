@@ -687,12 +687,7 @@ func (gc *_gc) sweep() {
 				prev.next = next
 			}
 			gc.deregisterObject(curr)
-
-			// Release lock before free (potentially slow operation)
-			// This allows allocations and ISRs to proceed
-			gcMu.Unlock()
 			free(unsafe.Pointer(curr))
-			gcMu.Lock()
 
 			// Don't update prev (it stays the same)
 		} else {

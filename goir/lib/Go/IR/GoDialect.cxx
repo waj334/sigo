@@ -229,7 +229,12 @@ void GoDialect::printType(::mlir::Type type, ::mlir::DialectAsmPrinter& printer)
 Operation*
 GoDialect::materializeConstant(OpBuilder& builder, Attribute value, Type type, Location loc)
 {
-  return builder.create<ConstantOp>(loc, type, value, StringAttr());
+  // Return nullptr so MLIR does not assert that the op has ConstantLike.
+  // ConstantOp cannot carry ConstantLike because its sym_ref form is not
+  // always foldable.  Returning nullptr tells the infrastructure that
+  // this dialect cannot materialize the constant, so the fold that
+  // produced the attribute is simply discarded.
+  return nullptr;
 }
 
 IntegerType IntegerType::get(

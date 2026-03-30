@@ -26,7 +26,7 @@ def Go_CanBeConstant : AnyAttrOf<[
 // ConstantOp
 //===----------------------------------------------------------------------===//
 
-def ConstantOp : Go_Op<"constant", [ConstantLike, Pure, NoMemoryEffect]> {
+def ConstantOp : Go_Op<"constant", [Pure, NoMemoryEffect]> {
     let summary = "Constant value operation";
     let description = [{
         The `go.constant` operation returns a constant value of the

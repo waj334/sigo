@@ -187,8 +187,8 @@ struct LowerToCorePass : impl::LowerToCorePassBase<LowerToCorePass>
     target.addLegalOp<MakeInterfaceOp>();
     target.addLegalOp<MakeMapOp>();
     target.addLegalOp<MakeSliceOp>();
+    target.addLegalOp<MapAddrOp>();
     target.addLegalOp<MapLookupOp>();
-    target.addLegalOp<MapUpdateOp>();
     target.addLegalOp<PanicOp>();
     target.addLegalOp<PointerToFunctionOp>();
     target.addLegalOp<PtrToIntOp>();

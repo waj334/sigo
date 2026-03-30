@@ -186,8 +186,8 @@ func NewNotOperation(ctx mlir.Context, x mlir.ValueLike, location mlir.LocationL
 // Map Operations
 //===----------------------------------------------------------------------===//
 
-func NewMapUpdateOperation(ctx mlir.Context, mapVal, key, value mlir.ValueLike, location mlir.LocationLike) mlir.Operation {
-	return wrapOperation(C.mlirGoCreateMapUpdateOperation(unwrapContext(ctx), unwrapValue(mapVal), unwrapValue(key), unwrapValue(value), unwrapLocation(location)))
+func NewMapAddrOperation(ctx mlir.Context, resultType mlir.TypeLike, mapVal, key mlir.ValueLike, location mlir.LocationLike) mlir.Operation {
+	return wrapOperation(C.mlirGoCreateMapAddrOperation(unwrapContext(ctx), unwrapType(resultType), unwrapValue(mapVal), unwrapValue(key), unwrapLocation(location)))
 }
 
 func NewMapLookupOperation(ctx mlir.Context, resultType mlir.TypeLike, mapVal, key mlir.ValueLike, hasOk bool, location mlir.LocationLike) mlir.Operation {
