@@ -15,6 +15,7 @@ import (
 	"golang.org/x/tools/go/packages"
 
 	"pkg.si-go.dev/go-mlir/mlir"
+	goclang "pkg.si-go.dev/sigo/clang/binding/go"
 	"pkg.si-go.dev/sigo/compiler/ssa"
 	"pkg.si-go.dev/sigo/goir/binding/goir"
 	"pkg.si-go.dev/sigo/llvm/tablegen"
@@ -286,6 +287,7 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 	mlirCtx := mlir.NewContext()
 	mlirCtx.RegisterAllLLVMTranslations()
 	goir.DialectHandle().RegisterDialect(mlirCtx)
+	goclang.RegisterDialects(mlirCtx)
 	mlirCtx.LoadAllAvailableDialects()
 
 	mlir.RegisterAllPasses()
@@ -311,6 +313,22 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 	fmt.Print("Building Go IR...")
 	builder.GeneratePackages(ctx, program.OrderedPackages)
 	fmt.Println("done")
+
+	// Merge CIR modules from any import "C" preambles into the Go module.
+	// Preambles were extracted during Parse via the CGo overlay pre-scan.
+	if preamble := strings.Join(program.CGoPreambles, "\n"); preamble != "" {
+		fmt.Print("Merging C preamble...")
+		cirMod := goclang.LowerPreambleToMlir(preamble, triplet)
+		if cirMod == nil {
+			return errors.Join(ErrCodeGeneratorError, errors.New("CIR compilation of C preamble failed"))
+		}
+		if !cirMod.MergeInto(mlirCtx, mlirModule) {
+			cirMod.Destroy()
+			return errors.Join(ErrCodeGeneratorError, errors.New("failed to merge CIR module into Go module"))
+		}
+		cirMod.Destroy()
+		fmt.Println("done")
+	}
 
 	// Create the output directory.
 	outputDir := filepath.Dir(options.Output)
@@ -726,3 +744,7 @@ func dumpMLIRModuleToFile(module mlir.Module, filename string) error {
 	}
 	return nil
 }
+
+// extractCGoPreambles collects the C preamble text from all import "C"
+// declarations across the ordered package list. Multiple preambles are
+// concatenated so they can be compiled together in a single CIR pass.

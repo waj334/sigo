@@ -1,11 +1,13 @@
 package ssa
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"go/ast"
 	"go/importer"
+	"go/parser"
 	"go/token"
 	"go/types"
 	"hash/fnv"
@@ -51,6 +53,7 @@ type Program struct {
 	MainFunc        string
 	PackageInits    []*ast.Ident
 	EmbedContents   map[string][]byte // keyed by qualified symbol name
+	CGoPreambles    []string          // C preambles extracted from import "C" doc comments
 
 	packageNodes    map[*packages.Package]*packageNode
 	defaultImporter types.Importer
@@ -108,9 +111,16 @@ func (p *Program) makeNode(pkg *packages.Package) *packageNode {
 }
 
 func (p *Program) Parse(ctx context.Context) error {
+	// Pre-scan for import "C" files: extract preambles and build overlays
+	// that strip the CGo import so the Go type-checker never invokes cgo.
+	overlay, err := p.scanCGoFiles()
+	if err != nil {
+		return err
+	}
+
 	// Create the parser configuration.
 	parserConfig := packages.Config{
-		Mode:    packages.NeedName | packages.NeedFiles | packages.NeedImports | packages.NeedDeps | packages.NeedTypes | packages.NeedSyntax | packages.NeedTypesInfo | packages.NeedModule | packages.NeedEmbedFiles | packages.NeedEmbedPatterns | packages.NeedCompiledGoFiles,
+		Mode:    packages.NeedName | packages.NeedFiles | packages.NeedImports | packages.NeedDeps | packages.NeedTypes | packages.NeedSyntax | packages.NeedTypesInfo | packages.NeedModule | packages.NeedEmbedFiles | packages.NeedEmbedPatterns,
 		Context: ctx,
 		Logf:    nil,
 		Dir:     p.Config.ModuleRoot,
@@ -120,7 +130,7 @@ func (p *Program) Parse(ctx context.Context) error {
 		},
 		Fset:    p.FileSet,
 		Tests:   false,
-		Overlay: nil,
+		Overlay: overlay,
 	}
 
 	// Collect the packages to be parsed.
@@ -221,6 +231,9 @@ func (p *Program) computePackageOrder() error {
 
 			// Add edges to imported packages.
 			for _, imported := range pkg.Imports {
+				if imported.PkgPath == "C" {
+					continue
+				}
 				importedPkgNode := p.makeNode(imported)
 				graph.SetLine(graph.NewLine(importedPkgNode, pkgNode))
 			}
@@ -246,6 +259,11 @@ func (p *Program) AddPackage(pkg *packages.Package) (err error) {
 		return nil
 	}
 
+	// Skip the CGo pseudo-package — sigo handles C interop via its own CIR pipeline.
+	if pkg.PkgPath == "C" {
+		return nil
+	}
+
 	defer func() {
 		// Update package mappings.
 		p.Packages[pkg.PkgPath] = pkg
@@ -254,6 +272,12 @@ func (p *Program) AddPackage(pkg *packages.Package) (err error) {
 	// Fail early by returning errors (if any).
 	if len(pkg.Errors) > 0 {
 		for _, pkgErr := range pkg.Errors {
+			// Skip CGo errors — sigo resolves import "C" via its own CIR pipeline,
+			// so the Go type-checker not finding the "C" package is expected.
+			if strings.Contains(pkgErr.Msg, "could not import C") ||
+				strings.Contains(pkgErr.Msg, "no metadata for C") {
+				continue
+			}
 			pos := strings.Split(pkgErr.Pos, ":")
 			if strings.Index(pkgErr.Pos, ":") == 1 {
 				// This is a Windoze path. Merge the first 2 elements.
@@ -275,7 +299,10 @@ func (p *Program) AddPackage(pkg *packages.Package) (err error) {
 			pkgErr.Pos = strings.Join(pos, ":")
 			err = errors.Join(err, pkgErr)
 		}
-		return err
+		// Only return early if there are non-CGo errors.
+		if err != nil {
+			return err
+		}
 	}
 
 	// Locate this package on the filesystem.
@@ -626,4 +653,84 @@ func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) {
 			}
 		}
 	}
+}
+
+// scanCGoFiles walks the package directory looking for Go files that contain
+// import "C". For each such file it:
+//   - extracts the C preamble from the doc comment and appends it to CGoPreambles
+//   - produces an overlay entry with the import "C" declaration (and its preceding
+//     doc comment) blanked out, so the Go type-checker never attempts CGo processing
+func (p *Program) scanCGoFiles() (map[string][]byte, error) {
+	overlay := map[string][]byte{}
+	err := filepath.WalkDir(p.Config.PackagePath, func(fpath string, d fs.DirEntry, walkErr error) error {
+		if walkErr != nil || d.IsDir() || !strings.HasSuffix(fpath, ".go") {
+			return walkErr
+		}
+		src, readErr := os.ReadFile(fpath)
+		if readErr != nil {
+			return readErr
+		}
+		if !bytes.Contains(src, []byte(`"C"`)) {
+			return nil
+		}
+
+		fset := token.NewFileSet()
+		f, parseErr := parser.ParseFile(fset, fpath, src, parser.ParseComments)
+		if parseErr != nil {
+			return nil // let packages.Load surface the real parse error
+		}
+
+		result := make([]byte, len(src))
+		copy(result, src)
+		modified := false
+
+		for _, decl := range f.Decls {
+			gd, ok := decl.(*ast.GenDecl)
+			if !ok || gd.Tok != token.IMPORT {
+				continue
+			}
+			for _, spec := range gd.Specs {
+				is, ok := spec.(*ast.ImportSpec)
+				if !ok || is.Path.Value != `"C"` {
+					continue
+				}
+				modified = true
+
+				// Extract the preamble from the preceding doc comment.
+				if gd.Doc != nil {
+					p.CGoPreambles = append(p.CGoPreambles, gd.Doc.Text())
+				}
+
+				// Determine the byte range to blank out.
+				var start, end int
+				if len(gd.Specs) == 1 {
+					// The entire GenDecl is just import "C"; remove it
+					// along with its doc comment (the C preamble).
+					if gd.Doc != nil {
+						start = fset.Position(gd.Doc.Pos()).Offset
+					} else {
+						start = fset.Position(gd.Pos()).Offset
+					}
+					end = fset.Position(gd.End()).Offset
+				} else {
+					// Multi-import block: only blank the "C" spec line.
+					start = fset.Position(is.Pos()).Offset
+					end = fset.Position(is.End()).Offset
+				}
+
+				// Replace with spaces, preserving newlines so line numbers stay intact.
+				for i := start; i < end && i < len(result); i++ {
+					if result[i] != '\n' {
+						result[i] = ' '
+					}
+				}
+			}
+		}
+
+		if modified {
+			overlay[fpath] = result
+		}
+		return nil
+	})
+	return overlay, err
 }
