@@ -55,7 +55,7 @@ struct ValueNormalizationPass : public BaseT
           // The global constant has a direct value attribute. Create a new
           // constant operation with that value at the reference site.
           rewriter.setInsertionPoint(constantRefOp);
-          auto newConstOp = rewriter.create<mlir::go::ConstantOp>(
+          auto newConstOp = mlir::go::ConstantOp::create(rewriter, 
             loc, constantRefOp.getType(), *globalConstantOp.getValue(), mlir::StringAttr());
           replacementValue = newConstOp.getResult();
         }

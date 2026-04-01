@@ -9,7 +9,6 @@ set(GO_TEST_DEPENDS
         FileCheck count not
         CGoIR-test
         go-opt
-        #go-translate
 )
 
 add_lit_testsuite(check-go "Running the go regression tests"

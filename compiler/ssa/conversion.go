@@ -48,7 +48,7 @@ func (b *Builder) emitTypeConversion(ctx context.Context, X mlir.ValueLike, src 
 					result = resultOf(op).AsValue()
 				} else if srcWidth == destWidth {
 					result = b.bitcastTo(ctx, result, destType, location)
-				} else if isUnsigned(destType) {
+				} else if isUnsigned(srcType) {
 					op := goir.NewZeroExtendOperation(b.ctx, X, destType, location)
 					appendOperation(ctx, op)
 					result = resultOf(op).AsValue()

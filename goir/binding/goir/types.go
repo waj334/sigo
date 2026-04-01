@@ -48,6 +48,10 @@ func TypeIsAPointer(t mlir.TypeLike) bool {
 	return bool(C.mlirGoTypeIsAPointer(unwrapType(t)))
 }
 
+func TypeIsAInterface(t mlir.TypeLike) bool {
+	return bool(C.mlirGoTypeIsAInterface(unwrapType(t)))
+}
+
 type ArrayType struct {
 	mlir.Type
 }

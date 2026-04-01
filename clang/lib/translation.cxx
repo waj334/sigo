@@ -2,6 +2,7 @@
 
 #include <clang/Basic/DiagnosticOptions.h>
 #include <clang/Basic/LangOptions.h>
+#include <clang/Basic/LangStandard.h>
 #include <clang/CIR/CIRGenerator.h>
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/Frontend/FrontendAction.h>
@@ -60,11 +61,30 @@ public:
 } // namespace
 
 CIRModuleResult lowerPreambleToMlir(const llvm::StringRef preambleSrc,
-                                    const std::string &triple) {
+                                    const std::string &triple,
+                                    const std::vector<std::string> &includePaths) {
   auto ci = std::make_unique<clang::CompilerInstance>();
   ci->createDiagnostics();
 
   ci->getTargetOpts().Triple = triple;
+
+  // Initialize language options for C17 so CIRGenModule::getLanguage() can
+  // identify the source language (it checks C99/C11/C17/etc. flags).
+  std::vector<std::string> includes;
+  clang::LangOptions::setLangDefaults(ci->getLangOpts(), clang::Language::C,
+                                      llvm::Triple(triple), includes,
+                                      clang::LangStandard::lang_c17);
+
+  // Add system include paths so #include directives can be resolved.
+  auto &hso = ci->getHeaderSearchOpts();
+  for (const auto &path : includePaths) {
+    hso.AddPath(path, clang::frontend::System, false, true);
+  }
+  if (!includePaths.empty()) {
+    hso.UseStandardSystemIncludes = false;
+    hso.UseBuiltinIncludes = false;
+    hso.UseStandardCXXIncludes = false;
+  }
 
   // Feed preamble source from memory rather than disk.
   auto memBuf =

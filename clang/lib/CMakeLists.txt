@@ -21,4 +21,6 @@ target_link_libraries(GoClangSupport
         clangLex
 )
 
+install(TARGETS GoClangSupport ARCHIVE DESTINATION lib)
+
 add_subdirectory(CAPI)

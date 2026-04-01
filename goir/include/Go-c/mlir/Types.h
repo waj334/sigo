@@ -24,6 +24,8 @@ extern "C"
 
   bool mlirGoTypeIsAPointer(MlirType type);
 
+  bool mlirGoTypeIsAInterface(MlirType type);
+
   MlirType mlirGoCreateArrayType(MlirType elementType, int length);
 
   MlirType mlirGoCreateChanType(MlirType elementType, enum mlirGoChanDirection direction);

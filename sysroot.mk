@@ -30,10 +30,11 @@ CMAKE       ?= cmake
 # ---------------------------------------------------------------------
 # Paths -- override these from the command line or parent Makefile
 # ---------------------------------------------------------------------
-PICOLIBC_SRC   ?= $(CURDIR)/thirdparty/picolibc
-COMPILERRT_SRC ?= $(CURDIR)/thirdparty/llvm-project/compiler-rt
-SYSROOT_OUT    ?= $(CURDIR)/sysroots
-BUILD_DIR      ?= $(CURDIR)/build
+PICOLIBC_SRC    ?= $(CURDIR)/thirdparty/picolibc
+COMPILERRT_SRC  ?= $(CURDIR)/thirdparty/llvm-project/compiler-rt
+LWIP_BUILD_SRC  ?= $(CURDIR)/thirdparty/lwip-build
+SYSROOT_OUT     ?= $(CURDIR)/sysroots
+BUILD_DIR       ?= $(CURDIR)/build
 
 # Path to LLVM's CMake modules -- needed for standalone compiler-rt builds.
 # Default points at the project's own LLVM build directory (where build-llvm
@@ -131,6 +132,7 @@ $(strip $(1))_BUILD       := $$(BUILD_DIR)/$(strip $(1))
 $(strip $(1))_SYSROOT     := $$(SYSROOT_OUT)/$(strip $(1))
 $(strip $(1))_PICOLIBC_BD := $$($(strip $(1))_BUILD)/picolibc
 $(strip $(1))_CRT_BD      := $$($(strip $(1))_BUILD)/compiler-rt
+$(strip $(1))_LWIP_BD     := $$($(strip $(1))_BUILD)/lwip
 $(strip $(1))_CROSS_FILE  := $$($(strip $(1))_BUILD)/cross-$(strip $(1)).txt
 $(strip $(1))_CRT_TC      := $$($(strip $(1))_BUILD)/crt-toolchain-$(strip $(1)).cmake
 $(strip $(1))_TARGET      := $(strip $(2))
@@ -222,12 +224,30 @@ $$($(strip $(1))_SYSROOT)/lib/libclang_rt.builtins.a: $$($(strip $(1))_CRT_TC) $
 		fi; \
 	fi
 
+# -- lwip ---------------------------------------------------------------
+$$($(strip $(1))_SYSROOT)/lib/liblwip.a: $$($(strip $(1))_CRT_TC) $$($(strip $(1))_SYSROOT)/lib/libc.a
+	@echo "---- lwip [$(strip $(1))] ----"
+	CC=$$(CLANG) $$(CMAKE) $$(LWIP_BUILD_SRC) \
+		-G Ninja \
+		-B $$($(strip $(1))_LWIP_BD) \
+		-DCMAKE_TOOLCHAIN_FILE=$$($(strip $(1))_CRT_TC) \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=$$($(strip $(1))_SYSROOT) \
+		-DCMAKE_SYSROOT=$$($(strip $(1))_SYSROOT) \
+		-DCMAKE_AR=$$(LLVM_AR) \
+		-DCMAKE_RANLIB=$$(LLVM_RANLIB) \
+		-DCMAKE_C_COMPILER=$$(CLANG) \
+		-DCMAKE_C_FLAGS="$(strip $(3)) $$(COMMON_CFLAGS)"
+	$$(CMAKE) --build $$($(strip $(1))_LWIP_BD) --target install
+	cp $$(LWIP_BUILD_SRC)/lwipopts.h $$($(strip $(1))_SYSROOT)/include/lwipopts.h
+
 # -- Per-target phony ------------------------------------------------
 .PHONY: sysroot-$(strip $(1)) clean-sysroot-$(strip $(1))
 
 sysroot-$(strip $(1)): \
 	$$($(strip $(1))_SYSROOT)/lib/libc.a \
-	$$($(strip $(1))_SYSROOT)/lib/libclang_rt.builtins.a
+	$$($(strip $(1))_SYSROOT)/lib/libclang_rt.builtins.a \
+	$$($(strip $(1))_SYSROOT)/lib/liblwip.a
 	@echo "---- sysroot ready: $$($(strip $(1))_SYSROOT) ----"
 
 clean-sysroot-$(strip $(1)):

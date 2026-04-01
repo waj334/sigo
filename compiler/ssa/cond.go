@@ -467,6 +467,9 @@ func (b *Builder) emitTypeSwitchStatement(ctx context.Context, stmt *ast.TypeSwi
 
 	ifaceValue = b.emitExpr(ctx, typeAssertExpr.X)[0]
 
+	// Bitcast the interface value to the runtime interface type so it matches the body block argument type.
+	ifaceForBlock := b.bitcastTo(ctx, ifaceValue, b._interface, b.location(ctx, typeAssertExpr.Pos()))
+
 	// Create the clause blocks.
 	defaultIdx := -1
 	bodyBlocks := make([]mlir.Block, len(stmt.Body.List))
@@ -517,9 +520,11 @@ func (b *Builder) emitTypeSwitchStatement(ctx context.Context, stmt *ast.TypeSwi
 			// Emit the body block statements.
 			b.emitStatements(ctx, clause.Body)
 
-			// Branch to the successor block.
-			brOp := goir.NewBranchOperation(b.ctx, successor, nil, b.location(ctx, clause.End()))
-			appendOperation(ctx, brOp)
+			// Branch to the successor block only if the body doesn't already have a terminator (e.g. return).
+			if !blockHasTerminator(currentBlock(ctx)) {
+				brOp := goir.NewBranchOperation(b.ctx, successor, nil, b.location(ctx, clause.End()))
+				appendOperation(ctx, brOp)
+			}
 		})
 	}
 
@@ -549,8 +554,9 @@ func (b *Builder) emitTypeSwitchStatement(ctx context.Context, stmt *ast.TypeSwi
 			results := resultsOf(op)
 
 			// Conditionally branch to the body block if the type assertion was successful. Otherwise, branch to the
-			// next expression evaluator block.
-			condBrOp := goir.NewCondBranchOperation(b.ctx, results[1], bodyBlocks[i], []mlir.ValueLike{results[0]}, exprSuccessor, nil,
+			// next expression evaluator block. Pass the bitcasted interface value since the body block expects
+			// a runtime._interface-typed argument.
+			condBrOp := goir.NewCondBranchOperation(b.ctx, results[1], bodyBlocks[i], []mlir.ValueLike{ifaceForBlock}, exprSuccessor, nil,
 				b.location(ctx, clause.Pos()))
 			appendOperation(ctx, condBrOp)
 
@@ -565,7 +571,7 @@ func (b *Builder) emitTypeSwitchStatement(ctx context.Context, stmt *ast.TypeSwi
 	// NOTE: Should be at the empty final expression successor block.
 	// Branch to the default case body or the successor block if there is no default.
 	if defaultIdx != -1 {
-		brOp := goir.NewBranchOperation(b.ctx, bodyBlocks[defaultIdx], nil, lastCaseLoc)
+		brOp := goir.NewBranchOperation(b.ctx, bodyBlocks[defaultIdx], []mlir.ValueLike{ifaceForBlock}, lastCaseLoc)
 		appendOperation(ctx, brOp)
 	} else {
 		brOp := goir.NewBranchOperation(b.ctx, successor, nil, lastCaseLoc)

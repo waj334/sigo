@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 # Find MLIR package
 find_package(MLIR REQUIRED CONFIG)
+find_package(Clang REQUIRED CONFIG)
 
 set(LLVM_RUNTIME_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/bin)
 set(LLVM_LIBRARY_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/lib)
@@ -18,15 +19,26 @@ include(AddLLVM)
 include(AddMLIR)
 include(HandleLLVMOptions)
 
-include_directories(${LLVM_INCLUDE_DIRS})
-include_directories(${MLIR_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_BINARY_DIR}/include)
+include_directories(${LLVM_INCLUDE_DIRS})
+include_directories(${MLIR_INCLUDE_DIRS})
+include_directories(${CLANG_INCLUDE_DIRS})
 link_directories(${LLVM_BUILD_LIBRARY_DIR})
 add_definitions(${LLVM_DEFINITIONS})
 
 add_subdirectory(include)
 add_subdirectory(lib)
 add_subdirectory(go-opt)
-add_subdirectory(go-translate)
 add_subdirectory(test)
+
+# Install source headers (Go/ and Go-c/ trees).
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+        DESTINATION include
+        FILES_MATCHING PATTERN "*.h")
+
+# Install generated headers (*.h.inc from tablegen).
+install(DIRECTORY ${PROJECT_BINARY_DIR}/include/
+        DESTINATION include
+        FILES_MATCHING PATTERN "*.h.inc"
+        PATTERN "CMakeFiles" EXCLUDE)

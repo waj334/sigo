@@ -30,7 +30,7 @@ SmallVector<Value> convertBlockArgs(
       const Type blockArgType = dest->getArgument(i).getType();
       if (operand.getType() != blockArgType)
       {
-        auto castOp = rewriter.create<mlir::UnrealizedConversionCastOp>(
+        auto castOp = mlir::UnrealizedConversionCastOp::create(rewriter, 
           loc, SmallVector<Type>{ blockArgType }, SmallVector<Value>{ operand });
         result.push_back(castOp.getResult(0));
         continue;
@@ -116,12 +116,12 @@ struct AndNotOpLowering : public OpConversionPattern<AndNotOp>
     }
 
     // Calculate the complement of the RHS by XOR'ing the RHS and all ones
-    auto allOnesConstOp = rewriter.create<mlir::arith::ConstantIntOp>(loc, rhsType, allOnes);
+    auto allOnesConstOp = mlir::arith::ConstantIntOp::create(rewriter, loc, rhsType, allOnes);
     auto xOrOp =
-      rewriter.create<mlir::arith::XOrIOp>(loc, rhsType, rhsValue, allOnesConstOp.getResult());
+      mlir::arith::XOrIOp::create(rewriter, loc, rhsType, rhsValue, allOnesConstOp.getResult());
 
     // And the complement with the LHS
-    auto andOp = rewriter.create<mlir::arith::AndIOp>(loc, adaptor.getLhs(), xOrOp.getResult());
+    auto andOp = mlir::arith::AndIOp::create(rewriter, loc, adaptor.getLhs(), xOrOp.getResult());
 
     rewriter.replaceOp(op, andOp);
     return success();
@@ -139,6 +139,15 @@ struct BitcastOpLowering : public OpConversionPattern<BitcastOp>
   {
     const Type operandType = mlir::go::baseType(op.getValue().getType());
     const auto resultType = typeConverter->convertType(op.getType());
+
+    // If the converted operand type already matches the result type, the
+    // bitcast is a no-op (e.g. two named types with the same base type).
+    if (adaptor.getValue().getType() == resultType)
+    {
+      rewriter.replaceOp(op, adaptor.getValue());
+      return success();
+    }
+
     return mlir::TypeSwitch<mlir::Type, mlir::LogicalResult>(operandType)
       .Case<mlir::go::IntegerType, mlir::FloatType>(
         [&](auto)
@@ -248,11 +257,11 @@ struct CmpCOpLowering : public OpConversionPattern<CmpCOp>
     rewriter.setInsertionPointAfter(op->getPrevNode());
 
     // Get the real and imaginary parts
-    auto realLhsOp = rewriter.create<mlir::complex::ReOp>(loc, adaptor.getLhs());
-    auto imagLhsOp = rewriter.create<mlir::complex::ImOp>(loc, adaptor.getLhs());
+    auto realLhsOp = mlir::complex::ReOp::create(rewriter, loc, adaptor.getLhs());
+    auto imagLhsOp = mlir::complex::ImOp::create(rewriter, loc, adaptor.getLhs());
 
-    auto realRhsOp = rewriter.create<mlir::complex::ReOp>(loc, adaptor.getRhs());
-    auto imagRhsOp = rewriter.create<mlir::complex::ImOp>(loc, adaptor.getRhs());
+    auto realRhsOp = mlir::complex::ReOp::create(rewriter, loc, adaptor.getRhs());
+    auto imagRhsOp = mlir::complex::ImOp::create(rewriter, loc, adaptor.getRhs());
 
     auto pred = mlir::arith::CmpFPredicate::OEQ;
     if (op.getPredicate() == CmpFPredicate::ne)
@@ -264,11 +273,11 @@ struct CmpCOpLowering : public OpConversionPattern<CmpCOp>
     // real(v) and
     //       imag(u) == imag(v).
     auto cmpRealOp =
-      rewriter.create<mlir::arith::CmpFOp>(loc, pred, realLhsOp.getResult(), realRhsOp.getResult());
+      mlir::arith::CmpFOp::create(rewriter, loc, pred, realLhsOp.getResult(), realRhsOp.getResult());
     auto cmpImagOp =
-      rewriter.create<mlir::arith::CmpFOp>(loc, pred, imagLhsOp.getResult(), imagRhsOp.getResult());
+      mlir::arith::CmpFOp::create(rewriter, loc, pred, imagLhsOp.getResult(), imagRhsOp.getResult());
     auto andOp =
-      rewriter.create<mlir::arith::AndIOp>(loc, cmpRealOp.getResult(), cmpImagOp.getResult());
+      mlir::arith::AndIOp::create(rewriter, loc, cmpRealOp.getResult(), cmpImagOp.getResult());
 
     rewriter.replaceOp(op, andOp);
     return success();
@@ -435,7 +444,7 @@ struct GlobalOpLowering : public OpConversionPattern<GlobalOp>
   {
     // Create a replacement global operation with no initializer body.
     auto newGlobalOp =
-      rewriter.create<GlobalOp>(op.getLoc(), adaptor.getGlobalTypeAttr(), adaptor.getSymNameAttr(), adaptor.getSectionAttr());
+      GlobalOp::create(rewriter, op.getLoc(), adaptor.getGlobalTypeAttr(), adaptor.getSymNameAttr(), adaptor.getSectionAttr());
     newGlobalOp->setAttr("llvm.linkage", op->getAttr("llvm.linkage"));
 
     // Remove the original global operation.
@@ -765,7 +774,7 @@ struct FuncOpLowering : public OpConversionPattern<mlir::go::FuncOp>
 
     const auto fnT =
       mlir::cast<mlir::FunctionType>(this->typeConverter->convertType(adaptor.getFunctionType()));
-    auto newOp = rewriter.create<mlir::func::FuncOp>(loc, adaptor.getSymName(), fnT, attrs);
+    auto newOp = mlir::func::FuncOp::create(rewriter, loc, adaptor.getSymName(), fnT, attrs);
 
     // Move the function body to the new function.
     rewriter.inlineRegionBefore(op.getFunctionBody(), newOp.getBody(), newOp.end());
@@ -921,7 +930,7 @@ struct ComplementOpLowering : public OpConversionPattern<ComplementOp>
       allOnes = UINT64_MAX;
     }
 
-    auto constOp = rewriter.create<mlir::arith::ConstantOp>(
+    auto constOp = mlir::arith::ConstantOp::create(rewriter, 
       op.getLoc(),
       mlir::IntegerAttr::get(typeConverter->convertType(op.getResult().getType()), allOnes));
     rewriter.replaceOpWithNewOp<mlir::arith::XOrIOp>(
@@ -964,7 +973,7 @@ struct NegIOpLowering : public OpConversionPattern<NegIOp>
   mlir::LogicalResult
   matchAndRewrite(NegIOp op, OpAdaptor adaptor, ConversionPatternRewriter& rewriter) const override
   {
-    auto constOp = rewriter.create<mlir::arith::ConstantOp>(
+    auto constOp = mlir::arith::ConstantOp::create(rewriter, 
       op.getLoc(), mlir::IntegerAttr::get(typeConverter->convertType(op.getResult().getType()), 0));
     rewriter.replaceOpWithNewOp<mlir::arith::SubIOp>(op, constOp.getResult(), adaptor.getOperand());
     return success();
@@ -978,7 +987,7 @@ struct NotOpLowering : public OpConversionPattern<NotOp>
   mlir::LogicalResult
   matchAndRewrite(NotOp op, OpAdaptor adaptor, ConversionPatternRewriter& rewriter) const override
   {
-    auto constOp = rewriter.create<mlir::arith::ConstantOp>(
+    auto constOp = mlir::arith::ConstantOp::create(rewriter, 
       op.getLoc(), mlir::IntegerAttr::get(typeConverter->convertType(op.getResult().getType()), 1));
     rewriter.replaceOpWithNewOp<mlir::arith::XOrIOp>(
       op,

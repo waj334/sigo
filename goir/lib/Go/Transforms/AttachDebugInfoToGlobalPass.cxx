@@ -34,19 +34,24 @@ struct AttachDebugInfoToGlobalPass final
     const auto runtimeTypes = RuntimeTypeLookUp(module);
     const DataLayout dataLayout(module);
 
-    const Location loc = op->getLoc();
+    const auto loc = op->getLoc()->findInstanceOf<FileLineColLoc>();
     const auto fusedLocWithCompileUnit =
-      loc->findInstanceOf<mlir::FusedLocWith<LLVM::DICompileUnitAttr>>();
+      op->getLoc()->findInstanceOf<mlir::FusedLocWith<LLVM::DICompileUnitAttr>>();
 
-    // Globals must have an associated compile unit in order for debug information about it to
+    // Globals must have an associated compiler unit in order for debug information about it to
     // be emitted.
     if (!fusedLocWithCompileUnit)
     {
       return;
     }
 
+    const auto path = std::filesystem::path(loc.getFilename().str());
+    const auto diFile =
+      LLVM::DIFileAttr::get(context, path.filename().string(), path.parent_path().string());
+
     const auto elementT = op.getGlobalType();
-    const auto typeAttr = this->getDITypeAttr(context, elementT, dataLayout, runtimeTypes);
+    const auto typeAttr = this->getDITypeAttr(
+      context, elementT, diFile, loc.getLine(), LLVM::DIScopeAttr(), dataLayout, runtimeTypes);
 
     const auto alignment = dataLayout.getTypePreferredAlignment(elementT);
     const auto compileUnitAttr = fusedLocWithCompileUnit.getMetadata();

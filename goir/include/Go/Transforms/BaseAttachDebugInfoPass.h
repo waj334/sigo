@@ -24,6 +24,9 @@ struct BaseAttachDebugInfoPass
   LLVM::DITypeAttr getDITypeAttr(
     MLIRContext* context,
     Type type,
+    const LLVM::DIFileAttr fileAttr,
+    const uint32_t line,
+    const LLVM::DIScopeAttr scopeAttr,
     const DataLayout& dataLayout,
     const RuntimeTypeLookUp& runtimeTypes,
     const StringRef name = StringRef())
@@ -48,7 +51,14 @@ struct BaseAttachDebugInfoPass
     if (const auto namedType = mlir::dyn_cast<NamedType>(type); namedType)
     {
       const auto underlyingType = getDITypeAttr(
-        context, namedType.getUnderlying(), dataLayout, runtimeTypes, namedType.getName());
+        context,
+        namedType.getUnderlying(),
+        fileAttr,
+        line,
+        scopeAttr,
+        dataLayout,
+        runtimeTypes,
+        namedType.getName());
 
       std::string alias = namedType.getName().str();
       stringReplaceAll(alias, ".", "_");
@@ -59,11 +69,15 @@ struct BaseAttachDebugInfoPass
         context,
         llvm::dwarf::DW_TAG_typedef,
         mlir::StringAttr::get(context, alias),
+        fileAttr,
+        line,
+        /*scope=*/LLVM::DIScopeAttr{},
         underlyingType,
         size,
         align,
         0,
         std::nullopt,
+        LLVM::DIFlags::Zero,
         LLVM::DINodeAttr());
     }
 
@@ -182,18 +196,42 @@ struct BaseAttachDebugInfoPass
           LLVM::DISubrangeAttr::get(context, lengthAttr, 0, IntegerAttr(), sizeAttr);
 
         result = mlir::LLVM::DICompositeTypeAttr::get(
-          /*context=*/context, /*recId=*/recId,  /*isRecSelf=*/false, llvm::dwarf::DW_TAG_array_type,
+          /*context=*/context,
+          /*recId=*/recId,
+          /*isRecSelf=*/false,
+          llvm::dwarf::DW_TAG_array_type,
           /*name=*/StringAttr::get(context, _name),
-          /*file=*/nullptr, /*line=*/0, /*scope=*/nullptr,
-          /*baseType=*/getDITypeAttr(context, arrayType.getElementType(), dataLayout, runtimeTypes),
-          /*flags=*/mlir::LLVM::DIFlags::Zero, /*sizeInBits=*/size, /*alignInBits=*/align,
-          /*dataLocation=*/nullptr, /*rank=*/nullptr,
-          /*allocated=*/nullptr, /*associated=*/nullptr, /*elements*/{ diSubrange });
+          /*file=*/nullptr,
+          /*line=*/0,
+          /*scope=*/nullptr,
+          /*baseType=*/
+          getDITypeAttr(
+            context,
+            arrayType.getElementType(),
+            fileAttr,
+            line,
+            scopeAttr,
+            dataLayout,
+            runtimeTypes),
+          /*flags=*/mlir::LLVM::DIFlags::Zero,
+          /*sizeInBits=*/size,
+          /*alignInBits=*/align,
+          /*dataLocation=*/nullptr,
+          /*rank=*/nullptr,
+          /*allocated=*/nullptr,
+          /*associated=*/nullptr,
+          /*elements*/ { diSubrange });
         break;
       }
       case GoTypeId::Chan:
-        result =
-          getDITypeAttr(context, runtimeTypes.lookupRuntimeType("chan"), dataLayout, runtimeTypes);
+        result = getDITypeAttr(
+          context,
+          runtimeTypes.lookupRuntimeType("chan"),
+          fileAttr,
+          line,
+          scopeAttr,
+          dataLayout,
+          runtimeTypes);
         break;
       case GoTypeId::Func:
       {
@@ -201,28 +239,45 @@ struct BaseAttachDebugInfoPass
         SmallVector<LLVM::DITypeAttr, 10> argTypes;
         for (const auto& argType : signature.getInputs())
         {
-          argTypes.push_back(getDITypeAttr(context, argType, dataLayout, runtimeTypes));
+          argTypes.push_back(
+            getDITypeAttr(context, argType, fileAttr, line, scopeAttr, dataLayout, runtimeTypes));
         }
         auto diSignature = LLVM::DISubroutineTypeAttr::get(context, argTypes);
         result = LLVM::DIDerivedTypeAttr::get(
           context,
           llvm::dwarf::DW_TAG_pointer_type,
           StringAttr::get(context, ""),
+          fileAttr,
+          line,
+          /*scope=*/LLVM::DIScopeAttr{},
           diSignature,
           size,
           align,
           0,
           std::nullopt,
+          LLVM::DIFlags::Zero,
           LLVM::DINodeAttr());
         break;
       }
       case GoTypeId::Interface:
         result = getDITypeAttr(
-          context, runtimeTypes.lookupRuntimeType("interface"), dataLayout, runtimeTypes);
+          context,
+          runtimeTypes.lookupRuntimeType("interface"),
+          fileAttr,
+          line,
+          scopeAttr,
+          dataLayout,
+          runtimeTypes);
         break;
       case GoTypeId::Map:
-        result =
-          getDITypeAttr(context, runtimeTypes.lookupRuntimeType("map"), dataLayout, runtimeTypes);
+        result = getDITypeAttr(
+          context,
+          runtimeTypes.lookupRuntimeType("map"),
+          fileAttr,
+          line,
+          scopeAttr,
+          dataLayout,
+          runtimeTypes);
         break;
       case GoTypeId::Pointer:
       {
@@ -231,21 +286,44 @@ struct BaseAttachDebugInfoPass
           context,
           llvm::dwarf::DW_TAG_pointer_type,
           StringAttr::get(context, ""),
-          getDITypeAttr(context, *ptrType.getElementType(), dataLayout, runtimeTypes),
+          fileAttr,
+          line,
+          /*scope=*/LLVM::DIScopeAttr{},
+          getDITypeAttr(
+            context,
+            *ptrType.getElementType(),
+            fileAttr,
+            line,
+            scopeAttr,
+            dataLayout,
+            runtimeTypes),
           size,
           align,
           0,
           std::nullopt,
+          LLVM::DIFlags::Zero,
           LLVM::DINodeAttr());
         break;
       }
       case GoTypeId::Slice:
-        result =
-          getDITypeAttr(context, runtimeTypes.lookupRuntimeType("slice"), dataLayout, runtimeTypes);
+        result = getDITypeAttr(
+          context,
+          runtimeTypes.lookupRuntimeType("slice"),
+          fileAttr,
+          line,
+          scopeAttr,
+          dataLayout,
+          runtimeTypes);
         break;
       case GoTypeId::String:
         result = getDITypeAttr(
-          context, runtimeTypes.lookupRuntimeType("string"), dataLayout, runtimeTypes);
+          context,
+          runtimeTypes.lookupRuntimeType("string"),
+          fileAttr,
+          line,
+          scopeAttr,
+          dataLayout,
+          runtimeTypes);
         break;
       case GoTypeId::Struct:
       {
@@ -277,17 +355,21 @@ struct BaseAttachDebugInfoPass
           // Skip fields named "_".
           if (fieldNameAttr.str() != "_")
           {
-            const auto elementTypeAttr =
-              getDITypeAttr(context, fieldType, dataLayout, runtimeTypes);
+            const auto elementTypeAttr = getDITypeAttr(
+              context, fieldType, fileAttr, line, scopeAttr, dataLayout, runtimeTypes);
             const auto derivedTypeAttr = LLVM::DIDerivedTypeAttr::get(
               context,
               llvm::dwarf::DW_TAG_member,
               fieldNameAttr,
+              fileAttr,
+              line,
+              /*scope=*/LLVM::DIScopeAttr{},
               elementTypeAttr,
               fieldsSizeInBits,
               alignmentInBits,
               offsetInBits,
               std::nullopt,
+              LLVM::DIFlags::Zero,
               LLVM::DINodeAttr());
             elementAttrs.push_back(derivedTypeAttr);
           }
@@ -301,12 +383,23 @@ struct BaseAttachDebugInfoPass
         // Create the composite type.
         const auto nameAttr = StringAttr::get(context, _name);
         result = mlir::LLVM::DICompositeTypeAttr::get(
-          /*context=*/context, /*recId=*/recId,  /*isRecSelf=*/false, llvm::dwarf::DW_TAG_structure_type,
-          /*name=*/nameAttr, /*file=*/nullptr, /*line=*/0, /*scope=*/nullptr,
+          /*context=*/context,
+          /*recId=*/recId,
+          /*isRecSelf=*/false,
+          llvm::dwarf::DW_TAG_structure_type,
+          /*name=*/nameAttr,
+          /*file=*/nullptr,
+          /*line=*/0,
+          /*scope=*/nullptr,
           /*baseType=*/LLVM::DINullTypeAttr::get(context),
-          /*flags=*/mlir::LLVM::DIFlags::Zero, /*sizeInBits=*/structSizeInBits,
-          /*alignInBits=*/structAlignmentInBits, /*dataLocation=*/nullptr, /*rank=*/nullptr,
-          /*allocated=*/nullptr, /*associated=*/nullptr, /*elements*/elementAttrs);
+          /*flags=*/mlir::LLVM::DIFlags::Zero,
+          /*sizeInBits=*/structSizeInBits,
+          /*alignInBits=*/structAlignmentInBits,
+          /*dataLocation=*/nullptr,
+          /*rank=*/nullptr,
+          /*allocated=*/nullptr,
+          /*associated=*/nullptr,
+          /*elements*/ elementAttrs);
       }
       break;
       case GoTypeId::UnsafePointer:
@@ -317,11 +410,15 @@ struct BaseAttachDebugInfoPass
           context,
           llvm::dwarf::DW_TAG_pointer_type,
           StringAttr::get(context, "void*"),
+          fileAttr,
+          line,
+          /*scope=*/LLVM::DIScopeAttr{},
           base,
           size,
           align,
           0,
           std::nullopt,
+          LLVM::DIFlags::Zero,
           LLVM::DINodeAttr());
       }
       break;
@@ -343,7 +440,6 @@ struct BaseAttachDebugInfoPass
     }
     return result;
   }
-
 };
 
-}
+} // namespace mlir::go

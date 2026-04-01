@@ -70,6 +70,21 @@ func (b *Builder) emitConstantDecl(ctx context.Context, decl *ast.GenDecl) {
 						result = resultOf(constOp).AsValue()
 					}
 
+					// Ensure the result has the declared constant type.
+					// Go's type checker may collapse type conversions,
+					// but the MLIR value may still be untyped. Emit a proper
+					// type conversion so width mismatches produce
+					// itrunc/sext/zext ops.
+					if !result.Type().Equal(T) {
+						var srcType types.Type
+						if goir.TypeIsUntyped(result.Type()) {
+							srcType = types.Typ[types.UntypedInt]
+						} else {
+							srcType = types.Unalias(constT).Underlying()
+						}
+						result = b.emitTypeConversion(ctx, result, srcType, constT, location)
+					}
+
 					// Create the yield operation.
 					yieldOp := goir.NewYieldOperation(b.ctx, result, location)
 					appendOperation(ctx, yieldOp)

@@ -139,11 +139,41 @@ func (b *Builder) extractCallOpArgs(ctx context.Context, expr *ast.CallExpr) cal
 				call.function = qualifiedFuncName(funcObj)
 			}
 		case *ast.IndexExpr:
-			// Resolve type parameters.
-			call.typeMap = resolveTypeParams(ctx, expr, info)
-			ctx = newContextWithTypeMap(ctx, call.typeMap)
-			calleeExpr = Fun.X
-			continue
+			// Distinguish generic instantiation (e.g. genericFunc[T]()) from
+			// regular index expressions (e.g. callbacks[i]()).
+			isGeneric := false
+			switch X := Fun.X.(type) {
+			case *ast.Ident:
+				if obj, ok := info.Uses[X]; ok {
+					_, isGeneric = obj.Type().(*types.Signature)
+				}
+			case *ast.SelectorExpr:
+				if obj, ok := info.Uses[X.Sel]; ok {
+					_, isGeneric = obj.Type().(*types.Signature)
+				}
+			}
+
+			if isGeneric {
+				// Generic type parameter instantiation — unwrap.
+				call.typeMap = resolveTypeParams(ctx, expr, info)
+				ctx = newContextWithTypeMap(ctx, call.typeMap)
+				calleeExpr = Fun.X
+				continue
+			}
+			// Regular index expression (array/slice/map) returning a callable.
+			call.calleeType = calleeIsClosure
+			call.callee = b.emitExpr(ctx, Fun)[0]
+			// Derive the element (callable) type from the collection type.
+			elemType := funcObj.Type()
+			switch t := baseType(elemType).(type) {
+			case *types.Array:
+				elemType = t.Elem()
+			case *types.Slice:
+				elemType = t.Elem()
+			case *types.Map:
+				elemType = t.Elem()
+			}
+			signature = baseType(elemType).(*types.Signature)
 		case *ast.IndexListExpr:
 			// Resolve type parameters.
 			call.typeMap = resolveTypeParams(ctx, expr, info)
@@ -244,6 +274,7 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 		case calleeIsSymbol:
 			// Emit the function that will be called.
 			symbol := b.resolveSymbol(opArgs.function)
+
 			b.queueJob(ctx, symbol)
 
 			op := goir.NewCallOperation(b.ctx, symbol, opArgs.results, opArgs.args, location)
@@ -372,6 +403,13 @@ func (b *Builder) emitVariadicArgs(ctx context.Context, signature *types.Signatu
 		elementType := variadicArgType.Elem()
 		elementT := b.GetStoredType(ctx, elementType)
 
+		if numVariadicArgs == 0 {
+			// No variadic arguments provided — pass a nil slice.
+			varArg := b.emitZeroValue(ctx, variadicArgType, location)
+			args = append(args[:variadicBegin], varArg)
+			return args
+		}
+
 		if args[variadicBegin].Type().Equal(b.GetStoredType(ctx, variadicArgType)) {
 			// This is ellipsis (...).
 			return args
@@ -383,11 +421,11 @@ func (b *Builder) emitVariadicArgs(ctx context.Context, signature *types.Signatu
 
 		// Fill the backing array.
 		for i, arg := range args[variadicBegin:] {
-			argT := argTypes[i]
+			argT := argTypes[variadicBegin+i]
 
 			// Gep into the backing array to the position where the current argument should be stored.
 			gepOp := goir.NewGepOperation(
-				b.ctx, resultOf(allocaOp), b._any, []int{i}, nil, []bool{false}, goir.NewPointerType(elementT), location)
+				b.ctx, resultOf(allocaOp), elementT, []int{i}, nil, []bool{false}, goir.NewPointerType(elementT), location)
 			appendOperation(ctx, gepOp)
 
 			// Handle interface type conversion.

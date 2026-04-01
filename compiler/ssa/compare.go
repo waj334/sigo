@@ -147,9 +147,10 @@ func (b *Builder) emitFuncCompare(ctx context.Context, op token.Token, X mlir.Va
 }
 
 func (b *Builder) emitStructCompare(ctx context.Context, op token.Token, X mlir.ValueLike, Y mlir.ValueLike, T *types.Struct, location mlir.LocationLike) mlir.Value {
-	successor := mlir.NewBlock([]mlir.TypeLike{b.i1}, []mlir.LocationLike{location})
+	// Start with true (assuming structs are equal).
+	result := b.emitConstBool(ctx, true, b.i1, location)
 
-	// Compare each field until one does not match.
+	// Compare each field, AND-ing results together in a single block.
 	for i := 0; i < T.NumFields(); i++ {
 		field := T.Field(i)
 		elementType := b.GetStoredType(ctx, field.Type())
@@ -157,65 +158,101 @@ func (b *Builder) emitStructCompare(ctx context.Context, op token.Token, X mlir.
 		// Extract the struct fields at the current index.
 		extractOp := goir.NewExtractOperation(b.ctx, uint64(i), elementType, X, location)
 		appendOperation(ctx, extractOp)
-		X := resultOf(extractOp).AsValue()
+		Xi := resultOf(extractOp).AsValue()
 
 		extractOp = goir.NewExtractOperation(b.ctx, uint64(i), elementType, Y, location)
 		appendOperation(ctx, extractOp)
-		Y := resultOf(extractOp).AsValue()
+		Yi := resultOf(extractOp).AsValue()
 
 		// Compare the values for equality.
 		var cond mlir.Value
 		switch {
 		case typeHasFlags(field.Type(), types.IsBoolean), typeHasFlags(field.Type(), types.IsInteger):
-			cond = b.emitIntegerCompare(ctx, token.EQL, X, Y, location)
+			cond = b.emitIntegerCompare(ctx, token.EQL, Xi, Yi, location)
 		case typeHasFlags(field.Type(), types.IsFloat):
-			cond = b.emitFloatCompare(ctx, token.EQL, X, Y, location)
+			cond = b.emitFloatCompare(ctx, token.EQL, Xi, Yi, location)
 		case typeHasFlags(field.Type(), types.IsComplex):
-			cond = b.emitComplexCompare(ctx, token.EQL, X, Y, location)
+			cond = b.emitComplexCompare(ctx, token.EQL, Xi, Yi, location)
 		case typeHasFlags(field.Type(), types.IsString):
-			cond = b.emitStringCompare(ctx, token.EQL, X, Y, location)
+			cond = b.emitStringCompare(ctx, token.EQL, Xi, Yi, location)
 		case isPointer(field.Type()):
-			cond = b.emitPointerCompare(ctx, token.EQL, X, Y, location)
+			cond = b.emitPointerCompare(ctx, token.EQL, Xi, Yi, location)
 		case typeIs[*types.Interface](field.Type()):
-			cond = b.emitInterfaceCompare(ctx, token.EQL, X, Y, location)
+			cond = b.emitInterfaceCompare(ctx, token.EQL, Xi, Yi, location)
 		case typeIs[*types.Signature](field.Type()):
-			return b.emitFuncCompare(ctx, token.EQL, X, Y, location)
+			cond = b.emitFuncCompare(ctx, token.EQL, Xi, Yi, location)
 		case typeIs[*types.Struct](field.Type()):
-			cond = b.emitStructCompare(ctx, token.EQL, X, Y, field.Type().Underlying().(*types.Struct), location)
+			cond = b.emitStructCompare(ctx, token.EQL, Xi, Yi, field.Type().Underlying().(*types.Struct), location)
+		case typeIs[*types.Array](field.Type()):
+			cond = b.emitArrayCompare(ctx, token.EQL, Xi, Yi, field.Type().Underlying().(*types.Array), location)
 		default:
 			panic("unhandled switch comparison operand type")
 		}
 
-		// Create the next block that the next compare will be emitted into.
-		nextBlock := mlir.NewBlock(nil, nil)
-
-		// Conditionally branch to the successor block passing false if the fields don't match. Otherwise, branch to the
-		// next block in order to evaluate the comparison of the next field.
-		falseValue := b.emitConstBool(ctx, false, b.i1, location)
-		condBrOp := goir.NewCondBranchOperation(b.ctx, cond, nextBlock, nil, successor, []mlir.ValueLike{falseValue}, location)
-		appendOperation(ctx, condBrOp)
-
-		// Continue emission in the next block.
-		appendBlock(ctx, nextBlock)
-		setCurrentBlock(ctx, nextBlock)
+		// AND the field comparison result with the running result.
+		andOp := goir.NewAndOperation(b.ctx, b.i1, result, cond, location)
+		appendOperation(ctx, andOp)
+		result = resultOf(andOp).AsValue()
 	}
 
-	// Branch to the successor block passing true.
-	trueValue := b.emitConstBool(ctx, true, b.i1, location)
-	brOp := goir.NewBranchOperation(b.ctx, successor, []mlir.ValueLike{trueValue}, location)
-	appendOperation(ctx, brOp)
-
-	// Continue emission into the successor block.
-	appendBlock(ctx, successor)
-	setCurrentBlock(ctx, successor)
-
-	result := successor.Argument(0).AsValue()
 	if op == token.NEQ {
-		// Negate the result.
 		result = b.emitNegation(ctx, result, location)
 	}
 
-	// Result the successor block argument.
+	return result
+}
+
+func (b *Builder) emitArrayCompare(ctx context.Context, op token.Token, X mlir.ValueLike, Y mlir.ValueLike, T *types.Array, location mlir.LocationLike) mlir.Value {
+	elemType := T.Elem()
+	elementT := b.GetStoredType(ctx, elemType)
+
+	// Start with true (assuming arrays are equal).
+	result := b.emitConstBool(ctx, true, b.i1, location)
+
+	// Compare each element, AND-ing results together in a single block.
+	for i := int64(0); i < T.Len(); i++ {
+		// Extract the array elements at the current index.
+		extractOp := goir.NewExtractOperation(b.ctx, uint64(i), elementT, X, location)
+		appendOperation(ctx, extractOp)
+		Xi := resultOf(extractOp).AsValue()
+
+		extractOp = goir.NewExtractOperation(b.ctx, uint64(i), elementT, Y, location)
+		appendOperation(ctx, extractOp)
+		Yi := resultOf(extractOp).AsValue()
+
+		// Compare the values for equality.
+		var cond mlir.Value
+		switch {
+		case typeHasFlags(elemType, types.IsBoolean), typeHasFlags(elemType, types.IsInteger):
+			cond = b.emitIntegerCompare(ctx, token.EQL, Xi, Yi, location)
+		case typeHasFlags(elemType, types.IsFloat):
+			cond = b.emitFloatCompare(ctx, token.EQL, Xi, Yi, location)
+		case typeHasFlags(elemType, types.IsComplex):
+			cond = b.emitComplexCompare(ctx, token.EQL, Xi, Yi, location)
+		case typeHasFlags(elemType, types.IsString):
+			cond = b.emitStringCompare(ctx, token.EQL, Xi, Yi, location)
+		case isPointer(elemType):
+			cond = b.emitPointerCompare(ctx, token.EQL, Xi, Yi, location)
+		case typeIs[*types.Interface](elemType):
+			cond = b.emitInterfaceCompare(ctx, token.EQL, Xi, Yi, location)
+		case typeIs[*types.Struct](elemType):
+			cond = b.emitStructCompare(ctx, token.EQL, Xi, Yi, elemType.Underlying().(*types.Struct), location)
+		case typeIs[*types.Array](elemType):
+			cond = b.emitArrayCompare(ctx, token.EQL, Xi, Yi, elemType.Underlying().(*types.Array), location)
+		default:
+			panic("unhandled array element comparison operand type")
+		}
+
+		// AND the element comparison result with the running result.
+		andOp := goir.NewAndOperation(b.ctx, b.i1, result, cond, location)
+		appendOperation(ctx, andOp)
+		result = resultOf(andOp).AsValue()
+	}
+
+	if op == token.NEQ {
+		result = b.emitNegation(ctx, result, location)
+	}
+
 	return result
 }
 
@@ -283,7 +320,15 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 		} else {
 			Y = b.emitExpr(ctx, expr.Y)[0]
 		}
-		return b.emitStructCompare(ctx, token.EQL, X, Y, XT.Underlying().(*types.Struct), location)
+		return b.emitStructCompare(ctx, expr.Op, X, Y, XT.Underlying().(*types.Struct), location)
+	case typeIs[*types.Array](XT):
+		var Y mlir.ValueLike
+		if isNil(YT) {
+			Y = b.emitZeroValue(ctx, XT, location)
+		} else {
+			Y = b.emitExpr(ctx, expr.Y)[0]
+		}
+		return b.emitArrayCompare(ctx, expr.Op, X, Y, XT.Underlying().(*types.Array), location)
 
 		// The following are special cases when compared against nil:
 	case typeIs[*types.Signature](XT):
@@ -307,7 +352,7 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 		appendOperation(ctx, extractOp)
 		X = resultOf(extractOp).AsValue()
 		return b.emitPointerCompare(ctx, expr.Op, X, Y, location)
-	case typeIs[*types.Slice](XT), typeIs[*types.Map](XT):
+	case typeIs[*types.Chan](XT), typeIs[*types.Slice](XT), typeIs[*types.Map](XT):
 		op := goir.NewCmpNilOperation(b.ctx, b.i1, X, location)
 		appendOperation(ctx, op)
 		value := resultOf(op).AsValue()

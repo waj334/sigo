@@ -104,17 +104,13 @@ func interfaceLookUp(i _interface, id uint32) (receiver, result unsafe.Pointer) 
 			switch {
 			case i.valueT.kind == Pointer && sig.receiverType.kind != Pointer:
 				// Interface holds *T, method wants T.
-				// -> Deref and .
-				tmp := alloc(sig.receiverType.size)
-				memmove(tmp, *(*unsafe.Pointer)(i.value), sig.receiverType.size)
-				receiver = *((*unsafe.Pointer)(tmp))
+				// Dereference to get pointer to the actual value.
+				receiver = *(*unsafe.Pointer)(i.value)
 
 			case i.valueT.kind != Pointer && sig.receiverType.kind != Pointer:
 				// Interface holds T, method wants T.
-				// -> Copy again to ensure semantics.
-				tmp := alloc(sig.receiverType.size)
-				memmove(tmp, i.value, sig.receiverType.size)
-				receiver = *((*unsafe.Pointer)(tmp))
+				// i.value already points to the boxed value.
+				receiver = i.value
 
 			case i.valueT.kind != Pointer && sig.receiverType.kind == Pointer:
 				// Interface holds T, method wants *T.

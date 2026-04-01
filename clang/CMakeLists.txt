@@ -35,3 +35,8 @@ include_directories(${CLANG_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 add_subdirectory(lib)
+
+# Install headers.
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+        DESTINATION include
+        FILES_MATCHING PATTERN "*.h")

@@ -95,6 +95,12 @@ bool mlirGoTypeIsAPointer(MlirType type)
   return mlir::go::isa<mlir::go::PointerType>(_type);
 }
 
+bool mlirGoTypeIsAInterface(MlirType type)
+{
+  auto _type = unwrap(type);
+  return mlir::go::isa<mlir::go::InterfaceType>(_type);
+}
+
 MlirType mlirGoCreateArrayType(MlirType elementType, int length)
 {
   auto _elementType = unwrap(elementType);

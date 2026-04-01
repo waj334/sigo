@@ -26,6 +26,10 @@ func NewAttachDebugInfoToGlobalPass() mlir.Pass {
 	return mlir.WrapExternalPass(unsafe.Pointer(C.mlirCreateGoAttachDebugInfoToGlobalPass().ptr))
 }
 
+func NewAttachDebugInfoToLLVMFuncPass() mlir.Pass {
+	return mlir.WrapExternalPass(unsafe.Pointer(C.mlirCreateGoAttachDebugInfoToLLVMFuncPass().ptr))
+}
+
 func NewCallPass() mlir.Pass {
 	return mlir.WrapExternalPass(unsafe.Pointer(C.mlirCreateGoCallPass().ptr))
 }

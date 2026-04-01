@@ -59,6 +59,11 @@ func runOptimizerPass(module mlir.Module, debug bool) mlir.LogicalResult {
 	pm.AddOwnedPass(mlir.NewTransformsCanonicalizer()).
 		AddOwnedPass(goir.NewLowerToLLVMPass())
 
+	// Attach debug info to CIR-derived llvm.func ops that lack it.
+	// GoIR-derived functions already have DISubprogramAttr and are skipped.
+	pm.NestedUnder("llvm.func").
+		AddOwnedPass(goir.NewAttachDebugInfoToLLVMFuncPass())
+
 	// LLVM export and cleanup.
 	pm.NestedUnder("llvm.func").
 		AddOwnedPass(mlir.NewLLVMLegalizeForExportPass())

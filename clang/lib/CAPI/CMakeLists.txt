@@ -1,5 +1,7 @@
 add_library(CGoClang STATIC
         translation.cxx
+        passes.cxx
+        ops.cxx
 )
 
 llvm_update_compile_flags(CGoClang)
@@ -16,4 +18,12 @@ target_link_libraries(CGoClang
         GoClangSupport
         MLIRIR
         MLIRCAPIIR
+        MLIRCIRTransforms
+        clangCIRLoweringCommon
+        clangCIRLoweringDirectToLLVM
+        clangFrontend
+        clangLex
+        clangBasic
 )
+
+install(TARGETS CGoClang ARCHIVE DESTINATION lib)

@@ -17,6 +17,8 @@ struct CIRModuleResult {
 };
 
 // Compile preambleSrc (C source text) into a CIR MLIR module.
+// includePaths are added as system include directories.
 // Returns an empty CIRModuleResult on failure.
 CIRModuleResult lowerPreambleToMlir(llvm::StringRef preambleSrc,
-                                    const std::string &triple);
+                                    const std::string &triple,
+                                    const std::vector<std::string> &includePaths = {});

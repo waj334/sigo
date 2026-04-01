@@ -250,6 +250,13 @@ func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit)
 					elementValue = b.emitInterfaceValue(ctx, fieldT, valueT, elementValue, elementLoc)
 				}
 			}
+		case *types.Chan:
+			// Channel directions differ (e.g. chan T assigned to <-chan T).
+			// All directions have the same runtime representation, so bitcast.
+			valueT := b.typeOf(ctx, valueExpr)
+			if !types.Identical(fieldT, valueT) {
+				elementValue = b.bitcastTo(ctx, elementValue, b.GetStoredType(ctx, fieldT), elementLoc)
+			}
 		}
 
 		// Insert the value into the struct.
@@ -431,6 +438,19 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 		}
 	}
 
+	// Mark captured variables' allocas as heap-allocated so they survive after the
+	// enclosing function returns. The closure holds pointers to these allocas via the
+	// context struct, so they must not be freed when the enclosing stack frame is popped.
+	for _, fv := range anonData.freeVars {
+		if enclosingValue := b.lookupValue(ctx, fv.obj); enclosingValue != nil {
+			if lv, ok := enclosingValue.(*LocalValue); ok {
+				if result, ok := lv.Pointer(ctx, location).AsResult(); ok {
+					goir.AllocaOperationSetIsHeap(result.OwningOperation(), true)
+				}
+			}
+		}
+	}
+
 	// Get and return the address of the function.
 	funcPtr := b.addressOfSymbol(ctx, anonData.linkname, b.ptr, location)
 
@@ -438,7 +458,7 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 	var contextPtr mlir.Value
 	if contextValue, contextType := anonData.createContextStructValue(ctx, b, location); contextValue != nil {
 		anonData.contextType = contextType
-		allocaOp := goir.NewAllocaOperation(b.ctx, b.ptr, contextType, 1, false, location)
+		allocaOp := goir.NewAllocaOperation(b.ctx, b.ptr, contextType, 1, true, location)
 		appendOperation(ctx, allocaOp)
 		contextPtr = resultOf(allocaOp).AsValue()
 

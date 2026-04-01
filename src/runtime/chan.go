@@ -214,3 +214,7 @@ func channelSelect(chanArr *_channel, sendArr *bool, readyArr *int, count int, h
 
 	return -1
 }
+
+func channelIsNil(c _channel) bool {
+	return c.state == nil
+}

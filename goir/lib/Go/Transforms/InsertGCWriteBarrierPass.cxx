@@ -72,13 +72,10 @@ HeapProv joinProv(const HeapProv a, const HeapProv b)
 bool isSingleWordPointerLikeType(const Type ty)
 {
   return llvm::TypeSwitch<Type, bool>(ty)
-    // Rename these to your actual type classes if needed.
     .Case<mlir::go::PointerType>([](auto) { return true; })
-
-    // Add these only if they are actually represented as one word in your ABI.
-    .Case<go::MapType>([](auto) { return true; })
-    .Case<go::ChanType>([](auto) { return true; })
-    //.Case<go::FuncType>([](auto) { return true; })
+    // NOTE: ChanType and MapType are NOT single-word pointer types in this runtime.
+    // Both _channel and _map are multi-field structs, not pointer-sized values.
+    // Aggregate stores of chan/map values require a different barrier strategy.
     .Default([](Type) { return false; });
 }
 
@@ -285,15 +282,6 @@ Value castValueToUIntPtrWord(OpBuilder& b, const Location loc, const Value value
   // Pointer-like values go through ptrtoint.
   if (isa<go::PointerType>(ty))
     return go::PtrToIntOp::create(b, loc, wantTy, value);
-
-  // Map, chan, and other reference types are represented as pointers
-  if (isa<go::MapType, go::ChanType>(ty))
-  {
-    // First bitcast to pointer type, then convert to int
-    const Type ptrTy = getUIntPtrPtrType(b.getContext());
-    const Value asPtr = mlir::go::BitcastOp::create(b, loc, ptrTy, value);
-    return go::PtrToIntOp::create(b, loc, wantTy, asPtr);
-  }
 
   // Integer same-width bitcast/trunc/ext path.
   if (const auto intTy = dyn_cast<mlir::go::IntegerType>(ty))

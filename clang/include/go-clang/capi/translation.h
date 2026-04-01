@@ -16,10 +16,12 @@ extern "C"
   } GoClangCIRModule;
 
   // Compile srcLen bytes of C source text (src) using the given target triple
-  // and return a handle owning the resulting CIR module.
-  // Returns a null handle on failure.
+  // and system include paths, and return a handle owning the resulting CIR
+  // module. Returns a null handle on failure.
   GoClangCIRModule goClangLowerPreambleToMlir(const char *src, size_t srcLen,
-                                               const char *triple);
+                                               const char *triple,
+                                               const char **includePaths,
+                                               size_t numIncludePaths);
 
   // Returns true when the handle is null (compilation failed).
   bool goClangCIRModuleIsNull(GoClangCIRModule module);

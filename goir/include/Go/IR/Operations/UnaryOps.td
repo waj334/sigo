@@ -170,7 +170,7 @@ def RecvOp : Go_Op<"recv", [AlwaysSpeculatable]>,
 
 def CmpNilOp : Go_Op<"cmp.nil", [AlwaysSpeculatable]> {
     let arguments = (ins
-        AnyTypeOf<[Go_Slice, Go_Map]>:$value
+        AnyTypeOf<[Go_Chan, Go_Slice, Go_Map]>:$value
     );
     let results = (outs
         Go_Bool:$result

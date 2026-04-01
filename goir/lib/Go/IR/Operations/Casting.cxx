@@ -53,6 +53,58 @@ OpFoldResult BitcastOp::fold(FoldAdaptor adaptor)
   return {};
 }
 
+OpFoldResult IntTruncateOp::fold(FoldAdaptor adaptor)
+{
+  // Try to get the source attribute directly or by folding.
+  mlir::Attribute srcAttr = adaptor.getValue();
+  if (!srcAttr)
+  {
+    mlir::SmallVector<OpFoldResult, 4> results;
+    if (auto definingOp = getValue().getDefiningOp();
+        definingOp && succeeded(definingOp->fold(results)) && !results.empty())
+      srcAttr = mlir::dyn_cast<mlir::Attribute>(results.front());
+  }
+
+  if (auto intAttr = mlir::dyn_cast_or_null<mlir::IntegerAttr>(srcAttr))
+    return intAttr;
+
+  return {};
+}
+
+OpFoldResult SignedExtendOp::fold(FoldAdaptor adaptor)
+{
+  mlir::Attribute srcAttr = adaptor.getValue();
+  if (!srcAttr)
+  {
+    mlir::SmallVector<OpFoldResult, 4> results;
+    if (auto definingOp = getValue().getDefiningOp();
+        definingOp && succeeded(definingOp->fold(results)) && !results.empty())
+      srcAttr = mlir::dyn_cast<mlir::Attribute>(results.front());
+  }
+
+  if (auto intAttr = mlir::dyn_cast_or_null<mlir::IntegerAttr>(srcAttr))
+    return intAttr;
+
+  return {};
+}
+
+OpFoldResult ZeroExtendOp::fold(FoldAdaptor adaptor)
+{
+  mlir::Attribute srcAttr = adaptor.getValue();
+  if (!srcAttr)
+  {
+    mlir::SmallVector<OpFoldResult, 4> results;
+    if (auto definingOp = getValue().getDefiningOp();
+        definingOp && succeeded(definingOp->fold(results)) && !results.empty())
+      srcAttr = mlir::dyn_cast<mlir::Attribute>(results.front());
+  }
+
+  if (auto intAttr = mlir::dyn_cast_or_null<mlir::IntegerAttr>(srcAttr))
+    return intAttr;
+
+  return {};
+}
+
 ::mlir::LogicalResult BitcastOp::verify()
 {
   return success();

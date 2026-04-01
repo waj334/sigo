@@ -18,15 +18,27 @@ type CIRModule struct {
 }
 
 // LowerPreambleToMlir compiles src (C source text) using the given target triple
-// and returns a CIRModule owning the resulting CIR MLIR module.
-// Returns nil on failure.
-func LowerPreambleToMlir(src, triple string) *CIRModule {
+// and system include paths, and returns a CIRModule owning the resulting CIR
+// MLIR module. Returns nil on failure.
+func LowerPreambleToMlir(src, triple string, includePaths []string) *CIRModule {
 	cSrc := C.CString(src)
 	defer C.free(unsafe.Pointer(cSrc))
 	cTriple := C.CString(triple)
 	defer C.free(unsafe.Pointer(cTriple))
 
-	raw := C.goClangLowerPreambleToMlir(cSrc, C.size_t(len(src)), cTriple)
+	// Build C array of include path strings.
+	var cPaths **C.char
+	if len(includePaths) > 0 {
+		pathPtrs := make([]*C.char, len(includePaths))
+		for i, p := range includePaths {
+			pathPtrs[i] = C.CString(p)
+			defer C.free(unsafe.Pointer(pathPtrs[i]))
+		}
+		cPaths = &pathPtrs[0]
+	}
+
+	raw := C.goClangLowerPreambleToMlir(cSrc, C.size_t(len(src)), cTriple,
+		cPaths, C.size_t(len(includePaths)))
 	if bool(C.goClangCIRModuleIsNull(raw)) {
 		return nil
 	}
@@ -57,8 +69,11 @@ func (m *CIRModule) Module() mlir.Module {
 // all top-level CIR operations into mod.
 // Returns false if serialization or parsing fails.
 func (m *CIRModule) MergeInto(ctx mlir.Context, mod mlir.Module) bool {
-	// Serialize the CIR module to MLIR assembly text.
-	cirText := m.Module().Operation().String()
+	// Serialize the CIR module to MLIR assembly text with location info
+	// so that source locations (from #line directives) survive re-parsing.
+	flags := mlir.NewOpPrintingFlags().WithEnableDebugInfo(true, false)
+	defer flags.Destroy()
+	cirText := m.Module().Operation().StringWithFlags(flags)
 
 	// Parse the text back into the target context, which must have the CIR
 	// dialect registered so the operation names and types are known.
@@ -68,17 +83,10 @@ func (m *CIRModule) MergeInto(ctx mlir.Context, mod mlir.Module) bool {
 	}
 	defer parsed.Destroy()
 
-	// Move all top-level operations from the parsed CIR module into mod.
-	// Block.AppendOwnedOperation removes the op from its current block before
-	// appending, so iterating FirstOperation() until null is safe.
 	srcBlock := parsed.Body()
 	dstBlock := mod.Body()
-	for {
-		first := srcBlock.FirstOperation()
-		if first.IsNull() {
-			break
-		}
-		dstBlock.AppendOwnedOperation(first)
+	for srcOp := srcBlock.FirstOperation(); !srcOp.IsNull(); srcOp = srcOp.NextInBlock() {
+		dstBlock.AppendOwnedOperation(srcOp.Clone())
 	}
 	return true
 }

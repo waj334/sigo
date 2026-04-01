@@ -13,8 +13,16 @@ import (
 type typeCacheNestedLockKey struct{}
 
 func (b *Builder) GetType(ctx context.Context, T types.Type) (result mlir.TypeLike) {
+	// When compiling a generic function instance, shared Go type objects that
+	// contain TypeParams can resolve to different MLIR types depending on the
+	// active type parameter mapping.  Skip the cache for such types to avoid
+	// returning stale results from a different instantiation.  Types without
+	// TypeParams are safe to cache and MUST be cached to break recursion in
+	// recursive types (e.g. struct { next *Node }).
+	skipCache := currentTypeMap(ctx) != nil && containsTypeParam(T)
+
 	// NOTE: The anonymous function usage below exists for making handling the read lock easier.
-	if func() bool {
+	if !skipCache && func() bool {
 		// Lock the type cache for reading while it is accessed if no recursive lock is currently held.
 		isLockNested := ctx.Value(typeCacheNestedLockKey{})
 		if isLockNested == nil || !isLockNested.(bool) {
@@ -95,7 +103,9 @@ func (b *Builder) GetType(ctx context.Context, T types.Type) (result mlir.TypeLi
 		panic("no type was created")
 	}
 
-	b.typeCache[T] = result
+	if !skipCache {
+		b.typeCache[T] = result
+	}
 	return result
 }
 
@@ -459,6 +469,54 @@ func baseStructTypeOf(T types.Type) *types.Struct {
 		return T
 	default:
 		return nil
+	}
+}
+
+// containsTypeParam reports whether T directly or transitively contains a
+// types.TypeParam.  It does NOT follow Named.Underlying() to avoid false
+// positives on concrete named types that happen to be defined in a generic
+// context; Named types are only flagged when they carry unsubstituted type
+// arguments.
+func containsTypeParam(T types.Type) bool {
+	switch T := T.(type) {
+	case *types.TypeParam:
+		return true
+	case *types.Pointer:
+		return containsTypeParam(T.Elem())
+	case *types.Array:
+		return containsTypeParam(T.Elem())
+	case *types.Slice:
+		return containsTypeParam(T.Elem())
+	case *types.Map:
+		return containsTypeParam(T.Key()) || containsTypeParam(T.Elem())
+	case *types.Chan:
+		return containsTypeParam(T.Elem())
+	case *types.Named:
+		if ta := T.TypeArgs(); ta != nil {
+			for i := range ta.Len() {
+				if containsTypeParam(ta.At(i)) {
+					return true
+				}
+			}
+		}
+		return false
+	case *types.Signature:
+		for i := range T.Params().Len() {
+			if containsTypeParam(T.Params().At(i).Type()) {
+				return true
+			}
+		}
+		for i := range T.Results().Len() {
+			if containsTypeParam(T.Results().At(i).Type()) {
+				return true
+			}
+		}
+		if T.Recv() != nil {
+			return containsTypeParam(T.Recv().Type())
+		}
+		return false
+	default:
+		return false
 	}
 }
 

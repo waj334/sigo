@@ -61,8 +61,8 @@ struct CallPass : ::mlir::go::impl::CallPassBase<CallPass>
         [&](const GoStructType& type)
         {
           // TODO: Probably should represent this one by some closure type.
-          calleeValue = builder.create<ExtractOp>(loc, ptrType, 0, callee);
-          mlir::Value argsPtrValue = builder.create<ExtractOp>(loc, ptrType, 1, callee);
+          calleeValue = ExtractOp::create(builder, loc, ptrType, 0, callee);
+          mlir::Value argsPtrValue = ExtractOp::create(builder, loc, ptrType, 1, callee);
 
           // Prepend the previous arguments pointer value to the argument list.
           calleeArgs.push_back(argsPtrValue);
@@ -92,12 +92,12 @@ struct CallPass : ::mlir::go::impl::CallPassBase<CallPass>
       mlir::go::GoStructType::getLiteral(builder.getContext(), ctxStructTypes);
 
     // Create the context struct value.
-    mlir::Value ctxValue = builder.create<mlir::go::ZeroOp>(loc, ctxStructType);
-    ctxValue = builder.create<mlir::go::InsertOp>(loc, ctxStructType, calleeValue, 0, ctxValue);
+    mlir::Value ctxValue = mlir::go::ZeroOp::create(builder, loc, ctxStructType);
+    ctxValue = mlir::go::InsertOp::create(builder, loc, ctxStructType, calleeValue, 0, ctxValue);
     for (size_t i = 0; i < calleeArgs.size(); i++)
     {
       ctxValue =
-        builder.create<mlir::go::InsertOp>(loc, ctxStructType, calleeArgs[i], i + 1, ctxValue);
+        mlir::go::InsertOp::create(builder, loc, ctxStructType, calleeArgs[i], i + 1, ctxValue);
     }
 
     std::string symbol;
@@ -116,7 +116,7 @@ struct CallPass : ::mlir::go::impl::CallPassBase<CallPass>
       // Create a new call wrapper function.
 
       {
-        auto funcOp = builder.create<FuncOp>(loc, symbol, signature);
+        auto funcOp = FuncOp::create(builder, loc, symbol, signature);
         auto entryBlock = funcOp.addEntryBlock();
 
         mlir::OpBuilder::InsertionGuard guard2(builder);
@@ -128,7 +128,7 @@ struct CallPass : ::mlir::go::impl::CallPassBase<CallPass>
         for (int32_t i = 0; i < static_cast<int32_t>(callArgs.size()); ++i)
         {
           const auto argType = calleeArgs[i].getType();
-          Value callArgPtr = builder.create<GetElementPointerOp>(
+          Value callArgPtr = GetElementPointerOp::create(builder, 
             loc,
             ptrType,
             closureValue,
@@ -136,7 +136,7 @@ struct CallPass : ::mlir::go::impl::CallPassBase<CallPass>
             ValueRange{},
             SmallVector<int32_t>{ 0, i + 1 },
             SmallVector<bool>{ false, false });
-          callArgs[i] = builder.create<LoadOp>(loc, argType, callArgPtr, UnitAttr(), UnitAttr());
+          callArgs[i] = LoadOp::create(builder, loc, argType, callArgPtr, UnitAttr(), UnitAttr());
         }
 
         mlir::ValueRange results;
@@ -144,26 +144,26 @@ struct CallPass : ::mlir::go::impl::CallPassBase<CallPass>
         {
           // Unpack the interface receiver value.
           Value interfaceValue =
-            builder.create<LoadOp>(loc, interfaceType, closureValue, UnitAttr(), UnitAttr());
+            LoadOp::create(builder, loc, interfaceType, closureValue, UnitAttr(), UnitAttr());
 
           // Call the function being wrapped.
           results =
-            builder.create<InterfaceCallOp>(loc, resultTypes, method, interfaceValue, callArgs)
+            InterfaceCallOp::create(builder, loc, resultTypes, method, interfaceValue, callArgs)
               .getResults();
         }
         else
         {
           // Unpack the callee function pointer.
           Value funcPtr =
-            builder.create<LoadOp>(loc, ptrType, closureValue, UnitAttr(), UnitAttr());
+            LoadOp::create(builder, loc, ptrType, closureValue, UnitAttr(), UnitAttr());
 
           // Call the function being wrapped.
           results =
-            builder.create<CallIndirectOp>(loc, resultTypes, funcPtr, callArgs).getResults();
+            CallIndirectOp::create(builder, loc, resultTypes, funcPtr, callArgs).getResults();
         }
 
         // Create return operation.
-        builder.create<mlir::go::ReturnOp>(loc, results);
+        mlir::go::ReturnOp::create(builder, loc, results);
       }
 
       // Cache this wrapper symbol.
@@ -213,7 +213,7 @@ struct CallPass : ::mlir::go::impl::CallPassBase<CallPass>
                 [&](mlir::go::ReturnOp returnOp)
                 {
                   OpBuilder builder(returnOp);
-                  builder.create<mlir::go::RunDefersOp>(returnOp.getLoc());
+                  mlir::go::RunDefersOp::create(builder, returnOp.getLoc());
                 });
 
               this->processSpecialCallOp(module, op, ptrType, funcType);
@@ -233,15 +233,15 @@ struct CallPass : ::mlir::go::impl::CallPassBase<CallPass>
     if (const auto callee = op.getCalleeValue(); callee && callee.getType() == funcType)
     {
       // Create an indirect call from the closure value.
-      const mlir::Value fptr = builder.create<mlir::go::ExtractOp>(loc, ptrType, 0, callee);
-      const mlir::Value args = builder.create<mlir::go::ExtractOp>(loc, ptrType, 1, callee);
+      const mlir::Value fptr = mlir::go::ExtractOp::create(builder, loc, ptrType, 0, callee);
+      const mlir::Value args = mlir::go::ExtractOp::create(builder, loc, ptrType, 1, callee);
 
       mlir::SmallVector<mlir::Value> allArgs;
       allArgs.push_back(args);
       allArgs.insert(allArgs.end(), callOperands.begin(), callOperands.end());
 
       auto callIndirectOp =
-        builder.create<mlir::go::CallIndirectOp>(loc, op.getResultTypes(), fptr, allArgs);
+        mlir::go::CallIndirectOp::create(builder, loc, op.getResultTypes(), fptr, allArgs);
       op->replaceAllUsesWith(callIndirectOp);
       op->erase();
     }
@@ -259,7 +259,7 @@ struct CallPass : ::mlir::go::impl::CallPassBase<CallPass>
       auto funcOp = mlir::cast<mlir::go::FuncOp>(module.lookupSymbol(*op.getSymName()));
       signature = funcOp.getFunctionType();
       const auto fptrT = mlir::go::PointerType::get(module->getContext(), signature);
-      const mlir::Value fptr = builder.create<AddressOfOp>(loc, fptrT, *op.getSymName());
+      const mlir::Value fptr = AddressOfOp::create(builder, loc, fptrT, *op.getSymName());
       wrappedCallee = createCallWrapper(builder, module, loc, fptr, op.getCalleeOperands());
     }
     else if (op.getCalleeValue())
@@ -298,21 +298,21 @@ struct CallPass : ::mlir::go::impl::CallPassBase<CallPass>
       const auto args = wrappedCallee.value().second;
 
       // Get the call wrapper function by symbol.
-      Value funcPtr = builder.create<AddressOfOp>(loc, ptrType, symbol);
+      Value funcPtr = AddressOfOp::create(builder, loc, ptrType, symbol);
 
       // Allocate memory to store the call args.
-      Value argsPtr = builder.create<AllocaOp>(
+      Value argsPtr = AllocaOp::create(builder, 
         loc, ptrType, args.getType(), 1, builder.getUnitAttr(), StringAttr());
-      builder.create<StoreOp>(loc, args, argsPtr, UnitAttr(), UnitAttr());
+      StoreOp::create(builder, loc, args, argsPtr, UnitAttr(), UnitAttr());
 
       // Create the func value.
-      mlir::Value funcValue = builder.create<ZeroOp>(loc, funcType);
-      funcValue = builder.create<InsertOp>(loc, funcType, funcPtr, 0, funcValue);
-      funcValue = builder.create<InsertOp>(loc, funcType, argsPtr, 1, funcValue);
+      mlir::Value funcValue = ZeroOp::create(builder, loc, funcType);
+      funcValue = InsertOp::create(builder, loc, funcType, funcPtr, 0, funcValue);
+      funcValue = InsertOp::create(builder, loc, funcType, argsPtr, 1, funcValue);
 
       // Replace the defer op call.
       const auto signatureAttr = mlir::TypeAttr::get(signature);
-      builder.create<T>(loc, signatureAttr, funcValue);
+      T::create(builder, loc, signatureAttr, funcValue);
       op->erase();
     }
   }

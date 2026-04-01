@@ -27,6 +27,17 @@ def AttachDebugInfoToGlobalPass : Pass<"attach-debug-info-to-global-pass", "::ml
     let dependentDialects = ["mlir::go::GoDialect", "mlir::LLVM::LLVMDialect"];
 }
 
+def AttachDebugInfoToLLVMFuncPass : Pass<"attach-debug-info-to-llvm-func-pass", "::mlir::LLVM::LLVMFuncOp"> {
+    let summary = "Attaches debug information to LLVM functions that lack it.";
+    let description = [{
+        Walks llvm.func operations that have a FileLineColLoc but no
+        DISubprogramAttr. Creates DICompileUnit, DIFile, and DISubprogram
+        attributes and fuses them onto the function location. Intended
+        for CIR-derived functions that bypass GoIR debug info passes.
+    }];
+    let dependentDialects = ["mlir::LLVM::LLVMDialect"];
+}
+
 def CallPass : Pass<"call-pass", "::mlir::ModuleOp"> {
     let summary = "Generates call wrapper functions for special calls.";
     let description = [{

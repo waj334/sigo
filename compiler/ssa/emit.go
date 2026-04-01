@@ -440,13 +440,16 @@ func (b *Builder) emitGenericDecl(ctx context.Context, decl *ast.GenDecl) {
 				// Handle interface type conversion.
 				lhsType := b.typeOf(ctx, spec.Names[i])
 				rhsType := b.typeOf(ctx, expr)
-				if !isNil(rhsType) && !types.Identical(lhsType, rhsType) {
-					if types.IsInterface(baseType(rhsType)) {
-						// Convert from interface A to interface B.
-						result = b.emitChangeType(ctx, lhsType, result, location)
-					} else {
-						// Create an interface value from the value expression.
-						result = b.emitInterfaceValue(ctx, lhsType, rhsType, result, location)
+				switch baseType(lhsType).(type) {
+				case *types.Interface:
+					if !isNil(rhsType) && !types.Identical(lhsType, rhsType) {
+						if types.IsInterface(baseType(rhsType)) {
+							// Convert from interface A to interface B.
+							result = b.emitChangeType(ctx, lhsType, result, location)
+						} else {
+							// Create an interface value from the value expression.
+							result = b.emitInterfaceValue(ctx, lhsType, rhsType, result, location)
+						}
 					}
 				}
 

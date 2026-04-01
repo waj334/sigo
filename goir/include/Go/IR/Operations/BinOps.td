@@ -160,6 +160,9 @@ def AndOp : Go_IntBinOp<"and", [Commutative, HasCompatibleOperandsAndResultTypes
         %0 = go.and %a, %b : i32
         ```
     }];
+
+    let arguments = (ins Go_IntegerLike:$lhs, Go_IntegerLike:$rhs);
+    let results = (outs Go_IntegerLike:$result);
     let hasFolder = 1;
 }
 

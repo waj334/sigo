@@ -231,8 +231,10 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 			producerAttr,
 			false,
 			mlir.LLVMDIEmissionKindFull,
+			false,
 			mlir.LLVMDINameTableKindDefault,
 			b.strAttr(""),
+			nil,
 		)
 		b.compileUnits[file] = compileUnitAttr
 		return true
@@ -538,6 +540,42 @@ func (b *Builder) lookUpUngeneratedJob(symbol string) *ast.FuncDecl {
 }
 
 func (b *Builder) queueNamedTypeJobs(ctx context.Context, T *types.Named) {
+	if T.TypeArgs().Len() > 0 {
+		// Generic type instance — need to instantiate each method so it gets compiled.
+		// Only attempt instantiation when all type args are concrete (not type parameters).
+		// Inside a generic function body, the type args may still be TypeParams.
+		allConcrete := true
+		for i := 0; i < T.TypeArgs().Len(); i++ {
+			if _, isParam := T.TypeArgs().At(i).(*types.TypeParam); isParam {
+				allConcrete = false
+				break
+			}
+		}
+
+		if allConcrete {
+			// Build the type parameter map from the instantiation's type arguments.
+			typeMap := make(TypeParamMap)
+			origin := T.Origin()
+			for i := 0; i < origin.TypeParams().Len(); i++ {
+				typeMap[origin.TypeParams().At(i).Index()] = T.TypeArgs().At(i)
+			}
+
+			for i := 0; i < T.NumMethods(); i++ {
+				method := T.Method(i)
+				symbol := qualifiedFuncName(method)
+
+				// Ensure the generic method declaration is processed first.
+				b.queueJob(ctx, symbol)
+
+				if data, ok := b.genericFuncs[symbol]; ok {
+					// Create (or find existing) function instance for this type instantiation.
+					b.createFuncInstance(ctx, method.Type().(*types.Signature), data, typeMap)
+				}
+			}
+			return
+		}
+	}
+
 	for i := 0; i < T.NumMethods(); i++ {
 		// Need to generate methods for this named type in order for interfaces to function correctly.
 		symbol := qualifiedFuncName(T.Method(i))

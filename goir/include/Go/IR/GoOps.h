@@ -315,7 +315,8 @@ inline mlir::SmallVector<mlir::Type> yieldOpResolveOperandTypes(mlir::go::YieldO
   mlir::SmallVector<mlir::Type> result(op->getOperation()->getOperandTypes());
   if (auto parentOp = op->getOperation()->getParentOfType<mlir::go::GlobalOp>())
   {
-    if (const auto initializerBlock = parentOp.getInitializerBlock(); initializerBlock && !initializerBlock->empty())
+    if (const auto initializerBlock = parentOp.getInitializerBlock();
+        initializerBlock && !initializerBlock->empty())
     {
       if (mlir::isa<mlir::go::UntypedType>(result[0]))
       {
@@ -332,7 +333,8 @@ inline mlir::SmallVector<mlir::Type> yieldOpResolveResultTypes(mlir::go::YieldOp
   mlir::SmallVector<mlir::Type> result(op->getOperation()->getResultTypes());
   if (auto parentOp = op->getOperation()->getParentOfType<mlir::go::GlobalOp>())
   {
-    if (const auto initializerBlock = parentOp.getInitializerBlock(); initializerBlock && !initializerBlock->empty())
+    if (const auto initializerBlock = parentOp.getInitializerBlock();
+        initializerBlock && !initializerBlock->empty())
     {
       if (mlir::isa<mlir::go::UntypedType>(result[0]))
       {

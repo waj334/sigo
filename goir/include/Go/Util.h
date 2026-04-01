@@ -1,14 +1,17 @@
 #pragma once
 
-#include <Go/IR/GoTypes.h>
 #include <string>
 
 #include <mlir/IR/BuiltinTypes.h>
 #include <mlir/IR/Types.h>
 
-namespace mlir::go {
+#include <Go/IR/GoTypes.h>
 
-enum class GoTypeId : uint8_t {
+namespace mlir::go
+{
+
+enum class GoTypeId : uint8_t
+{
   Invalid = 0,
   Bool,
   Int,
@@ -40,15 +43,21 @@ enum class GoTypeId : uint8_t {
 
 GoTypeId GetGoTypeId(const mlir::Type& type);
 
-//std::string typeInfoSymbol(const mlir::Type &type, const std::string &postfix = "_");
+// std::string typeInfoSymbol(const mlir::Type &type, const std::string &postfix = "_");
 
-//uint64_t getTypeId(const mlir::Type &type);
+// uint64_t getTypeId(const mlir::Type &type);
 
-std::string typeStr(const mlir::Type &T);
+std::string typeStr(const mlir::Type& T);
 
-llvm::hash_code computeMethodHash(const StringRef name, const mlir::TypeRange inputs, const mlir::TypeRange outputs);
+llvm::hash_code computeMethodHash(
+  const StringRef name,
+  const mlir::TypeRange inputs,
+  const mlir::TypeRange outputs);
 
-inline uint64_t alignTo(uint64_t value, uint64_t alignment) { return (value + alignment - 1) / alignment * alignment; }
+inline uint64_t alignTo(uint64_t value, uint64_t alignment)
+{
+  return (value + alignment - 1) / alignment * alignment;
+}
 
 void stringReplaceAll(std::string& input, const std::string& substr, const std::string& str);
 std::string formatPackageSymbol(const std::string& pkg, const std::string& symbol);

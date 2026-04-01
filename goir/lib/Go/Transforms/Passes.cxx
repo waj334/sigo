@@ -251,7 +251,7 @@ struct LowerToLLVMPass : impl::LowerToLLVMPassBase<LowerToLLVMPass>
 
     // The Go dialect is illegal
     target.addIllegalDialect<GoDialect>();
-    target.addIllegalOp<mlir::UnrealizedConversionCastOp>();
+    //target.addIllegalOp<mlir::UnrealizedConversionCastOp>();
 
     // Add the required patterns already in MLIR
     populateFuncToLLVMConversionPatterns(typeConverter, patterns);

@@ -12,9 +12,15 @@ struct GoClangCIRModuleStorage {
 };
 
 GoClangCIRModule goClangLowerPreambleToMlir(const char *src, size_t srcLen,
-                                             const char *triple) {
+                                             const char *triple,
+                                             const char **includePaths,
+                                             size_t numIncludePaths) {
+  std::vector<std::string> paths;
+  for (size_t i = 0; i < numIncludePaths; ++i) {
+    paths.emplace_back(includePaths[i]);
+  }
   auto *storage = new GoClangCIRModuleStorage{
-      lowerPreambleToMlir(llvm::StringRef(src, srcLen), std::string(triple))};
+      lowerPreambleToMlir(llvm::StringRef(src, srcLen), std::string(triple), paths)};
   if (!storage->result) {
     delete storage;
     return {nullptr};
