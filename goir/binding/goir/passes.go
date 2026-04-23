@@ -50,6 +50,10 @@ func NewGlobalInitializerPass() mlir.Pass {
 	return mlir.WrapExternalPass(unsafe.Pointer(C.mlirCreateGoGlobalInitializerPass().ptr))
 }
 
+func NewImmutableGlobalsPass() mlir.Pass {
+	return mlir.WrapExternalPass(unsafe.Pointer(C.mlirCreateGoImmutableGlobalsPass().ptr))
+}
+
 func NewHeapEscapePass() mlir.Pass {
 	return mlir.WrapExternalPass(unsafe.Pointer(C.mlirCreateGoHeapEscapePass().ptr))
 }

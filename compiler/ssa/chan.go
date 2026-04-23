@@ -52,10 +52,7 @@ func (b *Builder) emitSelectStatement(ctx context.Context, stmt *ast.SelectStmt)
 			// is directional, bitcast it to the bidirectional (SendRecv) type
 			// so the variadic channel array has a uniform element type.
 			if chanT, ok := b.typeOf(ctx, chanExpr).Underlying().(*types.Chan); ok && chanT.Dir() != types.SendRecv {
-				sendRecvT := goir.NewChanType(
-					b.GetStoredType(ctx, chanT.Elem()),
-					goir.ChanDirectionSendRecv,
-				)
+				sendRecvT := b.GetType(ctx, types.NewChan(types.SendRecv, chanT.Elem()))
 				value = b.bitcastTo(ctx, value, sendRecvT, b.location(ctx, chanExpr.Pos()))
 			}
 
@@ -199,7 +196,7 @@ func (b *Builder) emitChanRange(ctx context.Context, stmt *ast.RangeStmt) {
 			if identIsValid(ident) {
 				// A copy should be emitted into this block. Heap escape analysis should handle converting the stack
 				// allocation to a heap allocation in the event that the loop variable escapes the current scope.
-				copyAddr := b.emitNamedAlloca(ctx, ident.Name, elementT, b.location(ctx, stmt.Value.Pos()))
+				copyAddr := b.emitNamedAlloca(ctx, ident.Name, elementT, chanType.Elem(), b.location(ctx, stmt.Value.Pos()))
 				elementVar = b.NewTempValue(copyAddr)
 				b.setAddr(ctx, ident, elementVar)
 			}

@@ -177,7 +177,7 @@ func (f *formatter) formatArg(verb byte, flags string, width, prec int, hasWidth
 	}
 
 	switch verb {
-	case 's':
+	case 's', 'w':
 		f.formatString(arg)
 	case 'd':
 		f.formatInt(verb, flags, width, prec, hasWidth, hasPrec, arg)
@@ -211,6 +211,10 @@ func (f *formatter) formatString(arg any) {
 		f.writeString(v)
 	case error:
 		f.writeString(v.Error())
+	case Stringer:
+		f.writeString(v.String())
+	case GoStringer:
+		f.writeString(v.GoString())
 	default:
 		f.writeString("%!s(BADTYPE)")
 	}
@@ -393,6 +397,10 @@ func (f *formatter) formatDefault(flags string, width, prec int, hasWidth, hasPr
 		f.writeString(v)
 	case error:
 		f.writeString(v.Error())
+	case Stringer:
+		f.writeString(v.String())
+	case GoStringer:
+		f.writeString(v.GoString())
 	default:
 		f.writeString("(UNSUPPORTED)")
 	}

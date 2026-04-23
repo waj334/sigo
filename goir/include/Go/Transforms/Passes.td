@@ -61,6 +61,17 @@ def GlobalConstantsPass : Pass<"global-constants-pass", "::mlir::ModuleOp"> {
     let dependentDialects = ["mlir::go::GoDialect", "mlir::LLVM::LLVMDialect"];
 }
 
+def ImmutableGlobalsPass : Pass<"go-immutable-globals-pass", "::mlir::ModuleOp"> {
+    let summary = "Detects package-level globals that are never written to.";
+    let description = [{
+        Analyzes all uses of go.addressOf for each global. Globals that are never
+        the target of a go.store (directly or through GEP chains), and whose
+        address does not escape to unknown operations, are marked with a
+        go.immutable attribute. Downstream lowering uses this to emit them as
+        LLVM constant globals (placed in flash/rodata).
+    }];
+}
+
 def GlobalInitializerPass : Pass<"global-initializer-pass", "::mlir::ModuleOp"> {
     let summary = "Global Initializer Pass - Lowers package initializers to constant globals";
     let description = [{

@@ -62,7 +62,10 @@ type Type interface {
 // If i is a nil interface value, TypeOf returns nil.
 func TypeOf(i any) Type {
 	eface := *(*_interface)(unsafe.Pointer(&i))
-	return eface.typePtr
+	if eface.valueT == nil {
+		return nil
+	}
+	return eface.valueT
 }
 
 /*
@@ -104,3 +107,81 @@ const (
 	Struct
 	UnsafePointer
 )
+
+// Ptr is an alias for Pointer for compatibility.
+const Ptr = Pointer
+
+// String returns the name of k.
+func (k Kind) String() string {
+	switch k {
+	case Invalid:
+		return "invalid"
+	case Bool:
+		return "bool"
+	case Int:
+		return "int"
+	case Int8:
+		return "int8"
+	case Int16:
+		return "int16"
+	case Int32:
+		return "int32"
+	case Int64:
+		return "int64"
+	case Uint:
+		return "uint"
+	case Uint8:
+		return "uint8"
+	case Uint16:
+		return "uint16"
+	case Uint32:
+		return "uint32"
+	case Uint64:
+		return "uint64"
+	case Uintptr:
+		return "uintptr"
+	case Float32:
+		return "float32"
+	case Float64:
+		return "float64"
+	case Complex64:
+		return "complex64"
+	case Complex128:
+		return "complex128"
+	case Array:
+		return "array"
+	case Chan:
+		return "chan"
+	case Func:
+		return "func"
+	case Interface:
+		return "interface"
+	case Map:
+		return "map"
+	case Pointer:
+		return "ptr"
+	case Slice:
+		return "slice"
+	case String:
+		return "string"
+	case Struct:
+		return "struct"
+	case UnsafePointer:
+		return "unsafe.Pointer"
+	}
+	return "kind" + itoa(int(k))
+}
+
+// ValueError is the error returned by a Value method when called on a Value
+// that does not support the method.
+type ValueError struct {
+	Method string
+	Kind   Kind
+}
+
+func (e *ValueError) Error() string {
+	if e.Kind == 0 {
+		return "reflect: call of " + e.Method + " on zero Value"
+	}
+	return "reflect: call of " + e.Method + " on " + e.Kind.String() + " Value"
+}

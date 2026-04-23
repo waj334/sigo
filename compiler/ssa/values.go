@@ -68,7 +68,9 @@ func (b *Builder) emitLocalVar(ctx context.Context, obj types.Object, T mlir.Typ
 	// NOTE: It may be determined later that this variable escapes to the heap and the following operation will be
 	//       replaced by a heap allocation.
 	location := b.location(ctx, obj.Pos())
-	ptrValue, _ := b.emitNamedAlloca(ctx, obj.Name(), T, location).AsResult()
+
+	elementT := resolveType(ctx, obj.Type())
+	ptrValue, _ := b.emitNamedAlloca(ctx, obj.Name(), T, elementT, location).AsResult()
 	op := ptrValue.OwningOperation()
 	if isArg {
 		op.SetAttributeByName("isArgument", mlir.NewUnitAttr(b.ctx))
@@ -126,7 +128,9 @@ func (b *Builder) emitGlobalVar(ctx context.Context, ident *ast.Ident) *GlobalVa
 	value := &GlobalValue{
 		symbol: symbol,
 		T:      T,
+		GoT:    obj.Type(),
 		ctx:    b.ctx,
+		b:      b,
 	}
 
 	b.valueCacheMutex.Lock()
@@ -144,9 +148,9 @@ func (b *Builder) emitCastPointerToInt(ctx context.Context, X mlir.ValueLike, lo
 	return resultOf(op).AsValue()
 }
 
-func (b *Builder) makeCopyOf(ctx context.Context, X mlir.ValueLike, location mlir.LocationLike) mlir.Value {
-	elementType := X.Type()
-	ptrType := goir.NewPointerType(elementType)
+func (b *Builder) makeCopyOf(ctx context.Context, X mlir.ValueLike, XT types.Type, location mlir.LocationLike) mlir.Value {
+	elementType := b.GetStoredType(ctx, XT)
+	ptrType := b.GetStoredType(ctx, types.NewPointer(XT))
 
 	// Taking the address in global initializers causes the allocation to escape to the heap.
 	isHeap := false
@@ -165,8 +169,10 @@ func (b *Builder) makeCopyOf(ctx context.Context, X mlir.ValueLike, location mli
 	return resultOf(allocaOp).AsValue()
 }
 
-func (b *Builder) emitNamedAlloca(ctx context.Context, name string, T mlir.TypeLike, location mlir.LocationLike) mlir.Value {
-	PT := goir.NewPointerType(T)
+func (b *Builder) emitNamedAlloca(ctx context.Context, name string, T mlir.TypeLike, GoT types.Type, location mlir.LocationLike) mlir.Value {
+	// Create the pointer type through the type cache so that pointers to named
+	// types use the same deferred pointer as the rest of the compiler.
+	PT := b.pointerOf(ctx, GoT)
 
 	// Allocate memory on the stack to hold the object.
 	allocaOp := goir.NewAllocaOperation(b.ctx, PT, T, 1, false, location)
@@ -188,14 +194,14 @@ func (b *Builder) emitConstBool(ctx context.Context, value bool, T mlir.TypeLike
 }
 
 func (b *Builder) emitConstComplex64(ctx context.Context, r float32, i float32, T mlir.TypeLike, location mlir.LocationLike) mlir.Value {
-	attr := goir.NewComplexAttr(b.ctx, mlir.NewFloatType(b.ctx, mlir.Float32), float64(r), float64(i))
+	attr := goir.NewComplexAttr(b.ctx, b.f32, float64(r), float64(i))
 	op := goir.NewConstantOperation(b.ctx, attr, nil, T, location)
 	appendOperation(ctx, op)
 	return resultOf(op).AsValue()
 }
 
 func (b *Builder) emitConstComplex128(ctx context.Context, r float64, i float64, T mlir.TypeLike, location mlir.LocationLike) mlir.Value {
-	attr := goir.NewComplexAttr(b.ctx, mlir.NewFloatType(b.ctx, mlir.Float64), r, i)
+	attr := goir.NewComplexAttr(b.ctx, b.f64, r, i)
 	op := goir.NewConstantOperation(b.ctx, attr, nil, T, location)
 	appendOperation(ctx, op)
 	return resultOf(op).AsValue()
@@ -300,7 +306,7 @@ func (b *Builder) emitInterfaceValue(ctx context.Context, T types.Type, valueTyp
 	} else {
 		// Copy the value onto the stack.
 		// NOTE: This value may escape to the heap later.
-		addr = b.makeCopyOf(ctx, value, location)
+		addr = b.makeCopyOf(ctx, value, valueType, location)
 	}
 
 	// Generate methods for named types.
@@ -354,7 +360,7 @@ func (b *Builder) addressOf(ctx context.Context, expr ast.Expr, location mlir.Lo
 		value := b.emitExpr(ctx, expr)[0].AsValue()
 
 		// Create a reference to the loaded value.
-		return b.makeCopyOf(ctx, value, location)
+		return b.makeCopyOf(ctx, value, b.typeOf(ctx, expr), location)
 	}
 }
 

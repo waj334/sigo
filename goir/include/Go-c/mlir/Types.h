@@ -55,6 +55,10 @@ extern "C"
 
   MlirType mlirGoCreateUnsafePointerType(MlirContext context);
 
+  MlirType mlirGoCreateDeferredPointerType(MlirContext context, MlirStringRef id);
+
+  void mlirGoSetPointerElementType(MlirType pointerType, MlirType elementType);
+
   MlirType mlirGoCreateSliceType(MlirType elementType);
 
   MlirType mlirGoCreateStringType(MlirContext context);

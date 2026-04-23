@@ -9,5 +9,5 @@ namespace mlir::go {
     std::string typeInfoSymbol(const mlir::Type &type, const std::string &prefix = "");
 
     mlir::LLVM::GlobalOp createTypeInfo(mlir::OpBuilder &builder, mlir::ModuleOp module, const mlir::Location &loc,
-                                        const mlir::Type T);
+                                        const mlir::Type T, const mlir::go::LLVMTypeConverter &converter);
 }

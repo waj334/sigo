@@ -34,6 +34,7 @@ add_mlir_dialect_library(GoIR
         Transforms/FuncPass.cxx
         Transforms/GlobalConstantsPass.cxx
         Transforms/GlobalInitializerPass.cxx
+        Transforms/ImmutableGlobalsPass.cxx
         Transforms/HeapEscapePass.cxx
         Transforms/InsertGCWriteBarrierPass.cxx
         Transforms/LowerToCore.cxx

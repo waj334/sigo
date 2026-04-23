@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go/ast"
+	"go/constant"
 	"go/token"
 	"go/types"
 
@@ -49,10 +50,16 @@ func (b *Builder) emitArrayLiteral(ctx context.Context, expr *ast.CompositeLit) 
 	for i, e := range expr.Elts {
 		elementT := arrayType.Elem()
 
-		// Evaluate the array element value.
+		// Determine the actual array index and evaluate the element value.
+		index := uint64(i)
 		var elementValue mlir.Value
 		switch e := e.(type) {
 		case *ast.KeyValueExpr:
+			// Keyed element: extract the key's constant value as the array index.
+			info := currentInfo(ctx)
+			keyVal := info.Types[e.Key].Value
+			idx, _ := constant.Int64Val(keyVal)
+			index = uint64(idx)
 			elementValue = b.emitExpr(ctx, e.Value)[0].AsValue()
 		default:
 			elementValue = b.emitExpr(ctx, e)[0].AsValue()
@@ -60,7 +67,7 @@ func (b *Builder) emitArrayLiteral(ctx context.Context, expr *ast.CompositeLit) 
 
 		switch baseType(elementT).(type) {
 		case *types.Interface:
-			valueT := b.typeOf(ctx, e)
+			valueT := resolveType(ctx, b.typeOf(ctx, e))
 			if !isNil(valueT) && !types.Identical(elementT, valueT) {
 				if types.IsInterface(baseType(valueT)) {
 					// Convert from interface A to interface B.
@@ -73,7 +80,7 @@ func (b *Builder) emitArrayLiteral(ctx context.Context, expr *ast.CompositeLit) 
 		}
 
 		// Insert the element value into the array.
-		insertOp := goir.NewInsertOperation(b.ctx, uint64(i), elementValue, value, T, location)
+		insertOp := goir.NewInsertOperation(b.ctx, index, elementValue, value, T, location)
 		appendOperation(ctx, insertOp)
 		value = resultOf(insertOp).AsValue()
 	}
@@ -105,13 +112,14 @@ func (b *Builder) emitMapLiteral(ctx context.Context, expr *ast.CompositeLit) ml
 		expr := expr.(*ast.KeyValueExpr)
 
 		// Evaluate the key and element values.
-		keyValue := b.emitExpr(ctx, expr.Key)[0]
+		// The key must be passed as a pointer to the map.addr operation.
+		keyValue := mlir.ValueLike(b.makeCopyOf(ctx, b.emitExpr(ctx, expr.Key)[0].AsValue(), keyT, location))
 		elementValue := b.emitExpr(ctx, expr.Value)[0]
 
 		// Handle interface conversions.
 		switch baseType(keyT).(type) {
 		case *types.Interface:
-			valueT := b.typeOf(ctx, expr.Key)
+			valueT := resolveType(ctx, b.typeOf(ctx, expr.Key))
 			if !isNil(valueT) && !types.Identical(elementT, valueT) {
 				if types.IsInterface(baseType(valueT)) {
 					// Convert from interface A to interface B.
@@ -125,7 +133,7 @@ func (b *Builder) emitMapLiteral(ctx context.Context, expr *ast.CompositeLit) ml
 
 		switch baseType(elementT).(type) {
 		case *types.Interface:
-			valueT := b.typeOf(ctx, expr.Value)
+			valueT := resolveType(ctx, b.typeOf(ctx, expr.Value))
 			if !isNil(valueT) && !types.Identical(elementT, valueT) {
 				if types.IsInterface(baseType(valueT)) {
 					// Convert from interface A to interface B.
@@ -169,7 +177,7 @@ func (b *Builder) emitSliceLiteral(ctx context.Context, expr *ast.CompositeLit) 
 		// Handle interface conversion.
 		switch baseType(elementT).(type) {
 		case *types.Interface:
-			valueT := b.typeOf(ctx, expr)
+			valueT := resolveType(ctx, b.typeOf(ctx, expr))
 			if !isNil(valueT) && !types.Identical(elementT, valueT) {
 				if types.IsInterface(baseType(valueT)) {
 					// Convert from interface A to interface B.
@@ -240,7 +248,7 @@ func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit)
 			}
 		case *types.Interface:
 			// Handle interface conversion.
-			valueT := b.typeOf(ctx, valueExpr)
+			valueT := resolveType(ctx, b.typeOf(ctx, valueExpr))
 			if !isNil(valueT) && !types.Identical(fieldT, valueT) {
 				if types.IsInterface(baseType(valueT)) {
 					// Convert from interface A to interface B.
@@ -421,14 +429,14 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 		for obj := range used {
 			// You can skip this whole scope walk logic — the object already knows its scope.
 			varType := b.GetStoredType(ctx, obj.Type())
-			ptrType := goir.NewPointerType(varType)
-			allocType := goir.NewPointerType(ptrType)
-
+			ptrType := b.GetStoredType(ctx, types.NewPointer(obj.Type()))
+			allocType := b.GetStoredType(ctx, types.NewPointer(types.NewPointer(obj.Type())))
 			allocaOp := goir.NewAllocaOperation(b.ctx, allocType, ptrType, 1, false, b.location(ctx, obj.Pos()))
 			fv := &FreeVar{
 				obj: obj,
 				ptr: resultOf(allocaOp).AsValue(),
 				T:   varType,
+				GoT: obj.Type(),
 				b:   b,
 			}
 
@@ -456,7 +464,7 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 
 	// Create a pointer to a context value.
 	var contextPtr mlir.Value
-	if contextValue, contextType := anonData.createContextStructValue(ctx, b, location); contextValue != nil {
+	if contextValue, contextType, _ := anonData.createContextStructValue(ctx, b, location); contextValue != nil {
 		anonData.contextType = contextType
 		allocaOp := goir.NewAllocaOperation(b.ctx, b.ptr, contextType, 1, true, location)
 		appendOperation(ctx, allocaOp)

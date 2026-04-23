@@ -10,49 +10,53 @@ import (
 	"pkg.si-go.dev/sigo/goir/binding/goir"
 )
 
-type typeCacheNestedLockKey struct{}
+// GetType is the public entry point for resolving a Go type to an MLIR type.
+// It acquires the type cache lock and delegates to getTypeImpl.
+func (b *Builder) GetType(ctx context.Context, T types.Type) mlir.TypeLike {
+	b.typeCacheMutex.Lock()
+	defer b.typeCacheMutex.Unlock()
+	return b.getTypeImpl(ctx, T)
+}
 
-func (b *Builder) GetType(ctx context.Context, T types.Type) (result mlir.TypeLike) {
-	// When compiling a generic function instance, shared Go type objects that
-	// contain TypeParams can resolve to different MLIR types depending on the
-	// active type parameter mapping.  Skip the cache for such types to avoid
-	// returning stale results from a different instantiation.  Types without
-	// TypeParams are safe to cache and MUST be cached to break recursion in
-	// recursive types (e.g. struct { next *Node }).
-	skipCache := currentTypeMap(ctx) != nil && containsTypeParam(T)
+// getTypeImpl does the actual type resolution without locking. All internal
+// recursive calls (from create* methods) must use this instead of GetType.
+func (b *Builder) getTypeImpl(ctx context.Context, T types.Type) (result mlir.TypeLike) {
+	// First attempt to resolve type params.
+	T = resolveType(ctx, T)
 
-	// NOTE: The anonymous function usage below exists for making handling the read lock easier.
-	if !skipCache && func() bool {
-		// Lock the type cache for reading while it is accessed if no recursive lock is currently held.
-		isLockNested := ctx.Value(typeCacheNestedLockKey{})
-		if isLockNested == nil || !isLockNested.(bool) {
-			// Lock the type cache mutex for reading.
-			b.typeCacheMutex.RLock()
-			defer b.typeCacheMutex.RUnlock()
+	// For TypeParam-containing types within a generic instance, use a
+	// per-instance cache to avoid cross-instance pollution while still
+	// breaking recursion for self-referential types within this instance.
+	instCache := currentInstanceTypeCache(ctx)
+	useInstCache := instCache != nil && containsTypeParam(T)
+
+	if useInstCache {
+		if cached, ok := instCache[T]; ok {
+			return cached
 		}
-
-		// Look up the previously generated type for the input type.
-		var ok bool
-		result, ok = b.typeCache[T]
-		return ok
-	}() {
-		return
+		// Check if this type is already being created in the current call
+		// chain. This detects recursion caused by TypeParam index collisions
+		// across different generic scopes (e.g., TypeParam from type A at
+		// index 0 is incorrectly resolved using type B's typeMap which also
+		// maps index 0). Fall back to the global cache to break the cycle.
+		if procSet := currentTypeProcessingSet(ctx); procSet != nil {
+			if procSet[T] {
+				useInstCache = false
+			} else {
+				procSet[T] = true
+				defer delete(procSet, T)
+			}
+		}
 	}
-
-	// Handle recursive write lock.
-	isLockNested := ctx.Value(typeCacheNestedLockKey{})
-	if isLockNested == nil || !isLockNested.(bool) {
-		// Lock the type cache mutex
-		b.typeCacheMutex.Lock()
-		defer b.typeCacheMutex.Unlock()
-
-		// All nested calls to this function do not need to lock.
-		ctx = context.WithValue(ctx, typeCacheNestedLockKey{}, true)
+	if !useInstCache {
+		if cached, ok := b.typeCache[T]; ok {
+			return cached
+		}
 	}
 
 	switch T := T.(type) {
 	case *types.Alias:
-		return b.GetType(ctx, types.Unalias(T))
+		return b.getTypeImpl(ctx, types.Unalias(T))
 	case *types.Array:
 		result = b.createArrayType(ctx, T)
 	case *types.Basic:
@@ -94,16 +98,24 @@ func (b *Builder) GetType(ctx context.Context, T types.Type) (result mlir.TypeLi
 			panic("no concrete type for type parameter could be determined")
 		}
 
-		return b.GetType(ctx, concreteType)
+		// Detect self-referential type parameter resolution (e.g., TypeParam
+		// resolves to *TypeParam due to index collision across generic scopes).
+		// Replace the TypeParam in the resolved type with the concrete mapping
+		// to break the cycle.
+		concreteType = resolveTypeInTypeMap(concreteType, typeMap)
+
+		return b.getTypeImpl(ctx, concreteType)
 	default:
-		panic("unhandled type: ")
+		panic(fmt.Sprintf("unhandled type: %T %v", T, T))
 	}
 
 	if result == nil {
 		panic("no type was created")
 	}
 
-	if !skipCache {
+	if useInstCache {
+		instCache[T] = result
+	} else {
 		b.typeCache[T] = result
 	}
 	return result
@@ -111,7 +123,7 @@ func (b *Builder) GetType(ctx context.Context, T types.Type) (result mlir.TypeLi
 
 func (b *Builder) createArrayType(ctx context.Context, T *types.Array) goir.ArrayType {
 	// Create the element type.
-	elementType := b.GetStoredType(ctx, T.Elem())
+	elementType := b.getStoredTypeImpl(ctx, T.Elem())
 
 	// Return the array type.
 	return goir.NewArrayType(elementType, int(T.Len()))
@@ -176,7 +188,7 @@ func (b *Builder) createBasicType(T *types.Basic) mlir.TypeLike {
 
 func (b *Builder) createChanType(ctx context.Context, T *types.Chan) goir.ChanType {
 	// Create the element type.
-	elementType := b.GetStoredType(ctx, T.Elem())
+	elementType := b.getStoredTypeImpl(ctx, T.Elem())
 
 	// Return the chan type
 	switch T.Dir() {
@@ -200,6 +212,13 @@ func (b *Builder) createInterfaceType(ctx context.Context, T *types.Interface) g
 
 	// Unset the name in a new context.
 	ctx = context.WithValue(ctx, identifierKey{}, "")
+
+	// For literal interfaces with methods, use a synthetic name so we can
+	// break self-referencing cycles (e.g., interface{ Timeout() bool } where
+	// the method receiver is the interface itself).
+	if len(identifier) == 0 && T.NumMethods() > 0 {
+		identifier = T.String()
+	}
 
 	// NOTE: Named interfaces need to declare the interface type first before creating the methods in order to prevent
 	//       infinite recursion.
@@ -245,7 +264,7 @@ func (b *Builder) createNamedType(ctx context.Context, T *types.Named) goir.Name
 	ctx = newContextWithIdentifier(ctx, identifier)
 
 	// Create the underlying type.
-	underlyingType := b.GetType(ctx, T.Underlying())
+	underlyingType := b.getTypeImpl(ctx, T.Underlying())
 	underlyingTypeHash := goir.TypeHash(underlyingType)
 
 	if T.TypeArgs().Len() > 0 {
@@ -266,40 +285,116 @@ func (b *Builder) createNamedType(ctx context.Context, T *types.Named) goir.Name
 	result := goir.NewNamedType(underlyingType, identifier, methodSymbols)
 
 	// Prevent infinite recursion within metadata and mutually recursive types by mapping the named type now.
-	b.typeCache[T] = result
+	if instCache := currentInstanceTypeCache(ctx); instCache != nil && containsTypeParam(T) {
+		procSet := currentTypeProcessingSet(ctx)
+		if procSet != nil && procSet[T] {
+			b.typeCache[T] = result
+		} else {
+			instCache[T] = result
+		}
+	} else {
+		b.typeCache[T] = result
+	}
 
 	return result
 }
 
 func (b *Builder) createMapType(ctx context.Context, T *types.Map) goir.MapType {
 	// Create the key type.
-	keyType := b.GetStoredType(ctx, T.Key())
+	keyType := b.getStoredTypeImpl(ctx, T.Key())
 
 	// Create the element type.
-	elementType := b.GetStoredType(ctx, T.Elem())
+	elementType := b.getStoredTypeImpl(ctx, T.Elem())
 
 	// Return the map type.
 	return goir.NewMapType(keyType, elementType)
 }
 
 func (b *Builder) createPointerType(ctx context.Context, T *types.Pointer) goir.PointerType {
-	elementType := b.GetStoredType(ctx, T.Elem())
+	// Resolve TypeParams in the element type so that pointers to generic type
+	// parameters (e.g., *T where T = SomeNamedType) go through the deferred
+	// pointer path and produce the same MLIR type as direct *SomeNamedType.
+	elem := resolveType(ctx, T.Elem())
+
+	// Guard against TypeParam index collision across generic scopes: if
+	// resolving the element produces this pointer type itself, the TypeParam
+	// belongs to a different generic scope and was incorrectly resolved.
+	// Fall back to the global cache to break the cycle.
+	if elem == types.Type(T) {
+		if cached, ok := b.typeCache[T]; ok {
+			return cached.(goir.PointerType)
+		}
+	}
+
+	// Pointers to function signatures are stored as pointers to the runtime._func
+	// struct.  Use the pre-built _funcPtr (a deferred pointer keyed by "runtime._func")
+	// so that they share MLIR type identity with direct *runtime._func pointers.
+	if _, ok := elem.(*types.Signature); ok {
+		return b._funcPtr.(goir.PointerType)
+	}
+
+	if namedType, ok := resolveToNamed(elem); ok {
+		// Determine the fully qualified name of the element type.
+		qualName := qualifiedName(namedType.Obj().Name(), namedType.Obj().Pkg())
+
+		// Create the pointer type now. It's element type will be set later.
+		ptrType := goir.NewDeferredPointerType(b.ctx, qualName)
+
+		// It's possible for this pointer type to already have been created. Check that the element type is null before
+		// attempting to set it.
+		// Cache this pointer type now to break any recursion.
+		// When in recursion-fallback mode (processing set has T), write to
+		// the global cache so the cycle can be broken on re-entry.
+		if instCache := currentInstanceTypeCache(ctx); instCache != nil && containsTypeParam(T) {
+			procSet := currentTypeProcessingSet(ctx)
+			if procSet != nil && procSet[T] {
+				b.typeCache[T] = ptrType
+			} else {
+				instCache[T] = ptrType
+			}
+		} else {
+			b.typeCache[T] = ptrType
+		}
+
+		// Create the element type.
+		elementType := b.getStoredTypeImpl(ctx, namedType)
+
+		// Finally, set the pointer type's element type.
+		if ptrType.ElementType().IsNull() {
+			ptrType.SetElementType(elementType)
+		}
+
+		return ptrType
+	}
+
+	elementType := b.getStoredTypeImpl(ctx, T.Elem())
 	return goir.NewPointerType(elementType)
 }
 
+// resolveToNamed peels through aliases to find a *types.Named.
+func resolveToNamed(T types.Type) (*types.Named, bool) {
+	T = types.Unalias(T)
+	named, ok := T.(*types.Named)
+	return named, ok
+}
+
 func (b *Builder) pointerOf(ctx context.Context, T types.Type) goir.PointerType {
-	ptrType := types.NewPointer(T)
-	return b.GetStoredType(ctx, ptrType).(goir.PointerType)
+	return b.GetType(ctx, types.NewPointer(T)).(goir.PointerType)
 }
 
 func (b *Builder) funcPointerOf(ctx context.Context, T *types.Signature) goir.PointerType {
-	fnT := b.GetType(ctx, T)
-	return goir.NewPointerType(fnT)
+	// Create a pointer to the actual MLIR function type (not the _func struct).
+	// This bypasses createPointerType which would redirect Signature pointers
+	// to the _funcPtr deferred pointer.
+	b.typeCacheMutex.Lock()
+	defer b.typeCacheMutex.Unlock()
+	fnType := b.getTypeImpl(ctx, T)
+	return goir.NewPointerType(fnType)
 }
 
 func (b *Builder) createSliceType(ctx context.Context, T *types.Slice) goir.SliceType {
 	// Create the element type
-	elementType := b.GetStoredType(ctx, T.Elem())
+	elementType := b.getStoredTypeImpl(ctx, T.Elem())
 
 	// Create the slice type
 	return goir.NewSliceType(elementType)
@@ -312,15 +407,15 @@ func (b *Builder) createSignatureType(ctx context.Context, T *types.Signature) g
 
 	if T.Recv() != nil {
 		// The receiver is always the first parameter to a method.
-		receiver = b.GetStoredType(ctx, T.Recv().Type())
+		receiver = b.getStoredTypeImpl(ctx, T.Recv().Type())
 	}
 
 	for i := 0; i < T.Params().Len(); i++ {
-		inputs = append(inputs, b.GetStoredType(ctx, T.Params().At(i).Type()))
+		inputs = append(inputs, b.getStoredTypeImpl(ctx, T.Params().At(i).Type()))
 	}
 
 	for i := 0; i < T.Results().Len(); i++ {
-		results = append(results, b.GetStoredType(ctx, T.Results().At(i).Type()))
+		results = append(results, b.getStoredTypeImpl(ctx, T.Results().At(i).Type()))
 	}
 
 	return goir.NewFunctionType(b.ctx, receiver, inputs, results)
@@ -346,7 +441,7 @@ func (b *Builder) createStructType(ctx context.Context, T *types.Struct) goir.St
 	var fieldTypes []mlir.TypeLike
 	for i := 0; i < T.NumFields(); i++ {
 		fieldNames = append(fieldNames, mlir.NewStringAttr(b.ctx, T.Field(i).Name()))
-		fieldTypes = append(fieldTypes, b.GetStoredType(ctx, T.Field(i).Type()))
+		fieldTypes = append(fieldTypes, b.getStoredTypeImpl(ctx, T.Field(i).Type()))
 		fieldTags = append(fieldTags, mlir.NewStringAttr(b.ctx, T.Tag(i)))
 	}
 
@@ -362,12 +457,22 @@ func (b *Builder) createStructType(ctx context.Context, T *types.Struct) goir.St
 }
 
 func (b *Builder) GetStoredType(ctx context.Context, T types.Type) mlir.TypeLike {
+	b.typeCacheMutex.Lock()
+	defer b.typeCacheMutex.Unlock()
+	return b.getStoredTypeImpl(ctx, T)
+}
+
+// getStoredTypeImpl is the lock-free version of GetStoredType for internal use.
+func (b *Builder) getStoredTypeImpl(ctx context.Context, T types.Type) mlir.TypeLike {
+	// First attempt to resolve type params.
+	T = resolveType(ctx, T)
+
 	switch baseType(T).(type) {
 	case *types.Signature:
 		// This variable is a function, so use the _func struct type.
 		return b._func
 	default:
-		return b.GetType(ctx, T)
+		return b.getTypeImpl(ctx, T)
 	}
 }
 
@@ -591,6 +696,86 @@ func isUintptr(T mlir.TypeLike) bool {
 		panic("invalid type")
 	}
 	return intT.IsUintptr()
+}
+
+// resolveTypeInTypeMap resolves any TypeParams embedded in T using the given
+// typeMap, with cycle detection.  If a TypeParam resolves to a type that
+// transitively contains the same TypeParam index, the cycle is broken by
+// leaving the inner TypeParam unresolved (it will be resolved by getTypeImpl's
+// normal TypeParam handling on the next recursion).
+func resolveTypeInTypeMap(T types.Type, typeMap TypeParamMap) types.Type {
+	return resolveTypeInTypeMapImpl(T, typeMap, map[int]bool{})
+}
+
+func resolveTypeInTypeMapImpl(T types.Type, typeMap TypeParamMap, visited map[int]bool) types.Type {
+	switch T := T.(type) {
+	case *types.TypeParam:
+		if visited[T.Index()] {
+			// Cycle detected — leave this TypeParam unresolved to break it.
+			return T
+		}
+		if resolved := typeMap[T.Index()]; resolved != nil && resolved != T {
+			visited[T.Index()] = true
+			result := resolveTypeInTypeMapImpl(resolved, typeMap, visited)
+			delete(visited, T.Index())
+			return result
+		}
+		return T
+	case *types.Pointer:
+		elem := resolveTypeInTypeMapImpl(T.Elem(), typeMap, visited)
+		if elem == T.Elem() {
+			return T
+		}
+		return types.NewPointer(elem)
+	case *types.Slice:
+		elem := resolveTypeInTypeMapImpl(T.Elem(), typeMap, visited)
+		if elem == T.Elem() {
+			return T
+		}
+		return types.NewSlice(elem)
+	case *types.Array:
+		elem := resolveTypeInTypeMapImpl(T.Elem(), typeMap, visited)
+		if elem == T.Elem() {
+			return T
+		}
+		return types.NewArray(elem, T.Len())
+	case *types.Map:
+		key := resolveTypeInTypeMapImpl(T.Key(), typeMap, visited)
+		val := resolveTypeInTypeMapImpl(T.Elem(), typeMap, visited)
+		if key == T.Key() && val == T.Elem() {
+			return T
+		}
+		return types.NewMap(key, val)
+	case *types.Chan:
+		elem := resolveTypeInTypeMapImpl(T.Elem(), typeMap, visited)
+		if elem == T.Elem() {
+			return T
+		}
+		return types.NewChan(T.Dir(), elem)
+	case *types.Named:
+		typeArgs := T.TypeArgs()
+		if typeArgs == nil || typeArgs.Len() == 0 {
+			return T
+		}
+		newArgs := make([]types.Type, typeArgs.Len())
+		changed := false
+		for i := 0; i < typeArgs.Len(); i++ {
+			newArgs[i] = resolveTypeInTypeMapImpl(typeArgs.At(i), typeMap, visited)
+			if newArgs[i] != typeArgs.At(i) {
+				changed = true
+			}
+		}
+		if !changed {
+			return T
+		}
+		inst, err := types.Instantiate(nil, T.Origin(), newArgs, false)
+		if err != nil {
+			panic(fmt.Sprintf("failed to instantiate type in resolveTypeInTypeMap: %v", err))
+		}
+		return inst
+	default:
+		return T
+	}
 }
 
 func resolveType(ctx context.Context, T types.Type) types.Type {

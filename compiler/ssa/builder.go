@@ -28,18 +28,22 @@ type Config struct {
 	DisableUseAnalysis bool
 }
 
+type thunkType struct {
+	t goir.FunctionType
+	s *types.Signature
+}
+
 type Builder struct {
 	ctx mlir.Context
 
 	// Thread-safe structures (No async writes):
-	config        Config
-	program       *Program
-	declaredTypes map[types.Type]struct{}
-	genericFuncs  map[string]*funcData
-	diFiles       map[*token.File]mlir.LLVMDIFileAttr
-	compileUnits  map[*token.File]mlir.LLVMDICompileUnitAttr
-	symbols       mlir.SymbolTable
-	declInfo      map[ast.Decl]*types.Info
+	config       Config
+	program      *Program
+	genericFuncs map[string]*funcData
+	diFiles      map[*token.File]mlir.LLVMDIFileAttr
+	compileUnits map[*token.File]mlir.LLVMDICompileUnitAttr
+	symbols      mlir.SymbolTable
+	declInfo     map[ast.Decl]*types.Info
 
 	// Thread-unsafe structures:
 	funcDeclDataMutex sync.RWMutex
@@ -47,7 +51,7 @@ type Builder struct {
 	ungeneratedFuncs  map[string]*ast.FuncDecl
 
 	typeCache      map[types.Type]mlir.TypeLike
-	typeCacheMutex sync.RWMutex
+	typeCacheMutex sync.Mutex
 
 	valueCache      map[types.Object]Value
 	valueCacheMutex sync.RWMutex
@@ -60,7 +64,7 @@ type Builder struct {
 
 	thunkMutex sync.Mutex
 	thunks     map[string]struct{}
-	thunkTypes map[string]mlir.TypeLike
+	thunkTypes map[string]thunkType
 
 	builtinWrapperMutex sync.Mutex
 	builtinWrappers     map[string]string
@@ -94,6 +98,7 @@ type Builder struct {
 	_interface mlir.TypeLike
 	_any       mlir.TypeLike
 	_func      mlir.TypeLike
+	_funcPtr   mlir.TypeLike
 
 	_noLoc mlir.LocationLike
 
@@ -112,11 +117,9 @@ func NewBuilder(config Config) *Builder {
 		symbols:         mlir.NewSymbolTable(config.Module.Operation()),
 		generateQueue:   make(chan *funcData),
 		thunks:          map[string]struct{}{},
-		thunkTypes:      map[string]mlir.TypeLike{},
+		thunkTypes:      map[string]thunkType{},
 		genericFuncs:    map[string]*funcData{},
 		builtinWrappers: map[string]string{},
-
-		declaredTypes: map[types.Type]struct{}{},
 
 		ungeneratedFuncs:    map[string]*ast.FuncDecl{},
 		funcDeclData:        map[string]*funcData{},
@@ -153,6 +156,7 @@ func NewBuilder(config Config) *Builder {
 	builder._slice = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_slice"))
 	builder._string = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_string"))
 	builder._func = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_func"))
+	builder._funcPtr = builder.GetType(context.Background(), types.NewPointer(config.Program.LookupType("runtime", "_func")))
 	builder._any = builder.GetType(context.Background(), types.NewInterfaceType(nil, nil).Complete())
 
 	// Bind the runtime type representations to the dialect's primitive type representation.
@@ -560,14 +564,31 @@ func (b *Builder) queueNamedTypeJobs(ctx context.Context, T *types.Named) {
 				typeMap[origin.TypeParams().At(i).Index()] = T.TypeArgs().At(i)
 			}
 
-			for i := 0; i < T.NumMethods(); i++ {
-				method := T.Method(i)
+			// Collect the type arguments.
+			targs := make([]types.Type, T.TypeArgs().Len())
+			for i := range T.TypeArgs().Len() {
+				targs[i] = T.TypeArgs().At(i)
+			}
+
+			// Instantiate the generic type.
+			ictx := types.NewContext()
+			newType, err := types.Instantiate(ictx, T, targs, true)
+			if err != nil {
+				panic(err)
+			}
+			instantiatedType := newType.(*types.Named)
+
+			for i := 0; i < instantiatedType.NumMethods(); i++ {
+				method := instantiatedType.Method(i)
 				symbol := qualifiedFuncName(method)
 
 				// Ensure the generic method declaration is processed first.
 				b.queueJob(ctx, symbol)
 
-				if data, ok := b.genericFuncs[symbol]; ok {
+				b.funcDeclDataMutex.RLock()
+				data, ok := b.genericFuncs[symbol]
+				b.funcDeclDataMutex.RUnlock()
+				if ok {
 					// Create (or find existing) function instance for this type instantiation.
 					b.createFuncInstance(ctx, method.Type().(*types.Signature), data, typeMap)
 				}
@@ -674,6 +695,8 @@ func (b *Builder) objectOf(ctx context.Context, node ast.Node) types.Object {
 	case *ast.Ident:
 		return info.ObjectOf(node)
 	case *ast.IndexExpr:
+		return b.objectOf(ctx, node.X)
+	case *ast.IndexListExpr:
 		return b.objectOf(ctx, node.X)
 	case *ast.SelectorExpr:
 		if selection := info.Selections[node]; selection != nil {

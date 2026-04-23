@@ -142,7 +142,7 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 
 	// Find the platform TableGen file.
 	platformFound := false
-	tags := options.BuildTags
+	tags := append([]string{"baremetal"}, options.BuildTags...)
 	alignment := int64(4)
 	fpuEnabled := false
 
@@ -211,7 +211,7 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 
 		fpuType = archFpu.GetValueAsString("value")
 		fpuFeatures := archFpu.GetValueAsListOfStrings("features")
-		if fpuType == "none" {
+		if fpuType == "nofpu" {
 			fpuFeatures = append(fpuFeatures, "soft-float")
 		} else if options.Float == "hardfp" {
 			fpuEnabled = true
@@ -227,6 +227,12 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 		tags = append(tags, fpuFeatures...)
 		tags = append(tags, variantTags...)
 		tags = append(tags, archTags...)
+
+		// Set GOARCH and GOOS so that go/packages.Load() correctly
+		// evaluates file-name suffixes and //go:build constraints
+		// for the target architecture.
+		options.Environment["GOARCH"] = goarch(archType)
+		options.Environment["GOOS"] = "linux"
 
 		formattedFeatures := make([]string, len(features))
 		for i, feature := range features {
@@ -854,6 +860,20 @@ func dumpMLIRModuleToFile(module mlir.Module, filename string) error {
 		return err
 	}
 	return nil
+}
+
+// goarch maps a .td arch value to a valid Go GOARCH value.
+// The .td files use LLVM-oriented names (e.g. "thumb2") that don't
+// correspond to Go's architecture identifiers.
+func goarch(arch string) string {
+	switch strings.ToLower(arch) {
+	case "arm", "thumb2":
+		return "arm"
+	case "riscv64":
+		return "riscv64"
+	default:
+		return strings.ToLower(arch)
+	}
 }
 
 // extractCGoPreambles collects the C preamble text from all import "C"

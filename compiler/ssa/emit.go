@@ -119,7 +119,7 @@ func (b *Builder) emitAssign(ctx context.Context, stmt *ast.AssignStmt) {
 				lhsType := lhsTypes[i]
 				switch baseType(lhsType).(type) {
 				case *types.Interface:
-					rhsType := rhsTypes[i]
+					rhsType := resolveType(ctx, rhsTypes[i])
 					if !isNil(rhsType) && !types.Identical(lhsType, rhsType) {
 						if types.IsInterface(baseType(rhsType)) {
 							// Convert from interface A to interface B.
@@ -127,6 +127,23 @@ func (b *Builder) emitAssign(ctx context.Context, stmt *ast.AssignStmt) {
 						} else {
 							// Create an interface value from the value expression.
 							rhs = b.emitInterfaceValue(ctx, lhsType, rhsType, rhs, location)
+						}
+					}
+				case *types.Signature:
+					rhsType := resolveType(ctx, rhsTypes[i])
+					if isNil(rhsType) {
+						// nil assigned to a function-typed variable. Create a zero
+						// value of the stored type (_func struct pointer).
+						T := b.GetStoredType(ctx, lhsType)
+						zeroOp := goir.NewZeroOperation(b.ctx, T, location)
+						appendOperation(ctx, zeroOp)
+						rhs = resultsOf(zeroOp)[0]
+					} else if ptrT, ok := goir.AsPointerType(rhs.Type()); ok {
+						// If the RHS is a raw function pointer (from a function reference),
+						// wrap it in a _func struct value for storage.
+						elementT := ptrT.ElementType()
+						if !elementT.IsNull() && goir.TypeIsAFunctionType(elementT) {
+							rhs = b.createFunctionValue(ctx, rhs, nil, location)
 						}
 					}
 				}
@@ -223,7 +240,10 @@ func (b *Builder) emitBinaryExpression(ctx context.Context, expr *ast.BinaryExpr
 		X := b.emitExpr(ctx, expr.X)[0]
 		Y := b.emitExpr(ctx, expr.Y)[0]
 
-		if !types.Identical(lhsT, rhsT) && (!isUntyped(lhsT) && !isUntyped(rhsT)) {
+		if isUntyped(rhsT) && !isUntyped(lhsT) {
+			// Untyped constants take the type of the typed operand per Go spec.
+			Y = b.emitTypeConversion(ctx, Y, rhsT, lhsT, location)
+		} else if !types.Identical(lhsT, rhsT) && (!isUntyped(lhsT) && !isUntyped(rhsT)) {
 			// Cast the value on the right side to that of the left since parameters to shifts can be of any integer
 			// type.
 			Y = b.emitTypeConversion(ctx, Y, rhsT, lhsT, location)
@@ -244,7 +264,10 @@ func (b *Builder) emitBinaryExpression(ctx context.Context, expr *ast.BinaryExpr
 		X := b.emitExpr(ctx, expr.X)[0]
 		Y := b.emitExpr(ctx, expr.Y)[0]
 
-		if !types.Identical(lhsT, rhsT) && (!isUntyped(lhsT) && !isUntyped(rhsT)) {
+		if isUntyped(rhsT) && !isUntyped(lhsT) {
+			// Untyped constants take the type of the typed operand per Go spec.
+			Y = b.emitTypeConversion(ctx, Y, rhsT, lhsT, location)
+		} else if !types.Identical(lhsT, rhsT) && (!isUntyped(lhsT) && !isUntyped(rhsT)) {
 			// Cast the right side to the left assuming that the untyped type will be resolved to the default if the
 			// basic kind differs.
 			Y = b.emitTypeConversion(ctx, Y, rhsT, lhsT, location)
@@ -439,7 +462,7 @@ func (b *Builder) emitGenericDecl(ctx context.Context, decl *ast.GenDecl) {
 
 				// Handle interface type conversion.
 				lhsType := b.typeOf(ctx, spec.Names[i])
-				rhsType := b.typeOf(ctx, expr)
+				rhsType := resolveType(ctx, b.typeOf(ctx, expr))
 				switch baseType(lhsType).(type) {
 				case *types.Interface:
 					if !isNil(rhsType) && !types.Identical(lhsType, rhsType) {
@@ -450,6 +473,15 @@ func (b *Builder) emitGenericDecl(ctx context.Context, decl *ast.GenDecl) {
 							// Create an interface value from the value expression.
 							result = b.emitInterfaceValue(ctx, lhsType, rhsType, result, location)
 						}
+					}
+				case *types.Signature:
+					if isNil(rhsType) {
+						// nil assigned to a function-typed variable. Create a zero
+						// value of the stored type (_func struct pointer).
+						T := b.GetStoredType(ctx, lhsType)
+						zeroOp := goir.NewZeroOperation(b.ctx, T, location)
+						appendOperation(ctx, zeroOp)
+						result = resultsOf(zeroOp)[0]
 					}
 				}
 
@@ -519,6 +551,13 @@ func (b *Builder) emitIndexExpr(ctx context.Context, expr *ast.IndexExpr) []mlir
 
 	// Perform the specific index operation based on the input value type.
 	T := baseType(b.typeOf(ctx, expr.X))
+	// Resolve TypeParams to their concrete types in generic function instances.
+	if tp, ok := T.(*types.TypeParam); ok {
+		typeMap := currentTypeMap(ctx)
+		if typeMap != nil {
+			T = baseType(resolveTypeInTypeMap(typeMap[tp.Index()], typeMap))
+		}
+	}
 	switch T.(type) {
 	case *types.Array:
 		// Evaluate the address.
@@ -559,8 +598,6 @@ func (b *Builder) emitIndexExpr(ctx context.Context, expr *ast.IndexExpr) []mlir
 		lookupOp := goir.NewMapLookupOperation(b.ctx, resultType, X, indexAddr, true, location)
 		appendOperation(ctx, lookupOp)
 		return resultsOf(lookupOp)
-	case *types.TypeParam:
-		panic("unimplemented")
 	default:
 		panic("unhandled")
 	}
@@ -571,7 +608,8 @@ func (b *Builder) emitIndexAddr(ctx context.Context, expr *ast.IndexExpr) mlir.V
 
 	// Handle various result type scenarios.
 	var resultType mlir.TypeLike
-	switch T := b.typeOf(ctx, expr).(type) {
+	T := b.typeOf(ctx, expr)
+	switch T := T.(type) {
 	case *types.Tuple:
 		// The result type of the index operation is that of the first member of the tuple.
 		resultType = b.GetStoredType(ctx, T.At(0).Type())
@@ -579,10 +617,18 @@ func (b *Builder) emitIndexAddr(ctx context.Context, expr *ast.IndexExpr) mlir.V
 		resultType = b.GetStoredType(ctx, T)
 	}
 
-	pointerT := goir.NewPointerType(resultType)
+	pointerT := b.GetStoredType(ctx, types.NewPointer(T))
 
 	// Perform the specific index operation based on the input value type.
-	switch underlyingType := baseType(b.typeOf(ctx, expr.X)).(type) {
+	indexBaseType := baseType(b.typeOf(ctx, expr.X))
+	// Resolve TypeParams to their concrete types in generic function instances.
+	if tp, ok := indexBaseType.(*types.TypeParam); ok {
+		typeMap := currentTypeMap(ctx)
+		if typeMap != nil {
+			indexBaseType = baseType(resolveTypeInTypeMap(typeMap[tp.Index()], typeMap))
+		}
+	}
+	switch underlyingType := indexBaseType.(type) {
 	case *types.Array:
 		arrayT := b.GetType(ctx, underlyingType)
 
@@ -659,19 +705,26 @@ func (b *Builder) emitReturn(ctx context.Context, stmt *ast.ReturnStmt) {
 			returnTypes[i] = state.signature.Results().At(i).Type()
 		}
 
-		for i, result := range stmt.Results {
+		returnIdx := 0
+		for _, result := range stmt.Results {
 			location := b.location(ctx, result.Pos())
 			v := b.emitExpr(ctx, result)
-			valueType := b.typeOf(ctx, result)
+			exprType := b.typeOf(ctx, result)
 
-			// NOTE: The following might not convert correctly in the scenario where the expression above yields
-			//       multiple interface values.
+			// When the expression produces multiple values (tuple), extract
+			// individual element types. Otherwise use the expression type directly.
+			var valueTypes []types.Type
+			if tuple, ok := exprType.(*types.Tuple); ok {
+				for j := 0; j < tuple.Len(); j++ {
+					valueTypes = append(valueTypes, tuple.At(j).Type())
+				}
+			} else {
+				valueTypes = []types.Type{exprType}
+			}
+
 			for ii := range v {
-				// If the LHS and RHS are both interfaces, the RHS interface MUST implement the LHS interface if they are
-				// NOT the same interface type.
-				// NOTE: index `i` is intentionally used below for determining the final result type because 2 or more
-				//       return values can share the same type token.
-				returnType := returnTypes[i]
+				returnType := returnTypes[returnIdx]
+				valueType := resolveType(ctx, valueTypes[ii])
 				switch baseType(returnType).(type) {
 				case *types.Interface:
 					if !isNil(valueType) && !types.Identical(valueType, returnType) {
@@ -684,6 +737,12 @@ func (b *Builder) emitReturn(ctx context.Context, stmt *ast.ReturnStmt) {
 						}
 					}
 				case *types.Signature:
+					// Only wrap raw function pointers into the _func struct.
+					// Values that are already the _func struct type (e.g., closures,
+					// variables of function type) must not be wrapped again.
+					if _, ok := goir.AsPointerType(v[ii].Type()); !ok {
+						break
+					}
 					if selExpr, ok := result.(*ast.SelectorExpr); ok {
 						if sel, ok := info.Selections[selExpr]; ok {
 							// Member variables would've been store as the func struct type.
@@ -694,6 +753,7 @@ func (b *Builder) emitReturn(ctx context.Context, stmt *ast.ReturnStmt) {
 					}
 					v[ii] = b.createFunctionValue(ctx, v[ii], nil, location)
 				}
+				returnIdx++
 			}
 
 			if len(v) > state.signature.Results().Len() {
@@ -746,7 +806,8 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 		// This is actually a qualified identifier.
 		switch obj := b.objectOf(ctx, expr.Sel).(type) {
 		case *types.Func:
-			symbol := qualifiedFuncName(obj)
+			symbol := b.resolveSymbol(qualifiedFuncName(obj))
+			b.queueJob(ctx, symbol)
 			fptrType := b.funcPointerOf(ctx, obj.Signature())
 			return b.values(b.addressOfSymbol(ctx, symbol, fptrType, location))
 		default:
@@ -760,19 +821,19 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 		signature := sel.Type().(*types.Signature)
 
 		// Collect argument types.
-		var argTypes []mlir.TypeLike
+		var argTypes []types.Type
 		for i := 0; i < signature.Params().Len(); i++ {
-			argTypes = append(argTypes, b.GetStoredType(ctx, signature.Params().At(i).Type()))
+			argTypes = append(argTypes, signature.Params().At(i).Type())
 		}
 
 		// Evaluate the interface value.
 		ifaceValue := b.emitExpr(ctx, expr.X)
 
 		// Create the argument pack.
-		argsValue, argsType := b.createArgumentPack(ctx, ifaceValue, location)
+		argsValue, argsType, argsPtrType := b.createArgumentPack(ctx, ifaceValue, []types.Type{b.typeOf(ctx, expr.X)}, location)
 
 		// Allocate heap to store the argument pack.
-		allocOp := goir.NewAllocaOperation(b.ctx, goir.NewPointerType(argsType), argsType, 1, true, location)
+		allocOp := goir.NewAllocaOperation(b.ctx, argsPtrType, argsType, 1, true, location)
 		appendOperation(ctx, allocOp)
 
 		// Store the argument pack value at the heap address.
@@ -783,10 +844,10 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 		wrapperSymbol := fmt.Sprintf("%s.%s$wrapper$2", sel.Obj().Id(), expr.Sel.Name)
 
 		// Create an interface call wrapper.
-		fnT := b.createInterfaceCallWrapper(ctx, wrapperSymbol, expr.Sel.Name, recvType, signature, argTypes)
+		thunk := b.createInterfaceCallWrapper2(ctx, wrapperSymbol, expr.Sel.Name, recvType, signature, argTypes)
 
 		// Get the address of the thunk.
-		fptrType := goir.NewPointerType(fnT)
+		fptrType := b.funcPointerOf(ctx, thunk.s)
 		wrapperAddr := b.addressOfSymbol(ctx, wrapperSymbol, fptrType, b._noLoc)
 
 		// Create the function value.
@@ -836,7 +897,7 @@ func (b *Builder) emitSelectAddr(ctx context.Context, expr *ast.SelectorExpr) ml
 	if obj, ok := info.Uses[expr.Sel]; ok {
 		if constObj, ok := obj.(*types.Const); ok {
 			val := b.emitConstantValue(ctx, constObj.Val(), constObj.Type(), location)
-			basePtr = b.makeCopyOf(ctx, val, location)
+			basePtr = b.makeCopyOf(ctx, val, constObj.Type(), location)
 		}
 	}
 
@@ -909,7 +970,6 @@ func (b *Builder) baseAddressOf(ctx context.Context, expr *ast.SelectorExpr, loc
 func (b *Builder) emitSliceExpr(ctx context.Context, expr *ast.SliceExpr) []mlir.ValueLike {
 	var lowValue, highValue, maxValue mlir.Value
 	location := b.location(ctx, expr.Pos())
-	T := b.GetStoredType(ctx, b.typeOf(ctx, expr))
 
 	// Evaluate the input to slice.
 	var X mlir.Value
@@ -921,6 +981,17 @@ func (b *Builder) emitSliceExpr(ctx context.Context, expr *ast.SliceExpr) []mlir
 		// Evaluate a slice or string.
 		X = b.emitExpr(ctx, expr.X)[0].AsValue()
 	}
+
+	// Determine the result type from the expression. Use the input type for
+	// slicing so that the result matches the input (e.g., untyped string
+	// constants produce string-typed values that must stay consistent).
+	resultGoType := b.typeOf(ctx, expr)
+	if typeHasFlags(b.typeOf(ctx, expr.X), types.IsString) && typeHasFlags(resultGoType, types.IsString) {
+		// Both input and result are string types — use the input's MLIR type
+		// so the slice op sees consistent string types.
+		resultGoType = b.typeOf(ctx, expr.X)
+	}
+	T := b.GetStoredType(ctx, resultGoType)
 
 	// Evaluate each available index.
 	if expr.Low != nil {

@@ -14,6 +14,7 @@
 #include "Go/IR/GoEnums.h"
 #include "Go/IR/GoInterfaces.h"
 #include "Go/IR/Types/Interface.h"
+#include "Go/IR/Types/Pointer.h"
 #include "Go/IR/Types/Struct.h"
 
 #define GET_TYPEDEF_CLASSES

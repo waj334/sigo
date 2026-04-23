@@ -9,19 +9,21 @@ import (
 )
 
 type (
-	regionKey           struct{}
-	blockKey            struct{}
-	successorBlockKey   struct{}
-	predecessorBlockKey struct{}
-	fallthroughBlockKey struct{}
-	labeledBlocksKey    struct{}
-	identifierKey       struct{}
-	funcDataKey         struct{}
-	globalKey           struct{}
-	jobQueueKey         struct{}
-	infoKey             struct{}
-	typeMapKey          struct{}
-	scopeKey            struct{}
+	regionKey            struct{}
+	blockKey             struct{}
+	successorBlockKey    struct{}
+	predecessorBlockKey  struct{}
+	fallthroughBlockKey  struct{}
+	labeledBlocksKey     struct{}
+	identifierKey        struct{}
+	funcDataKey          struct{}
+	globalKey            struct{}
+	jobQueueKey          struct{}
+	infoKey              struct{}
+	typeMapKey           struct{}
+	instanceTypeCacheKey struct{}
+	typeProcessingSetKey struct{}
+	scopeKey             struct{}
 )
 
 type blockWithArgs struct {
@@ -157,12 +159,34 @@ func currentInfo(ctx context.Context) *types.Info {
 }
 
 func newContextWithTypeMap(ctx context.Context, typeMap TypeParamMap) context.Context {
-	return context.WithValue(ctx, typeMapKey{}, typeMap)
+	ctx = context.WithValue(ctx, typeMapKey{}, typeMap)
+	// Create a per-instance type cache for TypeParam-containing types so that
+	// different generic instances don't pollute each other's cache entries while
+	// still allowing recursion-breaking writes within the same instance.
+	ctx = context.WithValue(ctx, instanceTypeCacheKey{}, make(map[types.Type]mlir.TypeLike))
+	// Create a processing set to detect recursion from TypeParam index collisions
+	// across different generic scopes.
+	ctx = context.WithValue(ctx, typeProcessingSetKey{}, make(map[types.Type]bool))
+	return ctx
 }
 
 func currentTypeMap(ctx context.Context) TypeParamMap {
 	if val := ctx.Value(typeMapKey{}); val != nil {
 		return val.(TypeParamMap)
+	}
+	return nil
+}
+
+func currentInstanceTypeCache(ctx context.Context) map[types.Type]mlir.TypeLike {
+	if val := ctx.Value(instanceTypeCacheKey{}); val != nil {
+		return val.(map[types.Type]mlir.TypeLike)
+	}
+	return nil
+}
+
+func currentTypeProcessingSet(ctx context.Context) map[types.Type]bool {
+	if val := ctx.Value(typeProcessingSetKey{}); val != nil {
+		return val.(map[types.Type]bool)
 	}
 	return nil
 }

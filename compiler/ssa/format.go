@@ -22,10 +22,12 @@ func qualifiedFuncName(obj *types.Func) string {
 	// Get the name of the method receiver's named type.
 	var typename string
 	if signature.Recv() != nil {
-		if isPointer(signature.Recv().Type()) {
-			typename = signature.Recv().Type().(*types.Pointer).Elem().(*types.Named).Obj().Name()
-		} else {
-			typename = signature.Recv().Type().(*types.Named).Obj().Name()
+		recvT := signature.Recv().Type()
+		if isPointer(recvT) {
+			recvT = recvT.(*types.Pointer).Elem()
+		}
+		if named, ok := recvT.(*types.Named); ok {
+			typename = named.Obj().Name()
 		}
 	}
 

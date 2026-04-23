@@ -5,6 +5,23 @@ import (
 	"os"
 )
 
+// Stringer is implemented by any value that has a String method,
+// which defines the “native” format for that value.
+// The String method is used to print values passed as an operand
+// to any format that accepts a string or to an unformatted printer
+// such as [Print].
+type Stringer interface {
+	String() string
+}
+
+// GoStringer is implemented by any value that has a GoString method,
+// which defines the Go syntax for that value.
+// The GoString method is used to print values passed as an operand
+// to a %#v format.
+type GoStringer interface {
+	GoString() string
+}
+
 // byteBuffer is a simple growable buffer implementing io.Writer.
 type byteBuffer struct {
 	buf []byte

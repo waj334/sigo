@@ -1,4 +1,4 @@
-
+#include <mlir/Dialect/DLTI/Traits.h>
 #include <mlir/Interfaces/Utils/InferIntRangeCommon.h>
 
 #include "Go/IR/GoDialect.h"
@@ -47,7 +47,12 @@ OpFoldResult ComplementOp::fold(FoldAdaptor adaptor)
 
   const auto& operand = *result;
   const auto type = mlir::cast<mlir::IntegerType>(operand.getType());
-  const auto value = operand.getValue();
+  auto value = operand.getValue();
+
+  if (value.getBitWidth() != type.getWidth())
+  {
+    value = value.zextOrTrunc(type.getWidth());
+  }
 
   // Bitwise NOT: x ^ -1
   const auto allOnes = llvm::APInt::getAllOnes(type.getWidth());
@@ -94,7 +99,15 @@ OpFoldResult NegIOp::fold(FoldAdaptor adaptor)
   }
 
   const auto& operand = *result;
-  return IntegerAttr::get(operand.getType(), -operand.getValue());
+  const auto type = mlir::cast<mlir::IntegerType>(operand.getType());
+  auto value = operand.getValue();
+
+  if (value.getBitWidth() != type.getWidth())
+  {
+    value = value.zextOrTrunc(type.getWidth());
+  }
+
+  return IntegerAttr::get(type, -value);
 }
 
 OpFoldResult NotOp::fold(FoldAdaptor adaptor)
@@ -104,26 +117,47 @@ OpFoldResult NotOp::fold(FoldAdaptor adaptor)
   {
     return {};
   }
-
   const auto& operand = *result;
-  return IntegerAttr::get(operand.getType(), !operand.getValue());
+  const auto type = mlir::cast<mlir::IntegerType>(operand.getType());
+  auto value = operand.getValue();
+  if (value.getBitWidth() != type.getWidth())
+  {
+    value = value.zextOrTrunc(type.getWidth());
+  }
+  // Logical NOT: result is 1 if value == 0, else 0
+  return IntegerAttr::get(type, APInt(type.getWidth(), value == 0 ? 1 : 0));
 }
 
 void ComplementOp::inferResultRanges(
   ArrayRef<ConstantIntRanges> argRanges,
   SetIntRangeFn setResultRange)
 {
-  setResultRange(getResult(), ::mlir::intrange::inferAdd(argRanges));
+  // ~x = x ^ -1: infer as XOR with an all-ones constant range
+  const auto bitWidth = argRanges[0].umin().getBitWidth();
+  const auto allOnes = APInt::getAllOnes(bitWidth);
+  const auto allOnesRange = ConstantIntRanges::constant(allOnes);
+  setResultRange(getResult(), ::mlir::intrange::inferXor({argRanges[0], allOnesRange}));
 }
 
-void NegIOp::inferResultRanges(ArrayRef<ConstantIntRanges> argRanges, SetIntRangeFn setResultRange)
+void NegIOp::inferResultRanges(
+  ArrayRef<ConstantIntRanges> argRanges,
+  SetIntRangeFn setResultRange)
 {
-  setResultRange(getResult(), ::mlir::intrange::inferAdd(argRanges));
+  // -x = 0 - x
+  const auto bitWidth = argRanges[0].umin().getBitWidth();
+  const auto zeroRange = ConstantIntRanges::constant(APInt::getZero(bitWidth));
+  setResultRange(getResult(), ::mlir::intrange::inferSub({zeroRange, argRanges[0]}));
 }
 
-void NotOp::inferResultRanges(ArrayRef<ConstantIntRanges> argRanges, SetIntRangeFn setResultRange)
+void NotOp::inferResultRanges(
+  ArrayRef<ConstantIntRanges> argRanges,
+  SetIntRangeFn setResultRange)
 {
-  setResultRange(getResult(), ::mlir::intrange::inferAdd(argRanges));
+  // Boolean NOT: result is always 0 or 1
+  const auto bitWidth = argRanges[0].umin().getBitWidth();
+  setResultRange(
+    getResult(),
+    ConstantIntRanges::fromUnsigned(APInt::getZero(bitWidth), APInt(bitWidth, 1)));
 }
 
 ::mlir::ParseResult RecvOp::parse(::mlir::OpAsmParser& p, ::mlir::OperationState& result)

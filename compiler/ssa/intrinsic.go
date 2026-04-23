@@ -25,7 +25,10 @@ func (b *Builder) isIntrinsic(ctx context.Context, expr *ast.CallExpr) bool {
 
 func isIntrinsic(symbol string) bool {
 	switch symbol {
-	case "sync/atomic.AddUint32",
+	case
+		"internal/abi.EscapeNonString",
+
+		"sync/atomic.AddUint32",
 		"sync/atomic.AddInt32",
 		"sync/atomic.AddUint64",
 		"sync/atomic.AddInt64",
@@ -101,6 +104,11 @@ func (b *Builder) emitIntrinsic(ctx context.Context, expr *ast.CallExpr) []mlir.
 	location := b.location(ctx, expr.Pos())
 
 	switch symbol {
+	case "internal/abi.EscapeNonString":
+		addr := b.addressOf(ctx, expr.Args[0], location)
+		result, _ := addr.AsResult()
+		goir.AllocaOperationSetIsHeap(result.OwningOperation(), true)
+		return nil
 	case "sync/atomic.AddUint32", "sync/atomic.AddInt32", "sync/atomic.AddUint64", "sync/atomic.AddInt64", "sync/atomic.AddUintptr":
 		args := b.emitCallArgs2(ctx, expr.Args)
 		T := b.GetType(ctx, signature.Results().At(0).Type())

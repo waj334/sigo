@@ -260,8 +260,8 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 	X := b.emitExpr(ctx, expr.X)[0]
 	location := b.location(ctx, expr.OpPos)
 
-	XT := resolveType(ctx, baseType(b.typeOf(ctx, expr.X)))
-	YT := resolveType(ctx, baseType(b.typeOf(ctx, expr.Y)))
+	XT := baseType(resolveType(ctx, b.typeOf(ctx, expr.X)))
+	YT := baseType(resolveType(ctx, b.typeOf(ctx, expr.Y)))
 
 	switch {
 	case typeHasFlags(XT, types.IsBoolean), typeHasFlags(XT, types.IsInteger):
@@ -296,7 +296,7 @@ func (b *Builder) emitComparison(ctx context.Context, expr *ast.BinaryExpr) mlir
 			Y = b.emitExpr(ctx, expr.Y)[0]
 		}
 		return b.emitStringCompare(ctx, expr.Op, X, Y, location)
-	case isPointer(b.typeOf(ctx, expr.X)):
+	case isPointer(XT):
 		var Y mlir.ValueLike
 		if isNil(YT) {
 			Y = b.emitZeroValue(ctx, XT, location)

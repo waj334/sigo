@@ -123,6 +123,7 @@ struct LowerToCorePass : impl::LowerToCorePassBase<LowerToCorePass>
     target.addIllegalOp<mlir::go::FuncOp>();
     target.addIllegalOp<ImagOp>();
     target.addIllegalOp<IntTruncateOp>();
+    target.addIllegalOp<LiteralOp>();
     target.addIllegalOp<MakeInterfaceOp>();
     target.addIllegalOp<MulCOp>();
     target.addIllegalOp<MulFOp>();

@@ -1,19 +1,42 @@
 # These packages will be included from the Go standard library when staging SiGo standard library.
 include:
   - builtin
+  - cmp
+  - errors
+  - internal/byteorder
+  - internal/chacha8rand
+  - internal/fmtsort
+  - internal/saferio
+  - internal/singleflight
+  - internal/strconv
+  - internal/stringslite
+  - internal/oserror
+  - internal/unsafeheader
+  - internal/nettrace
+  - internal/filepathlite
+  - io
+  - iter
+  - math
+  - math/bits
+  - net/netip
+  - net/url
+  - path
+  - slices
+  - strconv
+  - strings
+  - unicode
+  - unicode/utf8
+  - unique
+  - weak
+
+# These are required for IDEs
   - internal/buildcfg
-  - internal/bytealg
-  - internal/goarch
-  - internal/godebug
   - internal/goexperiment
-  - internal/goos
   - internal/goroot
   - internal/gover
   - internal/goversion
-  - io
-  - unicode
-  - unicode/utf8
 
 exclude:
   - io/fs
   - io/ioutil
+  - path/filepath

@@ -16,16 +16,30 @@ func interfaceMake(value unsafe.Pointer, valueType *_type) _interface {
 	}
 }
 
-func interfaceAssert(X _interface, T *_type, hasOk bool) (result unsafe.Pointer, ok bool) {
+func interfaceAssert(X _interface, T *_type, hasOk bool) (result unsafe.Pointer, load bool, ok bool) {
 	err := interfaceIsAssignable(X.valueT, T)
 	if err != nil {
 		if hasOk {
-			return nil, false
-		} else {
-			panic(err)
+			return nil, false, false
 		}
+		panic(err)
 	}
-	return X.value, true
+
+	// No load is necessary if the interface is already of the correct type.
+	if X.valueT == T {
+		return X.value, false, true
+	}
+
+	// No load is necessary if the value is a pointer type — the interface
+	// value slot holds the pointer directly rather than a pointer-to-value.
+	// This covers *T, unsafe.Pointer, and any type stored by reference
+	// (i.e. types whose size exceeds pointer size and were heap-allocated
+	// when the interface was constructed).
+	if T.kind == Pointer || T.kind == UnsafePointer {
+		return X.value, false, true
+	}
+
+	return X.value, true, true
 }
 
 func interfaceValue(X _interface) unsafe.Pointer {

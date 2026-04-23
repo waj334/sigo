@@ -35,11 +35,18 @@ func runOptimizerPass(module mlir.Module, debug bool) mlir.LogicalResult {
 
 	pm.AddOwnedPass(goir.NewPreprocessingPass()).
 		AddOwnedPass(goir.NewCallPass()).
-		AddOwnedPass(goir.NewGlobalConstantsPass()).
-		AddOwnedPass(goir.NewGlobalInitializerPass())
+		AddOwnedPass(goir.NewGlobalConstantsPass())
+
+	// Canonicalize following NewGlobalConstantsPass so that constant expressions are folded.
+	pm.AddOwnedPass(mlir.NewTransformsCanonicalizer())
 
 	pm.NestedUnder("go.global").
-		AddOwnedPass(goir.NewValueNormalizationGlobalPass()).
+		AddOwnedPass(goir.NewValueNormalizationGlobalPass())
+
+	pm.AddOwnedPass(goir.NewGlobalInitializerPass()).
+		AddOwnedPass(goir.NewImmutableGlobalsPass())
+
+	pm.NestedUnder("go.global").
 		AddOwnedPass(goir.NewAttachDebugInfoToGlobalPass())
 
 	// Handle heap and stack allocations after lowering globals.

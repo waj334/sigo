@@ -209,12 +209,15 @@ struct CallPass : ::mlir::go::impl::CallPassBase<CallPass>
               // NOTE: This MUST be done before the following call to processSpecialCallOp because
               //       this defer operation may be removed by it.
               auto parentOp = op->getParentOfType<mlir::go::FuncOp>();
-              parentOp.walk(
-                [&](mlir::go::ReturnOp returnOp)
-                {
-                  OpBuilder builder(returnOp);
-                  mlir::go::RunDefersOp::create(builder, returnOp.getLoc());
-                });
+              if (visitedFuncs.insert(parentOp.getOperation()).second)
+              {
+                parentOp.walk(
+                  [&](mlir::go::ReturnOp returnOp)
+                  {
+                    OpBuilder builder(returnOp);
+                    mlir::go::RunDefersOp::create(builder, returnOp.getLoc());
+                  });
+              }
 
               this->processSpecialCallOp(module, op, ptrType, funcType);
             })

@@ -36,3 +36,9 @@
 /mlir/mlir_wrap.c
 /goir/.idea
 /sysroots/
+/thirdparty/lwip-build/.idea/.name
+/thirdparty/lwip-build/.idea/editor.xml
+/thirdparty/lwip-build/.idea/lwip-build.iml
+/thirdparty/lwip-build/.idea/misc.xml
+/thirdparty/lwip-build/.idea/modules.xml
+/thirdparty/lwip-build/.idea/vcs.xml

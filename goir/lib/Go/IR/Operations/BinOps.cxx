@@ -1,4 +1,3 @@
-
 #include <mlir/Interfaces/Utils/InferIntRangeCommon.h>
 
 #include "Go/IR/GoDialect.h"
@@ -111,7 +110,13 @@ OpFoldResult AddIOp::fold(FoldAdaptor adaptor)
     return {};
   }
   const auto& [lhs, rhs] = *result;
-  return IntegerAttr::get(lhs.getType(), lhs.getValue() + rhs.getValue());
+  auto lval = lhs.getValue();
+  auto rval = rhs.getValue();
+  if (lval.getBitWidth() != rval.getBitWidth())
+  {
+    rval = rval.zextOrTrunc(lval.getBitWidth());
+  }
+  return IntegerAttr::get(lhs.getType(), lval + rval);
 }
 
 OpFoldResult AddStrOp::fold(FoldAdaptor adaptor)
@@ -133,7 +138,13 @@ OpFoldResult AndOp::fold(FoldAdaptor adaptor)
     return {};
   }
   const auto& [lhs, rhs] = *result;
-  return IntegerAttr::get(lhs.getType(), lhs.getValue() & rhs.getValue());
+  auto lval = lhs.getValue();
+  auto rval = rhs.getValue();
+  if (lval.getBitWidth() != rval.getBitWidth())
+  {
+    rval = rval.zextOrTrunc(lval.getBitWidth());
+  }
+  return IntegerAttr::get(lhs.getType(), lval & rval);
 }
 
 OpFoldResult AndNotOp::fold(FoldAdaptor adaptor)
@@ -144,7 +155,13 @@ OpFoldResult AndNotOp::fold(FoldAdaptor adaptor)
     return {};
   }
   const auto& [lhs, rhs] = *result;
-  return IntegerAttr::get(lhs.getType(), lhs.getValue() & ~rhs.getValue());
+  auto lval = lhs.getValue();
+  auto rval = rhs.getValue();
+  if (lval.getBitWidth() != rval.getBitWidth())
+  {
+    rval = rval.zextOrTrunc(lval.getBitWidth());
+  }
+  return IntegerAttr::get(lhs.getType(), lval & ~rval);
 }
 
 mlir::OpFoldResult CmpCOp::fold(FoldAdaptor adaptor)
@@ -216,8 +233,12 @@ mlir::OpFoldResult CmpIOp::fold(FoldAdaptor adaptor)
     return {};
   }
   const auto& [lhs, rhs] = *result;
-  const auto lval = lhs.getValue();
-  const auto rval = rhs.getValue();
+  auto lval = lhs.getValue();
+  auto rval = rhs.getValue();
+  if (lval.getBitWidth() != rval.getBitWidth())
+  {
+    rval = rval.zextOrTrunc(lval.getBitWidth());
+  }
 
   bool value = false;
   switch (adaptor.getPredicate())
@@ -287,11 +308,14 @@ mlir::OpFoldResult DivCOp::fold(FoldAdaptor adaptor)
     return {};
   }
   const auto& [lhs, rhs] = *result;
-
-  // Add real and imaginary parts.
   const auto fT = lhs.getReal().getType();
-  const auto real = lhs.getReal().getValue() / rhs.getReal().getValue();
-  const auto imag = lhs.getImag().getValue() / rhs.getImag().getValue();
+  // (a+bi)/(c+di) = ((ac+bd) + (bc-ad)i) / (c^2+d^2)
+  const auto denom = rhs.getReal().getValue() * rhs.getReal().getValue()
+                   + rhs.getImag().getValue() * rhs.getImag().getValue();
+  const auto real = (lhs.getReal().getValue() * rhs.getReal().getValue()
+                   + lhs.getImag().getValue() * rhs.getImag().getValue()) / denom;
+  const auto imag = (lhs.getImag().getValue() * rhs.getReal().getValue()
+                   - lhs.getReal().getValue() * rhs.getImag().getValue()) / denom;
   return ComplexNumberAttr::get(
     this->getContext(), FloatAttr::get(fT, real), FloatAttr::get(fT, imag));
 }
@@ -316,7 +340,13 @@ OpFoldResult DivSIOp::fold(FoldAdaptor adaptor)
     return {};
   }
   const auto& [lhs, rhs] = *result;
-  return IntegerAttr::get(lhs.getType(), lhs.getValue().sdiv(rhs.getValue()));
+  auto lval = lhs.getValue();
+  auto rval = rhs.getValue();
+  if (lval.getBitWidth() != rval.getBitWidth())
+  {
+    rval = rval.zextOrTrunc(lval.getBitWidth());
+  }
+  return IntegerAttr::get(lhs.getType(), lval.sdiv(rval));
 }
 
 OpFoldResult DivUIOp::fold(FoldAdaptor adaptor)
@@ -327,7 +357,13 @@ OpFoldResult DivUIOp::fold(FoldAdaptor adaptor)
     return {};
   }
   const auto& [lhs, rhs] = *result;
-  return IntegerAttr::get(lhs.getType(), lhs.getValue().udiv(rhs.getValue()));
+  auto lval = lhs.getValue();
+  auto rval = rhs.getValue();
+  if (lval.getBitWidth() != rval.getBitWidth())
+  {
+    rval = rval.zextOrTrunc(lval.getBitWidth());
+  }
+  return IntegerAttr::get(lhs.getType(), lval.udiv(rval));
 }
 
 mlir::OpFoldResult MulCOp::fold(FoldAdaptor adaptor)
@@ -338,11 +374,12 @@ mlir::OpFoldResult MulCOp::fold(FoldAdaptor adaptor)
     return {};
   }
   const auto& [lhs, rhs] = *result;
-
-  // Add real and imaginary parts.
   const auto fT = lhs.getReal().getType();
-  const auto real = lhs.getReal().getValue() * rhs.getReal().getValue();
-  const auto imag = lhs.getImag().getValue() * rhs.getImag().getValue();
+  // (a+bi)(c+di) = (ac-bd) + (ad+bc)i
+  const auto real = lhs.getReal().getValue() * rhs.getReal().getValue()
+                  - lhs.getImag().getValue() * rhs.getImag().getValue();
+  const auto imag = lhs.getReal().getValue() * rhs.getImag().getValue()
+                  + lhs.getImag().getValue() * rhs.getReal().getValue();
   return ComplexNumberAttr::get(
     this->getContext(), FloatAttr::get(fT, real), FloatAttr::get(fT, imag));
 }
@@ -366,9 +403,13 @@ OpFoldResult MulIOp::fold(FoldAdaptor adaptor)
     return {};
   }
   const auto& [lhs, rhs] = *result;
-
-  // TODO: Need to check if lhs is unsigned.
-  return IntegerAttr::get(lhs.getType(), lhs.getValue().smul_sat(rhs.getValue()));
+  auto lval = lhs.getValue();
+  auto rval = rhs.getValue();
+  if (lval.getBitWidth() != rval.getBitWidth())
+  {
+    rval = rval.zextOrTrunc(lval.getBitWidth());
+  }
+  return IntegerAttr::get(lhs.getType(), lval * rval);
 }
 
 OpFoldResult OrOp::fold(FoldAdaptor adaptor)
@@ -379,7 +420,13 @@ OpFoldResult OrOp::fold(FoldAdaptor adaptor)
     return {};
   }
   const auto& [lhs, rhs] = *result;
-  return IntegerAttr::get(lhs.getType(), lhs.getValue() | rhs.getValue());
+  auto lval = lhs.getValue();
+  auto rval = rhs.getValue();
+  if (lval.getBitWidth() != rval.getBitWidth())
+  {
+    rval = rval.zextOrTrunc(lval.getBitWidth());
+  }
+  return IntegerAttr::get(lhs.getType(), lval | rval);
 }
 
 OpFoldResult RemFOp::fold(FoldAdaptor adaptor)
@@ -401,7 +448,13 @@ OpFoldResult RemSIOp::fold(FoldAdaptor adaptor)
     return {};
   }
   const auto& [lhs, rhs] = *result;
-  return IntegerAttr::get(lhs.getType(), lhs.getValue().srem(rhs.getValue()));
+  auto lval = lhs.getValue();
+  auto rval = rhs.getValue();
+  if (lval.getBitWidth() != rval.getBitWidth())
+  {
+    rval = rval.zextOrTrunc(lval.getBitWidth());
+  }
+  return IntegerAttr::get(lhs.getType(), lval.srem(rval));
 }
 
 OpFoldResult RemUIOp::fold(FoldAdaptor adaptor)
@@ -412,7 +465,13 @@ OpFoldResult RemUIOp::fold(FoldAdaptor adaptor)
     return {};
   }
   const auto& [lhs, rhs] = *result;
-  return IntegerAttr::get(lhs.getType(), lhs.getValue().urem(rhs.getValue()));
+  auto lval = lhs.getValue();
+  auto rval = rhs.getValue();
+  if (lval.getBitWidth() != rval.getBitWidth())
+  {
+    rval = rval.zextOrTrunc(lval.getBitWidth());
+  }
+  return IntegerAttr::get(lhs.getType(), lval.urem(rval));
 }
 
 OpFoldResult ShlOp::fold(FoldAdaptor adaptor)
@@ -423,7 +482,13 @@ OpFoldResult ShlOp::fold(FoldAdaptor adaptor)
     return {};
   }
   const auto& [lhs, rhs] = *result;
-  return IntegerAttr::get(lhs.getType(), lhs.getValue().shl(rhs.getValue()));
+  auto lval = lhs.getValue();
+  auto rval = rhs.getValue();
+  if (lval.getBitWidth() != rval.getBitWidth())
+  {
+    rval = rval.zextOrTrunc(lval.getBitWidth());
+  }
+  return IntegerAttr::get(lhs.getType(), lval.shl(rval));
 }
 
 OpFoldResult ShrUIOp::fold(FoldAdaptor adaptor)
@@ -434,7 +499,13 @@ OpFoldResult ShrUIOp::fold(FoldAdaptor adaptor)
     return {};
   }
   const auto& [lhs, rhs] = *result;
-  return IntegerAttr::get(lhs.getType(), lhs.getValue().lshr(rhs.getValue()));
+  auto lval = lhs.getValue();
+  auto rval = rhs.getValue();
+  if (lval.getBitWidth() != rval.getBitWidth())
+  {
+    rval = rval.zextOrTrunc(lval.getBitWidth());
+  }
+  return IntegerAttr::get(lhs.getType(), lval.lshr(rval));
 }
 
 OpFoldResult ShrSIOp::fold(FoldAdaptor adaptor)
@@ -445,7 +516,13 @@ OpFoldResult ShrSIOp::fold(FoldAdaptor adaptor)
     return {};
   }
   const auto& [lhs, rhs] = *result;
-  return IntegerAttr::get(lhs.getType(), lhs.getValue().ashr(rhs.getValue()));
+  auto lval = lhs.getValue();
+  auto rval = rhs.getValue();
+  if (lval.getBitWidth() != rval.getBitWidth())
+  {
+    rval = rval.zextOrTrunc(lval.getBitWidth());
+  }
+  return IntegerAttr::get(lhs.getType(), lval.ashr(rval));
 }
 
 mlir::OpFoldResult SubCOp::fold(FoldAdaptor adaptor)
@@ -484,9 +561,14 @@ OpFoldResult SubIOp::fold(FoldAdaptor adaptor)
     return {};
   }
   const auto& [lhs, rhs] = *result;
-
+  auto lval = lhs.getValue();
+  auto rval = rhs.getValue();
+  if (lval.getBitWidth() != rval.getBitWidth())
+  {
+    rval = rval.zextOrTrunc(lval.getBitWidth());
+  }
   // TODO: Need to check if lhs is unsigned.
-  return IntegerAttr::get(lhs.getType(), lhs.getValue() - rhs.getValue());
+  return IntegerAttr::get(lhs.getType(), lval - rval);
 }
 
 OpFoldResult XorOp::fold(FoldAdaptor adaptor)
@@ -497,9 +579,14 @@ OpFoldResult XorOp::fold(FoldAdaptor adaptor)
     return {};
   }
   const auto& [lhs, rhs] = *result;
-
+  auto lval = lhs.getValue();
+  auto rval = rhs.getValue();
+  if (lval.getBitWidth() != rval.getBitWidth())
+  {
+    rval = rval.zextOrTrunc(lval.getBitWidth());
+  }
   // TODO: Need to check if lhs is unsigned.
-  return IntegerAttr::get(lhs.getType(), lhs.getValue() ^ rhs.getValue());
+  return IntegerAttr::get(lhs.getType(), lval ^ rval);
 }
 
 void AddIOp::inferResultRanges(ArrayRef<ConstantIntRanges> argRanges, SetIntRangeFn setResultRange)
@@ -509,69 +596,67 @@ void AddIOp::inferResultRanges(ArrayRef<ConstantIntRanges> argRanges, SetIntRang
 
 void AndOp::inferResultRanges(ArrayRef<ConstantIntRanges> argRanges, SetIntRangeFn setResultRange)
 {
-  setResultRange(getResult(), ::mlir::intrange::inferAdd(argRanges));
+  setResultRange(getResult(), ::mlir::intrange::inferAnd(argRanges));
 }
 
-void AndNotOp::inferResultRanges(
-  ArrayRef<ConstantIntRanges> argRanges,
-  SetIntRangeFn setResultRange)
+void AndNotOp::inferResultRanges(ArrayRef<ConstantIntRanges> argRanges, SetIntRangeFn setResultRange)
 {
-  setResultRange(getResult(), ::mlir::intrange::inferAdd(argRanges));
+  setResultRange(getResult(), ::mlir::intrange::inferAnd(argRanges));
 }
 
 void DivUIOp::inferResultRanges(ArrayRef<ConstantIntRanges> argRanges, SetIntRangeFn setResultRange)
 {
-  setResultRange(getResult(), ::mlir::intrange::inferAdd(argRanges));
+  setResultRange(getResult(), ::mlir::intrange::inferDivU(argRanges));
 }
 
 void DivSIOp::inferResultRanges(ArrayRef<ConstantIntRanges> argRanges, SetIntRangeFn setResultRange)
 {
-  setResultRange(getResult(), ::mlir::intrange::inferAdd(argRanges));
+  setResultRange(getResult(), ::mlir::intrange::inferDivS(argRanges));
 }
 
 void MulIOp::inferResultRanges(ArrayRef<ConstantIntRanges> argRanges, SetIntRangeFn setResultRange)
 {
-  setResultRange(getResult(), ::mlir::intrange::inferAdd(argRanges));
+  setResultRange(getResult(), ::mlir::intrange::inferMul(argRanges));
 }
 
 void OrOp::inferResultRanges(ArrayRef<ConstantIntRanges> argRanges, SetIntRangeFn setResultRange)
 {
-  setResultRange(getResult(), ::mlir::intrange::inferAdd(argRanges));
+  setResultRange(getResult(), ::mlir::intrange::inferOr(argRanges));
 }
 
 void RemSIOp::inferResultRanges(ArrayRef<ConstantIntRanges> argRanges, SetIntRangeFn setResultRange)
 {
-  setResultRange(getResult(), ::mlir::intrange::inferAdd(argRanges));
+  setResultRange(getResult(), ::mlir::intrange::inferRemS(argRanges));
 }
 
 void RemUIOp::inferResultRanges(ArrayRef<ConstantIntRanges> argRanges, SetIntRangeFn setResultRange)
 {
-  setResultRange(getResult(), ::mlir::intrange::inferAdd(argRanges));
+  setResultRange(getResult(), ::mlir::intrange::inferRemU(argRanges));
 }
 
 void ShlOp::inferResultRanges(ArrayRef<ConstantIntRanges> argRanges, SetIntRangeFn setResultRange)
 {
-  setResultRange(getResult(), ::mlir::intrange::inferAdd(argRanges));
+  setResultRange(getResult(), ::mlir::intrange::inferShl(argRanges));
 }
 
 void ShrUIOp::inferResultRanges(ArrayRef<ConstantIntRanges> argRanges, SetIntRangeFn setResultRange)
 {
-  setResultRange(getResult(), ::mlir::intrange::inferAdd(argRanges));
+  setResultRange(getResult(), ::mlir::intrange::inferShrU(argRanges));
 }
 
 void ShrSIOp::inferResultRanges(ArrayRef<ConstantIntRanges> argRanges, SetIntRangeFn setResultRange)
 {
-  setResultRange(getResult(), ::mlir::intrange::inferAdd(argRanges));
+  setResultRange(getResult(), ::mlir::intrange::inferShrS(argRanges));
 }
 
 void SubIOp::inferResultRanges(ArrayRef<ConstantIntRanges> argRanges, SetIntRangeFn setResultRange)
 {
-  setResultRange(getResult(), ::mlir::intrange::inferAdd(argRanges));
+  setResultRange(getResult(), ::mlir::intrange::inferSub(argRanges));
 }
 
 void XorOp::inferResultRanges(ArrayRef<ConstantIntRanges> argRanges, SetIntRangeFn setResultRange)
 {
-  setResultRange(getResult(), ::mlir::intrange::inferAdd(argRanges));
+  setResultRange(getResult(), ::mlir::intrange::inferXor(argRanges));
 }
 
 ::mlir::LogicalResult CmpCOp::verify()

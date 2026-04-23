@@ -1,3 +1,4 @@
+#include <llvm/ADT/StringMap.h>
 #include <mlir/Dialect/LLVMIR/LLVMDialect.h>
 
 #include "Go/IR/GoOps.h"
@@ -142,6 +143,7 @@ struct GlobalConstantsPass : public impl::GlobalConstantsPassBase<GlobalConstant
       });
 
     // Collect the values that globals will be created from.
+    llvm::StringMap<mlir::Location> globalStringMap;
     SmallVector<std::pair<std::string, mlir::Location>> globalStrings;
     module.walk(
       [&](ConstantOp constOp)
@@ -151,14 +153,9 @@ struct GlobalConstantsPass : public impl::GlobalConstantsPassBase<GlobalConstant
           const auto strAttr = mlir::dyn_cast<mlir::StringAttr>(*constOp.getValue());
 
           // Has this string already been encountered?
-          auto it = std::find_if(
-            globalStrings.begin(),
-            globalStrings.end(),
-            [&](const std::pair<std::string, mlir::Location>& value)
-            { return value.first == strAttr.getValue().str(); });
-          if (it == globalStrings.end())
+          auto [it, inserted] = globalStringMap.try_emplace(strAttr.getValue(), constOp.getLoc());
+          if (inserted)
           {
-            // Not found. Add it
             globalStrings.push_back(std::make_pair(strAttr.getValue().str(), constOp.getLoc()));
           }
         }
@@ -229,12 +226,8 @@ struct GlobalConstantsPass : public impl::GlobalConstantsPassBase<GlobalConstant
         if (module.lookupSymbol(symbol))
           return;
 
-        // Has this global already been encountered?
-        if (globalOps.contains(op.getSymName()))
-          return;
-
-        // Not found. Add it.
-        globalOps[op.getSymName()] = op;
+        // De-duplicate by symbol name - first occurrence wins.
+        globalOps.try_emplace(symbol, op);
       });
 
     // Declare each of the globals.
@@ -246,10 +239,11 @@ struct GlobalConstantsPass : public impl::GlobalConstantsPassBase<GlobalConstant
 
       // TODO: Alignment needs to be specified to avoid issues on platforms that do not allow
       // unaligned memory access.
-      auto globalOp = mlir::LLVM::GlobalOp::create(builder, 
+      const bool isImmutable = op->hasAttr("go.immutable");
+      auto globalOp = mlir::LLVM::GlobalOp::create(builder,
         op.getLoc(),
         resultType,
-        false,
+        isImmutable,
         mlir::LLVM::Linkage::External,
         op.getSymName(),
         Attribute());

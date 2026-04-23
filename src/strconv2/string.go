@@ -1,4 +1,4 @@
-package strconv
+package strconv2
 
 import "unsafe"
 

@@ -30,8 +30,8 @@ SmallVector<Value> convertBlockArgs(
       const Type blockArgType = dest->getArgument(i).getType();
       if (operand.getType() != blockArgType)
       {
-        auto castOp = mlir::UnrealizedConversionCastOp::create(rewriter, 
-          loc, SmallVector<Type>{ blockArgType }, SmallVector<Value>{ operand });
+        auto castOp = mlir::UnrealizedConversionCastOp::create(
+          rewriter, loc, SmallVector<Type>{ blockArgType }, SmallVector<Value>{ operand });
         result.push_back(castOp.getResult(0));
         continue;
       }
@@ -272,10 +272,10 @@ struct CmpCOpLowering : public OpConversionPattern<CmpCOp>
     // SPEC: Complex types are comparable. Two complex values u and v are equal if both real(u) ==
     // real(v) and
     //       imag(u) == imag(v).
-    auto cmpRealOp =
-      mlir::arith::CmpFOp::create(rewriter, loc, pred, realLhsOp.getResult(), realRhsOp.getResult());
-    auto cmpImagOp =
-      mlir::arith::CmpFOp::create(rewriter, loc, pred, imagLhsOp.getResult(), imagRhsOp.getResult());
+    auto cmpRealOp = mlir::arith::CmpFOp::create(
+      rewriter, loc, pred, realLhsOp.getResult(), realRhsOp.getResult());
+    auto cmpImagOp = mlir::arith::CmpFOp::create(
+      rewriter, loc, pred, imagLhsOp.getResult(), imagRhsOp.getResult());
     auto andOp =
       mlir::arith::AndIOp::create(rewriter, loc, cmpRealOp.getResult(), cmpImagOp.getResult());
 
@@ -443,8 +443,12 @@ struct GlobalOpLowering : public OpConversionPattern<GlobalOp>
     ConversionPatternRewriter& rewriter) const override
   {
     // Create a replacement global operation with no initializer body.
-    auto newGlobalOp =
-      GlobalOp::create(rewriter, op.getLoc(), adaptor.getGlobalTypeAttr(), adaptor.getSymNameAttr(), adaptor.getSectionAttr());
+    auto newGlobalOp = GlobalOp::create(
+      rewriter,
+      op.getLoc(),
+      adaptor.getGlobalTypeAttr(),
+      adaptor.getSymNameAttr(),
+      adaptor.getSectionAttr());
     newGlobalOp->setAttr("llvm.linkage", op->getAttr("llvm.linkage"));
 
     // Remove the original global operation.
@@ -580,6 +584,22 @@ struct ReturnOpLowering : public OpConversionPattern<ReturnOp>
   }
 };
 
+// coerceShiftAmount ensures the shift amount (rhs) has the same integer type
+// as the value being shifted (lhs/result). Go allows different types for the
+// shift value and shift amount, but arith shift ops require matching types.
+static Value
+coerceShiftAmount(ConversionPatternRewriter& rewriter, Location loc, Value rhs, Type resultType)
+{
+  if (rhs.getType() == resultType)
+    return rhs;
+
+  const auto rhsWidth = mlir::cast<mlir::IntegerType>(rhs.getType()).getWidth();
+  const auto resultWidth = mlir::cast<mlir::IntegerType>(resultType).getWidth();
+  if (rhsWidth < resultWidth)
+    return arith::ExtUIOp::create(rewriter, loc, resultType, rhs);
+  return arith::TruncIOp::create(rewriter, loc, resultType, rhs);
+}
+
 struct ShlOpLowering : OpConversionPattern<ShlOp>
 {
   using OpConversionPattern::OpConversionPattern;
@@ -588,7 +608,8 @@ struct ShlOpLowering : OpConversionPattern<ShlOp>
     const override
   {
     const Type resultType = typeConverter->convertType(op.getType());
-    rewriter.replaceOpWithNewOp<arith::ShLIOp>(op, resultType, adaptor.getLhs(), adaptor.getRhs());
+    Value rhs = coerceShiftAmount(rewriter, op.getLoc(), adaptor.getRhs(), resultType);
+    rewriter.replaceOpWithNewOp<arith::ShLIOp>(op, resultType, adaptor.getLhs(), rhs);
     return success();
   }
 };
@@ -601,7 +622,8 @@ struct ShrSIOpLowering : OpConversionPattern<ShrSIOp>
     const override
   {
     const Type resultType = typeConverter->convertType(op.getType());
-    rewriter.replaceOpWithNewOp<arith::ShRSIOp>(op, resultType, adaptor.getLhs(), adaptor.getRhs());
+    Value rhs = coerceShiftAmount(rewriter, op.getLoc(), adaptor.getRhs(), resultType);
+    rewriter.replaceOpWithNewOp<arith::ShRSIOp>(op, resultType, adaptor.getLhs(), rhs);
     return success();
   }
 };
@@ -614,8 +636,8 @@ struct ShrUIOpLowering : OpConversionPattern<ShrUIOp>
     const override
   {
     const Type resultType = typeConverter->convertType(op.getType());
-    rewriter.replaceOpWithNewOp<mlir::arith::ShRUIOp>(
-      op, resultType, adaptor.getLhs(), adaptor.getRhs());
+    Value rhs = coerceShiftAmount(rewriter, op.getLoc(), adaptor.getRhs(), resultType);
+    rewriter.replaceOpWithNewOp<mlir::arith::ShRUIOp>(op, resultType, adaptor.getLhs(), rhs);
     return success();
   }
 };
@@ -685,7 +707,7 @@ struct ConstantOpLowering : public OpConversionPattern<ConstantOp>
       .Case(
         [&](ComplexType) -> LogicalResult
         {
-          auto value = mlir::dyn_cast<ComplexNumberAttr>(foldedValue);
+          const auto value = mlir::dyn_cast<ComplexNumberAttr>(foldedValue);
           if (!value)
           {
             return op->emitOpError("expected ComplexNumberAttr for complex type");
@@ -697,7 +719,7 @@ struct ConstantOpLowering : public OpConversionPattern<ConstantOp>
       .Case(
         [&](IntegerType) -> LogicalResult
         {
-          auto value = mlir::dyn_cast<IntegerAttr>(foldedValue);
+          const auto value = mlir::dyn_cast<IntegerAttr>(foldedValue);
           if (!value)
           {
             return op->emitOpError("expected IntegerAttr for integer type");
@@ -709,7 +731,7 @@ struct ConstantOpLowering : public OpConversionPattern<ConstantOp>
       .Case(
         [&](FloatType) -> LogicalResult
         {
-          auto value = mlir::dyn_cast<FloatAttr>(foldedValue);
+          const auto value = mlir::dyn_cast<FloatAttr>(foldedValue);
           if (!value)
           {
             return op->emitOpError("expected FloatAttr for float type");
@@ -721,12 +743,12 @@ struct ConstantOpLowering : public OpConversionPattern<ConstantOp>
       .Case(
         [&](BooleanType) -> LogicalResult
         {
-          auto value = mlir::dyn_cast<IntegerAttr>(foldedValue);
+          const auto value = mlir::dyn_cast<mlir::BoolAttr>(foldedValue);
           if (!value)
           {
-            return op->emitOpError("expected IntegerAttr for integer type");
+            return op->emitOpError("expected BoolAttr for boolean type");
           }
-          const auto resultValue = rewriter.getIntegerAttr(resultType, value.getInt());
+          const auto resultValue = rewriter.getIntegerAttr(resultType, value.getValue() ? 1 : 0);
           rewriter.replaceOpWithNewOp<mlir::arith::ConstantOp>(op, resultType, resultValue);
           return success();
         })
@@ -818,6 +840,73 @@ struct IntTruncateOpLowering : public OpConversionPattern<IntTruncateOp>
     rewriter.replaceOpWithNewOp<mlir::arith::TruncIOp>(
       op, typeConverter->convertType(op.getResult().getType()), adaptor.getValue());
     return success();
+  }
+};
+
+struct LiteralOpLowering : public OpConversionPattern<LiteralOp>
+{
+  using OpConversionPattern::OpConversionPattern;
+
+  mlir::LogicalResult matchAndRewrite(
+    LiteralOp op,
+    OpAdaptor adaptor,
+    ConversionPatternRewriter& rewriter) const override
+  {
+    const auto origResultType = op.getType();
+    auto resultType = typeConverter->convertType(op.getType());
+    const auto foldedValue = op.getValue();
+
+    return mlir::TypeSwitch<mlir::Type, LogicalResult>(go::underlyingType(origResultType))
+      .Case(
+        [&](ComplexType) -> LogicalResult
+        {
+          const auto value = mlir::dyn_cast<ComplexNumberAttr>(foldedValue);
+          if (!value)
+          {
+            return op->emitOpError("expected ComplexNumberAttr for complex type");
+          }
+          rewriter.replaceOpWithNewOp<mlir::complex::ConstantOp>(
+            op, resultType, ArrayAttr::get(getContext(), { value.getReal(), value.getImag() }));
+          return success();
+        })
+      .Case(
+        [&](IntegerType) -> LogicalResult
+        {
+          const auto value = mlir::dyn_cast<IntegerAttr>(foldedValue);
+          if (!value)
+          {
+            return op->emitOpError("expected IntegerAttr for integer type");
+          }
+          const auto resultValue = mlir::IntegerAttr::get(resultType, value.getValue());
+          rewriter.replaceOpWithNewOp<mlir::arith::ConstantOp>(op, resultType, resultValue);
+          return success();
+        })
+      .Case(
+        [&](FloatType) -> LogicalResult
+        {
+          const auto value = mlir::dyn_cast<FloatAttr>(foldedValue);
+          if (!value)
+          {
+            return op->emitOpError("expected FloatAttr for float type");
+          }
+          const auto resultValue = rewriter.getFloatAttr(resultType, value.getValue());
+          rewriter.replaceOpWithNewOp<mlir::arith::ConstantOp>(op, resultType, resultValue);
+          return success();
+        })
+      .Case(
+        [&](BooleanType) -> LogicalResult
+        {
+          const auto value = mlir::dyn_cast<mlir::BoolAttr>(foldedValue);
+          if (!value)
+          {
+            return op->emitOpError("expected BoolAttr for boolean type");
+          }
+          const auto resultValue = rewriter.getIntegerAttr(resultType, value.getValue() ? 1 : 0);
+          rewriter.replaceOpWithNewOp<mlir::arith::ConstantOp>(op, resultType, resultValue);
+          return success();
+        })
+      .Default([&](mlir::Type type)
+               { return op->emitOpError("unhandled constant result type ") << type; });
   }
 };
 
@@ -930,7 +1019,8 @@ struct ComplementOpLowering : public OpConversionPattern<ComplementOp>
       allOnes = UINT64_MAX;
     }
 
-    auto constOp = mlir::arith::ConstantOp::create(rewriter, 
+    auto constOp = mlir::arith::ConstantOp::create(
+      rewriter,
       op.getLoc(),
       mlir::IntegerAttr::get(typeConverter->convertType(op.getResult().getType()), allOnes));
     rewriter.replaceOpWithNewOp<mlir::arith::XOrIOp>(
@@ -973,8 +1063,10 @@ struct NegIOpLowering : public OpConversionPattern<NegIOp>
   mlir::LogicalResult
   matchAndRewrite(NegIOp op, OpAdaptor adaptor, ConversionPatternRewriter& rewriter) const override
   {
-    auto constOp = mlir::arith::ConstantOp::create(rewriter, 
-      op.getLoc(), mlir::IntegerAttr::get(typeConverter->convertType(op.getResult().getType()), 0));
+    auto constOp = mlir::arith::ConstantOp::create(
+      rewriter,
+      op.getLoc(),
+      mlir::IntegerAttr::get(typeConverter->convertType(op.getResult().getType()), 0));
     rewriter.replaceOpWithNewOp<mlir::arith::SubIOp>(op, constOp.getResult(), adaptor.getOperand());
     return success();
   }
@@ -987,8 +1079,10 @@ struct NotOpLowering : public OpConversionPattern<NotOp>
   mlir::LogicalResult
   matchAndRewrite(NotOp op, OpAdaptor adaptor, ConversionPatternRewriter& rewriter) const override
   {
-    auto constOp = mlir::arith::ConstantOp::create(rewriter, 
-      op.getLoc(), mlir::IntegerAttr::get(typeConverter->convertType(op.getResult().getType()), 1));
+    auto constOp = mlir::arith::ConstantOp::create(
+      rewriter,
+      op.getLoc(),
+      mlir::IntegerAttr::get(typeConverter->convertType(op.getResult().getType()), 1));
     rewriter.replaceOpWithNewOp<mlir::arith::XOrIOp>(
       op,
       typeConverter->convertType(op.getResult().getType()),
@@ -1034,6 +1128,7 @@ void populateGoToCoreConversionPatterns(
             transforms::core::GlobalOpLowering,
             transforms::core::ImagOpLowering,
             transforms::core::IntTruncateOpLowering,
+            transforms::core::LiteralOpLowering,
             transforms::core::MulCOpLowering,
             transforms::core::MulFOpLowering,
             transforms::core::MulIOpLowering,

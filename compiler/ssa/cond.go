@@ -143,7 +143,9 @@ func (b *Builder) emitExpressionSwitchStatement(ctx context.Context, stmt *ast.S
 
 			if tagValue != nil {
 				// Emit a comparison the result of the clause expression and the tag value.
-				T := b.typeOf(ctx, expr)
+				// Use the tag type to determine the comparison kind, since the case expression
+				// may have a different (more specific) type than the tag.
+				T := b.typeOf(ctx, stmt.Tag)
 				switch {
 				case typeHasFlags(T, types.IsBoolean), typeHasFlags(T, types.IsInteger):
 					value = b.emitIntegerCompare(ctx, token.EQL, value, tagValue, location)
@@ -354,7 +356,7 @@ func (b *Builder) emitIntRange(ctx context.Context, stmt *ast.RangeStmt) {
 	exitBlock := mlir.NewBlock(nil, nil)
 
 	// Create all blocks involved with the for loop.
-	condBlock := mlir.NewBlock(b.types(b.si), b.locations(b._noLoc))
+	condBlock := mlir.NewBlock(b.types(elementT), b.locations(b._noLoc))
 	appendBlock(ctx, condBlock)
 
 	bodyBlock := mlir.NewBlock(b.types(elementT), b.locations(b._noLoc))
@@ -405,7 +407,7 @@ func (b *Builder) emitIntRange(ctx context.Context, stmt *ast.RangeStmt) {
 			if identIsValid(ident) {
 				// A copy should be emitted into this block. Heap escape analysis should handle converting the stack
 				// allocation to a heap allocation in the event that the loop variable escapes the current scope.
-				copyAddr := b.emitNamedAlloca(ctx, ident.Name, elementT, b.location(ctx, stmt.Key.Pos()))
+				copyAddr := b.emitNamedAlloca(ctx, ident.Name, elementT, elementType, b.location(ctx, stmt.Key.Pos()))
 				valueVar = b.NewTempValue(copyAddr)
 				b.setAddr(ctx, ident, valueVar)
 			}
@@ -489,19 +491,26 @@ func (b *Builder) emitTypeSwitchStatement(ctx context.Context, stmt *ast.TypeSwi
 				location := b.location(ctx, obj.Pos())
 				value := bodyBlocks[i].Argument(0).AsValue()
 				if len(clause.List) == 1 {
-					// Extract the underlying pointer from the interface value.
-					extractOp := goir.NewExtractOperation(b.ctx, 0, b.ptr, value, location)
-					appendOperation(ctx, extractOp)
+					assertedGoType := obj.Type()
+					assertedType := b.GetStoredType(ctx, assertedGoType)
 
-					// Load the concrete value.
-					assertedType := b.GetStoredType(ctx, obj.Type())
-					value = b.emitLoad(ctx, resultOf(extractOp), assertedType, location)
+					if types.IsInterface(baseType(assertedGoType)) {
+						// Interface target: the switch variable is the original
+						// interface value, bitcast to the target interface type.
+						value = b.bitcastTo(ctx, value, assertedType, location)
 
-					// Allocate local storage for the asserted value.
-					local = b.emitLocalVar(ctx, obj, assertedType, false)
+						local = b.emitLocalVar(ctx, obj, assertedType, false)
+						local.Store(ctx, value, location)
+					} else {
+						// Concrete target: extract and load the boxed value.
+						extractOp := goir.NewExtractOperation(b.ctx, 0, b.ptr, value, location)
+						appendOperation(ctx, extractOp)
 
-					// Store the asserted value.
-					local.Store(ctx, value, location)
+						value = b.emitLoad(ctx, resultOf(extractOp), assertedType, location)
+
+						local = b.emitLocalVar(ctx, obj, assertedType, false)
+						local.Store(ctx, value, location)
+					}
 				} else {
 					// Bitcast to the "any" interface type.
 					value = b.bitcastTo(ctx, value, b._any, location)

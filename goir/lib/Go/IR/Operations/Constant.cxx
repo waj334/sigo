@@ -11,12 +11,45 @@ namespace mlir::go
 
 OpFoldResult ConstantOp::fold(FoldAdaptor adaptor)
 {
+  auto normalizeIntAttr = [&](mlir::Attribute attr) -> mlir::Attribute
+  {
+    const auto intAttr = mlir::dyn_cast_or_null<mlir::IntegerAttr>(attr);
+    if (!intAttr)
+    {
+      return attr;
+    }
+    const auto resultType = mlir::dyn_cast<mlir::go::IntegerType>(getType());
+    if (!resultType)
+    {
+      return attr;
+    }
+    size_t targetWidth;
+    if (const auto width = resultType.getWidth(); width.has_value())
+    {
+      targetWidth = *width;
+    }
+    else
+    {
+      if (!this->getOperation()->getParentOp())
+      {
+        return attr;
+      }
+      const auto dataLayout = mlir::DataLayout::closest(this->getOperation());
+      targetWidth = dataLayout.getTypeSizeInBits(resultType);
+    }
+    auto value = intAttr.getValue();
+    if (value.getBitWidth() != targetWidth)
+    {
+      value = value.zextOrTrunc(targetWidth);
+    }
+    return mlir::IntegerAttr::get(mlir::IntegerType::get(this->getContext(), targetWidth), value);
+  };
+
   // Constant op constant-folds to its value.
   if (const auto value = adaptor.getValue())
   {
-    return *value;
+    return normalizeIntAttr(*value);
   }
-
   if (adaptor.getBody().empty())
   {
     // References a global constant value.
@@ -27,18 +60,17 @@ OpFoldResult ConstantOp::fold(FoldAdaptor adaptor)
       {
         if (refOp.getValue())
         {
-          // Return the value of the global constant.
-          return *refOp.getValue();
+          return normalizeIntAttr(*refOp.getValue());
         }
-
         // Fold the operation that defined the yielded value.
         auto yieldValueOp = refOp.getBody().front().getTerminator()->getOperand(0).getDefiningOp();
-
-        // Try to fold the operation.
         SmallVector<OpFoldResult, 4> foldResults;
         if (succeeded(yieldValueOp->fold(foldResults)) && !foldResults.empty())
         {
-          return foldResults.front();
+          if (const auto attr = mlir::dyn_cast_or_null<mlir::Attribute>(foldResults.front()))
+          {
+            return normalizeIntAttr(attr);
+          }
         }
       }
     }
@@ -49,15 +81,15 @@ OpFoldResult ConstantOp::fold(FoldAdaptor adaptor)
     auto& block = adaptor.getBody().front();
     const auto yieldOp = mlir::dyn_cast<YieldOp>(block.getTerminator());
     const auto valueOp = yieldOp->getOperand(0).getDefiningOp();
-
-    // Try to fold the operation.
     SmallVector<OpFoldResult, 4> foldResults;
     if (succeeded(valueOp->fold(foldResults)) && !foldResults.empty())
     {
-      return foldResults.front();
+      if (const auto attr = mlir::dyn_cast_or_null<mlir::Attribute>(foldResults.front()))
+      {
+        return normalizeIntAttr(attr);
+      }
     }
   }
-
   return {};
 }
 
@@ -88,7 +120,8 @@ LogicalResult ConstantOp::verify()
     const auto op = moduleOp.lookupSymbol(this->getSymRefAttr());
     if (!op)
     {
-      return emitOpError() << "operation with symbol " << this->getSymRefAttr() << " does not exist";
+      return emitOpError() << "operation with symbol " << this->getSymRefAttr()
+                           << " does not exist";
     }
     if (!mlir::isa<GlobalConstantOp>(op))
     {
@@ -152,6 +185,11 @@ LogicalResult GlobalConstantOp::verify()
   }
 
   return success();
+}
+
+OpFoldResult LiteralOp::fold(FoldAdaptor adaptor)
+{
+  return getValue();
 }
 
 } // namespace mlir::go
