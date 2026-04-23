@@ -5,7 +5,8 @@
 #include "Go/IR/GoOps.h"
 #include "Go/Util.h"
 
-namespace mlir::go {
+namespace mlir::go
+{
 
 OpFoldResult BitcastOp::fold(FoldAdaptor adaptor)
 {
@@ -41,8 +42,38 @@ OpFoldResult BitcastOp::fold(FoldAdaptor adaptor)
   // This is safe because IntegerAttr carries a value + width, and the
   // GlobalConstantsPass preserves the original result type when creating
   // the replacement ConstantOp.
-  if (mlir::isa<mlir::IntegerAttr>(srcAttr))
-    return srcAttr;
+  if (const auto intAttr = mlir::dyn_cast<mlir::IntegerAttr>(srcAttr))
+  {
+    const auto resultType = mlir::dyn_cast<mlir::go::IntegerType>(getType());
+    if (!resultType)
+    {
+      return srcAttr; // noninteger result, pass through as before
+    }
+
+    size_t targetWidth;
+    if (const auto width = resultType.getWidth(); width.has_value())
+    {
+      targetWidth = *width;
+    }
+    else
+    {
+      if (!this->getOperation()->getParentOp())
+      {
+        return {};
+      }
+
+      const auto dataLayout = mlir::DataLayout::closest(this->getOperation());
+      targetWidth = dataLayout.getTypeSizeInBits(resultType);
+    }
+
+    auto value = intAttr.getValue();
+    if (value.getBitWidth() != targetWidth)
+    {
+      value = value.zextOrTrunc(targetWidth);
+    }
+
+    return mlir::IntegerAttr::get(mlir::IntegerType::get(this->getContext(), targetWidth), value);
+  }
 
   // Allow folding FloatAttr across float-compatible types.
   if (mlir::isa<mlir::FloatAttr>(srcAttr))
@@ -50,6 +81,58 @@ OpFoldResult BitcastOp::fold(FoldAdaptor adaptor)
 
   // For other attribute kinds (e.g., StringAttr), don't fold across
   // different types — the lowering passes can't handle the mismatch.
+  return {};
+}
+
+OpFoldResult IntTruncateOp::fold(FoldAdaptor adaptor)
+{
+  // Try to get the source attribute directly or by folding.
+  mlir::Attribute srcAttr = adaptor.getValue();
+  if (!srcAttr)
+  {
+    mlir::SmallVector<OpFoldResult, 4> results;
+    if (auto definingOp = getValue().getDefiningOp();
+        definingOp && succeeded(definingOp->fold(results)) && !results.empty())
+      srcAttr = mlir::dyn_cast<mlir::Attribute>(results.front());
+  }
+
+  if (auto intAttr = mlir::dyn_cast_or_null<mlir::IntegerAttr>(srcAttr))
+    return intAttr;
+
+  return {};
+}
+
+OpFoldResult SignedExtendOp::fold(FoldAdaptor adaptor)
+{
+  mlir::Attribute srcAttr = adaptor.getValue();
+  if (!srcAttr)
+  {
+    mlir::SmallVector<OpFoldResult, 4> results;
+    if (auto definingOp = getValue().getDefiningOp();
+        definingOp && succeeded(definingOp->fold(results)) && !results.empty())
+      srcAttr = mlir::dyn_cast<mlir::Attribute>(results.front());
+  }
+
+  if (auto intAttr = mlir::dyn_cast_or_null<mlir::IntegerAttr>(srcAttr))
+    return intAttr;
+
+  return {};
+}
+
+OpFoldResult ZeroExtendOp::fold(FoldAdaptor adaptor)
+{
+  mlir::Attribute srcAttr = adaptor.getValue();
+  if (!srcAttr)
+  {
+    mlir::SmallVector<OpFoldResult, 4> results;
+    if (auto definingOp = getValue().getDefiningOp();
+        definingOp && succeeded(definingOp->fold(results)) && !results.empty())
+      srcAttr = mlir::dyn_cast<mlir::Attribute>(results.front());
+  }
+
+  if (auto intAttr = mlir::dyn_cast_or_null<mlir::IntegerAttr>(srcAttr))
+    return intAttr;
+
   return {};
 }
 

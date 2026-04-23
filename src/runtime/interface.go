@@ -16,16 +16,30 @@ func interfaceMake(value unsafe.Pointer, valueType *_type) _interface {
 	}
 }
 
-func interfaceAssert(X _interface, T *_type, hasOk bool) (result unsafe.Pointer, ok bool) {
+func interfaceAssert(X _interface, T *_type, hasOk bool) (result unsafe.Pointer, load bool, ok bool) {
 	err := interfaceIsAssignable(X.valueT, T)
 	if err != nil {
 		if hasOk {
-			return nil, false
-		} else {
-			panic(err)
+			return nil, false, false
 		}
+		panic(err)
 	}
-	return X.value, true
+
+	// No load is necessary if the interface is already of the correct type.
+	if X.valueT == T {
+		return X.value, false, true
+	}
+
+	// No load is necessary if the value is a pointer type — the interface
+	// value slot holds the pointer directly rather than a pointer-to-value.
+	// This covers *T, unsafe.Pointer, and any type stored by reference
+	// (i.e. types whose size exceeds pointer size and were heap-allocated
+	// when the interface was constructed).
+	if T.kind == Pointer || T.kind == UnsafePointer {
+		return X.value, false, true
+	}
+
+	return X.value, true, true
 }
 
 func interfaceValue(X _interface) unsafe.Pointer {
@@ -104,17 +118,13 @@ func interfaceLookUp(i _interface, id uint32) (receiver, result unsafe.Pointer) 
 			switch {
 			case i.valueT.kind == Pointer && sig.receiverType.kind != Pointer:
 				// Interface holds *T, method wants T.
-				// -> Deref and .
-				tmp := alloc(sig.receiverType.size)
-				memmove(tmp, *(*unsafe.Pointer)(i.value), sig.receiverType.size)
-				receiver = *((*unsafe.Pointer)(tmp))
+				// Dereference to get pointer to the actual value.
+				receiver = *(*unsafe.Pointer)(i.value)
 
 			case i.valueT.kind != Pointer && sig.receiverType.kind != Pointer:
 				// Interface holds T, method wants T.
-				// -> Copy again to ensure semantics.
-				tmp := alloc(sig.receiverType.size)
-				memmove(tmp, i.value, sig.receiverType.size)
-				receiver = *((*unsafe.Pointer)(tmp))
+				// i.value already points to the boxed value.
+				receiver = i.value
 
 			case i.valueT.kind != Pointer && sig.receiverType.kind == Pointer:
 				// Interface holds T, method wants *T.

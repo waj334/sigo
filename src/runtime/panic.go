@@ -48,6 +48,22 @@ func goPersonality(version int32, actions int32, class uint64, e *exception, ctx
 	return 0
 }
 
+// Goexit terminates the goroutine that calls it. No other goroutine is affected.
+// Goexit runs all deferred functions before terminating the goroutine. Because Goexit
+// is not a panic, any recover calls in those deferred functions will return nil.
+func Goexit() {
+	currentGoroutine.state = goroutineExiting
+
+	if currentGoroutine.deferStack != nil {
+		// Begin unwinding the defer stack.
+		longjmp(&currentGoroutine.deferStack.jb, 1)
+	}
+
+	// No defers — terminate immediately.
+	removeGoroutine(unsafe.Pointer(currentGoroutine))
+	gosched()
+}
+
 // An errorString represents a runtime error described by a single string.
 type errorString string
 

@@ -70,14 +70,16 @@ func (i inputParams) locations() []mlir.LocationLike {
 	return result
 }
 
-func (f *funcData) createContextStructValue(ctx context.Context, b *Builder, location mlir.LocationLike) (mlir.ValueLike, mlir.TypeLike) {
+func (f *funcData) createContextStructValue(ctx context.Context, b *Builder, location mlir.LocationLike) (mlir.ValueLike, mlir.TypeLike, mlir.TypeLike) {
 	// Collect the addresses of each value captured by this function.
 	var values []mlir.ValueLike
+	var typs []types.Type
 	for _, fv := range f.freeVars {
 		ptr := b.lookupValue(ctx, fv.obj).Pointer(ctx, location)
 		values = append(values, ptr)
+		typs = append(typs, types.NewPointer(fv.GoT))
 	}
-	return b.createArgumentPack(ctx, values, location)
+	return b.createArgumentPack(ctx, values, typs, location)
 }
 
 func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
@@ -171,11 +173,12 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 				goir.AllocaOperationSetName(allocaOp, fv.obj.Name())
 				appendOperation(ctx, allocaOp)
 
-				ptrType := goir.NewPointerType(fv.T)
+				ptrType := b.GetStoredType(ctx, types.NewPointer(fv.GoT))
+				refType := b.GetStoredType(ctx, types.NewPointer(types.NewPointer(fv.GoT)))
 
 				// GEP into the context to derive the address of the free variable.
 				gepOp := goir.NewGepOperation(b.ctx,
-					ctxValue, data.contextType, []int{0, i}, nil, []bool{false, false}, goir.NewPointerType(ptrType), loc)
+					ctxValue, data.contextType, []int{0, i}, nil, []bool{false, false}, refType, loc)
 				appendOperation(ctx, gepOp)
 
 				// Load the address of the external local variable.
@@ -197,6 +200,10 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 					recvVal := entryBlock.Argument(0)
 
 					// Emit a local variable allocation to hold the argument value.
+					if recvVal.Type().IsNull() {
+						println("STOP")
+					}
+
 					addr := b.emitLocalVar(ctx, recvVar, recvVal.Type(), true)
 
 					// Store the parameter value at the address.
@@ -344,6 +351,30 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 	}
 }
 
+// findFuncInstance searches for an existing function instance matching the given
+// typeMap. Returns nil if no match is found. Uses a read lock only.
+func (b *Builder) findFuncInstance(data *funcData, typeMap TypeParamMap) *funcData {
+	data.mutex.RLock()
+	defer data.mutex.RUnlock()
+	for _, instanceData := range data.instances {
+		if len(typeMap) != len(instanceData.typeMap) {
+			continue
+		}
+		match := true
+		for key, T := range typeMap {
+			otherT, ok := instanceData.typeMap[key]
+			if !ok || !types.Identical(T, otherT) {
+				match = false
+				break
+			}
+		}
+		if match {
+			return instanceData
+		}
+	}
+	return nil
+}
+
 func (b *Builder) createFuncInstance(ctx context.Context, signature *types.Signature, data *funcData, typeMap TypeParamMap) *funcData {
 	data.mutex.Lock()
 	defer data.mutex.Unlock()
@@ -366,51 +397,10 @@ func (b *Builder) createFuncInstance(ctx context.Context, signature *types.Signa
 		}
 	}
 
-	// Create a new instantiated signature.
-	var recv *types.Var
-	var params []*types.Var
-	var results []*types.Var
-
-	var convertType func(types.Type) types.Type
-	convertType = func(T types.Type) types.Type {
-		switch T := T.(type) {
-		case *types.Array:
-			return types.NewArray(convertType(T.Elem()), T.Len())
-		case *types.Chan:
-			return types.NewChan(T.Dir(), convertType(T.Elem()))
-		case *types.Map:
-			return types.NewMap(convertType(T.Key()), convertType(T.Elem()))
-		case *types.Pointer:
-			return types.NewPointer(convertType(T.Elem()))
-		case *types.Slice:
-			return types.NewSlice(convertType(T.Elem()))
-		case *types.TypeParam:
-			return typeMap[T.Index()]
-		default:
-			return T
-		}
+	targs := make([]types.Type, len(typeMap))
+	for index, typ := range typeMap {
+		targs[index] = typ
 	}
-
-	if signature.Recv() != nil {
-		src := signature.Recv()
-		T := convertType(src.Type())
-		recv = types.NewParam(src.Pos(), src.Pkg(), src.Name(), T)
-	}
-
-	for src := range signature.Params().Variables() {
-		T := convertType(src.Type())
-		param := types.NewParam(src.Pos(), src.Pkg(), src.Name(), T)
-		params = append(params, param)
-	}
-
-	for src := range signature.Results().Variables() {
-		T := convertType(src.Type())
-		result := types.NewVar(src.Pos(), src.Pkg(), src.Name(), T)
-		results = append(results, result)
-	}
-
-	newSignature := types.NewSignatureType(recv, nil, nil, types.NewTuple(params...), types.NewTuple(results...),
-		signature.Variadic())
 
 	// Create the function data for this instance.
 	instanceNo := len(data.instances)
@@ -420,7 +410,7 @@ func (b *Builder) createFuncInstance(ctx context.Context, signature *types.Signa
 		locals:         map[types.Object]Value{},
 		scope:          data.scope,
 		funcType:       data.funcType,
-		signature:      newSignature,
+		signature:      signature,
 		anonymousFuncs: data.anonymousFuncs,
 		freeVars:       data.freeVars,
 		recv:           data.recv,
@@ -434,7 +424,7 @@ func (b *Builder) createFuncInstance(ctx context.Context, signature *types.Signa
 	}
 
 	// Create the instantiated function type.
-	instanceData.mlirType = b.createSignatureType(newContextWithTypeMap(ctx, typeMap), newSignature)
+	instanceData.mlirType = b.GetType(newContextWithTypeMap(ctx, typeMap), signature).(goir.FunctionType)
 
 	// Emit the instance.
 	b.addToJobQueue(ctx, instanceData)
@@ -479,14 +469,20 @@ func (b *Builder) createFunctionValue(ctx context.Context, fn mlir.ValueLike, ar
 	return resultOf(insertOp).AsValue()
 }
 
-func (b *Builder) createThunk(ctx context.Context, symbol string, callee string, signature *types.Signature, argTypes []mlir.TypeLike, hasReceiver bool) {
+func (b *Builder) createThunk2(ctx context.Context, symbol string, callee string, signature *types.Signature, argTypes []types.Type, hasReceiver bool) {
 	b.thunkMutex.Lock()
 	defer b.thunkMutex.Unlock()
 
 	// Look up the thunk in the symbol table first.
 	if _, ok := b.thunks[symbol]; !ok {
 		// Create the argument struct type.
-		argsType := goir.NewBasicStructType(b.ctx, argTypes)
+		vars := make([]*types.Var, len(argTypes))
+		for i := range argTypes {
+			vars[i] = types.NewVar(token.NoPos, nil, fmt.Sprintf("arg$%d", i), argTypes[i])
+		}
+
+		argsT := types.NewStruct(vars, nil)
+		argsPtrType := b.GetStoredType(ctx, types.NewPointer(argsT))
 
 		nArgs := len(argTypes)
 		if hasReceiver {
@@ -495,18 +491,27 @@ func (b *Builder) createThunk(ctx context.Context, symbol string, callee string,
 		}
 
 		// Any argument excluded from the argument pack MUST be passed to the resulting thunk directly.
-		paramTypes := []mlir.TypeLike{goir.NewPointerType(argsType)}
+		paramTypes := []mlir.TypeLike{argsPtrType}
+		paramVars := []*types.Var{types.NewVar(token.NoPos, nil, fmt.Sprintf("param$%d", 0), argsT)}
 		for i := nArgs; i < signature.Params().Len(); i++ {
-			paramTypes = append(paramTypes, b.GetStoredType(ctx, signature.Params().At(i).Type()))
+			paramT := signature.Params().At(i).Type()
+			paramTypes = append(paramTypes, b.GetStoredType(ctx, paramT))
+			paramVars = append(paramVars, types.NewVar(token.NoPos, nil, fmt.Sprintf("param$%d", i+1), paramT))
 		}
 		paramLocs := make([]mlir.LocationLike, len(paramTypes))
 		fill(paramLocs, b._noLoc)
 
 		// Collect the result types.
 		resultTypes := make([]mlir.TypeLike, 0, signature.Results().Len())
+		resultVars := make([]*types.Var, 0, signature.Results().Len())
 		for i := 0; i < signature.Results().Len(); i++ {
-			resultTypes = append(resultTypes, b.GetStoredType(ctx, signature.Results().At(i).Type()))
+			resultT := signature.Results().At(i).Type()
+			resultTypes = append(resultTypes, b.GetStoredType(ctx, resultT))
+			resultVars = append(resultVars, types.NewVar(token.NoPos, nil, fmt.Sprintf("result$%d", i), resultT))
 		}
+
+		syntheticSig := types.NewSignatureType(nil, nil, nil,
+			types.NewTuple(paramVars...), types.NewTuple(resultVars...), false)
 
 		// Create thunk to wrap the method call.
 		region := mlir.NewRegion()
@@ -533,7 +538,7 @@ func (b *Builder) createThunk(ctx context.Context, symbol string, callee string,
 		})
 
 		// Create the function operation for this thunk.
-		thunkFuncType := goir.NewFunctionType(b.ctx, nil, paramTypes, resultTypes)
+		thunkFuncType := b.GetType(ctx, syntheticSig)
 		funcOp := mlir.NewOperationState("go.func", b._noLoc).
 			AddOwnedRegions(region).
 			AddAttributes(
@@ -550,38 +555,47 @@ func (b *Builder) createThunk(ctx context.Context, symbol string, callee string,
 	}
 }
 
-func (b *Builder) createArgumentPack(ctx context.Context, args []mlir.ValueLike, location mlir.LocationLike) (mlir.ValueLike, mlir.TypeLike) {
-	if len(args) == 0 {
-		return nil, nil
+func (b *Builder) createArgumentPack(ctx context.Context, values []mlir.ValueLike, valueTypes []types.Type, location mlir.LocationLike) (mlir.ValueLike, mlir.TypeLike, mlir.TypeLike) {
+	if len(values) == 0 {
+		return nil, nil, nil
 	}
 
-	// Collect the argument types.
-	argTypes := make([]mlir.TypeLike, len(args))
-	for i := range args {
-		argTypes[i] = args[i].Type()
+	if len(values) != len(valueTypes) {
+		panic("number of value expressions and types must match")
 	}
 
-	// Create the argument struct.
-	argsType := goir.NewBasicStructType(b.ctx, argTypes)
-	zeroOp := goir.NewZeroOperation(b.ctx, argsType, location)
+	vars := make([]*types.Var, len(values))
+	for i := range len(values) {
+		vars[i] = types.NewVar(token.NoPos, nil, fmt.Sprintf("arg$%d", i), valueTypes[i])
+	}
+
+	valuesT := types.NewStruct(vars, nil)
+	valuesPtrT := b.GetStoredType(ctx, types.NewPointer(valuesT))
+	valuesType := b.GetStoredType(ctx, valuesT)
+
+	// Create the values struct.
+	zeroOp := goir.NewZeroOperation(b.ctx, valuesType, location)
 	appendOperation(ctx, zeroOp)
 	argsValue := resultOf(zeroOp)
-	for i, arg := range args {
-		insertOp := goir.NewInsertOperation(b.ctx, uint64(i), arg, argsValue, argsType, location)
+	for i, value := range values {
+		insertOp := goir.NewInsertOperation(b.ctx, uint64(i), value, argsValue, valuesType, location)
 		appendOperation(ctx, insertOp)
 		argsValue = resultOf(insertOp)
 	}
-	return argsValue, argsType
+
+	return argsValue, valuesType, valuesPtrT
 }
 
-func (b *Builder) unpackArgPack(ctx context.Context, argTypes []mlir.TypeLike, pack mlir.ValueLike, location mlir.LocationLike) []mlir.ValueLike {
+func (b *Builder) unpackArgPack(ctx context.Context, argTypes []types.Type, pack mlir.ValueLike, location mlir.LocationLike) []mlir.ValueLike {
 	result := make([]mlir.ValueLike, len(argTypes))
 	ptrT, _ := goir.AsPointerType(pack.Type())
 	argPackT := ptrT.ElementType()
 	for i, T := range argTypes {
-		gepOp := goir.NewGepOperation(b.ctx, pack, argPackT, []int{0, i}, nil, []bool{false, false}, goir.NewPointerType(T), location)
+		argT := b.GetStoredType(ctx, T)
+		argPtrT := b.GetStoredType(ctx, types.NewPointer(T))
+		gepOp := goir.NewGepOperation(b.ctx, pack, argPackT, []int{0, i}, nil, []bool{false, false}, argPtrT, location)
 		appendOperation(ctx, gepOp)
-		result[i] = b.emitLoad(ctx, resultOf(gepOp), T, location)
+		result[i] = b.emitLoad(ctx, resultOf(gepOp), argT, location)
 	}
 	return result
 }
@@ -635,7 +649,7 @@ func (b *Builder) emitBuiltinCallWrapper(ctx context.Context, ident *ast.Ident) 
 
 	// Create the function operation.
 	symbol := fmt.Sprintf("_builtin_wrapper_%s", ident.Name)
-	wrapperFuncT := b.createSignatureType(ctx, signature)
+	wrapperFuncT := b.GetType(ctx, signature)
 	funcOp := mlir.NewOperationState("go.func", b._noLoc).
 		AddOwnedRegions(region).AddAttributes(
 		b.namedOf("function_type", mlir.NewTypeAttr(wrapperFuncT)),

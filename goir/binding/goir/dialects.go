@@ -58,3 +58,16 @@ func SetTargetTriple(module mlir.Module, triple string) {
 		unwrapStringRef(refTriple),
 	)
 }
+
+// NewUnrealizedConversionCastOp creates a builtin.unrealized_conversion_cast
+// that casts value to the given target type. The resulting op can be used as a
+// dialect-boundary placeholder; it is eliminated once both sides lower to the
+// same concrete type.
+func NewUnrealizedConversionCastOp(ctx mlir.Context, targetType mlir.TypeLike, value mlir.ValueLike, loc mlir.LocationLike) mlir.Operation {
+	return wrapOperation(C.mlirCreateUnrealizedConversionCastOp(
+		unwrapContext(ctx),
+		unwrapType(targetType),
+		unwrapValue(value),
+		unwrapLocation(loc),
+	))
+}

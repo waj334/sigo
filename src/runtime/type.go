@@ -79,6 +79,7 @@ type _structTypeData struct {
 type _structFieldData struct {
 	dataType *_type
 	tag      string
+	offset   uintptr
 }
 
 type _channelTypeData struct {

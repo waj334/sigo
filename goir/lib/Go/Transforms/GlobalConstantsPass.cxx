@@ -1,3 +1,4 @@
+#include <llvm/ADT/StringMap.h>
 #include <mlir/Dialect/LLVMIR/LLVMDialect.h>
 
 #include "Go/IR/GoOps.h"
@@ -65,7 +66,7 @@ struct GlobalConstantsPass : public impl::GlobalConstantsPassBase<GlobalConstant
 
         // Create a new constant operation returning the folded value.
         auto newConstOp =
-          builder.create<ConstantOp>(op.getLoc(), op.getType(), foldedValue, StringAttr());
+          ConstantOp::create(builder, op.getLoc(), op.getType(), foldedValue, StringAttr());
 
         // Replace the old operation.
         op->replaceAllUsesWith(newConstOp);
@@ -114,7 +115,7 @@ struct GlobalConstantsPass : public impl::GlobalConstantsPassBase<GlobalConstant
             {
               auto resultType = converter.convertType(elementT);
 
-              auto globalOp = builder.create<mlir::LLVM::GlobalOp>(
+              auto globalOp = mlir::LLVM::GlobalOp::create(builder, 
                 op.getLoc(),
                 resultType,
                 true,
@@ -131,8 +132,8 @@ struct GlobalConstantsPass : public impl::GlobalConstantsPassBase<GlobalConstant
                 auto initBlock = builder.createBlock(&globalOp.getInitializerRegion());
                 builder.setInsertionPointToStart(initBlock);
                 mlir::Value undefValue =
-                  builder.create<mlir::LLVM::UndefOp>(op.getLoc(), resultType);
-                builder.create<mlir::LLVM::ReturnOp>(op.getLoc(), undefValue);
+                  mlir::LLVM::UndefOp::create(builder, op.getLoc(), resultType);
+                mlir::LLVM::ReturnOp::create(builder, op.getLoc(), undefValue);
               }
             }
           }
@@ -142,6 +143,7 @@ struct GlobalConstantsPass : public impl::GlobalConstantsPassBase<GlobalConstant
       });
 
     // Collect the values that globals will be created from.
+    llvm::StringMap<mlir::Location> globalStringMap;
     SmallVector<std::pair<std::string, mlir::Location>> globalStrings;
     module.walk(
       [&](ConstantOp constOp)
@@ -151,14 +153,9 @@ struct GlobalConstantsPass : public impl::GlobalConstantsPassBase<GlobalConstant
           const auto strAttr = mlir::dyn_cast<mlir::StringAttr>(*constOp.getValue());
 
           // Has this string already been encountered?
-          auto it = std::find_if(
-            globalStrings.begin(),
-            globalStrings.end(),
-            [&](const std::pair<std::string, mlir::Location>& value)
-            { return value.first == strAttr.getValue().str(); });
-          if (it == globalStrings.end())
+          auto [it, inserted] = globalStringMap.try_emplace(strAttr.getValue(), constOp.getLoc());
+          if (inserted)
           {
-            // Not found. Add it
             globalStrings.push_back(std::make_pair(strAttr.getValue().str(), constOp.getLoc()));
           }
         }
@@ -175,7 +172,7 @@ struct GlobalConstantsPass : public impl::GlobalConstantsPassBase<GlobalConstant
         // Create the global Go-string
         std::string name = "gostr_" + std::to_string(strHash);
         mlir::LLVM::GlobalOp globalGoStrOp;
-        globalGoStrOp = builder.create<mlir::LLVM::GlobalOp>(
+        globalGoStrOp = mlir::LLVM::GlobalOp::create(builder, 
           loc, _stringType, true, mlir::LLVM::Linkage::External, name, Attribute(), 0);
 
         // Init block
@@ -197,14 +194,14 @@ struct GlobalConstantsPass : public impl::GlobalConstantsPassBase<GlobalConstant
           builder.setInsertionPointAfterValue(globalCStr);
 
           // Create the string length constant value
-          mlir::Value lenVal = builder.create<mlir::LLVM::ConstantOp>(
+          mlir::Value lenVal = mlir::LLVM::ConstantOp::create(builder, 
             loc, builder.getI32Type(), builder.getI32IntegerAttr(str.length()));
 
           // Create the struct
-          mlir::Value structValue = builder.create<mlir::LLVM::UndefOp>(loc, _stringType);
-          structValue = builder.create<mlir::LLVM::InsertValueOp>(loc, structValue, globalCStr, 0);
-          structValue = builder.create<mlir::LLVM::InsertValueOp>(loc, structValue, lenVal, 1);
-          builder.create<mlir::LLVM::ReturnOp>(loc, structValue);
+          mlir::Value structValue = mlir::LLVM::UndefOp::create(builder, loc, _stringType);
+          structValue = mlir::LLVM::InsertValueOp::create(builder, loc, structValue, globalCStr, ArrayRef<int64_t>{0});
+          structValue = mlir::LLVM::InsertValueOp::create(builder, loc, structValue, lenVal, ArrayRef<int64_t>{1});
+          mlir::LLVM::ReturnOp::create(builder, loc, structValue);
         }
       }
     }
@@ -229,12 +226,8 @@ struct GlobalConstantsPass : public impl::GlobalConstantsPassBase<GlobalConstant
         if (module.lookupSymbol(symbol))
           return;
 
-        // Has this global already been encountered?
-        if (globalOps.contains(op.getSymName()))
-          return;
-
-        // Not found. Add it.
-        globalOps[op.getSymName()] = op;
+        // De-duplicate by symbol name - first occurrence wins.
+        globalOps.try_emplace(symbol, op);
       });
 
     // Declare each of the globals.
@@ -246,10 +239,11 @@ struct GlobalConstantsPass : public impl::GlobalConstantsPassBase<GlobalConstant
 
       // TODO: Alignment needs to be specified to avoid issues on platforms that do not allow
       // unaligned memory access.
-      auto globalOp = builder.create<mlir::LLVM::GlobalOp>(
+      const bool isImmutable = op->hasAttr("go.immutable");
+      auto globalOp = mlir::LLVM::GlobalOp::create(builder,
         op.getLoc(),
         resultType,
-        false,
+        isImmutable,
         mlir::LLVM::Linkage::External,
         op.getSymName(),
         Attribute());
@@ -292,8 +286,8 @@ struct GlobalConstantsPass : public impl::GlobalConstantsPassBase<GlobalConstant
         //       for these globals and the foldable and materializable operations could be moved
         //       here in theory.
 
-        mlir::Value zeroValue = builder.create<mlir::LLVM::ZeroOp>(op.getLoc(), resultType);
-        builder.create<mlir::LLVM::ReturnOp>(op.getLoc(), zeroValue);
+        mlir::Value zeroValue = mlir::LLVM::ZeroOp::create(builder, op.getLoc(), resultType);
+        mlir::LLVM::ReturnOp::create(builder, op.getLoc(), zeroValue);
       }
     }
   }

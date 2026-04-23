@@ -35,7 +35,9 @@ def ChanRecvOp : Go_Op<"chan.recv"> {
 // ChanSendOp
 //===----------------------------------------------------------------------===//
 
-def ChanSendOp : Go_Op<"chan.send"> {
+def ChanSendOp : Go_Op<"chan.send", [
+    DeclareOpInterfaceMethods<UntypedTypeResolverInterface, ["resolveOperandTypes"]>
+]> {
     let description = [{
         Channel send operation.
     }];

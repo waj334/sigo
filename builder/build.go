@@ -142,7 +142,7 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 
 	// Find the platform TableGen file.
 	platformFound := false
-	tags := options.BuildTags
+	tags := append([]string{"baremetal"}, options.BuildTags...)
 	alignment := int64(4)
 	fpuEnabled := false
 
@@ -211,7 +211,7 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 
 		fpuType = archFpu.GetValueAsString("value")
 		fpuFeatures := archFpu.GetValueAsListOfStrings("features")
-		if fpuType == "none" {
+		if fpuType == "nofpu" {
 			fpuFeatures = append(fpuFeatures, "soft-float")
 		} else if options.Float == "hardfp" {
 			fpuEnabled = true
@@ -228,6 +228,12 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 		tags = append(tags, variantTags...)
 		tags = append(tags, archTags...)
 
+		// Set GOARCH and GOOS so that go/packages.Load() correctly
+		// evaluates file-name suffixes and //go:build constraints
+		// for the target architecture.
+		options.Environment["GOARCH"] = goarch(archType)
+		options.Environment["GOOS"] = "linux"
+
 		formattedFeatures := make([]string, len(features))
 		for i, feature := range features {
 			formattedFeatures[i] = "+" + feature
@@ -240,13 +246,28 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 			return errors.Join(ErrCodeGeneratorError, err)
 		}
 
+		// Map user optimization level to LLVM CodeGen optimization level.
+		var codeGenLevel mlir.LLVMCodeGenOptLevel
+		switch options.Optimization {
+		case "1":
+			codeGenLevel = mlir.LLVMCodeGenLevelLess
+		case "2", "s":
+			codeGenLevel = mlir.LLVMCodeGenLevelDefault
+		case "3":
+			codeGenLevel = mlir.LLVMCodeGenLevelAggressive
+		case "z":
+			codeGenLevel = mlir.LLVMCodeGenLevelDefault
+		default:
+			codeGenLevel = mlir.LLVMCodeGenLevelNone
+		}
+
 		machine = mlir.NewTargetMachine(
 			target,
 			triplet,
 			cpuType,
 			featureStr,
-			mlir.LLVMCodeGenLevelNone,
-			mlir.LLVMRelocDefault,
+			codeGenLevel,
+			mlir.LLVMRelocStatic,
 			mlir.LLVMCodeModelDefault)
 		break
 	}
@@ -263,24 +284,62 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 		MaxAlign: alignment,
 	}
 
+	// Collect dependency directories from the first packages.Load so that
+	// scanCGoFiles can process import "C" in dependency packages too.
+	depDirs := make(map[string]string, len(allPkgs))
+	for _, pkg := range allPkgs {
+		if pkg.PkgPath != "" && pkg.Dir != "" {
+			depDirs[pkg.PkgPath] = pkg.Dir
+		}
+	}
+
+	// Compute sysroot include path for CGo preprocessing.
+	sigoRoot := options.Environment.Value("SIGOROOT")
+	abi := strings.Split(triplet, "-")[0]
+	if fpuEnabled {
+		abi += "-fp"
+	} else {
+		abi += "-no-fp"
+	}
+	var cIncludePaths []string
+	sysrootInclude := filepath.Join(sigoRoot, "sysroots", abi, "include")
+	if _, err := os.Stat(sysrootInclude); err == nil {
+		cIncludePaths = append(cIncludePaths, sysrootInclude)
+	}
+
+	// Ask the C compiler for its resource directory so we can find builtin
+	// headers like stddef.h and stdarg.h.
+	if cc, err := findToolchain(options.Environment); err == nil {
+		if out, err := exec.Command(cc.CC, "-print-resource-dir").Output(); err == nil {
+			builtinInclude := filepath.Join(strings.TrimSpace(string(out)), "include")
+			if _, err := os.Stat(builtinInclude); err == nil {
+				cIncludePaths = append(cIncludePaths, builtinInclude)
+			}
+		}
+	}
+
 	// Create a new program.
 	program := ssa.NewProgram(&ssa.ProgramConfig{
 		Tags: tags,
 		//AdditionalPackages: additionalPackages,
-		Environment: options.Environment.List(),
-		PackagePath: packageDir,
-		ModuleRoot:  moduleDir,
-		GoRoot:      options.Environment.Value("GOROOT"),
-		Sizes:       &sizes,
+		Environment:    options.Environment.List(),
+		PackagePath:    packageDir,
+		ModuleRoot:     moduleDir,
+		GoRoot:         options.Environment.Value("GOROOT"),
+		Sizes:          &sizes,
+		DependencyDirs: depDirs,
+		TargetTriplet:  triplet,
+		IncludePaths:   cIncludePaths,
 	})
 
 	// Parse the package.
 	fmt.Print("Parsing packages...")
+	phaseStart := time.Now()
 	if err := program.Parse(ctx); err != nil {
 		// TODO: Replace paths from the virtual GOROOT with the real paths in error strings.
 		return err
 	}
-	fmt.Println("done")
+	fmt.Printf("done (%.2fs)\n", time.Since(phaseStart).Seconds())
 
 	// Initialize MLIR.
 	mlirCtx := mlir.NewContext()
@@ -297,6 +356,67 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 	goir.SetTargetDataLayout(mlirModule, targetLayout)
 	goir.SetTargetTriple(mlirModule, triplet)
 
+	// Compile C preamble to an object file using clang -c.
+	// Preambles were extracted during Parse via the CGo overlay pre-scan.
+	var preambleObjFile string
+	var preambleBuf strings.Builder
+	// Prepend #define directives from #cgo CFLAGS: -D... pragmas.
+	for _, def := range program.CGODefines {
+		eqIdx := strings.IndexByte(def, '=')
+		if eqIdx >= 0 {
+			fmt.Fprintf(&preambleBuf, "#define %s %s\n", def[:eqIdx], def[eqIdx+1:])
+		} else {
+			fmt.Fprintf(&preambleBuf, "#define %s\n", def)
+		}
+	}
+	for _, p := range program.CGoPreambles {
+		if p.GoFile != "" {
+			fmt.Fprintf(&preambleBuf, "#line %d \"%s\"\n", p.GoLine, p.GoFile)
+		}
+		preambleBuf.WriteString(p.Text)
+		preambleBuf.WriteByte('\n')
+	}
+	if preamble := preambleBuf.String(); strings.TrimSpace(preamble) != "" {
+		fmt.Print("Compiling C preamble...")
+
+		// Append non-static wrappers for any static inline functions
+		// referenced from Go code.
+		if len(program.CGOStaticFuncs) > 0 {
+			preamble += ssa.GenerateStaticWrappers(program.CGOStaticFuncs, program.CGOFuncNames)
+		}
+
+		// Write preamble to a temp .c file.
+		preambleC := filepath.Join(options.BuildDir, "preamble.c")
+		if err := os.WriteFile(preambleC, []byte(preamble), 0644); err != nil {
+			return errors.Join(ErrCodeGeneratorError, fmt.Errorf("writing preamble: %w", err))
+		}
+
+		preambleObjFile = filepath.Join(options.BuildDir, "preamble.o")
+		preambleIncludePaths := append(cIncludePaths, program.CGOIncludePaths...)
+
+		clangArgs := []string{"-target", triplet, "-c", preambleC, "-o", preambleObjFile}
+		for _, inc := range preambleIncludePaths {
+			clangArgs = append(clangArgs, "-I"+inc)
+		}
+		if options.GenerateDebugInfo {
+			clangArgs = append(clangArgs, "-g")
+		}
+
+		// Find the C compiler.
+		tc, err := findToolchain(options.Environment)
+		if err != nil {
+			return errors.Join(ErrCodeGeneratorError, fmt.Errorf("finding toolchain for preamble: %w", err))
+		}
+		clangCmd := exec.Command(tc.CC, clangArgs...)
+		clangCmd.Stderr = os.Stderr
+		if err := clangCmd.Run(); err != nil {
+			fmt.Println()
+			fmt.Println("Command failed:", clangCmd.String())
+			return errors.Join(ErrCodeGeneratorError, fmt.Errorf("C preamble compilation failed: %w", err))
+		}
+		fmt.Println("done")
+	}
+
 	// Create the SSA builder.
 	builder := ssa.NewBuilder(ssa.Config{
 		NumWorkers: options.NumJobs,
@@ -309,8 +429,9 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 
 	// Generate the SSA.
 	fmt.Print("Building Go IR...")
+	phaseStart = time.Now()
 	builder.GeneratePackages(ctx, program.OrderedPackages)
-	fmt.Println("done")
+	fmt.Printf("done (%.2fs)\n", time.Since(phaseStart).Seconds())
 
 	// Create the output directory.
 	outputDir := filepath.Dir(options.Output)
@@ -338,11 +459,12 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 
 	// Run the optimization passes
 	fmt.Print("Optimizing Go IR...")
+	phaseStart = time.Now()
 	if runOptimizerPass(mlirModule, options.DebugLowering).IsFailure() {
 		fmt.Println()
 		return errors.Join(ErrCodeGeneratorError, err, errors.New("optimization passes failed"))
 	}
-	fmt.Println("done")
+	fmt.Printf("done (%.2fs)\n", time.Since(phaseStart).Seconds())
 
 	if options.DumpIR {
 		filename := options.Output + ".dump.llvm.mlir"
@@ -355,13 +477,14 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 	// Generate the LLVM module
 	llvmContext := mlir.NewLLVMContext()
 	fmt.Print("Translating Go IR to LLVM IR...")
+	phaseStart = time.Now()
 	llvmModule := mlir.TranslateModuleToLLVMIR(mlirModule.Operation(), llvmContext)
 
 	if !options.GenerateDebugInfo {
 		// Strip debug info
 		llvmModule.StripModuleDebugInfo()
 	}
-	fmt.Println("done")
+	fmt.Printf("done (%.2fs)\n", time.Since(phaseStart).Seconds())
 
 	// Add required constant globals to the LLVM module directly
 	addConstantGlobals(llvmModule, options, fpuEnabled, targetLayout)
@@ -375,11 +498,12 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 
 	// Optimize modules
 	fmt.Print("Optimizing LLVM IR...")
+	phaseStart = time.Now()
 	if err = optimize(llvmModule, options.Optimization, machine); err != nil {
 		fmt.Println()
 		return errors.Join(ErrCodeGeneratorError, err)
 	}
-	fmt.Println("done")
+	fmt.Printf("done (%.2fs)\n", time.Since(phaseStart).Seconds())
 
 	if options.DumpIR {
 		err := dumpModule(llvmModule, options.Output+".dump.opt.ll")
@@ -389,6 +513,7 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 	}
 
 	fmt.Print("Linking firmware image...")
+	phaseStart = time.Now()
 	if err := link(linkOptions{
 		triplet:       triplet,
 		arch:          archType,
@@ -399,12 +524,13 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 		prog:          program,
 		targetMachine: machine,
 		module:        llvmModule,
+		preambleObj:   preambleObjFile,
 	}, options,
 	); err != nil {
 		fmt.Println()
 		return err
 	}
-	fmt.Println("done")
+	fmt.Printf("done (%.2fs)\n", time.Since(phaseStart).Seconds())
 
 	// TODO: Clean up
 
@@ -421,6 +547,7 @@ type linkOptions struct {
 	prog          *ssa.Program
 	targetMachine mlir.LLVMTargetMachineRef
 	module        mlir.LLVMModuleRef
+	preambleObj   string // path to compiled C preamble object file (empty if none)
 }
 
 func link(options linkOptions, buildOptions BuildOptions) error {
@@ -492,6 +619,11 @@ func link(options linkOptions, buildOptions BuildOptions) error {
 	args = append(args, objectOut)
 	args = append(args, artifacts...)
 
+	// Add compiled C preamble object file if present.
+	if options.preambleObj != "" {
+		args = append(args, options.preambleObj)
+	}
+
 	// Compile all assembly files
 	for _, asm := range append(options.prog.Files[".s"], options.prog.Files[".asm"]...) {
 		// Format object file name
@@ -539,6 +671,9 @@ func link(options linkOptions, buildOptions BuildOptions) error {
 		// Add this object file to the end of the linker command
 		args = append(args, objFile)
 	}
+
+	// Append any linker flags collected from #cgo LDFLAGS directives.
+	args = append(args, options.prog.CGOLDFlags...)
 
 	// Invoke ld.lld to link the final binary image.
 	lldCmd := exec.Command(toolchain.LD, args...)
@@ -609,7 +744,7 @@ func optimize(module mlir.LLVMModuleRef, level string, machine mlir.LLVMTargetMa
 	case "3":
 		passes = "default<O3>"
 	case "s":
-		passes = "default<O0>"
+		passes = "default<Os>"
 	case "z":
 		passes = "default<Oz>"
 	case "d":
@@ -726,3 +861,21 @@ func dumpMLIRModuleToFile(module mlir.Module, filename string) error {
 	}
 	return nil
 }
+
+// goarch maps a .td arch value to a valid Go GOARCH value.
+// The .td files use LLVM-oriented names (e.g. "thumb2") that don't
+// correspond to Go's architecture identifiers.
+func goarch(arch string) string {
+	switch strings.ToLower(arch) {
+	case "arm", "thumb2":
+		return "arm"
+	case "riscv64":
+		return "riscv64"
+	default:
+		return strings.ToLower(arch)
+	}
+}
+
+// extractCGoPreambles collects the C preamble text from all import "C"
+// declarations across the ordered package list. Multiple preambles are
+// concatenated so they can be compiled together in a single CIR pass.

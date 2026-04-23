@@ -89,3 +89,9 @@ func cleanConstString(input string) string {
 	result = strings.ReplaceAll(result, "`", "")
 	return result
 }
+
+// combineHash is boost's hash_combine with the 32-bit golden-ratio constant.
+// Non-commutative and non-linear, unlike addition.
+func combineHash(seed, h uint32) uint32 {
+	return seed ^ (h + 0x9e3779b9 + (seed << 6) + (seed >> 2))
+}

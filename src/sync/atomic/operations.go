@@ -1,19 +1,23 @@
 package atomic
 
 //sigo:export __atomic_compare_exchange_4 __atomic_compare_exchange_4
+//sigo:export __atomic_exchange_4 __atomic_exchange_4
 //sigo:export __atomic_load_4 __atomic_load_4
 //sigo:export __atomic_store_4 __atomic_store_4
 //sigo:export __atomic_fetch_add_4 __atomic_fetch_add_4
 //sigo:export __atomic_compare_exchange_8 __atomic_compare_exchange_8
+//sigo:export __atomic_exchange_8 __atomic_exchange_8
 //sigo:export __atomic_load_8 __atomic_load_8
 //sigo:export __atomic_store_8 __atomic_store_8
 //sigo:export __atomic_fetch_add_8 __atomic_fetch_add_8
 
 //sigo:linkage __atomic_compare_exchange_4 weak
+//sigo:linkage __atomic_exchange_4 weak
 //sigo:linkage __atomic_load_4 weak
 //sigo:linkage __atomic_store_4 weak
 //sigo:linkage __atomic_fetch_add_4 weak
 //sigo:linkage __atomic_compare_exchange_8 weak
+//sigo:linkage __atomic_exchange_8 weak
 //sigo:linkage __atomic_load_8 weak
 //sigo:linkage __atomic_store_8 weak
 //sigo:linkage __atomic_fetch_add_8 weak
@@ -84,6 +88,22 @@ func __atomic_fetch_add_4(ptr *uint32, val uint32, ordering int) uint32 {
 	*ptr = value + val
 	enableInterrupts(state)
 	return value
+}
+
+func __atomic_exchange_4(ptr *uint32, val uint32, ordering int) uint32 {
+	state := disableInterrupts()
+	old := *ptr
+	*ptr = val
+	enableInterrupts(state)
+	return old
+}
+
+func __atomic_exchange_8(ptr *uint64, val uint64, ordering int) uint64 {
+	state := disableInterrupts()
+	old := *ptr
+	*ptr = val
+	enableInterrupts(state)
+	return old
 }
 
 func __atomic_fetch_add_8(ptr *uint64, val uint64, ordering int) uint64 {

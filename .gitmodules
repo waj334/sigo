@@ -6,3 +6,6 @@
 	path = thirdparty/picolibc
 	url = https://github.com/picolibc/picolibc.git
 	branch = 93b5d5f2ad44867b60267417cd6d6250dbf68983
+[submodule "thirdparty/lwip"]
+	path = thirdparty/lwip
+	url = https://github.com/lwip-tcpip/lwip.git

@@ -1,11 +1,13 @@
 package ssa
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"go/ast"
 	"go/importer"
+	"go/parser"
 	"go/token"
 	"go/types"
 	"hash/fnv"
@@ -15,6 +17,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"slices"
+	"sort"
 	"strings"
 
 	"golang.org/x/tools/go/packages"
@@ -35,6 +38,49 @@ type ProgramConfig struct {
 	ModuleRoot         string
 	GoRoot             string
 	Sizes              types.Sizes
+	DependencyDirs     map[string]string // pkgPath -> absolute directory (from first packages.Load)
+	TargetTriplet      string            // target triple for C preprocessing
+	IncludePaths       []string          // system include paths for C preprocessing
+}
+
+// cgoFlagRegex matches a #cgo pragma line in a C preamble comment.
+// Group 1: flag name (CFLAGS, CPPFLAGS, CXXFLAGS, FFLAGS, LDFLAGS)
+// Group 2: flag arguments
+var cgoFlagRegex = regexp.MustCompile(`(?m)^\s*#cgo\s+(CFLAGS|CPPFLAGS|CXXFLAGS|FFLAGS|LDFLAGS):\s*(.*)$`)
+
+// CGoPreamble holds a C preamble extracted from an import "C" doc comment
+// together with the Go source location where it was defined.
+type CGoPreamble struct {
+	Text    string   // C source text with #cgo lines stripped
+	GoFile  string   // Go source file that contained the preamble
+	GoLine  int      // Line number in the Go file where the preamble text starts
+	CFlags  []string // flags from #cgo CFLAGS / CPPFLAGS / CXXFLAGS / FFLAGS
+	LDFlags []string // flags from #cgo LDFLAGS
+}
+
+// parseCGoPragmas strips #cgo pragma lines from raw C preamble text,
+// returning the cleaned text and the collected flags.
+func parseCGoPragmas(text string) (cleaned string, cflags []string, ldflags []string) {
+	var sb strings.Builder
+	for _, line := range strings.Split(text, "\n") {
+		if m := cgoFlagRegex.FindStringSubmatch(line); m != nil {
+			args := strings.Fields(m[2])
+			switch m[1] {
+			case "CFLAGS", "CPPFLAGS", "CXXFLAGS", "FFLAGS":
+				cflags = append(cflags, args...)
+			case "LDFLAGS":
+				ldflags = append(ldflags, args...)
+			}
+			// Replace the line with blank space to preserve line numbers.
+			sb.WriteByte('\n')
+		} else {
+			sb.WriteString(line)
+			sb.WriteByte('\n')
+		}
+	}
+	// Trim the extra trailing newline added by the loop.
+	cleaned = strings.TrimSuffix(sb.String(), "\n")
+	return
 }
 
 type Program struct {
@@ -50,7 +96,13 @@ type Program struct {
 	Config          *ProgramConfig
 	MainFunc        string
 	PackageInits    []*ast.Ident
-	EmbedContents   map[string][]byte // keyed by qualified symbol name
+	EmbedContents   map[string][]byte      // keyed by qualified symbol name
+	CGoPreambles    []CGoPreamble          // C preambles extracted from import "C" doc comments
+	CGOFuncNames    map[string]bool        // C function names referenced via C.xxx (populated by scanCGoFiles)
+	CGOLDFlags      []string               // linker flags from #cgo LDFLAGS directives
+	CGOIncludePaths []string               // extra include paths from #cgo CFLAGS: -I...
+	CGODefines      []string               // extra defines from #cgo CFLAGS: -D... (NAME or NAME=VALUE)
+	CGOStaticFuncs  map[string]ASTFuncDecl // static C functions needing __sigo_wrap_ wrappers
 
 	packageNodes    map[*packages.Package]*packageNode
 	defaultImporter types.Importer
@@ -84,6 +136,7 @@ func NewProgram(config *ProgramConfig) *Program {
 		Defines:         map[string]string{},
 		Files:           map[string][]string{},
 		EmbedContents:   map[string][]byte{},
+		CGOFuncNames:    map[string]bool{},
 		FileSet:         token.NewFileSet(),
 		Symbols:         NewSymbolInfoStore(),
 		Config:          config,
@@ -108,9 +161,16 @@ func (p *Program) makeNode(pkg *packages.Package) *packageNode {
 }
 
 func (p *Program) Parse(ctx context.Context) error {
+	// Pre-scan for import "C" files: extract preambles and build overlays
+	// that strip the CGo import so the Go type-checker never invokes cgo.
+	overlay, err := p.scanCGoFiles()
+	if err != nil {
+		return err
+	}
+
 	// Create the parser configuration.
 	parserConfig := packages.Config{
-		Mode:    packages.NeedName | packages.NeedFiles | packages.NeedImports | packages.NeedDeps | packages.NeedTypes | packages.NeedSyntax | packages.NeedTypesInfo | packages.NeedModule | packages.NeedEmbedFiles | packages.NeedEmbedPatterns | packages.NeedCompiledGoFiles,
+		Mode:    packages.NeedName | packages.NeedFiles | packages.NeedImports | packages.NeedDeps | packages.NeedTypes | packages.NeedSyntax | packages.NeedTypesInfo | packages.NeedModule | packages.NeedEmbedFiles | packages.NeedEmbedPatterns,
 		Context: ctx,
 		Logf:    nil,
 		Dir:     p.Config.ModuleRoot,
@@ -120,7 +180,7 @@ func (p *Program) Parse(ctx context.Context) error {
 		},
 		Fset:    p.FileSet,
 		Tests:   false,
-		Overlay: nil,
+		Overlay: overlay,
 	}
 
 	// Collect the packages to be parsed.
@@ -221,6 +281,9 @@ func (p *Program) computePackageOrder() error {
 
 			// Add edges to imported packages.
 			for _, imported := range pkg.Imports {
+				if imported.PkgPath == "C" {
+					continue
+				}
 				importedPkgNode := p.makeNode(imported)
 				graph.SetLine(graph.NewLine(importedPkgNode, pkgNode))
 			}
@@ -246,6 +309,11 @@ func (p *Program) AddPackage(pkg *packages.Package) (err error) {
 		return nil
 	}
 
+	// Skip the CGo pseudo-package — sigo handles C interop via its own CIR pipeline.
+	if pkg.PkgPath == "C" {
+		return nil
+	}
+
 	defer func() {
 		// Update package mappings.
 		p.Packages[pkg.PkgPath] = pkg
@@ -254,6 +322,12 @@ func (p *Program) AddPackage(pkg *packages.Package) (err error) {
 	// Fail early by returning errors (if any).
 	if len(pkg.Errors) > 0 {
 		for _, pkgErr := range pkg.Errors {
+			// Skip CGo errors — sigo resolves import "C" via its own CIR pipeline,
+			// so the Go type-checker not finding the "C" package is expected.
+			if strings.Contains(pkgErr.Msg, "could not import C") ||
+				strings.Contains(pkgErr.Msg, "no metadata for C") {
+				continue
+			}
 			pos := strings.Split(pkgErr.Pos, ":")
 			if strings.Index(pkgErr.Pos, ":") == 1 {
 				// This is a Windoze path. Merge the first 2 elements.
@@ -275,7 +349,10 @@ func (p *Program) AddPackage(pkg *packages.Package) (err error) {
 			pkgErr.Pos = strings.Join(pos, ":")
 			err = errors.Join(err, pkgErr)
 		}
-		return err
+		// Only return early if there are non-CGo errors.
+		if err != nil {
+			return err
+		}
 	}
 
 	// Locate this package on the filesystem.
@@ -532,11 +609,17 @@ func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) {
 					info := p.Symbols.GetSymbolInfo(targetSymbol)
 					info.LinkName = parts[2]
 					info.ExternalLinkage = true
+					if p.CGOFuncNames[parts[2]] {
+						info.IsCGoFunc = true
+					}
 				} else if count == 2 && targetSymbol != "" {
 					// New style: //go:extern linkname
 					info := p.Symbols.GetSymbolInfo(targetSymbol)
 					info.LinkName = parts[1]
 					info.ExternalLinkage = true
+					if p.CGOFuncNames[parts[1]] {
+						info.IsCGoFunc = true
+					}
 				}
 			case "interrupt":
 				if count == 3 {
@@ -626,4 +709,360 @@ func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) {
 			}
 		}
 	}
+}
+
+// scanCGoFiles walks the package directory looking for Go files that contain
+// import "C". For each such file it:
+//   - extracts the C preamble from the doc comment and appends it to CGoPreambles
+//   - blanks out the import "C" declaration (and its preceding doc comment)
+//   - rewrites every C.Name selector expression to _cgo_Name
+//
+// After processing all files, it injects a synthetic _cgo_sigo_generated.go
+// overlay file containing type aliases and function stubs for the referenced C
+// symbols, so the Go type-checker can resolve them without invoking cgo.
+func (p *Program) scanCGoFiles() (map[string][]byte, error) {
+	overlay := map[string][]byte{}
+
+	// Collect directories to scan: the main package and all dependencies.
+	// Deduplicate so the main package isn't scanned twice (it also appears
+	// in DependencyDirs under its real package path).
+	dirsToScan := make(map[string]string) // label -> directory
+	dirsToScan["main"] = p.Config.PackagePath
+	mainAbs, _ := filepath.Abs(p.Config.PackagePath)
+	for pkgPath, dir := range p.Config.DependencyDirs {
+		abs, _ := filepath.Abs(dir)
+		if abs == mainAbs {
+			continue
+		}
+		dirsToScan[pkgPath] = dir
+	}
+
+	// Phase 1: scan all directories, collect preambles and CGo names.
+	var scanResults []*cgoScanResult
+	for _, dir := range dirsToScan {
+		result, err := p.scanCGoDir(dir, overlay)
+		if err != nil {
+			return nil, err
+		}
+		if result == nil {
+			continue
+		}
+
+		scanResults = append(scanResults, result)
+
+		// Aggregate preambles and function names globally.
+		p.CGoPreambles = append(p.CGoPreambles, result.preambles...)
+		for name := range result.nameSet {
+			p.CGOFuncNames[name] = true
+		}
+	}
+
+	if len(scanResults) == 0 {
+		return overlay, nil
+	}
+
+	// Aggregate #cgo compiler and linker flags from all preambles.
+	for _, result := range scanResults {
+		for _, pre := range result.preambles {
+			for _, flag := range pre.CFlags {
+				if strings.HasPrefix(flag, "-I") {
+					p.CGOIncludePaths = append(p.CGOIncludePaths, flag[2:])
+				} else if strings.HasPrefix(flag, "-D") {
+					p.CGODefines = append(p.CGODefines, flag[2:])
+				}
+			}
+			p.CGOLDFlags = append(p.CGOLDFlags, pre.LDFlags...)
+		}
+	}
+	extraIncludePaths := p.CGOIncludePaths
+	extraDefines := p.CGODefines
+
+	// Phase 2: combine all preambles and extract typed function signatures
+	// via Clang JSON AST.
+	var combinedPreamble strings.Builder
+	// Prepend -D defines as #define directives.
+	for _, def := range extraDefines {
+		eqIdx := strings.IndexByte(def, '=')
+		if eqIdx >= 0 {
+			fmt.Fprintf(&combinedPreamble, "#define %s %s\n", def[:eqIdx], def[eqIdx+1:])
+		} else {
+			fmt.Fprintf(&combinedPreamble, "#define %s\n", def)
+		}
+	}
+	for _, pre := range p.CGoPreambles {
+		if pre.GoFile != "" {
+			fmt.Fprintf(&combinedPreamble, "#line %d \"%s\"\n", pre.GoLine, pre.GoFile)
+		}
+		combinedPreamble.WriteString(pre.Text)
+		combinedPreamble.WriteByte('\n')
+	}
+
+	// Build a known-types map from preamble-local typedef structs for type
+	// conversion of parameters/returns that reference them.
+	knownTypes := make(map[string]string)
+	for _, result := range scanResults {
+		for _, pre := range result.preambles {
+			for _, s := range parseCStructs(pre.Text) {
+				knownTypes[s.name] = "_cgo_" + s.name
+			}
+		}
+		// Add referenced type names as opaque types so that pointer parameters
+		// like "struct pbuf *" resolve to "*_cgo_pbuf" instead of unsafe.Pointer.
+		for name := range result.typeNames {
+			if _, exists := knownTypes[name]; !exists {
+				knownTypes[name] = "_cgo_" + name
+			}
+		}
+	}
+
+	var astFuncs []ASTFuncDecl
+	if p.Config.TargetTriplet != "" {
+		includePaths := append(p.Config.IncludePaths, extraIncludePaths...)
+		jsonData, err := clangJSONAST(combinedPreamble.String(), p.Config.TargetTriplet, includePaths, nil)
+		if err != nil {
+			return nil, fmt.Errorf("clang AST dump failed: %w", err)
+		}
+		astFuncs, err = parseClangAST(jsonData, knownTypes)
+		if err != nil {
+			return nil, fmt.Errorf("parsing clang AST: %w", err)
+		}
+	}
+
+	// Track static functions that need __sigo_wrap_ wrappers.
+	p.CGOStaticFuncs = make(map[string]ASTFuncDecl)
+	staticNames := make(map[string]bool)
+	for _, fn := range astFuncs {
+		if fn.IsStatic && p.CGOFuncNames[fn.Name] {
+			p.CGOStaticFuncs[fn.Name] = fn
+			staticNames[fn.Name] = true
+		}
+	}
+
+	// Phase 3: generate per-package stub files from AST function signatures
+	// and regex-parsed struct definitions from raw preamble text.
+	for _, result := range scanResults {
+		if len(result.cgoNames) > 0 && result.pkgName != "" {
+			// Parse structs from raw preamble text (no preprocessing needed).
+			var structs []cStructDecl
+			for _, pre := range result.preambles {
+				structs = append(structs, parseCStructs(pre.Text)...)
+			}
+			generated := generateCGoFileFromAST(result.pkgName, astFuncs, structs, result.cgoNames, result.typeNames, staticNames, knownTypes)
+			genPath := filepath.Join(result.absDir, "cgo_sigo_generated.go")
+			overlay[genPath] = []byte(generated)
+		}
+	}
+
+	return overlay, nil
+}
+
+// cgoScanResult holds the results of scanning a single directory for CGo files.
+type cgoScanResult struct {
+	absDir    string
+	pkgName   string
+	cgoNames  []string
+	nameSet   map[string]bool
+	typeNames map[string]bool // C names used in type positions (type aliases, field types)
+	preambles []CGoPreamble
+}
+
+// scanCGoDir scans a single directory for Go files that import "C". For each
+// such file it strips the import, rewrites C.xxx to _cgo_xxx, and adds the
+// modified source to overlay. Returns nil if no CGo files were found.
+func (p *Program) scanCGoDir(dir string, overlay map[string][]byte) (*cgoScanResult, error) {
+	absDir, err := filepath.Abs(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	// Quick check: does this directory exist?
+	if _, err := os.Stat(absDir); err != nil {
+		return nil, nil
+	}
+
+	result := &cgoScanResult{
+		absDir:    absDir,
+		nameSet:   map[string]bool{},
+		typeNames: map[string]bool{},
+	}
+	found := false
+
+	err = filepath.WalkDir(absDir, func(fpath string, d fs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		// Do not recurse into subdirectories — each package directory is
+		// scanned independently via DependencyDirs.
+		if d.IsDir() {
+			if fpath != absDir {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if !strings.HasSuffix(fpath, ".go") {
+			return nil
+		}
+		src, readErr := os.ReadFile(fpath)
+		if readErr != nil {
+			return readErr
+		}
+		if !bytes.Contains(src, []byte(`"C"`)) {
+			return nil
+		}
+
+		fset := token.NewFileSet()
+		f, parseErr := parser.ParseFile(fset, fpath, src, parser.ParseComments)
+		if parseErr != nil {
+			return nil // let packages.Load surface the real parse error
+		}
+
+		buf := make([]byte, len(src))
+		copy(buf, src)
+		modified := false
+
+		// Record the package name for the generated file.
+		if result.pkgName == "" && f.Name != nil {
+			result.pkgName = f.Name.Name
+		}
+
+		// Step 1: blank out import "C" (and its C preamble doc comment).
+		for _, decl := range f.Decls {
+			gd, ok := decl.(*ast.GenDecl)
+			if !ok || gd.Tok != token.IMPORT {
+				continue
+			}
+			for _, spec := range gd.Specs {
+				is, ok := spec.(*ast.ImportSpec)
+				if !ok || is.Path.Value != `"C"` {
+					continue
+				}
+				modified = true
+
+				// Extract the preamble from the preceding doc comment.
+				if gd.Doc != nil {
+					docPos := fset.Position(gd.Doc.Pos())
+					goLine := docPos.Line
+					if strings.HasPrefix(gd.Doc.List[0].Text, "/*") {
+						goLine++
+					}
+					goFile := docPos.Filename
+					if abs, err := filepath.Abs(goFile); err == nil {
+						goFile = abs
+					}
+					cleaned, cflags, ldflags := parseCGoPragmas(gd.Doc.Text())
+					result.preambles = append(result.preambles, CGoPreamble{
+						Text:    cleaned,
+						GoFile:  goFile,
+						GoLine:  goLine,
+						CFlags:  cflags,
+						LDFlags: ldflags,
+					})
+				}
+
+				// Determine the byte range to blank out.
+				var start, end int
+				if len(gd.Specs) == 1 {
+					if gd.Doc != nil {
+						start = fset.Position(gd.Doc.Pos()).Offset
+					} else {
+						start = fset.Position(gd.Pos()).Offset
+					}
+					end = fset.Position(gd.End()).Offset
+				} else {
+					start = fset.Position(is.Pos()).Offset
+					end = fset.Position(is.End()).Offset
+				}
+
+				for i := start; i < end && i < len(buf); i++ {
+					if buf[i] != '\n' {
+						buf[i] = ' '
+					}
+				}
+			}
+		}
+
+		if !modified {
+			return nil
+		}
+
+		found = true
+
+		// Step 2: collect all C.Name selector expressions and rewrite them to
+		// _cgo_Name.
+		type rewrite struct {
+			start, end int
+			name       string
+		}
+		var rewrites []rewrite
+		ast.Inspect(f, func(n ast.Node) bool {
+			sel, ok := n.(*ast.SelectorExpr)
+			if !ok {
+				return true
+			}
+			id, ok := sel.X.(*ast.Ident)
+			if !ok || id.Name != "C" {
+				return true
+			}
+			rewrites = append(rewrites, rewrite{
+				start: fset.Position(sel.Pos()).Offset,
+				end:   fset.Position(sel.End()).Offset,
+				name:  sel.Sel.Name,
+			})
+			return true
+		})
+
+		// Detect C names used in type positions so they can be excluded from
+		// the __sigo_cgo_refs function-address array (taking &type is invalid C).
+		isCSelector := func(expr ast.Expr) (string, bool) {
+			if star, ok := expr.(*ast.StarExpr); ok {
+				expr = star.X // unwrap pointer: *C.foo → C.foo
+			}
+			sel, ok := expr.(*ast.SelectorExpr)
+			if !ok {
+				return "", false
+			}
+			id, ok := sel.X.(*ast.Ident)
+			if !ok || id.Name != "C" {
+				return "", false
+			}
+			return sel.Sel.Name, true
+		}
+		ast.Inspect(f, func(n ast.Node) bool {
+			switch node := n.(type) {
+			case *ast.TypeSpec:
+				if name, ok := isCSelector(node.Type); ok {
+					result.typeNames[name] = true
+				}
+			case *ast.Field:
+				if name, ok := isCSelector(node.Type); ok {
+					result.typeNames[name] = true
+				}
+			}
+			return true
+		})
+
+		sort.Slice(rewrites, func(i, j int) bool {
+			return rewrites[i].start > rewrites[j].start
+		})
+
+		for _, rw := range rewrites {
+			replacement := []byte("_cgo_" + rw.name)
+			buf = append(buf[:rw.start], append(replacement, buf[rw.end:]...)...)
+			if !result.nameSet[rw.name] {
+				result.nameSet[rw.name] = true
+				result.cgoNames = append(result.cgoNames, rw.name)
+			}
+		}
+
+		overlay[fpath] = buf
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if !found {
+		return nil, nil
+	}
+	return result, nil
 }

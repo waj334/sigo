@@ -65,4 +65,11 @@ def GlobalConstantOp : Go_Op<"constant_global", [Symbol]> {
     }];
 }
 
+def LiteralOp : Go_Op<"literal", [Pure, ConstantLike]> {
+  let summary = "Materialized literal constant (fold/canonicalization only)";
+  let arguments = (ins AnyAttr:$value);
+  let results = (outs AnyType:$result);
+  let hasFolder = 1;
+}
+
 #endif // GO_OPERATIONS_CONSTANT_TD

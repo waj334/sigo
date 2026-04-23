@@ -6,6 +6,7 @@ type SymbolInfo struct {
 	LinkName        string
 	Exported        bool
 	ExternalLinkage bool
+	IsCGoFunc       bool
 	IsInterrupt     bool
 	IsRequired      bool
 	Linkage         string

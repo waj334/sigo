@@ -27,70 +27,73 @@ namespace mlir::go
 /// Nil check elimination patterns
 /// -------------------------------------------------------------------------
 
-// Pattern 1: Eliminate checks on freshly allocated pointers
-struct EliminateAllocaNilCheck : public OpRewritePattern<go::NilPointerCheckOp>
+/// Trace a pointer value back through GEP chains to its origin.
+/// Returns true if the origin is provably non-null.
+static bool isProvablyNonNull(mlir::Value addr)
+{
+  while (auto* def = addr.getDefiningOp())
+  {
+    if (isa<go::AddressOfOp>(def) || isa<go::AllocaOp>(def))
+      return true;
+
+    // String/slice indexing runtime functions either panic or return a valid
+    // pointer — they never return null.
+    if (isa<go::StringAddrOp>(def) || isa<go::SliceAddrOp>(def))
+      return true;
+
+    if (auto gep = dyn_cast<go::GetElementPointerOp>(def))
+    {
+      addr = gep.getValue();
+      continue;
+    }
+
+    return false;
+  }
+  return false;
+}
+
+// Pattern 1: Eliminate checks on provably non-null pointers
+// (alloca, addressOf, or any GEP chain rooted at one of those)
+struct EliminateNonNullProvenanceNilCheck : public OpRewritePattern<go::NilPointerCheckOp>
 {
   using OpRewritePattern::OpRewritePattern;
 
   LogicalResult matchAndRewrite(go::NilPointerCheckOp op,
-                                  PatternRewriter& rewriter) const override
+                                PatternRewriter& rewriter) const override
   {
-    const Value addr = op.getAddr();
-    Operation* def = addr.getDefiningOp();
-    
-    if (!def)
-      return failure();
-
-    // Check if this is a freshly allocated pointer
-    if (auto alloca = dyn_cast<go::AllocaOp>(def))
+    if (isProvablyNonNull(op.getAddr()))
     {
-      // Alloca always returns a non-null pointer
       rewriter.eraseOp(op);
       return success();
     }
-
     return failure();
   }
 };
 
-// Pattern 2: Eliminate checks on addresses of globals
-struct EliminateAddressOfNilCheck : public OpRewritePattern<go::NilPointerCheckOp>
+/// Walk through a GEP chain to find the root base pointer.
+static mlir::Value getGepRootBase(mlir::Value addr)
 {
-  using OpRewritePattern::OpRewritePattern;
+  while (auto gep = dyn_cast_or_null<go::GetElementPointerOp>(addr.getDefiningOp()))
+    addr = gep.getValue();
+  return addr;
+}
 
-  LogicalResult matchAndRewrite(go::NilPointerCheckOp op,
-                                  PatternRewriter& rewriter) const override
-  {
-    const Value addr = op.getAddr();
-    Operation* def = addr.getDefiningOp();
-    
-    if (!def)
-      return failure();
-
-    // Check if this is an address of a global
-    if (isa<go::AddressOfOp>(def))
-    {
-      // Address of global is never null
-      rewriter.eraseOp(op);
-      return success();
-    }
-
-    return failure();
-  }
-};
-
-// Pattern 3: Eliminate redundant checks in same basic block
+// Pattern 2: Eliminate redundant checks in same basic block
 struct EliminateRedundantNilCheck : public OpRewritePattern<go::NilPointerCheckOp>
 {
   using OpRewritePattern::OpRewritePattern;
 
   LogicalResult matchAndRewrite(go::NilPointerCheckOp op,
-                                  PatternRewriter& rewriter) const override
+                                PatternRewriter& rewriter) const override
   {
     const Value addr = op.getAddr();
     Block* block = op->getBlock();
 
-    // Look for a previous nil check on the same SSA value in this block
+    // If addr is derived from a GEP chain, find the root base pointer.
+    // A nil check on the root in a dominating position proves this non-null too.
+    const Value rootBase = getGepRootBase(addr);
+
+    // Look for a previous nil check on the same SSA value (or root base) in this block
     for (Operation& prevOp : *block)
     {
       if (&prevOp == op.getOperation())
@@ -98,11 +101,8 @@ struct EliminateRedundantNilCheck : public OpRewritePattern<go::NilPointerCheckO
 
       if (auto prevCheck = dyn_cast<go::NilPointerCheckOp>(&prevOp))
       {
-        if (prevCheck.getAddr() == addr)
+        if (prevCheck.getAddr() == addr || prevCheck.getAddr() == rootBase)
         {
-          // Found a dominating check on the same SSA value.
-          // In SSA form, the same SSA value always has the same runtime value,
-          // so if it passed a nil check before, it will pass again.
           rewriter.eraseOp(op);
           return success();
         }
@@ -111,16 +111,12 @@ struct EliminateRedundantNilCheck : public OpRewritePattern<go::NilPointerCheckO
       // Conservative: stop if we see any store operation, as it might
       // invalidate our assumptions about memory state
       if (isa<go::StoreOp>(&prevOp))
-      {
         return failure();
-      }
 
       // Conservative: stop if we see a function call, as it might have
       // side effects that invalidate our assumptions
       if (isa<go::CallOp>(&prevOp) || isa<go::CallIndirectOp>(&prevOp))
-      {
         return failure();
-      }
     }
 
     return failure();
@@ -139,8 +135,7 @@ struct EliminateRedundantNilChecksPass
   void runOnOperation() override
   {
     RewritePatternSet patterns(&getContext());
-    patterns.add<EliminateAllocaNilCheck>(&getContext());
-    patterns.add<EliminateAddressOfNilCheck>(&getContext());
+    patterns.add<EliminateNonNullProvenanceNilCheck>(&getContext());
     patterns.add<EliminateRedundantNilCheck>(&getContext());
 
     if (failed(applyPatternsGreedily(getOperation(), std::move(patterns))))

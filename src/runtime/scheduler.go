@@ -13,6 +13,7 @@ const (
 	goroutinePanicking
 	goroutineRecovered
 	goroutineParked
+	goroutineExiting
 )
 
 type _func struct {
@@ -82,7 +83,7 @@ func schedule() bool {
 			currentGoroutine = targetGoroutine
 			targetGoroutine = nil
 		} else {
-			if currentGoroutine.state == goroutinePanicking || currentGoroutine.state == goroutineRecovered {
+			if currentGoroutine.state == goroutinePanicking || currentGoroutine.state == goroutineRecovered || currentGoroutine.state == goroutineExiting {
 				// Do not allow any further context switches from this goroutine.
 				// NOTE: Interrupts are intentionally not re-enabled. The panic will re-enable them if a panic is
 				//		 recovered.

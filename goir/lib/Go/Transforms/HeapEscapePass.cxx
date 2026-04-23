@@ -42,7 +42,7 @@ struct HeapEscapePass : public impl::HeapEscapePassBase<HeapEscapePass>
 
           // Create the replacement alloca operation.
           builder.setInsertionPoint(op);
-          auto allocaOp = builder.create<AllocaOp>(
+          auto allocaOp = AllocaOp::create(builder, 
             loc, ptrType, elementType, 1, mlir::UnitAttr(), mlir::StringAttr());
           op.replaceAllUsesWith(allocaOp);
 

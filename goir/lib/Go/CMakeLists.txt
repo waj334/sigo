@@ -28,11 +28,13 @@ add_mlir_dialect_library(GoIR
         Transforms/AttachDebugInfoToAllocaPass.cxx
         Transforms/AttachDebugInfoToFuncPass.cxx
         Transforms/AttachDebugInfoToGlobalPass.cxx
+        Transforms/AttachDebugInfoToLLVMFuncPass.cxx
         Transforms/CallPass.cxx
         Transforms/EliminateRedundantNilChecksPass.cxx
         Transforms/FuncPass.cxx
         Transforms/GlobalConstantsPass.cxx
         Transforms/GlobalInitializerPass.cxx
+        Transforms/ImmutableGlobalsPass.cxx
         Transforms/HeapEscapePass.cxx
         Transforms/InsertGCWriteBarrierPass.cxx
         Transforms/LowerToCore.cxx
@@ -43,6 +45,7 @@ add_mlir_dialect_library(GoIR
         Transforms/TypeInfo.cxx
         Transforms/ValueNormalizationPass.cxx
         Util.cxx
+
         ADDITIONAL_HEADER_DIRS
         ${PROJECT_SOURCE_DIR}/include/Go
 
@@ -57,6 +60,7 @@ add_mlir_dialect_library(GoIR
         MLIRInferTypeOpInterface
 
         MLIRArithDialect
+        MLIRCIR
         MLIRComplexDialect
         MLIRControlFlowDialect
         MLIRFuncDialect

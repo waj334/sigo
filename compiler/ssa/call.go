@@ -2,7 +2,9 @@ package ssa
 
 import (
 	"context"
+	"fmt"
 	"go/ast"
+	"go/token"
 	"go/types"
 
 	"pkg.si-go.dev/go-mlir/mlir"
@@ -32,6 +34,7 @@ type callOpArgs struct {
 func (b *Builder) extractCallOpArgs(ctx context.Context, expr *ast.CallExpr) callOpArgs {
 	var signature *types.Signature
 	var call callOpArgs
+	instanceResolved := false
 
 	location := b.location(ctx, expr.Pos())
 	info := currentInfo(ctx)
@@ -70,21 +73,36 @@ func (b *Builder) extractCallOpArgs(ctx context.Context, expr *ast.CallExpr) cal
 				case types.MethodVal, types.MethodExpr:
 					funcObj := funcObj.(*types.Func)
 					recvT := sel.Recv()
+					origRecvT := recvT
+
+					// Resolve any nested TypeParams in the receiver type through
+					// the enclosing function's type map. This handles cases like
+					// *uniqueMap[T] → *uniqueMap[addrDetail] where T is a TypeParam
+					// nested inside a Pointer/Named composite type.
+					if outerTypeMap := currentTypeMap(ctx); outerTypeMap != nil && containsTypeParam(recvT) {
+						recvT = resolveTypeInTypeMap(recvT, outerTypeMap)
+					}
+
 					if typeParam, ok := recvT.(*types.TypeParam); ok {
 						recvT = resolveType(ctx, typeParam)
-						namedRecvT := recvT.(*types.Named)
+					}
 
-						// Find the matching method of the concrete type.
-						ok := false
-						for method := range namedRecvT.Methods() {
-							if method.Name() == funcObj.Name() {
-								funcObj = method
-								ok = true
-							}
+					// If the receiver was resolved from a TypeParam to a concrete
+					// Named type, find the matching method on that type instead of
+					// using the interface constraint's method.
+					if recvT != origRecvT {
+						// Dereference pointer if present to get the named type.
+						lookupT := types.Unalias(recvT)
+						if ptr, ok := lookupT.(*types.Pointer); ok {
+							lookupT = types.Unalias(ptr.Elem())
 						}
-
-						if !ok {
-							panic("concrete method not found")
+						if namedRecvT, ok := lookupT.(*types.Named); ok && !types.IsInterface(namedRecvT) {
+							// Use types.LookupFieldOrMethod to find the method,
+							// which handles pointer receivers and promoted methods.
+							obj, _, _ := types.LookupFieldOrMethod(recvT, true, namedRecvT.Obj().Pkg(), funcObj.Name())
+							if method, ok := obj.(*types.Func); ok {
+								funcObj = method
+							}
 						}
 					}
 
@@ -99,28 +117,210 @@ func (b *Builder) extractCallOpArgs(ctx context.Context, expr *ast.CallExpr) cal
 						call.calleeType = calleeIsSymbol
 						call.function = qualifiedFuncName(funcObj)
 
+						// Check if this is a method on an instantiated generic named type.
+						// If so, resolve directly to the concrete function instance so that
+						// the generic check at the end of the loop is skipped entirely.
+						//
+						// First try the expression's receiver type. If that doesn't have
+						// TypeArgs, fall back to the method's signature receiver — this
+						// handles promoted methods from embedded generic types (e.g.,
+						// uniqueMap embeds *canonMap[T], so the expression receiver is
+						// uniqueMap but the method's actual receiver is canonMap[T]).
+						var namedRecv *types.Named
+						if nr, ok := namedRecvType(recvT); ok && nr.TypeArgs().Len() > 0 {
+							namedRecv = nr
+						} else if sigRecv := funcObj.Type().(*types.Signature).Recv(); sigRecv != nil {
+							if nr, ok := namedRecvType(sigRecv.Type()); ok && nr.TypeArgs().Len() > 0 {
+								namedRecv = nr
+							}
+						}
+
+						if namedRecv != nil {
+							origin := namedRecv.Origin()
+							typeMap := make(TypeParamMap)
+							allConcrete := true
+							outerTypeMap := currentTypeMap(ctx)
+							for i := 0; i < origin.TypeParams().Len(); i++ {
+								targ := namedRecv.TypeArgs().At(i)
+								// Resolve any TypeParams through the enclosing function's type map.
+								if containsTypeParam(targ) {
+									if outerTypeMap != nil {
+										targ = resolveTypeInTypeMap(targ, outerTypeMap)
+										if containsTypeParam(targ) {
+											allConcrete = false
+											break
+										}
+									} else {
+										allConcrete = false
+										break
+									}
+								}
+								typeMap[origin.TypeParams().At(i).Index()] = targ
+							}
+
+							if allConcrete {
+								// The receiver is fully instantiated, so the signature's
+								// params/results are already concrete. Mark as resolved to
+								// prevent the generic instantiation block from triggering
+								// on the misleading RecvTypeParams.
+								instanceResolved = true
+
+								// Find the matching method on the origin (uninstantiated) type
+								// so we can look it up in genericFuncs under its generic symbol.
+								//
+								// Note: origin.NumMethods() only returns EXPLICIT (non-promoted)
+								// methods. For promoted methods from embedded generic types (e.g.,
+								// uniqueMap embeds *canonMap[T], so LoadOrStore is promoted from
+								// canonMap), we need to trace through the method's actual receiver
+								// type to find the declaring type.
+								var originMethod *types.Func
+								for i := 0; i < origin.NumMethods(); i++ {
+									if origin.Method(i).Name() == funcObj.Name() {
+										originMethod = origin.Method(i)
+										break
+									}
+								}
+
+								if originMethod == nil {
+									// Promoted from an embedded generic type. Trace through the
+									// method's actual receiver type to find the declaring generic type.
+									sigRecvT := funcObj.Type().(*types.Signature).Recv().Type()
+									if ptr, ok := sigRecvT.(*types.Pointer); ok {
+										sigRecvT = ptr.Elem()
+									}
+									// Resolve TypeParams using the typeMap from the outer receiver
+									// (e.g., uniqueMap[addrDetail]'s T0 → addrDetail).
+									resolvedRecvT := resolveTypeInTypeMap(sigRecvT, typeMap)
+									if embeddedNamed, ok := resolvedRecvT.(*types.Named); ok && embeddedNamed.TypeArgs().Len() > 0 {
+										embeddedOrigin := embeddedNamed.Origin()
+										for i := 0; i < embeddedOrigin.NumMethods(); i++ {
+											if embeddedOrigin.Method(i).Name() == funcObj.Name() {
+												originMethod = embeddedOrigin.Method(i)
+												break
+											}
+										}
+										if originMethod != nil {
+											// Use the concrete signature from the instantiated embedded
+											// type so that createFuncInstance stores correct types.
+											for j := 0; j < embeddedNamed.NumMethods(); j++ {
+												if embeddedNamed.Method(j).Name() == funcObj.Name() {
+													signature = embeddedNamed.Method(j).Type().(*types.Signature)
+													break
+												}
+											}
+											// Rebuild typeMap from the embedded type's TypeParams/TypeArgs.
+											typeMap = make(TypeParamMap)
+											for j := 0; j < embeddedOrigin.TypeParams().Len(); j++ {
+												typeMap[embeddedOrigin.TypeParams().At(j).Index()] = embeddedNamed.TypeArgs().At(j)
+											}
+										}
+									}
+								}
+
+								if originMethod != nil {
+									genericSymbol := qualifiedFuncName(originMethod)
+
+									// Ensure the generic method is registered. It may not
+									// have been processed yet if the declaring type's methods
+									// are discovered through embedding during instance emission.
+									b.queueJob(ctx, genericSymbol)
+
+									b.funcDeclDataMutex.RLock()
+									genericData, ok := b.genericFuncs[genericSymbol]
+									b.funcDeclDataMutex.RUnlock()
+
+									if ok {
+										instanceData := b.findFuncInstance(genericData, typeMap)
+										if instanceData == nil {
+											instanceData = b.createFuncInstance(ctx, signature, genericData, typeMap)
+										}
+										call.function = instanceData.linkname
+										signature = instanceData.signature
+									}
+								}
+							}
+						}
+
 						var recvArg mlir.ValueLike
-						exprType := baseType(recvT)
-						sigRecvType := baseType(signature.Recv().Type())
-						if isPointer(exprType) {
-							// The expression yields *T
-							if isPointer(sigRecvType) {
-								// signature wants *T: use directly
-								recvArg = b.emitExpr(ctx, Fun.X)[0]
+
+						// For promoted methods (sel.Index() has > 1 element),
+						// navigate through embedded fields to reach the effective
+						// receiver. The last element is the method index; the
+						// preceding elements are field indices.
+						indices := sel.Index()
+						if len(indices) > 1 {
+							// Start with the address of the outer struct.
+							basePtr := b.addressOf(ctx, Fun.X, location)
+							currentType := sel.Recv()
+
+							// Walk through field indices (all but last = method index).
+							for _, fieldIdx := range indices[:len(indices)-1] {
+								if isPointer(currentType) {
+									// Load through pointer.
+									ptrType := b.GetType(ctx, currentType)
+									basePtr = b.emitLoad(ctx, basePtr, ptrType, location)
+									currentType = currentType.(*types.Pointer).Elem()
+								}
+
+								structType := baseStructTypeOf(currentType)
+								fieldType := structType.Field(fieldIdx).Type()
+								fieldPtrType := b.pointerOf(ctx, fieldType)
+
+								// GEP to the struct field.
+								gepOp := goir.NewGepOperation(b.ctx,
+									basePtr, b.GetType(ctx, structType),
+									[]int{0, fieldIdx}, nil, []bool{false, false},
+									fieldPtrType, location)
+								appendOperation(ctx, gepOp)
+								basePtr = resultOf(gepOp).AsValue()
+								currentType = fieldType
+							}
+
+							// Now basePtr points to the field that declares the method.
+							// Apply the same pointer/non-pointer logic as for direct methods.
+							sigRecvType := baseType(signature.Recv().Type())
+							if isPointer(currentType) {
+								// The field is a pointer type (e.g., *canonMap).
+								// Load it to get the actual pointer value.
+								ptrType := b.GetType(ctx, currentType)
+								loaded := b.emitLoad(ctx, basePtr, ptrType, location)
+								if isPointer(sigRecvType) {
+									recvArg = loaded
+								} else {
+									recvArg = b.NewTempValue(loaded).Load(ctx, location)
+								}
 							} else {
-								// signature wants T: load
-								ptr := b.emitExpr(ctx, Fun.X)[0]
-								recvArg = b.NewTempValue(ptr).Load(ctx, location)
+								if isPointer(sigRecvType) {
+									recvArg = basePtr
+								} else {
+									loadType := b.GetType(ctx, currentType)
+									recvArg = b.emitLoad(ctx, basePtr, loadType, location)
+								}
 							}
 						} else {
-							// The expression yields T
-							addr := b.addressOf(ctx, Fun.X, location)
-							if isPointer(sigRecvType) {
-								// signature wants *T: pass address
-								recvArg = addr
+							// Direct method (not promoted through embedding).
+							exprType := baseType(recvT)
+							sigRecvType := baseType(signature.Recv().Type())
+							if isPointer(exprType) {
+								// The expression yields *T
+								if isPointer(sigRecvType) {
+									// signature wants *T: use directly
+									recvArg = b.emitExpr(ctx, Fun.X)[0]
+								} else {
+									// signature wants T: load
+									ptr := b.emitExpr(ctx, Fun.X)[0]
+									recvArg = b.NewTempValue(ptr).Load(ctx, location)
+								}
 							} else {
-								// signature wants T: load
-								recvArg = b.NewTempValue(addr).Load(ctx, location)
+								// The expression yields T
+								addr := b.addressOf(ctx, Fun.X, location)
+								if isPointer(sigRecvType) {
+									// signature wants *T: pass address
+									recvArg = addr
+								} else {
+									// signature wants T: load
+									recvArg = b.NewTempValue(addr).Load(ctx, location)
+								}
 							}
 						}
 
@@ -139,11 +339,41 @@ func (b *Builder) extractCallOpArgs(ctx context.Context, expr *ast.CallExpr) cal
 				call.function = qualifiedFuncName(funcObj)
 			}
 		case *ast.IndexExpr:
-			// Resolve type parameters.
-			call.typeMap = resolveTypeParams(ctx, expr, info)
-			ctx = newContextWithTypeMap(ctx, call.typeMap)
-			calleeExpr = Fun.X
-			continue
+			// Distinguish generic instantiation (e.g. genericFunc[T]()) from
+			// regular index expressions (e.g. callbacks[i]()).
+			isGeneric := false
+			switch X := Fun.X.(type) {
+			case *ast.Ident:
+				if obj, ok := info.Uses[X]; ok {
+					_, isGeneric = obj.Type().(*types.Signature)
+				}
+			case *ast.SelectorExpr:
+				if obj, ok := info.Uses[X.Sel]; ok {
+					_, isGeneric = obj.Type().(*types.Signature)
+				}
+			}
+
+			if isGeneric {
+				// Generic type parameter instantiation — unwrap.
+				call.typeMap = resolveTypeParams(ctx, expr, info)
+				ctx = newContextWithTypeMap(ctx, call.typeMap)
+				calleeExpr = Fun.X
+				continue
+			}
+			// Regular index expression (array/slice/map) returning a callable.
+			call.calleeType = calleeIsClosure
+			call.callee = b.emitExpr(ctx, Fun)[0]
+			// Derive the element (callable) type from the collection type.
+			elemType := funcObj.Type()
+			switch t := baseType(elemType).(type) {
+			case *types.Array:
+				elemType = t.Elem()
+			case *types.Slice:
+				elemType = t.Elem()
+			case *types.Map:
+				elemType = t.Elem()
+			}
+			signature = baseType(elemType).(*types.Signature)
 		case *ast.IndexListExpr:
 			// Resolve type parameters.
 			call.typeMap = resolveTypeParams(ctx, expr, info)
@@ -159,13 +389,15 @@ func (b *Builder) extractCallOpArgs(ctx context.Context, expr *ast.CallExpr) cal
 		}
 
 		// Is the callee a generic function?
-		if signature.TypeParams().Len() > 0 || signature.RecvTypeParams().Len() > 0 {
+		if !instanceResolved && (signature.TypeParams().Len() > 0 || signature.RecvTypeParams().Len() > 0) {
 			// Need to instantiate this generic function.
+			b.funcDeclDataMutex.RLock()
 			data, ok := b.genericFuncs[call.function]
+			b.funcDeclDataMutex.RUnlock()
 			if !ok {
-				b.funcDeclDataMutex.Lock()
+				b.funcDeclDataMutex.RLock()
 				decl := b.ungeneratedFuncs[call.function]
-				b.funcDeclDataMutex.Unlock()
+				b.funcDeclDataMutex.RUnlock()
 
 				if decl != nil {
 					data = b.addFunctionDecl(ctx, decl)
@@ -174,6 +406,19 @@ func (b *Builder) extractCallOpArgs(ctx context.Context, expr *ast.CallExpr) cal
 
 			if data != nil {
 				typeMap := resolveTypeParams(ctx, expr, info)
+				targs := make([]types.Type, len(typeMap))
+				for index, typ := range typeMap {
+					targs[index] = typ
+				}
+
+				ictx := types.NewContext()
+				newType, err := types.Instantiate(ictx, signature, targs, false)
+				if err != nil {
+					panic(err.Error())
+				}
+
+				signature = newType.(*types.Signature)
+
 				instanceData := b.createFuncInstance(ctx, signature, data, typeMap)
 				call.function = instanceData.linkname
 				signature = instanceData.signature
@@ -244,6 +489,7 @@ func (b *Builder) emitCallExpr(ctx context.Context, expr *ast.CallExpr) []mlir.V
 		case calleeIsSymbol:
 			// Emit the function that will be called.
 			symbol := b.resolveSymbol(opArgs.function)
+
 			b.queueJob(ctx, symbol)
 
 			op := goir.NewCallOperation(b.ctx, symbol, opArgs.results, opArgs.args, location)
@@ -259,11 +505,7 @@ func (b *Builder) createSyntheticClosureSignature(ctx context.Context, signature
 	inputTypes := make([]mlir.TypeLike, signature.Params().Len()+1)
 	inputTypes[0] = b.ptr
 	for i := 0; i < signature.Params().Len(); i++ {
-		if signature.Variadic() && (i == signature.Params().Len()-1) {
-			inputTypes[i+1] = goir.NewSliceType(b.GetStoredType(ctx, signature.Params().At(i).Type()))
-		} else {
-			inputTypes[i+1] = b.GetStoredType(ctx, signature.Params().At(i).Type())
-		}
+		inputTypes[i+1] = b.GetStoredType(ctx, signature.Params().At(i).Type())
 	}
 
 	resultTypes := make([]mlir.TypeLike, signature.Results().Len())
@@ -280,20 +522,9 @@ func (b *Builder) emitCallArgs(ctx context.Context, signature *types.Signature, 
 	argValues := make([]mlir.ValueLike, len(expr.Args))
 	for i, expr := range expr.Args {
 		argValues[i] = b.emitExpr(ctx, expr)[0]
-		switch expr := expr.(type) {
-		case *ast.Ident:
-			if expr.Obj != nil {
-				if _, ok := expr.Obj.Decl.(*ast.FuncDecl); ok {
-					// Only create a function struct value if the identifier is that of a function declaration.
-					if typeIs[*types.Signature](b.typeOf(ctx, expr)) {
-						argValues[i] = b.createFunctionValue(ctx, argValues[i], nil, location)
-					}
-				}
-			}
-		}
 	}
 
-	// Handle interface arguments.
+	// Handle interface and function-value arguments.
 	argTypes := make([]types.Type, len(expr.Args))
 	for i := range expr.Args {
 		argT := b.typeOf(ctx, expr.Args[i])
@@ -304,12 +535,27 @@ func (b *Builder) emitCallArgs(ctx context.Context, signature *types.Signature, 
 		switch baseType(paramT).(type) {
 		case *types.Interface:
 			if !isNil(argT) && !types.Identical(paramT, argT) {
-				if types.IsInterface(baseType(argT)) {
+				// Resolve TypeParams to their concrete types before checking
+				// whether the argument is an interface. A TypeParam's underlying
+				// type is its constraint interface, but the emitted value is the
+				// concrete instantiation type (e.g., a struct, not an interface).
+				resolvedArgT := resolveType(ctx, argT)
+				if types.IsInterface(baseType(resolvedArgT)) {
 					// Convert from interface A to interface B.
 					argValues[i] = b.emitChangeType(ctx, paramT, argValues[i], location)
 				} else {
 					// Create an interface value from the value expression.
-					argValues[i] = b.emitInterfaceValue(ctx, paramT, argT, argValues[i], location)
+					argValues[i] = b.emitInterfaceValue(ctx, paramT, resolvedArgT, argValues[i], location)
+				}
+			}
+		case *types.Signature:
+			// Wrap raw function pointers into the _func struct. Values that
+			// are already the _func struct type (e.g., closures, variables of
+			// function type) must not be wrapped again.
+			if ptrT, ok := goir.AsPointerType(argValues[i].Type()); ok {
+				elementT := ptrT.ElementType()
+				if !elementT.IsNull() && goir.TypeIsAFunctionType(elementT) {
+					argValues[i] = b.createFunctionValue(ctx, argValues[i], nil, location)
 				}
 			}
 		}
@@ -368,9 +614,30 @@ func (b *Builder) emitVariadicArgs(ctx context.Context, signature *types.Signatu
 	if signature.Variadic() {
 		variadicBegin := signature.Params().Len() - 1
 		numVariadicArgs := len(args) - variadicBegin
-		variadicArgType := signature.Params().At(variadicBegin).Type().(*types.Slice)
+		variadicParamType := signature.Params().At(variadicBegin).Type()
+
+		// Handle append([]byte, string...) — the param type is string, not a slice.
+		variadicArgType, isSlice := variadicParamType.(*types.Slice)
+		if !isSlice {
+			// Special case: string spread into []byte (append([]byte, string...)).
+			// Convert the string to a byte slice so the types match at the MLIR level.
+			if typeHasFlags(variadicParamType, types.IsString) && variadicBegin < len(args) {
+				byteSliceType := types.NewSlice(types.Typ[types.Byte])
+				args[variadicBegin] = b.emitTypeConversion(ctx, args[variadicBegin], variadicParamType, byteSliceType, location)
+			}
+			return args
+		}
+
 		elementType := variadicArgType.Elem()
 		elementT := b.GetStoredType(ctx, elementType)
+		elementPtrT := b.GetStoredType(ctx, types.NewPointer(elementType))
+
+		if numVariadicArgs == 0 {
+			// No variadic arguments provided — pass a nil slice.
+			varArg := b.emitZeroValue(ctx, variadicArgType, location)
+			args = append(args[:variadicBegin], varArg)
+			return args
+		}
 
 		if args[variadicBegin].Type().Equal(b.GetStoredType(ctx, variadicArgType)) {
 			// This is ellipsis (...).
@@ -383,23 +650,24 @@ func (b *Builder) emitVariadicArgs(ctx context.Context, signature *types.Signatu
 
 		// Fill the backing array.
 		for i, arg := range args[variadicBegin:] {
-			argT := argTypes[i]
+			argT := argTypes[variadicBegin+i]
 
 			// Gep into the backing array to the position where the current argument should be stored.
 			gepOp := goir.NewGepOperation(
-				b.ctx, resultOf(allocaOp), b._any, []int{i}, nil, []bool{false}, goir.NewPointerType(elementT), location)
+				b.ctx, resultOf(allocaOp), elementT, []int{i}, nil, []bool{false}, elementPtrT, location)
 			appendOperation(ctx, gepOp)
 
 			// Handle interface type conversion.
 			switch baseType(elementType).(type) {
 			case *types.Interface:
 				if !isNil(argT) && !types.Identical(elementType, argT) {
-					if types.IsInterface(baseType(argT)) {
+					resolvedArgT := resolveType(ctx, argT)
+					if types.IsInterface(baseType(resolvedArgT)) {
 						// Convert from interface A to interface B.
 						arg = b.emitChangeType(ctx, elementType, arg, location)
 					} else {
 						// Create an interface value from the value expression.
-						arg = b.emitInterfaceValue(ctx, elementType, argT, arg, location)
+						arg = b.emitInterfaceValue(ctx, elementType, resolvedArgT, arg, location)
 					}
 				}
 			}
@@ -421,32 +689,47 @@ func (b *Builder) emitVariadicArgs(ctx context.Context, signature *types.Signatu
 	return args
 }
 
-func (b *Builder) createInterfaceCallWrapper(ctx context.Context, symbol string, callee string, iface *types.Interface, signature *types.Signature, argTypes []mlir.TypeLike) goir.FunctionType {
+func (b *Builder) createInterfaceCallWrapper2(ctx context.Context, symbol string, callee string, iface *types.Interface, signature *types.Signature, argTypes []types.Type) thunkType {
 	b.thunkMutex.Lock()
 	defer b.thunkMutex.Unlock()
 
 	// Look up the thunk in the symbol table first.
 	if _, ok := b.thunks[symbol]; !ok {
 		// Prepend the interface type to the beginning of the argument pack type list.
-		argTypes = append([]mlir.TypeLike{b.GetStoredType(ctx, iface)}, argTypes...)
+		argTypes = append([]types.Type{iface}, argTypes...)
+		vars := make([]*types.Var, len(argTypes))
+		for i := range argTypes {
+			vars[i] = types.NewVar(token.NoPos, nil, fmt.Sprintf("arg$%d", i), argTypes[i])
+		}
 
 		// Create the argument struct type.
-		argPackType := goir.NewBasicStructType(b.ctx, argTypes)
+		argPackT := types.NewStruct(vars, nil)
+		argPackPtrT := types.NewPointer(argPackT)
+		argPackPtrType := b.GetType(ctx, argPackPtrT)
 
 		// Any argument excluded from the argument pack MUST be passed to the resulting thunk directly.
 		// NOTE: The interface value is added to the parameter count.
-		paramTypes := []mlir.TypeLike{goir.NewPointerType(argPackType)}
+		paramTypes := []mlir.TypeLike{argPackPtrType}
+		paramVars := []*types.Var{types.NewVar(token.NoPos, nil, "param$0", argPackPtrT)}
 		for i := len(argTypes); i < signature.Params().Len()+1; i++ {
-			paramTypes = append(paramTypes, b.GetStoredType(ctx, signature.Params().At(i).Type()))
+			paramT := signature.Params().At(i).Type()
+			paramTypes = append(paramTypes, b.GetStoredType(ctx, paramT))
+			paramVars = append(paramVars, types.NewVar(token.NoPos, nil, fmt.Sprintf("param$%d", i+1), paramT))
 		}
 		paramLocs := make([]mlir.LocationLike, len(paramTypes))
 		fill(paramLocs, b._noLoc)
 
 		// Collect the result types.
 		resultTypes := make([]mlir.TypeLike, 0, signature.Results().Len())
+		resultVars := make([]*types.Var, 0, signature.Results().Len())
 		for i := 0; i < signature.Results().Len(); i++ {
-			resultTypes = append(resultTypes, b.GetStoredType(ctx, signature.Results().At(i).Type()))
+			resultT := signature.Results().At(i).Type()
+			resultTypes = append(resultTypes, b.GetStoredType(ctx, resultT))
+			resultVars = append(resultVars, types.NewVar(token.NoPos, nil, fmt.Sprintf("result$%d", i), resultT))
 		}
+
+		syntheticSig := types.NewSignatureType(nil, nil, nil,
+			types.NewTuple(paramVars...), types.NewTuple(resultVars...), false)
 
 		// Create thunk to wrap the method call.
 		region := mlir.NewRegion()
@@ -488,11 +771,16 @@ func (b *Builder) createInterfaceCallWrapper(ctx context.Context, symbol string,
 		b.addToModuleMutex.Unlock()
 
 		b.thunks[symbol] = struct{}{}
-		b.thunkTypes[symbol] = thunkFuncType
-		return thunkFuncType
+
+		result := thunkType{
+			t: thunkFuncType,
+			s: syntheticSig,
+		}
+		b.thunkTypes[symbol] = result
+		return result
 	}
 
-	return b.thunkTypes[symbol].(goir.FunctionType)
+	return b.thunkTypes[symbol]
 }
 
 func (b *Builder) emitCallArgs2(ctx context.Context, args []ast.Expr) []mlir.ValueLike {
@@ -501,6 +789,76 @@ func (b *Builder) emitCallArgs2(ctx context.Context, args []ast.Expr) []mlir.Val
 		values[i] = b.emitExpr(ctx, expr)[0]
 	}
 	return values
+}
+
+// resolveTypeInContext recursively walks a type and replaces any TypeParams
+// using the provided mapping. This is needed when a type arg from a receiver
+// (e.g., *indirect[K, V]) contains TypeParams from an enclosing generic scope.
+func resolveTypeInContext(T types.Type, mapping TypeParamMap) types.Type {
+	if mapping == nil {
+		return T
+	}
+	switch T := T.(type) {
+	case *types.TypeParam:
+		if resolved := mapping[T.Index()]; resolved != nil {
+			return resolved
+		}
+		return T
+	case *types.Pointer:
+		elem := resolveTypeInContext(T.Elem(), mapping)
+		if elem == T.Elem() {
+			return T
+		}
+		return types.NewPointer(elem)
+	case *types.Slice:
+		elem := resolveTypeInContext(T.Elem(), mapping)
+		if elem == T.Elem() {
+			return T
+		}
+		return types.NewSlice(elem)
+	case *types.Array:
+		elem := resolveTypeInContext(T.Elem(), mapping)
+		if elem == T.Elem() {
+			return T
+		}
+		return types.NewArray(elem, T.Len())
+	case *types.Map:
+		key := resolveTypeInContext(T.Key(), mapping)
+		val := resolveTypeInContext(T.Elem(), mapping)
+		if key == T.Key() && val == T.Elem() {
+			return T
+		}
+		return types.NewMap(key, val)
+	case *types.Chan:
+		elem := resolveTypeInContext(T.Elem(), mapping)
+		if elem == T.Elem() {
+			return T
+		}
+		return types.NewChan(T.Dir(), elem)
+	case *types.Named:
+		typeArgs := T.TypeArgs()
+		if typeArgs == nil || typeArgs.Len() == 0 {
+			return T
+		}
+		newArgs := make([]types.Type, typeArgs.Len())
+		changed := false
+		for i := 0; i < typeArgs.Len(); i++ {
+			newArgs[i] = resolveTypeInContext(typeArgs.At(i), mapping)
+			if newArgs[i] != typeArgs.At(i) {
+				changed = true
+			}
+		}
+		if !changed {
+			return T
+		}
+		inst, err := types.Instantiate(nil, T.Origin(), newArgs, false)
+		if err != nil {
+			panic(fmt.Sprintf("failed to instantiate type in resolveTypeInContext: %v", err))
+		}
+		return inst
+	default:
+		return T
+	}
 }
 
 func resolveTypeParams(ctx context.Context, callExpr *ast.CallExpr, info *types.Info) TypeParamMap {
@@ -539,7 +897,21 @@ func resolveTypeParams(ctx context.Context, callExpr *ast.CallExpr, info *types.
 			case *types.Slice:
 				concrete := concrete.(*types.Slice)
 				createTypeMapping(generic.Elem(), concrete.Elem())
+			case *types.Named:
+				if concrete, ok := concrete.(*types.Named); ok {
+					for i := 0; i < generic.TypeArgs().Len(); i++ {
+						createTypeMapping(generic.TypeArgs().At(i), concrete.TypeArgs().At(i))
+					}
+				}
 			case *types.TypeParam:
+				// If concrete is still a TypeParam and we're inside an
+				// instantiated generic, resolve through the outer mapping.
+				if concreteTP, ok := concrete.(*types.TypeParam); ok && currentMapping != nil {
+					if resolved := currentMapping[concreteTP.Index()]; resolved != nil {
+						mapping[generic.Index()] = resolved
+						break
+					}
+				}
 				mapping[generic.Index()] = concrete
 			}
 		}
@@ -637,6 +1009,65 @@ func resolveTypeParams(ctx context.Context, callExpr *ast.CallExpr, info *types.
 			}
 		}
 	case *ast.SelectorExpr:
+		// First, check if the selector itself is a generic function instance
+		// (package-qualified call like unique.Make(addrDetail{})).
+		if instance, ok := info.Instances[Fun.Sel]; ok {
+			signature, ok := instance.Type.(*types.Signature)
+			if !ok {
+				return nil
+			}
+
+			var createTypeMapping func(generic types.Type, concrete types.Type)
+			createTypeMapping = func(generic types.Type, concrete types.Type) {
+				switch generic := generic.(type) {
+				case *types.Array:
+					concrete := concrete.(*types.Array)
+					createTypeMapping(generic.Elem(), concrete.Elem())
+				case *types.Chan:
+					concrete := concrete.(*types.Chan)
+					createTypeMapping(generic.Elem(), concrete.Elem())
+				case *types.Map:
+					concrete := concrete.(*types.Map)
+					createTypeMapping(generic.Key(), concrete.Key())
+					createTypeMapping(generic.Elem(), concrete.Elem())
+				case *types.Pointer:
+					concrete := concrete.(*types.Pointer)
+					createTypeMapping(generic.Elem(), concrete.Elem())
+				case *types.Slice:
+					concrete := concrete.(*types.Slice)
+					createTypeMapping(generic.Elem(), concrete.Elem())
+				case *types.Named:
+					if concrete, ok := concrete.(*types.Named); ok {
+						for i := 0; i < generic.TypeArgs().Len(); i++ {
+							createTypeMapping(generic.TypeArgs().At(i), concrete.TypeArgs().At(i))
+						}
+					}
+				case *types.TypeParam:
+					if concreteTP, ok := concrete.(*types.TypeParam); ok && currentMapping != nil {
+						if resolved := currentMapping[concreteTP.Index()]; resolved != nil {
+							mapping[generic.Index()] = resolved
+							break
+						}
+					}
+					mapping[generic.Index()] = concrete
+				}
+			}
+
+			if signature.Recv() != nil {
+				createTypeMapping(signature.Recv().Origin().Type(), signature.Recv().Type())
+			}
+
+			for obj := range signature.Params().Variables() {
+				createTypeMapping(obj.Origin().Type(), obj.Type())
+			}
+
+			for obj := range signature.Results().Variables() {
+				createTypeMapping(obj.Origin().Type(), obj.Type())
+			}
+			break
+		}
+
+		// Otherwise, treat as a method call on a receiver type.
 		receiverType := info.TypeOf(Fun.X)
 		if receiverType == nil {
 			return nil
@@ -677,12 +1108,23 @@ func resolveTypeParams(ctx context.Context, callExpr *ast.CallExpr, info *types.
 				if currentMapping == nil {
 					panic("type parameter cannot be resolved")
 				}
-				mapping[param.Index()] = currentMapping[param.Index()]
+				mapping[param.Index()] = currentMapping[argType.Index()]
 			default:
-				mapping[param.Index()] = argType
+				// Resolve any nested TypeParams through the current mapping.
+				mapping[param.Index()] = resolveTypeInContext(argType, currentMapping)
 			}
 		}
 	}
 
 	return mapping
+}
+
+// namedRecvType extracts the *types.Named from a receiver type,
+// unwrapping a *types.Pointer if needed.
+func namedRecvType(T types.Type) (*types.Named, bool) {
+	if ptr, ok := T.(*types.Pointer); ok {
+		T = ptr.Elem()
+	}
+	named, ok := T.(*types.Named)
+	return named, ok
 }

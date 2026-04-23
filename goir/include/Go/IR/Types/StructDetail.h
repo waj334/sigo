@@ -24,7 +24,7 @@ namespace mlir::go {
         bool operator==(const KeyTy &key) const {
             const auto id = std::move(std::get<0>(key));
             const auto members = std::move(std::get<1>(key));
-            if (!id.empty()) {
+            if (!id.empty() || !this->m_id.empty()) {
                 return this->m_id == id;
             }
             return this->m_fields == members;

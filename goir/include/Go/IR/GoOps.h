@@ -118,6 +118,32 @@ mlir::SmallVector<mlir::Type> binOpResolveTypes(OpT* op, const size_t count)
 }
 
 template<typename OpT>
+mlir::SmallVector<mlir::Type> cmpOpResolveTypes(OpT* op)
+{
+  auto lhsType = op->getLhs().getType();
+  auto rhsType = op->getRhs().getType();
+
+  mlir::Type resolvedType;
+
+  if (!mlir::isa<mlir::go::UntypedType>(lhsType))
+  {
+    resolvedType = lhsType;
+  }
+  else if (!mlir::isa<mlir::go::UntypedType>(rhsType))
+  {
+    resolvedType = rhsType;
+  }
+  else
+  {
+    // Both operands are untyped — use the default concrete type.
+    auto untyped = mlir::cast<mlir::go::UntypedType>(lhsType);
+    resolvedType = untyped.getDefaultType();
+  }
+
+  return mlir::SmallVector<mlir::Type>(2, resolvedType);
+}
+
+template<typename OpT>
 mlir::SmallVector<mlir::Type> unOpResolveTypes(OpT* op)
 {
   const auto operandType = op->getOperand().getType();
@@ -315,7 +341,8 @@ inline mlir::SmallVector<mlir::Type> yieldOpResolveOperandTypes(mlir::go::YieldO
   mlir::SmallVector<mlir::Type> result(op->getOperation()->getOperandTypes());
   if (auto parentOp = op->getOperation()->getParentOfType<mlir::go::GlobalOp>())
   {
-    if (const auto initializerBlock = parentOp.getInitializerBlock(); initializerBlock && !initializerBlock->empty())
+    if (const auto initializerBlock = parentOp.getInitializerBlock();
+        initializerBlock && !initializerBlock->empty())
     {
       if (mlir::isa<mlir::go::UntypedType>(result[0]))
       {
@@ -332,7 +359,8 @@ inline mlir::SmallVector<mlir::Type> yieldOpResolveResultTypes(mlir::go::YieldOp
   mlir::SmallVector<mlir::Type> result(op->getOperation()->getResultTypes());
   if (auto parentOp = op->getOperation()->getParentOfType<mlir::go::GlobalOp>())
   {
-    if (const auto initializerBlock = parentOp.getInitializerBlock(); initializerBlock && !initializerBlock->empty())
+    if (const auto initializerBlock = parentOp.getInitializerBlock();
+        initializerBlock && !initializerBlock->empty())
     {
       if (mlir::isa<mlir::go::UntypedType>(result[0]))
       {

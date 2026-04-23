@@ -77,7 +77,7 @@ struct FuncPass : ::mlir::go::impl::FuncPassBase<FuncPass>
       const auto jmpBufType = go::dyn_cast<GoStructType>(deferStackType).getFieldType(2);
 
       // Allocate memory for the defer stack.
-      mlir::Value deferStackPtrValue = builder.create<AllocaOp>(
+      mlir::Value deferStackPtrValue = AllocaOp::create(builder, 
         loc,
         PointerType::get(context, deferStackType),
         deferStackType,
@@ -90,8 +90,7 @@ struct FuncPass : ::mlir::go::impl::FuncPassBase<FuncPass>
       deferStackPtrValue.getDefiningOp()->setAttr("deferStack", mlir::UnitAttr::get(context));
 
       // Create the defer stack via the respective runtime call.
-      mlir::Value deferStackValue = builder
-                                      .create<CallOp>(
+      mlir::Value deferStackValue = CallOp::create(builder,
                                         loc,
                                         SmallVector<mlir::Type>{ deferStackType },
                                         "runtime.deferStackCreate",
@@ -99,11 +98,11 @@ struct FuncPass : ::mlir::go::impl::FuncPassBase<FuncPass>
                                       .getResult(0);
 
       // Store the defer stack value on the stack.
-      builder.create<StoreOp>(
+      StoreOp::create(builder, 
         loc, deferStackValue, deferStackPtrValue, mlir::UnitAttr(), mlir::UnitAttr());
 
       // The jmp environment from the defer stack.
-      mlir::Value jmpEnvValue = builder.create<GetElementPointerOp>(
+      mlir::Value jmpEnvValue = GetElementPointerOp::create(builder, 
         loc,
         PointerType::get(context, jmpBufType),
         deferStackPtrValue,
@@ -114,19 +113,18 @@ struct FuncPass : ::mlir::go::impl::FuncPassBase<FuncPass>
 
       // Set the jump point for defer stack unwinding.
       mlir::Value setJmpResult =
-        builder
-          .create<CallOp>(
-            loc, SmallVector<mlir::Type>{ i32Type }, "setjmp", mlir::ValueRange{ jmpEnvValue })
+        CallOp::create(
+            builder, loc, SmallVector<mlir::Type>{ i32Type }, "setjmp", mlir::ValueRange{ jmpEnvValue })
           .getResult(0);
 
       // Initialize the defer stack, passing in the jump type value returned from setjmp.
-      mlir::Value recoverResult = builder
-                                    .create<CallOp>(
-                                      loc,
-                                      SmallVector<mlir::Type>{ boolType },
-                                      "runtime.deferInit",
-                                      mlir::ValueRange{ setJmpResult, deferStackPtrValue })
-                                    .getResult(0);
+      mlir::Value recoverResult =
+        CallOp::create(
+            builder, loc,
+            SmallVector<mlir::Type>{ boolType },
+            "runtime.deferInit",
+            mlir::ValueRange{ setJmpResult, deferStackPtrValue })
+          .getResult(0);
 
       // Create the recover block at the end of this function. The recover block will just return
       // the zero value of this function's result type.
@@ -141,16 +139,16 @@ struct FuncPass : ::mlir::go::impl::FuncPassBase<FuncPass>
 
         if (resultTypes.empty())
         {
-          builder.create<ReturnOp>(loc);
+          ReturnOp::create(builder, loc);
         }
         else
         {
           mlir::SmallVector<Value> values;
           for (const auto& resultType : resultTypes)
           {
-            values.push_back(builder.create<ZeroOp>(loc, resultType));
+            values.push_back(ZeroOp::create(builder, loc, resultType));
           }
-          builder.create<ReturnOp>(loc, values);
+          ReturnOp::create(builder, loc, values);
         }
       }
 
@@ -160,13 +158,13 @@ struct FuncPass : ::mlir::go::impl::FuncPassBase<FuncPass>
       // Insert a conditional branch based on the recover result value. If it is true, then this
       // function should immediately return. Otherwise, this function executes normally.
       builder.setInsertionPointToEnd(currentBlock);
-      builder.create<CondBranchOp>(
+      CondBranchOp::create(builder, 
         loc, recoverResult, ValueRange{}, ValueRange{}, recoveryBlock, continueFromBlock);
     }
 
     // Finally, branch to the successor block.
     builder.setInsertionPointToEnd(continueFromBlock);
-    builder.create<BranchOp>(loc, SmallVector<Value>{}, entrySuccessor);
+    BranchOp::create(builder, loc, SmallVector<Value>{}, entrySuccessor);
   }
 };
 

@@ -10,9 +10,38 @@ import (
 	"pkg.si-go.dev/sigo/goir/binding/goir"
 )
 
+// rebindIota walks the expression AST, finds all *ast.Ident nodes named "iota",
+// and temporarily updates their types.Info.Uses entry to reflect the given spec index.
+// Returns a map of original bindings for restoration.
+func rebindIota(info *types.Info, expr ast.Expr, specIdx int) map[*ast.Ident]types.Object {
+	saved := make(map[*ast.Ident]types.Object)
+	ast.Inspect(expr, func(n ast.Node) bool {
+		if ident, ok := n.(*ast.Ident); ok && ident.Name == "iota" {
+			saved[ident] = info.Uses[ident]
+			info.Uses[ident] = types.NewConst(
+				ident.Pos(), nil, "iota",
+				types.Typ[types.UntypedInt],
+				constant.MakeInt64(int64(specIdx)),
+			)
+		}
+		return true
+	})
+	return saved
+}
+
+func restoreIota(info *types.Info, saved map[*ast.Ident]types.Object) {
+	for ident, obj := range saved {
+		info.Uses[ident] = obj
+	}
+}
+
 func (b *Builder) emitConstantDecl(ctx context.Context, decl *ast.GenDecl) {
-	for _, spec := range decl.Specs {
+	var prevValues []ast.Expr
+	for specIdx, spec := range decl.Specs {
 		valueSpec := spec.(*ast.ValueSpec)
+		if valueSpec.Values != nil {
+			prevValues = valueSpec.Values
+		}
 		for i, ident := range valueSpec.Names {
 			location := b.location(ctx, ident.Pos())
 			obj := b.objectOf(ctx, ident).(*types.Const)
@@ -63,11 +92,33 @@ func (b *Builder) emitConstantDecl(ctx context.Context, decl *ast.GenDecl) {
 					var result mlir.Value
 					if valueSpec.Values != nil {
 						result = b.emitExpr(ctx, valueSpec.Values[i])[0].AsValue()
+					} else if prevValues != nil && i < len(prevValues) {
+						// Carry forward the expression from the previous explicit spec.
+						// Temporarily rebind iota references to the current spec index.
+						info := currentInfo(ctx)
+						saved := rebindIota(info, prevValues[i], specIdx)
+						result = b.emitExpr(ctx, prevValues[i])[0].AsValue()
+						restoreIota(info, saved)
 					} else {
 						value := fromObj(obj)
 						constOp := goir.NewConstantOperation(b.ctx, value, nil, T, location)
 						appendOperation(ctx, constOp)
 						result = resultOf(constOp).AsValue()
+					}
+
+					// Ensure the result has the declared constant type.
+					// Go's type checker may collapse type conversions,
+					// but the MLIR value may still be untyped. Emit a proper
+					// type conversion so width mismatches produce
+					// itrunc/sext/zext ops.
+					if !result.Type().Equal(T) {
+						var srcType types.Type
+						if goir.TypeIsUntyped(result.Type()) {
+							srcType = types.Typ[types.UntypedInt]
+						} else {
+							srcType = types.Unalias(constT).Underlying()
+						}
+						result = b.emitTypeConversion(ctx, result, srcType, constT, location)
 					}
 
 					// Create the yield operation.
@@ -83,11 +134,11 @@ func (b *Builder) emitConstantDecl(ctx context.Context, decl *ast.GenDecl) {
 				appendOperation(ctx, constOp)
 
 				b.setAddr(ctx, ident, ConstantValue{
-					Emitter: func(ctx context.Context, location mlir.LocationLike) mlir.Value {
+					Emitter: func(ctx context.Context, location mlir.LocationLike) (mlir.Value, types.Type) {
 						// Create a reference to the global constant.
 						constRefOp := goir.NewConstantOperation(b.ctx, nil, b.strAttr(symbolName), T, location)
 						appendOperation(ctx, constRefOp)
-						return resultOf(constRefOp).AsValue()
+						return resultOf(constRefOp).AsValue(), constT
 					},
 					T: T,
 					b: b,
@@ -95,11 +146,11 @@ func (b *Builder) emitConstantDecl(ctx context.Context, decl *ast.GenDecl) {
 			} else {
 				value := fromObj(obj)
 				b.setAddr(ctx, ident, ConstantValue{
-					Emitter: func(ctx context.Context, location mlir.LocationLike) mlir.Value {
+					Emitter: func(ctx context.Context, location mlir.LocationLike) (mlir.Value, types.Type) {
 						// Create a local constant.
 						constRefOp := goir.NewConstantOperation(b.ctx, value, nil, T, location)
 						appendOperation(ctx, constRefOp)
-						return resultOf(constRefOp).AsValue()
+						return resultOf(constRefOp).AsValue(), constT
 					},
 					T: T,
 					b: b,

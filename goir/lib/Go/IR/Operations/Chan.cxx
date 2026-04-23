@@ -51,24 +51,18 @@ auto ChanSelectOp::verify() -> mlir::LogicalResult
     return this->emitOpError() << "mismatch between channel size and number of case blocks";
   }
 
-  // Verify that all blocks terminate with a branch operation branches to the exit block.
-  auto blocks = mlir::SmallVector<mlir::Block*>(this->getCaseDests());
-  if (this->getHasDefault())
-  {
-    blocks.push_back(this->getDefaultDest());
-  }
-
-  for (const auto caseDest : blocks)
-  {
-    // TODO: This will erroneously affect cases that terminate with `goto`. Fix that.
-    if (auto terminator = mlir::dyn_cast_or_null<BranchOp>(caseDest->getTerminator());
-        terminator && terminator.getDest() != this->getExitDest())
-    {
-      this->emitOpError() << "block should terminate with a branch to the exit block";
-    }
-  }
-
   return mlir::success();
+}
+
+mlir::SmallVector<mlir::Type> ChanSendOp::resolveOperandTypes()
+{
+  mlir::SmallVector<mlir::Type> result(getOperation()->getOperandTypes());
+  // The value operand (index 1) should match the channel's element type.
+  if (auto chanType = mlir::dyn_cast<mlir::go::ChanType>(result[0]))
+  {
+    result[1] = chanType.getElementType();
+  }
+  return result;
 }
 
 } // namespace mlir::go

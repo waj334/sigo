@@ -17,7 +17,7 @@ func (b *Builder) emitSliceRange(ctx context.Context, stmt *ast.RangeStmt) {
 
 	sliceType := b.typeOf(ctx, stmt.X).(*types.Slice)
 	elementT := b.GetStoredType(ctx, sliceType.Elem())
-	ptrT := goir.NewPointerType(elementT)
+	ptrT := b.GetStoredType(ctx, types.NewPointer(sliceType.Elem()))
 
 	var keyT mlir.TypeLike = b.si
 	if keyType := b.typeOf(ctx, stmt.Key); keyType != nil {
@@ -90,7 +90,7 @@ func (b *Builder) emitSliceRange(ctx context.Context, stmt *ast.RangeStmt) {
 			if identIsValid(ident) {
 				// A copy should be emitted into this block. Heap escape analysis should handle converting the stack
 				// allocation to a heap allocation in the event that the loop variable escapes the current scope.
-				copyAddr := b.emitNamedAlloca(ctx, ident.Name, keyT, b.location(ctx, stmt.Key.Pos()))
+				copyAddr := b.emitNamedAlloca(ctx, ident.Name, keyT, b.typeOf(ctx, stmt.Key), b.location(ctx, stmt.Key.Pos()))
 				keyVar = b.NewTempValue(copyAddr)
 				b.setAddr(ctx, ident, keyVar)
 			}
@@ -101,7 +101,7 @@ func (b *Builder) emitSliceRange(ctx context.Context, stmt *ast.RangeStmt) {
 			if identIsValid(ident) {
 				// A copy should be emitted into this block. Heap escape analysis should handle converting the stack
 				// allocation to a heap allocation in the event that the loop variable escapes the current scope.
-				copyAddr := b.emitNamedAlloca(ctx, ident.Name, elementT, b.location(ctx, stmt.Value.Pos()))
+				copyAddr := b.emitNamedAlloca(ctx, ident.Name, elementT, sliceType.Elem(), b.location(ctx, stmt.Value.Pos()))
 				elementVar = b.NewTempValue(copyAddr)
 				b.setAddr(ctx, ident, elementVar)
 			}

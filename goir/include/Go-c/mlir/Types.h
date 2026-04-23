@@ -24,6 +24,8 @@ extern "C"
 
   bool mlirGoTypeIsAPointer(MlirType type);
 
+  bool mlirGoTypeIsAInterface(MlirType type);
+
   MlirType mlirGoCreateArrayType(MlirType elementType, int length);
 
   MlirType mlirGoCreateChanType(MlirType elementType, enum mlirGoChanDirection direction);
@@ -52,6 +54,10 @@ extern "C"
   MlirType mlirGoPointerTypeGetElementType(MlirType type);
 
   MlirType mlirGoCreateUnsafePointerType(MlirContext context);
+
+  MlirType mlirGoCreateDeferredPointerType(MlirContext context, MlirStringRef id);
+
+  void mlirGoSetPointerElementType(MlirType pointerType, MlirType elementType);
 
   MlirType mlirGoCreateSliceType(MlirType elementType);
 

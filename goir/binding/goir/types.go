@@ -48,6 +48,10 @@ func TypeIsAPointer(t mlir.TypeLike) bool {
 	return bool(C.mlirGoTypeIsAPointer(unwrapType(t)))
 }
 
+func TypeIsAInterface(t mlir.TypeLike) bool {
+	return bool(C.mlirGoTypeIsAInterface(unwrapType(t)))
+}
+
 type ArrayType struct {
 	mlir.Type
 }
@@ -120,12 +124,24 @@ func (t PointerType) ElementType() mlir.Type {
 	return wrapType(C.mlirGoPointerTypeGetElementType(unwrapType(t)))
 }
 
+func (t PointerType) SetElementType(elementType mlir.TypeLike) {
+	C.mlirGoSetPointerElementType(unwrapType(t), unwrapType(elementType))
+}
+
 type UnsafePointerType struct {
 	mlir.Type
 }
 
 func NewUnsafePointerType(ctx mlir.Context) UnsafePointerType {
 	return UnsafePointerType{wrapType(C.mlirGoCreateUnsafePointerType(unwrapContext(ctx)))}
+}
+
+func NewDeferredPointerType(ctx mlir.Context, id string) PointerType {
+	return PointerType{
+		wrapType(C.mlirGoCreateDeferredPointerType(
+			unwrapContext(ctx),
+			unwrapStringRef(mlir.NewStringRef(id)))),
+	}
 }
 
 type SliceType struct {

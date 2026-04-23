@@ -49,10 +49,6 @@ struct AttachDebugInfoToAllocaPass final
       if (!locSubprogram)
         return;
 
-      const LLVM::DITypeAttr diType = getDITypeAttr(context, elementType, dataLayout, runtimeTypes);
-      if (!diType)
-        return;
-
       const auto loc = op->getLoc()->findInstanceOf<FileLineColLoc>();
       const auto path = std::filesystem::path(loc.getFilename().str());
       const auto diFile =
@@ -78,6 +74,12 @@ struct AttachDebugInfoToAllocaPass final
         const auto column = start.getColumn();
         scope = mlir::LLVM::DILexicalBlockAttr::get(parent, diFile, line, column);
       }
+
+      const LLVM::DITypeAttr diType =
+        getDITypeAttr(context, elementType, diFile, loc.getLine(), scope, dataLayout, runtimeTypes);
+
+      if (!diType)
+        return;
 
       const auto diLocalVarAttr = LLVM::DILocalVariableAttr::get(
         scope,

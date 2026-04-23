@@ -19,6 +19,7 @@
 #include "Go/IR/GoOps.h"
 #include "Go/IR/GoOpsDialect.cpp.inc"
 #include "Go/IR/GoTypes.h"
+#include "Go/IR/Types/Pointer.h"
 #include "Go/IR/Types/Struct.h"
 
 #define GET_TYPEDEF_CLASSES
@@ -142,6 +143,7 @@ void GoDialect::initialize()
   addTypes<
     mlir::go::InterfaceType,
     mlir::go::GoStructType,
+    mlir::go::PointerType,
 #define GET_TYPEDEF_LIST
 
 #include "Go/IR/GoTypes.cpp.inc"
@@ -186,6 +188,13 @@ void GoDialect::initialize()
           value = GoStructType::parse(parser);
           return success(!!value);
         })
+      .Case(
+        PointerType::getMnemonic(),
+        [&](llvm::StringRef, llvm::SMLoc)
+        {
+          value = PointerType::parse(parser);
+          return success(!!value);
+        })
       .Default([&](llvm::StringRef, llvm::SMLoc)
                { return ::generatedTypeParser(parser, &mnemonic, value); });
 
@@ -223,17 +232,51 @@ void GoDialect::printType(::mlir::Type type, ::mlir::DialectAsmPrinter& printer)
         t.print(printer);
         return success();
       })
+    .Case(
+      [&](const PointerType t)
+      {
+        printer << PointerType::getMnemonic();
+        t.print(printer);
+        return success();
+      })
     .Default([&](auto t) { return ::generatedTypePrinter(t, printer); });
 }
 
 Operation*
 GoDialect::materializeConstant(OpBuilder& builder, Attribute value, Type type, Location loc)
 {
-  // Return nullptr so MLIR does not assert that the op has ConstantLike.
-  // ConstantOp cannot carry ConstantLike because its sym_ref form is not
-  // always foldable.  Returning nullptr tells the infrastructure that
-  // this dialect cannot materialize the constant, so the fold that
-  // produced the attribute is simply discarded.
+  // Materialization only receives concrete attribute values (never sym_ref),
+  // so it is safe to create the direct-value form of ConstantOp here.
+  // The ConstantLike concern only applies to the sym_ref form.
+  if (mlir::isa<mlir::IntegerAttr>(value) && mlir::isa<mlir::go::IntegerType>(type))
+  {
+    // Normalize the IntegerAttr to the GoIR integer type width before
+    // creating the op, since fold results carry builtin i32/i64 attrs.
+    const auto intAttr = mlir::cast<mlir::IntegerAttr>(value);
+    const auto goIntType = mlir::cast<mlir::go::IntegerType>(type);
+    size_t targetWidth;
+    if (const auto width = goIntType.getWidth(); width.has_value())
+    {
+      targetWidth = *width;
+    }
+    else
+    {
+      const auto dataLayout = mlir::DataLayout::closest(builder.getInsertionBlock()->getParentOp());
+      targetWidth = dataLayout.getTypeSizeInBits(type);
+    }
+    auto apval = intAttr.getValue().zextOrTrunc(targetWidth);
+    auto normalizedAttr =
+      mlir::IntegerAttr::get(mlir::IntegerType::get(builder.getContext(), targetWidth), apval);
+    return LiteralOp::create(builder, loc, type, normalizedAttr);
+  }
+  else if (mlir::isa<mlir::FloatAttr>(value))
+  {
+    return LiteralOp::create(builder, loc, type, value);
+  }
+  else if (mlir::isa<mlir::BoolAttr>(value))
+  {
+    return LiteralOp::create(builder, loc, type, value);
+  }
   return nullptr;
 }
 

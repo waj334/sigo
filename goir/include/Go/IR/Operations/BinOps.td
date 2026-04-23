@@ -58,11 +58,12 @@ class Go_CompareOp<string mnemonic, list<Trait> traits = []> :
     let assemblyFormat = "$lhs ` ` $predicate ` ` $rhs attr-dict-with-keyword `:` functional-type(operands, results)";
     let extraClassDefinition = [{
         ::mlir::SmallVector<::mlir::Type> $cppClass::resolveOperandTypes() {
-            return binOpResolveTypes(this, 2);
+            return cmpOpResolveTypes(this);
         }
 
         ::mlir::SmallVector<::mlir::Type> $cppClass::resolveResultTypes() {
-            return binOpResolveTypes(this, 1);
+            // Compare result is always bool — no resolution needed.
+            return {this->getResult().getType()};
         }
     }];
 }
@@ -160,6 +161,9 @@ def AndOp : Go_IntBinOp<"and", [Commutative, HasCompatibleOperandsAndResultTypes
         %0 = go.and %a, %b : i32
         ```
     }];
+
+    let arguments = (ins Go_IntegerLike:$lhs, Go_IntegerLike:$rhs);
+    let results = (outs Go_IntegerLike:$result);
     let hasFolder = 1;
 }
 

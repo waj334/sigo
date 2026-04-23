@@ -44,13 +44,14 @@ func needsNilCheck(ptr mlir.Value) bool {
 }
 
 type ConstantValue struct {
-	Emitter func(context.Context, mlir.LocationLike) mlir.Value
+	Emitter func(context.Context, mlir.LocationLike) (mlir.Value, types.Type)
 	T       mlir.TypeLike
 	b       *Builder
 }
 
 func (c ConstantValue) Load(ctx context.Context, location mlir.LocationLike) mlir.Value {
-	return c.Emitter(ctx, location)
+	v, _ := c.Emitter(ctx, location)
+	return v
 }
 
 func (c ConstantValue) Store(ctx context.Context, value mlir.ValueLike, location mlir.LocationLike) {
@@ -58,8 +59,8 @@ func (c ConstantValue) Store(ctx context.Context, value mlir.ValueLike, location
 }
 
 func (c ConstantValue) Pointer(ctx context.Context, location mlir.LocationLike) mlir.Value {
-	value := c.Emitter(ctx, location)
-	return c.b.makeCopyOf(ctx, value, location)
+	value, typ := c.Emitter(ctx, location)
+	return c.b.makeCopyOf(ctx, value, typ, location)
 }
 
 func (c ConstantValue) Type() mlir.Type {
@@ -69,7 +70,9 @@ func (c ConstantValue) Type() mlir.Type {
 type GlobalValue struct {
 	symbol string
 	T      mlir.TypeLike
+	GoT    types.Type
 	ctx    mlir.Context
+	b      *Builder
 }
 
 func (g GlobalValue) Load(ctx context.Context, location mlir.LocationLike) mlir.Value {
@@ -96,7 +99,8 @@ func (g GlobalValue) Store(ctx context.Context, value mlir.ValueLike, location m
 }
 
 func (g GlobalValue) Pointer(ctx context.Context, location mlir.LocationLike) mlir.Value {
-	op := goir.NewAddressOfOperation(g.ctx, g.symbol, goir.NewPointerType(g.Type()), location)
+	ptrT := g.b.GetStoredType(ctx, types.NewPointer(g.GoT))
+	op := goir.NewAddressOfOperation(g.ctx, g.symbol, ptrT, location)
 	appendOperation(ctx, op)
 	return resultOf(op).AsValue()
 }
@@ -185,6 +189,7 @@ type FreeVar struct {
 	obj types.Object
 	ptr mlir.Value // **void
 	T   mlir.TypeLike
+	GoT types.Type
 	b   *Builder
 }
 
@@ -227,7 +232,8 @@ func (f FreeVar) Pointer(ctx context.Context, location mlir.LocationLike) mlir.V
 	}
 
 	// Load the address of the value.
-	loadOp := goir.NewLoadOperation(f.b.ctx, f.ptr, goir.NewPointerType(f.T), location)
+	ptrT := f.b.GetStoredType(ctx, types.NewPointer(f.GoT))
+	loadOp := goir.NewLoadOperation(f.b.ctx, f.ptr, ptrT, location)
 	appendOperation(ctx, loadOp)
 	return resultOf(loadOp).AsValue()
 }

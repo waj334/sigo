@@ -10,6 +10,18 @@ import (
 )
 
 func (b *Builder) emitTypeConversion(ctx context.Context, X mlir.ValueLike, src types.Type, dest types.Type, location mlir.LocationLike) mlir.Value {
+	// Resolve TypeParams to their concrete types in generic function instances.
+	if tp, ok := baseType(src).(*types.TypeParam); ok {
+		if typeMap := currentTypeMap(ctx); typeMap != nil {
+			src = resolveTypeInTypeMap(typeMap[tp.Index()], typeMap)
+		}
+	}
+	if tp, ok := baseType(dest).(*types.TypeParam); ok {
+		if typeMap := currentTypeMap(ctx); typeMap != nil {
+			dest = resolveTypeInTypeMap(typeMap[tp.Index()], typeMap)
+		}
+	}
+
 	if typeHasFlags(src, types.IsUntyped) && typeHasFlags(dest, types.IsUntyped) {
 		// TODO: Determine the best action to take here.
 		return X.AsValue()
@@ -48,7 +60,7 @@ func (b *Builder) emitTypeConversion(ctx context.Context, X mlir.ValueLike, src 
 					result = resultOf(op).AsValue()
 				} else if srcWidth == destWidth {
 					result = b.bitcastTo(ctx, result, destType, location)
-				} else if isUnsigned(destType) {
+				} else if isUnsigned(srcType) {
 					op := goir.NewZeroExtendOperation(b.ctx, X, destType, location)
 					appendOperation(ctx, op)
 					result = resultOf(op).AsValue()

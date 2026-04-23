@@ -42,6 +42,18 @@ func deferInit(isLongjmp int32, stack *deferStack) bool {
 				abort()
 			}
 		}
+
+		// Continue unwinding for Goexit.
+		if currentGoroutine.state == goroutineExiting {
+			if nextStack != nil {
+				longjmp(&nextStack.jb, 1)
+			} else {
+				// All defers done — terminate this goroutine.
+				removeGoroutine(unsafe.Pointer(currentGoroutine))
+				gosched()
+			}
+		}
+
 		return true
 	} else {
 		stack.next = currentGoroutine.deferStack

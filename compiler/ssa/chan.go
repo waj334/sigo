@@ -33,15 +33,27 @@ func (b *Builder) emitSelectStatement(ctx context.Context, stmt *ast.SelectStmt)
 		} else {
 			// Extract the specific channel involved in the case clause.
 			var value mlir.ValueLike
+			var chanExpr ast.Expr
 			send := false
 			switch stmt := clause.Comm.(type) {
 			case *ast.AssignStmt:
-				value = b.emitExpr(ctx, ast.Unparen(stmt.Rhs[0]).(*ast.UnaryExpr).X.(*ast.Ident))[0]
+				chanExpr = stmt.Rhs[0].(*ast.UnaryExpr).X
+				value = b.emitExpr(ctx, chanExpr)[0]
 			case *ast.ExprStmt:
-				value = b.emitExpr(ctx, ast.Unparen(stmt.X).(*ast.UnaryExpr).X.(*ast.Ident))[0]
+				chanExpr = stmt.X.(*ast.UnaryExpr).X
+				value = b.emitExpr(ctx, chanExpr)[0]
 			case *ast.SendStmt:
-				value = b.emitExpr(ctx, ast.Unparen(stmt.Chan).(*ast.Ident))[0]
+				chanExpr = stmt.Chan
+				value = b.emitExpr(ctx, chanExpr)[0]
 				send = true
+			}
+
+			// All channel directions are identical at runtime. If the channel
+			// is directional, bitcast it to the bidirectional (SendRecv) type
+			// so the variadic channel array has a uniform element type.
+			if chanT, ok := b.typeOf(ctx, chanExpr).Underlying().(*types.Chan); ok && chanT.Dir() != types.SendRecv {
+				sendRecvT := b.GetType(ctx, types.NewChan(types.SendRecv, chanT.Elem()))
+				value = b.bitcastTo(ctx, value, sendRecvT, b.location(ctx, chanExpr.Pos()))
 			}
 
 			chans = append(chans, value)
@@ -184,7 +196,7 @@ func (b *Builder) emitChanRange(ctx context.Context, stmt *ast.RangeStmt) {
 			if identIsValid(ident) {
 				// A copy should be emitted into this block. Heap escape analysis should handle converting the stack
 				// allocation to a heap allocation in the event that the loop variable escapes the current scope.
-				copyAddr := b.emitNamedAlloca(ctx, ident.Name, elementT, b.location(ctx, stmt.Value.Pos()))
+				copyAddr := b.emitNamedAlloca(ctx, ident.Name, elementT, chanType.Elem(), b.location(ctx, stmt.Value.Pos()))
 				elementVar = b.NewTempValue(copyAddr)
 				b.setAddr(ctx, ident, elementVar)
 			}

@@ -24,8 +24,8 @@ def BitcastOp : Go_Op<"bitcast", [Pure, NoMemoryEffect]> {
         %2 = go.bitcast %1 : !go.ptr<i32>
         ```
     }];
-    let arguments = (ins Go_Type:$value);
-    let results = (outs Go_Type:$result);
+    let arguments = (ins AnyType:$value);
+    let results = (outs AnyType:$result);
     let assemblyFormat = [{
         $value attr-dict-with-keyword `:` type($value) `to` type($result)
     }];
@@ -118,6 +118,7 @@ def IntTruncateOp : Go_Op<"itrunc", [Pure]> {
     let assemblyFormat = [{
         $value attr-dict-with-keyword `:` type($value) `to` type($result)
     }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -161,6 +162,7 @@ def SignedExtendOp : Go_Op<"sext", [Pure, NoMemoryEffect]> {
     let assemblyFormat = [{
         $value attr-dict-with-keyword `:` type($value) `to` type($result)
     }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//
@@ -183,6 +185,7 @@ def ZeroExtendOp : Go_Op<"zext", [Pure, NoMemoryEffect]> {
     let assemblyFormat = [{
         $value attr-dict-with-keyword `:` type($value) `to` type($result)
     }];
+    let hasFolder = 1;
 }
 
 //===----------------------------------------------------------------------===//

@@ -2,6 +2,7 @@ package ssa
 
 import (
 	"context"
+	"fmt"
 	"go/ast"
 	"go/token"
 	"go/types"
@@ -21,7 +22,7 @@ func (b *Builder) emitBuiltinCall(ctx context.Context, expr *ast.CallExpr) []mli
 	default:
 		// Create a synthetic signature.
 		resultType := b.typeOf(ctx, expr)
-		resultTuple := types.NewTuple(types.NewVar(token.NoPos, nil, "", resultType))
+		resultTuple := types.NewTuple(types.NewVar(token.NoPos, nil, "result", resultType))
 
 		inputs := make([]*types.Var, len(expr.Args))
 		for i, arg := range expr.Args {
@@ -29,7 +30,7 @@ func (b *Builder) emitBuiltinCall(ctx context.Context, expr *ast.CallExpr) []mli
 			if isUntyped(argType) {
 				argType = types.Default(argType)
 			}
-			inputs[i] = types.NewVar(token.NoPos, nil, "", argType)
+			inputs[i] = types.NewVar(token.NoPos, nil, fmt.Sprintf("param$%d", i), argType)
 		}
 		paramsTuple := types.NewTuple(inputs...)
 		signature = types.NewSignatureType(nil, nil, nil, paramsTuple, resultTuple, false)
@@ -52,8 +53,9 @@ func (b *Builder) emitBuiltinCall(ctx context.Context, expr *ast.CallExpr) []mli
 	offset := 0
 	switch name {
 	case "new", "make":
-		// First argument is a type.
-		results = append(results, b.GetStoredType(ctx, b.typeOf(ctx, expr)))
+		// First argument is a type. Unwrap named types so the verifier sees
+		// the underlying map/slice/chan type.
+		results = append(results, b.GetStoredType(ctx, baseType(b.typeOf(ctx, expr))))
 		offset = 1
 	case "panic":
 		valueType := b.typeOf(ctx, expr.Args[0])
@@ -113,5 +115,20 @@ func (b *Builder) emitBuiltinCall(ctx context.Context, expr *ast.CallExpr) []mli
 	// Finally, emit the built-in call.
 	op := goir.NewBuiltInCallOperation(b.ctx, name, results, operands, location)
 	appendOperation(ctx, op)
-	return resultsOf(op)
+	callResults := resultsOf(op)
+
+	// For make/new: the builtin result uses the underlying type (map/slice/chan),
+	// but if the Go type is a named type, we need to bitcast back so that stores
+	// to the named-type variable match.
+	if name == "make" || name == "new" {
+		goType := b.typeOf(ctx, expr)
+		if _, isNamed := goType.(*types.Named); isNamed {
+			namedT := b.GetStoredType(ctx, goType)
+			for i := range callResults {
+				callResults[i] = b.bitcastTo(ctx, callResults[i], namedT, location)
+			}
+		}
+	}
+
+	return callResults
 }

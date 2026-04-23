@@ -52,6 +52,7 @@ func Environment() (Env, error) {
 		"GOCACHE":  getenv("SIGOCACHE", getenv("GOCACHE", filepath.Join(cacheDir, "go-build"))),
 		"GOTMPDIR": getenv("SIGOTMPDIR", filepath.Join(cacheDir, "sigo")),
 		//"PATH":     os.Getenv("PATH"),
+		"PATH":    os.Getenv("PATH"),
 		"CC":      getenv("CC", ""),
 		"LD":      getenv("LD", ""),
 		"OBJCOPY": getenv("OBJCOPY", ""),

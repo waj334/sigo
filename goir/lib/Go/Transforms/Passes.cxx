@@ -123,6 +123,7 @@ struct LowerToCorePass : impl::LowerToCorePassBase<LowerToCorePass>
     target.addIllegalOp<mlir::go::FuncOp>();
     target.addIllegalOp<ImagOp>();
     target.addIllegalOp<IntTruncateOp>();
+    target.addIllegalOp<LiteralOp>();
     target.addIllegalOp<MakeInterfaceOp>();
     target.addIllegalOp<MulCOp>();
     target.addIllegalOp<MulFOp>();
@@ -251,7 +252,7 @@ struct LowerToLLVMPass : impl::LowerToLLVMPassBase<LowerToLLVMPass>
 
     // The Go dialect is illegal
     target.addIllegalDialect<GoDialect>();
-    target.addIllegalOp<mlir::UnrealizedConversionCastOp>();
+    //target.addIllegalOp<mlir::UnrealizedConversionCastOp>();
 
     // Add the required patterns already in MLIR
     populateFuncToLLVMConversionPatterns(typeConverter, patterns);

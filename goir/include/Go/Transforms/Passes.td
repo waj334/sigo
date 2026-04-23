@@ -27,6 +27,17 @@ def AttachDebugInfoToGlobalPass : Pass<"attach-debug-info-to-global-pass", "::ml
     let dependentDialects = ["mlir::go::GoDialect", "mlir::LLVM::LLVMDialect"];
 }
 
+def AttachDebugInfoToLLVMFuncPass : Pass<"attach-debug-info-to-llvm-func-pass", "::mlir::LLVM::LLVMFuncOp"> {
+    let summary = "Attaches debug information to LLVM functions that lack it.";
+    let description = [{
+        Walks llvm.func operations that have a FileLineColLoc but no
+        DISubprogramAttr. Creates DICompileUnit, DIFile, and DISubprogram
+        attributes and fuses them onto the function location. Intended
+        for CIR-derived functions that bypass GoIR debug info passes.
+    }];
+    let dependentDialects = ["mlir::LLVM::LLVMDialect"];
+}
+
 def CallPass : Pass<"call-pass", "::mlir::ModuleOp"> {
     let summary = "Generates call wrapper functions for special calls.";
     let description = [{
@@ -48,6 +59,17 @@ def GlobalConstantsPass : Pass<"global-constants-pass", "::mlir::ModuleOp"> {
         values in the program.
     }];
     let dependentDialects = ["mlir::go::GoDialect", "mlir::LLVM::LLVMDialect"];
+}
+
+def ImmutableGlobalsPass : Pass<"go-immutable-globals-pass", "::mlir::ModuleOp"> {
+    let summary = "Detects package-level globals that are never written to.";
+    let description = [{
+        Analyzes all uses of go.addressOf for each global. Globals that are never
+        the target of a go.store (directly or through GEP chains), and whose
+        address does not escape to unknown operations, are marked with a
+        go.immutable attribute. Downstream lowering uses this to emit them as
+        LLVM constant globals (placed in flash/rodata).
+    }];
 }
 
 def GlobalInitializerPass : Pass<"global-initializer-pass", "::mlir::ModuleOp"> {

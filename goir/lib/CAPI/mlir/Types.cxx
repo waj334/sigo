@@ -95,6 +95,12 @@ bool mlirGoTypeIsAPointer(MlirType type)
   return mlir::go::isa<mlir::go::PointerType>(_type);
 }
 
+bool mlirGoTypeIsAInterface(MlirType type)
+{
+  auto _type = unwrap(type);
+  return mlir::go::isa<mlir::go::InterfaceType>(_type);
+}
+
 MlirType mlirGoCreateArrayType(MlirType elementType, int length)
 {
   auto _elementType = unwrap(elementType);
@@ -220,18 +226,32 @@ MlirType mlirGoCreatePointerType(MlirType elementType)
 
 MlirType mlirGoPointerTypeGetElementType(MlirType type)
 {
-  auto _type = mlir::cast<mlir::go::PointerType>(unwrap(type));
-  if (_type.getElementType())
+  const auto _type = mlir::cast<mlir::go::PointerType>(unwrap(type));
+  if (const auto _elementType = _type.getElementType(); _elementType.has_value())
   {
-    return wrap(*_type.getElementType());
+    return wrap(*_elementType);
   }
   return wrap(mlir::Type());
 }
 
 MlirType mlirGoCreateUnsafePointerType(MlirContext context)
 {
-  auto _context = unwrap(context);
+  const auto _context = unwrap(context);
   return wrap(mlir::go::PointerType::get(_context, {}));
+}
+
+MlirType mlirGoCreateDeferredPointerType(MlirContext context, MlirStringRef id)
+{
+  auto* ctx = unwrap(context);
+  const auto _id = unwrap(id);
+  return wrap(mlir::go::PointerType::getDeferred(ctx, _id));
+}
+
+void mlirGoSetPointerElementType(MlirType pointerType, MlirType elementType)
+{
+  auto ptr = mlir::cast<mlir::go::PointerType>(unwrap(pointerType));
+  const auto result = ptr.setElementType(unwrap(elementType));
+  assert(succeeded(result));
 }
 
 MlirType mlirGoCreateSliceType(MlirType elementType)

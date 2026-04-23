@@ -1,3 +1,4 @@
+#include <llvm/ADT/DenseSet.h>
 #include <mlir/Dialect/LLVMIR/LLVMDialect.h>
 #include <mlir/IR/IRMapping.h>
 #include <mlir/IR/Iterators.h>
@@ -55,7 +56,7 @@ struct ValueNormalizationPass : public BaseT
           // The global constant has a direct value attribute. Create a new
           // constant operation with that value at the reference site.
           rewriter.setInsertionPoint(constantRefOp);
-          auto newConstOp = rewriter.create<mlir::go::ConstantOp>(
+          auto newConstOp = mlir::go::ConstantOp::create(rewriter, 
             loc, constantRefOp.getType(), *globalConstantOp.getValue(), mlir::StringAttr());
           replacementValue = newConstOp.getResult();
         }
@@ -96,11 +97,12 @@ struct ValueNormalizationPass : public BaseT
       });
 
     // Visit all operations in the function in reverse order.
+    mlir::DenseSet<mlir::Operation*> erasureSet;
     mlir::SmallVector<mlir::Operation*> erasures;
     parentOp->template walk<mlir::WalkOrder::PostOrder, ::mlir::ReverseIterator>(
       [&](mlir::Operation* op)
       {
-        if (llvm::is_contained(erasures, op))
+        if (erasureSet.contains(op))
         {
           // Skip any operation that is marked for erasure.
           return;
@@ -145,7 +147,7 @@ struct ValueNormalizationPass : public BaseT
           // Determine the index of the result that must be replaced.
           const unsigned resultIndex = llvm::cast<OpResult>(operand).getResultNumber();
           const auto result =
-            this->rewriteOp(rewriter, definingOp, resultIndex, expectedType, erasures);
+            this->rewriteOp(rewriter, definingOp, resultIndex, expectedType, erasureSet, erasures);
           if (failed(result))
           {
             definingOp->emitOpError("failed to rewrite the operation");
@@ -155,8 +157,9 @@ struct ValueNormalizationPass : public BaseT
         }
       });
 
-    // Finally, clean up operations marked for erasure.
-    for (mlir::Operation* op : erasures)
+    // Finally, clean up operations marked for erasure (in reverse order so
+    // that uses are erased before their definitions).
+    for (mlir::Operation* op : llvm::reverse(erasures))
     {
       if (op->use_empty())
       {
@@ -176,6 +179,7 @@ struct ValueNormalizationPass : public BaseT
     mlir::Operation* originalOp,
     const size_t resultIndex,
     const mlir::Type resolvedType,
+    mlir::DenseSet<mlir::Operation*>& erasureSet,
     mlir::SmallVector<mlir::Operation*>& erasures)
   {
     // Rewrite the original operation.
@@ -212,7 +216,8 @@ struct ValueNormalizationPass : public BaseT
     if (!resolver)
     {
       // Drop the old operation.
-      erasures.insert(erasures.begin(), originalOp);
+      erasureSet.insert(originalOp);
+      erasures.push_back(originalOp);
       return newOp;
     }
 
@@ -236,7 +241,7 @@ struct ValueNormalizationPass : public BaseT
 
       const unsigned definingOpResultIndex = llvm::cast<OpResult>(operand).getResultNumber();
       const auto result =
-        this->rewriteOp(rewriter, definingOp, definingOpResultIndex, resolvedType, erasures);
+        this->rewriteOp(rewriter, definingOp, definingOpResultIndex, resolvedType, erasureSet, erasures);
       if (failed(result))
       {
         definingOp->emitOpError("failed to rewrite the operation");
@@ -246,7 +251,8 @@ struct ValueNormalizationPass : public BaseT
     }
 
     // Drop the old operation.
-    erasures.insert(erasures.begin(), originalOp);
+    erasureSet.insert(originalOp);
+    erasures.push_back(originalOp);
     return newOp;
   }
 };

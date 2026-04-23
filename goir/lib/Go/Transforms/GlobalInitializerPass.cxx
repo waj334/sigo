@@ -54,7 +54,7 @@ struct GlobalInitializerPass : impl::GlobalInitializerPassBase<GlobalInitializer
         auto fnT = mlir::go::FunctionType::get(builder.getContext(), {}, {});
 
         // Create a constructor function from this global.
-        auto ctorFn = builder.create<mlir::go::FuncOp>(globalOp.getLoc(), ctorSymbol.c_str(), fnT);
+        auto ctorFn = mlir::go::FuncOp::create(builder, globalOp.getLoc(), ctorSymbol.c_str(), fnT);
         int priority = 0;
         if (auto priorityAttr = globalOp->getAttrOfType<IntegerAttr>("go.ctor.priority"))
         {
@@ -82,14 +82,14 @@ struct GlobalInitializerPass : impl::GlobalInitializerPassBase<GlobalInitializer
 
           // Get the address of the global where the yielded value should be stored.
           Value addr =
-            builder.create<AddressOfOp>(globalOp.getLoc(), addrType, globalOp.getSymName());
+            AddressOfOp::create(builder, globalOp.getLoc(), addrType, globalOp.getSymName());
 
           // Store the yielded value at the global address.
-          builder.create<StoreOp>(
+          StoreOp::create(builder, 
             globalOp.getLoc(), yieldOp.getInitializerValue(), addr, UnitAttr(), UnitAttr());
 
           // Insert a void return.
-          builder.create<mlir::go::ReturnOp>(globalOp->getLoc());
+          mlir::go::ReturnOp::create(builder, globalOp->getLoc());
 
           // Remove the yield operation.
           yieldOp.erase();
@@ -103,8 +103,8 @@ struct GlobalInitializerPass : impl::GlobalInitializerPassBase<GlobalInitializer
         {
           mlir::OpBuilder::InsertionGuard guard(builder);
           builder.createBlock(&newGlobal.getInitializerRegion());
-          Value zero = builder.create<ZeroOp>(newGlobal.getLoc(), newGlobal.getGlobalType());
-          builder.create<YieldOp>(newGlobal.getLoc(), zero);
+          Value zero = ZeroOp::create(builder, newGlobal.getLoc(), newGlobal.getGlobalType());
+          YieldOp::create(builder, newGlobal.getLoc(), zero);
         }
 
         // Erase the original global.
@@ -124,7 +124,7 @@ struct GlobalInitializerPass : impl::GlobalInitializerPassBase<GlobalInitializer
       });
 
     // Create the LLVM ctors operation.
-    builder.create<GlobalCtorsOp>(
+    GlobalCtorsOp::create(builder, 
       builder.getUnknownLoc(), builder.getArrayAttr(symbols), builder.getI32ArrayAttr(priorities));
   }
 }; // namespace mlir::go

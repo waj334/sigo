@@ -35,11 +35,18 @@ func runOptimizerPass(module mlir.Module, debug bool) mlir.LogicalResult {
 
 	pm.AddOwnedPass(goir.NewPreprocessingPass()).
 		AddOwnedPass(goir.NewCallPass()).
-		AddOwnedPass(goir.NewGlobalConstantsPass()).
-		AddOwnedPass(goir.NewGlobalInitializerPass())
+		AddOwnedPass(goir.NewGlobalConstantsPass())
+
+	// Canonicalize following NewGlobalConstantsPass so that constant expressions are folded.
+	pm.AddOwnedPass(mlir.NewTransformsCanonicalizer())
 
 	pm.NestedUnder("go.global").
-		AddOwnedPass(goir.NewValueNormalizationGlobalPass()).
+		AddOwnedPass(goir.NewValueNormalizationGlobalPass())
+
+	pm.AddOwnedPass(goir.NewGlobalInitializerPass()).
+		AddOwnedPass(goir.NewImmutableGlobalsPass())
+
+	pm.NestedUnder("go.global").
 		AddOwnedPass(goir.NewAttachDebugInfoToGlobalPass())
 
 	// Handle heap and stack allocations after lowering globals.
@@ -58,6 +65,11 @@ func runOptimizerPass(module mlir.Module, debug bool) mlir.LogicalResult {
 	// Lower to LLVMIR.
 	pm.AddOwnedPass(mlir.NewTransformsCanonicalizer()).
 		AddOwnedPass(goir.NewLowerToLLVMPass())
+
+	// Attach debug info to CIR-derived llvm.func ops that lack it.
+	// GoIR-derived functions already have DISubprogramAttr and are skipped.
+	pm.NestedUnder("llvm.func").
+		AddOwnedPass(goir.NewAttachDebugInfoToLLVMFuncPass())
 
 	// LLVM export and cleanup.
 	pm.NestedUnder("llvm.func").
