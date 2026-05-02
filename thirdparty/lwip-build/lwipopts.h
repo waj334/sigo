@@ -1,6 +1,8 @@
 #ifndef LWIPOPTS_H
 #define LWIPOPTS_H
 
+#include "arch/cc.h"
+
 /* Bare-metal, no OS */
 #define NO_SYS                  1
 
@@ -20,6 +22,7 @@
 #define LWIP_UDP                1
 #define LWIP_TCP                1
 #define LWIP_DHCP               1
+#define LWIP_DNS                1
 
 /* IPv4 only */
 #define LWIP_IPV4               1
@@ -33,6 +36,7 @@
 /* Debugging */
 #define LWIP_DEBUG              0
 #define LWIP_DBG_MIN_LEVEL      LWIP_DBG_LEVEL_ALL
+#define LWIP_DBG_TYPES_ON       LWIP_DBG_OFF
 
 #define ETHARP_DEBUG            LWIP_DBG_OFF
 #define NETIF_DEBUG             LWIP_DBG_OFF
@@ -40,6 +44,14 @@
 #define IP_DEBUG                LWIP_DBG_OFF
 #define DHCP_DEBUG              LWIP_DBG_OFF
 #define TCP_DEBUG               LWIP_DBG_OFF
+#define TCP_INPUT_DEBUG         LWIP_DBG_OFF
+#define TCP_OUTPUT_DEBUG        LWIP_DBG_OFF
+#define TCP_RST_DEBUG           LWIP_DBG_OFF
+#define TCP_RTO_DEBUG           LWIP_DBG_OFF
 #define UDP_DEBUG               LWIP_DBG_OFF
+
+/* Functions */
+extern uint32_t lwip_rand(void);
+#define LWIP_RAND()             lwip_rand()
 
 #endif /* LWIPOPTS_H */

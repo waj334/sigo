@@ -8,7 +8,9 @@ import (
 )
 
 type UDPConn struct {
-	pcb        udpControlBlock
+	// pcb points at lwIP's real udp_pcb. Same reasoning as TCPConn.pcb:
+	// the pcb is owned by lwIP and a Go-side value copy would diverge.
+	pcb        *udpControlBlock
 	rxBuf      chan []byte
 	rxErr      chan error
 	pending    []byte

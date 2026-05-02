@@ -1,7 +1,6 @@
 package runtime
 
 import (
-	"math/rand"
 	"sync"
 	"unsafe"
 )
@@ -203,7 +202,7 @@ func channelSelect(chanArr *_channel, sendArr *bool, readyArr *int, count int, h
 		if r == 1 {
 			return rdy[0]
 		} else if r > 1 {
-			return rdy[rand.Intn(r)]
+			return rdy[randn(uint32(r))]
 		} else if hasDefault {
 			break
 		}

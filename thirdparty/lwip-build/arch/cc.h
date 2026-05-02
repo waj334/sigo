@@ -25,9 +25,10 @@ typedef uintptr_t mem_ptr_t;
 #define U16_F "u"
 #define S16_F "d"
 #define X16_F "x"
-#define U32_F "lu"
-#define S32_F "ld"
-#define X32_F "lx"
+#define U32_F "u"
+#define S32_F "d"
+#define X32_F "x"
+#define SZT_F "u"
 
 /* Compiler hints for packing */
 #define PACK_STRUCT_FIELD(x) x

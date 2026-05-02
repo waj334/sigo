@@ -345,13 +345,23 @@ OpFoldResult ZeroExtendOp::fold(FoldAdaptor adaptor)
     }
 
     // The signatures of the methods MUST match for the resulting interface type to be compatible
-    // with the input interface.
+    // with the input interface. Interface method compatibility in Go is determined by parameter
+    // and result types only — the receiver type is implicit and may differ between interfaces
+    // (e.g. net.Conn::Write has receiver net.Conn while io.Writer::Write has receiver io.Writer).
     if (method.second != sourceMethod->second)
     {
-      return this->emitOpError()
-        << "the signature of method \"" << method.first
-        << "\" in the resulting interface type does not match that of the input "
-           "value interface type";
+      // Fall back to comparing inputs and results only, ignoring the receiver.
+      const auto resultFnType = dyn_cast<FunctionType>(method.second);
+      const auto sourceFnType = dyn_cast<FunctionType>(sourceMethod->second);
+      if (!resultFnType || !sourceFnType ||
+          resultFnType.getInputs() != sourceFnType.getInputs() ||
+          resultFnType.getResults() != sourceFnType.getResults())
+      {
+        return this->emitOpError()
+          << "the signature of method \"" << method.first
+          << "\" in the resulting interface type does not match that of the input "
+             "value interface type";
+      }
     }
   }
 

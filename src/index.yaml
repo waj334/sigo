@@ -4,7 +4,6 @@ include:
   - cmp
   - errors
   - internal/byteorder
-  - internal/chacha8rand
   - internal/fmtsort
   - internal/saferio
   - internal/singleflight

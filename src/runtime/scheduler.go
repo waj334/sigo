@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"internal/chacha8rand"
 	"unsafe"
 )
 
@@ -30,6 +31,7 @@ type goroutine struct {
 	state      goroutineState
 	deferStack *deferStack
 	panicValue any
+	chacha8    chacha8rand.State
 }
 
 //sigo:extern goroutineStackSize runtime._goroutineStackSize
@@ -153,6 +155,15 @@ func addGoroutine(f _func) {
 		state:    goroutineNotStarted,
 	}
 
+	// Seed chacha8 with the goroutine's address.
+	gint := uintptr(unsafe.Pointer(newGoroutine))
+	newGoroutine.chacha8.Init64([4]uint64{
+		uint64(gint >> 8),
+		uint64(gint >> 16),
+		uint64(gint >> 24),
+		uint64(gint >> 32),
+	})
+
 	// Initialize the stack for this goroutine.
 	initGoroutine(unsafe.Pointer(newGoroutine))
 
@@ -253,6 +264,18 @@ func goresume(ptr unsafe.Pointer) {
 	EnableInterrupts(state)
 }
 
-func getg() unsafe.Pointer {
+func getg() *goroutine {
+	return currentGoroutine
+}
+
+// getgPtr returns the current goroutine as an unsafe.Pointer. It exists so
+// callers in the time and sync packages can hold an opaque goroutine handle
+// without referencing the runtime's *goroutine type, which is private to the
+// runtime. The two getg variants would otherwise have signatures that differ
+// only in their return type, which would mismatch at the func.call site
+// when the time/sync side is bridged via //sigo:extern.
+//
+//go:export getgPtr runtime.getgPtr
+func getgPtr() unsafe.Pointer {
 	return unsafe.Pointer(currentGoroutine)
 }

@@ -2,6 +2,7 @@ package net
 
 import (
 	"errors"
+	"nonstandard"
 	"time"
 	"unsafe"
 )
@@ -22,18 +23,22 @@ type Dialer struct {
 	// KeepAlive specifies the interval between keep-alive probes
 	// for an active network connection.
 	KeepAlive time.Duration
+
+	// Resolver, if non-nil, overrides DefaultResolver for hostname lookups.
+	Resolver *Resolver
 }
 
 // Dial connects to the address on the named network.
 //
 // Known networks are "tcp", "tcp4", "udp", and "udp4".
 //
-// The address has the form "host:port".
-// The host must be a literal IPv4 address.
+// The address has the form "host:port". The host may be a literal IPv4
+// address (dotted-decimal) or a hostname; hostnames are resolved via
+// the Dialer's Resolver (or DefaultResolver if unset).
 func (d *Dialer) Dial(network, address string) (Conn, error) {
 	switch network {
 	case "tcp", "tcp4":
-		raddr, err := ResolveTCPAddr(network, address)
+		raddr, err := d.resolveTCPAddr(network, address)
 		if err != nil {
 			return nil, err
 		}
@@ -49,7 +54,7 @@ func (d *Dialer) Dial(network, address string) (Conn, error) {
 
 		return d.DialTCP(network, laddr, raddr)
 	case "udp", "udp4":
-		raddr, err := ResolveUDPAddr(network, address)
+		raddr, err := d.resolveUDPAddr(network, address)
 		if err != nil {
 			return nil, err
 		}
@@ -67,6 +72,64 @@ func (d *Dialer) Dial(network, address string) (Conn, error) {
 	default:
 		return nil, errors.New("net: unknown network " + network)
 	}
+}
+
+// resolveTCPAddr is like ResolveTCPAddr but accepts hostnames, falling
+// back to DNS via the Dialer's Resolver if the host isn't an IP literal.
+func (d *Dialer) resolveTCPAddr(network, address string) (*TCPAddr, error) {
+	switch network {
+	case "tcp", "tcp4":
+	default:
+		return nil, errors.New("net: unsupported network: " + network)
+	}
+
+	host, port, err := splitHostPort(address)
+	if err != nil {
+		return nil, err
+	}
+
+	ip, err := parseIPv4(host)
+	if err != nil {
+		// Not a literal — resolve via DNS.
+		ip, err = d.resolver().LookupIPv4(host)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &TCPAddr{IP: ip, Port: port}, nil
+}
+
+// resolveUDPAddr is the UDP counterpart.
+func (d *Dialer) resolveUDPAddr(network, address string) (*UDPAddr, error) {
+	switch network {
+	case "udp", "udp4":
+	default:
+		return nil, errors.New("net: unsupported network: " + network)
+	}
+
+	host, port, err := splitHostPort(address)
+	if err != nil {
+		return nil, err
+	}
+
+	ip, err := parseIPv4(host)
+	if err != nil {
+		ip, err = d.resolver().LookupIPv4(host)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &UDPAddr{IP: ip, Port: port}, nil
+}
+
+// resolver returns d.Resolver or DefaultResolver.
+func (d *Dialer) resolver() *Resolver {
+	if d.Resolver != nil {
+		return d.Resolver
+	}
+	return DefaultResolver
 }
 
 // DialTCP connects to the remote TCP address.
@@ -100,18 +163,18 @@ func (d *Dialer) DialTCP(network string, laddr, raddr *TCPAddr) (*TCPConn, error
 			}
 		}
 
-		conn.pcb = *pcb
+		conn.pcb = pcb
 
 		// Set the connection argument to point at our TCPConn.
 		pcb.Arg(unsafe.Pointer(conn))
 
 		// Install receive and error callbacks.
-		pcb.SetRecv(tcpRecv)
-		pcb.SetErr(tcpDialErr)
+		pcb.SetRecv(nonstandard.PointerOf(tcpRecv))
+		pcb.SetErr(nonstandard.PointerOf(tcpDialErr))
 
 		// Initiate the TCP three-way handshake.
 		rip := newIP4Addr(raddr.IP[0], raddr.IP[1], raddr.IP[2], raddr.IP[3])
-		err := pcb.Connect(&rip, uint16(raddr.Port), tcpConnected)
+		err := pcb.Connect(&rip, uint16(raddr.Port), nonstandard.PointerOf(tcpConnected))
 		if err != nil {
 			pcb.Abort()
 			conn.connectDone <- errors.New("net: connect failed: " + err.Error())
@@ -144,7 +207,7 @@ func (d *Dialer) DialTCP(network string, laddr, raddr *TCPAddr) (*TCPConn, error
 	// Switch from the dial error callback to the normal connection error
 	// callback now that the handshake is complete.
 	queueOperation(func() {
-		conn.pcb.SetErr(tcpConnErr)
+		conn.pcb.SetErr(nonstandard.PointerOf(tcpConnErr))
 	})
 
 	return conn, nil
@@ -180,10 +243,10 @@ func (d *Dialer) DialUDP(network string, laddr, raddr *UDPAddr) (*UDPConn, error
 			}
 		}
 
-		conn.pcb = *pcb
+		conn.pcb = pcb
 
 		// Install receive callback.
-		pcb.Recv(udpRecvCallback, unsafe.Pointer(conn))
+		pcb.Recv(nonstandard.PointerOf(udpRecvCallback), unsafe.Pointer(conn))
 
 		// Connect sets the default remote address for Send().
 		rip := newIP4Addr(raddr.IP[0], raddr.IP[1], raddr.IP[2], raddr.IP[3])

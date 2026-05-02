@@ -469,6 +469,111 @@ func (b *Builder) createFunctionValue(ctx context.Context, fn mlir.ValueLike, ar
 	return resultOf(insertOp).AsValue()
 }
 
+// getOrCreateClosureShim emits and caches a closure shim for a regular Go function
+// referenced as a value. The shim's signature prepends an unsafe.Pointer context
+// parameter; the body discards the context and forwards the remaining arguments to
+// the original function. It exists because every callee reached through a runtime._func
+// value receives the closure context as input 0 (see CallPass.processCallOp), and
+// non-closure functions wouldn't otherwise have a slot for it — the prepended context
+// would shift their real parameters by one register.
+//
+// Returns the shim's symbol and a *types.Signature describing the shim itself.
+func (b *Builder) getOrCreateClosureShim(ctx context.Context, calleeSymbol string, signature *types.Signature) (string, *types.Signature) {
+	shimSymbol := calleeSymbol + "$shim"
+
+	b.thunkMutex.Lock()
+	defer b.thunkMutex.Unlock()
+
+	if t, ok := b.thunkTypes[shimSymbol]; ok {
+		return shimSymbol, t.s
+	}
+
+	// Build the synthetic Go signature: (ctx unsafe.Pointer, ...origParams) -> origResults.
+	paramVars := make([]*types.Var, signature.Params().Len()+1)
+	paramVars[0] = types.NewVar(token.NoPos, nil, "ctx", types.Typ[types.UnsafePointer])
+	for i := 0; i < signature.Params().Len(); i++ {
+		p := signature.Params().At(i)
+		paramVars[i+1] = types.NewVar(token.NoPos, nil, fmt.Sprintf("arg$%d", i), p.Type())
+	}
+
+	resultVars := make([]*types.Var, signature.Results().Len())
+	for i := 0; i < signature.Results().Len(); i++ {
+		r := signature.Results().At(i)
+		resultVars[i] = types.NewVar(token.NoPos, nil, fmt.Sprintf("result$%d", i), r.Type())
+	}
+
+	shimSig := types.NewSignatureType(nil, nil, nil,
+		types.NewTuple(paramVars...), types.NewTuple(resultVars...), signature.Variadic())
+
+	// Build MLIR types for the shim's parameters/results.
+	paramTypes := make([]mlir.TypeLike, len(paramVars))
+	paramLocs := make([]mlir.LocationLike, len(paramVars))
+	for i, p := range paramVars {
+		paramTypes[i] = b.GetStoredType(ctx, p.Type())
+		paramLocs[i] = b._noLoc
+	}
+
+	resultTypes := make([]mlir.TypeLike, len(resultVars))
+	for i, r := range resultVars {
+		resultTypes[i] = b.GetStoredType(ctx, r.Type())
+	}
+
+	// Build the shim function body.
+	region := mlir.NewRegion()
+	shimCtx := newContextWithRegion(ctx, region)
+	shimCtx = newContextWithCurrentBlock(shimCtx)
+
+	entryBlock := mlir.NewBlock(paramTypes, paramLocs)
+	region.AppendOwnedBlock(entryBlock)
+	buildBlock(shimCtx, entryBlock, func() {
+		// Forward arguments 1..N to the original function (discard arg 0, the context).
+		forwardArgs := make([]mlir.ValueLike, 0, entryBlock.NumArguments()-1)
+		for i := 1; i < entryBlock.NumArguments(); i++ {
+			forwardArgs = append(forwardArgs, entryBlock.Argument(i))
+		}
+
+		callOp := goir.NewCallOperation(b.ctx, calleeSymbol, resultTypes, forwardArgs, b._noLoc)
+		appendOperation(shimCtx, callOp)
+
+		returnOp := goir.NewReturnOperation(b.ctx, resultsOf(callOp), b._noLoc)
+		appendOperation(shimCtx, returnOp)
+	})
+
+	// Create the go.func op for the shim.
+	shimFuncType := goir.NewFunctionType(b.ctx, nil, paramTypes, resultTypes)
+	funcOp := mlir.NewOperationState("go.func", b._noLoc).
+		AddOwnedRegions(region).
+		AddAttributes(
+			mlir.NewNamedAttribute("function_type", mlir.NewTypeAttr(shimFuncType)),
+			mlir.NewNamedAttribute("sym_name", mlir.NewStringAttr(b.config.Ctx, shimSymbol)),
+			mlir.NewNamedAttribute("sym_visibility", mlir.NewStringAttr(b.config.Ctx, "private"))).
+		Create()
+
+	b.addToModuleMutex.Lock()
+	b.addToModule[shimSymbol] = funcOp
+	b.addToModuleMutex.Unlock()
+
+	b.thunks[shimSymbol] = struct{}{}
+	b.thunkTypes[shimSymbol] = thunkType{
+		t: shimFuncType,
+		s: shimSig,
+	}
+
+	return shimSymbol, shimSig
+}
+
+// emitFuncReferenceValue emits a runtime._func struct value for a reference to a
+// regular Go function used as a first-class value. It generates (and caches) a
+// closure shim for the callee — see getOrCreateClosureShim — and returns a _func
+// whose ptr field points at the shim and whose args field is nil.
+func (b *Builder) emitFuncReferenceValue(ctx context.Context, calleeSymbol string, signature *types.Signature, location mlir.LocationLike) mlir.Value {
+	b.queueJob(ctx, calleeSymbol)
+	shimSymbol, shimSig := b.getOrCreateClosureShim(ctx, calleeSymbol, signature)
+	shimPtrType := b.funcPointerOf(ctx, shimSig)
+	shimAddr := b.addressOfSymbol(ctx, shimSymbol, shimPtrType, location)
+	return b.createFunctionValue(ctx, shimAddr, nil, location)
+}
+
 func (b *Builder) createThunk2(ctx context.Context, symbol string, callee string, signature *types.Signature, argTypes []types.Type, hasReceiver bool) {
 	b.thunkMutex.Lock()
 	defer b.thunkMutex.Unlock()

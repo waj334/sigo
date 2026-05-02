@@ -1,48 +1,66 @@
-# sysroot.mk -- Build picolibc and compiler-rt builtins per target
+# sysroot.mk -- Build picolibc, compiler-rt builtins, and lwIP per target
 #
-# Uses clang/LLVM for all cross-compilation.
-# picolibc  -> meson
-# compiler-rt builtins -> CMake (compiler-rt's own build system)
+# All three components are built with the system clang (SYSTEM_CLANG,
+# default /usr/bin/clang). The local LLVM build can be a slow Debug
+# build, so we don't use it as the compiler. We do use the local
+# llvm-ar/nm/ranlib/strip everywhere -- those are tiny format-only
+# tools where version consistency matters more than speed.
 #
-# Usage:
-#   $(eval $(call build_sysroot,<name>,<clang-target>,<cflags>,<meson-cpu_family>,<meson-cpu>,<meson-endian>,<cmake-arch>))
+# Compiler-rt isolation
+# ---------------------
+# The system clang ships with its own libclang_rt.builtins-*.a in its
+# resource dir (typically /usr/lib/clang/<ver>/). When clang drives a
+# link, it auto-appends those builtins. To make sure downstream
+# consumers (sigo, lwIP, etc.) pick up OUR compiler-rt instead of the
+# system one, we override clang's resource dir per-target.
 #
-# Then:
-#   make sysroots                    -- build all registered targets
-#   make sysroot-armv7em-fp          -- build a single target
-#   make clean-sysroots              -- remove all build artifacts
+# A clang resource directory contains TWO things:
+#   1. lib/<triple>/libclang_rt.builtins.a    -- the runtime archive
+#   2. include/                               -- compiler-builtin
+#                                                 headers (float.h,
+#                                                 stddef.h, stdint.h,
+#                                                 stdarg.h, etc.)
+#
+# We populate (1) ourselves from our compiler-rt build. For (2) we
+# symlink clang's own include/ tree into our resource dir, so the
+# compiler-builtin headers continue to come from clang while the
+# builtins library comes from us.
+#
+# Build order matters: compiler-rt must be installed (and the resource
+# dir laid out) before lwIP runs, because lwIP's CMake try_compile()
+# could pick up the system builtins if ours aren't in place yet. The
+# dep chain enforces this.
 
 # ---------------------------------------------------------------------
-# Toolchain -- override from command line if needed
-#
-# CMake requires absolute paths for CMAKE_AR/CMAKE_NM/CMAKE_RANLIB.
-# Bare names like "llvm-ar" get resolved relative to the source dir
-# instead of PATH. We resolve them here.
+# Toolchain
 # ---------------------------------------------------------------------
-CLANG       ?= $(shell which clang)
-CLANGXX     ?= $(shell which clang++)
-LLVM_AR     ?= $(shell which llvm-ar)
-LLVM_NM     ?= $(shell which llvm-nm)
-LLVM_RANLIB ?= $(shell which llvm-ranlib)
-LLVM_STRIP  ?= $(shell which llvm-strip)
-CMAKE       ?= cmake
+SYSTEM_CLANG   ?= $(shell which clang)
+SYSTEM_CLANGXX ?= $(shell which clang++)
+
+# Clang's default resource dir, used as the source for compiler-builtin
+# headers (float.h, stddef.h, ...) which we symlink into our per-target
+# resource dirs.
+SYSTEM_CLANG_RESOURCE_DIR ?= $(shell $(SYSTEM_CLANG) -print-resource-dir)
+
+LOCAL_LLVM_BIN ?= $(LLVM_BUILD_DIR)/bin
+LLVM_AR        ?= $(LOCAL_LLVM_BIN)/llvm-ar
+LLVM_NM        ?= $(LOCAL_LLVM_BIN)/llvm-nm
+LLVM_RANLIB    ?= $(LOCAL_LLVM_BIN)/llvm-ranlib
+LLVM_STRIP     ?= $(LOCAL_LLVM_BIN)/llvm-strip
+
+CMAKE          ?= cmake
 
 # ---------------------------------------------------------------------
-# Paths -- override these from the command line or parent Makefile
+# Paths
 # ---------------------------------------------------------------------
-PICOLIBC_SRC    ?= $(CURDIR)/thirdparty/picolibc
-COMPILERRT_SRC  ?= $(CURDIR)/thirdparty/llvm-project/compiler-rt
-LWIP_BUILD_SRC  ?= $(CURDIR)/thirdparty/lwip-build
-SYSROOT_OUT     ?= $(CURDIR)/sysroots
-BUILD_DIR       ?= $(CURDIR)/build
-
-# Path to LLVM's CMake modules -- needed for standalone compiler-rt builds.
-# Default points at the project's own LLVM build directory (where build-llvm
-# puts it). Override if using a system LLVM installation.
-LLVM_CMAKE_DIR ?= $(CURDIR)/build/Release/llvm-build
+PICOLIBC_SRC            ?= $(CURDIR)/thirdparty/picolibc
+COMPILERRT_BUILTINS_SRC ?= $(CURDIR)/thirdparty/llvm-project/compiler-rt/lib/builtins
+LWIP_BUILD_SRC          ?= $(CURDIR)/thirdparty/lwip-build
+SYSROOT_OUT             ?= $(CURDIR)/sysroots
+BUILD_DIR               ?= $(CURDIR)/build
 
 # ---------------------------------------------------------------------
-# Common flags
+# Common flags (size-optimized bare-metal defaults)
 # ---------------------------------------------------------------------
 COMMON_CFLAGS = \
 	-Os \
@@ -53,8 +71,7 @@ COMMON_CFLAGS = \
 	-fno-unwind-tables \
 	-fno-asynchronous-unwind-tables \
 	-ffreestanding \
-	-nostdlib \
-	-nostdlibinc
+	-nostdlib
 
 # ---------------------------------------------------------------------
 # Accumulator
@@ -62,40 +79,24 @@ COMMON_CFLAGS = \
 ALL_SYSROOT_TARGETS :=
 
 # ---------------------------------------------------------------------
-# Meson cross-file generator (picolibc)
-# ---------------------------------------------------------------------
-define generate_meson_cross
-	@mkdir -p $(dir $(1))
-	@printf "[binaries]\n\
-c = '$(CLANG)'\n\
-c_ld = 'lld'\n\
-ar = '$(LLVM_AR)'\n\
-nm = '$(LLVM_NM)'\n\
-ranlib = '$(LLVM_RANLIB)'\n\
-strip = '$(LLVM_STRIP)'\n\
-\n\
-[built-in options]\n\
-c_args = ['--target=$(2)', $(foreach f,$(3),'$(f)',) '-Os', '-ffunction-sections', '-fdata-sections', '-ffreestanding']\n\
-c_link_args = ['--target=$(2)', '-nostdlib', '-fuse-ld=lld']\n\
-\n\
-[host_machine]\n\
-system = 'none'\n\
-cpu_family = '$(4)'\n\
-cpu = '$(5)'\n\
-endian = '$(6)'\n\
-" > $(1)
-endef
-
-# ---------------------------------------------------------------------
-# Compiler-rt toolchain file generator
+# Toolchain file generator
 #
-# compiler-rt's builtin-config-ix.cmake uses try_compile to detect
-# supported architectures. These try_compile checks only work if
-# cross-compilation settings are in a proper toolchain file -- passing
-# them as -D flags on the cmake command line does not reliably
-# propagate to try_compile.
+# Compiler-rt isolation flags baked into CMAKE_*_FLAGS_INIT (which
+# applies to try_compile probes too):
+#
+#   --rtlib=compiler-rt    "if you need builtins, use compiler-rt"
+#   -resource-dir=<our>    points clang at our resource dir, where
+#                          we install our libclang_rt.builtins.a AND
+#                          symlink clang's include/ tree
+#
+# Args:
+#   $(1) = output path
+#   $(2) = clang triple
+#   $(3) = cmake system processor
+#   $(4) = arch CFLAGS (e.g. -mthumb -march=armv7em+fp)
+#   $(5) = sysroot path
 # ---------------------------------------------------------------------
-define generate_crt_toolchain
+define generate_toolchain
 	@mkdir -p $(dir $(1))
 	@printf "\
 set(CMAKE_SYSTEM_NAME Generic)\n\
@@ -104,9 +105,25 @@ set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)\n\
 set(CMAKE_C_COMPILER_WORKS 1)\n\
 set(CMAKE_CXX_COMPILER_WORKS 1)\n\
 set(CMAKE_ASM_COMPILER_WORKS 1)\n\
+set(CMAKE_C_COMPILER $(SYSTEM_CLANG))\n\
+set(CMAKE_CXX_COMPILER $(SYSTEM_CLANGXX))\n\
+set(CMAKE_ASM_COMPILER $(SYSTEM_CLANG))\n\
 set(CMAKE_C_COMPILER_TARGET $(2))\n\
 set(CMAKE_CXX_COMPILER_TARGET $(2))\n\
 set(CMAKE_ASM_COMPILER_TARGET $(2))\n\
+set(CMAKE_AR $(LLVM_AR) CACHE FILEPATH \"\")\n\
+set(CMAKE_NM $(LLVM_NM) CACHE FILEPATH \"\")\n\
+set(CMAKE_RANLIB $(LLVM_RANLIB) CACHE FILEPATH \"\")\n\
+set(CMAKE_SYSROOT $(5))\n\
+set(CMAKE_FIND_ROOT_PATH $(5))\n\
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)\n\
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)\n\
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)\n\
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)\n\
+set(_sigo_arch_flags \"$(4) --rtlib=compiler-rt -resource-dir=$(5)/lib/clang-resource-dir\")\n\
+set(CMAKE_C_FLAGS_INIT \"\$${_sigo_arch_flags}\")\n\
+set(CMAKE_CXX_FLAGS_INIT \"\$${_sigo_arch_flags}\")\n\
+set(CMAKE_ASM_FLAGS_INIT \"$(4)\")\n\
 " > $(1)
 endef
 
@@ -114,130 +131,155 @@ endef
 # build_sysroot macro
 #
 # Arguments:
-#   $(1) = target name           (e.g. thumbv7em-hard)
+#   $(1) = target name           (e.g. armv7em-fp)
 #   $(2) = clang --target triple (e.g. armv7em-none-eabi)
-#   $(3) = arch-specific CFLAGS  (e.g. -mthumb -mcpu=cortex-m4 ...)
-#   $(4) = meson cpu_family      (e.g. arm, riscv32)
-#   $(5) = meson cpu             (e.g. cortex-m4, rv32imac)
-#   $(6) = meson endian          (e.g. little, big)
-#   $(7) = cmake system proc     (e.g. arm, riscv)
+#   $(3) = arch-specific CFLAGS  (e.g. -mthumb -march=armv7em+fp)
+#   $(4) = cmake system proc     (e.g. arm)
 # ---------------------------------------------------------------------
 define build_sysroot
 
 # -- Per-target directories ------------------------------------------
-# $(strip) is applied inline to every argument. These per-target
-# variable names are unique (prefixed by the target name), so they
-# don't clobber each other across $(eval) invocations.
 $(strip $(1))_BUILD       := $$(BUILD_DIR)/$(strip $(1))
 $(strip $(1))_SYSROOT     := $$(SYSROOT_OUT)/$(strip $(1))
 $(strip $(1))_PICOLIBC_BD := $$($(strip $(1))_BUILD)/picolibc
 $(strip $(1))_CRT_BD      := $$($(strip $(1))_BUILD)/compiler-rt
 $(strip $(1))_LWIP_BD     := $$($(strip $(1))_BUILD)/lwip
-$(strip $(1))_CROSS_FILE  := $$($(strip $(1))_BUILD)/cross-$(strip $(1)).txt
-$(strip $(1))_CRT_TC      := $$($(strip $(1))_BUILD)/crt-toolchain-$(strip $(1)).cmake
+$(strip $(1))_RES_DIR     := $$($(strip $(1))_SYSROOT)/lib/clang-resource-dir
+$(strip $(1))_TC          := $$($(strip $(1))_BUILD)/tc-$(strip $(1)).cmake
 $(strip $(1))_TARGET      := $(strip $(2))
 $(strip $(1))_ARCHFLAGS   := $(strip $(3))
-$(strip $(1))_CPUFAMILY   := $(strip $(4))
-$(strip $(1))_CPU         := $(strip $(5))
-$(strip $(1))_ENDIAN      := $(strip $(6))
-$(strip $(1))_CMAKEARCH   := $(strip $(7))
+$(strip $(1))_CMAKEARCH   := $(strip $(4))
 
-# Per-target CFLAGS for the Boehm single-file build
-$(strip $(1))_CFLAGS := --target=$(strip $(2)) $(strip $(3)) $$(COMMON_CFLAGS)
+# -- Resource dir bootstrap ------------------------------------------
+#
+# Created BEFORE picolibc compiles, because picolibc needs float.h
+# etc. from this resource dir. We symlink clang's include/ subtree
+# (compiler-builtin headers) but NOT clang's lib/ subtree -- that's
+# where libclang_rt.builtins-*.a lives, and we install our own there
+# in the compiler-rt step below.
+#
+$$($(strip $(1))_RES_DIR)/include:
+	@mkdir -p $$(dir $$@)
+	ln -sfn $$(SYSTEM_CLANG_RESOURCE_DIR)/include $$@
 
-# -- Meson cross file ------------------------------------------------
-$$($(strip $(1))_CROSS_FILE):
-	$$(call generate_meson_cross,$$@,$$($(strip $(1))_TARGET),$$($(strip $(1))_ARCHFLAGS),$$($(strip $(1))_CPUFAMILY),$$($(strip $(1))_CPU),$$($(strip $(1))_ENDIAN))
+# -- Toolchain file --------------------------------------------------
+$$($(strip $(1))_TC):
+	$$(call generate_toolchain,$$@,$(strip $(2)),$(strip $(4)),$(strip $(3)),$$($(strip $(1))_SYSROOT))
 
-# -- compiler-rt toolchain file -------------------------------------
-$$($(strip $(1))_CRT_TC):
-	$$(call generate_crt_toolchain,$$@,$(strip $(2)),$(strip $(7)))
-
-# -- picolibc --------------------------------------------------------
-$$($(strip $(1))_SYSROOT)/lib/libc.a: $$($(strip $(1))_CROSS_FILE)
+# -- picolibc (CMake) -----------------------------------------------
+#
+# Picolibc's CMake support uses different option names than meson.
+# Mapping for the options we care about:
+#   meson -Dthread-local-storage=false -> CMake -DPICOLIBC_TLS=OFF
+#   meson -Dposix-console=true         -> CMake -DPOSIX_CONSOLE=ON
+# (multilib, specsdir, tests, newlib-global-atexit have no equivalent.)
+#
+# PICOLIBC_TLS=OFF makes errno a plain global rather than a __thread
+# variable. This avoids pulling in __aeabi_read_tp / _set_tls, which
+# we'd otherwise need to either implement or enable separately
+# (_HAVE_PICOLIBC_TLS_API). sigo's goroutines aren't OS threads, so a
+# single shared errno is consistent with the rest of the runtime.
+#
+# Install layout: picolibc CMake honors CMAKE_INSTALL_INCLUDEDIR /
+# CMAKE_INSTALL_LIBDIR (via GNUInstallDirs). It may install headers
+# into a "picolibc/" subdirectory; we expose top-level symlinks so
+# that #include <stdio.h> works without extra -I flags.
+#
+$$($(strip $(1))_SYSROOT)/lib/libc.a: \
+		$$($(strip $(1))_TC) \
+		$$($(strip $(1))_RES_DIR)/include
 	@echo "---- picolibc [$(strip $(1))] ----"
-	meson setup $$($(strip $(1))_PICOLIBC_BD) $$(PICOLIBC_SRC) \
-		--cross-file $$($(strip $(1))_CROSS_FILE) \
-		--prefix=/ \
-		-Dmultilib=false \
-		-Dspecsdir=none \
-		-Dtests=false \
-		-Dthread-local-storage=false \
-		-Dposix-console=true \
-		-Dnewlib-global-atexit=false \
-		-Dincludedir=include \
-		-Dlibdir=lib
-	ninja -C $$($(strip $(1))_PICOLIBC_BD)
-	DESTDIR=$$($(strip $(1))_SYSROOT) ninja -C $$($(strip $(1))_PICOLIBC_BD) install
-
-# -- compiler-rt builtins --------------------------------------------
-#
-# Uses the user's proven standalone compiler-rt build approach:
-# - Pass CC/CXX as env vars
-# - Set target/flags explicitly via CMAKE_C_COMPILER_TARGET + CMAKE_C_FLAGS
-# - Point LLVM_CMAKE_DIR at the installed LLVM CMake modules
-# - Use cmake --build --target install
-#
-$$($(strip $(1))_SYSROOT)/lib/libclang_rt.builtins.a: $$($(strip $(1))_CRT_TC) $$($(strip $(1))_SYSROOT)/lib/libc.a
-	@echo "---- compiler-rt [$(strip $(1))] ----"
-	CC=$$(CLANG) CXX=$$(CLANGXX) $$(CMAKE) $$(COMPILERRT_SRC) \
+	$$(CMAKE) $$(PICOLIBC_SRC) \
 		-G Ninja \
-		-B $$($(strip $(1))_CRT_BD) \
-		-DCMAKE_TOOLCHAIN_FILE=$$($(strip $(1))_CRT_TC) \
-		-DCMAKE_BUILD_TYPE=Release \
+		-B $$($(strip $(1))_PICOLIBC_BD) \
+		-DCMAKE_TOOLCHAIN_FILE=$$($(strip $(1))_TC) \
+		-DCMAKE_BUILD_TYPE=MinSizeRel \
 		-DCMAKE_INSTALL_PREFIX=$$($(strip $(1))_SYSROOT) \
-		-DCMAKE_SYSROOT=$$($(strip $(1))_SYSROOT) \
-		-DBUILD_SHARED_LIBS=OFF \
-		-DCMAKE_AR=$$(LLVM_AR) \
-		-DCMAKE_NM=$$(LLVM_NM) \
-		-DCMAKE_RANLIB=$$(LLVM_RANLIB) \
-		-DCMAKE_C_COMPILER=$$(CLANG) \
-		-DCMAKE_C_FLAGS="-nostdlib $(strip $(3))" \
-		-DCMAKE_CXX_COMPILER=$$(CLANGXX) \
-		-DCMAKE_CXX_FLAGS="-nostdlib $(strip $(3))" \
-		-DCMAKE_ASM_FLAGS="$(strip $(3))" \
-		-DLLVM_CMAKE_DIR=$$(LLVM_CMAKE_DIR) \
-		-DCOMPILER_RT_OS_DIR="$(strip $(2))" \
-		-DCOMPILER_RT_DEFAULT_TARGET_ONLY=ON \
-		-DCOMPILER_RT_BAREMETAL_BUILD=ON \
-		-DCOMPILER_RT_BUILD_BUILTINS=ON \
-		-DCOMPILER_RT_BUILD_CRT=ON \
-		-DCOMPILER_RT_BUILD_SANITIZERS=OFF \
-		-DCOMPILER_RT_BUILD_XRAY=OFF \
-		-DCOMPILER_RT_BUILD_LIBFUZZER=OFF \
-		-DCOMPILER_RT_BUILD_PROFILE=OFF \
-		-DCOMPILER_RT_BUILD_MEMPROF=OFF \
-		-DCOMPILER_RT_BUILD_ORC=OFF \
-		-DCOMPILER_RT_BUILD_CTX_PROFILE=OFF \
-		-DCOMPILER_RT_BUILD_GWP_ASAN=OFF \
-		-DCOMPILER_RT_INCLUDE_TESTS=OFF
-	$$(CMAKE) --build $$($(strip $(1))_CRT_BD) --target install
-	@# The installed name includes an arch suffix -- create a
-	@# predictable name so the linker can use -lclang_rt.builtins
+		-DCMAKE_INSTALL_INCLUDEDIR=include \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DPICOLIBC_TLS=OFF \
+		-DPOSIX_IO=ON \
+		-DPOSIX_CONSOLE=ON \
+		-DTINY_STDIO=ON \
+		-DPREFER_SIZE_OVER_SPEED=ON
+	$$(CMAKE) --build $$($(strip $(1))_PICOLIBC_BD) --target install
+	@# picolibc CMake may install to <prefix>/lib/picolibc/<arch>/.
+	@# Locate libc.a and surface it at <prefix>/lib/libc.a.
 	@if [ ! -f "$$@" ]; then \
-		installed=$$$$(find $$($(strip $(1))_SYSROOT) -name 'libclang_rt.builtins*.a' -print -quit); \
-		if [ -n "$$$$installed" ]; then \
-			ln -sf "$$$$installed" "$$@"; \
-		else \
-			echo "ERROR: compiler-rt built no library for $(strip $(1))"; \
-			exit 1; \
+		found=$$$$(find $$($(strip $(1))_SYSROOT) -name 'libc.a' -print -quit); \
+		if [ -n "$$$$found" ] && [ "$$$$found" != "$$@" ]; then \
+			ln -sf "$$$$found" "$$@"; \
 		fi; \
 	fi
+	@# Ditto for the headers -- if they got installed under a
+	@# picolibc/ subdir, expose them at the top of include/ too.
+	@if [ -d "$$($(strip $(1))_SYSROOT)/include/picolibc" ] && \
+	    [ ! -f "$$($(strip $(1))_SYSROOT)/include/stdio.h" ]; then \
+		for h in $$($(strip $(1))_SYSROOT)/include/picolibc/*; do \
+			ln -sfn "$$$$h" "$$($(strip $(1))_SYSROOT)/include/$$$$(basename $$$$h)"; \
+		done; \
+	fi
 
-# -- lwip ---------------------------------------------------------------
-$$($(strip $(1))_SYSROOT)/lib/liblwip.a: $$($(strip $(1))_CRT_TC) $$($(strip $(1))_SYSROOT)/lib/libc.a
-	@echo "---- lwip [$(strip $(1))] ----"
-	CC=$$(CLANG) $$(CMAKE) $$(LWIP_BUILD_SRC) \
+# -- compiler-rt builtins (CMake) -----------------------------------
+#
+# Installs into $SYSROOT/lib/, then we replicate the archive into our
+# clang-resource-dir/lib/<triple>/ so clang's automatic builtins
+# lookup finds it. Files installed under both filename layouts that
+# clang has used over the years (triple/ and baremetal/).
+#
+# LLVM_RUNTIMES_BUILD=ON suppresses load_llvm_config() which would
+# otherwise pull in host LLVM CMake targets.
+#
+$$($(strip $(1))_SYSROOT)/lib/libclang_rt.builtins.a: \
+		$$($(strip $(1))_TC) \
+		$$($(strip $(1))_SYSROOT)/lib/libc.a \
+		$$($(strip $(1))_RES_DIR)/include
+	@echo "---- compiler-rt [$(strip $(1))] ----"
+	$$(CMAKE) $$(COMPILERRT_BUILTINS_SRC) \
 		-G Ninja \
-		-B $$($(strip $(1))_LWIP_BD) \
-		-DCMAKE_TOOLCHAIN_FILE=$$($(strip $(1))_CRT_TC) \
+		-B $$($(strip $(1))_CRT_BD) \
+		-DCMAKE_TOOLCHAIN_FILE=$$($(strip $(1))_TC) \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_INSTALL_PREFIX=$$($(strip $(1))_SYSROOT) \
-		-DCMAKE_SYSROOT=$$($(strip $(1))_SYSROOT) \
-		-DCMAKE_AR=$$(LLVM_AR) \
-		-DCMAKE_RANLIB=$$(LLVM_RANLIB) \
-		-DCMAKE_C_COMPILER=$$(CLANG) \
-		-DCMAKE_C_FLAGS="$(strip $(3)) $$(COMMON_CFLAGS)"
+		-DBUILD_SHARED_LIBS=OFF \
+		-DLLVM_RUNTIMES_BUILD=ON \
+		-DCOMPILER_RT_OS_DIR="$(strip $(2))" \
+		-DCOMPILER_RT_DEFAULT_TARGET_ONLY=ON \
+		-DCOMPILER_RT_BAREMETAL_BUILD=ON
+	$$(CMAKE) --build $$($(strip $(1))_CRT_BD) --target install
+	@installed=$$$$(find $$($(strip $(1))_SYSROOT) -name 'libclang_rt.builtins*.a' -print -quit); \
+	if [ -z "$$$$installed" ]; then \
+		echo "ERROR: compiler-rt built no library for $(strip $(1))"; \
+		exit 1; \
+	fi; \
+	echo "---- compiler-rt installed: $$$$installed ----"; \
+	rm -f $$@; cp "$$$$installed" $$@; \
+	resdir=$$($(strip $(1))_RES_DIR); \
+	mkdir -p $$$$resdir/lib/$(strip $(2)); \
+	mkdir -p $$$$resdir/lib/baremetal; \
+	cp "$$$$installed" $$$$resdir/lib/$(strip $(2))/libclang_rt.builtins.a; \
+	arch=$$$$(echo $(strip $(2)) | cut -d- -f1); \
+	cp "$$$$installed" $$$$resdir/lib/baremetal/libclang_rt.builtins-$$$$arch.a; \
+	cp "$$$$installed" $$$$resdir/lib/$(strip $(2))/libclang_rt.builtins-$$$$arch.a
+
+# -- lwip (CMake) ---------------------------------------------------
+#
+# Depends on compiler-rt being installed first so that any try_compile
+# checks (or actual link steps) inside lwIP's CMakeLists pick up our
+# builtins via -resource-dir, not the system clang's.
+#
+$$($(strip $(1))_SYSROOT)/lib/liblwip.a: \
+		$$($(strip $(1))_TC) \
+		$$($(strip $(1))_SYSROOT)/lib/libc.a \
+		$$($(strip $(1))_SYSROOT)/lib/libclang_rt.builtins.a
+	@echo "---- lwip [$(strip $(1))] ----"
+	$$(CMAKE) $$(LWIP_BUILD_SRC) \
+		-G Ninja \
+		-B $$($(strip $(1))_LWIP_BD) \
+		-DCMAKE_TOOLCHAIN_FILE=$$($(strip $(1))_TC) \
+		-DCMAKE_BUILD_TYPE=MinSizeRel \
+		-DCMAKE_INSTALL_PREFIX=$$($(strip $(1))_SYSROOT) \
+		-DCMAKE_C_FLAGS="$$(COMMON_CFLAGS)"
 	$$(CMAKE) --build $$($(strip $(1))_LWIP_BD) --target install
 	cp $$(LWIP_BUILD_SRC)/lwipopts.h $$($(strip $(1))_SYSROOT)/include/lwipopts.h
 
@@ -260,33 +302,16 @@ endef  # build_sysroot
 
 # ---------------------------------------------------------------------
 # Register targets
-#
-# Sysroots are keyed on (triple + FP variant), NOT on CPU name.
-# Multiple CPUs share the same sysroot when they have identical
-# triple and FPU configurations:
-#
-#   armv6m-nofp        -> Cortex-M0, M0+, M1
-#   armv7m-nofp        -> Cortex-M3
-#   armv7em-fp         -> Cortex-M4, M7
-#   armv7em-nofp       -> Cortex-M4/M7 software float
-#   armv8m.base-nofp   -> Cortex-M23
-#   armv8m.main-fp     -> Cortex-M33, M35P
-#   armv81m.main-fp    -> Cortex-M52, M55, M85
-#
-# The cflags use -march= with +fp/+nofp only -- no explicit -mfpu.
-# Clang infers the correct FPU from the march string. Adding -mfpu
-# can conflict with picolibc's assembly (setjmp.S uses d-register
-# save/restore that clang rejects under SP-only FPU constraints).
 # ---------------------------------------------------------------------
-#                      name                    clang-target                 cflags                                cpu_family  cpu          endian  cmake-arch
-$(eval $(call build_sysroot,armv6m-nofp,       armv6m-none-eabi,            -mthumb -march=armv6m+nofp,           arm,        cortex-m0+,  little, arm))
-$(eval $(call build_sysroot,armv7m-nofp,       armv7m-none-eabi,            -mthumb -march=armv7m+nofp,           arm,        cortex-m3,   little, arm))
-$(eval $(call build_sysroot,armv7em-nofp,      armv7em-none-eabi,           -mthumb -march=armv7em+nofp,          arm,        cortex-m4,   little, arm))
-$(eval $(call build_sysroot,armv7em-fp,        armv7em-none-eabi,         	-mthumb -march=armv7em+fp,            arm,        cortex-m4,   little, arm))
-$(eval $(call build_sysroot,armv8m.base-nofp,  armv8m.base-none-eabi,       -mthumb -march=armv8m.base+nofp,      arm,        cortex-m23,  little, arm))
-$(eval $(call build_sysroot,armv8m.main-fp,    armv8m.main-none-eabi,     	-mthumb -march=armv8m.main+fp,        arm,        cortex-m33,  little, arm))
-#$(eval $(call build_sysroot,armv81m.main-fp,   armv81m.main-none-eabi,    -mthumb -march=armv8.1m.main+fp,      arm,        cortex-m55,  little, arm))
-#$(eval $(call build_sysroot,riscv32-imac,     riscv32-none-elf,             -march=rv32imac -mabi=ilp32,          riscv32,    rv32imac,    little, riscv32))
+#                      name                   clang-target              cflags                                cmake-arch
+$(eval $(call build_sysroot,armv6m-nofp,      armv6m-none-eabi,         -mthumb -march=armv6m+nofp,           arm))
+$(eval $(call build_sysroot,armv7m-nofp,      armv7m-none-eabi,         -mthumb -march=armv7m+nofp,           arm))
+$(eval $(call build_sysroot,armv7em-nofp,     armv7em-none-eabi,        -mthumb -march=armv7em+nofp,          arm))
+$(eval $(call build_sysroot,armv7em-fp,       armv7em-none-eabi,        -mthumb -march=armv7em+fp,            arm))
+$(eval $(call build_sysroot,armv8m.base-nofp, armv8m.base-none-eabi,    -mthumb -march=armv8m.base+nofp,      arm))
+$(eval $(call build_sysroot,armv8m.main-fp,   armv8m.main-none-eabi,    -mthumb -march=armv8m.main+fp,        arm))
+#$(eval $(call build_sysroot,armv81m.main-fp, armv81m.main-none-eabi,   -mthumb -march=armv8.1m.main+fp,      arm))
+#$(eval $(call build_sysroot,riscv32-imac,    riscv32-none-elf,         -march=rv32imac -mabi=ilp32,          riscv32))
 
 # ---------------------------------------------------------------------
 # Aggregate targets

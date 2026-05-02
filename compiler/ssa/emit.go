@@ -512,9 +512,7 @@ func (b *Builder) emitIdent(ctx context.Context, expr *ast.Ident) []mlir.ValueLi
 		}
 	case *types.Func:
 		symbol := b.resolveSymbol(qualifiedFuncName(obj))
-		b.queueJob(ctx, symbol)
-		fptrType := b.funcPointerOf(ctx, obj.Signature())
-		return []mlir.ValueLike{b.addressOfSymbol(ctx, symbol, fptrType, location)}
+		return []mlir.ValueLike{b.emitFuncReferenceValue(ctx, symbol, obj.Signature(), location)}
 	case *types.Nil:
 		// Create the zero value of the specified type.
 		T := b.GetStoredType(ctx, obj.Type())
@@ -807,9 +805,7 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 		switch obj := b.objectOf(ctx, expr.Sel).(type) {
 		case *types.Func:
 			symbol := b.resolveSymbol(qualifiedFuncName(obj))
-			b.queueJob(ctx, symbol)
-			fptrType := b.funcPointerOf(ctx, obj.Signature())
-			return b.values(b.addressOfSymbol(ctx, symbol, fptrType, location))
+			return b.values(b.emitFuncReferenceValue(ctx, symbol, obj.Signature(), location))
 		default:
 			value := b.valueOf(ctx, expr.Sel)
 			return b.values(value.Load(ctx, location))

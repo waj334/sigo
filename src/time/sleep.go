@@ -7,7 +7,7 @@ import (
 //sigo:extern gopark runtime.gopark
 //sigo:extern goparkWithCallback runtime.goparkWithCallback
 //sigo:extern goresume runtime.goresume
-//sigo:extern getg runtime.getg
+//sigo:extern getg runtime.getgPtr
 //sigo:extern DisableInterrupts runtime.DisableInterrupts
 //sigo:extern EnableInterrupts runtime.EnableInterrupts
 

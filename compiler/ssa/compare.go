@@ -83,7 +83,7 @@ func (b *Builder) emitFloatCompare(ctx context.Context, op token.Token, X mlir.V
 func (b *Builder) emitComplexCompare(ctx context.Context, op token.Token, X mlir.ValueLike, Y mlir.ValueLike, location mlir.LocationLike) mlir.Value {
 	// Get the operand values to be used in the binary expression.
 	predicate := b.cmpFPredicate(op)
-	cmpOp := goir.NewCmpFOperation(b.ctx, b.i1, predicate, X, Y, location)
+	cmpOp := goir.NewCmpCOperation(b.ctx, b.i1, predicate, X, Y, location)
 	appendOperation(ctx, cmpOp)
 	return resultOf(cmpOp).AsValue()
 }

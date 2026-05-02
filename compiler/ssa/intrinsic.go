@@ -156,7 +156,9 @@ func (b *Builder) emitIntrinsic(ctx context.Context, expr *ast.CallExpr) []mlir.
 		return nil
 	case "nonstandard.PointerOf":
 		obj := b.objectOf(ctx, expr.Args[0]).(*types.Func)
-		symbolName := qualifiedFuncName(obj)
+		qualified := qualifiedFuncName(obj)
+		b.queueJob(ctx, qualified)
+		symbolName := b.resolveSymbol(qualified)
 		value := b.addressOfSymbol(ctx, symbolName, b.ptr, location)
 		return b.values(value)
 	default:

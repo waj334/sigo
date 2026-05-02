@@ -327,6 +327,12 @@ func (b *Builder) emitRangeStatement(ctx context.Context, stmt *ast.RangeStmt) {
 	switch T := T.(type) {
 	case *types.Array:
 		b.emitArrayRange(ctx, stmt)
+	case *types.Pointer:
+		if _, ok := T.Elem().(*types.Array); ok {
+			b.emitArrayRange(ctx, stmt)
+		} else {
+			panic("unhandled range type: " + T.String())
+		}
 	case *types.Basic:
 		if T.Kind() == types.String {
 			b.emitStringRange(ctx, stmt)
@@ -340,7 +346,7 @@ func (b *Builder) emitRangeStatement(ctx context.Context, stmt *ast.RangeStmt) {
 	case *types.Slice:
 		b.emitSliceRange(ctx, stmt)
 	default:
-		panic("unhandled")
+		panic("unhandled range type: " + T.String())
 	}
 }
 
@@ -512,11 +518,19 @@ func (b *Builder) emitTypeSwitchStatement(ctx context.Context, stmt *ast.TypeSwi
 						local.Store(ctx, value, location)
 					}
 				} else {
-					// Bitcast to the "any" interface type.
-					value = b.bitcastTo(ctx, value, b._any, location)
+					// Multi-case clauses and the default clause: per the Go
+					// spec, the variable has the type of the type-switch
+					// expression — NOT the empty interface. Use that type
+					// for both the bitcast target and the alloca element so
+					// the alloca's element type matches the result pointer's
+					// element (which `emitLocalVar` derives from
+					// `obj.Type()`). Otherwise the alloca verifier rejects
+					// the IR with "must return either !go.ptr or !go.ptr<X>".
+					assertedType := b.GetStoredType(ctx, obj.Type())
+					value = b.bitcastTo(ctx, value, assertedType, location)
 
 					// Allocate local storage for the interface value.
-					local = b.emitLocalVar(ctx, obj, b._any, false)
+					local = b.emitLocalVar(ctx, obj, assertedType, false)
 
 					// Store the interface value.
 					local.Store(ctx, value, location)

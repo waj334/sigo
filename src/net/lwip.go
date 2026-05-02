@@ -9,6 +9,7 @@ package net
 #include <lwip/tcp.h>
 #include <lwip/timeouts.h>
 #include <lwip/udp.h>
+#include <lwip/dns.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -80,6 +81,34 @@ static inline uint8_t _go_lwip_ip_addr_type_IPADDR_TYPE_V4() { return IPADDR_TYP
 static inline uint8_t _go_lwip_ip_addr_type_IPADDR_TYPE_V6() { return IPADDR_TYPE_V6; }
 static inline uint8_t _go_lwip_ip_addr_type_IPADDR_TYPE_ANY() { return IPADDR_TYPE_ANY; }
 
+static inline int8_t _go_dns_gethostbyname(const char *hostname, ip_addr_t *addr, void *found, void *callback_arg) {
+    return (int8_t)dns_gethostbyname(hostname, addr, (dns_found_callback)found, callback_arg);
+}
+
+static inline uint32_t _go_dns_getserver_v4(uint8_t numdns) {
+    const ip_addr_t *s = dns_getserver(numdns);
+    if (s == NULL) return 0;
+#if LWIP_IPV4 && LWIP_IPV6
+    if (!IP_IS_V4(s)) return 0;
+    return ip_2_ip4(s)->addr;
+#elif LWIP_IPV4
+    return s->addr;
+#else
+    return 0;
+#endif
+}
+
+static inline uint32_t _go_ip_addr_get_v4(const ip_addr_t *addr) {
+    if (addr == NULL) return 0;
+#if LWIP_IPV4 && LWIP_IPV6
+    if (!IP_IS_V4(addr)) return 0;
+    return ip_2_ip4(addr)->addr;
+#elif LWIP_IPV4
+    return addr->addr;
+#else
+    return 0;
+#endif
+}
 */
 import "C"
 import (
@@ -191,14 +220,28 @@ const (
 	ipAddrTypeAny = 46
 )
 
-type ipAddr C.ip_addr_t
+// ipAddr mirrors lwIP's ip4_addr_t (and, by typedef, ip_addr_t when LWIP_IPV6=0)
+// as a Go-defined struct of fixed, known size. We don't use `type ipAddr C.ip_addr_t`
+// because sigo's CGo currently computes `unsafe.Sizeof(C.ip_addr_t) == 0`, which
+// makes `var x ipAddr` allocate no storage and silently corrupts TCP destinations
+// to 0.0.0.0. With this layout we get the correct 4-byte allocation; the C side
+// sees the same 4 bytes through the `*C.ip_addr_t` cast in raw().
+type ipAddr struct {
+	addr uint32 // network byte order
+}
 
 func (addr *ipAddr) raw() *C.ip_addr_t {
-	return (*C.ip_addr_t)(addr)
+	return (*C.ip_addr_t)(unsafe.Pointer(addr))
 }
 
 func newIP4Addr(a, b, c, d byte) ipAddr {
-	return ipAddr(C._go_ip4_addr(a, b, c, d))
+	var addr ipAddr
+	p := (*[4]byte)(unsafe.Pointer(&addr))
+	p[0] = a
+	p[1] = b
+	p[2] = c
+	p[3] = d
+	return addr
 }
 
 type netif C.netif
@@ -309,16 +352,6 @@ func (ni *NetInterface) Netif() *netif {
 func (ni *NetInterface) Device() NetDevice {
 	return ni.device
 }
-
-// TCP callback function types matching the C callback signatures.
-type (
-	tcpAcceptFn    func(arg unsafe.Pointer, newpcb *tcpControlBlock, err lwipError) lwipError
-	tcpRecvFn      func(arg unsafe.Pointer, pcb *tcpControlBlock, p *packetBuffer, err lwipError) lwipError
-	tcpSentFn      func(arg unsafe.Pointer, pcb *tcpControlBlock, len uint16) lwipError
-	tcpPollFn      func(arg unsafe.Pointer, pcb *tcpControlBlock) lwipError
-	tcpErrFn       func(arg unsafe.Pointer, err lwipError)
-	tcpConnectedFn func(arg unsafe.Pointer, pcb *tcpControlBlock, err lwipError) lwipError
-)
 
 func lwipInit() {
 	C.lwip_init()
@@ -504,29 +537,33 @@ func (pcb *tcpControlBlock) Arg(arg unsafe.Pointer) {
 	C.tcp_arg(pcb.raw(), arg)
 }
 
-func (pcb *tcpControlBlock) SetRecv(fn tcpRecvFn) {
-	C.tcp_recv(pcb.raw(), *(*unsafe.Pointer)(unsafe.Pointer(&fn)))
+// SetRecv, SetSent, etc. take an unsafe.Pointer to a C-callable function — typically
+// obtained by calling nonstandard.PointerOf on a //go:export-declared Go function.
+// Passing the address of a regular Go function value would invoke the closure shim
+// from C with the wrong ABI and corrupt arguments.
+func (pcb *tcpControlBlock) SetRecv(fn unsafe.Pointer) {
+	C.tcp_recv(pcb.raw(), fn)
 }
 
-func (pcb *tcpControlBlock) SetSent(fn tcpSentFn) {
-	C.tcp_sent(pcb.raw(), *(*unsafe.Pointer)(unsafe.Pointer(&fn)))
+func (pcb *tcpControlBlock) SetSent(fn unsafe.Pointer) {
+	C.tcp_sent(pcb.raw(), fn)
 }
 
-func (pcb *tcpControlBlock) SetErr(fn tcpErrFn) {
-	C.tcp_err(pcb.raw(), *(*unsafe.Pointer)(unsafe.Pointer(&fn)))
+func (pcb *tcpControlBlock) SetErr(fn unsafe.Pointer) {
+	C.tcp_err(pcb.raw(), fn)
 }
 
-func (pcb *tcpControlBlock) SetAccept(fn tcpAcceptFn) {
-	C.tcp_accept(pcb.raw(), *(*unsafe.Pointer)(unsafe.Pointer(&fn)))
+func (pcb *tcpControlBlock) SetAccept(fn unsafe.Pointer) {
+	C.tcp_accept(pcb.raw(), fn)
 }
 
-func (pcb *tcpControlBlock) SetPoll(fn tcpPollFn, interval uint8) {
-	C.tcp_poll(pcb.raw(), *(*unsafe.Pointer)(unsafe.Pointer(&fn)), interval)
+func (pcb *tcpControlBlock) SetPoll(fn unsafe.Pointer, interval uint8) {
+	C.tcp_poll(pcb.raw(), fn, interval)
 }
 
-func (pcb *tcpControlBlock) Connect(ipAddr *ipAddr, port uint16, connected tcpConnectedFn) error {
+func (pcb *tcpControlBlock) Connect(ipAddr *ipAddr, port uint16, connected unsafe.Pointer) error {
 	return unwrapLwipError(
-		lwipError(C.tcp_connect(pcb.raw(), ipAddr.raw(), port, *(*unsafe.Pointer)(unsafe.Pointer(&connected)))))
+		lwipError(C.tcp_connect(pcb.raw(), ipAddr.raw(), port, connected)))
 }
 
 func (pcb *tcpControlBlock) Write(data []byte, apiflags uint8) error {
@@ -574,15 +611,6 @@ func (pcb *tcpControlBlock) Listen() *tcpControlBlock {
 	return (*tcpControlBlock)(C._go_tcp_listen(pcb.raw()))
 }
 
-type (
-	udpRecvFn func(arg unsafe.Pointer, pcb *udpControlBlock, p *packetBuffer, addr *ipAddr, port uint16)
-)
-
-/*
-typedef void (*udp_recv_fn)(void *arg, struct udp_pcb *pcb, struct pbuf *p,
-    const ip_addr_t *addr, u16_t port);
-*/
-
 type udpControlBlock C.udp_pcb
 
 func newUDPControlBlock() *udpControlBlock {
@@ -619,8 +647,8 @@ func (pcb *udpControlBlock) Disconnect() {
 	C.udp_disconnect(pcb.raw())
 }
 
-func (pcb *udpControlBlock) Recv(fn udpRecvFn, arg unsafe.Pointer) {
-	C.udp_recv(pcb.raw(), *(*unsafe.Pointer)(unsafe.Pointer(&fn)), arg)
+func (pcb *udpControlBlock) Recv(fn unsafe.Pointer, arg unsafe.Pointer) {
+	C.udp_recv(pcb.raw(), fn, arg)
 }
 
 func (pcb *udpControlBlock) SendToIf(data []byte, dest *ipAddr, destPort uint16, netif *netif) error {
@@ -653,4 +681,56 @@ func (pcb *udpControlBlock) Send(data []byte) error {
 		lwipError(C.udp_send(pcb.raw(), p.raw())))
 	p.Free()
 	return err
+}
+
+// dnsGetHostByName issues a DNS lookup. The behavior depends on cache
+// state:
+//   - errOk: cache hit, addr is filled in immediately, callback will NOT fire.
+//   - errInProgress: query sent, callback WILL fire later (success or fail).
+//   - other: lookup couldn't be issued (no DNS server, bad name, etc.);
+//     callback will NOT fire.
+//
+// IMPORTANT: name must remain live until the callback fires. lwIP
+// stores the pointer in its query record. The Resolver layer pins
+// the name via the request slot pool — callers of this raw shim must
+// ensure equivalent lifetime management.
+//
+// name is passed as unsafe.Pointer to a null-terminated byte sequence.
+// callback is an unsafe.Pointer to a C-callable function (use
+// nonstandard.PointerOf on a //go:export-declared Go function).
+func dnsGetHostByName(name unsafe.Pointer, addr *ipAddr, callback unsafe.Pointer, arg unsafe.Pointer) lwipError {
+	return lwipError(C._go_dns_gethostbyname(
+		name,
+		addr.raw(),
+		callback,
+		arg,
+	))
+}
+
+// dnsGetServerV4 returns the IPv4 address of the DNS server at the given
+// index (0..DNS_MAX_SERVERS-1), or [4]byte{} if none is configured.
+//
+// Used to check whether DNS is available before issuing a lookup.
+func dnsGetServerV4(idx uint8) [4]byte {
+	addr := uint32(C._go_dns_getserver_v4(C.uint8_t(idx)))
+	return [4]byte{byte(addr), byte(addr >> 8), byte(addr >> 16), byte(addr >> 24)}
+}
+
+// ipAddrGetV4 extracts the four bytes of an IPv4 ip_addr_t. Returns
+// zeros if addr is nil or addr is an IPv6 address (DNS in our setup
+// is v4-only).
+func ipAddrGetV4(addr *ipAddr) [4]byte {
+	if addr == nil {
+		return [4]byte{}
+	}
+	raw := uint32(C._go_ip_addr_get_v4(addr.raw()))
+	return [4]byte{byte(raw), byte(raw >> 8), byte(raw >> 16), byte(raw >> 24)}
+}
+
+//sigo:extern rand32 runtime.rand32
+func rand32() uint32
+
+//sigo:export lwipRand lwip_rand
+func lwipRand() uint32 {
+	return rand32()
 }

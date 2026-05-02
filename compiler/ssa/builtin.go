@@ -15,38 +15,58 @@ func (b *Builder) emitBuiltinCall(ctx context.Context, expr *ast.CallExpr) []mli
 	location := b.location(ctx, expr.Pos())
 	anyType := types.NewInterfaceType(nil, nil)
 
-	var signature *types.Signature
-	switch T := b.typeOf(ctx, expr.Fun).(type) {
-	case *types.Signature:
-		signature = T
-	default:
-		// Create a synthetic signature.
-		resultType := b.typeOf(ctx, expr)
-		resultTuple := types.NewTuple(types.NewVar(token.NoPos, nil, "result", resultType))
-
-		inputs := make([]*types.Var, len(expr.Args))
-		for i, arg := range expr.Args {
-			argType := b.typeOf(ctx, arg)
-			if isUntyped(argType) {
-				argType = types.Default(argType)
-			}
-			inputs[i] = types.NewVar(token.NoPos, nil, fmt.Sprintf("param$%d", i), argType)
-		}
-		paramsTuple := types.NewTuple(inputs...)
-		signature = types.NewSignatureType(nil, nil, nil, paramsTuple, resultTuple, false)
-	}
-
-	// Determine the built-in function name.
-	var name string
+	// Determine the built-in function name up front; it influences the synthetic
+	// signature shape (print/println are variadic over any).
+	var builtinName string
 	switch T := expr.Fun.(type) {
 	case *ast.Ident:
-		name = T.Name
+		builtinName = T.Name
 	case *ast.SelectorExpr:
 		X := T.X.(*ast.Ident)
-		name = X.Name + "." + T.Sel.Name
+		builtinName = X.Name + "." + T.Sel.Name
+	}
+
+	var signature *types.Signature
+	// print/println: go/types records a non-variadic signature with one
+	// param per arg (e.g. func(string) for print("foo")). That doesn't
+	// match the runtime impl which is `func(args ...any)`. Always synthesize
+	// the variadic signature for these two builtins, regardless of what
+	// go/types recorded, so emitCallArgs packs them into a single []any.
+	switch builtinName {
+	case "print", "println":
+		resultType := b.typeOf(ctx, expr)
+		resultTuple := types.NewTuple(types.NewVar(token.NoPos, nil, "result", resultType))
+		anySliceType := types.NewSlice(anyType)
+		paramsTuple := types.NewTuple(types.NewVar(token.NoPos, nil, "args", anySliceType))
+		signature = types.NewSignatureType(nil, nil, nil, paramsTuple, resultTuple, true)
 	default:
+		switch T := b.typeOf(ctx, expr.Fun).(type) {
+		case *types.Signature:
+			signature = T
+		default:
+			// Create a synthetic signature.
+			resultType := b.typeOf(ctx, expr)
+			resultTuple := types.NewTuple(types.NewVar(token.NoPos, nil, "result", resultType))
+
+			inputs := make([]*types.Var, len(expr.Args))
+			for i, arg := range expr.Args {
+				argType := b.typeOf(ctx, arg)
+				if isUntyped(argType) {
+					argType = types.Default(argType)
+				}
+				inputs[i] = types.NewVar(token.NoPos, nil, fmt.Sprintf("param$%d", i), argType)
+			}
+			paramsTuple := types.NewTuple(inputs...)
+			signature = types.NewSignatureType(nil, nil, nil, paramsTuple, resultTuple, false)
+		}
+	}
+
+	// Built-in function name was determined above for the synthetic-signature
+	// case; reuse it here.
+	if builtinName == "" {
 		panic("unhandled")
 	}
+	name := builtinName
 
 	var results []mlir.TypeLike
 

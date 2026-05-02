@@ -347,7 +347,15 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 						default:
 							switch b.typeOf(ctx, initializer.Rhs).(type) {
 							case *types.Signature:
-								result = b.createFunctionValue(ctx, result, nil, location)
+								// Only wrap raw function pointers; values that are
+								// already a runtime._func struct (e.g. function
+								// references or closures) must not be re-wrapped.
+								if ptrT, ok := goir.AsPointerType(result.Type()); ok {
+									elementT := ptrT.ElementType()
+									if !elementT.IsNull() && goir.TypeIsAFunctionType(elementT) {
+										result = b.createFunctionValue(ctx, result, nil, location)
+									}
+								}
 							}
 						}
 					}

@@ -6,7 +6,7 @@ import (
 
 //sigo:extern gopark runtime.gopark
 //sigo:extern goresume runtime.goresume
-//sigo:extern getg runtime.getg
+//sigo:extern getg runtime.getgPtr
 
 func gopark(unsafe.Pointer)
 func goresume(unsafe.Pointer)

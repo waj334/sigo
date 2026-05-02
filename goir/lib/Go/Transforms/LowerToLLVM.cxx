@@ -638,7 +638,8 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
     if (callee == "append")
     {
       auto elementType = go::cast<SliceType>(op.getOperand(0).getType()).getElementType();
-      auto elementTypeInfoGlobalOp = createTypeInfo(rewriter, module, loc, elementType, goConverter(this->getTypeConverter()));
+      auto elementTypeInfoGlobalOp =
+        createTypeInfo(rewriter, module, loc, elementType, goConverter(this->getTypeConverter()));
       Value elementTypeInfoValue =
         mlir::LLVM::AddressOfOp::create(rewriter, loc, elementTypeInfoGlobalOp);
       const auto runtimeCallResults = createRuntimeCall(
@@ -685,8 +686,8 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
         .Case(
           [&](SliceType type)
           {
-            auto elementTypeInfoGlobalOp =
-              createTypeInfo(rewriter, module, loc, type.getElementType(), goConverter(this->getTypeConverter()));
+            auto elementTypeInfoGlobalOp = createTypeInfo(
+              rewriter, module, loc, type.getElementType(), goConverter(this->getTypeConverter()));
             Value elementTypeInfoValue =
               mlir::LLVM::AddressOfOp::create(rewriter, loc, elementTypeInfoGlobalOp);
             const auto runtimeCallResults = createRuntimeCall(
@@ -710,8 +711,8 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
         .Case(
           [&](SliceType type)
           {
-            auto elementTypeInfoGlobalOp =
-              createTypeInfo(rewriter, module, loc, type.getElementType(), goConverter(this->getTypeConverter()));
+            auto elementTypeInfoGlobalOp = createTypeInfo(
+              rewriter, module, loc, type.getElementType(), goConverter(this->getTypeConverter()));
             Value elementTypeInfoValue =
               mlir::LLVM::AddressOfOp::create(rewriter, loc, elementTypeInfoGlobalOp);
             const auto runtimeCallResults = createRuntimeCall(
@@ -798,7 +799,8 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
           {
             SmallVector<Value> args;
             args.reserve(2);
-            const auto chanTypeInfo = createTypeInfo(rewriter, module, loc, chanType, goConverter(this->getTypeConverter()));
+            const auto chanTypeInfo = createTypeInfo(
+              rewriter, module, loc, chanType, goConverter(this->getTypeConverter()));
             const Value chanTypeInfoValue =
               mlir::LLVM::AddressOfOp::create(rewriter, loc, chanTypeInfo);
             args.push_back(chanTypeInfoValue);
@@ -822,13 +824,14 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
           {
             SmallVector<Value> args;
             args.reserve(3);
-            auto keyTypeInfoGlobalOp = createTypeInfo(rewriter, module, loc, mapType.getKeyType(), goConverter(this->getTypeConverter()));
+            auto keyTypeInfoGlobalOp = createTypeInfo(
+              rewriter, module, loc, mapType.getKeyType(), goConverter(this->getTypeConverter()));
             Value keyTypeInfoValue =
               mlir::LLVM::AddressOfOp::create(rewriter, loc, keyTypeInfoGlobalOp);
             args.push_back(keyTypeInfoValue);
 
-            auto elementTypeInfoGlobalOp =
-              createTypeInfo(rewriter, module, loc, mapType.getValueType(), goConverter(this->getTypeConverter()));
+            auto elementTypeInfoGlobalOp = createTypeInfo(
+              rewriter, module, loc, mapType.getValueType(), goConverter(this->getTypeConverter()));
             Value elementTypeInfoValue =
               mlir::LLVM::AddressOfOp::create(rewriter, loc, elementTypeInfoGlobalOp);
             args.push_back(elementTypeInfoValue);
@@ -852,8 +855,12 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
           {
             SmallVector<Value> args;
             args.reserve(3);
-            auto elementTypeInfoGlobalOp =
-              createTypeInfo(rewriter, module, loc, sliceType.getElementType(), goConverter(this->getTypeConverter()));
+            auto elementTypeInfoGlobalOp = createTypeInfo(
+              rewriter,
+              module,
+              loc,
+              sliceType.getElementType(),
+              goConverter(this->getTypeConverter()));
             Value elementTypeInfoValue =
               mlir::LLVM::AddressOfOp::create(rewriter, loc, elementTypeInfoGlobalOp);
             args.push_back(elementTypeInfoValue);
@@ -1088,17 +1095,48 @@ struct CallIndirectOpLowering : public ConvertOpToLLVMPattern<CallIndirectOp>
       return failure();
     }
 
+    mlir::SmallVector<mlir::Type, 1> resultTypes;
+    if (convertedResultTypes.size() > 1)
+    {
+      resultTypes.push_back(
+        mlir::LLVM::LLVMStructType::getLiteral(this->getContext(), convertedResultTypes));
+    }
+    else
+    {
+      resultTypes = convertedResultTypes;
+    }
+
     SmallVector<Value> operands;
     operands.reserve(op.getNumOperands());
 
     operands.push_back(adaptor.getCallee());
     llvm::append_range(operands, adaptor.getCalleeOperands());
 
-    auto callOp = mlir::LLVM::CallOp::create(rewriter, op.getLoc(), convertedResultTypes, operands);
+    auto callOp = mlir::LLVM::CallOp::create(rewriter, op.getLoc(), resultTypes, operands);
     callOp.getProperties().operandSegmentSizes = { { static_cast<int32_t>(operands.size()), 0 } };
     callOp.getProperties().op_bundle_sizes = rewriter.getDenseI32ArrayAttr({});
+    const auto callResult = callOp.getResult();
 
-    rewriter.replaceOp(op, callOp);
+    if (convertedResultTypes.size() > 1)
+    {
+      // Extract result values from result pack.
+      mlir::SmallVector<mlir::Value, 4> results;
+      for (int64_t i = 0; i < static_cast<int64_t>(convertedResultTypes.size()); i++)
+      {
+        const auto extractResultType = convertedResultTypes[i];
+        const mlir::Value result = mlir::LLVM::ExtractValueOp::create(
+          rewriter, op.getLoc(), extractResultType, callResult, i);
+        results.push_back(result);
+      }
+
+      // Replace the original operation uses with the extracted result values.
+      rewriter.replaceOp(op, results);
+    }
+    else
+    {
+      rewriter.replaceOp(op, callOp);
+    }
+
     return success();
   }
 };
@@ -1118,7 +1156,8 @@ struct ChangeInterfaceOpLowering : ConvertOpToLLVMPattern<ChangeInterfaceOp>
     auto resultType = this->getTypeConverter()->convertType(op.getType());
 
     // Create the type information for the interface's new type
-    auto typeInfoGlobalOp = createTypeInfo(rewriter, module, op.getLoc(), op.getType(), goConverter(this->getTypeConverter()));
+    auto typeInfoGlobalOp = createTypeInfo(rewriter, module, op.getLoc(), op.getType(),
+    goConverter(this->getTypeConverter()));
 
     Value infoValue = mlir::LLVM::AddressOfOp::create(rewriter, loc, typeInfoGlobalOp);
 
@@ -1537,7 +1576,8 @@ struct CmpInterfaceOpLowering : ConvertOpToLLVMPattern<CmpInterfaceOp>
       mlir::LLVM::StoreOp::create(rewriter, loc, otherValue, addr);
 
       // Get information about the other type.
-      auto typeInfoGlobalOp = createTypeInfo(rewriter, module, loc, otherType, goConverter(this->getTypeConverter()));
+      auto typeInfoGlobalOp =
+        createTypeInfo(rewriter, module, loc, otherType, goConverter(this->getTypeConverter()));
       const Value infoValue = mlir::LLVM::AddressOfOp::create(rewriter, loc, typeInfoGlobalOp);
 
       // Emit the runtime call to do an interface to arbitrary value comparison.
@@ -1990,7 +2030,8 @@ struct MakeInterfaceOpLowering : ConvertOpToLLVMPattern<MakeInterfaceOp>
     const auto module = op->getParentOfType<ModuleOp>();
 
     // Get information about the dynamic type.
-    auto typeInfoGlobalOp = createTypeInfo(rewriter, module, op.getLoc(), op.getDynamicType(), goConverter(this->getTypeConverter()));
+    auto typeInfoGlobalOp = createTypeInfo(
+      rewriter, module, op.getLoc(), op.getDynamicType(), goConverter(this->getTypeConverter()));
     const Value infoValue = mlir::LLVM::AddressOfOp::create(rewriter, loc, typeInfoGlobalOp);
 
     // Lower to runtime call.
@@ -2019,9 +2060,10 @@ struct MakeMapOpLowering : ConvertOpToLLVMPattern<MakeMapOp>
       mlir::go::IntegerType::get(this->getContext(), mlir::go::IntegerType::Signed);
 
     // Get information about the key and element types.
-    auto keyTypeInfoGlobalOp = createTypeInfo(rewriter, module, op.getLoc(), mapType.getKeyType(), goConverter(this->getTypeConverter()));
-    auto elementTypeInfoGlobalOp =
-      createTypeInfo(rewriter, module, op.getLoc(), mapType.getValueType(), goConverter(this->getTypeConverter()));
+    auto keyTypeInfoGlobalOp = createTypeInfo(
+      rewriter, module, op.getLoc(), mapType.getKeyType(), goConverter(this->getTypeConverter()));
+    auto elementTypeInfoGlobalOp = createTypeInfo(
+      rewriter, module, op.getLoc(), mapType.getValueType(), goConverter(this->getTypeConverter()));
 
     const Value keyTypeInfo = mlir::LLVM::AddressOfOp::create(rewriter, loc, keyTypeInfoGlobalOp);
     const Value elementTypeInfo =
@@ -2061,8 +2103,12 @@ struct MakeSliceOpLowering : ConvertOpToLLVMPattern<MakeSliceOp>
       mlir::go::IntegerType::get(this->getContext(), mlir::go::IntegerType::Signed);
 
     // Get information about the element type.
-    auto elementTypeInfoGlobalOp =
-      createTypeInfo(rewriter, module, op.getLoc(), sliceType.getElementType(), goConverter(this->getTypeConverter()));
+    auto elementTypeInfoGlobalOp = createTypeInfo(
+      rewriter,
+      module,
+      op.getLoc(),
+      sliceType.getElementType(),
+      goConverter(this->getTypeConverter()));
 
     const Value elementTypeInfo =
       mlir::LLVM::AddressOfOp::create(rewriter, loc, elementTypeInfoGlobalOp);
@@ -2579,7 +2625,8 @@ struct SliceOpLowering : ConvertOpToLLVMPattern<SliceOp>
           {
             // Get the element type information.
             const auto elementType = T.getElementType();
-            auto typeInfoGlobalOp = createTypeInfo(rewriter, module, op.getLoc(), elementType, goConverter(this->getTypeConverter()));
+            auto typeInfoGlobalOp = createTypeInfo(
+              rewriter, module, op.getLoc(), elementType, goConverter(this->getTypeConverter()));
             const Value infoValue =
               mlir::LLVM::AddressOfOp::create(rewriter, loc, typeInfoGlobalOp);
 
@@ -2667,7 +2714,8 @@ struct SliceAddrOpLowering : ConvertOpToLLVMPattern<SliceAddrOp>
       mlir::go::IntegerType::get(this->getContext(), mlir::go::IntegerType::Signed);
 
     // Get information about the element type.
-    auto typeInfoGlobalOp = createTypeInfo(rewriter, module, op.getLoc(), elementType, goConverter(this->getTypeConverter()));
+    auto typeInfoGlobalOp = createTypeInfo(
+      rewriter, module, op.getLoc(), elementType, goConverter(this->getTypeConverter()));
     const Value infoValue = mlir::LLVM::AddressOfOp::create(rewriter, loc, typeInfoGlobalOp);
 
     const mlir::Value indexValue = convert(
@@ -2763,7 +2811,8 @@ struct TypeAssertOpLowering : ConvertOpToLLVMPattern<TypeAssertOp>
     SmallVector<mlir::Value> args;
     args.push_back(adaptor.getValue());
     // Create the type information for the asserted type.
-    auto typeInfoGlobalOp = createTypeInfo(rewriter, module, op.getLoc(), op.getType(0), goConverter(this->getTypeConverter()));
+    auto typeInfoGlobalOp = createTypeInfo(
+      rewriter, module, op.getLoc(), op.getType(0), goConverter(this->getTypeConverter()));
     const mlir::Value infoPtr = mlir::LLVM::AddressOfOp::create(rewriter, loc, typeInfoGlobalOp);
     args.push_back(infoPtr);
     // Assert the hasOk flag if the second result is present.

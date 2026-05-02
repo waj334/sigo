@@ -15,7 +15,15 @@ func (b *Builder) emitArrayRange(ctx context.Context, stmt *ast.RangeStmt) {
 	endLocation := b.location(ctx, stmt.End())
 	tokLocation := b.location(ctx, stmt.TokPos)
 
-	arrayType := b.typeOf(ctx, stmt.X).(*types.Array)
+	var arrayType *types.Array
+	switch xt := b.typeOf(ctx, stmt.X).(type) {
+	case *types.Array:
+		arrayType = xt
+	case *types.Pointer:
+		arrayType = xt.Elem().(*types.Array)
+	default:
+		panic("emitArrayRange: unexpected type " + xt.String())
+	}
 	elementT := b.GetStoredType(ctx, arrayType.Elem())
 	ptrT := b.GetStoredType(ctx, types.NewPointer(arrayType.Elem()))
 
@@ -38,7 +46,15 @@ func (b *Builder) emitArrayRange(ctx context.Context, stmt *ast.RangeStmt) {
 	appendBlock(ctx, postIterBlock)
 
 	// Evaluate the base address of the array that will be iterated over.
-	X := b.addressOf(ctx, stmt.X, location)
+	// For an array value, take its address. For *[N]T, the pointer's value
+	// is already the array base address — evaluating the expression yields
+	// it directly.
+	var X mlir.ValueLike
+	if _, isPtr := b.typeOf(ctx, stmt.X).(*types.Pointer); isPtr {
+		X = b.emitExpr(ctx, stmt.X)[0]
+	} else {
+		X = b.addressOf(ctx, stmt.X, location)
+	}
 
 	// Create the length value of the array.
 	lenValue := b.emitConstInt(ctx, arrayType.Len(), keyT, location)

@@ -9,7 +9,12 @@ import (
 )
 
 type TCPConn struct {
-	pcb         tcpControlBlock
+	// pcb points at lwIP's real tcp_pcb, allocated by tcpNew() and owned
+	// by lwIP for the lifetime of the connection. Storing it by value
+	// would freeze a snapshot of the pcb's state at dial time; subsequent
+	// state machine transitions (SYN_SENT → ESTABLISHED → ...) happen on
+	// lwIP's side and would never be visible through a Go-side copy.
+	pcb         *tcpControlBlock
 	rxBuf       chan []byte
 	rxErr       chan error
 	pending     []byte
@@ -71,10 +76,15 @@ func (conn *TCPConn) Write(b []byte) (n int, err error) {
 func (conn *TCPConn) Close() error {
 	var err error
 	queueOperation(func() {
+		if conn.pcb == nil {
+			return
+		}
 		err = conn.pcb.Close()
 		if err != nil {
 			conn.pcb.Abort()
 		}
+		// lwIP frees the pcb on tcp_close/tcp_abort. Stop using it.
+		conn.pcb = nil
 		conn.closed = true
 	})
 	return err
