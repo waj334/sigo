@@ -120,7 +120,7 @@ define build-test
 endef
 
 define run-test
-	CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS) -lstdc++" go test -v -gcflags "all=-N -l" -ldflags="-linkmode external -extldflags=-Wl,--allow-multiple-definition" $(1) -args ${args}
+	PATH="$(INSTALL_DIR)/bin:$(PATH)" CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS) -lstdc++" go test -v -gcflags "all=-N -l" -ldflags="-linkmode external -extldflags=-Wl,--allow-multiple-definition" $(1) -args ${args}
 endef
 
 .PHONY: all build-clang build-goir build-llvm build-mlir build-tests clean clean-tests clean-sigo configure-clang configure-goir configure-llvm configure-mlir debug generate-csp sigo ssa_test

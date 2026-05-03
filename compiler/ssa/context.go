@@ -24,7 +24,119 @@ type (
 	instanceTypeCacheKey struct{}
 	typeProcessingSetKey struct{}
 	scopeKey             struct{}
+	rangeFuncFrameKey    struct{}
+	pendingRangeLabelKey struct{}
 )
+
+// newContextWithPendingRangeLabel attaches a label name that the next
+// emitted range-over-func statement should record on its frame, so that
+// labeled break/continue statements inside the body can target it. Cleared
+// by emitFuncRange after consumption.
+func newContextWithPendingRangeLabel(ctx context.Context, label string) context.Context {
+	return context.WithValue(ctx, pendingRangeLabelKey{}, label)
+}
+
+func currentPendingRangeLabel(ctx context.Context) string {
+	if val := ctx.Value(pendingRangeLabelKey{}); val != nil {
+		return val.(string)
+	}
+	return ""
+}
+
+// rangeFuncFrame is installed in the context of a range-over-func yield
+// closure's body. It tells emitBranchStatement and emitReturn how to leave
+// the closure correctly so the enclosing range statement behaves like the
+// user wrote a normal for-loop body.
+//
+//   - `continue`     → branch to fallthroughBlock, which returns true.
+//   - `break`        → emit `return false` from the closure. The iterator
+//     observes false and stops; control falls through.
+//   - `return X1...` → store result values into the captured resultTempVars
+//     slots, store returnSentinel to the captured stateVar
+//     slot, then emit `return false`. After the iter call,
+//     emitFuncRange tests the state and either issues the
+//     enclosing function's Return op or falls through.
+type rangeFuncFrame struct {
+	// parent is the enclosing range-over-func frame, if any. nil means this
+	// is the OUTERMOST rangefunc within the current function — its
+	// stateVar / resultTempVars / outerSig live in the current function.
+	// Non-nil means this is a NESTED rangefunc; stateVar / resultTempVars /
+	// outerSig point at the OUTERMOST frame's slots (so a `return` from
+	// any depth writes to the same place, and the outermost post-iter
+	// dispatch loads from there).
+	parent *rangeFuncFrame
+
+	// fallthroughBlock is the closure-local block that emits `return true`.
+	// Unlabeled `continue` branches here. The block is appended to the
+	// closure's region by emitFuncRange's bodyContextHook.
+	fallthroughBlock mlir.Block
+
+	// stateVar is a hidden int slot in the OUTERMOST enclosing function.
+	// Default zero means "not returning"; returnSentinel means a return was
+	// taken inside the body. nil disables Phase 2B handling (Phase 2A
+	// subset).
+	stateVar types.Object
+
+	// returnSentinel is the value stored to *stateVar to signal that a body
+	// `return` occurred.
+	returnSentinel int64
+
+	// resultTempVars are hidden temp slots in the OUTERMOST enclosing
+	// function, one per result of the outermost function's signature.
+	// emitReturn stores computed result values here before setting state
+	// and emitting return false. The outermost frame's post-iter loads
+	// them and emits the actual outer Return. May be empty for
+	// void-returning outermost functions.
+	resultTempVars []types.Object
+
+	// outerSig is the OUTERMOST enclosing function's signature. emitReturn
+	// under the override uses this to type the result values from the
+	// user's return statement (the closure's own signature is
+	// `func(...) bool` and would give the wrong number of result types).
+	outerSig *types.Signature
+
+	// label is the source-level label of the for-statement creating this
+	// frame, or "" if the for-statement is unlabeled. Used by
+	// emitBranchStatement to resolve `break L` / `continue L` to a frame.
+	label string
+
+	// depth is the nesting level of this frame: 0 for the outermost
+	// rangefunc within the enclosing function, 1 for one nested level, etc.
+	// Used in the state encoding for labeled break/continue: the sentinel
+	// value identifies which frame depth the action targets.
+	depth int
+
+	// stoppedVar is a hidden bool slot per frame. Set to true before this
+	// frame's closure returns false to its iterator. Checked at the start
+	// of each closure invocation; if already true, the closure panics
+	// (yield called after the iterator was told to stop). Implements the
+	// Go 1.23 yield-after-stop runtime check.
+	stoppedVar types.Object
+}
+
+// findRangeFuncFrameByLabel walks the frame stack (current → parent)
+// looking for the frame whose source-level label matches `label`. Returns
+// nil if no such frame is in scope (caller should fall back to the
+// existing labeled-block mechanism for non-rangefunc loop labels).
+func findRangeFuncFrameByLabel(start *rangeFuncFrame, label string) *rangeFuncFrame {
+	for f := start; f != nil; f = f.parent {
+		if f.label == label {
+			return f
+		}
+	}
+	return nil
+}
+
+func newContextWithRangeFuncFrame(ctx context.Context, frame *rangeFuncFrame) context.Context {
+	return context.WithValue(ctx, rangeFuncFrameKey{}, frame)
+}
+
+func currentRangeFuncFrame(ctx context.Context) *rangeFuncFrame {
+	if val := ctx.Value(rangeFuncFrameKey{}); val != nil {
+		return val.(*rangeFuncFrame)
+	}
+	return nil
+}
 
 type blockWithArgs struct {
 	block mlir.Block

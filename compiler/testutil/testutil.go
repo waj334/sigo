@@ -7,6 +7,7 @@ import (
 	"go/parser"
 	"go/token"
 	"go/types"
+
 	"golang.org/x/tools/go/loader"
 	"golang.org/x/tools/go/ssa"
 )

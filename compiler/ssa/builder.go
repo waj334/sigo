@@ -66,6 +66,13 @@ type Builder struct {
 	thunks     map[string]struct{}
 	thunkTypes map[string]thunkType
 
+	// Pending hooks keyed by *ast.FuncLit. Set by synthetic-closure callers
+	// (e.g. range-over-func) so emitFuncLiteral can install body hooks even
+	// when the FuncLit is consumed indirectly via emitCallArgs/emitExpr,
+	// which doesn't propagate the variadic `setup` parameter.
+	funcLitHooksMutex sync.Mutex
+	funcLitHooks      map[*ast.FuncLit]func(*funcData)
+
 	builtinWrapperMutex sync.Mutex
 	builtinWrappers     map[string]string
 
@@ -353,7 +360,7 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 								if ptrT, ok := goir.AsPointerType(result.Type()); ok {
 									elementT := ptrT.ElementType()
 									if !elementT.IsNull() && goir.TypeIsAFunctionType(elementT) {
-										result = b.createFunctionValue(ctx, result, nil, location)
+										result = b.createFunctionValue(ctx, result, nil, 0, location)
 									}
 								}
 							}

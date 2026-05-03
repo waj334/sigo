@@ -244,7 +244,7 @@ func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit)
 		case *types.Signature:
 			if goir.TypeIsAFunctionType(elementValue.Type()) {
 				// Convert the function pointer to a func value.
-				elementValue = b.createFunctionValue(ctx, elementValue, nil, elementLoc)
+				elementValue = b.createFunctionValue(ctx, elementValue, nil, 0, elementLoc)
 			}
 		case *types.Interface:
 			// Handle interface conversion.
@@ -276,7 +276,7 @@ func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit)
 	return value
 }
 
-func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.Value {
+func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit, setup ...func(*funcData)) mlir.Value {
 	location := b.location(ctx, expr.Pos())
 	enclosingData := currentFuncData(ctx)
 	info := currentInfo(ctx)
@@ -361,12 +361,17 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 				}
 
 			case *ast.FuncLit:
-				if node == expr { // only the current func
-					for _, field := range node.Type.Params.List {
-						for _, name := range field.Names {
-							if obj := b.objectOf(ctx, name); obj != nil {
-								localObj[obj] = struct{}{}
-							}
+				// Treat any nested FuncLit's parameters as locally defined
+				// within expr.Body's tree. They live in the nested
+				// FuncLit's own scope; the outer free-var walk must not
+				// misclassify them as captures of expr. (ast.Inspect
+				// starts at expr.Body, so expr itself is never visited
+				// here — outer params are excluded via the second walk's
+				// originalSignature.Params() check.)
+				for _, field := range node.Type.Params.List {
+					for _, name := range field.Names {
+						if obj := b.objectOf(ctx, name); obj != nil {
+							localObj[obj] = struct{}{}
 						}
 					}
 				}
@@ -374,6 +379,36 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 			case *ast.AssignStmt:
 				if node.Tok == token.DEFINE {
 					for _, lhs := range node.Lhs {
+						if ident, ok := lhs.(*ast.Ident); ok {
+							if obj := b.objectOf(ctx, ident); obj != nil {
+								localObj[obj] = struct{}{}
+							}
+						}
+					}
+				}
+
+			case *ast.RangeStmt:
+				// `for k, v := range X { ... }` defines k and v locally.
+				// Without this, a nested range-over-func inside this body
+				// causes the outer free-var walk to misclassify k/v as
+				// captures (they have no LocalValue in the enclosing scope).
+				if node.Tok == token.DEFINE {
+					for _, expr := range []ast.Expr{node.Key, node.Value} {
+						ident, ok := expr.(*ast.Ident)
+						if !ok || ident == nil || ident.Name == "_" {
+							continue
+						}
+						if obj := b.objectOf(ctx, ident); obj != nil {
+							localObj[obj] = struct{}{}
+						}
+					}
+				}
+
+			case *ast.TypeSwitchStmt:
+				// Type switch guard `switch x := y.(type)` defines x in
+				// each case clause's scope. Conservative add to localObj.
+				if assign, ok := node.Assign.(*ast.AssignStmt); ok && assign.Tok == token.DEFINE {
+					for _, lhs := range assign.Lhs {
 						if ident, ok := lhs.(*ast.Ident); ok {
 							if obj := b.objectOf(ctx, ident); obj != nil {
 								localObj[obj] = struct{}{}
@@ -410,9 +445,12 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 				}
 			}
 
-			// Skip package names, types, etc.
+			// Skip package names, types, consts, labels, etc. Only
+			// *types.Var (and perhaps a few others bearing a real value
+			// type) is a legitimate capture candidate. *types.Label in
+			// particular has Invalid type and would crash GetStoredType.
 			switch obj.(type) {
-			case *types.PkgName, *types.Func, *types.TypeName, *types.Const:
+			case *types.PkgName, *types.Func, *types.TypeName, *types.Const, *types.Label, *types.Builtin, *types.Nil:
 				return true
 			}
 
@@ -427,22 +465,32 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 		})
 
 		for obj := range used {
-			// You can skip this whole scope walk logic — the object already knows its scope.
-			varType := b.GetStoredType(ctx, obj.Type())
-			ptrType := b.GetStoredType(ctx, types.NewPointer(obj.Type()))
-			allocType := b.GetStoredType(ctx, types.NewPointer(types.NewPointer(obj.Type())))
-			allocaOp := goir.NewAllocaOperation(b.ctx, allocType, ptrType, 1, false, b.location(ctx, obj.Pos()))
-			fv := &FreeVar{
-				obj: obj,
-				ptr: resultOf(allocaOp).AsValue(),
-				T:   varType,
-				GoT: obj.Type(),
-				b:   b,
-			}
-
+			fv := b.addAnonCapture(ctx, anonData, obj)
 			captures[obj] = fv
-			anonData.freeVars = append(anonData.freeVars, fv)
-			anonData.locals[obj] = fv
+		}
+	}
+
+	// Allow callers to install additional state on the funcData (e.g. body
+	// context/tail hooks for synthetic closures and extra captures that
+	// don't appear in the body AST) BEFORE the heap-escape pass and context
+	// struct are built so newly-added captures get heap-marked and included.
+	//
+	// Two paths feed setup: the explicit variadic on this call (used when
+	// emitFuncLiteral is invoked directly), and a side-table keyed by the
+	// FuncLit pointer (used when the FuncLit is consumed indirectly via
+	// emitCallArgs/emitExpr, which does not propagate the variadic).
+	b.funcLitHooksMutex.Lock()
+	pending := b.funcLitHooks[expr]
+	if pending != nil {
+		delete(b.funcLitHooks, expr)
+	}
+	b.funcLitHooksMutex.Unlock()
+	if pending != nil {
+		pending(anonData)
+	}
+	for _, fn := range setup {
+		if fn != nil {
+			fn(anonData)
 		}
 	}
 
@@ -476,6 +524,40 @@ func (b *Builder) emitFuncLiteral(ctx context.Context, expr *ast.FuncLit) mlir.V
 	// Emit the anonymous function.
 	b.addToJobQueue(ctx, anonData)
 
+	// Propagate //sigo:stacksize on this FuncLit (if any) into the _func
+	// value's stackSize field. runtime.newcoro / runtime.addGoroutine read
+	// it when the value is launched as a coroutine or goroutine.
+	stackSize := int64(b.config.Program.NodeStackSize[expr])
+
 	// Return a func value.
-	return b.createFunctionValue(ctx, funcPtr, contextPtr, location)
+	return b.createFunctionValue(ctx, funcPtr, contextPtr, stackSize, location)
+}
+
+// addAnonCapture appends a free-variable capture to anonData for an object
+// that does not appear as an ident in the body AST. Used by synthetic
+// closures (range-over-func) to capture hidden state and result-temp slots
+// allocated in the enclosing function. Skips if the object is already
+// captured. Must be called BEFORE createContextStructValue so the context
+// struct includes the capture.
+func (b *Builder) addAnonCapture(ctx context.Context, anonData *funcData, obj types.Object) *FreeVar {
+	for _, fv := range anonData.freeVars {
+		if fv.obj == obj {
+			return fv
+		}
+	}
+
+	varType := b.GetStoredType(ctx, obj.Type())
+	ptrType := b.GetStoredType(ctx, types.NewPointer(obj.Type()))
+	allocType := b.GetStoredType(ctx, types.NewPointer(types.NewPointer(obj.Type())))
+	allocaOp := goir.NewAllocaOperation(b.ctx, allocType, ptrType, 1, false, b.location(ctx, obj.Pos()))
+	fv := &FreeVar{
+		obj: obj,
+		ptr: resultOf(allocaOp).AsValue(),
+		T:   varType,
+		GoT: obj.Type(),
+		b:   b,
+	}
+	anonData.freeVars = append(anonData.freeVars, fv)
+	anonData.locals[obj] = fv
+	return fv
 }

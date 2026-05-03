@@ -345,6 +345,8 @@ func (b *Builder) emitRangeStatement(ctx context.Context, stmt *ast.RangeStmt) {
 		b.emitMapRange(ctx, stmt)
 	case *types.Slice:
 		b.emitSliceRange(ctx, stmt)
+	case *types.Signature:
+		b.emitFuncRange(ctx, stmt)
 	default:
 		panic("unhandled range type: " + T.String())
 	}

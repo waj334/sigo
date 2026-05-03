@@ -143,7 +143,7 @@ func (b *Builder) emitAssign(ctx context.Context, stmt *ast.AssignStmt) {
 						// wrap it in a _func struct value for storage.
 						elementT := ptrT.ElementType()
 						if !elementT.IsNull() && goir.TypeIsAFunctionType(elementT) {
-							rhs = b.createFunctionValue(ctx, rhs, nil, location)
+							rhs = b.createFunctionValue(ctx, rhs, nil, 0, location)
 						}
 					}
 				}
@@ -321,6 +321,55 @@ func (b *Builder) emitStatements(ctx context.Context, list []ast.Stmt) {
 }
 
 func (b *Builder) emitBranchStatement(ctx context.Context, stmt *ast.BranchStmt) {
+	// If we're inside a range-over-func yield closure, break and continue
+	// must leave the closure rather than branch out of it. For labeled
+	// break/continue whose target is a rangefunc frame, encode the action
+	// in the shared state slot before returning false; each frame's
+	// post-iter dispatch decodes it.
+	if frame := currentRangeFuncFrame(ctx); frame != nil {
+		location := b.location(ctx, stmt.Pos())
+
+		if stmt.Label == nil {
+			switch stmt.Tok {
+			case token.BREAK:
+				b.markRangeFuncStopped(ctx, frame, location)
+				falseValue := b.emitConstBool(ctx, false, b.i1, location)
+				retOp := goir.NewReturnOperation(b.config.Ctx, []mlir.ValueLike{falseValue}, location)
+				appendOperation(ctx, retOp)
+				return
+			case token.CONTINUE:
+				brOp := goir.NewBranchOperation(b.ctx, frame.fallthroughBlock, nil, location)
+				appendOperation(ctx, brOp)
+				return
+			}
+		} else if stmt.Tok == token.BREAK || stmt.Tok == token.CONTINUE {
+			// Resolve the label to a rangefunc frame in scope. If found,
+			// use the state-encoded propagation. Otherwise, fall through
+			// to the labeled-blocks path (e.g. label points at a non-
+			// rangefunc for-statement).
+			target := findRangeFuncFrameByLabel(frame, stmt.Label.Name)
+			if target != nil && frame.stateVar != nil {
+				var sentinel int64
+				if stmt.Tok == token.BREAK {
+					sentinel = 2 + 2*int64(target.depth)
+				} else {
+					sentinel = 3 + 2*int64(target.depth)
+				}
+				stateLV := b.lookupValue(ctx, frame.stateVar)
+				if stateLV == nil {
+					panic("range-over-func: state var not captured for labeled branch")
+				}
+				intType := b.GetStoredType(ctx, types.Typ[types.Int])
+				stateLV.Store(ctx, b.emitConstInt(ctx, sentinel, intType, location), location)
+				b.markRangeFuncStopped(ctx, frame, location)
+				falseValue := b.emitConstBool(ctx, false, b.i1, location)
+				retOp := goir.NewReturnOperation(b.config.Ctx, []mlir.ValueLike{falseValue}, location)
+				appendOperation(ctx, retOp)
+				return
+			}
+		}
+	}
+
 	predecessor, predArgs := currentPredecessorBlock(ctx)
 	successor, succArgs := currentSuccessorBlock(ctx)
 	switch stmt.Tok {
@@ -680,10 +729,76 @@ func (b *Builder) emitIndexAddr(ctx context.Context, expr *ast.IndexExpr) mlir.V
 }
 
 func (b *Builder) emitReturn(ctx context.Context, stmt *ast.ReturnStmt) {
+	// Phase 2B: when a range-over-func frame is active, do not emit the
+	// enclosing function's Return op. Instead, store result values into the
+	// captured temp slots, set state to the return-sentinel, and emit
+	// `return false` from the closure. emitFuncRange's post-iter dispatch
+	// will observe the sentinel and emit the actual outer Return.
+	if frame := currentRangeFuncFrame(ctx); frame != nil && frame.stateVar != nil {
+		location := b.location(ctx, stmt.Pos())
+		// Evaluate the user's return values against the OUTER function's
+		// signature, not the closure's (which is `func(...) bool`).
+		results := b.evaluateReturnResults(ctx, stmt, frame.outerSig)
+		// Inside the closure body, lookupValue returns a *FreeVar (the
+		// captured pointer-to-pointer). In the outer function it would
+		// return a *LocalValue. Both satisfy the Value interface, so go
+		// through that.
+		for i, v := range results {
+			if i >= len(frame.resultTempVars) {
+				break
+			}
+			tv := frame.resultTempVars[i]
+			lv := b.lookupValue(ctx, tv)
+			if lv == nil {
+				panic("range-over-func: result temp var not captured")
+			}
+			lv.Store(ctx, v, location)
+		}
+		stateLV := b.lookupValue(ctx, frame.stateVar)
+		if stateLV == nil {
+			panic("range-over-func: state var not captured")
+		}
+		intType := b.GetStoredType(ctx, types.Typ[types.Int])
+		stateLV.Store(ctx, b.emitConstInt(ctx, frame.returnSentinel, intType, location), location)
+		b.markRangeFuncStopped(ctx, frame, location)
+		falseValue := b.emitConstBool(ctx, false, b.i1, location)
+		retOp := goir.NewReturnOperation(b.config.Ctx, []mlir.ValueLike{falseValue}, location)
+		appendOperation(ctx, retOp)
+		return
+	}
+
+	results := b.evaluateReturnResults(ctx, stmt, currentFuncData(ctx).signature)
+
+	// Create the return operation in the current block.
+	op := goir.NewReturnOperation(b.config.Ctx, results, b.location(ctx, stmt.End()))
+	appendOperation(ctx, op)
+}
+
+// markRangeFuncStopped sets the per-frame stoppedVar to true. Called
+// before emitting `return false` from a range-over-func closure so the
+// next call to the closure (which would be a protocol violation by the
+// iterator) panics via the prologue's check. Phase 8.
+func (b *Builder) markRangeFuncStopped(ctx context.Context, frame *rangeFuncFrame, location mlir.LocationLike) {
+	if frame.stoppedVar == nil {
+		return
+	}
+	stoppedLV := b.lookupValue(ctx, frame.stoppedVar)
+	if stoppedLV == nil {
+		return
+	}
+	trueValue := b.emitConstBool(ctx, true, b.i1, location)
+	stoppedLV.Store(ctx, trueValue, location)
+}
+
+// evaluateReturnResults collects the values produced by a return statement,
+// applying interface and function-value conversions as the supplied
+// signature's result types require. Shared between the normal return path
+// (which passes the current function's signature) and the range-over-func
+// frame override (which passes the enclosing function's signature, since the
+// synthetic closure's own signature is `func(...) bool`).
+func (b *Builder) evaluateReturnResults(ctx context.Context, stmt *ast.ReturnStmt, sig *types.Signature) []mlir.ValueLike {
 	var results []mlir.ValueLike
 	info := currentInfo(ctx)
-
-	// Get the current function declaration being built.
 	state := currentFuncData(ctx)
 
 	if stmt.Results == nil {
@@ -696,77 +811,75 @@ func (b *Builder) emitReturn(ctx context.Context, stmt *ast.ReturnStmt) {
 				}
 			}
 		}
-	} else {
-		// Collect the return values.
-		returnTypes := make([]types.Type, state.signature.Results().Len())
-		for i := range returnTypes {
-			returnTypes[i] = state.signature.Results().At(i).Type()
-		}
-
-		returnIdx := 0
-		for _, result := range stmt.Results {
-			location := b.location(ctx, result.Pos())
-			v := b.emitExpr(ctx, result)
-			exprType := b.typeOf(ctx, result)
-
-			// When the expression produces multiple values (tuple), extract
-			// individual element types. Otherwise use the expression type directly.
-			var valueTypes []types.Type
-			if tuple, ok := exprType.(*types.Tuple); ok {
-				for j := 0; j < tuple.Len(); j++ {
-					valueTypes = append(valueTypes, tuple.At(j).Type())
-				}
-			} else {
-				valueTypes = []types.Type{exprType}
-			}
-
-			for ii := range v {
-				returnType := returnTypes[returnIdx]
-				valueType := resolveType(ctx, valueTypes[ii])
-				switch baseType(returnType).(type) {
-				case *types.Interface:
-					if !isNil(valueType) && !types.Identical(valueType, returnType) {
-						if types.IsInterface(baseType(valueType)) {
-							// Convert from interface A to interface B.
-							v[ii] = b.emitChangeType(ctx, returnType, v[ii], location)
-						} else {
-							// Create an interface value from the value expression.
-							v[ii] = b.emitInterfaceValue(ctx, returnType, valueType, v[ii], location)
-						}
-					}
-				case *types.Signature:
-					// Only wrap raw function pointers into the _func struct.
-					// Values that are already the _func struct type (e.g., closures,
-					// variables of function type) must not be wrapped again.
-					if _, ok := goir.AsPointerType(v[ii].Type()); !ok {
-						break
-					}
-					if selExpr, ok := result.(*ast.SelectorExpr); ok {
-						if sel, ok := info.Selections[selExpr]; ok {
-							// Member variables would've been store as the func struct type.
-							if _, ok := sel.Obj().(*types.Var); ok {
-								break
-							}
-						}
-					}
-					v[ii] = b.createFunctionValue(ctx, v[ii], nil, location)
-				}
-				returnIdx++
-			}
-
-			if len(v) > state.signature.Results().Len() {
-				// / NOTE: Some expressions may yield more results than the return specifies. Slice the returns in order
-				// /       to return the exact values expected by this return statement.
-				results = append(results, v[:len(stmt.Results)]...)
-			} else {
-				results = append(results, v...)
-			}
-		}
+		return results
 	}
 
-	// Create the return operation in the current block.
-	op := goir.NewReturnOperation(b.config.Ctx, results, b.location(ctx, stmt.End()))
-	appendOperation(ctx, op)
+	// Collect the return values.
+	returnTypes := make([]types.Type, sig.Results().Len())
+	for i := range returnTypes {
+		returnTypes[i] = sig.Results().At(i).Type()
+	}
+
+	returnIdx := 0
+	for _, result := range stmt.Results {
+		location := b.location(ctx, result.Pos())
+		v := b.emitExpr(ctx, result)
+		exprType := b.typeOf(ctx, result)
+
+		// When the expression produces multiple values (tuple), extract
+		// individual element types. Otherwise use the expression type directly.
+		var valueTypes []types.Type
+		if tuple, ok := exprType.(*types.Tuple); ok {
+			for j := 0; j < tuple.Len(); j++ {
+				valueTypes = append(valueTypes, tuple.At(j).Type())
+			}
+		} else {
+			valueTypes = []types.Type{exprType}
+		}
+
+		for ii := range v {
+			returnType := returnTypes[returnIdx]
+			valueType := resolveType(ctx, valueTypes[ii])
+			switch baseType(returnType).(type) {
+			case *types.Interface:
+				if !isNil(valueType) && !types.Identical(valueType, returnType) {
+					if types.IsInterface(baseType(valueType)) {
+						// Convert from interface A to interface B.
+						v[ii] = b.emitChangeType(ctx, returnType, v[ii], location)
+					} else {
+						// Create an interface value from the value expression.
+						v[ii] = b.emitInterfaceValue(ctx, returnType, valueType, v[ii], location)
+					}
+				}
+			case *types.Signature:
+				// Only wrap raw function pointers into the _func struct.
+				// Values that are already the _func struct type (e.g., closures,
+				// variables of function type) must not be wrapped again.
+				if _, ok := goir.AsPointerType(v[ii].Type()); !ok {
+					break
+				}
+				if selExpr, ok := result.(*ast.SelectorExpr); ok {
+					if sel, ok := info.Selections[selExpr]; ok {
+						// Member variables would've been store as the func struct type.
+						if _, ok := sel.Obj().(*types.Var); ok {
+							break
+						}
+					}
+				}
+				v[ii] = b.createFunctionValue(ctx, v[ii], nil, 0, location)
+			}
+			returnIdx++
+		}
+
+		if len(v) > sig.Results().Len() {
+			// / NOTE: Some expressions may yield more results than the return specifies. Slice the returns in order
+			// /       to return the exact values expected by this return statement.
+			results = append(results, v[:len(stmt.Results)]...)
+		} else {
+			results = append(results, v...)
+		}
+	}
+	return results
 }
 
 func (b *Builder) emitLabeledStatement(ctx context.Context, stmt *ast.LabeledStmt) {
@@ -792,8 +905,21 @@ func (b *Builder) emitLabeledStatement(ctx context.Context, stmt *ast.LabeledStm
 	// Continue emission in the labeled block.
 	setCurrentBlock(ctx, block)
 
+	// If the inner statement is a range-over-func loop, record the label so
+	// that emitFuncRange can attach it to the frame and labeled
+	// break/continue statements inside the body can target it. Other
+	// labeled-stmt cases use the existing labeled-blocks mechanism.
+	innerCtx := ctx
+	if rs, ok := stmt.Stmt.(*ast.RangeStmt); ok {
+		if t := currentInfo(ctx).TypeOf(rs.X); t != nil {
+			if _, ok := t.Underlying().(*types.Signature); ok {
+				innerCtx = newContextWithPendingRangeLabel(ctx, stmt.Label.Name)
+			}
+		}
+	}
+
 	// Emit the labeled statement's statement
-	b.emitStmt(ctx, stmt.Stmt)
+	b.emitStmt(innerCtx, stmt.Stmt)
 }
 
 func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) []mlir.ValueLike {
@@ -847,7 +973,7 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 		wrapperAddr := b.addressOfSymbol(ctx, wrapperSymbol, fptrType, b._noLoc)
 
 		// Create the function value.
-		return []mlir.ValueLike{b.createFunctionValue(ctx, wrapperAddr, argsValue, location)}
+		return []mlir.ValueLike{b.createFunctionValue(ctx, wrapperAddr, argsValue, 0, location)}
 	default:
 		switch obj := sel.Obj().(type) {
 		case *types.Func:

@@ -595,6 +595,7 @@ func link(options linkOptions, buildOptions BuildOptions) error {
 		"--defsym=sigo_headGoroutine=runtime.headGoroutine",
 		"--defsym=sigo_currentGoroutine=runtime.currentGoroutine",
 		"--defsym=sigo_goroutineStackSize=runtime._goroutineStackSize",
+		"--defsym=sigo_coroStackSize=runtime._coroStackSize",
 		"-v",
 		"--gc-sections",
 		"-o", elfOut,
@@ -781,6 +782,19 @@ func addConstantGlobals(module mlir.LLVMModuleRef, options BuildOptions, floatEn
 	globalGoroutineStackSize.SetInitializer(constGoroutineStackSize)
 	globalGoroutineStackSize.SetLinkage(mlir.LLVMLinkageExternal)
 	globalGoroutineStackSize.SetGlobalConstant(true)
+
+	// Default stack size for coroutines (used by iter.Pull / runtime.newcoro).
+	coroStackSize := options.CoroStackSize
+	if coroStackSize <= 0 {
+		coroStackSize = options.StackSize
+	}
+	globalCoroStackSize := findOrCreateGlobal(module, intPtrType, "runtime._coroStackSize")
+	coroAlignment := dataLayout.PreferredAlignmentOfGlobal(globalCoroStackSize)
+	constCoroStackSize := mlir.NewConstInt(intPtrType, uint64(align(uint(coroStackSize), coroAlignment)), false)
+	globalCoroStackSize.SetAlignment(coroAlignment)
+	globalCoroStackSize.SetInitializer(constCoroStackSize)
+	globalCoroStackSize.SetLinkage(mlir.LLVMLinkageExternal)
+	globalCoroStackSize.SetGlobalConstant(true)
 
 	// FPU enable flag.
 	globalFpuEnableFlag := findOrCreateGlobal(module, boolType, "runtime._fpuEnabled")

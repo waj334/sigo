@@ -27,6 +27,7 @@ var (
 		jobs          int
 		optimize      string
 		stackSize     int
+		coroStackSize int
 		keepWorkDir   bool
 		debugLowering bool
 	}{}
@@ -77,6 +78,7 @@ var (
 				NumJobs:           buildOpts.jobs,
 				Optimization:      buildOpts.optimize,
 				StackSize:         buildOpts.stackSize,
+				CoroStackSize:     buildOpts.coroStackSize,
 				KeepWorkDir:       buildOpts.keepWorkDir,
 				Packages:          map[string]string{},
 				DebugLowering:     buildOpts.debugLowering,
@@ -144,6 +146,7 @@ func init() {
 	buildCmd.Flags().IntVarP(&buildOpts.jobs, "jobs", "j", runtime.NumCPU(), "number of concurrent builds")
 	buildCmd.Flags().StringVarP(&buildOpts.optimize, "opt", "O", "0", "optimization level")
 	buildCmd.Flags().IntVarP(&buildOpts.stackSize, "stack-size", "s", 2048, "stack size of each goroutine")
+	buildCmd.Flags().IntVar(&buildOpts.coroStackSize, "coro-stack-size", 512, "default stack size of each coroutine (iter.Pull)")
 	buildCmd.Flags().BoolVar(&buildOpts.keepWorkDir, "work", false, "do not delete the work directory upon build")
 	buildCmd.Flags().BoolVar(&buildOpts.debugLowering, "debug-lowering", false, "output the IR before and after each lowering pass")
 }

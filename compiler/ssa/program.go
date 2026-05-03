@@ -18,6 +18,7 @@ import (
 	"regexp"
 	"slices"
 	"sort"
+	"strconv"
 	"strings"
 
 	"golang.org/x/tools/go/packages"
@@ -104,6 +105,13 @@ type Program struct {
 	CGODefines      []string               // extra defines from #cgo CFLAGS: -D... (NAME or NAME=VALUE)
 	CGOStaticFuncs  map[string]ASTFuncDecl // static C functions needing __sigo_wrap_ wrappers
 
+	// NodeStackSize records per-AST-node stack-size overrides from
+	// //sigo:stacksize N pragmas attached to *ast.GoStmt or *ast.FuncLit
+	// candidates inside function bodies. Function-declaration overrides go
+	// in SymbolInfo.StackSize; node-level overrides for goroutine launches
+	// and function literals live here.
+	NodeStackSize map[ast.Node]uint64
+
 	packageNodes    map[*packages.Package]*packageNode
 	defaultImporter types.Importer
 }
@@ -140,6 +148,7 @@ func NewProgram(config *ProgramConfig) *Program {
 		FileSet:         token.NewFileSet(),
 		Symbols:         NewSymbolInfoStore(),
 		Config:          config,
+		NodeStackSize:   map[ast.Node]uint64{},
 		packageNodes:    map[*packages.Package]*packageNode{},
 		defaultImporter: importer.Default(),
 	}
@@ -503,6 +512,25 @@ func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) {
 		declsByPos[decl.Pos()] = decl
 	}
 
+	// Also collect *ast.GoStmt and *ast.FuncLit candidates inside function
+	// bodies. These can carry //sigo:stacksize N pragmas. Other pragmas
+	// (extern, export, linkname, etc.) attach only to top-level decls and
+	// are not affected by this map.
+	bodyNodesByPos := make(map[token.Pos]ast.Node)
+	for _, decl := range file.Decls {
+		fd, ok := decl.(*ast.FuncDecl)
+		if !ok || fd.Body == nil {
+			continue
+		}
+		ast.Inspect(fd.Body, func(n ast.Node) bool {
+			switch n.(type) {
+			case *ast.GoStmt, *ast.FuncLit:
+				bodyNodesByPos[n.Pos()] = n
+			}
+			return true
+		})
+	}
+
 	// Process each comment group
 	for _, commentGroup := range file.Comments {
 		// Find the declaration immediately following this comment group
@@ -518,6 +546,25 @@ func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) {
 				}
 			}
 		}
+
+		// Find the nearest body-level node (GoStmt / FuncLit) after this
+		// comment, if any.
+		var targetBodyNode ast.Node
+		var targetBodyNodePos token.Pos = token.NoPos
+		for pos, n := range bodyNodesByPos {
+			if pos > commentGroup.End() {
+				if targetBodyNodePos == token.NoPos || pos < targetBodyNodePos {
+					targetBodyNodePos = pos
+					targetBodyNode = n
+				}
+			}
+		}
+
+		// Body nodes win if strictly closer to the comment than any decl.
+		// Decls win for ties or when no body node lies between the comment
+		// and the next decl.
+		bodyNodeWins := targetBodyNode != nil &&
+			(targetDecl == nil || targetBodyNodePos < targetDeclPos)
 
 		// Extract symbol name from the target declaration if found
 		var symbolName string
@@ -705,6 +752,29 @@ func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) {
 					funcName := qualifiedName(parts[1], pkg)
 					info := p.Symbols.GetSymbolInfo(funcName)
 					info.Section = parts[2]
+				}
+			case "stacksize":
+				if count == 2 {
+					n, err := strconv.ParseUint(parts[1], 10, 64)
+					if err != nil || n == 0 {
+						label := targetSymbol
+						if label == "" && bodyNodeWins {
+							label = "<body node>"
+						}
+						fmt.Fprintf(os.Stderr,
+							"warning: //sigo:stacksize on %s requires a positive integer, got %q\n",
+							label, parts[1])
+						break
+					}
+					if n%8 != 0 {
+						n = (n + 7) &^ 7
+					}
+					if bodyNodeWins {
+						p.NodeStackSize[targetBodyNode] = n
+					} else if targetSymbol != "" {
+						info := p.Symbols.GetSymbolInfo(targetSymbol)
+						info.StackSize = n
+					}
 				}
 			}
 		}

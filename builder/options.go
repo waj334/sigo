@@ -16,6 +16,7 @@ type BuildOptions struct {
 	NumJobs           int
 	Optimization      string
 	StackSize         int
+	CoroStackSize     int
 	KeepWorkDir       bool
 	DebugLowering     bool
 }

@@ -45,6 +45,20 @@ type funcData struct {
 	info *types.Info
 
 	attributes []string
+
+	// bodyContextHook, if set, runs after emitFunc has prepared the entry
+	// block (params bound, captures resolved, labeled blocks created) and
+	// before the body is emitted. It returns the context that is used for
+	// body emission. Used by synthetic closures (e.g. range-over-func) to
+	// install per-construct control-flow frames.
+	bodyContextHook func(ctx context.Context) context.Context
+
+	// bodyTailHook, if set, runs after the body has been emitted. It is
+	// responsible for terminating currentBlock(ctx) if it has no terminator
+	// yet — typically by branching to a closure-specific exit block. If the
+	// hook leaves the current block unterminated, emitFunc falls back to
+	// inserting a tail return-zero.
+	bodyTailHook func(ctx context.Context)
 }
 
 type inputParam struct {
@@ -257,8 +271,16 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 		})
 		ctx = newContextWithLabeledBlocks(ctx, labeledBlocks)
 
+		if data.bodyContextHook != nil {
+			ctx = data.bodyContextHook(ctx)
+		}
+
 		// Fill the function body.
 		b.emitBlock(ctx, data.body)
+
+		if data.bodyTailHook != nil {
+			data.bodyTailHook(ctx)
+		}
 
 		// Assume that the current block is the "last" logical block in the function.
 		lastBlock := currentBlock(ctx)
@@ -434,7 +456,7 @@ func (b *Builder) createFuncInstance(ctx context.Context, signature *types.Signa
 	return instanceData
 }
 
-func (b *Builder) createFunctionValue(ctx context.Context, fn mlir.ValueLike, args mlir.ValueLike, location mlir.LocationLike) mlir.Value {
+func (b *Builder) createFunctionValue(ctx context.Context, fn mlir.ValueLike, args mlir.ValueLike, stackSize int64, location mlir.LocationLike) mlir.Value {
 	// Examine the input function value.
 	fnT := fn.Type()
 	if ptrT, ok := goir.AsPointerType(fnT); ok {
@@ -462,6 +484,16 @@ func (b *Builder) createFunctionValue(ctx context.Context, fn mlir.ValueLike, ar
 
 		// Insert the argument pack pointer value.
 		insertOp = goir.NewInsertOperation(b.ctx, 1, args, resultOf(insertOp), b._func, location)
+		appendOperation(ctx, insertOp)
+	}
+
+	if stackSize > 0 {
+		// Emit a constant value representing the stack size value.
+		stackSizeValue := b.emitConstInt(ctx, stackSize, b.uiptr, location)
+
+		// Insert the stack size value at field index 2
+		// (runtime._func is { f, args, stackSize }).
+		insertOp = goir.NewInsertOperation(b.ctx, 2, stackSizeValue, resultOf(insertOp), b._func, location)
 		appendOperation(ctx, insertOp)
 	}
 
@@ -571,7 +603,12 @@ func (b *Builder) emitFuncReferenceValue(ctx context.Context, calleeSymbol strin
 	shimSymbol, shimSig := b.getOrCreateClosureShim(ctx, calleeSymbol, signature)
 	shimPtrType := b.funcPointerOf(ctx, shimSig)
 	shimAddr := b.addressOfSymbol(ctx, shimSymbol, shimPtrType, location)
-	return b.createFunctionValue(ctx, shimAddr, nil, location)
+	// Propagate //sigo:stacksize on the called function (if any) into the
+	// _func value's stackSize field so runtime.newcoro / runtime.addGoroutine
+	// can allocate the right stack when the value is used to launch a
+	// goroutine or coroutine.
+	stackSize := int64(b.config.Program.Symbols.GetSymbolInfo(calleeSymbol).StackSize)
+	return b.createFunctionValue(ctx, shimAddr, nil, stackSize, location)
 }
 
 func (b *Builder) createThunk2(ctx context.Context, symbol string, callee string, signature *types.Signature, argTypes []types.Type, hasReceiver bool) {

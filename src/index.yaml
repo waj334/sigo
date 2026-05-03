@@ -1,6 +1,7 @@
 # These packages will be included from the Go standard library when staging SiGo standard library.
 include:
   - builtin
+  - bytes
   - cmp
   - errors
   - internal/byteorder
@@ -14,7 +15,6 @@ include:
   - internal/nettrace
   - internal/filepathlite
   - io
-  - iter
   - math
   - math/bits
   - net/netip

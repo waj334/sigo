@@ -555,7 +555,7 @@ func (b *Builder) emitCallArgs(ctx context.Context, signature *types.Signature, 
 			if ptrT, ok := goir.AsPointerType(argValues[i].Type()); ok {
 				elementT := ptrT.ElementType()
 				if !elementT.IsNull() && goir.TypeIsAFunctionType(elementT) {
-					argValues[i] = b.createFunctionValue(ctx, argValues[i], nil, location)
+					argValues[i] = b.createFunctionValue(ctx, argValues[i], nil, 0, location)
 				}
 			}
 		}
@@ -567,16 +567,61 @@ func (b *Builder) emitCallArgs(ctx context.Context, signature *types.Signature, 
 func (b *Builder) emitGoStatement(ctx context.Context, stmt *ast.GoStmt) {
 	location := b.location(ctx, stmt.Pos())
 	opArgs := b.extractCallOpArgs(ctx, stmt.Call)
+
+	// a //sigo:stacksize N pragma on this `go` statement (or on
+	// the FuncLit it launches when written `go func(){...}()`) overrides
+	// the called function's own pragma. For the closure path we patch the
+	// _func value's stackSize field by inserting at index 2 before passing
+	// to GoOperation3.
+	stmtSize := int64(b.config.Program.NodeStackSize[stmt])
+
 	switch opArgs.calleeType {
 	case calleeIsClosure:
+		callee := opArgs.callee
+		if stmtSize > 0 {
+			stackSizeValue := b.emitConstInt(ctx, stmtSize, b.uiptr, location)
+			insertOp := goir.NewInsertOperation(b.ctx, 2, stackSizeValue, callee, b._func, location)
+			appendOperation(ctx, insertOp)
+			callee = resultOf(insertOp).AsValue()
+		}
 		signatureTypeAttr := mlir.NewTypeAttr(b.GetType(ctx, opArgs.signature))
-		op := goir.NewGoOperation3(b.ctx, signatureTypeAttr, opArgs.callee, opArgs.args, location)
+		op := goir.NewGoOperation3(b.ctx, signatureTypeAttr, callee, opArgs.args, location)
 		appendOperation(ctx, op)
 	case calleeIsInterface:
+		// Interface-method goroutines: the size hint is on the receiver's
+		// concrete func value, not addressable here. GoStmt-level pragma
+		// for this case is a no-op for now.
 		op := goir.NewGoOperation4(b.ctx, opArgs.callee, opArgs.function, opArgs.args, location)
 		appendOperation(ctx, op)
 	case calleeIsSymbol:
-		// Emit the function that will be called.
+		// If the callee or this `go` statement has a //sigo:stacksize
+		// pragma, route through the closure path so the size is carried
+		// in the _func.stackSize field. The direct GoOperation1 / symbol
+		// path has no slot for a per-launch stack size — addGoroutine
+		// reads it only from f.stackSize. The cost is one shim
+		// indirection on the goroutine entry; the win is no C++ change.
+		symInfo := b.config.Program.Symbols.GetSymbolInfo(opArgs.function)
+		if symInfo.StackSize != 0 || stmtSize > 0 {
+			if stmtSize == 0 {
+				stmtSize = int64(symInfo.StackSize)
+			}
+
+			callee := b.emitFuncReferenceValue(ctx, opArgs.function, opArgs.signature, location)
+			// emitFuncReferenceValue already baked in SymbolInfo.StackSize.
+			// If the GoStmt pragma overrides, patch field index 2.
+			if stmtSize > 0 {
+				stackSizeValue := b.emitConstInt(ctx, stmtSize, b.uiptr, location)
+				insertOp := goir.NewInsertOperation(b.ctx, 2, stackSizeValue, callee, b._func, location)
+				appendOperation(ctx, insertOp)
+				callee = resultOf(insertOp).AsValue()
+			}
+			signatureTypeAttr := mlir.NewTypeAttr(b.GetType(ctx, opArgs.signature))
+			op := goir.NewGoOperation3(b.ctx, signatureTypeAttr, callee, opArgs.args, location)
+			appendOperation(ctx, op)
+			break
+		}
+
+		// No size override: direct symbol launch (avoids shim indirection).
 		symbol := b.resolveSymbol(opArgs.function)
 		b.queueJob(ctx, symbol)
 

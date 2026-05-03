@@ -42,3 +42,4 @@
 /thirdparty/lwip-build/.idea/misc.xml
 /thirdparty/lwip-build/.idea/modules.xml
 /thirdparty/lwip-build/.idea/vcs.xml
+/compiler/ssa/_tests/bin/

@@ -13,6 +13,12 @@ type SymbolInfo struct {
 	Attributes      map[string]struct{}
 	Section         string
 	EmbedPatterns   []string
+
+	// StackSize, when non-zero, overrides the default goroutine/coroutine
+	// stack size for callers that launch this function via `go` or
+	// `runtime.newcoro`. Set by `//sigo:stacksize N` on the function
+	// declaration.
+	StackSize uint64
 }
 
 type SymbolInfoStore struct {

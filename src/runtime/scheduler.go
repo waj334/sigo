@@ -18,8 +18,9 @@ const (
 )
 
 type _func struct {
-	f    unsafe.Pointer
-	args unsafe.Pointer
+	f         unsafe.Pointer
+	args      unsafe.Pointer
+	stackSize uintptr
 }
 
 type goroutine struct {
@@ -65,12 +66,19 @@ func gosched()
 func schedule() bool {
 	state := DisableInterrupts()
 
-	// Check for stack overflow on current goroutine.
+	// Check for stack overflow on current goroutine. Skip when we're not
+	// actually on the goroutine's own stack — this happens transiently when
+	// the goroutine has called into a coro (range-over-func with iter.Pull),
+	// in which case currentStack() is in the coro's stack range, not the
+	// goroutine's.
 	if currentGoroutine != nil {
 		stackBottom := unsafe.Add(currentGoroutine.stack, goroutineStackSize)
-		stackSize := uintptr(stackBottom) - uintptr(currentStack())
-		if stackSize > goroutineStackSize {
-			panic("stack overflow")
+		cs := uintptr(currentStack())
+		if cs >= uintptr(currentGoroutine.stack) && cs <= uintptr(stackBottom) {
+			stackSize := uintptr(stackBottom) - cs
+			if stackSize > goroutineStackSize {
+				panic("stack overflow")
+			}
 		}
 	}
 
@@ -142,7 +150,10 @@ func addGoroutine(f _func) {
 	state := DisableInterrupts()
 
 	// Allocate stack for this goroutine.
-	stackSize := goroutineStackSize
+	stackSize := f.stackSize
+	if stackSize == 0 {
+		stackSize = goroutineStackSize
+	}
 	stack := alloc(stackSize)
 
 	// Create the new goroutine

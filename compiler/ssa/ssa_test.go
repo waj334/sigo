@@ -19,9 +19,8 @@ import (
 	"testing"
 
 	"golang.org/x/tools/go/packages"
-
-	_ "pkg.si-go.dev/sigo/llvm"
-	"pkg.si-go.dev/sigo/mlir"
+	"pkg.si-go.dev/go-mlir/mlir"
+	"pkg.si-go.dev/sigo/goir/binding/goir"
 )
 
 var enabledTests string
@@ -64,12 +63,12 @@ func TestSSA(t *testing.T) {
 			}
 
 			// Initialize MLIR.
-			mlirCtx := mlir.ContextCreate()
-			mlir.DialectHandleRegisterDialect(mlir.GetDialectHandle__go__(), mlirCtx)
-			mlir.ContextLoadAllAvailableDialects(mlirCtx)
+			mlirCtx := mlir.NewContext()
+			goir.DialectHandle().RegisterDialect(mlirCtx)
+			mlirCtx.LoadAllAvailableDialects()
 
 			// Destroy the context at the end of the test.
-			defer mlir.ContextDestroy(mlirCtx)
+			defer mlirCtx.Destroy()
 
 			// Set up type checker.
 			testImporter := &TestImporter{
@@ -80,13 +79,21 @@ func TestSSA(t *testing.T) {
 
 			fset := token.NewFileSet()
 
-			// Parse the runtime package.
-			runtimeFile, err := parser.ParseFile(fset, "./_testdata/src/runtime/runtime.go", nil, parser.ParseComments)
+			// Parse the SiGo runtime package.
+			runtimeGoFiles, err := filepath.Glob("../../src/runtime/*.go")
 			if err != nil {
-				t.Fatalf("Failed to parse the test runtime: %v", err)
+				t.Fatalf("Failed to glob runtime files: %v", err)
+			}
+			runtimeFiles := make([]*ast.File, 0, len(runtimeGoFiles))
+			for _, goFile := range runtimeGoFiles {
+				f, err := parser.ParseFile(fset, goFile, nil, parser.ParseComments)
+				if err != nil {
+					t.Fatalf("Failed to parse runtime file %s: %v", goFile, err)
+				}
+				runtimeFiles = append(runtimeFiles, f)
 			}
 
-			// Type check the parsed packages.
+			// Type check the runtime package.
 			runtimeInfo := types.Info{
 				Types:      map[ast.Expr]types.TypeAndValue{},
 				Instances:  map[*ast.Ident]types.Instance{},
@@ -98,11 +105,41 @@ func TestSSA(t *testing.T) {
 				InitOrder:  []*types.Initializer{},
 			}
 
-			runtimePkg, err := config.Check("runtime", fset, []*ast.File{runtimeFile}, &runtimeInfo)
+			runtimePkg, err := config.Check("runtime", fset, runtimeFiles, &runtimeInfo)
 			if err != nil {
 				t.Fatal(err)
 			}
 			testImporter.pkgs[runtimePkg.Path()] = runtimePkg
+
+			// The SSA builder iterates every decl in the runtime package
+			// (use-analysis is bypassed for runtime — see builder.go:458). To
+			// keep the builder from following selectors into packages outside
+			// the SSA program (os, sync, internal/chacha8rand, ...), drop
+			// function bodies, top-level var decls (e.g. headGoroutine, whose
+			// type transitively references chacha8rand.State), and consts.
+			// Type definitions are kept — they're what the SSA builder
+			// actually consumes via Program.LookupType.
+			for _, f := range runtimeFiles {
+				kept := f.Decls[:0]
+				for _, decl := range f.Decls {
+					switch d := decl.(type) {
+					case *ast.FuncDecl:
+						d.Body = nil
+						kept = append(kept, d)
+					case *ast.GenDecl:
+						if d.Tok == token.VAR || d.Tok == token.CONST {
+							continue
+						}
+						kept = append(kept, d)
+					default:
+						kept = append(kept, decl)
+					}
+				}
+				f.Decls = kept
+			}
+			// InitOrder still references the dropped var initializers; clear
+			// it so GeneratePackages doesn't try to emit globals for them.
+			runtimeInfo.InitOrder = nil
 
 			// Parse the source file.
 			parsedFile, err := parser.ParseFile(fset, sourceFile, nil, parser.ParseComments)
@@ -112,7 +149,7 @@ func TestSSA(t *testing.T) {
 
 			// Parse the imported packages.
 			imports := make(map[string]*packages.Package, len(parsedFile.Imports)+1)
-			imports["runtime"] = createPackage(runtimePkg, fset, &runtimeInfo, []*ast.File{runtimeFile})
+			imports["runtime"] = createPackage(runtimePkg, fset, &runtimeInfo, runtimeFiles)
 			for _, importSpec := range parsedFile.Imports {
 				pkgPath := strings.Trim(importSpec.Path.Value, "\"")
 				pkgName := pkgPath
@@ -218,7 +255,7 @@ func TestSSA(t *testing.T) {
 					WordSize: 4,
 					MaxAlign: 4,
 				},
-				Module:             mlir.ModuleCreateEmpty(mlir.LocationUnknownGet(mlirCtx)),
+				Module:             mlir.NewModule(mlir.NewUnknownLoc(mlirCtx)),
 				Program:            program,
 				DisableUseAnalysis: true,
 			})
@@ -228,11 +265,11 @@ func TestSSA(t *testing.T) {
 			builder.GeneratePackages(ctx, program.OrderedPackages)
 
 			// Dump the module to a string.
-			inputText := mlir.ModuleDump(builder.config.Module)
+			inputText := builder.config.Module.Operation().String()
 
 			//Verify the module.
-			if mlir.LogicalResultIsFailure(mlir.VerifyModule(builder.config.Module)) {
-				t.Error("Module verification failed")
+			if !builder.config.Module.Operation().Verify() {
+				t.Errorf("Module verification failed: %v\n\n%s\n\n----------------------\n\n", err, inputText)
 			}
 
 			// Get the command from the comment on the first line.
@@ -260,7 +297,7 @@ func TestSSA(t *testing.T) {
 	}
 }
 
-// Function to run single command with input
+// Function to run a single command with input
 func runCommand(command string, input string) error {
 	var cmd *exec.Cmd
 
