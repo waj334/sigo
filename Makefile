@@ -1,106 +1,125 @@
 ROOT_DIR := $(patsubst %/,%,$(dir $(realpath $(lastword $(MAKEFILE_LIST)))))
 
-ifeq ($(OS),Windows_NT)
-	EXECUTABLE_POSTFIX=.exe
-	CGO_LDFLAGS += -lole32 -luuid -lpsapi -lshell32 -ladvapi32 -lntdll
-	CMAKE_CXX_FLAGS += -pthread -femulated-tls
-	CMAKE_CXX_STANDARD_LIBRARIES += -lpthread
-	CLANG_TARGET := x86_64-pc-windows-gnu
-	CC ?= clang
-	CXX ?= clang++
-	# NOTE: ld should be replaced with ld.lld directly on Windows since Go is dumb.
-else
-	CGO_LDFLAGS += -fuse-ld=lld -lrt -ldl -lpthread -lm -lz -ltinfo -lzstd
-endif
-
-CMAKE_COMPILER_ARGS := -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX}
-CMAKE_COMPILER_TARGET_ARGS += -DCMAKE_C_COMPILER_TARGET=${CLANG_TARGET} -DCMAKE_CXX_COMPILER_TARGET=${CLANG_TARGET}
-CMAKE_LINKER_ARGS := -DCMAKE_LINKER_TYPE=DEFAULT
-
-# Override the linker based on pattern
-ifneq (,$(findstring ld.gold,$(LD)))
-	CMAKE_LINKER_ARGS := -DCMAKE_LINKER_TYPE=GOLD
-else ifneq (,$(findstring ld.lld,$(LD)))
-	CMAKE_LINKER_ARGS := -DCMAKE_LINKER_TYPE=LLD
-endif
-
+# ----------------------------------------------------------------------------
+# Build mode (applies to sigo and GoIR; LLVM is always Release)
+# ----------------------------------------------------------------------------
 SIGO_BUILD_RELEASE ?= 0
 ifeq ($(SIGO_BUILD_RELEASE),0)
-	CGO_LDFLAGS += -g
-	CGO_CFLAGS += -O0 -g
-	CMAKE_BUILD_TYPE := Debug
+    CMAKE_BUILD_TYPE := Debug
+    CGO_CFLAGS  += -O0 -g
+    CGO_LDFLAGS += -g
 else
-	CGO_CFLAGS += -Oz
-	CMAKE_BUILD_TYPE := Release
+    CMAKE_BUILD_TYPE := Release
+    CGO_CFLAGS  += -Oz
 endif
 
-INSTALL_DIR := $(ROOT_DIR)/build/$(CMAKE_BUILD_TYPE)/install
-CGO_CFLAGS += -I$(INSTALL_DIR)/include
-CGO_LDFLAGS += -L$(INSTALL_DIR)/lib
+# ----------------------------------------------------------------------------
+# Linker selection
+#
+# Default is plain `ld`. Override for faster links:
+#   make LD=lld build-llvm        # ~10-20x faster than GNU ld for LLVM
+#   make LD=mold build-llvm       # often another 2-3x faster than lld
+#
+# Applies to LLVM and GoIR CMake builds and to the final sigoc link.
+# ----------------------------------------------------------------------------
+LD ?= ld
 
-LLVM_SRC_DIR=$(ROOT_DIR)/thirdparty/llvm-project
-LLVM_BUILD_DIR=$(ROOT_DIR)/build/$(CMAKE_BUILD_TYPE)/llvm-build
-LLVM_CMAKE_CACHE=$(LLVM_BUILD_DIR)/CMakeCache.txt
-LLVM_CONFIG_EXECUTABLE=$(INSTALL_DIR)/bin/llvm-config$(EXECUTABLE_POSTFIX)
+ifneq ($(LD),ld)
+	APP_LDFLAGS += -fuse-ld=$(patsubst ld.%,%,$(LD))
+endif
+
+# ----------------------------------------------------------------------------
+# Platform
+# ----------------------------------------------------------------------------
+ifeq ($(OS),Windows_NT)
+    EXECUTABLE_POSTFIX := .exe
+    APP_LDFLAGS += -lole32 -luuid -lpsapi -lshell32 -ladvapi32 -lntdll
+    CMAKE_CXX_FLAGS += -pthread -femulated-tls
+    CMAKE_CXX_STANDARD_LIBRARIES += -lpthread
+    CLANG_TARGET := x86_64-pc-windows-gnu
+    CC  ?= clang
+    CXX ?= clang++
+    # NOTE: ld should be replaced with ld.lld directly on Windows since Go is dumb.
+else
+    APP_LDFLAGS += -lrt -ldl -lpthread -lm -lz -ltinfo -lzstd
+endif
+
+# ----------------------------------------------------------------------------
+# Paths
+#
+# LLVM lives at a fixed, mode-independent location (always Release).
+# GoIR + sigo install vary by build mode.
+# ----------------------------------------------------------------------------
+LLVM_SRC_DIR     := $(ROOT_DIR)/thirdparty/llvm-project
+GOIR_INSTALL_DIR := $(ROOT_DIR)/build/$(CMAKE_BUILD_TYPE)/install
+INSTALL_DIR      := $(GOIR_INSTALL_DIR)  # alias for sigo-side reference
+BINDIR           := ./bin
+ABS_BINDIR       := $(ROOT_DIR)/bin
+
+# Tell llvm.mk where to find LLVM. This must come before the include.
+LLVM_PREFIX     ?= $(ROOT_DIR)/build/llvm/install
+LLVM_CONFIG		?= $(LLVM_PREFIX)/bin/llvm-config
+LLVM_COMPONENTS ?= all ARM AVR RISCV passes
+
+# ----------------------------------------------------------------------------
+# Targets to build into LLVM (LLVM_TARGETS_TO_BUILD)
+# ----------------------------------------------------------------------------
 LLVM_BUILD_COMPONENTS := ARM AVR RISCV
-LLVM_COMPONENTS := ARM AVR RISCV passes
 
-GOIR_ROOT=$(ROOT_DIR)/goir
-GOIR_BUILD_DIR=$(ROOT_DIR)/build/$(CMAKE_BUILD_TYPE)/goir-build
-GOIR_CMAKE_CACHE=$(GOIR_BUILD_DIR)/CMakeCache.txt
-GOIR_LIB=$(INSTALL_DIR)/lib/libGoIR.a
+empty :=
+space := $(empty) $(empty)
+CMAKE_LLVM_COMPONENTS := $(subst $(space),;,$(strip $(LLVM_BUILD_COMPONENTS)))
 
-CLANG_ROOT=$(ROOT_DIR)/clang
-CLANG_BUILD_DIR=$(ROOT_DIR)/build/$(CMAKE_BUILD_TYPE)/clang-build
-CLANG_CMAKE_CACHE=$(CLANG_BUILD_DIR)/CMakeCache.txt
-CLANG_LIB=$(INSTALL_DIR)/lib/libCGoClang.a
+# ----------------------------------------------------------------------------
+# Pull in toolchain plumbing
+#
+# *-build.mk files are always included (they only define targets).
+# llvm.mk + mlir.mk derive flags from llvm-config and are only included once
+# LLVM is actually installed — otherwise their flag derivation would error
+# out before LLVM gets a chance to be built.
+# ----------------------------------------------------------------------------
+include $(ROOT_DIR)/llvm-build.mk
+include $(ROOT_DIR)/goir-build.mk
 
-# Build a semicolon separated list that CMake can accept
-CMAKE_LLVM_COMPONENTS :=
-$(foreach item, $(LLVM_BUILD_COMPONENTS),$(if $(CMAKE_LLVM_COMPONENTS),$(eval CMAKE_LLVM_COMPONENTS := $(CMAKE_LLVM_COMPONENTS);))$(eval CMAKE_LLVM_COMPONENTS := $(CMAKE_LLVM_COMPONENTS)$(strip $(item))))
+ifneq ($(wildcard $(LLVM_CONFIG)$(EXECUTABLE_POSTFIX)),)
+    include $(ROOT_DIR)/llvm.mk
+    include $(ROOT_DIR)/mlir.mk
+    HAVE_LLVM := 1
+endif
 
-# Determine build flags required by LLVM
-CGO_LDFLAGS += -Wl,--gc-sections $(shell ${LLVM_CONFIG_EXECUTABLE} --ldflags) $(shell ${LLVM_CONFIG_EXECUTABLE} --libs ${LLVM_COMPONENTS})
-CGO_LDFLAGS += -lLLVMTableGen -lLLVMOption -lLLVMPlugins
-CGO_CFLAGS += -fPIC -ffunction-sections -fdata-sections $(shell ${LLVM_CONFIG_EXECUTABLE} --cflags)
+# Convenience: configure or reconfigure the whole stack
+.PHONY: configure reconfigure
+configure: configure-llvm configure-goir
+reconfigure: reconfigure-llvm reconfigure-goir
 
-# Add MLIR libraries (auto-detect all installed MLIR libs).
-MLIR_LIBS := $(sort $(patsubst $(INSTALL_DIR)/lib/lib%.a,-l%,$(wildcard $(INSTALL_DIR)/lib/libMLIR*.a)))
-CGO_LDFLAGS += -lGoIR -lCGoIR
-CGO_LDFLAGS += $(MLIR_LIBS)
-CGO_LDFLAGS += -lstdc++
+# ----------------------------------------------------------------------------
+# Compose final CGo flags
+# ----------------------------------------------------------------------------
+ifdef HAVE_LLVM
+    CGO_CFLAGS += -fPIC -ffunction-sections -fdata-sections \
+                  $(LLVM_CFLAGS) $(MLIR_CFLAGS)
 
-# Add clang support libraries
-CIR_LIBS := $(sort $(patsubst $(INSTALL_DIR)/lib/lib%.a,-l%,$(wildcard $(INSTALL_DIR)/lib/libCIR*.a)))
-CLANG_LIBS := $(sort $(patsubst $(INSTALL_DIR)/lib/lib%.a,-l%,$(wildcard $(INSTALL_DIR)/lib/libclang*.a)))
-CGO_LDFLAGS += -lGoClangSupport -lCGoClang
-CGO_LDFLAGS += $(CIR_LIBS) $(CLANG_LIBS)
+    # GoIR + MLIR + LLVM, in dep order. GoIR depends on MLIR which depends
+    # on LLVM, so listing them in that order keeps each --start/--end-group
+    # resolution localized.
+    CGO_LDFLAGS += -Wl,--gc-sections \
+                   $(MLIR_LDFLAGS) \
+                   $(LLVM_LDFLAGS) \
+                   $(APP_LDFLAGS)
 
-# Add misc compile flags
-CGO_CXXFLAGS := -std=c++17 -fno-rtti $(CGO_CFLAGS)
+    # A few LLVM libs that --libs doesn't always pull in but sigo needs
+    CGO_LDFLAGS += -lLLVMTableGen -lLLVMOption -lLLVMPlugins
 
-# Paths:
-BINDIR := ./bin
-ABS_BINDIR := $(ROOT_DIR)/bin
+    CGO_CXXFLAGS := -std=c++17 -fno-rtti $(CGO_CFLAGS)
+endif
 
-# Sources:
-GO_BUILDER_SRCS := $(wildcard $(ROOT_DIR)/builder/*.go)
+# ----------------------------------------------------------------------------
+# Sources
+# ----------------------------------------------------------------------------
+GO_BUILDER_SRCS      := $(wildcard $(ROOT_DIR)/builder/*.go)
 GO_COMPILER_SSA_SRCS := $(wildcard $(ROOT_DIR)/compiler/ssa/*.go)
-GO_CMD_SIGOC_SRCS :=  $(wildcard $(ROOT_DIR)/cmd/sigoc/*.go)
+GO_CMD_SIGOC_SRCS    := $(wildcard $(ROOT_DIR)/cmd/sigoc/*.go)
 GO_SRCS := $(GO_BUILDER_SRCS) $(GO_COMPILER_SSA_SRCS) $(GO_CMD_SIGOC_SRCS)
-
-# Libraries:
-LIBS := $(wildcard $(INSTALL_DIR)/lib/*.a)
-
-# Executables:
-SIGO_EXE=$(BINDIR)/sigoc$(EXECUTABLE_POSTFIX)
-ABS_SIGO_EXE=$(ABS_BINDIR)/sigoc$(EXECUTABLE_POSTFIX)
-
-CSP_GEN_EXE=$(BINDIR)/csp-gen$(EXECUTABLE_POSTFIX)
-DEF_GEN_EXE=$(BINDIR)/def-gen$(EXECUTABLE_POSTFIX)
-TBDEF_GEN_EXE=$(BINDIR)/tbdef-gen$(EXECUTABLE_POSTFIX)
-TABLEGEN_CSP_EXE := $(BINDIR)/tablegen-csp$(EXECUTABLE_POSTFIX)
-BIN2STR_EXE := $(BINDIR)/bin2str$(EXECUTABLE_POSTFIX)
 
 TARGETS_DEVICE_SRCS += $(wildcard $(ROOT_DIR)/targets/device/*.go)
 TARGETS_DEVICE_SRCS += $(wildcard $(ROOT_DIR)/targets/device/importer/*.go)
@@ -108,169 +127,145 @@ TARGETS_DEVICE_SRCS += $(wildcard $(ROOT_DIR)/targets/device/importer/atdf/*.go)
 TARGETS_DEVICE_SRCS += $(wildcard $(ROOT_DIR)/targets/device/importer/svd/*.go)
 TARGETS_DEVICE_SRCS += $(wildcard $(ROOT_DIR)/targets/device/svd/*.go)
 
-SSA_TEST_EXE=$(BINDIR)/ssa_test$(EXECUTABLE_POSTFIX)
-ABS_SSA_TEST_EXE=$(ABS_BINDIR)/ssa_test$(EXECUTABLE_POSTFIX)
+_GOIR_LIBS    := $(wildcard $(GOIR_INSTALL_DIR)/lib/*.a)
+_GOIR_LDFLAGS := -L$(GOIR_INSTALL_DIR)/lib \
+				 -Wl,--start-group \
+                 $(sort $(patsubst lib%.a,-l%,$(notdir $(_GOIR_LIBS)))) \
+                 -Wl,--end-group
 
-# Common commandline options:
+CGO_CFLAGS    += -I$(GOIR_INSTALL_DIR)/include
+CGO_CXXFLAGS  += -I$(GOIR_INSTALL_DIR)/include
+CGO_LDFLAGS   += $(_GOIR_LDFLAGS)
+
+# ----------------------------------------------------------------------------
+# Executables
+# ----------------------------------------------------------------------------
+SIGO_EXE     := $(BINDIR)/sigoc$(EXECUTABLE_POSTFIX)
+ABS_SIGO_EXE := $(ABS_BINDIR)/sigoc$(EXECUTABLE_POSTFIX)
+
+CSP_GEN_EXE      := $(BINDIR)/csp-gen$(EXECUTABLE_POSTFIX)
+DEF_GEN_EXE      := $(BINDIR)/def-gen$(EXECUTABLE_POSTFIX)
+TBDEF_GEN_EXE    := $(BINDIR)/tbdef-gen$(EXECUTABLE_POSTFIX)
+TABLEGEN_CSP_EXE := $(BINDIR)/tablegen-csp$(EXECUTABLE_POSTFIX)
+BIN2STR_EXE      := $(BINDIR)/bin2str$(EXECUTABLE_POSTFIX)
+
+SSA_TEST_EXE     := $(BINDIR)/ssa_test$(EXECUTABLE_POSTFIX)
+ABS_SSA_TEST_EXE := $(ABS_BINDIR)/ssa_test$(EXECUTABLE_POSTFIX)
+
 DEBUG ?= 0
 
+# ----------------------------------------------------------------------------
+# Test helpers
+# ----------------------------------------------------------------------------
 define build-test
 	@rm -f $(1)$(EXECUTABLE_POSTFIX)
-	CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS) -lstdc++" go test -gcflags "all=-N -l" -ldflags="-linkmode external -extldflags=-Wl,--allow-multiple-definition" -c -o $(1) $(2)
+	CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" \
+		go test -gcflags "all=-N -l" \
+		-ldflags="-linkmode external -extldflags=-Wl,--allow-multiple-definition" \
+		-c -o $(1) $(2)
 endef
 
 define run-test
-	PATH="$(INSTALL_DIR)/bin:$(PATH)" CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS) -lstdc++" go test -v -gcflags "all=-N -l" -ldflags="-linkmode external -extldflags=-Wl,--allow-multiple-definition" $(1) -args ${args}
+	PATH="$(GOIR_INSTALL_DIR)/bin:$(LLVM_PREFIX)/bin:$(PATH)" \
+	CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" \
+		go test -v -gcflags "all=-N -l" \
+		-ldflags="-linkmode external -extldflags=-Wl,--allow-multiple-definition" \
+		$(1) -args $(args)
 endef
 
-.PHONY: all build-clang build-goir build-llvm build-mlir build-tests clean clean-tests clean-sigo configure-clang configure-goir configure-llvm configure-mlir debug generate-csp sigo ssa_test
+# ----------------------------------------------------------------------------
+# Top-level targets
+# ----------------------------------------------------------------------------
+.PHONY: all sigo debug release env clean clean-sigo \
+        ssa_test build-tests run-tests test clean-tests
 
 all: sigo
 
 env:
-	CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" go env
+	@CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" CGO_CXXFLAGS="$(CGO_CXXFLAGS)" go env
 
-clean: clean-sigo clean-tests clean-sysroots
+clean: clean-sigo clean-tests clean-sysroots clean-goir clean-llvm
 
-$(SIGO_EXE): install-goir install-clang sysroots $(GO_SRCS) $(LIBS)
+# ----------------------------------------------------------------------------
+# sigoc
+# ----------------------------------------------------------------------------
+$(SIGO_EXE): install-goir sysroots $(GO_SRCS) $(_GOIR_LIBS)
 	rm -f $(SIGO_EXE)
-	@if [ $(SIGO_BUILD_RELEASE) -eq 1 ]; then \
-  		CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" CGO_CXXFLAGS="$(CGO_CXXFLAGS)" go build -o $(SIGO_EXE) -ldflags="-linkmode external" $(ROOT_DIR)/cmd/sigoc; \
-  	else \
-		CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" CGO_CXXFLAGS="$(CGO_CXXFLAGS)" go build -o $(SIGO_EXE) -gcflags "all=-N -l" -ldflags="-linkmode external" $(ROOT_DIR)/cmd/sigoc; \
-  	fi
+ifeq ($(SIGO_BUILD_RELEASE),1)
+	CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" CGO_CXXFLAGS="$(CGO_CXXFLAGS)" \
+		go build -o $(SIGO_EXE) -ldflags="-linkmode external" $(ROOT_DIR)/cmd/sigoc
+else
+	CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" CGO_CXXFLAGS="$(CGO_CXXFLAGS)" \
+		go build -o $(SIGO_EXE) -gcflags "all=-N -l" -ldflags="-linkmode external" $(ROOT_DIR)/cmd/sigoc
+endif
 
 sigo: $(SIGO_EXE)
 
 debug: sigo
-	dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(SIGO_EXE) -- ${args}
+	dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(SIGO_EXE) -- $(args)
 
-run-tests:
-	$(call run-test,./compiler/ssa)
+release: sigo
 
-$(SSA_TEST_EXE): $(GO_COMPILER_SSA_SRCS) $(LIBS)
+clean-sigo:
+	rm -f $(SIGO_EXE)
+
+# ----------------------------------------------------------------------------
+# Tests
+# ----------------------------------------------------------------------------
+$(SSA_TEST_EXE): $(GO_COMPILER_SSA_SRCS) $(_GOIR_LIBS)
 	$(call build-test, $@, ./compiler/ssa)
 
 ssa_test: $(SSA_TEST_EXE)
 
 build-tests: ssa_test
 
+run-tests:
+	$(call run-test,./compiler/ssa)
+
 test: build-tests
-	@if [ $(DEBUG) -eq 1 ]; then \
-		dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec --wd=$(ROOT_DIR)/compiler/ssa $(ABS_SSA_TEST_EXE) -- -tests=${TESTS}; \
-	else \
-		cd ./compiler/ssa && $(ABS_SSA_TEST_EXE) -tests=${TESTS}; \
-	fi
+ifeq ($(DEBUG),1)
+	dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient \
+		exec --wd=$(ROOT_DIR)/compiler/ssa $(ABS_SSA_TEST_EXE) -- -tests=$(TESTS)
+else
+	cd ./compiler/ssa && $(ABS_SSA_TEST_EXE) -tests=$(TESTS)
+endif
 
 clean-tests:
-	rm $(SSA_TEST_EXE)
+	rm -f $(SSA_TEST_EXE)
 
-clean-sigo:
-	rm $(SIGO_EXE)
-
-$(LLVM_CMAKE_CACHE):
-	@mkdir -p ${LLVM_BUILD_DIR}
-	CC=${CC} CXX=${CXX} LD=${LD} cmake -G "Ninja" -B ${LLVM_BUILD_DIR} $(ROOT_DIR)/thirdparty/llvm-project/llvm 	\
-		-DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) \
-		${CMAKE_COMPILER_ARGS} \
-		${CMAKE_COMPILER_TARGET_ARGS} \
-		${CMAKE_LINKER_ARGS} \
-		-DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) \
-    -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}" \
-    -DCMAKE_CXX_STANDARD_LIBRARIES="${CMAKE_CXX_STANDARD_LIBRARIES}" \
-		-DLLVM_ENABLE_PROJECTS="clang;llvm;mlir" \
-		-DLLVM_ENABLE_ASSERTIONS=ON \
-		-DLLVM_ENABLE_EXPENSIVE_CHECKS=ON \
-		-DLLVM_ENABLE_BACKTRACES=ON \
-		-DLLVM_TARGETS_TO_BUILD="${CMAKE_LLVM_COMPONENTS}" \
-		-DLLVM_INSTALL_UTILS=ON \
-		-DLLVM_INCLUDE_TESTS=OFF \
-		-DMLIR_INCLUDE_TESTS=OFF \
-		-DCOMPILER_RT_INCLUDE_TESTS=OFF \
-		-DCLANG_INCLUDE_TESTS=OFF \
-		-DCLANG_ENABLE_CIR=ON
-
-configure-llvm: $(LLVM_CMAKE_CACHE)
-
-build-llvm: configure-llvm
-	cmake --build ${LLVM_BUILD_DIR} -j$(NUM_JOBS)
-
-install-llvm: build-llvm
-	cmake --install ${LLVM_BUILD_DIR} --prefix $(INSTALL_DIR)
-
-$(GOIR_CMAKE_CACHE):
-	CC=${CC} CXX=${CXX} LD=${LD}  cmake -G "Ninja" -B ${GOIR_BUILD_DIR} ${GOIR_ROOT} \
-		-DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) \
-		${CMAKE_COMPILER_ARGS} \
-		${CMAKE_COMPILER_TARGET_ARGS} \
-		${CMAKE_LINKER_ARGS} \
-		-DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) \
-		-DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}" \
-		-DCMAKE_CXX_STANDARD_LIBRARIES="${CMAKE_CXX_STANDARD_LIBRARIES}" \
-		-DCMAKE_PREFIX_PATH=$(INSTALL_DIR)/lib/cmake
-
-configure-goir: install-llvm $(GOIR_CMAKE_CACHE)
-
-$(GOIR_LIB): configure-goir
-	cmake --build ${GOIR_BUILD_DIR} -j$(NUM_JOBS)
-
-build-goir: $(GOIR_LIB)
-
-install-goir: build-goir
-	cmake --install ${GOIR_BUILD_DIR} --prefix $(INSTALL_DIR)
-
-$(CLANG_CMAKE_CACHE):
-	CC=${CC} CXX=${CXX} LD=${LD} cmake -G "Ninja" -B ${CLANG_BUILD_DIR} ${CLANG_ROOT} \
-		-DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) \
-		${CMAKE_COMPILER_ARGS} \
-		${CMAKE_COMPILER_TARGET_ARGS} \
-		${CMAKE_LINKER_ARGS} \
-		-DCMAKE_INSTALL_PREFIX=$(INSTALL_DIR) \
-		-DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS}" \
-		-DCMAKE_CXX_STANDARD_LIBRARIES="${CMAKE_CXX_STANDARD_LIBRARIES}" \
-		-DCMAKE_PREFIX_PATH=${LLVM_BUILD_DIR}/lib/cmake
-
-configure-clang: install-llvm $(CLANG_CMAKE_CACHE)
-
-$(CLANG_LIB): configure-clang
-	cmake --build ${CLANG_BUILD_DIR} -j$(NUM_JOBS)
-
-build-clang: $(CLANG_LIB)
-
-install-clang: build-clang
-	cmake --install ${CLANG_BUILD_DIR} --prefix $(INSTALL_DIR)
-
-configure: configure-llvm configure-goir configure-clang
-
-reconfigure:
-	rm -f $(LLVM_CMAKE_CACHE) $(GOIR_CMAKE_CACHE) $(CLANG_CMAKE_CACHE)
-	"$(MAKE)" configure
+# ----------------------------------------------------------------------------
+# Codegen tools
+# ----------------------------------------------------------------------------
+.PHONY: tbdef-gen tablegen-csp
 
 $(TBDEF_GEN_EXE): $(wildcard $(ROOT_DIR)/cmd/tbdef-gen/*.go) $(TARGETS_DEVICE_SRCS)
-	@if [ $(SIGO_BUILD_RELEASE) -eq 1 ]; then \
-		go build -o $(TBDEF_GEN_EXE) $(ROOT_DIR)/cmd/tbdef-gen; \
-  	else \
-		go build -o $(TBDEF_GEN_EXE) -gcflags "all=-N -l" $(ROOT_DIR)/cmd/tbdef-gen; \
-	fi
-tbdef-gen: $(TBDEF_GEN_EXE)
-	@if [ $(DEBUG) -eq 1 ]; then \
-		dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(TBDEF_GEN_EXE) -- $(args); \
-	fi
+ifeq ($(SIGO_BUILD_RELEASE),1)
+	go build -o $(TBDEF_GEN_EXE) $(ROOT_DIR)/cmd/tbdef-gen
+else
+	go build -o $(TBDEF_GEN_EXE) -gcflags "all=-N -l" $(ROOT_DIR)/cmd/tbdef-gen
+endif
 
-$(TABLEGEN_CSP_EXE): generate-llvm-bindings $(GO_SRCS) $(LIBS)
+tbdef-gen: $(TBDEF_GEN_EXE)
+ifeq ($(DEBUG),1)
+	dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(TBDEF_GEN_EXE) -- $(args)
+endif
+
+$(TABLEGEN_CSP_EXE): generate-llvm-bindings $(GO_SRCS) $(_GOIR_LIBS)
 	rm -f $(TABLEGEN_CSP_EXE)
-	@if [ $(SIGO_BUILD_RELEASE) -eq 1 ]; then \
-  		CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" CGO_CXXFLAGS="$(CGO_CXXFLAGS)" go build -o $(TABLEGEN_CSP_EXE) -ldflags="-linkmode external" $(ROOT_DIR)/cmd/tablegen-csp; \
-  	else \
-		CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" CGO_CXXFLAGS="$(CGO_CXXFLAGS)" go build -o $(TABLEGEN_CSP_EXE) -gcflags "all=-N -l" -ldflags="-linkmode external" $(ROOT_DIR)/cmd/tablegen-csp; \
-  	fi
+ifeq ($(SIGO_BUILD_RELEASE),1)
+	CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" CGO_CXXFLAGS="$(CGO_CXXFLAGS)" \
+		go build -o $(TABLEGEN_CSP_EXE) -ldflags="-linkmode external" $(ROOT_DIR)/cmd/tablegen-csp
+else
+	CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" CGO_CXXFLAGS="$(CGO_CXXFLAGS)" \
+		go build -o $(TABLEGEN_CSP_EXE) -gcflags "all=-N -l" -ldflags="-linkmode external" $(ROOT_DIR)/cmd/tablegen-csp
+endif
 
 tablegen-csp: $(TABLEGEN_CSP_EXE)
-	@if [ $(DEBUG) -eq 1 ]; then \
-    	dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(TABLEGEN_CSP_EXE) -- $(args); \
-	fi
+ifeq ($(DEBUG),1)
+	dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(TABLEGEN_CSP_EXE) -- $(args)
+endif
 
-release: sigo
-
+# ----------------------------------------------------------------------------
+# Sysroots
+# ----------------------------------------------------------------------------
 include sysroot.mk
-

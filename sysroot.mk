@@ -1,25 +1,34 @@
 # sysroot.mk -- Build picolibc, compiler-rt builtins, and lwIP per target
 #
-# All three components are built with the system clang (SYSTEM_CLANG,
-# default /usr/bin/clang). The local LLVM build can be a slow Debug
-# build, so we don't use it as the compiler. We do use the local
-# llvm-ar/nm/ranlib/strip everywhere -- those are tiny format-only
-# tools where version consistency matters more than speed.
+# All three components are static-library cross-builds. The compiler must
+# be clang (we use --target=, -mthumb, -march=, etc. clang-style flags),
+# but it can be any clang the developer wants:
+#
+#   SYSROOT_CC          path to clang        (defaults to $(CC) if clang,
+#                                             else `which clang`)
+#   SYSROOT_CXX         path to clang++      (defaults to $(CXX) if clang,
+#                                             else `which clang++`)
+#   SYSROOT_LD          linker name passed   (defaults to $(LD); ld/lld/
+#                       to -fuse-ld=          gold/mold)
+#
+# Binutils default to whatever ships next to SYSROOT_CC -- if SYSROOT_CC
+# is /opt/llvm-20/bin/clang, the default SYSROOT_AR is
+# /opt/llvm-20/bin/llvm-ar. Each can be overridden:
+#
+#   SYSROOT_AR / SYSROOT_NM / SYSROOT_RANLIB / SYSROOT_STRIP
 #
 # Compiler-rt isolation
 # ---------------------
-# The system clang ships with its own libclang_rt.builtins-*.a in its
-# resource dir (typically /usr/lib/clang/<ver>/). When clang drives a
-# link, it auto-appends those builtins. To make sure downstream
-# consumers (sigo, lwIP, etc.) pick up OUR compiler-rt instead of the
-# system one, we override clang's resource dir per-target.
+# clang ships with its own libclang_rt.builtins-*.a in its resource dir
+# (typically /usr/lib/clang/<ver>/). When clang drives a link, it
+# auto-appends those builtins. To make sure downstream consumers (sigo,
+# lwIP, etc.) pick up OUR compiler-rt instead of the chosen toolchain's
+# bundled one, we override clang's resource dir per-target.
 #
 # A clang resource directory contains TWO things:
 #   1. lib/<triple>/libclang_rt.builtins.a    -- the runtime archive
-#   2. include/                               -- compiler-builtin
-#                                                 headers (float.h,
-#                                                 stddef.h, stdint.h,
-#                                                 stdarg.h, etc.)
+#   2. include/                               -- compiler-builtin headers
+#                                                (float.h, stddef.h, ...)
 #
 # We populate (1) ourselves from our compiler-rt build. For (2) we
 # symlink clang's own include/ tree into our resource dir, so the
@@ -28,27 +37,51 @@
 #
 # Build order matters: compiler-rt must be installed (and the resource
 # dir laid out) before lwIP runs, because lwIP's CMake try_compile()
-# could pick up the system builtins if ours aren't in place yet. The
-# dep chain enforces this.
+# could pick up the chosen toolchain's bundled builtins if ours aren't
+# in place yet. The dep chain enforces this.
 
 # ---------------------------------------------------------------------
-# Toolchain
+# Toolchain selection
 # ---------------------------------------------------------------------
-SYSTEM_CLANG   ?= $(shell which clang)
-SYSTEM_CLANGXX ?= $(shell which clang++)
+
+# If $(CC) looks like clang, use it; otherwise find a system clang.
+# Same for $(CXX). This keeps the default sane when the main Makefile
+# leaves CC unset (implicit "cc" = GCC, which isn't a cross-compiler).
+ifneq (,$(findstring clang,$(CC)))
+	SYSROOT_CC ?= $(CC)
+else
+	SYSROOT_CC ?= $(shell which clang)
+endif
+
+ifneq (,$(findstring clang,$(CXX)))
+	SYSROOT_CXX ?= $(CXX)
+else
+	SYSROOT_CXX ?= $(shell which clang++)
+endif
+
+# Linker name passed via -fuse-ld (ld, lld, gold, mold). Tracks $(LD).
+SYSROOT_LD ?= $(LD)
+
+ifeq ($(SYSROOT_CC),)
+$(error No clang found. Set SYSROOT_CC explicitly or install clang.)
+endif
+
+# Toolchain binutils default to whatever ships next to SYSROOT_CC.
+# If SYSROOT_CC is /opt/llvm-20/bin/clang, these resolve to
+# /opt/llvm-20/bin/llvm-ar etc.
+_SYSROOT_TOOLCHAIN_BIN := $(dir $(realpath $(SYSROOT_CC)))
+
+SYSROOT_AR     ?= $(_SYSROOT_TOOLCHAIN_BIN)llvm-ar
+SYSROOT_NM     ?= $(_SYSROOT_TOOLCHAIN_BIN)llvm-nm
+SYSROOT_RANLIB ?= $(_SYSROOT_TOOLCHAIN_BIN)llvm-ranlib
+SYSROOT_STRIP  ?= $(_SYSROOT_TOOLCHAIN_BIN)llvm-strip
 
 # Clang's default resource dir, used as the source for compiler-builtin
 # headers (float.h, stddef.h, ...) which we symlink into our per-target
 # resource dirs.
-SYSTEM_CLANG_RESOURCE_DIR ?= $(shell $(SYSTEM_CLANG) -print-resource-dir)
+SYSROOT_CLANG_RESOURCE_DIR ?= $(shell $(SYSROOT_CC) -print-resource-dir)
 
-LOCAL_LLVM_BIN ?= $(LLVM_BUILD_DIR)/bin
-LLVM_AR        ?= $(LOCAL_LLVM_BIN)/llvm-ar
-LLVM_NM        ?= $(LOCAL_LLVM_BIN)/llvm-nm
-LLVM_RANLIB    ?= $(LOCAL_LLVM_BIN)/llvm-ranlib
-LLVM_STRIP     ?= $(LOCAL_LLVM_BIN)/llvm-strip
-
-CMAKE          ?= cmake
+CMAKE ?= cmake
 
 # ---------------------------------------------------------------------
 # Paths
@@ -79,6 +112,18 @@ COMMON_CFLAGS = \
 ALL_SYSROOT_TARGETS :=
 
 # ---------------------------------------------------------------------
+# Linker flag derivation
+#
+# -fuse-ld=ld is harmless but noisy; only emit -fuse-ld when LD is
+# something other than the default.
+# ---------------------------------------------------------------------
+ifneq ($(SYSROOT_LD),)
+ifneq ($(SYSROOT_LD),ld)
+	_SYSROOT_FUSELD := -fuse-ld=$(SYSROOT_LD)
+endif
+endif
+
+# ---------------------------------------------------------------------
 # Toolchain file generator
 #
 # Compiler-rt isolation flags baked into CMAKE_*_FLAGS_INIT (which
@@ -88,6 +133,9 @@ ALL_SYSROOT_TARGETS :=
 #   -resource-dir=<our>    points clang at our resource dir, where
 #                          we install our libclang_rt.builtins.a AND
 #                          symlink clang's include/ tree
+#
+# Linker selection flows through CMAKE_*_FLAGS_INIT via
+# $(_SYSROOT_FUSELD) -- this also reaches try_compile probes that link.
 #
 # Args:
 #   $(1) = output path
@@ -105,15 +153,16 @@ set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)\n\
 set(CMAKE_C_COMPILER_WORKS 1)\n\
 set(CMAKE_CXX_COMPILER_WORKS 1)\n\
 set(CMAKE_ASM_COMPILER_WORKS 1)\n\
-set(CMAKE_C_COMPILER $(SYSTEM_CLANG))\n\
-set(CMAKE_CXX_COMPILER $(SYSTEM_CLANGXX))\n\
-set(CMAKE_ASM_COMPILER $(SYSTEM_CLANG))\n\
+set(CMAKE_C_COMPILER $(SYSROOT_CC))\n\
+set(CMAKE_CXX_COMPILER $(SYSROOT_CXX))\n\
+set(CMAKE_ASM_COMPILER $(SYSROOT_CC))\n\
 set(CMAKE_C_COMPILER_TARGET $(2))\n\
 set(CMAKE_CXX_COMPILER_TARGET $(2))\n\
 set(CMAKE_ASM_COMPILER_TARGET $(2))\n\
-set(CMAKE_AR $(LLVM_AR) CACHE FILEPATH \"\")\n\
-set(CMAKE_NM $(LLVM_NM) CACHE FILEPATH \"\")\n\
-set(CMAKE_RANLIB $(LLVM_RANLIB) CACHE FILEPATH \"\")\n\
+set(CMAKE_AR $(SYSROOT_AR) CACHE FILEPATH \"\")\n\
+set(CMAKE_NM $(SYSROOT_NM) CACHE FILEPATH \"\")\n\
+set(CMAKE_RANLIB $(SYSROOT_RANLIB) CACHE FILEPATH \"\")\n\
+set(CMAKE_STRIP $(SYSROOT_STRIP) CACHE FILEPATH \"\")\n\
 set(CMAKE_SYSROOT $(5))\n\
 set(CMAKE_FIND_ROOT_PATH $(5))\n\
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)\n\
@@ -121,9 +170,13 @@ set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)\n\
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)\n\
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)\n\
 set(_sigo_arch_flags \"$(4) --rtlib=compiler-rt -resource-dir=$(5)/lib/clang-resource-dir\")\n\
+set(_sigo_link_flags \"$(_SYSROOT_FUSELD)\")\n\
 set(CMAKE_C_FLAGS_INIT \"\$${_sigo_arch_flags}\")\n\
 set(CMAKE_CXX_FLAGS_INIT \"\$${_sigo_arch_flags}\")\n\
 set(CMAKE_ASM_FLAGS_INIT \"$(4)\")\n\
+set(CMAKE_EXE_LINKER_FLAGS_INIT \"\$${_sigo_link_flags}\")\n\
+set(CMAKE_SHARED_LINKER_FLAGS_INIT \"\$${_sigo_link_flags}\")\n\
+set(CMAKE_MODULE_LINKER_FLAGS_INIT \"\$${_sigo_link_flags}\")\n\
 " > $(1)
 endef
 
@@ -160,7 +213,7 @@ $(strip $(1))_CMAKEARCH   := $(strip $(4))
 #
 $$($(strip $(1))_RES_DIR)/include:
 	@mkdir -p $$(dir $$@)
-	ln -sfn $$(SYSTEM_CLANG_RESOURCE_DIR)/include $$@
+	ln -sfn $$(SYSROOT_CLANG_RESOURCE_DIR)/include $$@
 
 # -- Toolchain file --------------------------------------------------
 $$($(strip $(1))_TC):
@@ -266,7 +319,7 @@ $$($(strip $(1))_SYSROOT)/lib/libclang_rt.builtins.a: \
 #
 # Depends on compiler-rt being installed first so that any try_compile
 # checks (or actual link steps) inside lwIP's CMakeLists pick up our
-# builtins via -resource-dir, not the system clang's.
+# builtins via -resource-dir, not the chosen toolchain's bundled ones.
 #
 $$($(strip $(1))_SYSROOT)/lib/liblwip.a: \
 		$$($(strip $(1))_TC) \
@@ -316,9 +369,20 @@ $(eval $(call build_sysroot,armv8m.main-fp,   armv8m.main-none-eabi,    -mthumb 
 # ---------------------------------------------------------------------
 # Aggregate targets
 # ---------------------------------------------------------------------
-.PHONY: sysroots clean-sysroots
+.PHONY: sysroots clean-sysroots print-sysroot-toolchain
 
 sysroots: $(ALL_SYSROOT_TARGETS)
 
 clean-sysroots:
 	rm -rf $(BUILD_DIR) $(SYSROOT_OUT)
+
+print-sysroot-toolchain:
+	@echo "SYSROOT_CC                 = $(SYSROOT_CC)"
+	@echo "SYSROOT_CXX                = $(SYSROOT_CXX)"
+	@echo "SYSROOT_LD                 = $(SYSROOT_LD)"
+	@echo "SYSROOT_AR                 = $(SYSROOT_AR)"
+	@echo "SYSROOT_NM                 = $(SYSROOT_NM)"
+	@echo "SYSROOT_RANLIB             = $(SYSROOT_RANLIB)"
+	@echo "SYSROOT_STRIP              = $(SYSROOT_STRIP)"
+	@echo "SYSROOT_CLANG_RESOURCE_DIR = $(SYSROOT_CLANG_RESOURCE_DIR)"
+	@echo "_SYSROOT_FUSELD            = $(_SYSROOT_FUSELD)"

@@ -60,7 +60,6 @@ add_mlir_dialect_library(GoIR
         MLIRInferTypeOpInterface
 
         MLIRArithDialect
-        MLIRCIR
         MLIRComplexDialect
         MLIRControlFlowDialect
         MLIRFuncDialect

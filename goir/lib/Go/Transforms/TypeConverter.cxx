@@ -8,9 +8,6 @@
 #include "Go/Util.h"
 #include <Go/IR/GoOps.h>
 
-// CIR type headers for CGo type conversion support.
-#include <clang/CIR/Dialect/IR/CIRTypes.h>
-
 namespace mlir::go
 {
 RuntimeTypeLookUp::RuntimeTypeLookUp(mlir::ModuleOp module)
@@ -258,123 +255,6 @@ LLVMTypeConverter::LLVMTypeConverter(mlir::ModuleOp module, const mlir::LowerToL
   this->addRuntimeTypeConversion<MapType>();
   this->addRuntimeTypeConversion<SliceType>();
   this->addRuntimeTypeConversion<StringType>();
-
-  // CIR type conversions for CGo support.
-  // These mirror clang/CIR's prepareTypeConverter so that CIR types
-  // encountered in go.bitcast ops can be converted during GoIR→LLVM lowering.
-  mlir::DataLayout cirDataLayout(module);
-
-  this->addConversion([&](cir::PointerType type) -> mlir::Type {
-    mlir::ptr::MemorySpaceAttrInterface addrSpaceAttr = type.getAddrSpace();
-    unsigned numericAS = 0;
-    if (auto targetAsAttr =
-            mlir::dyn_cast_if_present<cir::TargetAddressSpaceAttr>(
-                addrSpaceAttr))
-      numericAS = targetAsAttr.getValue();
-    return mlir::LLVM::LLVMPointerType::get(type.getContext(), numericAS);
-  });
-  this->addConversion([&](cir::BoolType type) -> mlir::Type {
-    return mlir::IntegerType::get(type.getContext(), 1);
-  });
-  this->addConversion([&](cir::IntType type) -> mlir::Type {
-    return mlir::IntegerType::get(type.getContext(), type.getWidth());
-  });
-  this->addConversion([&](cir::SingleType type) -> mlir::Type {
-    return mlir::Float32Type::get(type.getContext());
-  });
-  this->addConversion([&](cir::DoubleType type) -> mlir::Type {
-    return mlir::Float64Type::get(type.getContext());
-  });
-  this->addConversion([&](cir::FP80Type type) -> mlir::Type {
-    return mlir::Float80Type::get(type.getContext());
-  });
-  this->addConversion([&](cir::FP128Type type) -> mlir::Type {
-    return mlir::Float128Type::get(type.getContext());
-  });
-  this->addConversion([&](cir::LongDoubleType type) -> mlir::Type {
-    return this->convertType(type.getUnderlying());
-  });
-  this->addConversion([&](cir::FP16Type type) -> mlir::Type {
-    return mlir::Float16Type::get(type.getContext());
-  });
-  this->addConversion([&](cir::BF16Type type) -> mlir::Type {
-    return mlir::BFloat16Type::get(type.getContext());
-  });
-  this->addConversion([&](cir::VoidType type) -> mlir::Type {
-    return mlir::LLVM::LLVMVoidType::get(type.getContext());
-  });
-  this->addConversion([&](cir::ArrayType type) -> mlir::Type {
-    // For CIR BoolType in arrays, use i8 (matching CIR's convertTypeForMemory).
-    mlir::Type elemTy;
-    if (isa<cir::BoolType>(type.getElementType()))
-      elemTy = mlir::IntegerType::get(
-          type.getContext(), cirDataLayout.getTypeSizeInBits(type.getElementType()));
-    else
-      elemTy = this->convertType(type.getElementType());
-    return mlir::LLVM::LLVMArrayType::get(elemTy, type.getSize());
-  });
-  this->addConversion([&](cir::FuncType type) -> std::optional<mlir::Type> {
-    auto result = this->convertType(type.getReturnType());
-    llvm::SmallVector<mlir::Type> arguments;
-    if (this->convertTypes(type.getInputs(), arguments).failed())
-      return std::nullopt;
-    return mlir::LLVM::LLVMFunctionType::get(result, arguments, type.isVarArg());
-  });
-  this->addConversion([&](cir::RecordType type) -> mlir::Type {
-    llvm::SmallVector<mlir::Type> llvmMembers;
-    switch (type.getKind())
-    {
-    case cir::RecordType::Class:
-    case cir::RecordType::Struct:
-      for (mlir::Type ty : type.getMembers())
-      {
-        if (isa<cir::BoolType>(ty))
-          llvmMembers.push_back(mlir::IntegerType::get(
-              ty.getContext(), cirDataLayout.getTypeSizeInBits(ty)));
-        else
-          llvmMembers.push_back(this->convertType(ty));
-      }
-      break;
-    case cir::RecordType::Union:
-      if (!type.getMembers().empty())
-      {
-        if (auto largestMember = type.getLargestMember(cirDataLayout))
-        {
-          if (isa<cir::BoolType>(largestMember))
-            llvmMembers.push_back(mlir::IntegerType::get(
-                largestMember.getContext(),
-                cirDataLayout.getTypeSizeInBits(largestMember)));
-          else
-            llvmMembers.push_back(this->convertType(largestMember));
-        }
-        if (type.getPadded())
-        {
-          auto last = *type.getMembers().rbegin();
-          if (isa<cir::BoolType>(last))
-            llvmMembers.push_back(mlir::IntegerType::get(
-                last.getContext(), cirDataLayout.getTypeSizeInBits(last)));
-          else
-            llvmMembers.push_back(this->convertType(last));
-        }
-      }
-      break;
-    }
-
-    mlir::LLVM::LLVMStructType llvmStruct;
-    if (type.getName())
-    {
-      llvmStruct = mlir::LLVM::LLVMStructType::getIdentified(
-          type.getContext(), type.getPrefixedName());
-      if (llvmStruct.setBody(llvmMembers, type.getPacked()).failed())
-        llvm_unreachable("Failed to set body of CIR record");
-    }
-    else
-    {
-      llvmStruct = mlir::LLVM::LLVMStructType::getLiteral(
-          type.getContext(), llvmMembers, type.getPacked());
-    }
-    return llvmStruct;
-  });
 }
 
 mlir::Type LLVMTypeConverter::convertPointer(PointerType T) const
