@@ -55,7 +55,9 @@ static inline struct netif* _go_netif_alloc(void) {
 }
 */
 import "C"
-import "unsafe"
+import (
+	"unsafe"
+)
 
 // init initialises and registers the LWIP netif for this interface. Must be
 // called from the LWIP goroutine (via queueOperation).
@@ -129,17 +131,17 @@ func (ni *NetInterface) IPAddress() [4]byte {
 
 // feedFrame creates an LWIP pbuf from a raw Ethernet frame and feeds it into
 // this interface's netif. Must be called from the LWIP goroutine.
-func (ni *NetInterface) feedFrame(frame []byte) {
+func (ni *NetInterface) feedFrame(frame RxFrame) {
 	if ni.iface == nil {
 		return
 	}
 
-	p := newPacketBuffer(packetBufferLayerRaw, uint16(len(frame)), packetBufferTypePool)
+	p := newPacketBuffer(packetBufferLayerRaw, uint16(len(frame.Data)), packetBufferTypePool)
 	if p == nil {
 		return
 	}
 
-	p.Take(unsafe.Pointer(&frame[0]), uint16(len(frame)))
+	p.Take(unsafe.Pointer(&frame.Data[0]), uint16(len(frame.Data)))
 
 	// Feed into the netif's input function (ethernet_input).
 	ni.iface.Input(p)

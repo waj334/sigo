@@ -3,6 +3,7 @@ include:
   - builtin
   - bytes
   - cmp
+  - context
   - errors
   - internal/byteorder
   - internal/fmtsort

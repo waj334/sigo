@@ -259,6 +259,10 @@ func mapRangeInit(m _map) _mapIterator {
 }
 
 func mapRangeNext(it *_mapIterator) {
+	if it.m.state == nil {
+		return
+	}
+
 	for ; it.bucket < len(it.m.state.data); it.bucket++ {
 		it.entry = it.m.state.data[it.bucket]
 		if it.entry != nil {

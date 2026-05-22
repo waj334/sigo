@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	_ "pkg.si-go.dev/sigo/llvm"
 	"pkg.si-go.dev/sigo/llvm/tablegen"
 )
 

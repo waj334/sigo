@@ -38,14 +38,19 @@ const (
 	constRecordMemoryRange          = "MemoryRange"
 	constMemoryRangeFieldAccess     = "access"
 	constMemoryRangeFieldExecutable = "executable"
+	constMemoryRangeFieldAlign      = "align"
 
 	constRecordAccessMode = "AccessMode"
 	constAccessModeValue  = "value"
 
-	constRecordVariant          = "Variant"
-	constVariantFieldMemories   = "memories"
-	constVariantFieldInterrupts = "interrupts"
-	constVariantFieldStackSize  = "stackSize"
+	constRecordVariant                  = "Variant"
+	constVariantFieldMemories           = "memories"
+	constVariantFieldInterrupts         = "interrupts"
+	constVariantFieldStackSize          = "stackSize"
+	constVariantFieldDefaultTextRegion  = "defaultTextRegion"
+	constVariantFieldDefaultRAMRegion   = "defaultRAMRegion"
+	constVariantFieldDefaultHeapRegion  = "defaultHeapRegion"
+	constVariantFieldDefaultStackRegion = "defaultStackRegion"
 
 	constRecordInterrupt    = "Interrupt"
 	constInterruptFieldLine = "line"

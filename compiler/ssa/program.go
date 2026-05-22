@@ -41,7 +41,8 @@ type ProgramConfig struct {
 	Sizes              types.Sizes
 	DependencyDirs     map[string]string // pkgPath -> absolute directory (from first packages.Load)
 	TargetTriplet      string            // target triple for C preprocessing
-	IncludePaths       []string          // system include paths for C preprocessing
+	CpuName            string
+	IncludePaths       []string // system include paths for C preprocessing
 }
 
 // cgoFlagRegex matches a #cgo pragma line in a C preamble comment.
@@ -238,12 +239,38 @@ func (p *Program) Parse(ctx context.Context) error {
 
 	// Locate linker script.
 	linkerScripts := append(p.Files[".ld"], p.Files[".linker"]...)
-	for _, fname := range linkerScripts {
-		// TODO: Make script in main package directory take priority.
-		baseName := strings.TrimSuffix(filepath.Base(fname), filepath.Ext(fname))
-		if strings.Contains(baseName, "target") || strings.Contains(baseName, "linker") {
-			p.LinkerScript = fname
+
+	// Two-phase: prefer exact "target.ld" or "target.linker" in the main package.
+	mainPkgDir := ""
+	for _, pkg := range p.Packages {
+		if pkg.Module != nil && pkg.Module.Main && len(pkg.GoFiles) > 0 {
+			mainPkgDir = filepath.Dir(pkg.GoFiles[0])
+			break
 		}
+	}
+
+	var userOverride, generated string
+	for _, fname := range linkerScripts {
+		base := filepath.Base(fname)
+		name := strings.TrimSuffix(base, filepath.Ext(base))
+
+		// User override wins: exact "target" name in the main package directory.
+		if mainPkgDir != "" && filepath.Dir(fname) == mainPkgDir && name == "target" {
+			userOverride = fname
+			continue
+		}
+
+		// Otherwise the existing substring match for build-tagged generated scripts.
+		if name == fmt.Sprintf("target_%s", p.Config.CpuName) ||
+			name == fmt.Sprintf("linker_%s", p.Config.CpuName) {
+			generated = fname
+		}
+	}
+
+	if userOverride != "" {
+		p.LinkerScript = userOverride
+	} else {
+		p.LinkerScript = generated
 	}
 
 	// Locate the main function symbol.
@@ -505,7 +532,7 @@ func (p *Program) resolveEmbedData(pkg *packages.Package) error {
 	return nil
 }
 
-func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) {
+func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) error {
 	// Build a map of declaration positions to their declarations for quick lookup
 	declsByPos := make(map[token.Pos]ast.Decl)
 	for _, decl := range file.Decls {
@@ -631,26 +658,51 @@ func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) {
 			var targetSymbol string
 			count := len(parts)
 
-			// Check if the pragma explicitly names a symbol (old style)
-			if count > 1 {
-				// Some pragmas like "extern", "export", etc. include the symbol name
-				// These still work with explicit symbol names for backwards compatibility
-				switch parts[0] {
-				case "extern", "interrupt", "linkname", "export", "linkage", "required", "section":
-					// These pragmas include the symbol name as the second argument.
-					if count >= 2 {
-						targetSymbol = qualifiedName(parts[1], pkg)
-					}
+			switch parts[0] {
+			case "align", "extern", "interrupt", "linkname", "export", "linkage", "required":
+				// These have old-style with symbol-name in parts[1]; new-style
+				// with no symbol name.
+				// Old-style detection: count is at the old-style maximum for the verb.
+				// For these, old-style is `//sigo:verb symname extra...`, new-style is
+				// `//sigo:verb extra...`.
+				// Heuristic: if count >= 3, parts[1] is symbol name; else it's the arg.
+				if count >= 3 {
+					targetSymbol = qualifiedName(parts[1], pkg)
+				}
+			case "section":
+				// //sigo:section .name (new)         → 2 parts, no symbol slot
+				// //sigo:section symname .name (old) → 3 parts, parts[1] is symbol
+				if count >= 3 {
+					targetSymbol = qualifiedName(parts[1], pkg)
 				}
 			}
 
-			// If no explicit symbol, use the symbol from the following declaration
+			// If new style, fall back to the symbol from the following declaration.
 			if targetSymbol == "" && symbolName != "" {
 				targetSymbol = symbolName
 			}
 
 			// Process the pragma
 			switch parts[0] {
+			case "align":
+				if count == 3 {
+					info := p.Symbols.GetSymbolInfo(targetSymbol)
+
+					var err error
+					info.Alignment, err = strconv.ParseInt(parts[2], 10, 64)
+					if err != nil {
+						return fmt.Errorf("invalid alignment value: %s", parts[2])
+					}
+				} else if count == 2 && targetSymbol != "" {
+					// New style: //go:linkname externalname
+					info := p.Symbols.GetSymbolInfo(targetSymbol)
+
+					var err error
+					info.Alignment, err = strconv.ParseInt(parts[1], 10, 64)
+					if err != nil {
+						return fmt.Errorf("invalid alignment value: %s", parts[1])
+					}
+				}
 			case "extern":
 				if count == 3 {
 					info := p.Symbols.GetSymbolInfo(targetSymbol)
@@ -744,13 +796,10 @@ func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) {
 					info.Attributes[parts[2]] = struct{}{}
 				}
 			case "section":
-				if count >= 2 && targetSymbol != "" {
-					info := p.Symbols.GetSymbolInfo(targetSymbol)
+				info := p.Symbols.GetSymbolInfo(targetSymbol)
+				if count == 2 {
 					info.Section = parts[1]
-				} else if count > 2 {
-					// Old style with explicit symbol name
-					funcName := qualifiedName(parts[1], pkg)
-					info := p.Symbols.GetSymbolInfo(funcName)
+				} else if count >= 3 {
 					info.Section = parts[2]
 				}
 			case "stacksize":
@@ -779,6 +828,8 @@ func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) {
 			}
 		}
 	}
+
+	return nil
 }
 
 // scanCGoFiles walks the package directory looking for Go files that contain

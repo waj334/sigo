@@ -12,7 +12,10 @@ include "mlir/IR/OpBase.td"
 // BitcastOp
 //===----------------------------------------------------------------------===//
 
-def BitcastOp : Go_Op<"bitcast", [Pure, NoMemoryEffect]> {
+def BitcastOp : Go_Op<"bitcast", [
+            Pure, NoMemoryEffect,
+            DeclareOpInterfaceMethods<UntypedTypeResolverInterface, ["resolveOperandTypes"]>
+        ]> {
     let summary = "Bitcast conversion operation";
     let description = [{
         The `go.bitcast` operation converts the input operand to a value of the

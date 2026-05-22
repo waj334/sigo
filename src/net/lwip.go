@@ -1,5 +1,7 @@
 package net
 
+import "C"
+
 // #cgo LDFLAGS: -llwip
 /*
 #include <lwip/init.h>
@@ -12,6 +14,7 @@ package net
 #include <lwip/dns.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 // Accessor helpers for struct pbuf fields (avoids needing CIR struct field access).
 static inline void*     _go_pbuf_next(struct pbuf *p)    { return p->next; }
@@ -340,7 +343,7 @@ func (n *netif) State() unsafe.Pointer {
 type NetInterface struct {
 	iface  *netif
 	device NetDevice
-	rx     chan []byte
+	rx     chan RxFrame
 }
 
 // Netif returns the underlying LWIP netif.

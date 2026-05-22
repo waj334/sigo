@@ -442,14 +442,22 @@ struct GlobalOpLowering : public OpConversionPattern<GlobalOp>
     OpAdaptor adaptor,
     ConversionPatternRewriter& rewriter) const override
   {
-    // Create a replacement global operation with no initializer body.
+    // Create a replacement global operation.
     auto newGlobalOp = GlobalOp::create(
       rewriter,
       op.getLoc(),
       adaptor.getGlobalTypeAttr(),
       adaptor.getSymNameAttr(),
-      adaptor.getSectionAttr());
+      adaptor.getSectionAttr(),
+      adaptor.getAlignmentAttr());
     newGlobalOp->setAttr("llvm.linkage", op->getAttr("llvm.linkage"));
+
+    if (!op.getInitializer().empty()) {
+      rewriter.inlineRegionBefore(
+          op.getInitializer(),
+          newGlobalOp.getInitializerRegion(),
+          newGlobalOp.getInitializerRegion().end());
+    }
 
     // Remove the original global operation.
     rewriter.eraseOp(op);

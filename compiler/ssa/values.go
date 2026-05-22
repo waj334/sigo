@@ -123,7 +123,7 @@ func (b *Builder) emitGlobalVar(ctx context.Context, ident *ast.Ident) *GlobalVa
 	}
 
 	// Emit the global variable.
-	globalOp := goir.NewGlobalOperation(b.ctx, linkage, symbol, info.Section, T, location)
+	globalOp := goir.NewGlobalOperation(b.ctx, linkage, symbol, info.Section, info.Alignment, T, location)
 	b.appendToModule(globalOp)
 	value := &GlobalValue{
 		symbol: symbol,
@@ -310,13 +310,36 @@ func (b *Builder) emitInterfaceValue(ctx context.Context, T types.Type, valueTyp
 	}
 
 	// Generate methods for named types.
+	var namedType *types.Named
 	switch valueType := valueType.(type) {
 	case *types.Named:
-		b.queueNamedTypeJobs(ctx, valueType)
+		namedType = valueType
 	case *types.Pointer:
 		if T, ok := valueType.Elem().(*types.Named); ok {
-			b.queueNamedTypeJobs(ctx, T)
+			namedType = T
 		}
+	}
+
+	var generate func(ctx context.Context, namedType *types.Named)
+	generate = func(ctx context.Context, namedType *types.Named) {
+		// Queue the methods of this named type to be generated.
+		b.queueNamedTypeJobs(ctx, namedType)
+
+		// Examine the named type for any embedded types if it's a struct type.
+		if structType, ok := types.Unalias(namedType.Underlying()).(*types.Struct); ok {
+			for field := range structType.Fields() {
+				if field.Embedded() {
+					if embeddedType, ok := types.Unalias(field.Type()).(*types.Named); ok {
+						// Generate the methods of the embedded named type.
+						generate(ctx, embeddedType)
+					}
+				}
+			}
+		}
+	}
+
+	if namedType != nil {
+		generate(ctx, namedType)
 	}
 
 	// Create the interface value.

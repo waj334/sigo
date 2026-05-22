@@ -43,6 +43,7 @@ add_mlir_dialect_library(GoIR
         Transforms/PreprocessingPass.cxx
         Transforms/TypeConverter.cxx
         Transforms/TypeInfo.cxx
+        Transforms/Util.cxx
         Transforms/ValueNormalizationPass.cxx
         Util.cxx
 

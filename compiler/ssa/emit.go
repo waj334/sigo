@@ -118,6 +118,10 @@ func (b *Builder) emitAssign(ctx context.Context, stmt *ast.AssignStmt) {
 				rhs := rvals[i]
 				lhsType := lhsTypes[i]
 				switch baseType(lhsType).(type) {
+				case *types.Chan:
+					// Bitcast to the left-hand side type.
+					T := b.GetStoredType(ctx, lhsType)
+					rhs = b.bitcastTo(ctx, rhs, T, location)
 				case *types.Interface:
 					rhsType := resolveType(ctx, rhsTypes[i])
 					if !isNil(rhsType) && !types.Identical(lhsType, rhsType) {
@@ -556,6 +560,14 @@ func (b *Builder) emitIdent(ctx context.Context, expr *ast.Ident) []mlir.ValueLi
 			appendOperation(ctx, constRefOp)
 			return resultsOf(constRefOp)
 		} else {
+			// Prefer the contextual type recorded for this identifier over the
+			// constant's declared type. For universal constants like true/false
+			// obj.Type() is the untyped form, but go/types records the typed
+			// type the identifier was implicitly converted to at its use site.
+			info := currentInfo(ctx)
+			if tv, ok := info.Types[expr]; ok && tv.Type != nil {
+				T = tv.Type
+			}
 			val := b.emitConstantValue(ctx, obj.Val(), T, location)
 			return b.values(val)
 		}
@@ -841,6 +853,10 @@ func (b *Builder) evaluateReturnResults(ctx context.Context, stmt *ast.ReturnStm
 			returnType := returnTypes[returnIdx]
 			valueType := resolveType(ctx, valueTypes[ii])
 			switch baseType(returnType).(type) {
+			case *types.Chan:
+				// Bitcast to the return channel type.
+				T := b.GetStoredType(ctx, returnType)
+				v[ii] = b.bitcastTo(ctx, v[ii], T, location)
 			case *types.Interface:
 				if !isNil(valueType) && !types.Identical(valueType, returnType) {
 					if types.IsInterface(baseType(valueType)) {

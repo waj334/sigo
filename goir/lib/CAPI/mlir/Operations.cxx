@@ -690,6 +690,7 @@ MlirOperation mlirGoCreateGlobalOperation(
   const MlirAttribute linkage,
   const MlirStringRef symbol,
   const MlirStringRef section,
+  const MlirAttribute alignment,
   const MlirType type,
   const MlirLocation location)
 {
@@ -698,6 +699,7 @@ MlirOperation mlirGoCreateGlobalOperation(
   const auto _location = unwrap(location);
   const auto _symbol = unwrap(symbol);
   const auto _section = unwrap(section);
+  const auto _alignment = mlir::cast_or_null<mlir::IntegerAttr>(unwrap(alignment));
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op = ::mlir::go::GlobalOp::create(
@@ -705,7 +707,8 @@ MlirOperation mlirGoCreateGlobalOperation(
     _location,
     _type,
     mlir::StringAttr::get(_context, _symbol),
-    _section.size() == 0 ? mlir::StringAttr() : mlir::StringAttr::get(_context, _section));
+    _section.size() == 0 ? mlir::StringAttr() : mlir::StringAttr::get(_context, _section),
+    _alignment);
 
   if (!mlirAttributeIsNull(linkage))
   {
@@ -1829,6 +1832,20 @@ MlirOperation mlirGoCreateZeroOperation(
 
   mlir::OpBuilder builder(_context);
   mlir::Operation* op = ::mlir::go::ZeroOp::create(builder, _location, _type);
+  return wrap(op);
+}
+
+MlirOperation mlirGoCreateNilOperation(
+    const MlirContext context,
+    const MlirType type,
+    const MlirLocation location)
+{
+  const auto _context = unwrap(context);
+  const auto _type = unwrap(type);
+  const auto _location = unwrap(location);
+
+  mlir::OpBuilder builder(_context);
+  mlir::Operation* op = ::mlir::go::NilOp::create(builder, _location, _type);
   return wrap(op);
 }
 

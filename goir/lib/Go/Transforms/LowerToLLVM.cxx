@@ -94,7 +94,7 @@ static mlir::SmallVector<Value> createRuntimeCall(
   const mlir::Location location,
   const std::string& funcName,
   const mlir::LLVMTypeConverter* typeConverter,
-  const mlir::ArrayRef<mlir::Value>& args,
+  const mlir::ValueRange& args,
   const mlir::NamedAttrList& attrs = mlir::NamedAttrList())
 {
   // Format the fully qualified function name
@@ -1814,13 +1814,18 @@ struct GlobalOpLowering : ConvertOpToLLVMPattern<GlobalOp>
       linkage.getLinkage(),
       adaptor.getSymName(),
       Attribute(),
-      0,
+      op.getAlignment().value_or(4),
       0,
       false,
       false,
       mlir::SymbolRefAttr(),
       llvm::ArrayRef<mlir::NamedAttribute>(),
       diGlobalExprAttrs);
+
+    if (op.getSectionAttr())
+    {
+      global.setSectionAttr(op.getSectionAttr());
+    }
 
     // Copy the initializer regions.
     rewriter.inlineRegionBefore(op.getRegion(), global.getRegion(), global.getRegion().end());
@@ -2249,74 +2254,237 @@ struct MapRangeOpLowering : ConvertOpToLLVMPattern<MapRangeOp>
     ConversionPatternRewriter& rewriter) const override
   {
     const auto loc = op.getLoc();
+
+    auto* typeConverter = this->getTypeConverter();
     const auto ptrType = this->getPtrType();
-    const auto block = op->getBlock();
-    const auto mapType = mlir::go::dyn_cast<MapType>(op.getMap().getType());
-    const auto keyType = this->getTypeConverter()->convertType(mapType.getKeyType());
-    const auto elementType = this->getTypeConverter()->convertType(mapType.getValueType());
 
-    // Create the runtime call to initialize an iterator for the range. Insert the call after the
-    // map value is loaded.
-    mlir::Value itAddr;
+    mlir::Block* rangeBlock = op->getBlock();
+    mlir::Region* parentRegion = rangeBlock->getParent();
+    mlir::Block* entryBlock = &parentRegion->front();
+
+    // Capture these before erasing/replacing the op.
+    mlir::Block* bodyBlock = op.getBodyBlock();
+    mlir::Block* exitBlock = op.getExitBlock();
+
+    auto mapType = mlir::go::dyn_cast<MapType>(op.getMap().getType());
+    if (!mapType)
+      return rewriter.notifyMatchFailure(op, "expected map operand to have map type");
+
+    mlir::Type keyType = typeConverter->convertType(mapType.getKeyType());
+    mlir::Type elementType = typeConverter->convertType(mapType.getValueType());
+
+    if (!keyType || !elementType)
+      return rewriter.notifyMatchFailure(op, "failed to convert map key/value types");
+
+    if (bodyBlock->getNumArguments() != 2)
+      return rewriter.notifyMatchFailure(
+        op, "map range body block must have exactly two arguments");
+
+    // Convert the body block signature:
+    //
+    //   ^body(%key: !go.T, %value: !go.U)
+    //
+    // becomes:
+    //
+    //   ^body(%key: <converted T>, %value: <converted U>)
+    //
+    // Without this, the LLVM branch into the body block will pass LLVM values
+    // to a block still expecting Go dialect values.
     {
-      OpBuilder::InsertionGuard guard(rewriter);
-      rewriter.setInsertionPointAfter(adaptor.getMap().getDefiningOp());
+      bool needsSignatureConversion = false;
 
-      auto iteratorValue = createRuntimeCall(
-        rewriter, loc, "mapRangeInit", this->getTypeConverter(), { adaptor.getMap() })[0];
+      mlir::SmallVector<mlir::Type> convertedArgTypes;
+      convertedArgTypes.reserve(bodyBlock->getNumArguments());
 
+      for (auto [index, arg] : llvm::enumerate(bodyBlock->getArguments()))
       {
-        // Create a stack allocation to store the iterator in.
-        OpBuilder::InsertionGuard guard2(rewriter);
-        rewriter.setInsertionPointToStart(&op->getParentRegion()->front());
-        mlir::Value oneValue =
-          mlir::LLVM::ConstantOp::create(rewriter, loc, rewriter.getI64Type(), 1);
-        itAddr = mlir::LLVM::AllocaOp::create(
-          rewriter, loc, this->getPtrType(), iteratorValue.getType(), oneValue);
+        mlir::Type convertedType;
+
+        if (index == 0)
+          convertedType = keyType;
+        else if (index == 1)
+          convertedType = elementType;
+        else
+          convertedType = typeConverter->convertType(arg.getType());
+
+        if (!convertedType)
+          return rewriter.notifyMatchFailure(
+            op, "failed to convert map range body block argument type");
+
+        if (convertedType != arg.getType())
+          needsSignatureConversion = true;
+
+        convertedArgTypes.push_back(convertedType);
       }
 
-      // Store the iterator value.
-      mlir::LLVM::StoreOp::create(rewriter, loc, iteratorValue, itAddr);
+      if (needsSignatureConversion)
+      {
+        mlir::TypeConverter::SignatureConversion signatureConversion(
+          bodyBlock->getNumArguments());
+
+        for (auto [index, convertedType] : llvm::enumerate(convertedArgTypes))
+          signatureConversion.addInputs(index, {convertedType});
+
+        bodyBlock = rewriter.applySignatureConversion(
+              bodyBlock, signatureConversion, typeConverter);
+      }
     }
 
-    // Replace the range op with the respective runtime call.
-    auto results =
-      createRuntimeCall(rewriter, loc, "mapRange", this->getTypeConverter(), { itAddr });
-    rewriter.eraseOp(op);
-
-    mlir::Value keyAddrValue = results[0];
-    mlir::Value elementAddrValue = results[1];
-    mlir::Value okValue = results[2];
-
-    // Build the load block.
-    mlir::Block* loadBlock;
+    // Initialize the map iterator once.
+    //
+    // This assumes the map operand is defined before the range loop header, which
+    // is the shape your current IR appears to have:
+    //
+    //   %map = ...
+    //   br ^range
+    //
+    // ^range:
+    //   go.map.range %map, ^body, ^exit
+    //
+    // If the map operand is produced inside the range header itself, this would
+    // reinitialize the iterator every iteration and the earlier Go-level range
+    // lowering should be fixed to create a real preheader value.
+    mlir::Value itAddr;
     {
       mlir::OpBuilder::InsertionGuard guard(rewriter);
-      loadBlock = rewriter.createBlock(
-        block->getParent(),
-        std::next(block->getIterator()),
-        mlir::SmallVector<mlir::Type>{ ptrType, ptrType },
-        mlir::SmallVector<mlir::Location>{ loc, loc });
-      Value keyValue =
-        mlir::LLVM::LoadOp::create(rewriter, loc, keyType, loadBlock->getArgument(0));
-      Value elementValue =
-        mlir::LLVM::LoadOp::create(rewriter, loc, elementType, loadBlock->getArgument(1));
-      mlir::LLVM::BrOp::create(
-        rewriter, loc, SmallVector<mlir::Value>{ keyValue, elementValue }, op.getBodyBlock());
+
+      mlir::Value mapValue = adaptor.getMap();
+
+      if (mlir::Operation* mapDef = mapValue.getDefiningOp())
+      {
+        rewriter.setInsertionPointAfter(mapDef);
+      }
+      else if (auto blockArg = mlir::dyn_cast<mlir::BlockArgument>(mapValue);
+               blockArg && blockArg.getOwner() == entryBlock)
+      {
+        // Function/region argument case.
+        rewriter.setInsertionPointToStart(entryBlock);
+      }
+      else
+      {
+        return rewriter.notifyMatchFailure(
+          op,
+          "map operand is a non-entry block argument; cannot safely place mapRangeInit");
+      }
+
+      mlir::SmallVector<mlir::Value> initResults =
+        createRuntimeCall(
+          rewriter,
+          loc,
+          "mapRangeInit",
+          typeConverter,
+          mlir::ValueRange{mapValue});
+
+      if (initResults.size() != 1)
+        return rewriter.notifyMatchFailure(
+          op, "mapRangeInit must return exactly one value");
+
+      mlir::Value iteratorValue = initResults[0];
+
+      // Allocate iterator storage in the entry block.
+      {
+        mlir::OpBuilder::InsertionGuard guard2(rewriter);
+
+        rewriter.setInsertionPointToStart(entryBlock);
+
+        mlir::Value oneValue =
+          mlir::LLVM::ConstantOp::create(
+            rewriter,
+            loc,
+            rewriter.getI64Type(),
+            1);
+
+        itAddr =
+          mlir::LLVM::AllocaOp::create(
+            rewriter,
+            loc,
+            ptrType,
+            iteratorValue.getType(),
+            oneValue);
+      }
+
+      // Store the initialized iterator value.
+      mlir::LLVM::StoreOp::create(
+        rewriter,
+        loc,
+        iteratorValue,
+        itAddr);
     }
 
-    // Conditionally branch to the load block if the range iteration was successful. Otherwise,
-    // branch to the exit block.
+    // Create a load block between the range block and the original body block.
+    //
+    // The runtime mapRange call returns pointers to the current key/value.
+    // This block loads the actual key/value and then branches into the original
+    // range body block.
+    mlir::Block* loadBlock = nullptr;
+    {
+      mlir::OpBuilder::InsertionGuard guard(rewriter);
+
+      loadBlock =
+        rewriter.createBlock(
+          parentRegion,
+          std::next(rangeBlock->getIterator()),
+          mlir::TypeRange{ptrType, ptrType},
+          mlir::SmallVector<mlir::Location>{loc, loc});
+
+      rewriter.setInsertionPointToEnd(loadBlock);
+
+      mlir::Value keyValue =
+        mlir::LLVM::LoadOp::create(
+          rewriter,
+          loc,
+          keyType,
+          loadBlock->getArgument(0));
+
+      mlir::Value elementValue =
+        mlir::LLVM::LoadOp::create(
+          rewriter,
+          loc,
+          elementType,
+          loadBlock->getArgument(1));
+
+      mlir::LLVM::BrOp::create(
+        rewriter,
+        loc,
+        mlir::ValueRange{keyValue, elementValue},
+        bodyBlock);
+    }
+
+    // Replace the original go.map.range terminator with:
+    //
+    //   %key_addr, %value_addr, %ok = call @mapRange(%itAddr)
+    //   cond_br %ok, ^load(%key_addr, %value_addr), ^exit
+    //
+    rewriter.setInsertionPoint(op);
+
+    mlir::SmallVector<mlir::Value> rangeResults =
+      createRuntimeCall(
+        rewriter,
+        loc,
+        "mapRange",
+        typeConverter,
+        {itAddr});
+
+    if (rangeResults.size() != 3)
+      return rewriter.notifyMatchFailure(
+        op, "mapRange must return exactly three values");
+
+    mlir::Value keyAddrValue = rangeResults[0];
+    mlir::Value elementAddrValue = rangeResults[1];
+    mlir::Value okValue = rangeResults[2];
+
     mlir::LLVM::CondBrOp::create(
       rewriter,
       loc,
       okValue,
       loadBlock,
-      SmallVector<mlir::Value>{ keyAddrValue, elementAddrValue },
-      op.getExitBlock(),
-      SmallVector<mlir::Value>{});
+      mlir::ValueRange{keyAddrValue, elementAddrValue},
+      exitBlock,
+      mlir::ValueRange{});
 
-    return success();
+    rewriter.eraseOp(op);
+
+    return mlir::success();
   }
 };
 

@@ -43,8 +43,8 @@ func runOptimizerPass(module mlir.Module, debug bool) mlir.LogicalResult {
 	pm.NestedUnder("go.global").
 		AddOwnedPass(goir.NewValueNormalizationGlobalPass())
 
-	pm.AddOwnedPass(goir.NewGlobalInitializerPass()).
-		AddOwnedPass(goir.NewImmutableGlobalsPass())
+	pm.AddOwnedPass(goir.NewImmutableGlobalsPass()).
+		AddOwnedPass(goir.NewGlobalInitializerPass())
 
 	pm.NestedUnder("go.global").
 		AddOwnedPass(goir.NewAttachDebugInfoToGlobalPass())

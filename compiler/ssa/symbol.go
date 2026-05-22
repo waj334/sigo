@@ -12,6 +12,7 @@ type SymbolInfo struct {
 	Linkage         string
 	Attributes      map[string]struct{}
 	Section         string
+	Alignment       int64
 	EmbedPatterns   []string
 
 	// StackSize, when non-zero, overrides the default goroutine/coroutine

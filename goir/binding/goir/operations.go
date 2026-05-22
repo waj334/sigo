@@ -272,12 +272,18 @@ func NewGepOperation(ctx mlir.Context, addr mlir.ValueLike, baseType mlir.TypeLi
 	))
 }
 
-func NewGlobalOperation(ctx mlir.Context, linkage mlir.AttributeLike, symbol string, section string, typ mlir.TypeLike, location mlir.LocationLike) mlir.Operation {
+func NewGlobalOperation(ctx mlir.Context, linkage mlir.AttributeLike, symbol string, section string, alignment int64, typ mlir.TypeLike, location mlir.LocationLike) mlir.Operation {
+	var alignmentAttr mlir.AttributeLike
+	if alignment != 0 {
+		alignmentAttr = mlir.NewIntegerAttr(mlir.NewIntegerType(ctx, 64), alignment)
+	}
+
 	return wrapOperation(C.mlirGoCreateGlobalOperation(
 		unwrapContext(ctx),
 		unwrapAttribute(linkage),
 		unwrapStringRef(mlir.NewStringRef(symbol)),
 		unwrapStringRef(mlir.NewStringRef(section)),
+		unwrapAttribute(alignmentAttr),
 		unwrapType(typ),
 		unwrapLocation(location),
 	))
@@ -696,6 +702,10 @@ func NewBuiltInCallOperation(ctx mlir.Context, identifier string, resultTypes []
 
 func NewZeroOperation(ctx mlir.Context, typ mlir.TypeLike, location mlir.LocationLike) mlir.Operation {
 	return wrapOperation(C.mlirGoCreateZeroOperation(unwrapContext(ctx), unwrapType(typ), unwrapLocation(location)))
+}
+
+func NewNilOperation(ctx mlir.Context, typ mlir.TypeLike, location mlir.LocationLike) mlir.Operation {
+	return wrapOperation(C.mlirGoCreateNilOperation(unwrapContext(ctx), unwrapType(typ), unwrapLocation(location)))
 }
 
 func NewComplexOperation(ctx mlir.Context, typ mlir.TypeLike, real, imag mlir.ValueLike, location mlir.LocationLike) mlir.Operation {

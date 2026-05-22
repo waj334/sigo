@@ -164,7 +164,8 @@ def GlobalOp : Go_Op<"global", [IsolatedFromAbove, Symbol]> {
     let arguments = (ins
         TypeAttr:$global_type,
         StrAttr:$sym_name,
-        OptionalAttr<StrAttr>:$section
+        OptionalAttr<StrAttr>:$section,
+        OptionalAttr<I64Attr>:$alignment
     );
     let assemblyFormat = [{
         $sym_name ( `section` $section^ )? attr-dict `:` $global_type ( `init` $initializer^ )?

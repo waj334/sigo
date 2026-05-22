@@ -84,6 +84,24 @@ OpFoldResult BitcastOp::fold(FoldAdaptor adaptor)
   return {};
 }
 
+::mlir::SmallVector<::mlir::Type> BitcastOp::resolveOperandTypes()
+{
+  const Type srcType = this->getValue().getType();
+
+  // If the source is untyped, this bitcast is acting as the
+  // coercion point for whatever produced the untyped value. Demand
+  // the destination type from the operand so the value-normalization
+  // pass rewrites the producer to be concretely typed. The resulting
+  // bitcast becomes a same-type identity that the folder will drop.
+  if (mlir::isa<mlir::go::UntypedType>(srcType))
+  {
+    return { this->getType() };
+  }
+
+  // Source is already concretely typed; the operand keeps its type.
+  return { srcType };
+}
+
 OpFoldResult IntTruncateOp::fold(FoldAdaptor adaptor)
 {
   // Try to get the source attribute directly or by folding.

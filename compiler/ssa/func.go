@@ -214,10 +214,6 @@ func (b *Builder) emitFunc(ctx context.Context, data *funcData) {
 					recvVal := entryBlock.Argument(0)
 
 					// Emit a local variable allocation to hold the argument value.
-					if recvVal.Type().IsNull() {
-						println("STOP")
-					}
-
 					addr := b.emitLocalVar(ctx, recvVar, recvVal.Type(), true)
 
 					// Store the parameter value at the address.
@@ -443,6 +439,7 @@ func (b *Builder) createFuncInstance(ctx context.Context, signature *types.Signa
 		isInstance:     true,
 		instance:       instanceNo,
 		info:           data.info,
+		attributes:     data.attributes,
 	}
 
 	// Create the instantiated function type.
@@ -804,5 +801,173 @@ func (b *Builder) emitBuiltinCallWrapper(ctx context.Context, ident *ast.Ident) 
 	b.addToModule[symbol] = funcOp
 	b.addToModuleMutex.Unlock()
 	b.builtinWrappers[ident.Name] = symbol
+	return symbol
+}
+
+func (b *Builder) createPromotedMethodTrampoline(
+	ctx context.Context,
+	outerNamed *types.Named,
+	sel *types.Selection,
+) string {
+	method := sel.Obj().(*types.Func)
+	targetSymbol := qualifiedFuncName(method)
+	symbol := promotedTrampolineSymbol(outerNamed, method.Name())
+
+	// Build under the trampoline mutex, but release before calling queueJob
+	// to avoid taking trampolineMutex -> (whatever queueJob locks) lock order.
+	// The closure scopes the defer so the unlock fires before queueJob below.
+	func() {
+		b.trampolineMutex.Lock()
+		defer b.trampolineMutex.Unlock()
+		if _, ok := b.trampolines[symbol]; ok {
+			return
+		}
+
+		// Trampoline signature: func (*Outer) M(params...) results.
+		// Modeled as a proper method (receiver = *Outer) so anything reading
+		// originalType classifies it as a pointer-receiver method by construction.
+		outerPtr := types.NewPointer(outerNamed)
+		innerSig := method.Type().(*types.Signature)
+
+		// MLIR block param types include the receiver as arg 0 even though
+		// the Go signature classifies it as a receiver rather than a param.
+		paramTypes := []mlir.TypeLike{b.GetStoredType(ctx, outerPtr)}
+		for i := 0; i < innerSig.Params().Len(); i++ {
+			paramT := innerSig.Params().At(i).Type()
+			paramTypes = append(paramTypes, b.GetStoredType(ctx, paramT))
+		}
+		paramLocs := make([]mlir.LocationLike, len(paramTypes))
+		fill(paramLocs, b._noLoc)
+
+		// types.Signature params list excludes the receiver.
+		paramVars := make([]*types.Var, innerSig.Params().Len())
+		for i := range paramVars {
+			paramVars[i] = types.NewVar(token.NoPos, nil,
+				fmt.Sprintf("param$%d", i), innerSig.Params().At(i).Type())
+		}
+
+		// Collect the result types.
+		resultTypes := make([]mlir.TypeLike, 0, innerSig.Results().Len())
+		resultVars := make([]*types.Var, 0, innerSig.Results().Len())
+		for i := 0; i < innerSig.Results().Len(); i++ {
+			resultT := innerSig.Results().At(i).Type()
+			resultTypes = append(resultTypes, b.GetStoredType(ctx, resultT))
+			resultVars = append(resultVars, types.NewVar(token.NoPos, nil,
+				fmt.Sprintf("result$%d", i), resultT))
+		}
+
+		recvVar := types.NewVar(token.NoPos, nil, "recv", outerPtr)
+		syntheticSig := types.NewSignatureType(recvVar, nil, nil,
+			types.NewTuple(paramVars...), types.NewTuple(resultVars...),
+			innerSig.Variadic())
+
+		region := mlir.NewRegion()
+		bodyCtx := newContextWithRegion(ctx, region)
+		entryBlock := mlir.NewBlock(paramTypes, paramLocs)
+		region.AppendOwnedBlock(entryBlock)
+		buildBlock(bodyCtx, entryBlock, func() {
+			cur := entryBlock.Argument(0).AsValue() // *Outer
+			curStructT := outerNamed.Underlying().(*types.Struct)
+
+			// sel.Index()'s last entry is the method index in the declaring type's
+			// method list, not a field index. Iterate over the field-chain prefix.
+			fieldChain := sel.Index()[:len(sel.Index())-1]
+			for depth, fieldIdx := range fieldChain {
+				field := curStructT.Field(fieldIdx)
+
+				// Embedded interface: terminal segment of the chain, switch to
+				// interface dispatch. Interfaces have no fields, so this must be
+				// the last entry in fieldChain.
+				if _, isIface := field.Type().Underlying().(*types.Interface); isIface {
+					if depth != len(fieldChain)-1 {
+						panic(fmt.Sprintf(
+							"internal: interface field mid-chain in promotion %s.%s",
+							outerNamed.Obj().Name(), method.Name()))
+					}
+
+					// GEP to the interface field's address.
+					fieldPtrT := b.GetStoredType(bodyCtx, types.NewPointer(field.Type()))
+					gepOp := goir.NewGepOperation(b.ctx, cur,
+						b.GetStoredType(bodyCtx, curStructT),
+						[]int{0, fieldIdx}, nil, []bool{false, false},
+						fieldPtrT, b._noLoc)
+					appendOperation(bodyCtx, gepOp)
+					ifaceAddr := resultOf(gepOp).AsValue()
+
+					// Load the interface value (fat pointer: type + data).
+					ifaceVal := b.emitLoad(bodyCtx, ifaceAddr,
+						b.GetStoredType(bodyCtx, field.Type()), b._noLoc)
+
+					// Forward trampoline args (block arg 0 is the *Outer receiver).
+					callArgs := make([]mlir.ValueLike, 0, entryBlock.NumArguments()-1)
+					for i := 1; i < entryBlock.NumArguments(); i++ {
+						callArgs = append(callArgs, entryBlock.Argument(i))
+					}
+
+					callOp := goir.NewInterfaceCall(b.ctx, method.Name(),
+						resultTypes, ifaceVal, callArgs, b._noLoc)
+					appendOperation(bodyCtx, callOp)
+					appendOperation(bodyCtx, goir.NewReturnOperation(
+						b.ctx, resultsOf(callOp), b._noLoc))
+					return // skip the direct-call tail emitted after this loop
+				}
+
+				// ===== Existing struct/pointer-embed handling unchanged below =====
+
+				fieldPtrT := b.GetStoredType(bodyCtx, types.NewPointer(field.Type()))
+				gepOp := goir.NewGepOperation(b.ctx, cur,
+					b.GetStoredType(bodyCtx, curStructT),
+					[]int{0, fieldIdx}, nil, []bool{false, false},
+					fieldPtrT, b._noLoc)
+				appendOperation(bodyCtx, gepOp)
+				cur = resultOf(gepOp).AsValue()
+
+				if ptr, isPtr := field.Type().(*types.Pointer); isPtr {
+					cur = b.emitLoad(bodyCtx, cur,
+						b.GetStoredType(bodyCtx, ptr), b._noLoc)
+					if depth < len(fieldChain)-1 {
+						curStructT = ptr.Elem().Underlying().(*types.Struct)
+					}
+				} else if depth < len(fieldChain)-1 {
+					curStructT = field.Type().Underlying().(*types.Struct)
+				}
+			}
+			// `cur` is now *Inner regardless of value/pointer embedding.
+
+			// Final receiver: load if value receiver, pass-through if pointer.
+			var recvArg mlir.ValueLike = cur
+			if _, isPtr := innerSig.Recv().Type().(*types.Pointer); !isPtr {
+				recvArg = b.emitLoad(bodyCtx, cur,
+					b.GetStoredType(bodyCtx, innerSig.Recv().Type()), b._noLoc)
+			}
+
+			args := []mlir.ValueLike{recvArg}
+			for i := 1; i < entryBlock.NumArguments(); i++ {
+				args = append(args, entryBlock.Argument(i))
+			}
+			callOp := goir.NewCallOperation(b.ctx, targetSymbol, resultTypes, args, b._noLoc)
+			appendOperation(bodyCtx, callOp)
+			appendOperation(bodyCtx, goir.NewReturnOperation(b.ctx, resultsOf(callOp), b._noLoc))
+		})
+
+		trampolineT := b.GetType(ctx, syntheticSig)
+		funcOp := mlir.NewOperationState("go.func", b._noLoc).
+			AddOwnedRegions(region).
+			AddAttributes(
+				b.namedOf("function_type", mlir.NewTypeAttr(trampolineT)),
+				b.namedOf("sym_name", mlir.NewStringAttr(b.ctx, symbol)),
+				b.namedOf("sym_visibility", mlir.NewStringAttr(b.ctx, "private")),
+				b.namedOf("promotedFrom", mlir.NewStringAttr(b.ctx, method.Name())),
+			).Create()
+
+		b.addToModuleMutex.Lock()
+		b.addToModule[symbol] = funcOp
+		b.addToModuleMutex.Unlock()
+		b.trampolines[symbol] = struct{}{}
+	}()
+
+	// Queue the target outside the trampoline mutex so queueJob's locks
+	// can't deadlock against ours. Idempotent if already queued.
+	b.queueJob(ctx, targetSymbol)
 	return symbol
 }

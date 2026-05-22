@@ -150,6 +150,20 @@ void FuncOp::print(::mlir::OpAsmPrinter& p)
   const auto symbolName = this->getSymName();
   const auto fnT = this->getFunctionType();
   const auto resultTypes = fnT.getResults();
+  const SmallVector<std::string> blacklist = {
+    "function_type",
+    "llvm.linkage",
+    "sym_name",
+    "sym_visibility",
+  };
+
+  SmallVector<NamedAttribute> attrs;
+  for (const auto& attr : this->getOperation()->getAttrs())
+  {
+    const std::string attrName = attr.getName().str();
+    if (llvm::is_contained(blacklist, attrName)) continue;
+    attrs.push_back(attr);
+  }
 
   const auto linkageAttr =
     mlir::dyn_cast_or_null<mlir::LLVM::LinkageAttr>(this->getOperation()->getAttr("llvm.linkage"));
@@ -174,6 +188,13 @@ void FuncOp::print(::mlir::OpAsmPrinter& p)
     }
 
     p.printSymbolName(symbolName);
+
+    if (!attrs.empty())
+    {
+      p.printOptionalAttrDictWithKeyword(attrs);
+      p << " ";
+    }
+
     p << " (";
     for (size_t i = 0; i < fnT.getNumInputs(); i++)
     {

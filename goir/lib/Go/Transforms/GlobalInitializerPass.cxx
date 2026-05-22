@@ -3,10 +3,10 @@
 #include <mlir/Dialect/LLVMIR/LLVMDialect.h>
 #include <mlir/IR/IRMapping.h>
 #include <mlir/Pass/Pass.h>
-#include <mlir/Target/LLVMIR/TypeToLLVM.h>
 
 #include "Go/IR/GoOps.h"
 #include "Go/Transforms/Passes.h"
+#include "Go/Transforms/Util.h"
 
 constexpr int32_t packageInitBasePriority = 1000000000;
 
@@ -41,9 +41,21 @@ struct GlobalInitializerPass : impl::GlobalInitializerPassBase<GlobalInitializer
     module->walk(
       [&](GlobalOp globalOp)
       {
-        if (!globalOp.getInitializerBlock() || succeeded(globalOp.hasValidInitializer()))
+        if (
+          !globalOp.getInitializerBlock() || succeeded(globalOp.hasValidInitializer())
+          //|| globalOp->hasAttr("go.immutable")
+        )
         {
           // Do not create a ctor function for this global.
+          return;
+        }
+
+        if (canMaterializeAsGlobalInitializer(globalOp))
+        {
+          // Do not create ctor.
+          // Let the global-lowering path emit llvm.mlir.global constant
+          // with either an attribute initializer or initializer region.
+          globalOp->setAttr("go.global.preserveBody", mlir::UnitAttr::get(context));
           return;
         }
 
@@ -61,6 +73,9 @@ struct GlobalInitializerPass : impl::GlobalInitializerPassBase<GlobalInitializer
           priority = priorityAttr.getInt();
           ctorFn->setAttr("go.ctor.priority", priorityAttr);
         }
+
+        // Guarantee that initializers do not have any write-barriers inserted.
+        ctorFn->setAttr("nowritebarrier", mlir::UnitAttr::get(context));
 
         // Insert into the ctors map.
         priorities.push_back(priority);
@@ -85,8 +100,13 @@ struct GlobalInitializerPass : impl::GlobalInitializerPassBase<GlobalInitializer
             AddressOfOp::create(builder, globalOp.getLoc(), addrType, globalOp.getSymName());
 
           // Store the yielded value at the global address.
-          StoreOp::create(builder, 
-            globalOp.getLoc(), yieldOp.getInitializerValue(), addr, UnitAttr(), UnitAttr());
+          StoreOp::create(
+            builder,
+            globalOp.getLoc(),
+            yieldOp.getInitializerValue(),
+            addr,
+            UnitAttr(),
+            UnitAttr());
 
           // Insert a void return.
           mlir::go::ReturnOp::create(builder, globalOp->getLoc());
@@ -124,8 +144,11 @@ struct GlobalInitializerPass : impl::GlobalInitializerPassBase<GlobalInitializer
       });
 
     // Create the LLVM ctors operation.
-    GlobalCtorsOp::create(builder, 
-      builder.getUnknownLoc(), builder.getArrayAttr(symbols), builder.getI32ArrayAttr(priorities));
+    GlobalCtorsOp::create(
+      builder,
+      builder.getUnknownLoc(),
+      builder.getArrayAttr(symbols),
+      builder.getI32ArrayAttr(priorities));
   }
 }; // namespace mlir::go
 

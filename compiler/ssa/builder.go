@@ -66,6 +66,9 @@ type Builder struct {
 	thunks     map[string]struct{}
 	thunkTypes map[string]thunkType
 
+	trampolines     map[string]struct{}
+	trampolineMutex sync.Mutex
+
 	// Pending hooks keyed by *ast.FuncLit. Set by synthetic-closure callers
 	// (e.g. range-over-func) so emitFuncLiteral can install body hooks even
 	// when the FuncLit is consumed indirectly via emitCallArgs/emitExpr,
@@ -127,6 +130,7 @@ func NewBuilder(config Config) *Builder {
 		thunkTypes:      map[string]thunkType{},
 		genericFuncs:    map[string]*funcData{},
 		builtinWrappers: map[string]string{},
+		trampolines:     map[string]struct{}{},
 
 		ungeneratedFuncs:    map[string]*ast.FuncDecl{},
 		funcDeclData:        map[string]*funcData{},
@@ -616,6 +620,19 @@ func (b *Builder) queueNamedTypeJobs(ctx context.Context, T *types.Named) {
 		// Need to generate methods for this named type in order for interfaces to function correctly.
 		symbol := qualifiedFuncName(T.Method(i))
 		b.queueJob(ctx, symbol)
+	}
+
+	if _, ok := types.Unalias(T.Underlying()).(*types.Struct); ok {
+		// Compute the spec-defined method set on *T (superset of T's).
+		mset := types.NewMethodSet(types.NewPointer(T))
+		for i := 0; i < mset.Len(); i++ {
+			sel := mset.At(i)
+			if len(sel.Index()) == 1 {
+				// Directly declared on T (or *T) — already queued by the loop above.
+				continue
+			}
+			b.createPromotedMethodTrampoline(ctx, T, sel)
+		}
 	}
 }
 

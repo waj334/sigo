@@ -257,34 +257,42 @@ func (b *Builder) createInterfaceType(ctx context.Context, T *types.Interface) g
 }
 
 func (b *Builder) createNamedType(ctx context.Context, T *types.Named) goir.NamedType {
-	// Format the qualified identifier for this type with respect to its origin package.
 	identifier := qualifiedName(T.Obj().Name(), T.Obj().Pkg())
-
-	// Add the identifier to the current context.
 	ctx = newContextWithIdentifier(ctx, identifier)
-
-	// Create the underlying type.
 	underlyingType := b.getTypeImpl(ctx, T.Underlying())
 	underlyingTypeHash := goir.TypeHash(underlyingType)
-
 	if T.TypeArgs().Len() > 0 {
 		identifier += fmt.Sprintf("$%X", underlyingTypeHash)
 	}
 
-	// Collect method symbols.
-	entries := make([]mlir.AttributeLike, T.NumMethods())
+	// Direct methods.
+	entries := make([]mlir.AttributeLike, 0, T.NumMethods())
 	for i := 0; i < T.NumMethods(); i++ {
 		method := T.Method(i)
-		symbol := qualifiedFuncName(method)
-		refAttr := mlir.NewFlatSymbolRefAttr(b.ctx, symbol)
-		entries[i] = refAttr
+		entries = append(entries,
+			mlir.NewFlatSymbolRefAttr(b.ctx, qualifiedFuncName(method)))
 	}
-	methodSymbols := mlir.NewArrayAttr(b.ctx, entries)
 
-	// Create the named type now.
+	// Promoted methods (struct underlying only — interfaces don't promote,
+	// and other underlying kinds can't have embedded fields).
+	if _, isStruct := types.Unalias(T.Underlying()).(*types.Struct); isStruct {
+		mset := types.NewMethodSet(types.NewPointer(T))
+		for i := 0; i < mset.Len(); i++ {
+			sel := mset.At(i)
+			if len(sel.Index()) == 1 {
+				// Directly declared — already in the entries above.
+				continue
+			}
+			trampSym := promotedTrampolineSymbol(T, sel.Obj().Name())
+			entries = append(entries,
+				mlir.NewFlatSymbolRefAttr(b.ctx, trampSym))
+		}
+	}
+
+	methodSymbols := mlir.NewArrayAttr(b.ctx, entries)
 	result := goir.NewNamedType(underlyingType, identifier, methodSymbols)
 
-	// Prevent infinite recursion within metadata and mutually recursive types by mapping the named type now.
+	// Existing cache/recursion handling unchanged.
 	if instCache := currentInstanceTypeCache(ctx); instCache != nil && containsTypeParam(T) {
 		procSet := currentTypeProcessingSet(ctx)
 		if procSet != nil && procSet[T] {
@@ -295,7 +303,6 @@ func (b *Builder) createNamedType(ctx context.Context, T *types.Named) goir.Name
 	} else {
 		b.typeCache[T] = result
 	}
-
 	return result
 }
 

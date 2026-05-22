@@ -196,28 +196,6 @@ func lwipLookupIPv4(name string, timeout time.Duration) ([4]byte, error) {
 	req.nameC[len(name)] = 0
 	req.name = name
 
-	// DIAG: dump DNS server and queried name before issuing the lookup.
-	{
-		s := dnsGetServerV4(0)
-		print("DNS server: ")
-		print(s[0])
-		print(".")
-		print(s[1])
-		print(".")
-		print(s[2])
-		print(".")
-		print(s[3])
-		print("\n")
-		print("DNS query name bytes (")
-		print(len(req.nameC))
-		print("):")
-		for _, b := range req.nameC {
-			print(" ")
-			print(b)
-		}
-		print("\n")
-	}
-
 	var addr ipAddr
 
 	// Issue the lookup on the lwIP goroutine. The callback may fire
@@ -312,26 +290,7 @@ func lwipLookupIPv4(name string, timeout time.Duration) ([4]byte, error) {
 //
 //go:export dnsFound dns_found_callback
 func dnsFound(name unsafe.Pointer, ipaddr *ipAddr, arg unsafe.Pointer) {
-	_ = name
-	// DIAG: dump what the callback actually receives.
-	{
-		ip := ipAddrGetV4(ipaddr)
-		print("dnsFound: name=")
-		print(uintptr(name))
-		print(" ipaddr=")
-		print(uintptr(unsafe.Pointer(ipaddr)))
-		print(" arg=")
-		print(uintptr(arg))
-		print(" parsed=")
-		print(ip[0])
-		print(".")
-		print(ip[1])
-		print(".")
-		print(ip[2])
-		print(".")
-		print(ip[3])
-		print("\n")
-	}
+	_ = name // Unused.
 	req := (*dnsRequest)(arg)
 
 	// Find the slot containing this request. We could store the slot

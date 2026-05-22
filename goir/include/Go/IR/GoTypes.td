@@ -121,6 +121,15 @@ def Go_Aggregate : AnyTypeOrNamedOf<[
     Go_Struct
 ]>;
 
+def Go_Nilable : AnyTypeOrNamedOf<[
+    Go_Chan,
+    Go_Function,
+    Go_Interface,
+    Go_Map,
+    Go_Pointer,
+    Go_Slice
+]>;
+
 def Go_Type : AnyTypeOrNamedOf<[
     Go_Array,
     Go_Bool,
@@ -137,5 +146,6 @@ def Go_Type : AnyTypeOrNamedOf<[
     Go_Struct,
     UntypedNil
 ]>;
+
 
 #endif // GO_TYPES

@@ -136,6 +136,12 @@ struct ValueNormalizationPass : public BaseT
             continue;
           }
 
+          if (!expectedType)
+          {
+            op->dump();
+            op->getLoc().dump();
+          }
+
           const auto definingOp = operand.getDefiningOp();
           if (!definingOp)
           {

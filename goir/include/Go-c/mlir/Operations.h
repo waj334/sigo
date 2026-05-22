@@ -248,16 +248,30 @@ extern "C"
   // Unary Operations
   //===----------------------------------------------------------------------===//
 
-  MlirOperation
-  mlirGoCreateComplementOperation(const MlirContext context, const MlirValue x, const MlirLocation location);
+  MlirOperation mlirGoCreateComplementOperation(
+    const MlirContext context,
+    const MlirValue x,
+    const MlirLocation location);
 
-  MlirOperation mlirGoCreateNegCOperation(const MlirContext context, const MlirValue x, const MlirLocation location);
+  MlirOperation mlirGoCreateNegCOperation(
+    const MlirContext context,
+    const MlirValue x,
+    const MlirLocation location);
 
-  MlirOperation mlirGoCreateNegFOperation(const MlirContext context, const MlirValue x, const MlirLocation location);
+  MlirOperation mlirGoCreateNegFOperation(
+    const MlirContext context,
+    const MlirValue x,
+    const MlirLocation location);
 
-  MlirOperation mlirGoCreateNegIOperation(const MlirContext context, const MlirValue x, const MlirLocation location);
+  MlirOperation mlirGoCreateNegIOperation(
+    const MlirContext context,
+    const MlirValue x,
+    const MlirLocation location);
 
-  MlirOperation mlirGoCreateNotOperation(const MlirContext context, const MlirValue x, const MlirLocation location);
+  MlirOperation mlirGoCreateNotOperation(
+    const MlirContext context,
+    const MlirValue x,
+    const MlirLocation location);
 
   //===----------------------------------------------------------------------===//
   // Map Operations
@@ -355,11 +369,14 @@ extern "C"
     const MlirAttribute linkage,
     const MlirStringRef symbol,
     const MlirStringRef section,
+    const MlirAttribute alignment,
     const MlirType type,
     const MlirLocation location);
 
-  MlirOperation
-  mlirGoCreateYieldOperation(const MlirContext context, const MlirValue value, const MlirLocation location);
+  MlirOperation mlirGoCreateYieldOperation(
+    const MlirContext context,
+    const MlirValue value,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateSliceOperation(
     const MlirContext context,
@@ -376,8 +393,10 @@ extern "C"
     const MlirType resultType,
     const MlirLocation location);
 
-  MlirOperation
-  mlirGoCreateNilPointerCheckOperation(const MlirContext context, const MlirValue addr, const MlirLocation location);
+  MlirOperation mlirGoCreateNilPointerCheckOperation(
+    const MlirContext context,
+    const MlirValue addr,
+    const MlirLocation location);
 
   //===----------------------------------------------------------------------===//
   // Slice Operations
@@ -585,11 +604,15 @@ extern "C"
   // Builtin Operations
   //===----------------------------------------------------------------------===//
 
-  MlirOperation
-  mlirGoCreatePanicOperation(const MlirContext context, const MlirValue value, const MlirLocation location);
+  MlirOperation mlirGoCreatePanicOperation(
+    const MlirContext context,
+    const MlirValue value,
+    const MlirLocation location);
 
-  MlirOperation
-  mlirGoCreateRecoverOperation(const MlirContext context, const MlirType type, const MlirLocation location);
+  MlirOperation mlirGoCreateRecoverOperation(
+    const MlirContext context,
+    const MlirType type,
+    const MlirLocation location);
 
   //===----------------------------------------------------------------------===//
   // Atomic Operations
@@ -776,8 +799,15 @@ extern "C"
   // Value Operations
   //===----------------------------------------------------------------------===//
 
-  MlirOperation
-  mlirGoCreateZeroOperation(const MlirContext context, const MlirType type, const MlirLocation location);
+  MlirOperation mlirGoCreateZeroOperation(
+    const MlirContext context,
+    const MlirType type,
+    const MlirLocation location);
+
+  MlirOperation mlirGoCreateNilOperation(
+    const MlirContext context,
+    const MlirType type,
+    const MlirLocation location);
 
   MlirOperation mlirGoCreateComplexOperation(
     const MlirContext context,

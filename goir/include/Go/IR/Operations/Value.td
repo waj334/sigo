@@ -12,10 +12,10 @@ include "mlir/IR/OpBase.td"
 // ZeroOp
 //===----------------------------------------------------------------------===//
 
-def ZeroOp : Go_Op<"zero", [NoMemoryEffect]> {
+def ZeroOp : Go_Op<"zero", [Pure, NoMemoryEffect]> {
     let summary = "Zero value of type operation";
     let description = [{
-        The `go.constant.zero` operation returns the zero value of the
+        The `go.zero` operation returns the zero value of the
         specified type.
 
         ```mlir
@@ -23,8 +23,38 @@ def ZeroOp : Go_Op<"zero", [NoMemoryEffect]> {
         %1 = go.zero : !go.struct<{i32, i64}>
         ```
     }];
-    //let hasFolder = 1;
+    let hasFolder = 1;
     let results = (outs Go_Type:$result);
+    let assemblyFormat = [{
+        attr-dict `:` type($result)
+    }];
+}
+
+//===----------------------------------------------------------------------===//
+// NipOp
+//===----------------------------------------------------------------------===//
+
+def NilOp : Go_Op<"nil", [Pure]> {
+    let summary = "typed nil value";
+
+    let description = [{
+        The `go.nil` operation returns the nil value of the specified nil-capable
+        Go type.
+
+        ```mlir
+        %0 = go.nil : !go.chan<!go.struct<{}>, RecvOnly>
+        %1 = go.nil : !go.ptr<!go.ui32>
+        %2 = go.nil : !go.map<!go.string, !go.int>
+        %3 = go.nil : !go.slice<!go.i32>
+        %4 = go.nil : !go.interface<{}>
+
+        // Named nil-capable types are also valid:
+        %5 = go.nil : !go.named<"MyChan", !go.chan<!go.i32>>
+        ```
+    }];
+
+    let results = (outs Go_Nilable:$result);
+
     let assemblyFormat = [{
         attr-dict `:` type($result)
     }];

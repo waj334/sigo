@@ -62,6 +62,7 @@ func Poll() {
 				select {
 				case frame := <-ni.rx:
 					ni.feedFrame(frame)
+					frame.Release()
 				default:
 				}
 			}

@@ -55,8 +55,8 @@ std::string typeInfoSymbol(const mlir::Type& type, const std::string& prefix)
 {
   mlir::OpBuilder::InsertionGuard guard(builder);
   builder.setInsertionPointToStart(module.getBody());
-  return ::mlir::LLVM::GlobalOp::create(builder, 
-    loc, type, true, mlir::LLVM::Linkage::External, symbol, Attribute());
+  return ::mlir::LLVM::GlobalOp::create(
+    builder, loc, type, true, mlir::LLVM::Linkage::External, symbol, Attribute());
 }
 
 ::mlir::LLVM::GlobalOp createGlobal(
@@ -119,13 +119,15 @@ Value createGoStringValue(
   Value gostrValue = mlir::LLVM::ZeroOp::create(builder, loc, gostrType);
 
   // Insert the C string address into the Go string struct value.
-  gostrValue = mlir::LLVM::InsertValueOp::create(builder, loc, gostrValue, cstrValue, ArrayRef<int64_t>{0});
+  gostrValue =
+    mlir::LLVM::InsertValueOp::create(builder, loc, gostrValue, cstrValue, ArrayRef<int64_t>{ 0 });
 
   // Insert the string length value into the Go string struct value return the resulting Go string
   // value.
   Value lengthValue =
     mlir::LLVM::ConstantOp::create(builder, loc, builder.getI32Type(), value.size());
-  return mlir::LLVM::InsertValueOp::create(builder, loc, gostrValue, lengthValue, ArrayRef<int64_t>{1});
+  return mlir::LLVM::InsertValueOp::create(
+    builder, loc, gostrValue, lengthValue, ArrayRef<int64_t>{ 1 });
 }
 
 Value createSliceValue(
@@ -156,7 +158,8 @@ Value createSliceValue(
       Value arrValue = mlir::LLVM::ZeroOp::create(builder, loc, arrayType);
       for (size_t i = 0; i < length; i++)
       {
-        arrValue = mlir::LLVM::InsertValueOp::create(builder, loc, arrValue, values[i], ArrayRef<int64_t>{static_cast<int64_t>(i)});
+        arrValue = mlir::LLVM::InsertValueOp::create(
+          builder, loc, arrValue, values[i], ArrayRef<int64_t>{ static_cast<int64_t>(i) });
       }
       mlir::LLVM::ReturnOp::create(builder, loc, arrValue);
     });
@@ -166,12 +169,15 @@ Value createSliceValue(
 
   // Insert the address of the backing array for the slice.
   Value arrValue = mlir::LLVM::AddressOfOp::create(builder, loc, arrGlobalOp);
-  goSliceValue = mlir::LLVM::InsertValueOp::create(builder, loc, goSliceValue, arrValue, ArrayRef<int64_t>{0});
+  goSliceValue =
+    mlir::LLVM::InsertValueOp::create(builder, loc, goSliceValue, arrValue, ArrayRef<int64_t>{ 0 });
 
   // Insert the length and capacity values.
   Value lengthValue = mlir::LLVM::ConstantOp::create(builder, loc, builder.getI32Type(), length);
-  goSliceValue = mlir::LLVM::InsertValueOp::create(builder, loc, goSliceValue, lengthValue, ArrayRef<int64_t>{1});
-  goSliceValue = mlir::LLVM::InsertValueOp::create(builder, loc, goSliceValue, lengthValue, ArrayRef<int64_t>{2});
+  goSliceValue = mlir::LLVM::InsertValueOp::create(
+    builder, loc, goSliceValue, lengthValue, ArrayRef<int64_t>{ 1 });
+  goSliceValue = mlir::LLVM::InsertValueOp::create(
+    builder, loc, goSliceValue, lengthValue, ArrayRef<int64_t>{ 2 });
   return goSliceValue;
 }
 
@@ -207,11 +213,12 @@ mlir::LLVM::GlobalOp createSignatureDataGlobal(
       // Insert the receiver type data if present.
       if (const auto receiverType = type.getReceiver())
       {
-        auto receiverTypeDataGlobalOp = createTypeInfo(builder, module, loc, receiverType, converter);
+        auto receiverTypeDataGlobalOp =
+          createTypeInfo(builder, module, loc, receiverType, converter);
         Value receiverTypeDataValue =
           mlir::LLVM::AddressOfOp::create(builder, loc, receiverTypeDataGlobalOp);
-        dataValue =
-          mlir::LLVM::InsertValueOp::create(builder, loc, dataValue, receiverTypeDataValue, ArrayRef<int64_t>{0});
+        dataValue = mlir::LLVM::InsertValueOp::create(
+          builder, loc, dataValue, receiverTypeDataValue, ArrayRef<int64_t>{ 0 });
       }
 
       const uint64_t numInputs = type.getNumInputs();
@@ -222,7 +229,8 @@ mlir::LLVM::GlobalOp createSignatureDataGlobal(
         for (auto i = 0; i < type.getNumInputs(); i++)
         {
           // Create the type info for the input type.
-          auto inputTypeInfoGlobalOp = createTypeInfo(builder, module, loc, type.getInput(i), converter);
+          auto inputTypeInfoGlobalOp =
+            createTypeInfo(builder, module, loc, type.getInput(i), converter);
 
           // Get the address of the input type info.
           Value inputTypeInfoValue =
@@ -235,7 +243,8 @@ mlir::LLVM::GlobalOp createSignatureDataGlobal(
       // Insert the slice value for the inputs type data.
       Value inputsSliceValue = createSliceValue(
         builder, module, converter, symbol + "_inputs", ptrType, numInputs, inputGeneratorFn, loc);
-      dataValue = mlir::LLVM::InsertValueOp::create(builder, loc, dataValue, inputsSliceValue, ArrayRef<int64_t>{1});
+      dataValue = mlir::LLVM::InsertValueOp::create(
+        builder, loc, dataValue, inputsSliceValue, ArrayRef<int64_t>{ 1 });
 
       auto resultGeneratorFn = [&](OpBuilder& builder)
       {
@@ -244,7 +253,8 @@ mlir::LLVM::GlobalOp createSignatureDataGlobal(
         for (size_t i = 0; i < type.getNumResults(); i++)
         {
           // Create the type info for the result type.
-          auto resultTypeInfoGlobalOp = createTypeInfo(builder, module, loc, type.getResult(i), converter);
+          auto resultTypeInfoGlobalOp =
+            createTypeInfo(builder, module, loc, type.getResult(i), converter);
 
           // Get the address of the result type info.
           Value resultTypeInfoValue =
@@ -264,7 +274,8 @@ mlir::LLVM::GlobalOp createSignatureDataGlobal(
         type.getNumResults(),
         resultGeneratorFn,
         loc);
-      dataValue = mlir::LLVM::InsertValueOp::create(builder, loc, dataValue, resultsSliceValue, ArrayRef<int64_t>{2});
+      dataValue = mlir::LLVM::InsertValueOp::create(
+        builder, loc, dataValue, resultsSliceValue, ArrayRef<int64_t>{ 2 });
 
       // Yield the function type data.
       mlir::LLVM::ReturnOp::create(builder, loc, dataValue);
@@ -325,15 +336,16 @@ mlir::LLVM::GlobalOp createTypeInfo(
               Value dataValue = mlir::LLVM::ZeroOp::create(builder, loc, arrayTypeDataType);
 
               // Insert the length value.
-              Value lengthValue =
-                mlir::LLVM::ConstantOp::create(builder, loc, builder.getI16Type(), type.getLength());
-              dataValue = mlir::LLVM::InsertValueOp::create(builder, loc, dataValue, lengthValue, ArrayRef<int64_t>{0});
+              Value lengthValue = mlir::LLVM::ConstantOp::create(
+                builder, loc, builder.getI16Type(), type.getLength());
+              dataValue = mlir::LLVM::InsertValueOp::create(
+                builder, loc, dataValue, lengthValue, ArrayRef<int64_t>{ 0 });
 
               // Insert the element type data pointer value.
               Value elementTypeDataValue =
                 mlir::LLVM::AddressOfOp::create(builder, loc, elementTypeDataGlobalOp);
-              dataValue =
-                mlir::LLVM::InsertValueOp::create(builder, loc, dataValue, elementTypeDataValue, ArrayRef<int64_t>{1});
+              dataValue = mlir::LLVM::InsertValueOp::create(
+                builder, loc, dataValue, elementTypeDataValue, ArrayRef<int64_t>{ 1 });
 
               // Yield the array type data value.
               mlir::LLVM::ReturnOp::create(builder, loc, dataValue);
@@ -364,14 +376,14 @@ mlir::LLVM::GlobalOp createTypeInfo(
               // Insert the element type data value.
               Value elementTypeDataValue =
                 mlir::LLVM::AddressOfOp::create(builder, loc, elementTypeDataGlobalOp);
-              dataValue =
-                mlir::LLVM::InsertValueOp::create(builder, loc, dataValue, elementTypeDataValue, ArrayRef<int64_t>{0});
+              dataValue = mlir::LLVM::InsertValueOp::create(
+                builder, loc, dataValue, elementTypeDataValue, ArrayRef<int64_t>{ 0 });
 
               // Insert the direction value.
-              Value directionVal = mlir::LLVM::ConstantOp::create(builder, 
-                loc, builder.getI8Type(), static_cast<uint64_t>(type.getDirection()));
-              dataValue =
-                mlir::LLVM::InsertValueOp::create(builder, loc, dataValue, directionVal, ArrayRef<int64_t>{1});
+              Value directionVal = mlir::LLVM::ConstantOp::create(
+                builder, loc, builder.getI8Type(), static_cast<uint64_t>(type.getDirection()));
+              dataValue = mlir::LLVM::InsertValueOp::create(
+                builder, loc, dataValue, directionVal, ArrayRef<int64_t>{ 1 });
 
               // Yield the chan type data value.
               mlir::LLVM::ReturnOp::create(builder, loc, dataValue);
@@ -418,17 +430,18 @@ mlir::LLVM::GlobalOp createTypeInfo(
                       mlir::LLVM::ZeroOp::create(builder, loc, interfaceMethodDataType);
 
                     // Insert the method hash id value.
-                    Value methodIdValue = mlir::LLVM::ConstantOp::create(builder, 
-                      loc, builder.getI32Type(), static_cast<uint64_t>(id));
-                    dataValue =
-                      mlir::LLVM::InsertValueOp::create(builder, loc, dataValue, methodIdValue, ArrayRef<int64_t>{0});
+                    Value methodIdValue = mlir::LLVM::ConstantOp::create(
+                      builder, loc, builder.getI32Type(), static_cast<uint64_t>(id));
+                    dataValue = mlir::LLVM::InsertValueOp::create(
+                      builder, loc, dataValue, methodIdValue, ArrayRef<int64_t>{ 0 });
 
                     // Insert the method signature data.
-                    auto methodSignatureDataGlobalOp = createTypeInfo(builder, module, loc, func, converter);
+                    auto methodSignatureDataGlobalOp =
+                      createTypeInfo(builder, module, loc, func, converter);
                     Value methodSignatureDataValue =
                       mlir::LLVM::AddressOfOp::create(builder, loc, methodSignatureDataGlobalOp);
-                    dataValue = mlir::LLVM::InsertValueOp::create(builder,
-                      loc, dataValue, methodSignatureDataValue, ArrayRef<int64_t>{1});
+                    dataValue = mlir::LLVM::InsertValueOp::create(
+                      builder, loc, dataValue, methodSignatureDataValue, ArrayRef<int64_t>{ 1 });
 
                     // Yield the interface method data value.
                     mlir::LLVM::ReturnOp::create(builder, loc, dataValue);
@@ -461,8 +474,8 @@ mlir::LLVM::GlobalOp createTypeInfo(
                   return values;
                 },
                 loc);
-              dataValue = mlir::LLVM::InsertValueOp::create(builder,
-                loc, dataValue, interfaceMethodsDataSliceValue, ArrayRef<int64_t>{0});
+              dataValue = mlir::LLVM::InsertValueOp::create(
+                builder, loc, dataValue, interfaceMethodsDataSliceValue, ArrayRef<int64_t>{ 0 });
 
               // Yield the interface data value.
               mlir::LLVM::ReturnOp::create(builder, loc, dataValue);
@@ -477,7 +490,8 @@ mlir::LLVM::GlobalOp createTypeInfo(
           const auto methodSymbols = type.getMethods();
 
           // Create the type data for the named type's underlying type.
-          auto underlyingTypeDataGlobalOp = createTypeInfo(builder, module, loc, underlyingType, converter);
+          auto underlyingTypeDataGlobalOp =
+            createTypeInfo(builder, module, loc, underlyingType, converter);
 
           // Create the method data slice if there is metadata about them stored in the extra data
           // map.
@@ -486,19 +500,22 @@ mlir::LLVM::GlobalOp createTypeInfo(
 
           // Pre-build a map from base symbol to instance functions for efficient
           // generic instance resolution (avoids up to 64 symbol lookups per method).
-          llvm::StringMap<SmallVector<std::pair<std::string, mlir::FunctionOpInterface>>> instanceMap;
-          module.walk([&](mlir::Operation* op) {
-            if (auto funcIface = dyn_cast<mlir::FunctionOpInterface>(op))
+          llvm::StringMap<SmallVector<std::pair<std::string, mlir::FunctionOpInterface>>>
+            instanceMap;
+          module.walk(
+            [&](mlir::Operation* op)
             {
-              StringRef name = funcIface.getName();
-              auto dollarPos = name.find("$instance_");
-              if (dollarPos != StringRef::npos)
+              if (auto funcIface = dyn_cast<mlir::FunctionOpInterface>(op))
               {
-                StringRef base = name.substr(0, dollarPos);
-                instanceMap[base].emplace_back(name.str(), funcIface);
+                StringRef name = funcIface.getName();
+                auto dollarPos = name.find("$instance_");
+                if (dollarPos != StringRef::npos)
+                {
+                  StringRef base = name.substr(0, dollarPos);
+                  instanceMap[base].emplace_back(name.str(), funcIface);
+                }
               }
-            }
-          });
+            });
 
           // Create the function data globals.
           funcDataGlobalOps.reserve(methodSymbols.size());
@@ -522,11 +539,9 @@ mlir::LLVM::GlobalOp createTypeInfo(
                 for (auto& [instanceSymbol, candidateOp] : it->second)
                 {
                   // Verify this instance's receiver type matches the current named type.
-                  if (auto attr =
-                        candidateOp->getAttrOfType<mlir::TypeAttr>("originalType"))
+                  if (auto attr = candidateOp->getAttrOfType<mlir::TypeAttr>("originalType"))
                   {
-                    if (auto candidateFnT =
-                          dyn_cast<FunctionType>(attr.getValue()))
+                    if (auto candidateFnT = dyn_cast<FunctionType>(attr.getValue()))
                     {
                       if (candidateFnT.hasReceiver())
                       {
@@ -554,21 +569,47 @@ mlir::LLVM::GlobalOp createTypeInfo(
               continue;
             }
 
+            // Resolve the function type. For methods emitted from Go source, the
+            // pre-instantiation/uncanonicalized go.FunctionType lives on the
+            // "originalType" attribute. Promoted-method trampolines emitted by the
+            // SSA layer don't set originalType, but their "function_type" attribute
+            // already carries the same go.FunctionType (built from the synthetic
+            // types.Signature, not LLVM-lowered).
             if (auto originalTypeAttr = funcOp->getAttrOfType<mlir::TypeAttr>("originalType"))
             {
               fnT = mlir::dyn_cast<mlir::go::FunctionType>(originalTypeAttr.getValue());
             }
+            if (!fnT)
+            {
+              if (auto functionTypeAttr = funcOp->getAttrOfType<mlir::TypeAttr>("function_type"))
+              {
+                fnT = mlir::dyn_cast<mlir::go::FunctionType>(functionTypeAttr.getValue());
+              }
+            }
 
             assert(fnT && "function type is unknown");
 
-            // Compute the hash id for the type method.
-            auto methodName = funcSymbol.getValue();
-            methodName = methodName.substr(methodName.find_last_of(".") + 1);
+            // Compute the hash id for the type method. For promoted-method
+            // trampolines, the trampoline's symbol carries a synthetic suffix
+            // and isn't what the interface side hashes against. Prefer the
+            // "promotedFrom" attribute, which holds the original method name
+            // ("Deadline") that interfaces use.
+            StringRef methodName;
+            if (auto promotedAttr = funcOp->getAttrOfType<mlir::StringAttr>("promotedFrom"))
+            {
+              methodName = promotedAttr.getValue();
+            }
+            else
+            {
+              methodName = funcSymbol.getValue();
+              methodName = methodName.substr(methodName.find_last_of(".") + 1);
+            }
             const auto methodHashId =
               computeMethodHash(methodName, fnT.getInputs(), fnT.getResults());
 
             // Create the type info for this function's signature.
-            auto signatureTypeDataGlobalOp = createSignatureDataGlobal(builder, module, loc, fnT, converter);
+            auto signatureTypeDataGlobalOp =
+              createSignatureDataGlobal(builder, module, loc, fnT, converter);
 
             // Determine the symbol to use for the function pointer in the method table.
             // For value receiver methods, generate a wrapper thunk that loads the receiver
@@ -596,8 +637,8 @@ mlir::LLVM::GlobalOp createTypeInfo(
                 else if (auto stdFunc = dyn_cast<mlir::func::FuncOp>(funcOp.getOperation()))
                 {
                   mlir::TypeConverter::SignatureConversion sigConv(stdFunc.getNumArguments());
-                  llvmFuncType = cast<mlir::LLVM::LLVMFunctionType>(
-                    converter.convertFunctionSignature(
+                  llvmFuncType =
+                    cast<mlir::LLVM::LLVMFunctionType>(converter.convertFunctionSignature(
                       stdFunc.getFunctionType(), false, false, sigConv));
                 }
 
@@ -612,15 +653,15 @@ mlir::LLVM::GlobalOp createTypeInfo(
                   for (size_t i = 1; i < llvmFuncType.getNumParams(); i++)
                     wrapperParams.push_back(llvmFuncType.getParams()[i]);
 
-                  auto wrapperFnType = mlir::LLVM::LLVMFunctionType::get(
-                    llvmFuncType.getReturnType(), wrapperParams);
+                  auto wrapperFnType =
+                    mlir::LLVM::LLVMFunctionType::get(llvmFuncType.getReturnType(), wrapperParams);
 
                   // Create the wrapper function.
                   mlir::OpBuilder::InsertionGuard wrapperGuard(builder);
                   builder.setInsertionPointToEnd(module.getBody());
 
-                  auto wrapperOp = mlir::LLVM::LLVMFuncOp::create(
-                    builder, loc, wrapperName, wrapperFnType);
+                  auto wrapperOp =
+                    mlir::LLVM::LLVMFuncOp::create(builder, loc, wrapperName, wrapperFnType);
                   wrapperOp.setLinkage(mlir::LLVM::Linkage::Private);
 
                   auto* entry = wrapperOp.addEntryBlock(builder);
@@ -628,8 +669,8 @@ mlir::LLVM::GlobalOp createTypeInfo(
 
                   // Load the receiver value from the pointer.
                   Value recvPtr = entry->getArgument(0);
-                  Value loadedRecv = mlir::LLVM::LoadOp::create(
-                    builder, loc, receiverLLVMType, recvPtr);
+                  Value loadedRecv =
+                    mlir::LLVM::LoadOp::create(builder, loc, receiverLLVMType, recvPtr);
 
                   // Build call args: [loaded_receiver, arg1, arg2, ...]
                   SmallVector<Value> callArgs;
@@ -639,13 +680,15 @@ mlir::LLVM::GlobalOp createTypeInfo(
 
                   // Call the actual method.
                   auto callOp = mlir::LLVM::CallOp::create(
-                    builder, loc, llvmFuncType,
+                    builder,
+                    loc,
+                    llvmFuncType,
                     FlatSymbolRefAttr::get(builder.getContext(), resolvedFuncSymbol),
                     callArgs);
-                  callOp.getProperties().operandSegmentSizes =
-                    { { static_cast<int32_t>(callArgs.size()), 0 } };
-                  callOp.getProperties().op_bundle_sizes =
-                    builder.getDenseI32ArrayAttr({});
+                  callOp.getProperties().operandSegmentSizes = {
+                    { static_cast<int32_t>(callArgs.size()), 0 }
+                  };
+                  callOp.getProperties().op_bundle_sizes = builder.getDenseI32ArrayAttr({});
 
                   // Return results.
                   if (mlir::isa<mlir::LLVM::LLVMVoidType>(llvmFuncType.getReturnType()))
@@ -683,21 +726,23 @@ mlir::LLVM::GlobalOp createTypeInfo(
                 // Insert the method id value.
                 Value methodIdValue =
                   mlir::LLVM::ConstantOp::create(builder, loc, builder.getI32Type(), methodHashId);
-                funcDataValue =
-                  mlir::LLVM::InsertValueOp::create(builder, loc, funcDataValue, methodIdValue, ArrayRef<int64_t>{0});
+                funcDataValue = mlir::LLVM::InsertValueOp::create(
+                  builder, loc, funcDataValue, methodIdValue, ArrayRef<int64_t>{ 0 });
 
                 // Insert the address to the function (wrapper thunk or direct method).
-                Value funcPtrValue =
-                  mlir::LLVM::AddressOfOp::create(builder, loc, ptrType,
-                    FlatSymbolRefAttr::get(builder.getContext(), funcPtrSymbolStr));
-                funcDataValue =
-                  mlir::LLVM::InsertValueOp::create(builder, loc, funcDataValue, funcPtrValue, ArrayRef<int64_t>{1});
+                Value funcPtrValue = mlir::LLVM::AddressOfOp::create(
+                  builder,
+                  loc,
+                  ptrType,
+                  FlatSymbolRefAttr::get(builder.getContext(), funcPtrSymbolStr));
+                funcDataValue = mlir::LLVM::InsertValueOp::create(
+                  builder, loc, funcDataValue, funcPtrValue, ArrayRef<int64_t>{ 1 });
 
                 // Insert the address to the signature type data.
                 Value signatureTypeDataValue =
                   mlir::LLVM::AddressOfOp::create(builder, loc, signatureTypeDataGlobalOp);
-                funcDataValue = mlir::LLVM::InsertValueOp::create(builder,
-                  loc, funcDataValue, signatureTypeDataValue, ArrayRef<int64_t>{2});
+                funcDataValue = mlir::LLVM::InsertValueOp::create(
+                  builder, loc, funcDataValue, signatureTypeDataValue, ArrayRef<int64_t>{ 2 });
 
                 // Yield the function data value.
                 mlir::LLVM::ReturnOp::create(builder, loc, funcDataValue);
@@ -721,8 +766,8 @@ mlir::LLVM::GlobalOp createTypeInfo(
               // Insert the underlying type data.
               Value underlyingTypeDataValue =
                 mlir::LLVM::AddressOfOp::create(builder, loc, underlyingTypeDataGlobalOp);
-              dataValue = mlir::LLVM::InsertValueOp::create(builder,
-                loc, dataValue, underlyingTypeDataValue, ArrayRef<int64_t>{0});
+              dataValue = mlir::LLVM::InsertValueOp::create(
+                builder, loc, dataValue, underlyingTypeDataValue, ArrayRef<int64_t>{ 0 });
 
               if (!funcDataGlobalOps.empty())
               {
@@ -748,8 +793,8 @@ mlir::LLVM::GlobalOp createTypeInfo(
                   loc);
 
                 // Insert the methods data slice value.
-                dataValue = mlir::LLVM::InsertValueOp::create(builder,
-                  loc, dataValue, nameTypeMethodsValue, ArrayRef<int64_t>{1});
+                dataValue = mlir::LLVM::InsertValueOp::create(
+                  builder, loc, dataValue, nameTypeMethodsValue, ArrayRef<int64_t>{ 1 });
               }
 
               mlir::LLVM::ReturnOp::create(builder, loc, dataValue);
@@ -759,10 +804,12 @@ mlir::LLVM::GlobalOp createTypeInfo(
         [&](MapType type)
         {
           // Create the key type data.
-          auto keyTypeDataGlobalOp = createTypeInfo(builder, module, loc, type.getKeyType(), converter);
+          auto keyTypeDataGlobalOp =
+            createTypeInfo(builder, module, loc, type.getKeyType(), converter);
 
           // Create the element type data.
-          auto elementTypeDataGlobalOp = createTypeInfo(builder, module, loc, type.getValueType(), converter);
+          auto elementTypeDataGlobalOp =
+            createTypeInfo(builder, module, loc, type.getValueType(), converter);
 
           // Create the map type data.
           const auto symbol = typeInfoSymbol(type, "map");
@@ -782,14 +829,14 @@ mlir::LLVM::GlobalOp createTypeInfo(
               // Insert the key type data pointer value.
               Value keyTypeDataValue =
                 mlir::LLVM::AddressOfOp::create(builder, loc, keyTypeDataGlobalOp);
-              dataValue =
-                mlir::LLVM::InsertValueOp::create(builder, loc, dataValue, keyTypeDataValue, ArrayRef<int64_t>{0});
+              dataValue = mlir::LLVM::InsertValueOp::create(
+                builder, loc, dataValue, keyTypeDataValue, ArrayRef<int64_t>{ 0 });
 
               // Insert the element type data pointer value.
               Value elementTypeDataValue =
                 mlir::LLVM::AddressOfOp::create(builder, loc, elementTypeDataGlobalOp);
-              dataValue =
-                mlir::LLVM::InsertValueOp::create(builder, loc, dataValue, elementTypeDataValue, ArrayRef<int64_t>{1});
+              dataValue = mlir::LLVM::InsertValueOp::create(
+                builder, loc, dataValue, elementTypeDataValue, ArrayRef<int64_t>{ 1 });
 
               // Yield the map data value.
               mlir::LLVM::ReturnOp::create(builder, loc, dataValue);
@@ -857,22 +904,22 @@ mlir::LLVM::GlobalOp createTypeInfo(
                       Value typePtr =
                         mlir::LLVM::AddressOfOp::create(builder, loc, fieldTypeInfoGlobals[i]);
                       fieldValue = mlir::LLVM::InsertValueOp::create(
-                        builder, loc, fieldValue, typePtr, ArrayRef<int64_t>{0});
+                        builder, loc, fieldValue, typePtr, ArrayRef<int64_t>{ 0 });
 
                       // Insert tag string (index 1).
                       if (tags && !tags.empty())
                       {
-                        Value tagValue = createGoStringValue(
-                          builder, module, converter, tags.getValue(), loc);
+                        Value tagValue =
+                          createGoStringValue(builder, module, converter, tags.getValue(), loc);
                         fieldValue = mlir::LLVM::InsertValueOp::create(
-                          builder, loc, fieldValue, tagValue, ArrayRef<int64_t>{1});
+                          builder, loc, fieldValue, tagValue, ArrayRef<int64_t>{ 1 });
                       }
 
                       // Insert offset uintptr (index 2).
-                      Value offsetValue = mlir::LLVM::ConstantOp::create(
-                        builder, loc, uintptrType, fieldOffsets[i]);
+                      Value offsetValue =
+                        mlir::LLVM::ConstantOp::create(builder, loc, uintptrType, fieldOffsets[i]);
                       fieldValue = mlir::LLVM::InsertValueOp::create(
-                        builder, loc, fieldValue, offsetValue, ArrayRef<int64_t>{2});
+                        builder, loc, fieldValue, offsetValue, ArrayRef<int64_t>{ 2 });
 
                       values.push_back(fieldValue);
                     }
@@ -880,15 +927,16 @@ mlir::LLVM::GlobalOp createTypeInfo(
                   },
                   loc);
                 dataValue = mlir::LLVM::InsertValueOp::create(
-                  builder, loc, dataValue, fieldsSlice, ArrayRef<int64_t>{0});
+                  builder, loc, dataValue, fieldsSlice, ArrayRef<int64_t>{ 0 });
               }
 
               // Yield the struct type data value.
               mlir::LLVM::ReturnOp::create(builder, loc, dataValue);
             });
         })
-      .Case<SliceType>([&](SliceType type)
-                       { return createTypeInfo(builder, module, loc, type.getElementType(), converter); })
+      .Case<SliceType>(
+        [&](SliceType type)
+        { return createTypeInfo(builder, module, loc, type.getElementType(), converter); })
       .Case<PointerType>(
         [&](PointerType type)
         {
@@ -916,30 +964,30 @@ mlir::LLVM::GlobalOp createTypeInfo(
       const GoTypeId kind = GetGoTypeId(baseType(T));
       Value kindValue =
         mlir::LLVM::ConstantOp::create(builder, loc, i8Type, static_cast<uint64_t>(kind));
-      typeValue =
-        mlir::LLVM::InsertValueOp::create(builder, loc, typeValue, kindValue, ArrayRef<int64_t>{constKindIndex});
+      typeValue = mlir::LLVM::InsertValueOp::create(
+        builder, loc, typeValue, kindValue, ArrayRef<int64_t>{ constKindIndex });
 
       // Insert the type size value.
       const auto dataLayout = mlir::DataLayout(module);
       const auto typeSize = dataLayout.getTypeSize(T);
       Value sizeValue =
         mlir::LLVM::ConstantOp::create(builder, loc, uintptrType, static_cast<uint64_t>(typeSize));
-      typeValue =
-        mlir::LLVM::InsertValueOp::create(builder, loc, typeValue, sizeValue, ArrayRef<int64_t>{constSizeIndex});
+      typeValue = mlir::LLVM::InsertValueOp::create(
+        builder, loc, typeValue, sizeValue, ArrayRef<int64_t>{ constSizeIndex });
 
       if (dataGlobalOp)
       {
         // Insert the address to the respective type data.
         Value dataValue = mlir::LLVM::AddressOfOp::create(builder, loc, dataGlobalOp);
-        typeValue =
-          mlir::LLVM::InsertValueOp::create(builder, loc, typeValue, dataValue, ArrayRef<int64_t>{constDataIndex});
+        typeValue = mlir::LLVM::InsertValueOp::create(
+          builder, loc, typeValue, dataValue, ArrayRef<int64_t>{ constDataIndex });
       }
 
       if (!typeName.empty())
       {
         Value nameValue = createGoStringValue(builder, module, converter, typeName, loc);
-        typeValue =
-          mlir::LLVM::InsertValueOp::create(builder, loc, typeValue, nameValue, ArrayRef<int64_t>{constNameIndex});
+        typeValue = mlir::LLVM::InsertValueOp::create(
+          builder, loc, typeValue, nameValue, ArrayRef<int64_t>{ constNameIndex });
       }
 
       // Yield the type data value.

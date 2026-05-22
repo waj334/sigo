@@ -242,8 +242,15 @@ func (b *Builder) emitStructLiteral(ctx context.Context, expr *ast.CompositeLit)
 
 		switch baseType(fieldT).(type) {
 		case *types.Signature:
-			if goir.TypeIsAFunctionType(elementValue.Type()) {
-				// Convert the function pointer to a func value.
+			// Wrap raw function pointers into the _func struct. Values that
+			// are already the _func struct type (e.g., closures, variables of
+			// function type) must not be wrapped again.
+			if ptrT, ok := goir.AsPointerType(elementValue.Type()); ok {
+				elementT := ptrT.ElementType()
+				if !elementT.IsNull() && goir.TypeIsAFunctionType(elementT) {
+					elementValue = b.createFunctionValue(ctx, elementValue, nil, 0, elementLoc)
+				}
+			} else if goir.TypeIsAFunctionType(elementValue.Type()) {
 				elementValue = b.createFunctionValue(ctx, elementValue, nil, 0, elementLoc)
 			}
 		case *types.Interface:

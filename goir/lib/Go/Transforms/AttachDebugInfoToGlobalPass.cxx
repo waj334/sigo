@@ -53,7 +53,7 @@ struct AttachDebugInfoToGlobalPass final
     const auto typeAttr = this->getDITypeAttr(
       context, elementT, diFile, loc.getLine(), LLVM::DIScopeAttr(), dataLayout, runtimeTypes);
 
-    const auto alignment = dataLayout.getTypePreferredAlignment(elementT);
+    const auto alignment = op.getAlignment().value_or(dataLayout.getTypePreferredAlignment(elementT));
     const auto compileUnitAttr = fusedLocWithCompileUnit.getMetadata();
     const auto linknameAttr = op.getSymNameAttr();
 

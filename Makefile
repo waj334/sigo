@@ -116,10 +116,12 @@ endif
 # ----------------------------------------------------------------------------
 # Sources
 # ----------------------------------------------------------------------------
-GO_BUILDER_SRCS      := $(wildcard $(ROOT_DIR)/builder/*.go)
-GO_COMPILER_SSA_SRCS := $(wildcard $(ROOT_DIR)/compiler/ssa/*.go)
-GO_CMD_SIGOC_SRCS    := $(wildcard $(ROOT_DIR)/cmd/sigoc/*.go)
-GO_SRCS := $(GO_BUILDER_SRCS) $(GO_COMPILER_SSA_SRCS) $(GO_CMD_SIGOC_SRCS)
+GO_BUILDER_SRCS      		:= $(wildcard $(ROOT_DIR)/builder/*.go)
+GO_COMPILER_SSA_SRCS 		:= $(wildcard $(ROOT_DIR)/compiler/ssa/*.go)
+GO_CMD_SIGOC_SRCS    		:= $(wildcard $(ROOT_DIR)/cmd/sigoc/*.go)
+GO_SRCS 					:= $(GO_BUILDER_SRCS) $(GO_COMPILER_SSA_SRCS) $(GO_CMD_SIGOC_SRCS)
+
+GO_CMD_TABLEGEN_CSP_SRCS    := $(wildcard $(ROOT_DIR)/cmd/tablegen-csp/*.go)
 
 TARGETS_DEVICE_SRCS += $(wildcard $(ROOT_DIR)/targets/device/*.go)
 TARGETS_DEVICE_SRCS += $(wildcard $(ROOT_DIR)/targets/device/importer/*.go)
@@ -250,7 +252,7 @@ ifeq ($(DEBUG),1)
 	dlv --listen=:2346 --headless=true --api-version=2 --accept-multiclient exec $(TBDEF_GEN_EXE) -- $(args)
 endif
 
-$(TABLEGEN_CSP_EXE): generate-llvm-bindings $(GO_SRCS) $(_GOIR_LIBS)
+$(TABLEGEN_CSP_EXE): $(GO_SRCS) $(_GOIR_LIBS) $(GO_CMD_TABLEGEN_CSP_SRCS)
 	rm -f $(TABLEGEN_CSP_EXE)
 ifeq ($(SIGO_BUILD_RELEASE),1)
 	CGO_CFLAGS="$(CGO_CFLAGS)" CGO_LDFLAGS="$(CGO_LDFLAGS)" CGO_CXXFLAGS="$(CGO_CXXFLAGS)" \

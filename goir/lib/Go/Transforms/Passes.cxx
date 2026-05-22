@@ -155,6 +155,10 @@ struct LowerToCorePass : impl::LowerToCorePassBase<LowerToCorePass>
         // Only convert a yield op if it belongs to a global with an invalid initializer block.
         if (auto globalOp = op->getParentOfType<GlobalOp>())
         {
+          if (globalOp->hasAttr("go.global.preserveBody"))
+          {
+            return true;
+          }
           return succeeded(globalOp.hasValidInitializer());
         }
         // Usage of yield outside a global operation initializer is invalid and won't be converted
@@ -174,11 +178,19 @@ struct LowerToCorePass : impl::LowerToCorePassBase<LowerToCorePass>
     target.addLegalOp<func::CallIndirectOp>();
     target.addLegalOp<CallIndirectOp>();
     target.addLegalOp<ChangeInterfaceOp>();
+    target.addLegalOp<ChanRangeOp>();
+    target.addLegalOp<ChanRecvOp>();
+    target.addLegalOp<ChanSelectOp>();
+    target.addLegalOp<ChanSendOp>();
     target.addLegalOp<func::ConstantOp>();
+    target.addLegalOp<CmpInterfaceOp>();
+    target.addLegalOp<CmpNilOp>();
+    target.addLegalOp<CmpStringOp>();
     target.addLegalOp<DeferOp>();
     target.addLegalOp<ExtractOp>();
     target.addLegalOp<FunctionToPointerOp>();
     target.addLegalOp<GetElementPointerOp>();
+    target.addLegalOp<GlobalCtorsOp>();
     target.addLegalOp<GoOp>();
     target.addLegalOp<InlineAsmOp>();
     target.addLegalOp<InsertOp>();
@@ -190,24 +202,25 @@ struct LowerToCorePass : impl::LowerToCorePassBase<LowerToCorePass>
     target.addLegalOp<MakeSliceOp>();
     target.addLegalOp<MapAddrOp>();
     target.addLegalOp<MapLookupOp>();
+    target.addLegalOp<MapRangeOp>();
+    target.addLegalOp<NilPointerCheckOp>();
     target.addLegalOp<PanicOp>();
     target.addLegalOp<PointerToFunctionOp>();
     target.addLegalOp<PtrToIntOp>();
     target.addLegalOp<RecoverOp>();
     target.addLegalOp<RecvOp>();
     target.addLegalOp<RunDefersOp>();
+    target.addLegalOp<SliceAddrOp>();
     target.addLegalOp<SliceOp>();
     target.addLegalOp<SliceToStringOp>();
-    target.addLegalOp<SliceAddrOp>();
     target.addLegalOp<StringAddrOp>();
     target.addLegalOp<StringToSliceOp>();
     target.addLegalOp<StoreOp>();
+    target.addLegalOp<TypeAssertOp>();
     target.addLegalOp<ZeroOp>();
 
     populateGoToCoreConversionPatterns(module.getContext(), typeConverter, patterns);
-
-    // Partially lower
-    if (failed(applyPartialConversion(module, target, std::move(patterns))))
+    if (failed(applyFullConversion(module, target, std::move(patterns))))
     {
       signalPassFailure();
     }

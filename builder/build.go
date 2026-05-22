@@ -329,6 +329,7 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 		Sizes:          &sizes,
 		DependencyDirs: depDirs,
 		TargetTriplet:  triplet,
+		CpuName:        options.Cpu,
 		IncludePaths:   cIncludePaths,
 	})
 
@@ -394,7 +395,7 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 		preambleObjFile = filepath.Join(options.BuildDir, "preamble.o")
 		preambleIncludePaths := append(cIncludePaths, program.CGOIncludePaths...)
 
-		clangArgs := []string{"-target", triplet, "-c", preambleC, "-o", preambleObjFile}
+		clangArgs := []string{"-target", triplet, "-c", preambleC, "-o", preambleObjFile, "-fno-builtin"}
 		for _, inc := range preambleIncludePaths {
 			clangArgs = append(clangArgs, "-I"+inc)
 		}
@@ -548,6 +549,10 @@ type linkOptions struct {
 	targetMachine mlir.LLVMTargetMachineRef
 	module        mlir.LLVMModuleRef
 	preambleObj   string // path to compiled C preamble object file (empty if none)
+	ramRegion     string
+	heapRegion    string
+	stackRegion   string
+	linkerDefines map[string]string
 }
 
 func link(options linkOptions, buildOptions BuildOptions) error {
@@ -587,6 +592,19 @@ func link(options linkOptions, buildOptions BuildOptions) error {
 		return errors.New("no linker script found")
 	}
 
+	// Preprocess the linker script.
+	linkerFilePath := filepath.Join(buildOptions.BuildDir, "linker.ld")
+	if err := preprocess(preprocessParameters{
+		toolchain:    toolchain,
+		triplet:      options.triplet,
+		includePaths: collectLinkerIncludePaths(options),
+		defines:      collectLinkerDefines(options),
+		input:        options.prog.LinkerScript,
+		output:       linkerFilePath,
+	}); err != nil {
+		return err
+	}
+
 	// Other arguments
 	targetTriple := "--target=" + options.triplet
 	elfOut := filepath.Join(buildOptions.BuildDir, "package.elf")
@@ -603,7 +621,7 @@ func link(options linkOptions, buildOptions BuildOptions) error {
 		"-L" + filepath.Join(sysroot, "lib"),
 		"-L" + filepath.Join(sigoRoot, "runtime"),
 		"-L" + filepath.Dir(options.prog.LinkerScript),
-		"-T" + options.prog.LinkerScript,
+		"-T" + filepath.Join(buildOptions.BuildDir, "linker.ld"),
 		"-lc",
 		"-lclang_rt.builtins",
 	}

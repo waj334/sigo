@@ -274,6 +274,12 @@ func (gc *_gc) findObject(val uintptr) *gcObject {
 	}
 
 	dataStart := gc.heapBase + startSlot*gcPointerAlign
+
+	// Guard: object header must be inside the heap.
+	if dataStart < gc.heapBase+gcObjectSize {
+		return nil
+	}
+
 	obj := (*gcObject)(unsafe.Pointer(dataStart - gcObjectSize))
 	if val >= dataStart && val < dataStart+obj.size {
 		return obj

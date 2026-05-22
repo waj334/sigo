@@ -2,8 +2,12 @@ package net
 
 import (
 	"fmt"
-	"os"
 )
+
+type RxFrame struct {
+	Data    []byte
+	Release func()
+}
 
 // NetDevice is the interface a network driver must implement to integrate
 // with the LWIP-based net package.
@@ -16,7 +20,7 @@ type NetDevice interface {
 
 	// SetRxCallback registers a function the driver must call when an Ethernet
 	// frame is received on the data channel.
-	SetRxCallback(fn func(frame []byte))
+	SetRxCallback(fn func(frame RxFrame))
 }
 
 // interfaces holds all registered NetInterfaces. Only mutated from the LWIP
@@ -29,19 +33,17 @@ var interfaces []*NetInterface
 func RegisterNetDevice(dev NetDevice) *NetInterface {
 	ni := &NetInterface{
 		device: dev,
-		rx:     make(chan []byte, 8),
+		rx:     make(chan RxFrame, 8),
 	}
 
 	// Register RX callback with the driver. Non-blocking send drops frames
 	// if the channel is full to avoid deadlocking the driver's poll loop.
-	dev.SetRxCallback(func(frame []byte) {
-		// Copy the frame so the driver can reuse its buffer.
-		buf := make([]byte, len(frame))
-		copy(buf, frame)
+	dev.SetRxCallback(func(frame RxFrame) {
 		select {
-		case ni.rx <- buf:
+		case ni.rx <- frame:
 		default:
-			fmt.Fprintf(os.Stdout, "[NET] RX drop (ch full), len=%d\n", len(frame))
+			frame.Release()
+			fmt.Printf("[NET] RX drop (ch full), len=%d\n", len(frame.Data))
 		}
 	})
 
