@@ -126,6 +126,17 @@ configure           Configure both LLVM and GoIR CMake builds
 reconfigure         Force re-configure (useful after toolchain changes)
 ```
 
+## Related Projects
+
+### Device Drivers and Chip Support
+
+- **[https://github.com/waj334/chip](https://github.com/waj334/chip)**: This repository contains the chip definition files and low-level hardware abstractions used by SiGo.
+- **[https://github.com/waj334/drivers](https://github.com/waj334/drivers)**: A collection of device drivers written in Go for various peripherals, designed to work with the SiGo compiler and the `chip` repository.
+
+### Example Firmware
+
+- **[https://github.com/waj334/sigo-arduino-giga-r1-example](https://github.com/waj334/sigo-arduino-giga-r1-example)**: An example firmware for the Arduino GIGA R1, demonstrating how to use SiGo to build a complete application.
+
 ## Compiling a firmware image
 
 A firmware image is built with the `build` subcommand. A target CPU must be specified via `--cpu`:

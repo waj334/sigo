@@ -2,7 +2,6 @@ package runtime
 
 import (
 	"sync"
-	"sync/atomic"
 	"unsafe"
 )
 
@@ -25,13 +24,30 @@ var (
 	//sigo:extern __stack_bottom __stack_bottom
 	__stack_bottom unsafe.Pointer
 
+	//sigo:align _gc 64
 	gc   _gc
 	gcMu sync.Mutex // Protects GC data structures
 
-	// Deferred barrier queue for when we can't acquire the lock (e.g., from ISR)
+	// Deferred barrier queue for write barriers that can't acquire gcMu
+	// (e.g. from an ISR, or while the collector holds the lock).
+	//
+	// This is a single-core ring serialized by the interrupt-disable discipline
+	// used elsewhere in the runtime, NOT a lock-free structure. Producers (the
+	// write barrier, including from ISR context) and the single consumer
+	// (gcFlushBarrierQueue, under gcMu) each touch head/tail/slot only with
+	// interrupts disabled, so the tail is never advanced before its slot value
+	// is written, and a producer can never be suspended mid-insert. This closes
+	// the publish-before-write window that previously let the consumer read a
+	// claimed-but-unwritten slot and drop a shade.
+	//
+	// barrierOverflow records a full queue. A dropped pointer is a lost shade
+	// (a black object may reference an unshaded white object), so an overflow
+	// forces the next remark to escalate to a full stop-the-world collection
+	// instead of trusting the incremental result.
 	barrierQueue     [64]uintptr // Circular buffer of pointers needing shading
 	barrierQueueHead uint32
 	barrierQueueTail uint32
+	barrierOverflow  bool
 )
 
 const (
@@ -291,7 +307,7 @@ func (gc *_gc) findObject(val uintptr) *gcObject {
 // Write barrier
 // --------------------------------------------------------------------------
 //
-// This GC uses an incremental tricolor marking algorithm with a Yuasa-style
+// This GC uses an incremental tricolor marking algorithm with a Dijkstra-style
 // insertion barrier. The barrier ensures that:
 //
 // 1. Any pointer stored into a heap object during marking is shaded (marked gray)
@@ -300,6 +316,10 @@ func (gc *_gc) findObject(val uintptr) *gcObject {
 //
 // The barrier is only active during the Mark and Remark phases. During Idle and
 // Sweep phases, stores proceed without barriers for better performance.
+//
+// NOTE: stack stores are NOT barriered (the compiler only barriers stores into
+// heap slots). With an insertion barrier this is only sound if the stack
+// re-scan at mark termination is atomic, so remark() runs fully stop-the-world.
 //
 //go:inline
 func gcBarrierActive() bool {
@@ -380,30 +400,33 @@ func gcTryShade(val uintptr) bool {
 // gcQueueBarrier queues a pointer for deferred barrier processing.
 // This is used when we can't immediately acquire the GC lock (e.g., from ISR).
 //
+// The insert is performed with interrupts disabled so that, on this single-core
+// target, the value is always written before the tail is advanced and the
+// producer can never be preempted mid-insert. The consumer therefore never
+// observes a published-but-unwritten slot.
+//
 //go:nosplit
 //go:nowritebarrier
 func gcQueueBarrier(val uintptr) {
-	// Lock-free circular buffer insertion
-	for {
-		head := atomic.LoadUint32(&barrierQueueHead)
-		tail := atomic.LoadUint32(&barrierQueueTail)
+	state := DisableInterrupts()
 
-		// Check if queue is full
-		nextTail := (tail + 1) % uint32(len(barrierQueue))
-		if nextTail == head {
-			// Queue full - this is a critical error, but we can't block
-			// The object might be collected, but this is better than deadlock
-			// In practice, the queue should be large enough and flushed frequently
-			return
-		}
+	tail := barrierQueueTail
+	nextTail := (tail + 1) % uint32(len(barrierQueue))
 
-		// Try to claim this slot
-		if atomic.CompareAndSwapUint32(&barrierQueueTail, tail, nextTail) {
-			barrierQueue[tail] = val
-			return
-		}
-		// CAS failed, retry
+	if nextTail == barrierQueueHead {
+		// Queue full. Dropping the pointer would lose a shade, so record the
+		// overflow; the next remark escalates to a full stop-the-world
+		// collection rather than trusting the incremental result.
+		barrierOverflow = true
+		EnableInterrupts(state)
+		return
 	}
+
+	// Write the value, THEN publish it by advancing the tail.
+	barrierQueue[tail] = val
+	barrierQueueTail = nextTail
+
+	EnableInterrupts(state)
 }
 
 // gcFlushBarrierQueue processes any queued barrier entries.
@@ -412,18 +435,25 @@ func gcQueueBarrier(val uintptr) {
 //go:nosplit
 //go:nowritebarrier
 func gcFlushBarrierQueue() {
-	head := atomic.LoadUint32(&barrierQueueHead)
-	tail := atomic.LoadUint32(&barrierQueueTail)
-
-	for head != tail {
+	for {
+		// Pop one entry atomically. An ISR producer may run between pops, but
+		// not during one: it can only ever observe a consistent head/tail.
+		state := DisableInterrupts()
+		head := barrierQueueHead
+		if head == barrierQueueTail {
+			EnableInterrupts(state)
+			return
+		}
 		val := barrierQueue[head]
+		barrierQueueHead = (head + 1) % uint32(len(barrierQueue))
+		EnableInterrupts(state)
+
+		// Shade outside the interrupts-disabled region. gcMu is held (so no
+		// concurrent grayList mutation) and ISR write barriers that fire here
+		// will fail gcMu.TryLock and defer back into the queue.
 		if child := gc.findObject(val); child != nil {
 			gc.shade(child)
 		}
-
-		nextHead := (head + 1) % uint32(len(barrierQueue))
-		atomic.StoreUint32(&barrierQueueHead, nextHead)
-		head = nextHead
 	}
 }
 
@@ -471,12 +501,41 @@ func gcWriteBarrierCopy(dst, src unsafe.Pointer, n uintptr) {
 // Scanning primitives
 // --------------------------------------------------------------------------
 
+// gcScanGuard is the number of bytes left unscanned at the very top of a stack
+// region. The conservative scanner reads one machine word at a time, but the
+// compiler is free to lower an aligned word load as `LDR Rd, [Rbase, #off]`
+// with a positive displacement, where Rbase is below the address being read.
+// Near the top of a stack whose high end is flush against the end of mapped
+// memory (on this target __stack_top == __dtcm_end == 0x20020000, the first
+// unmapped address above DTCM), such a displaced load can reach PAST the last
+// valid word and touch unmapped space, taking a precise BusFault at exactly the
+// region end. We therefore clamp every stack scan's high bound down by one
+// guard span so no read, displaced or not, can cross the boundary. This costs
+// at most a few words of conservative coverage at the extreme top of the stack
+// (which holds the oldest/return frame words, not live roots that would be
+// missed in practice).
+const gcScanGuard = 32 // bytes; >= the largest displacement the codegen emits
+
+// gcReadWord reads a single machine word from addr without allowing the
+// compiler to fuse it into a wider or displaced access. Keeping it noinline and
+// taking the address as a uintptr forces a plain `LDR Rd, [Rbase]` with no
+// positive offset relative to addr, so the scanner can never read beyond the
+// word it is currently inspecting. This is the load that previously lowered to
+// `LDR R0, [R0, #96]` and over-ran __stack_top.
+//
+//go:noinline
+//go:nosplit
+//go:nowritebarrier
+func gcReadWord(addr uintptr) uintptr {
+	return *(*uintptr)(unsafe.Pointer(addr))
+}
+
 // scanObject scans an object's data for heap pointers.
 // This form is used during incremental scanning with interrupts enabled.
 func (gc *_gc) scanObject(obj *gcObject) {
 	dataStart := uintptr(unsafe.Pointer(obj)) + gcObjectSize
 	for addr := dataStart; addr < dataStart+obj.size; addr += gcWordSize {
-		val := *(*uintptr)(unsafe.Pointer(addr))
+		val := gcReadWord(addr)
 		if child := gc.findObject(val); child != nil {
 			gc.shadeSafe(child)
 		}
@@ -487,7 +546,7 @@ func (gc *_gc) scanObject(obj *gcObject) {
 func (gc *_gc) scanObjectAtomic(obj *gcObject) {
 	dataStart := uintptr(unsafe.Pointer(obj)) + gcObjectSize
 	for addr := dataStart; addr < dataStart+obj.size; addr += gcWordSize {
-		val := *(*uintptr)(unsafe.Pointer(addr))
+		val := gcReadWord(addr)
 		if child := gc.findObject(val); child != nil {
 			gc.shade(child)
 		}
@@ -500,7 +559,7 @@ func (gc *_gc) scanObjectAtomic(obj *gcObject) {
 
 func (gc *_gc) scanRootsIncremental() bool {
 	for i := 0; i < gcMarkBatch && gc.currentAddress < gc.endAddress; i++ {
-		val := *(*uintptr)(unsafe.Pointer(gc.currentAddress))
+		val := gcReadWord(gc.currentAddress)
 		if obj := gc.findObject(val); obj != nil {
 			gc.shadeSafe(obj)
 		}
@@ -596,26 +655,45 @@ func (gc *_gc) markStep() {
 // --------------------------------------------------------------------------
 
 func (gc *_gc) remark() {
-	// Remark phase is stop-the-world to ensure we see a consistent snapshot
-	// Disable interrupts only during the critical sections to allow serial I/O
-	// between scanning operations
-
 	gcMu.Lock()
 
-	// Flush any pending barriers before starting remark
+	// Recovery: if the deferred barrier queue overflowed during this mark cycle,
+	// a dropped pointer may have left a black object referencing an unshaded
+	// white object. The incremental result can't be trusted, so discard it and
+	// perform a complete stop-the-world collection.
+	if barrierOverflow {
+		barrierOverflow = false
+		state := DisableInterrupts()
+		gc.fullGCLocked()
+		EnableInterrupts(state)
+		gcMu.Unlock()
+		return
+	}
+
+	// Remark is a true stop-the-world pause. The root re-scan and the gray drain
+	// run inside ONE interrupts-disabled region. This is required for soundness:
+	// with a Dijkstra insertion barrier and unbarriered stack stores, re-enabling
+	// interrupts between per-goroutine stack scans (as the old code did) lets a
+	// context switch move a white pointer onto an already-scanned stack and hide
+	// it from the collector, which then frees it while live.
+	//
+	// The cost is an interrupts-off pause that is O(live heap) in the worst case.
+	// If that latency becomes a problem for the timer path, the durable fix is a
+	// Yuasa/SATB deletion barrier that permits a concurrent (non-atomic) remark.
+	state := DisableInterrupts()
+
+	// Absorb barriers queued during the concurrent mark phase. No new entries
+	// can arrive now that interrupts are disabled.
 	gcFlushBarrierQueue()
 
-	state := DisableInterrupts()
+	// Re-scan all roots.
 	gc.scanRangeAtomic(gcStackBottom(), gcStackTop())
-	EnableInterrupts(state)
 
 	if headGoroutine != nil {
 		g := headGoroutine
 		for {
-			state := DisableInterrupts()
 			low, high := gcGoroutineStack(g)
 			gc.scanRangeAtomic(low, high)
-			EnableInterrupts(state)
 			g = g.next
 			if g == headGoroutine {
 				break
@@ -623,27 +701,18 @@ func (gc *_gc) remark() {
 		}
 	}
 
-	state = DisableInterrupts()
 	gc.scanRangeAtomic(gcGlobalsStart(), gcGlobalsEnd())
-	EnableInterrupts(state)
 
-	// Process remaining gray objects
-	for {
-		// Flush any barriers that arrived during processing
-		gcFlushBarrierQueue()
-
-		if gc.grayList == nil {
-			break
-		}
-
+	// Drain the gray set to completion within the same atomic region.
+	for gc.grayList != nil {
 		obj := gc.grayList
 		gc.grayList = obj.grayNext
 		obj.grayNext = nil
 		obj.color = gcBlack
-		state := DisableInterrupts()
 		gc.scanObjectAtomic(obj)
-		EnableInterrupts(state)
 	}
+
+	EnableInterrupts(state)
 
 	gc.phase = gcSweep
 	gc.sweepCurr = gc.head
@@ -655,7 +724,7 @@ func (gc *_gc) remark() {
 // PRECONDITION: interrupts are disabled.
 func (gc *_gc) scanRangeAtomic(low, high uintptr) {
 	for addr := low; addr < high; addr += gcWordSize {
-		val := *(*uintptr)(unsafe.Pointer(addr))
+		val := gcReadWord(addr)
 		if obj := gc.findObject(val); obj != nil {
 			gc.shade(obj)
 		}
@@ -693,6 +762,19 @@ func (gc *_gc) sweep() {
 				prev.next = next
 			}
 			gc.deregisterObject(curr)
+
+			if headGoroutine != nil {
+				cd := uintptr(unsafe.Pointer(curr)) + gcObjectSize // curr's data ptr
+				for g := headGoroutine; ; g = g.next {
+					if cd == uintptr(unsafe.Pointer(g)) {
+						abort() // GC is about to free a live goroutine struct
+					}
+					if g.next == headGoroutine {
+						break
+					}
+				}
+			}
+
 			free(unsafe.Pointer(curr))
 
 			// Don't update prev (it stays the same)
@@ -763,6 +845,19 @@ func (gc *_gc) fullGCLocked() {
 				prev.next = next
 			}
 			gc.deregisterObject(curr)
+
+			if headGoroutine != nil {
+				cd := uintptr(unsafe.Pointer(curr)) + gcObjectSize // curr's data ptr
+				for g := headGoroutine; ; g = g.next {
+					if cd == uintptr(unsafe.Pointer(g)) {
+						abort() // GC is about to free a live goroutine struct
+					}
+					if g.next == headGoroutine {
+						break
+					}
+				}
+			}
+
 			free(unsafe.Pointer(curr))
 		} else {
 			curr.color = gcWhite
@@ -849,6 +944,10 @@ func initgc() {
 	gc.sweepCurr = nil
 	gc.sweepPrev = nil
 
+	barrierQueueHead = 0
+	barrierQueueTail = 0
+	barrierOverflow = false
+
 	gc.heapBase = uintptr(unsafe.Pointer(&__heap_start))
 	heapEnd := uintptr(unsafe.Pointer(&__heap_end))
 	gc.numSlots = (heapEnd - gc.heapBase) / gcPointerAlign
@@ -876,7 +975,10 @@ func gcAllocLocked(size uintptr) unsafe.Pointer {
 
 	ptr := malloc(allocSize)
 	if ptr == nil {
+		state := DisableInterrupts()
 		gc.fullGCLocked()
+		EnableInterrupts(state)
+
 		ptr = malloc(allocSize)
 		if ptr == nil {
 			abort()
@@ -920,7 +1022,11 @@ func GC() {
 
 //go:inline
 func gcStackTop() uintptr {
-	return uintptr(unsafe.Pointer(&__stack_top))
+	// __stack_top == __dtcm_end on this target, i.e. the first unmapped address
+	// above DTCM. Keep the scan a guard span below it so a displaced load near
+	// the end can't fault off the region. The few top words skipped are the
+	// initial/return frame, not live roots.
+	return uintptr(unsafe.Pointer(&__stack_top)) - gcScanGuard
 }
 
 //go:inline
@@ -938,12 +1044,27 @@ func gcGlobalsEnd() uintptr {
 	return uintptr(unsafe.Pointer(&__gc_scan_end))
 }
 
+// gcGoroutineStack returns the live stack range [low, high) to scan for a goroutine.
+//
 //go:inline
 func gcGoroutineStack(g *goroutine) (low, high uintptr) {
-	high = uintptr(unsafe.Add(g.stack, alignStack(goroutineStackSize)))
-	low = uintptr(g.stackTop)
+	base := uintptr(g.stack)
+	// Clamp the high bound a guard span below the allocation end so a displaced
+	// word load near the top can't read past the stack into an adjacent region
+	// (same boundary hazard as the main stack). For SDRAM/AXI stacks this only
+	// matters when the allocation abuts an unmapped page, but it is cheap and
+	// keeps the scanner uniformly safe.
+	high = base + alignStack(g.__func.stackSize) - gcScanGuard
 	if g == currentGoroutine {
 		low = uintptr(currentStack())
+	} else {
+		low = uintptr(g.stackTop)
+	}
+	if low < base {
+		low = base
+	}
+	if low > high {
+		low = high
 	}
 	return
 }

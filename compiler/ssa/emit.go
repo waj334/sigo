@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
+	"strings"
 
 	"pkg.si-go.dev/go-mlir/mlir"
 	"pkg.si-go.dev/sigo/goir/binding/goir"
@@ -554,6 +555,19 @@ func (b *Builder) emitIdent(ctx context.Context, expr *ast.Ident) []mlir.ValueLi
 	case *types.Const:
 		T := obj.Type()
 		if obj.Parent() != types.Universe && obj.Parent() == obj.Pkg().Scope() {
+			// For untyped package-level constants used in a typed context, emit
+			// the constant value directly at the contextual type rather than
+			// referencing the global symbol. Without this, emitBinaryExpression
+			// sees lhsT as the typed contextual type (e.g. uint64) but the
+			// emitted value still carries the untyped MLIR type, causing a
+			// type mismatch in the arithmetic op (e.g. go.muli with float operand).
+			if isUntyped(T) {
+				info := currentInfo(ctx)
+				if tv, ok := info.Types[expr]; ok && tv.Type != nil && !isUntyped(tv.Type) {
+					val := b.emitConstantValue(ctx, obj.Val(), tv.Type, location)
+					return b.values(val)
+				}
+			}
 			// Create a reference to the global constant.
 			symbolName := qualifiedName(obj.Name(), obj.Pkg())
 			constRefOp := goir.NewConstantOperation(b.ctx, nil, b.strAttr(symbolName), b.GetType(ctx, T), location)
@@ -993,13 +1007,159 @@ func (b *Builder) emitSelectorExpr(ctx context.Context, expr *ast.SelectorExpr) 
 	default:
 		switch obj := sel.Obj().(type) {
 		case *types.Func:
-			// Return the address of the selected method.
-			symbol := b.resolveSymbol(qualifiedFuncName(obj))
-			fptrType := b.funcPointerOf(ctx, obj.Signature())
-			b.queueJob(ctx, symbol)
-			return []mlir.ValueLike{
-				b.addressOfSymbol(ctx, symbol, fptrType, location),
+			// This is a method value.
+			funcObj := obj
+			signature := funcObj.Type().(*types.Signature)
+			calleeSymbol := qualifiedFuncName(funcObj)
+
+			recvT := sel.Recv()
+			origRecvT := recvT
+
+			if outerTypeMap := currentTypeMap(ctx); outerTypeMap != nil && containsTypeParam(recvT) {
+				recvT = resolveTypeInTypeMap(recvT, outerTypeMap)
 			}
+
+			if typeParam, ok := recvT.(*types.TypeParam); ok {
+				recvT = resolveType(ctx, typeParam)
+			}
+
+			if recvT != origRecvT {
+				lookupT := types.Unalias(recvT)
+				if ptr, ok := lookupT.(*types.Pointer); ok {
+					lookupT = types.Unalias(ptr.Elem())
+				}
+				if namedRecvT, ok := lookupT.(*types.Named); ok && !types.IsInterface(namedRecvT) {
+					fObj, _, _ := types.LookupFieldOrMethod(recvT, true, namedRecvT.Obj().Pkg(), funcObj.Name())
+					if method, ok := fObj.(*types.Func); ok {
+						funcObj = method
+					}
+				}
+			}
+
+			signature = funcObj.Signature()
+			calleeSymbol = qualifiedFuncName(funcObj)
+
+			var namedRecv *types.Named
+			if nr, ok := namedRecvType(recvT); ok && nr.TypeArgs().Len() > 0 {
+				namedRecv = nr
+			} else if sigRecv := funcObj.Type().(*types.Signature).Recv(); sigRecv != nil {
+				if nr, ok := namedRecvType(sigRecv.Type()); ok && nr.TypeArgs().Len() > 0 {
+					namedRecv = nr
+				}
+			}
+
+			if namedRecv != nil {
+				origin := namedRecv.Origin()
+				typeMap := make(TypeParamMap)
+				allConcrete := true
+				outerTypeMap := currentTypeMap(ctx)
+				for i := 0; i < origin.TypeParams().Len(); i++ {
+					targ := namedRecv.TypeArgs().At(i)
+					if containsTypeParam(targ) {
+						if outerTypeMap != nil {
+							targ = resolveTypeInTypeMap(targ, outerTypeMap)
+							if containsTypeParam(targ) {
+								allConcrete = false
+								break
+							}
+						} else {
+							allConcrete = false
+							break
+						}
+					}
+					typeMap[origin.TypeParams().At(i).Index()] = targ
+				}
+
+				if allConcrete {
+					var originMethod *types.Func
+					for i := 0; i < origin.NumMethods(); i++ {
+						if origin.Method(i).Name() == funcObj.Name() {
+							originMethod = origin.Method(i)
+							break
+						}
+					}
+
+					if originMethod == nil {
+						sigRecvT := funcObj.Type().(*types.Signature).Recv().Type()
+						if ptr, ok := sigRecvT.(*types.Pointer); ok {
+							sigRecvT = ptr.Elem()
+						}
+						resolvedRecvT := resolveTypeInTypeMap(sigRecvT, typeMap)
+						if embeddedNamed, ok := resolvedRecvT.(*types.Named); ok && embeddedNamed.TypeArgs().Len() > 0 {
+							embeddedOrigin := embeddedNamed.Origin()
+							for i := 0; i < embeddedOrigin.NumMethods(); i++ {
+								if embeddedOrigin.Method(i).Name() == funcObj.Name() {
+									originMethod = embeddedOrigin.Method(i)
+									break
+								}
+							}
+							if originMethod != nil {
+								for j := 0; j < embeddedNamed.NumMethods(); j++ {
+									if embeddedNamed.Method(j).Name() == funcObj.Name() {
+										signature = embeddedNamed.Method(j).Type().(*types.Signature)
+										break
+									}
+								}
+								typeMap = make(TypeParamMap)
+								for j := 0; j < embeddedOrigin.TypeParams().Len(); j++ {
+									typeMap[embeddedOrigin.TypeParams().At(j).Index()] = embeddedNamed.TypeArgs().At(j)
+								}
+							}
+						}
+					}
+
+					if originMethod != nil {
+						genericSymbol := qualifiedFuncName(originMethod)
+						b.queueJob(ctx, genericSymbol)
+
+						b.funcDeclDataMutex.RLock()
+						genericData, ok := b.genericFuncs[genericSymbol]
+						b.funcDeclDataMutex.RUnlock()
+
+						if ok {
+							instanceData := b.findFuncInstance(genericData, typeMap)
+							if instanceData == nil {
+								instanceData = b.createFuncInstance(ctx, signature, genericData, typeMap)
+							}
+							calleeSymbol = instanceData.linkname
+							signature = instanceData.signature
+						}
+					}
+				}
+			}
+
+			// Collect argument types for the thunk. This will just be the receiver.
+			argTypes := []types.Type{sel.Recv()}
+
+			// Evaluate the receiver value.
+			receiverValue := b.emitExpr(ctx, expr.X)[0]
+
+			// Create the argument pack.
+			argsValue, argsType, argsPtrType := b.createArgumentPack(ctx, []mlir.ValueLike{receiverValue}, argTypes, location)
+
+			// Allocate heap to store the argument pack.
+			allocOp := goir.NewAllocaOperation(b.ctx, argsPtrType, argsType, 1, true, location)
+			appendOperation(ctx, allocOp)
+
+			// Store the argument pack value at the heap address.
+			b.emitStore(ctx, argsValue, resultOf(allocOp), location)
+			argsValue = resultOf(allocOp)
+
+			// Format the wrapper function symbol name.
+			recvStr := strings.ReplaceAll(sel.Recv().String(), "*", "ptr_")
+			recvStr = strings.ReplaceAll(recvStr, "/", "_")
+			recvStr = strings.ReplaceAll(recvStr, ".", "_")
+			wrapperSymbol := fmt.Sprintf("%s_%s$methwrapper", calleeSymbol, recvStr)
+
+			// Create the thunk.
+			thunk := b.createThunk2(ctx, wrapperSymbol, calleeSymbol, signature, argTypes, true)
+
+			// Get the address of the thunk.
+			fptrType := b.funcPointerOf(ctx, thunk.s)
+			wrapperAddr := b.addressOfSymbol(ctx, wrapperSymbol, fptrType, b._noLoc)
+
+			// Create the function value.
+			return []mlir.ValueLike{b.createFunctionValue(ctx, wrapperAddr, argsValue, 0, location)}
 		case *types.Var:
 			// Evaluate the address of the selected member.
 			baseAddr := b.emitSelectAddr(ctx, expr)
@@ -1277,4 +1437,14 @@ func (b *Builder) emitUnaryExpr(ctx context.Context, expr *ast.UnaryExpr) []mlir
 	default:
 		panic("invalid unary expression operator")
 	}
+}
+
+// namedRecvType extracts the *types.Named from a receiver type,
+// unwrapping a *types.Pointer if needed.
+func namedRecvType(T types.Type) (*types.Named, bool) {
+	if ptr, ok := T.(*types.Pointer); ok {
+		T = ptr.Elem()
+	}
+	named, ok := T.(*types.Named)
+	return named, ok
 }

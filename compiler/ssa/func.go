@@ -608,90 +608,100 @@ func (b *Builder) emitFuncReferenceValue(ctx context.Context, calleeSymbol strin
 	return b.createFunctionValue(ctx, shimAddr, nil, stackSize, location)
 }
 
-func (b *Builder) createThunk2(ctx context.Context, symbol string, callee string, signature *types.Signature, argTypes []types.Type, hasReceiver bool) {
+func (b *Builder) createThunk2(ctx context.Context, symbol string, callee string, signature *types.Signature, argTypes []types.Type, hasReceiver bool) thunkType {
 	b.thunkMutex.Lock()
 	defer b.thunkMutex.Unlock()
 
 	// Look up the thunk in the symbol table first.
-	if _, ok := b.thunks[symbol]; !ok {
-		// Create the argument struct type.
-		vars := make([]*types.Var, len(argTypes))
-		for i := range argTypes {
-			vars[i] = types.NewVar(token.NoPos, nil, fmt.Sprintf("arg$%d", i), argTypes[i])
-		}
-
-		argsT := types.NewStruct(vars, nil)
-		argsPtrType := b.GetStoredType(ctx, types.NewPointer(argsT))
-
-		nArgs := len(argTypes)
-		if hasReceiver {
-			// Exclude the receiver from the count
-			nArgs--
-		}
-
-		// Any argument excluded from the argument pack MUST be passed to the resulting thunk directly.
-		paramTypes := []mlir.TypeLike{argsPtrType}
-		paramVars := []*types.Var{types.NewVar(token.NoPos, nil, fmt.Sprintf("param$%d", 0), argsT)}
-		for i := nArgs; i < signature.Params().Len(); i++ {
-			paramT := signature.Params().At(i).Type()
-			paramTypes = append(paramTypes, b.GetStoredType(ctx, paramT))
-			paramVars = append(paramVars, types.NewVar(token.NoPos, nil, fmt.Sprintf("param$%d", i+1), paramT))
-		}
-		paramLocs := make([]mlir.LocationLike, len(paramTypes))
-		fill(paramLocs, b._noLoc)
-
-		// Collect the result types.
-		resultTypes := make([]mlir.TypeLike, 0, signature.Results().Len())
-		resultVars := make([]*types.Var, 0, signature.Results().Len())
-		for i := 0; i < signature.Results().Len(); i++ {
-			resultT := signature.Results().At(i).Type()
-			resultTypes = append(resultTypes, b.GetStoredType(ctx, resultT))
-			resultVars = append(resultVars, types.NewVar(token.NoPos, nil, fmt.Sprintf("result$%d", i), resultT))
-		}
-
-		syntheticSig := types.NewSignatureType(nil, nil, nil,
-			types.NewTuple(paramVars...), types.NewTuple(resultVars...), false)
-
-		// Create thunk to wrap the method call.
-		region := mlir.NewRegion()
-		ctx = newContextWithRegion(ctx, region)
-
-		entryBlock := mlir.NewBlock(paramTypes, paramLocs)
-		region.AppendOwnedBlock(entryBlock)
-		buildBlock(ctx, entryBlock, func() {
-			argPackPtrValue := entryBlock.Argument(0)
-			args := b.unpackArgPack(ctx, argTypes, argPackPtrValue, b._noLoc)
-
-			// Gather the remaining arguments
-			for i := 1; i < entryBlock.NumArguments(); i++ {
-				args = append(args, entryBlock.Argument(i))
-			}
-
-			// Call the method.
-			callOp := goir.NewCallOperation(b.ctx, callee, resultTypes, args, b._noLoc)
-			appendOperation(ctx, callOp)
-
-			// Return the results.
-			returnOp := goir.NewReturnOperation(b.ctx, resultsOf(callOp), b._noLoc)
-			appendOperation(ctx, returnOp)
-		})
-
-		// Create the function operation for this thunk.
-		thunkFuncType := b.GetType(ctx, syntheticSig)
-		funcOp := mlir.NewOperationState("go.func", b._noLoc).
-			AddOwnedRegions(region).
-			AddAttributes(
-				b.namedOf("function_type", mlir.NewTypeAttr(thunkFuncType)),
-				b.namedOf("sym_name", mlir.NewStringAttr(b.ctx, symbol)),
-				b.namedOf("sym_visibility", mlir.NewStringAttr(b.ctx, "private")),
-			).Create()
-
-		// This operation will be added later safely.
-		b.addToModuleMutex.Lock()
-		b.addToModule[symbol] = funcOp
-		b.addToModuleMutex.Unlock()
-		b.thunks[symbol] = struct{}{}
+	if thunk, ok := b.thunkTypes[symbol]; ok {
+		return thunk
 	}
+
+	// Create the argument struct type.
+	vars := make([]*types.Var, len(argTypes))
+	for i := range argTypes {
+		vars[i] = types.NewVar(token.NoPos, nil, fmt.Sprintf("arg$%d", i), argTypes[i])
+	}
+
+	argsT := types.NewStruct(vars, nil)
+	argsPtrT := types.NewPointer(argsT)
+	argsPtrType := b.GetStoredType(ctx, argsPtrT)
+
+	nArgs := len(argTypes)
+	if hasReceiver {
+		// Exclude the receiver from the count
+		nArgs--
+	}
+
+	// Any argument excluded from the argument pack MUST be passed to the resulting thunk directly.
+	paramTypes := []mlir.TypeLike{argsPtrType}
+	paramVars := []*types.Var{types.NewVar(token.NoPos, nil, "param$0", argsPtrT)}
+	for i := nArgs; i < signature.Params().Len(); i++ {
+		paramT := signature.Params().At(i).Type()
+		paramTypes = append(paramTypes, b.GetStoredType(ctx, paramT))
+		paramVars = append(paramVars, types.NewVar(token.NoPos, nil, fmt.Sprintf("param$%d", i+1), paramT))
+	}
+	paramLocs := make([]mlir.LocationLike, len(paramTypes))
+	fill(paramLocs, b._noLoc)
+
+	// Collect the result types.
+	resultTypes := make([]mlir.TypeLike, 0, signature.Results().Len())
+	resultVars := make([]*types.Var, 0, signature.Results().Len())
+	for i := 0; i < signature.Results().Len(); i++ {
+		resultT := signature.Results().At(i).Type()
+		resultTypes = append(resultTypes, b.GetStoredType(ctx, resultT))
+		resultVars = append(resultVars, types.NewVar(token.NoPos, nil, fmt.Sprintf("result$%d", i), resultT))
+	}
+
+	syntheticSig := types.NewSignatureType(nil, nil, nil,
+		types.NewTuple(paramVars...), types.NewTuple(resultVars...), false)
+
+	// Create thunk to wrap the method call.
+	region := mlir.NewRegion()
+	ctx = newContextWithRegion(ctx, region)
+
+	entryBlock := mlir.NewBlock(paramTypes, paramLocs)
+	region.AppendOwnedBlock(entryBlock)
+	buildBlock(ctx, entryBlock, func() {
+		argPackPtrValue := entryBlock.Argument(0)
+		args := b.unpackArgPack(ctx, argTypes, argPackPtrValue, b._noLoc)
+
+		// Gather the remaining arguments
+		for i := 1; i < entryBlock.NumArguments(); i++ {
+			args = append(args, entryBlock.Argument(i))
+		}
+
+		// Call the method.
+		callOp := goir.NewCallOperation(b.ctx, callee, resultTypes, args, b._noLoc)
+		appendOperation(ctx, callOp)
+
+		// Return the results.
+		returnOp := goir.NewReturnOperation(b.ctx, resultsOf(callOp), b._noLoc)
+		appendOperation(ctx, returnOp)
+	})
+
+	// Create the function operation for this thunk.
+	thunkFuncType := b.GetType(ctx, syntheticSig).(goir.FunctionType)
+	funcOp := mlir.NewOperationState("go.func", b._noLoc).
+		AddOwnedRegions(region).
+		AddAttributes(
+			b.namedOf("function_type", mlir.NewTypeAttr(thunkFuncType)),
+			b.namedOf("sym_name", mlir.NewStringAttr(b.ctx, symbol)),
+			b.namedOf("sym_visibility", mlir.NewStringAttr(b.ctx, "private")),
+		).Create()
+
+	// This operation will be added later safely.
+	b.addToModuleMutex.Lock()
+	b.addToModule[symbol] = funcOp
+	b.addToModuleMutex.Unlock()
+	b.thunks[symbol] = struct{}{}
+
+	result := thunkType{
+		t: thunkFuncType,
+		s: syntheticSig,
+	}
+	b.thunkTypes[symbol] = result
+	return result
 }
 
 func (b *Builder) createArgumentPack(ctx context.Context, values []mlir.ValueLike, valueTypes []types.Type, location mlir.LocationLike) (mlir.ValueLike, mlir.TypeLike, mlir.TypeLike) {

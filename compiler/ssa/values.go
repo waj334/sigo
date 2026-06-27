@@ -6,6 +6,7 @@ import (
 	"go/types"
 
 	"pkg.si-go.dev/go-mlir/mlir"
+	"pkg.si-go.dev/sigo/compiler/ssa/internal/asset"
 	"pkg.si-go.dev/sigo/goir/binding/goir"
 )
 
@@ -122,8 +123,14 @@ func (b *Builder) emitGlobalVar(ctx context.Context, ident *ast.Ident) *GlobalVa
 		}
 	}
 
+	section := info.Section
+	_, isEmbdedded := b.config.Program.EmbedContents[symbol]
+	if isEmbdedded {
+		section = ""
+	}
+
 	// Emit the global variable.
-	globalOp := goir.NewGlobalOperation(b.ctx, linkage, symbol, info.Section, info.Alignment, T, location)
+	globalOp := goir.NewGlobalOperation(b.ctx, linkage, symbol, section, info.Alignment, T, location)
 	b.appendToModule(globalOp)
 	value := &GlobalValue{
 		symbol: symbol,
@@ -131,6 +138,11 @@ func (b *Builder) emitGlobalVar(ctx context.Context, ident *ast.Ident) *GlobalVa
 		GoT:    obj.Type(),
 		ctx:    b.ctx,
 		b:      b,
+	}
+
+	if info.Exported {
+		// Mark this var as explicitly exported.
+		globalOp.SetAttributeByName("go.exported", mlir.NewUnitAttr(b.ctx))
 	}
 
 	b.valueCacheMutex.Lock()
@@ -227,7 +239,14 @@ func (b *Builder) emitConstInt(ctx context.Context, value int64, T mlir.TypeLike
 }
 
 func (b *Builder) emitConstString(ctx context.Context, value string, T mlir.TypeLike, location mlir.LocationLike) mlir.Value {
+	return b.emitConstStringInSection(ctx, value, T, "", location)
+}
+
+func (b *Builder) emitConstStringInSection(ctx context.Context, value string, T mlir.TypeLike, section string, location mlir.LocationLike) mlir.Value {
 	op := goir.NewConstantOperation(b.ctx, mlir.NewStringAttr(b.ctx, value), nil, T, location)
+	if len(section) > 0 {
+		op.SetAttributeByName("go.section", mlir.NewStringAttr(b.ctx, section))
+	}
 	appendOperation(ctx, op)
 	return resultOf(op).AsValue()
 }
@@ -263,10 +282,10 @@ func (b *Builder) emitConstSlice(ctx context.Context, arr mlir.ValueLike, length
 	return resultOf(insertOp).AsValue()
 }
 
-func (b *Builder) emitEmbedSlice(ctx context.Context, data []byte, T mlir.TypeLike, location mlir.LocationLike) mlir.Value {
+func (b *Builder) emitEmbedSlice(ctx context.Context, data []byte, T mlir.TypeLike, section string, location mlir.LocationLike) mlir.Value {
 	// Emit the data as a string constant (reuses the existing GlobalConstantsPass pipeline
 	// which materializes string data into LLVM globals).
-	strVal := b.emitConstString(ctx, string(data), b.str, location)
+	strVal := b.emitConstStringInSection(ctx, string(data), b.str, section, location)
 	rawStrVal := b.bitcastTo(ctx, strVal, b._string, location)
 
 	// Extract the pointer from the string struct (index 0).
@@ -290,6 +309,44 @@ func (b *Builder) emitEmbedSlice(ctx context.Context, data []byte, T mlir.TypeLi
 
 	// Bitcast to the expected slice type.
 	return b.bitcastTo(ctx, rawSlice, T, location)
+}
+
+func (b *Builder) emitAsset(
+	ctx context.Context,
+	data []byte,
+	T mlir.TypeLike,
+	section string,
+	location mlir.LocationLike,
+) mlir.Value {
+	// Materialize the encoded SGFX bytes using the same path as embedded data.
+	strVal := b.emitConstStringInSection(ctx, string(data), b.str, section, location)
+	rawStrVal := b.bitcastTo(ctx, strVal, b._string, location)
+
+	// Extract string backing pointer.
+	extractOp := goir.NewExtractOperation(b.ctx, 0, b.ptr, rawStrVal, location)
+	appendOperation(ctx, extractOp)
+
+	// Bitcast the string backing pointer to the asset header pointer type.
+	hptr := b.bitcastTo(ctx, resultOf(extractOp).AsValue(), b._assetHeaderPtr, location)
+
+	// Advance the backing pointer to the start of the bitmap data.
+	constHeaderLenVal := b.emitConstInt(ctx, asset.HeaderSize, b.uiptr, location)
+	bptrOp := goir.NewPtrToIntOperation(b.ctx, resultOf(extractOp).AsValue(), b.uiptr, location)
+	appendOperation(ctx, bptrOp)
+	bptrOp = goir.NewAddIOperation(b.ctx, b.uiptr, resultOf(bptrOp), constHeaderLenVal, location)
+	appendOperation(ctx, bptrOp)
+	bptrOp = goir.NewIntToPtrOperation(b.ctx, resultOf(bptrOp), b.ptr, location)
+	appendOperation(ctx, bptrOp)
+	bptr := resultOf(bptrOp).AsValue()
+
+	// Construct and return the asset reference type value.
+	zeroOp := goir.NewZeroOperation(b.ctx, b._asset, location)
+	appendOperation(ctx, zeroOp)
+	insertOp := goir.NewInsertOperation(b.ctx, 0, hptr, resultOf(zeroOp), b._asset, location)
+	appendOperation(ctx, insertOp)
+	insertOp = goir.NewInsertOperation(b.ctx, 1, bptr, resultOf(insertOp), b._asset, location)
+	appendOperation(ctx, insertOp)
+	return resultOf(insertOp).AsValue()
 }
 
 func (b *Builder) emitZeroValue(ctx context.Context, T types.Type, location mlir.LocationLike) mlir.Value {

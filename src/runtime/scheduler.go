@@ -52,10 +52,11 @@ type goroutine struct {
 //go:export getg runtime.getg
 
 var (
-	headGoroutine      *goroutine = nil
-	lastGoroutine      *goroutine = nil
-	currentGoroutine   *goroutine = nil
-	targetGoroutine    *goroutine = nil
+	headGoroutine      *goroutine
+	lastGoroutine      *goroutine
+	currentGoroutine   *goroutine
+	targetGoroutine    *goroutine
+	retiredGoroutines  *goroutine
 	goroutineStackSize uintptr
 )
 
@@ -64,81 +65,131 @@ func alignStack(n uintptr) uintptr
 func gosched()
 
 func schedule() bool {
-	state := DisableInterrupts()
+	// This is the goroutine whose context is physically present on PSP.
+	// Do not infer this from lastGoroutine; that value may describe an older
+	// context switch.
+	outgoing := currentGoroutine
 
-	// Check for stack overflow on current goroutine. Skip when we're not
-	// actually on the goroutine's own stack — this happens transiently when
-	// the goroutine has called into a coro (range-over-func with iter.Pull),
-	// in which case currentStack() is in the coro's stack range, not the
-	// goroutine's.
-	if currentGoroutine != nil {
-		stackBottom := unsafe.Add(currentGoroutine.stack, goroutineStackSize)
-		cs := uintptr(currentStack())
-		if cs >= uintptr(currentGoroutine.stack) && cs <= uintptr(stackBottom) {
-			stackSize := uintptr(stackBottom) - cs
-			if stackSize > goroutineStackSize {
-				panic("stack overflow")
-			}
+	if headGoroutine == nil {
+		targetGoroutine = nil
+		lastGoroutine = outgoing
+		return false
+	}
+
+	// Do not switch during panic handling. An exiting goroutine is deliberately
+	// not included here: it must be allowed to switch away permanently.
+	if outgoing != nil {
+		switch outgoing.state {
+		case goroutinePanicking, goroutineRecovered:
+			lastGoroutine = outgoing
+			return false
 		}
 	}
 
-	if headGoroutine != nil {
-		if currentGoroutine == nil {
-			// Initialize the current goroutine.
-			currentGoroutine = headGoroutine
-			lastGoroutine = nil
-		} else if targetGoroutine != nil {
-			// Switch to the target goroutine.
-			lastGoroutine = currentGoroutine
-			currentGoroutine = targetGoroutine
-			targetGoroutine = nil
-		} else {
-			if currentGoroutine.state == goroutinePanicking || currentGoroutine.state == goroutineRecovered || currentGoroutine.state == goroutineExiting {
-				// Do not allow any further context switches from this goroutine.
-				// NOTE: Interrupts are intentionally not re-enabled. The panic will re-enable them if a panic is
-				//		 recovered.
-				lastGoroutine = currentGoroutine
+	var next *goroutine
+
+	if outgoing == nil {
+		// First scheduler activation. Search the ring for the first runnable
+		// goroutine rather than assuming headGoroutine is runnable.
+		start := headGoroutine
+		candidate := start
+
+		for {
+			if runnable(candidate) {
+				next = candidate
+				break
+			}
+
+			candidate = candidate.next
+			if candidate == start {
+				break
+			}
+		}
+	} else if targetGoroutine != nil {
+		// Consume the targeted wakeup exactly once.
+		target := targetGoroutine
+		targetGoroutine = nil
+
+		if target == outgoing {
+			// The goroutine was resumed after marking itself parked but before
+			// PendSV actually switched away. Its context is still physically
+			// active on PSP.
+			if outgoing.state == goroutineReady {
+				outgoing.state = goroutineRunning
+			}
+
+			if outgoing.state == goroutineRunning {
+				lastGoroutine = outgoing
 				return false
 			}
 
-			// Switch to the next goroutine
-			lastGoroutine = currentGoroutine
-			nextGoroutine := lastGoroutine.next
-
-			start := nextGoroutine
-			for {
-				if nextGoroutine.state != goroutineParked {
-					currentGoroutine = nextGoroutine
-					break
-				}
-				nextGoroutine = nextGoroutine.next
-				if nextGoroutine == start {
-					// All goroutines are parked.
-					EnableInterrupts(state)
-					return false
-				}
-			}
-		}
-
-		if currentGoroutine != nil && currentGoroutine != lastGoroutine && currentGoroutine.state != goroutineRunning {
-			if lastGoroutine != nil && lastGoroutine.state == goroutineRunning {
-				// Transition the last goroutine to the ready state.
-				lastGoroutine.state = goroutineReady
-			}
-
-			// Transition the new current goroutine to the running state.
-			currentGoroutine.state = goroutineRunning
-
-			// Re-enable interrupts and signal that a context switch to the new goroutine must take place.
-			EnableInterrupts(state)
-			return true
+			// If outgoing is parked or exiting, ignore this stale target and
+			// continue with normal ring selection.
+		} else if runnable(target) {
+			next = target
 		}
 	}
 
-	EnableInterrupts(state)
+	if next == nil && outgoing != nil {
+		// Search the ring exactly once, starting after the outgoing goroutine.
+		// Do not select parked, panicking, recovered, running, or exiting
+		// goroutines.
+		candidate := outgoing.next
+		start := candidate
 
-	// Signal that no context switch should occur.
-	return false
+		for {
+			if candidate != outgoing && runnable(candidate) {
+				next = candidate
+				break
+			}
+
+			candidate = candidate.next
+			if candidate == start {
+				break
+			}
+		}
+
+		// The outgoing goroutine may remain selected only if it is still
+		// runnable. An exiting goroutine must never be selected again.
+		if next == nil &&
+			(outgoing.state == goroutineRunning ||
+				outgoing.state == goroutineReady) {
+
+			next = outgoing
+		}
+	}
+
+	if next == nil || next == outgoing {
+		// No actual context change occurred.
+		if outgoing != nil && outgoing.state == goroutineReady {
+			outgoing.state = goroutineRunning
+		}
+
+		lastGoroutine = outgoing
+		return false
+	}
+
+	// Commit the context-switch decision. PendSV will save lastGoroutine's
+	// active PSP context and restore currentGoroutine's saved context.
+	lastGoroutine = outgoing
+	currentGoroutine = next
+
+	if outgoing != nil {
+		switch outgoing.state {
+		case goroutineRunning:
+			outgoing.state = goroutineReady
+
+		case goroutineExiting:
+			// It is now safe to remove the outgoing goroutine from the ring,
+			// but not to free its stack. PendSV still needs the stack to save
+			// the outgoing hardware/software context before restoring next.
+			unlinkGoroutine(outgoing)
+			retireGoroutine(outgoing)
+		}
+	}
+
+	next.state = goroutineRunning
+	return true
 }
 
 func addGoroutine(f _func) {
@@ -154,7 +205,9 @@ func addGoroutine(f _func) {
 	if stackSize == 0 {
 		stackSize = goroutineStackSize
 	}
-	stack := alloc(stackSize)
+
+	//stack := alloc(stackSize)
+	stack := malloc(stackSize)
 
 	// Create the new goroutine
 	newGoroutine := &goroutine{
@@ -162,8 +215,12 @@ func addGoroutine(f _func) {
 		// NOTE: initGoroutine may move the top of the stack pointer depending on the target machine's stack growth
 		//       direction.
 		stackTop: stack,
-		__func:   f,
-		state:    goroutineNotStarted,
+		__func: _func{
+			f:         f.f,
+			args:      f.args,
+			stackSize: stackSize,
+		},
+		state: goroutineNotStarted,
 	}
 
 	// Seed chacha8 with the goroutine's address.
@@ -195,40 +252,37 @@ func addGoroutine(f _func) {
 	EnableInterrupts(state)
 }
 
+// removeGoroutine terminates the currently executing goroutine.
+//
+// It cannot synchronously unlink or free g because this function itself is
+// executing on g's stack. schedule performs the unlink only after selecting
+// another goroutine, and PendSV then switches away from this stack.
+//
+// This function intentionally never returns.
 func removeGoroutine(ptr unsafe.Pointer) {
-	state := DisableInterrupts()
 	g := (*goroutine)(ptr)
 
-	// Free this goroutine's stack.
-	free(g.stack)
+	state := DisableInterrupts()
 
-	if g.next == g && g.prev == g {
-		// There is only one goroutine left.
-		headGoroutine = nil
-		currentGoroutine = nil
-		lastGoroutine = nil
-	} else {
-		// Remove the goroutine from the ring.
-		g.prev.next = g.next
-		g.next.prev = g.prev
+	if g != currentGoroutine {
+		EnableInterrupts(state)
+		panic("cannot remove a goroutine that is not currently running")
+	}
 
-		// If the goroutine being removed was the head goroutine, set the next goroutine as the new head goroutine.
-		if g == headGoroutine {
-			headGoroutine = g.next
-		}
+	g.state = goroutineExiting
 
-		// If the goroutine being removed was the current goroutine, set the next goroutine as the new current goroutine.
-		if g == currentGoroutine {
-			currentGoroutine = g.next
-		}
-
-		// If the goroutine being removed was the last goroutine, set the previous goroutine as the new last goroutine.
-		if g == lastGoroutine {
-			lastGoroutine = g.prev
-		}
+	if targetGoroutine == g {
+		targetGoroutine = nil
 	}
 
 	EnableInterrupts(state)
+
+	// Keep requesting a switch. If every other goroutine is parked, this
+	// remains here until an interrupt wakes one. Once a switch succeeds, this
+	// goroutine is unlinked and can never resume.
+	for {
+		gosched()
+	}
 }
 
 func gopark(ptr unsafe.Pointer) {
@@ -264,15 +318,34 @@ func goparkWithCallback(ptr unsafe.Pointer, callback func()) {
 func goresume(ptr unsafe.Pointer) {
 	state := DisableInterrupts()
 	g := (*goroutine)(ptr)
-	if g.state == goroutineParked {
-		g.state = goroutineReady
-		EnableInterrupts(state)
 
-		targetGoroutine = g
-		gosched()
+	if g.state != goroutineParked {
+		EnableInterrupts(state)
 		return
 	}
+
+	// The goroutine was woken after marking itself parked but before PendSV
+	// actually switched away from it. It is still the active context.
+	if g == currentGoroutine {
+		g.state = goroutineRunning
+		EnableInterrupts(state)
+		return
+	}
+
+	g.state = goroutineReady
+	targetGoroutine = g
 	EnableInterrupts(state)
+
+	gosched()
+}
+
+func runnable(g *goroutine) bool {
+	if g == nil {
+		return false
+	}
+
+	return g.state == goroutineNotStarted ||
+		g.state == goroutineReady
 }
 
 func getg() *goroutine {
@@ -289,4 +362,38 @@ func getg() *goroutine {
 //go:export getgPtr runtime.getgPtr
 func getgPtr() unsafe.Pointer {
 	return unsafe.Pointer(currentGoroutine)
+}
+
+// unlinkGoroutine removes g from the runnable ring.
+//
+// This must only be called by schedule after it has selected a different
+// incoming goroutine. The outgoing stack is still active until PendSV finishes,
+// so this function does not free anything.
+func unlinkGoroutine(g *goroutine) {
+	if g.next == g {
+		headGoroutine = nil
+	} else {
+		g.prev.next = g.next
+		g.next.prev = g.prev
+
+		if headGoroutine == g {
+			headGoroutine = g.next
+		}
+	}
+
+	if targetGoroutine == g {
+		targetGoroutine = nil
+	}
+
+	g.next = nil
+	g.prev = nil
+}
+
+// retireGoroutine queues an unlinked goroutine for later reclamation.
+//
+// schedule runs from PendSV, so it must not invoke the normal allocator or
+// free the stack there. The retired list is consumed later in Thread mode.
+func retireGoroutine(g *goroutine) {
+	g.next = retiredGoroutines
+	retiredGoroutines = g
 }

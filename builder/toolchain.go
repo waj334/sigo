@@ -91,3 +91,33 @@ func findVersionedExecutable(cmd string, sep string) (string, error) {
 
 	return "", fmt.Errorf("could not find executable for %s", cmd)
 }
+
+func clangTargetFlags(
+	triple string,
+	cpu string,
+	fpu string,
+	floatMode string,
+) []string {
+	args := []string{
+		"--target=" + triple,
+	}
+
+	if cpu != "" {
+		args = append(args, "-mcpu="+cpu)
+	}
+
+	// Cortex-M always executes Thumb instructions.
+	args = append(args, "-mthumb")
+
+	if fpu != "" && fpu != "nofpu" && floatMode == "hardfp" {
+		args = append(
+			args,
+			"-mfpu="+fpu,
+			"-mfloat-abi=hard",
+		)
+	} else {
+		args = append(args, "-mfloat-abi=soft")
+	}
+
+	return args
+}

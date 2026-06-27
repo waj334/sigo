@@ -193,6 +193,9 @@ struct ImmutableGlobalsPass : impl::ImmutableGlobalsPassBase<ImmutableGlobalsPas
     if (globalOp->hasAttr("go.immutable"))
       return false;
 
+    if (globalOp->hasAttr("go.exported"))
+      return true;
+
     Block* block = globalOp.getInitializerBlock();
     if (!block)
       return false;

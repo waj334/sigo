@@ -17,4 +17,9 @@ bool canMaterializeImmutableGlobalInitializer(
   llvm::DenseMap<mlir::Value, bool>& memo,
   llvm::DenseSet<go::GlobalOp>& activeGlobals);
 
+mlir::Value createGlobalString(mlir::Location loc, mlir::OpBuilder &builder,
+                                     mlir::StringRef name, mlir::StringRef value,
+                                     mlir::StringRef section,
+                                     mlir::LLVM::Linkage linkage);
+
 } // namespace mlir::go

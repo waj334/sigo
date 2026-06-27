@@ -1,9 +1,11 @@
 #include <llvm/ADT/StringMap.h>
+
 #include <mlir/Dialect/LLVMIR/LLVMDialect.h>
 
 #include "Go/IR/GoOps.h"
 #include "Go/Transforms/Passes.h"
 #include "Go/Transforms/TypeConverter.h"
+#include "Go/Transforms/Util.h"
 #include "Go/Util.h"
 #include <Go/IR/GoTypes.h>
 
@@ -144,7 +146,7 @@ struct GlobalConstantsPass : public impl::GlobalConstantsPassBase<GlobalConstant
 
     // Collect the values that globals will be created from.
     llvm::StringMap<mlir::Location> globalStringMap;
-    SmallVector<std::pair<std::string, mlir::Location>> globalStrings;
+    SmallVector<std::tuple<std::string, std::string, mlir::Location>> globalStrings;
     module.walk(
       [&](ConstantOp constOp)
       {
@@ -156,7 +158,12 @@ struct GlobalConstantsPass : public impl::GlobalConstantsPassBase<GlobalConstant
           auto [it, inserted] = globalStringMap.try_emplace(strAttr.getValue(), constOp.getLoc());
           if (inserted)
           {
-            globalStrings.push_back(std::make_pair(strAttr.getValue().str(), constOp.getLoc()));
+            std::string section;
+            if (constOp->hasAttrOfType<mlir::StringAttr>("go.section"))
+            {
+              section = constOp->getAttrOfType<mlir::StringAttr>("go.section").getValue();
+            }
+            globalStrings.push_back(std::make_tuple(strAttr.getValue().str(), section, constOp.getLoc()));
           }
         }
       });
@@ -165,7 +172,7 @@ struct GlobalConstantsPass : public impl::GlobalConstantsPassBase<GlobalConstant
     {
       mlir::OpBuilder::InsertionGuard guard(builder);
       builder.setInsertionPointToStart(&module.getBodyRegion().front());
-      for (const auto& [str, loc] : globalStrings)
+      for (const auto& [str, section, loc] : globalStrings)
       {
         const auto strHash = hash_value(llvm::StringRef(str));
 
@@ -188,7 +195,7 @@ struct GlobalConstantsPass : public impl::GlobalConstantsPassBase<GlobalConstant
           // Create the global C-string
           name = "cstr_" + std::to_string(strHash);
           auto globalCStr =
-            mlir::LLVM::createGlobalString(loc, builder, name, str, mlir::LLVM::Linkage::External);
+            mlir::go::createGlobalString(loc, builder, name, str, section, mlir::LLVM::Linkage::External);
 
           // Position the global after the C-string
           builder.setInsertionPointAfterValue(globalCStr);

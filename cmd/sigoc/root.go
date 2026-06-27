@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 
 	"io/ioutil"
@@ -52,22 +53,35 @@ var (
 			println("GOROOT: ", goRoot)
 
 			// Remove the root
-			os.RemoveAll(filepath.ToSlash(rootDir))
+			err := os.RemoveAll(filepath.ToSlash(rootDir))
+			if err != nil {
+				_, _ = fmt.Fprintf(os.Stderr, "Error removing root directory: %v", err)
+				return
+			}
 
 			env, err := builder.Environment()
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Toolchain error: %v", err)
+				_, _ = fmt.Fprintf(os.Stderr, "Toolchain error: %v", err)
 				return
 			}
 
 			// Create the root directory.
 			if err := os.MkdirAll(rootDir, os.ModePerm); err != nil {
-				fmt.Fprintf(os.Stderr, "error: %v", err)
+				_, _ = fmt.Fprintf(os.Stderr, "error: %v", err)
 				return
 			}
 
 			if err := builder.StageGoRoot(rootDir, env); err != nil {
-				fmt.Fprintf(os.Stderr, "Error while staging: %v", err)
+				_, _ = fmt.Fprintf(os.Stderr, "Error while staging: %v", err)
+				return
+			}
+
+			// Finally, copy the go.env file from the runtime.
+			srcGoEnvFile := filepath.Join(goRoot, "go.env")
+			destGoEnvFile := filepath.Join(rootDir, "go.env")
+			err = copyFile(srcGoEnvFile, destGoEnvFile)
+			if err != nil {
+				_, _ = fmt.Fprintf(os.Stderr, "Error while copying go.env: %v", err)
 				return
 			}
 		},
@@ -195,4 +209,29 @@ func isExplicitlyIncluded(dirPath string, inclusionList map[string]bool) bool {
 	}
 
 	return false
+}
+
+func copyFile(src, dest string) error {
+	// Open the source file.
+	srcFile, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
+
+	// Create the destination file.
+	destFile, err := os.Create(dest)
+	if err != nil {
+		return err
+	}
+	defer destFile.Close()
+
+	// Copy the contents of the source file to the destination file.
+	_, err = io.Copy(destFile, srcFile)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

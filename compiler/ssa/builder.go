@@ -110,6 +110,9 @@ type Builder struct {
 	_func      mlir.TypeLike
 	_funcPtr   mlir.TypeLike
 
+	_asset          mlir.TypeLike
+	_assetHeaderPtr mlir.TypeLike
+
 	_noLoc mlir.LocationLike
 
 	initPackageCounter map[*packages.Package]*atomic.Uint32
@@ -169,6 +172,10 @@ func NewBuilder(config Config) *Builder {
 	builder._func = builder.GetType(context.Background(), config.Program.LookupType("runtime", "_func"))
 	builder._funcPtr = builder.GetType(context.Background(), types.NewPointer(config.Program.LookupType("runtime", "_func")))
 	builder._any = builder.GetType(context.Background(), types.NewInterfaceType(nil, nil).Complete())
+	if assetGoType := config.Program.LookupType("asset", "Asset"); assetGoType != nil {
+		builder._asset = builder.GetType(context.Background(), assetGoType)
+		builder._assetHeaderPtr = builder.GetType(context.Background(), types.NewPointer(config.Program.LookupType("asset", "header")))
+	}
 
 	// Bind the runtime type representations to the dialect's primitive type representation.
 	// NOTE: The specific type does not matter since DLTI relies on a type's type ID which is the same each variation of
@@ -211,7 +218,7 @@ func NewBuilder(config Config) *Builder {
 	return builder
 }
 
-func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package) {
+func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package) error {
 	// All operations should go to the module body by default.
 	ctx = newContextWithCurrentBlock(ctx)
 	moduleRegion := b.config.Module.Operation().Region(0)
@@ -338,7 +345,7 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 				location := b.location(ctx, lhs.Pos())
 
 				// Initialize this global.
-				gv.Initialize(ctx, b, globalPriority, func(ctx context.Context, builder *Builder) mlir.Value {
+				err := gv.Initialize(ctx, b, globalPriority, func(ctx context.Context, builder *Builder) (mlir.Value, error) {
 					ctx = newContextWithInfo(ctx, pkg.TypesInfo)
 					rhsType := b.typeOf(ctx, initializer.Rhs)
 
@@ -371,8 +378,13 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 						}
 					}
 
-					return result.AsValue()
+					return result.AsValue(), nil
 				}, location)
+
+				if err != nil {
+					return err
+				}
+
 				initializedGlobals[gv] = struct{}{}
 			}
 
@@ -393,19 +405,36 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 		}
 		location := b.location(ctx, obj.Pos())
 		varType := obj.Type()
+		info := b.config.Program.Symbols.GetSymbolInfo(symbol)
 
-		gv.Initialize(ctx, b, globalPriority, func(ctx context.Context, b *Builder) mlir.Value {
+		err := gv.Initialize(ctx, b, globalPriority, func(ctx context.Context, b *Builder) (mlir.Value, error) {
+			if len(info.AssetPath) > 0 {
+				assetType := b.config.Program.LookupType("asset", "Asset")
+				if assetType == nil {
+					return mlir.Value{}, fmt.Errorf("asset.Asset type not found in program")
+				}
+				if !types.Identical(varType, assetType) {
+					return mlir.Value{}, fmt.Errorf("unsupported asset variable type: %s", varType)
+				}
+				return b.emitAsset(ctx, embedData, b._asset, info.Section, location), nil
+			}
+
 			T := b.GetStoredType(ctx, varType)
 			switch t := baseType(varType).(type) {
 			case *types.Basic:
 				if t.Kind() == types.String {
-					return b.emitConstString(ctx, string(embedData), T, location)
+					return b.emitConstStringInSection(ctx, string(embedData), T, info.Section, location), nil
 				}
 			case *types.Slice:
-				return b.emitEmbedSlice(ctx, embedData, T, location)
+				return b.emitEmbedSlice(ctx, embedData, T, info.Section, location), nil
 			}
-			panic(fmt.Sprintf("unsupported embed variable type: %s", varType))
+			return mlir.Value{}, fmt.Errorf("unsupported embed variable type: %s", varType)
 		}, location)
+
+		if err != nil {
+			return err
+		}
+
 		initializedGlobals[gv] = struct{}{}
 		globalPriority++
 	}
@@ -420,14 +449,22 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 			info := b.config.Program.Symbols.GetSymbolInfo(symbol)
 
 			// Is this global NOT externally linked?
-			if len(info.LinkName) == 0 {
+			// Use ExternalLinkage (set by //sigo:extern) rather than LinkName
+			// to distinguish externally provided symbols from exported symbols
+			// that have a renamed link name (//sigo:export) but are still
+			// defined here and need zero-initialization.
+			if !info.ExternalLinkage {
 				// Zero initialize the value.
-				gv.Initialize(ctx, b, 0, func(ctx context.Context, b *Builder) mlir.Value {
+				err := gv.Initialize(ctx, b, 0, func(ctx context.Context, b *Builder) (mlir.Value, error) {
 					T := b.GetStoredType(ctx, obj.Type())
 					zeroOp := goir.NewZeroOperation(b.ctx, T, location)
 					appendOperation(ctx, zeroOp)
-					return resultOf(zeroOp).AsValue()
+					return resultOf(zeroOp).AsValue(), nil
 				}, location)
+
+				if err != nil {
+					return nil
+				}
 			}
 		}
 	}
@@ -515,7 +552,7 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 
 	// Fast-path: Do nothing if there are no functions to generate.
 	if len(queue.jobs) == 0 {
-		return
+		return nil
 	}
 
 	// Begin consuming the queue.
@@ -554,6 +591,8 @@ func (b *Builder) GeneratePackages(ctx context.Context, pkgs []*packages.Package
 	for _, symbol := range symbolKeys {
 		b.appendToModule(b.addToModule[symbol])
 	}
+
+	return nil
 }
 
 func (b *Builder) lookUpUngeneratedJob(symbol string) *ast.FuncDecl {

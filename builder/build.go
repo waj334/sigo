@@ -143,7 +143,8 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 	// Find the platform TableGen file.
 	platformFound := false
 	tags := append([]string{"baremetal"}, options.BuildTags...)
-	alignment := int64(4)
+	pointerAlignment := int64(4)
+	stackAlignment := int64(8)
 	fpuEnabled := false
 
 	var features []string
@@ -207,7 +208,8 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 		cpuType = arch.GetValueAsString("name")
 		features = arch.GetValueAsListOfStrings("features")
 		triplet = arch.GetValueAsString("triple")
-		alignment = arch.GetValueAsInt("alignment")
+		pointerAlignment = arch.GetValueAsInt("pointerAlignment")
+		stackAlignment = arch.GetValueAsInt("stackAlignment")
 
 		fpuType = archFpu.GetValueAsString("value")
 		fpuFeatures := archFpu.GetValueAsListOfStrings("features")
@@ -281,7 +283,7 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 	// Set up sizes.
 	sizes := types.StdSizes{
 		WordSize: int64(targetLayout.PointerSize()),
-		MaxAlign: alignment,
+		MaxAlign: pointerAlignment,
 	}
 
 	// Collect dependency directories from the first packages.Load so that
@@ -299,7 +301,7 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 	if fpuEnabled {
 		abi += "-fp"
 	} else {
-		abi += "-no-fp"
+		abi += "-nofp"
 	}
 	var cIncludePaths []string
 	sysrootInclude := filepath.Join(sigoRoot, "sysroots", abi, "include")
@@ -370,6 +372,7 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 			fmt.Fprintf(&preambleBuf, "#define %s\n", def)
 		}
 	}
+
 	for _, p := range program.CGoPreambles {
 		if p.GoFile != "" {
 			fmt.Fprintf(&preambleBuf, "#line %d \"%s\"\n", p.GoLine, p.GoFile)
@@ -377,6 +380,7 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 		preambleBuf.WriteString(p.Text)
 		preambleBuf.WriteByte('\n')
 	}
+
 	if preamble := preambleBuf.String(); strings.TrimSpace(preamble) != "" {
 		fmt.Print("Compiling C preamble...")
 
@@ -395,7 +399,20 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 		preambleObjFile = filepath.Join(options.BuildDir, "preamble.o")
 		preambleIncludePaths := append(cIncludePaths, program.CGOIncludePaths...)
 
-		clangArgs := []string{"-target", triplet, "-c", preambleC, "-o", preambleObjFile, "-fno-builtin"}
+		clangArgs := clangTargetFlags(
+			triplet,
+			cpuType,
+			fpuType,
+			options.Float,
+		)
+
+		clangArgs = append(
+			clangArgs,
+			"-c", preambleC,
+			"-o", preambleObjFile,
+			"-fno-builtin",
+		)
+
 		for _, inc := range preambleIncludePaths {
 			clangArgs = append(clangArgs, "-I"+inc)
 		}
@@ -431,7 +448,10 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 	// Generate the SSA.
 	fmt.Print("Building Go IR...")
 	phaseStart = time.Now()
-	builder.GeneratePackages(ctx, program.OrderedPackages)
+	if err := builder.GeneratePackages(ctx, program.OrderedPackages); err != nil {
+		fmt.Printf("fail (%.2fs)\n", time.Since(phaseStart).Seconds())
+		return errors.Join(ErrCodeGeneratorError, fmt.Errorf("SSA generation failed: %w", err))
+	}
 	fmt.Printf("done (%.2fs)\n", time.Since(phaseStart).Seconds())
 
 	// Create the output directory.
@@ -488,7 +508,7 @@ func Build(ctx context.Context, moduleDir, packageDir string) error {
 	fmt.Printf("done (%.2fs)\n", time.Since(phaseStart).Seconds())
 
 	// Add required constant globals to the LLVM module directly
-	addConstantGlobals(llvmModule, options, fpuEnabled, targetLayout)
+	addConstantGlobals(llvmModule, options, fpuEnabled, uint(stackAlignment), targetLayout)
 
 	if options.DumpIR {
 		err := dumpModule(llvmModule, options.Output+".dump.ll")
@@ -563,7 +583,7 @@ func link(options linkOptions, buildOptions BuildOptions) error {
 	if options.floatEnabled {
 		abi += "-fp"
 	} else {
-		abi += "-no-fp"
+		abi += "-nofp"
 	}
 
 	sysroot := filepath.Join(sigoRoot, "sysroots", abi)
@@ -587,7 +607,6 @@ func link(options linkOptions, buildOptions BuildOptions) error {
 		return err
 	}
 
-	var artifacts []string
 	if len(options.prog.LinkerScript) == 0 {
 		return errors.New("no linker script found")
 	}
@@ -606,7 +625,6 @@ func link(options linkOptions, buildOptions BuildOptions) error {
 	}
 
 	// Other arguments
-	targetTriple := "--target=" + options.triplet
 	elfOut := filepath.Join(buildOptions.BuildDir, "package.elf")
 	args := []string{
 		"--sysroot=" + sysroot,
@@ -622,8 +640,6 @@ func link(options linkOptions, buildOptions BuildOptions) error {
 		"-L" + filepath.Join(sigoRoot, "runtime"),
 		"-L" + filepath.Dir(options.prog.LinkerScript),
 		"-T" + filepath.Join(buildOptions.BuildDir, "linker.ld"),
-		"-lc",
-		"-lclang_rt.builtins",
 	}
 
 	if buildOptions.GenerateDebugInfo {
@@ -635,63 +651,69 @@ func link(options linkOptions, buildOptions BuildOptions) error {
 		args = append(args, "-L"+filepath.Dir(ld))
 	}
 
+	// Add the main firmware compiled object.
 	args = append(args, objectOut)
-	args = append(args, artifacts...)
 
-	// Add compiled C preamble object file if present.
 	if options.preambleObj != "" {
 		args = append(args, options.preambleObj)
 	}
 
-	// Compile all assembly files
+	// Compile assembly and append every resulting object before libraries.
 	for _, asm := range append(options.prog.Files[".s"], options.prog.Files[".asm"]...) {
-		// Format object file name
-		fname, _ := filepath.EvalSymlinks(asm)
-		objFile := filepath.Join(buildOptions.BuildDir, fmt.Sprintf("%s-%d.o", filepath.Base(asm), rand.Int()))
-
-		assemblerArgs := []string{targetTriple,
-			"-c", fname,
-			func() string {
-				if buildOptions.GenerateDebugInfo {
-					return "-g"
-				}
-				return ""
-			}(),
-			func() string {
-				if !options.floatEnabled {
-					return "-mfloat-abi=softfp"
-				}
-				return "-mfloat-abi=hard"
-			}(),
-			"-o", objFile}
-
-		// Append defines to the assembler arguments
-		for def, val := range options.prog.Defines {
-			if len(val) == 0 {
-				assemblerArgs = append(assemblerArgs,
-					"-D"+def)
-			} else {
-				assemblerArgs = append(assemblerArgs,
-					fmt.Sprintf("-D%s=%s", def, val))
-			}
-		}
-
-		// Invoke Clang to compile the assembly sources
-		clangCmd := exec.Command(toolchain.CC, assemblerArgs...)
-
-		clangCmd.Stdout = nil
-		clangCmd.Stderr = os.Stderr
-		if err := clangCmd.Run(); err != nil {
-			fmt.Println()
-			fmt.Println("Command failed: ", clangCmd.String())
+		fname, err := filepath.EvalSymlinks(asm)
+		if err != nil {
 			return errors.Join(ErrCompilerFailed, err)
 		}
 
-		// Add this object file to the end of the linker command
+		objFile := filepath.Join(
+			buildOptions.BuildDir,
+			fmt.Sprintf("%s-%d.o", filepath.Base(asm), rand.Int()),
+		)
+
+		assemblerArgs := clangTargetFlags(
+			options.triplet,
+			options.cpu,
+			options.fpu,
+			buildOptions.Float,
+		)
+
+		assemblerArgs = append(
+			assemblerArgs,
+			"-c", fname,
+			"-o", objFile,
+		)
+
+		if buildOptions.GenerateDebugInfo {
+			assemblerArgs = append(assemblerArgs, "-g")
+		}
+
+		for def, val := range options.prog.Defines {
+			if val == "" {
+				assemblerArgs = append(assemblerArgs, "-D"+def)
+			} else {
+				assemblerArgs = append(
+					assemblerArgs,
+					fmt.Sprintf("-D%s=%s", def, val),
+				)
+			}
+		}
+
+		clangCmd := exec.Command(toolchain.CC, assemblerArgs...)
+		clangCmd.Stderr = os.Stderr
+
+		if err := clangCmd.Run(); err != nil {
+			fmt.Println()
+			fmt.Println("Command failed:", clangCmd.String())
+			return errors.Join(ErrCompilerFailed, err)
+		}
+
 		args = append(args, objFile)
 	}
 
-	// Append any linker flags collected from #cgo LDFLAGS directives.
+	// Libraries come after every object.
+	args = append(args, "-lc", "-lclang_rt.builtins")
+
+	// Add CGo LD flags.
 	args = append(args, options.prog.CGOLDFlags...)
 
 	// Invoke ld.lld to link the final binary image.
@@ -787,16 +809,15 @@ func optimize(module mlir.LLVMModuleRef, level string, machine mlir.LLVMTargetMa
 	return nil
 }
 
-func addConstantGlobals(module mlir.LLVMModuleRef, options BuildOptions, floatEnabled bool, dataLayout mlir.LLVMTargetDataRef) {
+func addConstantGlobals(module mlir.LLVMModuleRef, options BuildOptions, floatEnabled bool, stackAlignment uint, dataLayout mlir.LLVMTargetDataRef) {
 	ctx := module.Context()
 	intPtrType := ctx.IntPtrType(dataLayout)
 	boolType := ctx.Int1Type()
 
 	// Stack size for goroutines
 	globalGoroutineStackSize := findOrCreateGlobal(module, intPtrType, "runtime._goroutineStackSize")
-	alignment := dataLayout.PreferredAlignmentOfGlobal(globalGoroutineStackSize)
-	constGoroutineStackSize := mlir.NewConstInt(intPtrType, uint64(align(uint(options.StackSize), alignment)), false)
-	globalGoroutineStackSize.SetAlignment(alignment)
+	constGoroutineStackSize := mlir.NewConstInt(intPtrType, uint64(alignUp(uint(options.StackSize), stackAlignment)), false)
+	globalGoroutineStackSize.SetAlignment(stackAlignment)
 	globalGoroutineStackSize.SetInitializer(constGoroutineStackSize)
 	globalGoroutineStackSize.SetLinkage(mlir.LLVMLinkageExternal)
 	globalGoroutineStackSize.SetGlobalConstant(true)
@@ -807,16 +828,15 @@ func addConstantGlobals(module mlir.LLVMModuleRef, options BuildOptions, floatEn
 		coroStackSize = options.StackSize
 	}
 	globalCoroStackSize := findOrCreateGlobal(module, intPtrType, "runtime._coroStackSize")
-	coroAlignment := dataLayout.PreferredAlignmentOfGlobal(globalCoroStackSize)
-	constCoroStackSize := mlir.NewConstInt(intPtrType, uint64(align(uint(coroStackSize), coroAlignment)), false)
-	globalCoroStackSize.SetAlignment(coroAlignment)
+	constCoroStackSize := mlir.NewConstInt(intPtrType, uint64(alignUp(uint(coroStackSize), stackAlignment)), false)
+	globalCoroStackSize.SetAlignment(stackAlignment)
 	globalCoroStackSize.SetInitializer(constCoroStackSize)
 	globalCoroStackSize.SetLinkage(mlir.LLVMLinkageExternal)
 	globalCoroStackSize.SetGlobalConstant(true)
 
 	// FPU enable flag.
 	globalFpuEnableFlag := findOrCreateGlobal(module, boolType, "runtime._fpuEnabled")
-	alignment = dataLayout.PreferredAlignmentOfGlobal(globalFpuEnableFlag)
+	alignment := dataLayout.PreferredAlignmentOfGlobal(globalFpuEnableFlag)
 
 	var constFpuEnableFlag mlir.LLVMValueRef
 	if floatEnabled {
@@ -846,8 +866,17 @@ func findOrCreateGlobal(module mlir.LLVMModuleRef, ty mlir.LLVMTypeRef, name str
 	return module.AddGlobal(ty, name)
 }
 
-func align(n uint, m uint) uint {
-	return n + (n % m)
+func alignUp(n, alignment uint) uint {
+	if alignment == 0 {
+		panic("alignment must be nonzero")
+	}
+
+	remainder := n % alignment
+	if remainder == 0 {
+		return n
+	}
+
+	return n + alignment - remainder
 }
 
 func collectAllPackages(pkgs []*packages.Package) []*packages.Package {

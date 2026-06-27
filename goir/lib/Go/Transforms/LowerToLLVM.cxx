@@ -652,7 +652,7 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
     }
     else if (callee == "cap")
     {
-      const auto inputType = op.getOperandTypes()[0];
+      const auto inputType = mlir::go::baseType(op.getOperandTypes()[0]);
       llvm::TypeSwitch<Type>(inputType)
         .Case(
           [&](ArrayType type)
@@ -674,7 +674,7 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
     }
     else if (callee == "clear")
     {
-      const auto inputType = op.getOperandTypes()[0];
+      const auto inputType = mlir::go::baseType(op.getOperandTypes()[0]);
       llvm::TypeSwitch<Type>(inputType)
         .Case(
           [&](MapType type)
@@ -706,7 +706,7 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
     }
     else if (callee == "copy")
     {
-      const auto srcType = op.getOperandTypes()[1];
+      const auto srcType = mlir::go::baseType(op.getOperandTypes()[1]);
       llvm::TypeSwitch<Type>(srcType)
         .Case(
           [&](SliceType type)
@@ -756,7 +756,7 @@ struct BuiltInCallOpLowering : ConvertOpToLLVMPattern<BuiltInCallOp>
     }
     else if (callee == "len")
     {
-      const auto inputType = op.getOperandTypes()[0];
+      const auto inputType = mlir::go::baseType(op.getOperandTypes()[0]);
       llvm::TypeSwitch<Type>(inputType)
         .Case(
           [&](ArrayType type)

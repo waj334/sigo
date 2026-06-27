@@ -109,11 +109,13 @@ func (g GlobalValue) Type() mlir.Type {
 	return g.T.ToType()
 }
 
-func (g GlobalValue) Initialize(ctx context.Context, builder *Builder, priority int, fn func(context.Context, *Builder) mlir.Value, location mlir.LocationLike) {
+type GlobalValueInitializerFunc = func(context.Context, *Builder) (mlir.Value, error)
+
+func (g GlobalValue) Initialize(ctx context.Context, builder *Builder, priority int, fn GlobalValueInitializerFunc, location mlir.LocationLike) error {
 	// Find the operation for this global in the current module's symbol table.
 	globalOp := builder.lookupSymbol(g.symbol)
 	if globalOp.IsNull() {
-		return
+		return nil
 	}
 
 	// Create the initializer region for this global.
@@ -123,7 +125,7 @@ func (g GlobalValue) Initialize(ctx context.Context, builder *Builder, priority 
 	// Check if the operation already has a region.
 	if blockHasTerminator(block) {
 		// Cannot initialize the global more than once.
-		return
+		return nil
 	}
 
 	// Set the initializer priority value attribute.
@@ -142,11 +144,16 @@ func (g GlobalValue) Initialize(ctx context.Context, builder *Builder, priority 
 	newCtx = newContextWithCurrentBlock(newCtx)
 
 	setCurrentBlock(newCtx, block)
-	result := fn(newCtx, builder)
+	result, err := fn(newCtx, builder)
+	if err != nil {
+		return err
+	}
 
 	// Create the terminator operation.
 	yieldOp := goir.NewYieldOperation(builder.ctx, result, location)
 	appendOperation(newCtx, yieldOp)
+
+	return nil
 }
 
 type LocalValue struct {

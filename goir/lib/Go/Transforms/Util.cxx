@@ -111,4 +111,44 @@ bool canMaterializeImmutableGlobalInitializer(
   return isConstantInitializerValue(yieldOp.getOperand(), memo, activeGlobals);
 }
 
+mlir::Value createGlobalString(
+  mlir::Location loc,
+  mlir::OpBuilder& builder,
+  mlir::StringRef name,
+  mlir::StringRef value,
+  mlir::StringRef section,
+  mlir::LLVM::Linkage linkage)
+{
+  assert(
+    builder.getInsertionBlock() && builder.getInsertionBlock()->getParentOp() &&
+    "expected builder to point to a block constrained in an op");
+  auto module = builder.getInsertionBlock()->getParentOp()->getParentOfType<ModuleOp>();
+  assert(module && "builder points to an op outside of a module");
+
+  // Create the global at the entry of the module.
+  OpBuilder moduleBuilder(module.getBodyRegion(), builder.getListener());
+  MLIRContext* ctx = builder.getContext();
+  const auto type = LLVM::LLVMArrayType::get(mlir::IntegerType::get(ctx, 8), value.size());
+  auto global = LLVM::GlobalOp::create(
+    moduleBuilder,
+    loc,
+    type,
+    /*isConstant=*/true,
+    linkage,
+    name,
+    builder.getStringAttr(value),
+    /*alignment=*/0);
+
+  if (!section.empty())
+  {
+    global.setSection(section);
+  }
+
+  const auto ptrType = LLVM::LLVMPointerType::get(ctx);
+  // Get the pointer to the first character in the global string.
+  Value globalPtr = LLVM::AddressOfOp::create(builder, loc, ptrType, global.getSymNameAttr());
+  return LLVM::GEPOp::create(
+    builder, loc, ptrType, type, globalPtr, ArrayRef<mlir::LLVM::GEPArg>{ 0, 0 });
+}
+
 } // namespace mlir::go

@@ -3,14 +3,46 @@ package fmt
 /*
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 
-static int32_t fmt_int(void *buf, int32_t sz, void *f, int32_t v)     { return (int32_t)snprintf((char*)buf, (size_t)sz, (const char*)f, v); }
-static int32_t fmt_uint(void *buf, int32_t sz, void *f, uint32_t v)   { return (int32_t)snprintf((char*)buf, (size_t)sz, (const char*)f, v); }
-static int32_t fmt_long(void *buf, int32_t sz, void *f, int64_t v)    { return (int32_t)snprintf((char*)buf, (size_t)sz, (const char*)f, v); }
-static int32_t fmt_ulong(void *buf, int32_t sz, void *f, uint64_t v)  { return (int32_t)snprintf((char*)buf, (size_t)sz, (const char*)f, v); }
-static int32_t fmt_double(void *buf, int32_t sz, void *f, double v)   { return (int32_t)snprintf((char*)buf, (size_t)sz, (const char*)f, v); }
-static int32_t fmt_char(void *buf, int32_t sz, void *f, int32_t v)    { return (int32_t)snprintf((char*)buf, (size_t)sz, (const char*)f, v); }
-static int32_t fmt_ptr(void *buf, int32_t sz, void *f, void *v)       { return (int32_t)snprintf((char*)buf, (size_t)sz, (const char*)f, v); }
+// All scalar values cross the Go/C boundary by pointer. This avoids depending
+// on the caller and Clang agreeing about the ABI locations of 64-bit and
+// floating-point arguments. memcpy also avoids alignment and aliasing issues.
+static int32_t fmt_int(void *buf, int32_t sz, void *f, const void *vp) {
+    int32_t v;
+    memcpy(&v, vp, sizeof(v));
+    return (int32_t)snprintf((char*)buf, (size_t)sz, (const char*)f, v);
+}
+
+static int32_t fmt_uint(void *buf, int32_t sz, void *f, const void *vp) {
+    uint32_t v;
+    memcpy(&v, vp, sizeof(v));
+    return (int32_t)snprintf((char*)buf, (size_t)sz, (const char*)f, v);
+}
+
+static int32_t fmt_long(void *buf, int32_t sz, void *f, const void *vp) {
+    int64_t v;
+    memcpy(&v, vp, sizeof(v));
+    return (int32_t)snprintf((char*)buf, (size_t)sz, (const char*)f, v);
+}
+
+static int32_t fmt_ulong(void *buf, int32_t sz, void *f, const void *vp) {
+    uint64_t v;
+    memcpy(&v, vp, sizeof(v));
+    return (int32_t)snprintf((char*)buf, (size_t)sz, (const char*)f, v);
+}
+
+static int32_t fmt_double(void *buf, int32_t sz, void *f, const void *vp) {
+    double v;
+    memcpy(&v, vp, sizeof(v));
+    return (int32_t)snprintf((char*)buf, (size_t)sz, (const char*)f, v);
+}
+
+static int32_t fmt_ptr(void *buf, int32_t sz, void *f, const void *vp) {
+    void *v;
+    memcpy(&v, vp, sizeof(v));
+    return (int32_t)snprintf((char*)buf, (size_t)sz, (const char*)f, v);
+}
 */
 import "C"
 
@@ -179,6 +211,8 @@ func (f *formatter) formatArg(verb byte, flags string, width, prec int, hasWidth
 	switch verb {
 	case 's', 'w':
 		f.formatString(arg)
+	case 'q':
+		f.formatQuoted(arg)
 	case 'd':
 		f.formatInt(verb, flags, width, prec, hasWidth, hasPrec, arg)
 	case 'x', 'X', 'o':
@@ -217,6 +251,30 @@ func (f *formatter) formatString(arg any) {
 		f.writeString(v.GoString())
 	default:
 		f.writeString("%!s(BADTYPE)")
+	}
+}
+
+// formatQuoted handles %q verb.
+func (f *formatter) formatQuoted(arg any) {
+	switch v := arg.(type) {
+	case string:
+		f.writeString(`"`)
+		f.writeString(v)
+		f.writeString(`"`)
+	case error:
+		f.writeString(`"`)
+		f.writeString(v.Error())
+		f.writeString(`"`)
+	case Stringer:
+		f.writeString(`"`)
+		f.writeString(v.String())
+		f.writeString(`"`)
+	case GoStringer:
+		f.writeString(`"`)
+		f.writeString(v.GoString())
+		f.writeString(`"`)
+	default:
+		f.writeString("%!q(BADTYPE)")
 	}
 }
 
@@ -406,39 +464,186 @@ func (f *formatter) formatDefault(flags string, width, prec int, hasWidth, hasPr
 	}
 }
 
+type cFormatKind uint8
+
+const (
+	cFormatInt32 cFormatKind = iota
+	cFormatUint32
+	cFormatInt64
+	cFormatUint64
+	cFormatDouble
+	cFormatPointer
+)
+
+const initialCFormatBufferSize = 64
+
+func cFormatIsSigned(kind cFormatKind) bool {
+	return kind == cFormatInt32 || kind == cFormatInt64
+}
+
+func cFormatIsUnsigned(kind cFormatKind) bool {
+	return kind == cFormatUint32 || kind == cFormatUint64
+}
+
+func cFormatIs64Bit(kind cFormatKind) bool {
+	return kind == cFormatInt64 || kind == cFormatUint64
+}
+
+// callCFormat invokes a fixed-signature C wrapper. Values are always passed by
+// pointer so that no integer-pair or VFP argument ABI is involved at this
+// boundary.
+func callCFormat(kind cFormatKind, buf unsafe.Pointer, size int, format, value unsafe.Pointer) int {
+	switch kind {
+	case cFormatInt32:
+		return int(C.fmt_int(buf, C.int32_t(size), format, value))
+	case cFormatUint32:
+		return int(C.fmt_uint(buf, C.int32_t(size), format, value))
+	case cFormatInt64:
+		return int(C.fmt_long(buf, C.int32_t(size), format, value))
+	case cFormatUint64:
+		return int(C.fmt_ulong(buf, C.int32_t(size), format, value))
+	case cFormatDouble:
+		return int(C.fmt_double(buf, C.int32_t(size), format, value))
+	case cFormatPointer:
+		return int(C.fmt_ptr(buf, C.int32_t(size), format, value))
+	default:
+		return -1
+	}
+}
+
+func (f *formatter) writeCFormatError(verb byte) {
+	f.writeString("%!")
+	f.writeByte(verb)
+	f.writeString("(FORMATERR)")
+}
+
+// writeCFormatted performs snprintf with a stack buffer first, then retries
+// with exactly enough storage when snprintf reports a larger required size.
+// snprintf returns the number of bytes that would have been written, excluding
+// the trailing NUL, so that value must never be used directly as a slice bound
+// unless it is smaller than the supplied buffer.
+func (f *formatter) writeCFormatted(verb byte, kind cFormatKind, format, value unsafe.Pointer) {
+	var initial [initialCFormatBufferSize]byte
+	written := callCFormat(
+		kind,
+		unsafe.Pointer(&initial[0]),
+		len(initial),
+		format,
+		value,
+	)
+	if written < 0 {
+		f.writeCFormatError(verb)
+		return
+	}
+	if written < len(initial) {
+		f.write(initial[:written])
+		return
+	}
+
+	maxInt := int(^uint(0) >> 1)
+	for {
+		// written+1 is required for snprintf's trailing NUL.
+		if written >= maxInt {
+			f.writeCFormatError(verb)
+			return
+		}
+
+		buf := make([]byte, written+1)
+		n := callCFormat(
+			kind,
+			unsafe.Pointer(&buf[0]),
+			len(buf),
+			format,
+			value,
+		)
+		if n < 0 {
+			f.writeCFormatError(verb)
+			return
+		}
+		if n < len(buf) {
+			f.write(buf[:n])
+			return
+		}
+
+		// The formatted size should normally be stable. Retry if the C library
+		// reports a larger size on the second call rather than slicing past buf.
+		written = n
+	}
+}
+
 // formatInt handles integer formatting verbs (%d, %x, %X, %o) via snprintf.
 func (f *formatter) formatInt(verb byte, flags string, width, prec int, hasWidth, hasPrec bool, arg any) {
-	var cfmt [24]byte
-	buildCFormat(cfmt[:], verb, flags, width, prec, hasWidth, hasPrec, arg)
-	fmtPtr := unsafe.Pointer(&cfmt[0])
+	var kind cFormatKind
+	var value unsafe.Pointer
 
-	var buf [64]byte
-	bufPtr := unsafe.Pointer(&buf[0])
-	var written int
+	var i32 int32
+	var u32 uint32
+	var i64 int64
+	var u64 uint64
 
 	switch v := arg.(type) {
 	case int:
-		written = int(C.fmt_int(bufPtr, C.int32_t(64), fmtPtr, C.int32_t(v)))
+		if unsafe.Sizeof(v) == 8 {
+			i64 = int64(v)
+			kind = cFormatInt64
+			value = unsafe.Pointer(&i64)
+		} else {
+			i32 = int32(v)
+			kind = cFormatInt32
+			value = unsafe.Pointer(&i32)
+		}
 	case int8:
-		written = int(C.fmt_int(bufPtr, C.int32_t(64), fmtPtr, C.int32_t(v)))
+		i32 = int32(v)
+		kind = cFormatInt32
+		value = unsafe.Pointer(&i32)
 	case int16:
-		written = int(C.fmt_int(bufPtr, C.int32_t(64), fmtPtr, C.int32_t(v)))
+		i32 = int32(v)
+		kind = cFormatInt32
+		value = unsafe.Pointer(&i32)
 	case int32:
-		written = int(C.fmt_int(bufPtr, C.int32_t(64), fmtPtr, C.int32_t(v)))
+		i32 = v
+		kind = cFormatInt32
+		value = unsafe.Pointer(&i32)
 	case int64:
-		written = int(C.fmt_long(bufPtr, C.int32_t(64), fmtPtr, C.int64_t(v)))
+		i64 = v
+		kind = cFormatInt64
+		value = unsafe.Pointer(&i64)
 	case uint:
-		written = int(C.fmt_uint(bufPtr, C.int32_t(64), fmtPtr, C.uint32_t(v)))
+		if unsafe.Sizeof(v) == 8 {
+			u64 = uint64(v)
+			kind = cFormatUint64
+			value = unsafe.Pointer(&u64)
+		} else {
+			u32 = uint32(v)
+			kind = cFormatUint32
+			value = unsafe.Pointer(&u32)
+		}
 	case uint8:
-		written = int(C.fmt_uint(bufPtr, C.int32_t(64), fmtPtr, C.uint32_t(v)))
+		u32 = uint32(v)
+		kind = cFormatUint32
+		value = unsafe.Pointer(&u32)
 	case uint16:
-		written = int(C.fmt_uint(bufPtr, C.int32_t(64), fmtPtr, C.uint32_t(v)))
+		u32 = uint32(v)
+		kind = cFormatUint32
+		value = unsafe.Pointer(&u32)
 	case uint32:
-		written = int(C.fmt_uint(bufPtr, C.int32_t(64), fmtPtr, C.uint32_t(v)))
+		u32 = v
+		kind = cFormatUint32
+		value = unsafe.Pointer(&u32)
 	case uint64:
-		written = int(C.fmt_ulong(bufPtr, C.int32_t(64), fmtPtr, C.uint64_t(v)))
+		u64 = v
+		kind = cFormatUint64
+		value = unsafe.Pointer(&u64)
 	case uintptr:
-		written = int(C.fmt_ulong(bufPtr, C.int32_t(64), fmtPtr, C.uint64_t(v)))
+		if unsafe.Sizeof(v) == 8 {
+			u64 = uint64(v)
+			kind = cFormatUint64
+			value = unsafe.Pointer(&u64)
+		} else {
+			u32 = uint32(v)
+			kind = cFormatUint32
+			value = unsafe.Pointer(&u32)
+		}
 	default:
 		f.writeString("%!")
 		f.writeByte(verb)
@@ -446,26 +651,42 @@ func (f *formatter) formatInt(verb byte, flags string, width, prec int, hasWidth
 		return
 	}
 
-	if written > 0 {
-		f.write(buf[:written])
+	cVerb := verb
+	if verb == 'd' && cFormatIsUnsigned(kind) {
+		// C's %d requires a signed argument. Go's %d supports unsigned values,
+		// so use the equivalent C unsigned-decimal verb instead.
+		cVerb = 'u'
+	} else if verb != 'd' && cFormatIsSigned(kind) {
+		// C's x/X/o conversions require an unsigned argument. Preserve the
+		// underlying bit pattern while avoiding undefined variadic type usage.
+		if kind == cFormatInt64 {
+			u64 = uint64(i64)
+			kind = cFormatUint64
+			value = unsafe.Pointer(&u64)
+		} else {
+			u32 = uint32(i32)
+			kind = cFormatUint32
+			value = unsafe.Pointer(&u32)
+		}
 	}
+
+	var cfmt [64]byte
+	if buildCFormat(cfmt[:], cVerb, flags, width, prec, hasWidth, hasPrec, kind) < 0 {
+		f.writeCFormatError(verb)
+		return
+	}
+
+	f.writeCFormatted(verb, kind, unsafe.Pointer(&cfmt[0]), value)
 }
 
 // formatFloat handles float formatting verbs (%f, %e, %E, %g, %G) via snprintf.
 func (f *formatter) formatFloat(verb byte, flags string, width, prec int, hasWidth, hasPrec bool, arg any) {
-	var cfmt [24]byte
-	buildCFormat(cfmt[:], verb, flags, width, prec, hasWidth, hasPrec, arg)
-	fmtPtr := unsafe.Pointer(&cfmt[0])
-
-	var buf [64]byte
-	bufPtr := unsafe.Pointer(&buf[0])
-	var written int
-
+	var value float64
 	switch v := arg.(type) {
 	case float32:
-		written = int(C.fmt_double(bufPtr, C.int32_t(64), fmtPtr, C.double(float64(v))))
+		value = float64(v)
 	case float64:
-		written = int(C.fmt_double(bufPtr, C.int32_t(64), fmtPtr, C.double(v)))
+		value = v
 	default:
 		f.writeString("%!")
 		f.writeByte(verb)
@@ -473,9 +694,18 @@ func (f *formatter) formatFloat(verb byte, flags string, width, prec int, hasWid
 		return
 	}
 
-	if written > 0 {
-		f.write(buf[:written])
+	var cfmt [64]byte
+	if buildCFormat(cfmt[:], verb, flags, width, prec, hasWidth, hasPrec, cFormatDouble) < 0 {
+		f.writeCFormatError(verb)
+		return
 	}
+
+	f.writeCFormatted(
+		verb,
+		cFormatDouble,
+		unsafe.Pointer(&cfmt[0]),
+		unsafe.Pointer(&value),
+	)
 }
 
 // snprintfPtr formats a pointer via snprintf.
@@ -485,16 +715,13 @@ func (f *formatter) snprintfPtr(ptr unsafe.Pointer) {
 	cfmt[1] = 'p'
 	cfmt[2] = 0
 
-	var buf [24]byte
-	written := int(C.fmt_ptr(
-		unsafe.Pointer(&buf[0]),
-		C.int32_t(24),
+	value := ptr
+	f.writeCFormatted(
+		'p',
+		cFormatPointer,
 		unsafe.Pointer(&cfmt[0]),
-		ptr,
-	))
-	if written > 0 {
-		f.write(buf[:written])
-	}
+		unsafe.Pointer(&value),
+	)
 }
 
 // defaultFormat formats arguments using default formatting for Print/Fprint/Sprint family.
@@ -517,79 +744,123 @@ func (f *formatter) defaultFormat(a []any, addNewline bool) {
 }
 
 // buildCFormat constructs a NUL-terminated C format string in dst.
-// Returns the number of bytes written (excluding NUL).
-func buildCFormat(dst []byte, verb byte, flags string, width, prec int, hasWidth, hasPrec bool, arg any) int {
+// It returns the number of bytes written excluding the NUL, or -1 if dst is
+// too small.
+func buildCFormat(dst []byte, verb byte, flags string, width, prec int, hasWidth, hasPrec bool, kind cFormatKind) int {
+	if len(dst) < 2 {
+		return -1
+	}
+
 	i := 0
 	dst[i] = '%'
 	i++
 
-	// Copy flags
 	for j := 0; j < len(flags); j++ {
+		if i >= len(dst)-1 {
+			return -1
+		}
 		dst[i] = flags[j]
 		i++
 	}
 
-	// Width
-	if hasWidth {
-		i += writeIntToBytes(dst[i:], width)
+	// A negative width supplied through '*' is equivalent to the '-' flag and
+	// a positive width. intMagnitude handles the minimum int without overflow.
+	if hasWidth && width < 0 && !containsByte(flags, '-') {
+		if i >= len(dst)-1 {
+			return -1
+		}
+		dst[i] = '-'
+		i++
 	}
 
-	// Precision
-	if hasPrec {
+	if hasWidth {
+		magnitude := intMagnitude(width)
+		digits := decimalDigits(magnitude)
+		if i+digits >= len(dst) {
+			return -1
+		}
+		i += writeUintToBytes(dst[i:], magnitude)
+	}
+
+	// A negative precision supplied through '*' means that precision was not
+	// specified.
+	if hasPrec && prec >= 0 {
+		if i >= len(dst)-1 {
+			return -1
+		}
 		dst[i] = '.'
 		i++
-		i += writeIntToBytes(dst[i:], prec)
+
+		magnitude := uint(prec)
+		digits := decimalDigits(magnitude)
+		if i+digits >= len(dst) {
+			return -1
+		}
+		i += writeUintToBytes(dst[i:], magnitude)
 	}
 
-	// Length modifier for 64-bit types
-	switch arg.(type) {
-	case int64:
+	if cFormatIs64Bit(kind) {
+		if i+2 >= len(dst) {
+			return -1
+		}
 		dst[i] = 'l'
 		i++
 		dst[i] = 'l'
 		i++
-	case uint64:
-		dst[i] = 'l'
-		i++
-		dst[i] = 'l'
-		i++
-	case uintptr:
-		dst[i] = 'l'
-		i++
-		dst[i] = 'l'
-		i++
-	default:
-		// No length modifier needed for 32-bit and smaller types.
 	}
 
-	// For unsigned verbs with signed int types, use unsigned verb directly
-	// (the caller already casts to the right C type)
+	if i >= len(dst)-1 {
+		return -1
+	}
 	dst[i] = verb
 	i++
-
-	// NUL terminate
 	dst[i] = 0
 
 	return i
 }
 
-// writeIntToBytes writes a non-negative integer as decimal digits into dst.
+func containsByte(s string, want byte) bool {
+	for i := 0; i < len(s); i++ {
+		if s[i] == want {
+			return true
+		}
+	}
+	return false
+}
+
+func intMagnitude(value int) uint {
+	if value >= 0 {
+		return uint(value)
+	}
+
+	// -(minimum int) overflows. Negate value+1, then add the missing unit in
+	// the unsigned domain.
+	return uint(-(value + 1)) + 1
+}
+
+func decimalDigits(value uint) int {
+	digits := 1
+	for value >= 10 {
+		value /= 10
+		digits++
+	}
+	return digits
+}
+
+// writeUintToBytes writes a non-negative integer as decimal digits into dst.
 // Returns the number of bytes written.
-func writeIntToBytes(dst []byte, val int) int {
-	if val == 0 {
+func writeUintToBytes(dst []byte, value uint) int {
+	if value == 0 {
 		dst[0] = '0'
 		return 1
 	}
-	if val < 0 {
-		val = -val
-	}
 
-	var tmp [10]byte
+	var tmp [20]byte
 	i := len(tmp)
-	for val > 0 {
+	for value > 0 {
 		i--
-		tmp[i] = byte('0' + val%10)
-		val /= 10
+		tmp[i] = byte('0' + value%10)
+		value /= 10
 	}
 
 	n := len(tmp) - i

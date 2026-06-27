@@ -111,7 +111,7 @@ func generateArmInterruptsSource(out io.Writer, series *tablegen.Record, variant
 
 	fmt.Fprintf(&builder, "//go:build %s && %s\n\n", packageName, variantName)
 	fmt.Fprintf(&builder, "package %s\n\n", packageName)
-	fmt.Fprintf(&builder, "import \"pkg.si-go.dev/chip/arm/cortexm/runtime\"\n\n")
+	fmt.Fprintf(&builder, "import \"pkg.si-go.dev/chip/arm/cortexm\"\n\n")
 	builder.WriteString("const (\n")
 
 	for _, interrupt := range interrupts {
@@ -127,7 +127,7 @@ func generateArmInterruptsSource(out io.Writer, series *tablegen.Record, variant
 			fmt.Fprintf(&builder, "// %s %s\n", constName, description)
 			trailingNewline = true
 		}
-		fmt.Fprintf(&builder, "%s runtime.Interrupt = %d\n", constName, line)
+		fmt.Fprintf(&builder, "%s cortexm.Interrupt = %d\n", constName, line)
 
 		if trailingNewline {
 			fmt.Fprintf(&builder, "\n")

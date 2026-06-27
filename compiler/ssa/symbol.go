@@ -14,6 +14,8 @@ type SymbolInfo struct {
 	Section         string
 	Alignment       int64
 	EmbedPatterns   []string
+	AssetPath       string
+	AssetArgs       []string
 
 	// StackSize, when non-zero, overrides the default goroutine/coroutine
 	// stack size for callers that launch this function via `go` or

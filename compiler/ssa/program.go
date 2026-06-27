@@ -24,12 +24,14 @@ import (
 	"golang.org/x/tools/go/packages"
 	"gonum.org/v1/gonum/graph/multi"
 	"gonum.org/v1/gonum/graph/topo"
+	"pkg.si-go.dev/sigo/compiler/ssa/internal/asset"
 
 	"pkg.si-go.dev/sigo/compiler/check"
 )
 
 var pragmaRegex = regexp.MustCompile(`^//[\t\f\v ]*(?:go|sigo):[\t\f\v ]*([a-zA-Z0-9 ./_]+)$`)
 var embedRegex = regexp.MustCompile(`^//[\t\f\v ]*go:embed[\t\f\v ]+(.+)$`)
+var assetRegex = regexp.MustCompile(`//[ \t\f\v]*sigo:asset[ \t\f\v]+([^ \t\f\v]+)(?:[ \t\f\v]+(.*))?$`)
 
 type ProgramConfig struct {
 	Tags               []string
@@ -243,8 +245,8 @@ func (p *Program) Parse(ctx context.Context) error {
 	// Two-phase: prefer exact "target.ld" or "target.linker" in the main package.
 	mainPkgDir := ""
 	for _, pkg := range p.Packages {
-		if pkg.Module != nil && pkg.Module.Main && len(pkg.GoFiles) > 0 {
-			mainPkgDir = filepath.Dir(pkg.GoFiles[0])
+		if pkg.Module != nil && pkg.Module.Main {
+			mainPkgDir = pkg.Module.Dir
 			break
 		}
 	}
@@ -477,59 +479,163 @@ func (p *Program) LookupType(pkgname, typename string) types.Type {
 }
 
 func (p *Program) resolveEmbedData(pkg *packages.Package) error {
-	// Build a set of files that go/packages says are embeddable for this package.
-	if len(pkg.EmbedFiles) == 0 {
-		return nil
+	p.Symbols.mu.Lock()
+
+	type job struct {
+		symbol string
+		info   *SymbolInfo
 	}
 
-	// Iterate all symbols looking for those with embed patterns in this package.
-	p.Symbols.mu.Lock()
-	defer p.Symbols.mu.Unlock()
-
+	var jobs []job
 	prefix := pkg.PkgPath + "."
+
 	for symbol, info := range p.Symbols.info {
-		if len(info.EmbedPatterns) == 0 {
-			continue
-		}
 		if !strings.HasPrefix(symbol, prefix) {
 			continue
 		}
+		if len(info.EmbedPatterns) == 0 && info.AssetPath == "" {
+			continue
+		}
 
-		// Match patterns against embeddable files.
-		var matched []string
-		for _, pattern := range info.EmbedPatterns {
-			for _, f := range pkg.EmbedFiles {
-				// Match against the relative path from the package directory.
-				rel, err := filepath.Rel(pkg.Dir, f)
-				if err != nil {
-					continue
-				}
-				// Use forward slashes for matching (Go embed uses forward slashes).
-				rel = filepath.ToSlash(rel)
-				if ok, _ := path.Match(pattern, rel); ok {
-					matched = append(matched, f)
-				}
+		jobs = append(jobs, job{
+			symbol: symbol,
+			info:   info,
+		})
+	}
+
+	p.Symbols.mu.Unlock()
+
+	for _, j := range jobs {
+		if j.info.AssetPath != "" {
+			content, err := p.resolveAssetData(pkg, j.symbol, j.info)
+			if err != nil {
+				return err
 			}
+			p.EmbedContents[j.symbol] = content
+			continue
 		}
 
-		if len(matched) == 0 {
-			return fmt.Errorf("//go:embed: pattern %v matches no files for %s", info.EmbedPatterns, symbol)
-		}
-
-		if len(matched) > 1 {
-			return fmt.Errorf("//go:embed: patterns match multiple files for %s (string and []byte require exactly one file)", symbol)
-		}
-
-		// Read the file content.
-		content, err := os.ReadFile(matched[0])
+		content, err := p.resolveGoEmbedData(pkg, j.symbol, j.info)
 		if err != nil {
-			return fmt.Errorf("//go:embed: cannot read %s: %w", matched[0], err)
+			return err
 		}
-
-		p.EmbedContents[symbol] = content
+		p.EmbedContents[j.symbol] = content
 	}
 
 	return nil
+}
+
+func (p *Program) resolveGoEmbedData(pkg *packages.Package, symbol string, info *SymbolInfo) ([]byte, error) {
+	if len(pkg.EmbedFiles) == 0 {
+		return nil, fmt.Errorf("//go:embed: pattern %v matches no files for %s", info.EmbedPatterns, symbol)
+	}
+
+	var matched []string
+
+	for _, pattern := range info.EmbedPatterns {
+		for _, f := range pkg.EmbedFiles {
+			rel, err := filepath.Rel(pkg.Dir, f)
+			if err != nil {
+				continue
+			}
+
+			rel = filepath.ToSlash(rel)
+
+			if ok, _ := path.Match(pattern, rel); ok {
+				matched = append(matched, f)
+			}
+		}
+	}
+
+	if len(matched) == 0 {
+		return nil, fmt.Errorf("//go:embed: pattern %v matches no files for %s", info.EmbedPatterns, symbol)
+	}
+
+	if len(matched) > 1 {
+		return nil, fmt.Errorf("//go:embed: patterns match multiple files for %s; string and []byte require exactly one file", symbol)
+	}
+
+	content, err := os.ReadFile(matched[0])
+	if err != nil {
+		return nil, fmt.Errorf("//go:embed: cannot read %s: %w", matched[0], err)
+	}
+
+	return content, nil
+}
+
+func (p *Program) resolveAssetData(pkg *packages.Package, symbol string, info *SymbolInfo) ([]byte, error) {
+	formatInfo := asset.FormatInfo{}
+	haveFormat := false
+
+	flipY := false
+	strideAlign := 4
+
+	for _, arg := range info.AssetArgs {
+		key, value, hasValue := strings.Cut(arg, ":")
+
+		switch key {
+		case "format":
+			if !hasValue || value == "" {
+				return nil, fmt.Errorf("//go:asset: missing format value for %s", symbol)
+			}
+
+			fi, valid := asset.Info(value)
+			if !valid {
+				return nil, fmt.Errorf("//go:asset: unsupported pixel format %q for %s", value, symbol)
+			}
+
+			formatInfo = fi
+			haveFormat = true
+
+		case "flipY":
+			if hasValue {
+				return nil, fmt.Errorf("//go:asset: flipY does not take a value for %s", symbol)
+			}
+			flipY = true
+
+		case "strideAlign":
+			if !hasValue || value == "" {
+				return nil, fmt.Errorf("//go:asset: missing strideAlign value for %s", symbol)
+			}
+
+			n, err := strconv.Atoi(value)
+			if err != nil || n < 1 {
+				return nil, fmt.Errorf("//go:asset: invalid strideAlign value %q for %s", value, symbol)
+			}
+
+			strideAlign = n
+
+		default:
+			return nil, fmt.Errorf("//go:asset: unknown asset argument %q for %s", arg, symbol)
+		}
+	}
+
+	if !haveFormat {
+		return nil, fmt.Errorf("//go:asset: missing required format argument for %s", symbol)
+	}
+
+	assetPath := filepath.Clean(filepath.FromSlash(info.AssetPath))
+	if filepath.IsAbs(assetPath) {
+		return nil, fmt.Errorf("//go:asset: absolute paths are not allowed: %s", info.AssetPath)
+	}
+
+	fullPath := filepath.Join(pkg.Dir, assetPath)
+
+	// Prevent "../../outside/package.png" from escaping the package dir.
+	rel, err := filepath.Rel(pkg.Dir, fullPath)
+	if err != nil {
+		return nil, fmt.Errorf("//go:asset: invalid asset path %s: %w", info.AssetPath, err)
+	}
+	if rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return nil, fmt.Errorf("//go:asset: asset path escapes package directory: %s", info.AssetPath)
+	}
+
+	content, err := asset.Encode(fullPath, formatInfo, strideAlign, flipY)
+	if err != nil {
+		return nil, fmt.Errorf("//go:asset: cannot encode %s for %s: %w", fullPath, symbol, err)
+	}
+
+	return content, nil
 }
 
 func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) error {
@@ -633,12 +739,29 @@ func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) error {
 		// Process each comment in the group
 		for _, comment := range commentGroup.List {
 			// Check for //go:embed directive first (separate regex due to glob chars)
-			if embedMatches := embedRegex.FindStringSubmatch(comment.Text); len(embedMatches) > 0 {
+			if matches := embedRegex.FindStringSubmatch(comment.Text); len(matches) > 0 {
 				if symbolName != "" {
 					info := p.Symbols.GetSymbolInfo(symbolName)
 					// Split on whitespace to support multiple patterns on one line
-					patterns := strings.Fields(embedMatches[1])
+					patterns := strings.Fields(matches[1])
 					info.EmbedPatterns = append(info.EmbedPatterns, patterns...)
+				}
+				continue
+			}
+
+			// Check for //sigo:asset directive
+			if matches := assetRegex.FindStringSubmatch(comment.Text); len(matches) > 0 {
+				if symbolName != "" {
+					info := p.Symbols.GetSymbolInfo(symbolName)
+
+					assetPath := matches[1]
+					var args []string
+					if len(matches) > 2 && matches[2] != "" {
+						args = strings.Fields(matches[2])
+					}
+
+					info.AssetPath = assetPath
+					info.AssetArgs = args
 				}
 				continue
 			}
@@ -755,13 +878,17 @@ func (p *Program) parsePragmas(file *ast.File, pkg *types.Package) error {
 					info := p.Symbols.GetSymbolInfo(targetSymbol)
 					info.Exported = true
 					if count == 3 {
+						// Old style: //sigo:export symbolName linkName
 						info.LinkName = parts[2]
-					} else if count == 2 && targetSymbol != symbolName {
-						// Old style with explicit symbol name
+					} else if count == 2 {
+						// New style: //sigo:export linkName (before declaration)
+						// or old style: //sigo:export symbolName linkName where
+						// targetSymbol was resolved from parts[1].
+						// In both cases parts[1] is the desired export name.
 						info.LinkName = parts[1]
 					}
 				} else if count == 1 && targetSymbol != "" {
-					// New style: //go:export (uses symbol name as linkname)
+					// New style: //sigo:export (uses symbol name as linkname)
 					info := p.Symbols.GetSymbolInfo(targetSymbol)
 					info.Exported = true
 				}

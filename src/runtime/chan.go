@@ -13,142 +13,319 @@ type _channel struct {
 
 type _chanState struct {
 	buffer unsafe.Pointer
+
 	rindex int
 	windex int
-	cond   *sync.Cond
+	count  int
+
+	cond *sync.Cond
+	mu   sync.Mutex
+
 	closed bool
-	full   bool
+
+	// Used only for capacity == 0 rendezvous channels.
+	//
+	// full means a sender has placed a value in buffer and is waiting for a
+	// receiver to consume it. sendSeq/deliveredSeq let a sender distinguish:
+	//
+	//   - my value was received, even if the channel was closed afterward
+	//   - channel was closed before my value was received
+	//
+	full         bool
+	sendSeq      uint32
+	deliveredSeq uint32
+	recvWaiting  int
 }
 
 func channelMake(T *_type, capacity int) _channel {
+	if capacity < 0 {
+		panic(plainError("makechan: negative channel capacity"))
+	}
+
 	channelType := (*_channelTypeData)(T.data)
+	elemSize := uintptr(channelType.elementType.size)
+	if elemSize == 0 {
+		elemSize = 1
+	}
+
 	var buffer unsafe.Pointer
 	if capacity == 0 {
-		// Allocate memory for at most one element
-		buffer = alloc(uintptr(channelType.elementType.size))
+		// One rendezvous slot. This is not channel capacity; it is only the
+		// temporary handoff storage between a blocked sender and receiver.
+		buffer = alloc(elemSize)
 	} else {
-		buffer = alloc(uintptr(channelType.elementType.size) * uintptr(capacity))
+		buffer = alloc(elemSize * uintptr(capacity))
 	}
+
+	state := &_chanState{
+		buffer: buffer,
+	}
+
+	state.cond = sync.NewCond(&state.mu)
 
 	return _channel{
 		capacity: capacity,
 		chanType: T,
-		state: &_chanState{
-			buffer: buffer,
-			cond:   sync.NewCond(new(sync.Mutex)),
-		},
+		state:    state,
 	}
+}
+
+func channelMustNotBeInInterrupt() {
+	if InInterrupt() {
+		panic(plainError("channel operation from interrupt context"))
+	}
+}
+
+func channelElemSize(c _channel) uintptr {
+	channelType := (*_channelTypeData)(c.chanType.data)
+	elemSize := uintptr(channelType.elementType.size)
+	if elemSize == 0 {
+		return 1
+	}
+	return elemSize
 }
 
 func channelSend(c _channel, val unsafe.Pointer) {
-	channelType := (*_channelTypeData)(c.chanType.data)
-	c.state.cond.L.Lock()
+	channelMustNotBeInInterrupt()
 
-	if c.state.closed {
-		// Channel is closed, cannot send
-		c.state.cond.L.Unlock()
+	if c.state == nil {
+		// Send on nil channel blocks forever.
+		for {
+			gosched()
+		}
+	}
+
+	s := c.state
+	s.cond.L.Lock()
+
+	if c.capacity == 0 {
+		channelSendUnbuffered(c, val)
+		s.cond.L.Unlock()
+		return
+	}
+
+	channelSendBuffered(c, val)
+
+	s.cond.L.Unlock()
+}
+
+func channelSendBuffered(c _channel, val unsafe.Pointer) {
+	s := c.state
+	elemSize := channelElemSize(c)
+
+	if s.closed {
 		panic(plainError("send on closed channel"))
 	}
 
-	// The channel needs to be able to store at least one item
-	actualCap := c.capacity
-	if actualCap == 0 {
-		actualCap = 1
-	}
-
-	nextWriteIndex := (c.state.windex + 1) % actualCap
-
-	// Wait until there is space available in the channel
-	for c.state.full {
-		if c.state.closed {
-			// Channel is closed while waiting, cannot send
-			c.state.cond.L.Unlock()
+	for s.count == c.capacity {
+		if s.closed {
 			panic(plainError("send on closed channel"))
 		}
-		c.state.cond.Wait()
-		nextWriteIndex = (c.state.windex + 1) % actualCap
+
+		s.cond.Wait()
 	}
 
-	// Send the value
-	ptr := unsafe.Add(c.state.buffer, uintptr(c.state.windex)*uintptr(channelType.elementType.size))
-	memcpy(ptr, val, uintptr(channelType.elementType.size))
+	if s.closed {
+		panic(plainError("send on closed channel"))
+	}
 
-	// Update write index
-	c.state.windex = nextWriteIndex
+	dst := unsafe.Add(s.buffer, uintptr(s.windex)*elemSize)
+	memcpy(dst, val, elemSize)
 
-	// Buffer is now full if writeIndex == readIndex
-	c.state.full = c.state.windex == c.state.rindex
+	s.windex = (s.windex + 1) % c.capacity
+	s.count++
 
-	// Signal any goroutines waiting to receive
-	c.state.cond.Signal()
+	// Wake receivers.
+	s.cond.Broadcast()
+}
 
-	c.state.cond.L.Unlock()
+func channelSendUnbuffered(c _channel, val unsafe.Pointer) {
+	s := c.state
+	elemSize := channelElemSize(c)
+
+	if s.closed {
+		panic(plainError("send on closed channel"))
+	}
+
+	// Only one sender may occupy the rendezvous slot at a time.
+	for s.full {
+		if s.closed {
+			panic(plainError("send on closed channel"))
+		}
+
+		s.cond.Wait()
+	}
+
+	if s.closed {
+		panic(plainError("send on closed channel"))
+	}
+
+	s.sendSeq++
+	mySeq := s.sendSeq
+
+	memcpy(s.buffer, val, elemSize)
+	s.full = true
+
+	// Wake receivers.
+	s.cond.Broadcast()
+
+	// A zero-capacity send does not complete until a receiver consumes the
+	// value.
+	for s.full && !s.closed {
+		s.cond.Wait()
+	}
+
+	// If a receiver consumed this sender's value, the send succeeds even if
+	// another goroutine closed the channel before this sender reacquired the
+	// lock.
+	if s.deliveredSeq == mySeq {
+		return
+	}
+
+	// Otherwise the channel was closed before rendezvous completed.
+	panic(plainError("send on closed channel"))
 }
 
 func channelReceive(c _channel, block bool) (unsafe.Pointer, bool) {
+	channelMustNotBeInInterrupt()
+
 	if c.state == nil {
-		// Block indefinitely.
+		if !block {
+			return nil, false
+		}
+
+		// Receive from nil channel blocks forever.
 		for {
 			gosched()
 		}
 	}
 
-	c.state.cond.L.Lock()
-	result, ok := _channelReceive(c, block)
-	c.state.cond.L.Unlock()
+	s := c.state
+	s.cond.L.Lock()
+
+	var result unsafe.Pointer
+	var ok bool
+
+	if c.capacity == 0 {
+		result, ok = channelReceiveUnbuffered(c, block)
+	} else {
+		result, ok = channelReceiveBuffered(c, block)
+	}
+
+	s.cond.L.Unlock()
 	return result, ok
 }
 
-func _channelReceive(c _channel, block bool) (unsafe.Pointer, bool) {
-	if c.state == nil {
-		// Block indefinitely.
-		for {
-			gosched()
-		}
-	}
+func channelReceiveBuffered(c _channel, block bool) (unsafe.Pointer, bool) {
+	s := c.state
+	elemSize := channelElemSize(c)
 
-	channelType := (*_channelTypeData)(c.chanType.data)
-	if c.state.rindex == c.state.windex {
-		if c.state.closed || !block {
-			// Receive the zero value immediately
+	for s.count == 0 {
+		if s.closed {
 			return nil, false
 		}
+
+		if !block {
+			return nil, false
+		}
+
+		s.cond.Wait()
 	}
 
-	// Block the current _goroutine until there is a value to receive
-	for ; c.state.rindex == c.state.windex && !c.state.full && !c.state.closed; c.state.cond.Wait() {
+	src := unsafe.Add(s.buffer, uintptr(s.rindex)*elemSize)
+
+	s.rindex = (s.rindex + 1) % c.capacity
+	s.count--
+
+	// Wake blocked senders.
+	s.cond.Broadcast()
+
+	return src, true
+}
+
+func channelReceiveUnbuffered(c _channel, block bool) (unsafe.Pointer, bool) {
+	s := c.state
+
+	if !s.full {
+		if s.closed {
+			return nil, false
+		}
+
+		if !block {
+			return nil, false
+		}
+
+		s.recvWaiting++
+
+		for !s.full && !s.closed {
+			s.cond.Wait()
+		}
+
+		s.recvWaiting--
 	}
 
-	// Return the zero value if the channel was closed while the current goroutine was waiting.
-	if c.state.closed {
+	if !s.full {
+		// Closed while waiting.
 		return nil, false
 	}
 
-	// Receive the value
-	result := unsafe.Add(c.state.buffer, uintptr(c.state.rindex)*uintptr(channelType.elementType.size))
+	result := s.buffer
 
-	// The channel needs to be able to store at least one item
-	actualCap := c.capacity
-	if actualCap == 0 {
-		actualCap = 1
-	}
+	s.deliveredSeq = s.sendSeq
+	s.full = false
 
-	// Advance the read index, wrapping around if necessary
-	c.state.rindex = (c.state.rindex + 1) % actualCap
-	c.state.full = false
+	// Wake the sender that completed rendezvous, plus any other senders that
+	// were waiting for the rendezvous slot.
+	s.cond.Broadcast()
+
 	return result, true
 }
 
 func channelClose(c _channel) {
-	c.state.closed = true
-	c.state.cond.Broadcast()
+	channelMustNotBeInInterrupt()
+
+	if c.state == nil {
+		panic(plainError("close of nil channel"))
+	}
+
+	s := c.state
+	s.cond.L.Lock()
+
+	if s.closed {
+		s.cond.L.Unlock()
+		panic(plainError("close of closed channel"))
+	}
+
+	s.closed = true
+
+	if c.capacity == 0 {
+		// If a sender was waiting for rendezvous completion, cancel that
+		// pending handoff. The sender will wake and panic.
+		s.full = false
+	}
+
+	s.cond.Broadcast()
+	s.cond.L.Unlock()
 }
 
 func channelLen(c _channel) int {
-	if c.state.rindex < c.state.windex {
-		return c.state.windex - c.state.rindex
+	if c.state == nil {
+		return 0
 	}
-	return c.state.rindex - c.state.windex
+
+	s := c.state
+	s.cond.L.Lock()
+
+	var n int
+	if c.capacity == 0 {
+		// Go's len on an unbuffered channel is always zero.
+		n = 0
+	} else {
+		n = s.count
+	}
+
+	s.cond.L.Unlock()
+	return n
 }
 
 func channelCap(c _channel) int {
@@ -156,62 +333,78 @@ func channelCap(c _channel) int {
 }
 
 func channelRange(c _channel) (unsafe.Pointer, bool) {
-	if c.state == nil {
-		// Block indefinitely.
-		for {
-			gosched()
-		}
-	}
-
-	// Receive the next available value on channel.
-	c.state.cond.L.Lock()
-	result, ok := _channelReceive(c, true)
-	c.state.cond.L.Unlock()
-	return result, ok
+	return channelReceive(c, true)
 }
 
 func channelSelect(chanArr *_channel, sendArr *bool, readyArr *int, count int, hasDefault bool) int {
+	channelMustNotBeInInterrupt()
+
 	cc := unsafe.Slice(chanArr, count)
 	ss := unsafe.Slice(sendArr, count)
 	rdy := unsafe.Slice(readyArr, count)
 
 	for {
-		r := 0
+		readyCount := 0
+
 		for i := range cc {
 			c := cc[i]
 			if c.state == nil {
 				continue
 			}
 
+			s := c.state
+			s.cond.L.Lock()
+
 			send := ss[i]
-			c.state.cond.L.Lock()
+
 			if send {
-				if !c.state.full {
-					// A value can be sent over the channel.
-					rdy[r] = i
-					r++
+				if s.closed {
+					// A send on a closed channel is immediately selected and
+					// then panics when the send operation runs.
+					rdy[readyCount] = i
+					readyCount++
+				} else if c.capacity == 0 {
+					// Approximation: unbuffered send is ready if a receiver is
+					// already blocked.
+					if s.recvWaiting > 0 && !s.full {
+						rdy[readyCount] = i
+						readyCount++
+					}
+				} else if s.count < c.capacity {
+					rdy[readyCount] = i
+					readyCount++
 				}
-			} else if c.state.full || c.state.rindex != c.state.windex {
-				// A value can be received from the channel.
-				rdy[r] = i
-				r++
+			} else {
+				if c.capacity == 0 {
+					if s.full || s.closed {
+						rdy[readyCount] = i
+						readyCount++
+					}
+				} else {
+					if s.count > 0 || s.closed {
+						rdy[readyCount] = i
+						readyCount++
+					}
+				}
 			}
-			c.state.cond.L.Unlock()
+
+			s.cond.L.Unlock()
 		}
 
-		if r == 1 {
+		if readyCount == 1 {
 			return rdy[0]
-		} else if r > 1 {
-			return rdy[randn(uint32(r))]
-		} else if hasDefault {
-			break
 		}
 
-		// If no cases are ready and there's no default case, yield to another goroutine.
+		if readyCount > 1 {
+			return rdy[randn(uint32(readyCount))]
+		}
+
+		if hasDefault {
+			return -1
+		}
+
 		gosched()
 	}
-
-	return -1
 }
 
 func channelIsNil(c _channel) bool {

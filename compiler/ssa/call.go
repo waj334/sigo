@@ -1163,13 +1163,3 @@ func resolveTypeParams(ctx context.Context, callExpr *ast.CallExpr, info *types.
 
 	return mapping
 }
-
-// namedRecvType extracts the *types.Named from a receiver type,
-// unwrapping a *types.Pointer if needed.
-func namedRecvType(T types.Type) (*types.Named, bool) {
-	if ptr, ok := T.(*types.Pointer); ok {
-		T = ptr.Elem()
-	}
-	named, ok := T.(*types.Named)
-	return named, ok
-}

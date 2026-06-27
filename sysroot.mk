@@ -254,6 +254,7 @@ $$($(strip $(1))_SYSROOT)/lib/libc.a: \
 		-DPOSIX_IO=ON \
 		-DPOSIX_CONSOLE=ON \
 		-DTINY_STDIO=ON \
+		-D__IO_FLOAT=ON \
 		-DPREFER_SIZE_OVER_SPEED=ON
 	$$(CMAKE) --build $$($(strip $(1))_PICOLIBC_BD) --target install
 	@# picolibc CMake may install to <prefix>/lib/picolibc/<arch>/.

@@ -188,23 +188,30 @@ struct BaseAttachDebugInfoPass
       {
         const auto recId = this->getOrCreateId(type);
         const auto arrayType = go::cast<ArrayType>(type);
-        const auto lengthAttr =
-          IntegerAttr::get(mlir::IntegerType::get(context, 64), arrayType.getLength());
-        const auto sizeAttr =
-          IntegerAttr::get(mlir::IntegerType::get(context, 64), arrayType.getLength());
+
+        auto i64 = mlir::IntegerType::get(context, 64);
+
+        const auto countAttr =
+          IntegerAttr::get(i64, arrayType.getLength());
+
         const auto diSubrange =
-          LLVM::DISubrangeAttr::get(context, lengthAttr, 0, IntegerAttr(), sizeAttr);
+          LLVM::DISubrangeAttr::get(
+            context,
+            countAttr,
+            nullptr,
+            nullptr, // upperBound
+            nullptr  // stride
+          );
 
         result = mlir::LLVM::DICompositeTypeAttr::get(
-          /*context=*/context,
-          /*recId=*/recId,
-          /*isRecSelf=*/false,
+          context,
+          recId,
+          false,
           llvm::dwarf::DW_TAG_array_type,
-          /*name=*/StringAttr::get(context, _name),
-          /*file=*/nullptr,
-          /*line=*/0,
-          /*scope=*/nullptr,
-          /*baseType=*/
+          StringAttr::get(context, _name),
+          nullptr,
+          0,
+          nullptr,
           getDITypeAttr(
             context,
             arrayType.getElementType(),
@@ -213,14 +220,15 @@ struct BaseAttachDebugInfoPass
             scopeAttr,
             dataLayout,
             runtimeTypes),
-          /*flags=*/mlir::LLVM::DIFlags::Zero,
-          /*sizeInBits=*/size,
-          /*alignInBits=*/align,
-          /*dataLocation=*/nullptr,
-          /*rank=*/nullptr,
-          /*allocated=*/nullptr,
-          /*associated=*/nullptr,
-          /*elements*/ { diSubrange });
+          mlir::LLVM::DIFlags::Zero,
+          size,
+          align * 8,
+          nullptr,
+          nullptr,
+          nullptr,
+          nullptr,
+          {diSubrange});
+
         break;
       }
       case GoTypeId::Chan:
