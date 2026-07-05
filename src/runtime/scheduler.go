@@ -33,6 +33,9 @@ type goroutine struct {
 	deferStack *deferStack
 	panicValue any
 	chacha8    chacha8rand.State
+
+	waitNext *goroutine
+	waitAddr unsafe.Pointer
 }
 
 //sigo:extern goroutineStackSize runtime._goroutineStackSize
@@ -46,8 +49,9 @@ type goroutine struct {
 //go:export schedule runtime.schedule
 //go:export addGoroutine runtime.addGoroutine
 //go:export removeGoroutine runtime.removeGoroutine
-//go:export sleep runtime.sleep
 //go:export gopark runtime.gopark
+//go:export goparkRestore runtime.goparkRestore
+//go:export goready runtime.goready
 //go:export goresume runtime.goresume
 //go:export getg runtime.getg
 
@@ -64,10 +68,15 @@ func initGoroutine(unsafe.Pointer)
 func alignStack(n uintptr) uintptr
 func gosched()
 
+// schedule selects the context PendSV should restore.
+//
+// PendSV has already saved currentGoroutine's complete software context and
+// published its stackTop before calling this function. Interrupts remain
+// disabled for the entire call, so the goroutine ring and scheduler state are
+// stable while the decision is made.
 func schedule() bool {
-	// This is the goroutine whose context is physically present on PSP.
-	// Do not infer this from lastGoroutine; that value may describe an older
-	// context switch.
+	// currentGoroutine still names the context that was physically active on
+	// PSP at PendSV entry. Its context is now durable in outgoing.stackTop.
 	outgoing := currentGoroutine
 
 	if headGoroutine == nil {
@@ -106,14 +115,16 @@ func schedule() bool {
 			}
 		}
 	} else if targetGoroutine != nil {
-		// Consume the targeted wakeup exactly once.
+		// Consume the targeted wakeup exactly once. targetGoroutine is only a
+		// fast-path hint; every ready goroutine remains discoverable by the ring
+		// scan below.
 		target := targetGoroutine
 		targetGoroutine = nil
 
 		if target == outgoing {
-			// The goroutine was resumed after marking itself parked but before
-			// PendSV actually switched away. Its context is still physically
-			// active on PSP.
+			// The goroutine was resumed after marking itself parked but before an
+			// earlier pending PendSV switched away from it. Its saved context is
+			// valid, but the physically active context is still this goroutine.
 			if outgoing.state == goroutineReady {
 				outgoing.state = goroutineRunning
 			}
@@ -125,7 +136,14 @@ func schedule() bool {
 
 			// If outgoing is parked or exiting, ignore this stale target and
 			// continue with normal ring selection.
-		} else if runnable(target) {
+		} else if runnable(target) &&
+			(outgoing.state == goroutineParked ||
+				outgoing.state == goroutineExiting) {
+
+			// Honor the direct-handoff hint only when the outgoing goroutine
+			// is giving up the CPU. When outgoing still wants to run, fall
+			// through to the ring scan so a continuous stream of targeted
+			// wakeups cannot starve other ready goroutines.
 			next = target
 		}
 	}
@@ -160,7 +178,9 @@ func schedule() bool {
 	}
 
 	if next == nil || next == outgoing {
-		// No actual context change occurred.
+		// No actual context change occurred. PendSV will return using the
+		// hardware frame already present on PSP; the software save made before
+		// this call is simply the latest durable copy of the same context.
 		if outgoing != nil && outgoing.state == goroutineReady {
 			outgoing.state = goroutineRunning
 		}
@@ -169,8 +189,8 @@ func schedule() bool {
 		return false
 	}
 
-	// Commit the context-switch decision. PendSV will save lastGoroutine's
-	// active PSP context and restore currentGoroutine's saved context.
+	// Commit the decision. PendSV already saved outgoing and will restore the
+	// context named by currentGoroutine after this function returns.
 	lastGoroutine = outgoing
 	currentGoroutine = next
 
@@ -180,9 +200,10 @@ func schedule() bool {
 			outgoing.state = goroutineReady
 
 		case goroutineExiting:
-			// It is now safe to remove the outgoing goroutine from the ring,
-			// but not to free its stack. PendSV still needs the stack to save
-			// the outgoing hardware/software context before restoring next.
+			// The outgoing context was saved before schedule was called, so it is
+			// now safe to unlink it. Reclamation is still deferred because this
+			// code runs in PendSV exception context and must not invoke the normal
+			// allocator or free the stack synchronously.
 			unlinkGoroutine(outgoing)
 			retireGoroutine(outgoing)
 		}
@@ -194,26 +215,29 @@ func schedule() bool {
 
 func addGoroutine(f _func) {
 	if f.f == nil {
-		// Do nothing.
 		return
 	}
 
-	state := DisableInterrupts()
-
-	// Allocate stack for this goroutine.
 	stackSize := f.stackSize
 	if stackSize == 0 {
 		stackSize = goroutineStackSize
 	}
 
-	//stack := alloc(stackSize)
+	// Allocate and initialize outside the interrupts-disabled region. The raw
+	// stack allocation is serialized with every other allocator user through
+	// gcMu: calling malloc with interrupts merely disabled cannot exclude a
+	// goroutine that was preempted inside the allocator while holding gcMu.
+	gcMu.lock()
 	stack := malloc(stackSize)
+	gcMu.unlock()
+	if stack == nil {
+		abort()
+	}
 
-	// Create the new goroutine
 	newGoroutine := &goroutine{
 		stack: stack,
-		// NOTE: initGoroutine may move the top of the stack pointer depending on the target machine's stack growth
-		//       direction.
+		// initGoroutine may move stackTop depending on the target's stack
+		// growth direction.
 		stackTop: stack,
 		__func: _func{
 			f:         f.f,
@@ -223,7 +247,6 @@ func addGoroutine(f _func) {
 		state: goroutineNotStarted,
 	}
 
-	// Seed chacha8 with the goroutine's address.
 	gint := uintptr(unsafe.Pointer(newGoroutine))
 	newGoroutine.chacha8.Init64([4]uint64{
 		uint64(gint >> 8),
@@ -232,31 +255,33 @@ func addGoroutine(f _func) {
 		uint64(gint >> 32),
 	})
 
-	// Initialize the stack for this goroutine.
 	initGoroutine(unsafe.Pointer(newGoroutine))
 
-	// Insert into the goroutine ring.
+	// Only the ring linkage itself must be atomic with respect to the
+	// scheduler.
+	state := DisableInterrupts()
+
 	oldHead := headGoroutine
 	headGoroutine = newGoroutine
 	if oldHead == nil {
 		headGoroutine.next = headGoroutine
 		headGoroutine.prev = headGoroutine
 	} else {
-		// Insert the new goroutine before the old head goroutine.
 		headGoroutine.next = oldHead
 		headGoroutine.prev = oldHead.prev
 
 		oldHead.prev.next = headGoroutine
 		oldHead.prev = headGoroutine
 	}
+
 	EnableInterrupts(state)
 }
 
 // removeGoroutine terminates the currently executing goroutine.
 //
 // It cannot synchronously unlink or free g because this function itself is
-// executing on g's stack. schedule performs the unlink only after selecting
-// another goroutine, and PendSV then switches away from this stack.
+// executing on g's stack. PendSV saves that context first, then schedule
+// unlinks it after selecting a different incoming goroutine.
 //
 // This function intentionally never returns.
 func removeGoroutine(ptr unsafe.Pointer) {
@@ -287,56 +312,61 @@ func removeGoroutine(ptr unsafe.Pointer) {
 
 func gopark(ptr unsafe.Pointer) {
 	state := DisableInterrupts()
-	g := (*goroutine)(ptr)
-	g.state = goroutineParked
-	EnableInterrupts(state)
-	for g.state == goroutineParked {
-		gosched()
-	}
+	goparkRestore(ptr, state)
 }
 
-// goparkWithCallback parks the goroutine and executes a callback atomically
-// after marking as parked but before enabling interrupts. This prevents races
-// where an interrupt could fire between parking and the callback execution.
+// goparkRestore parks a goroutine while interrupts are already disabled,
+// restores the caller's previous interrupt state, and waits until the
+// goroutine is resumed.
 //
-//go:export goparkWithCallback runtime.goparkWithCallback
-func goparkWithCallback(ptr unsafe.Pointer, callback func()) {
-	state := DisableInterrupts()
+// The caller must not restore state independently after calling this function.
+func goparkRestore(ptr unsafe.Pointer, state uint32) {
 	g := (*goroutine)(ptr)
 	g.state = goroutineParked
-	// Execute callback while interrupts are still disabled
-	// This ensures atomicity between parking and callback
-	if callback != nil {
-		callback()
-	}
+
 	EnableInterrupts(state)
+
 	for g.state == goroutineParked {
 		gosched()
 	}
 }
 
-func goresume(ptr unsafe.Pointer) {
+// goready transitions a parked goroutine into a runnable state. It does not
+// pend PendSV; callers that make one or more goroutines ready should request a
+// single schedule after completing the batch.
+func goready(ptr unsafe.Pointer) bool {
 	state := DisableInterrupts()
-	g := (*goroutine)(ptr)
+	ready := goreadyLocked(ptr)
+	EnableInterrupts(state)
+	return ready
+}
 
-	if g.state != goroutineParked {
-		EnableInterrupts(state)
-		return
+// goreadyLocked requires interrupts to be disabled.
+func goreadyLocked(ptr unsafe.Pointer) bool {
+	g := (*goroutine)(ptr)
+	if g == nil || g.state != goroutineParked {
+		return false
 	}
 
-	// The goroutine was woken after marking itself parked but before PendSV
-	// actually switched away from it. It is still the active context.
+	// The wake happened after the goroutine marked itself parked but before
+	// PendSV switched away from its physically active context.
 	if g == currentGoroutine {
 		g.state = goroutineRunning
-		EnableInterrupts(state)
-		return
+		return false
 	}
 
 	g.state = goroutineReady
-	targetGoroutine = g
-	EnableInterrupts(state)
 
-	gosched()
+	// This is a scheduling hint only. Overwriting it is safe because all ready
+	// goroutines remain discoverable by the normal ring scan.
+	targetGoroutine = g
+	return true
+}
+
+func goresume(ptr unsafe.Pointer) {
+	if goready(ptr) {
+		gosched()
+	}
 }
 
 func runnable(g *goroutine) bool {
@@ -353,11 +383,8 @@ func getg() *goroutine {
 }
 
 // getgPtr returns the current goroutine as an unsafe.Pointer. It exists so
-// callers in the time and sync packages can hold an opaque goroutine handle
-// without referencing the runtime's *goroutine type, which is private to the
-// runtime. The two getg variants would otherwise have signatures that differ
-// only in their return type, which would mismatch at the func.call site
-// when the time/sync side is bridged via //sigo:extern.
+// callers in packages such as time and sync can hold an opaque goroutine
+// handle without referencing runtime's private goroutine type.
 //
 //go:export getgPtr runtime.getgPtr
 func getgPtr() unsafe.Pointer {
@@ -366,10 +393,31 @@ func getgPtr() unsafe.Pointer {
 
 // unlinkGoroutine removes g from the runnable ring.
 //
-// This must only be called by schedule after it has selected a different
-// incoming goroutine. The outgoing stack is still active until PendSV finishes,
-// so this function does not free anything.
+// PendSV has already saved g's context before schedule calls this function.
+// The stack is not freed here because schedule runs in exception context.
 func unlinkGoroutine(g *goroutine) {
+	// If the incremental GC root scan is positioned on this goroutine, abandon
+	// the remainder of its stack scan and retarget the cursor so the scan
+	// resumes with the ring successor. Without this, advanceScanState would
+	// follow g.next after it has been repurposed for the retired list and scan
+	// freed memory or dereference nil.
+	if gc.phase == gcMark &&
+		gc.scanState == gcScanGoroutines &&
+		gc.currentGoroutine == g {
+
+		if g.next == g {
+			// The ring is about to become empty; move the scan directly to
+			// the globals phase.
+			gc.currentGoroutine = nil
+			gc.scanState = gcScanGlobals
+			gc.currentAddress = gcGlobalsStart()
+			gc.endAddress = gcGlobalsEnd()
+		} else {
+			gc.currentGoroutine = g.prev
+			gc.currentAddress = gc.endAddress
+		}
+	}
+
 	if g.next == g {
 		headGoroutine = nil
 	} else {
@@ -392,8 +440,41 @@ func unlinkGoroutine(g *goroutine) {
 // retireGoroutine queues an unlinked goroutine for later reclamation.
 //
 // schedule runs from PendSV, so it must not invoke the normal allocator or
-// free the stack there. The retired list is consumed later in Thread mode.
+// free the stack there. The retired list is consumed later in Thread mode by
+// reapRetiredGoroutines.
 func retireGoroutine(g *goroutine) {
 	g.next = retiredGoroutines
 	retiredGoroutines = g
+}
+
+// reapRetiredGoroutines releases the resources of goroutines that schedule
+// retired after they exited. It must run in Thread mode: schedule cannot free
+// stacks from PendSV exception context.
+//
+// Without this consumer, exited goroutines and their stacks are orphaned
+// forever and the heap is eventually exhausted.
+func reapRetiredGoroutines() {
+	state := DisableInterrupts()
+	g := retiredGoroutines
+	retiredGoroutines = nil
+	EnableInterrupts(state)
+
+	for g != nil {
+		next := g.next
+		g.next = nil
+
+		if g.stack != nil {
+			// Serialize with every other allocator user.
+			gcMu.lock()
+			free(g.stack)
+			gcMu.unlock()
+
+			g.stack = nil
+			g.stackTop = nil
+		}
+
+		// Dropping all references lets the collector reclaim the goroutine
+		// struct itself on a later cycle.
+		g = next
+	}
 }

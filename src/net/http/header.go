@@ -331,6 +331,13 @@ func parseResponse(buf []byte, resp *Response) error {
 		if !ok {
 			return ErrBadContentLength
 		}
+		// ContentLength is int64, and -1/-2 are framing sentinels. A
+		// value with bit 63 set would go negative here — in the worst
+		// case landing exactly on a sentinel and selecting the wrong
+		// framing mode. Reject anything that doesn't fit int64.
+		if int64(n) < 0 {
+			return ErrBadContentLength
+		}
 		resp.ContentLength = int64(n)
 	} else {
 		// No framing — read until the server closes.

@@ -18,10 +18,16 @@ type TCPConn struct {
 	rxBuf       chan []byte
 	rxErr       chan error
 	pending     []byte
+	readErr     error // latched terminal read error (EOF or transport failure)
 	closed      bool
 	localAddr   *TCPAddr
 	remoteAddr  *TCPAddr
 	connectDone chan error // signaled by the TCP connected/error callback
+
+	// sendSpace is signaled (capacity 1, never blocking) by the tcp_sent
+	// callback when the peer ACKs data and by the error callback when the
+	// connection dies. Write waits on it when the send buffer is full.
+	sendSpace chan struct{}
 }
 
 func (conn *TCPConn) Read(b []byte) (n int, err error) {
@@ -32,6 +38,27 @@ func (conn *TCPConn) Read(b []byte) (n int, err error) {
 		return n, nil
 	}
 
+	// A terminal error is latched: without this, a second Read after EOF
+	// would block forever on the empty channels below.
+	if conn.readErr != nil {
+		return 0, conn.readErr
+	}
+
+	// Buffered data and a connection error (typically EOF) can be pending
+	// at the same time; a bare select picks randomly between ready cases
+	// and could drop the tail of the stream. tcpRecv delivers in order on
+	// the Poll goroutine, so anything in rxBuf arrived before the error —
+	// always drain data first.
+	select {
+	case data := <-conn.rxBuf:
+		n := copy(b, data)
+		if n < len(data) {
+			conn.pending = data[n:]
+		}
+		return n, nil
+	default:
+	}
+
 	select {
 	case data := <-conn.rxBuf:
 		n := copy(b, data)
@@ -40,37 +67,74 @@ func (conn *TCPConn) Read(b []byte) (n int, err error) {
 		}
 		return n, nil
 	case err := <-conn.rxErr:
+		conn.readErr = err
 		return 0, err
 	}
 }
 
-func (conn *TCPConn) Write(b []byte) (n int, err error) {
-	queueOperation(func() {
-		remaining := b
-		for len(remaining) > 0 {
-			sndbuf := int(conn.pcb.SndBuf())
-			if sndbuf == 0 {
-				// The send buffer is full, so flush and let the caller retry.
-				err = conn.pcb.Output()
-				break
-			}
+func (conn *TCPConn) Write(b []byte) (int, error) {
+	written := 0
+	for written < len(b) {
+		var wrote int
+		var werr error
 
-			chunk := remaining
-			if len(chunk) > sndbuf {
-				chunk = remaining[:sndbuf]
-			}
-
-			err = conn.pcb.Write(chunk, tcpWriteFlagCopy)
-			if err != nil {
+		// Each round queues as much as currently fits in lwIP's send
+		// buffer. The wait for buffer space happens out here, on the
+		// caller's goroutine — blocking inside the queued operation would
+		// stall the Poll goroutine that services the entire stack.
+		queueOperation(func() {
+			if conn.closed || conn.pcb == nil {
+				werr = errors.New("net: write on closed connection")
 				return
 			}
 
-			n += len(chunk)
-			remaining = remaining[len(chunk):]
+			chunk := b[written:]
+			if sndbuf := int(conn.pcb.SndBuf()); len(chunk) > sndbuf {
+				chunk = chunk[:sndbuf]
+			}
+
+			if len(chunk) == 0 {
+				// Send buffer is full. Push queued segments toward the
+				// wire and let the caller wait for the sent callback.
+				if e := conn.pcb.Output(); e != errOk && e != errMem {
+					werr = e
+				}
+				return
+			}
+
+			if err := conn.pcb.Write(chunk, tcpWriteFlagCopy); err != nil {
+				// ERR_MEM means lwIP could not queue the segment right
+				// now; per its contract the caller should wait for
+				// tcp_sent and retry. Anything else is fatal.
+				if le, ok := err.(lwipError); ok && le == errMem {
+					if e := conn.pcb.Output(); e != errOk && e != errMem {
+						werr = e
+					}
+					return
+				}
+				werr = err
+				return
+			}
+			wrote = len(chunk)
+
+			if e := conn.pcb.Output(); e != errOk && e != errMem {
+				werr = e
+			}
+		})
+
+		if werr != nil {
+			return written, werr
 		}
-		err = conn.pcb.Output()
-	})
-	return n, nil
+		written += wrote
+
+		if wrote == 0 {
+			// No progress this round: wait until the stack ACKs in-flight
+			// data (tcpSent) or the connection dies (tcpConnErr signals
+			// too, and the next round's closed/pcb check reports it).
+			<-conn.sendSpace
+		}
+	}
+	return written, nil
 }
 
 func (conn *TCPConn) Close() error {
@@ -87,6 +151,14 @@ func (conn *TCPConn) Close() error {
 		conn.pcb = nil
 		conn.closed = true
 	})
+
+	// Wake a writer parked waiting for send-buffer space; its next round
+	// observes the closed connection and returns an error.
+	select {
+	case conn.sendSpace <- struct{}{}:
+	default:
+	}
+
 	return err
 }
 
@@ -120,19 +192,48 @@ func (conn *TCPConn) SetWriteDeadline(t time.Time) error {
 func tcpRecv(arg unsafe.Pointer, pcb *tcpControlBlock, pbuf *packetBuffer, err lwipError) lwipError {
 	conn := (*TCPConn)(arg)
 	if pbuf == nil {
-		conn.rxErr <- io.EOF
+		// Never block the Poll goroutine: rxErr has capacity 1 and Read
+		// latches the first terminal error it sees, so a second pending
+		// error can be dropped safely.
+		select {
+		case conn.rxErr <- io.EOF:
+		default:
+		}
 		return errOk
 	}
 
+	// Capture the length before freeing the pbuf — reading it afterward is
+	// a use-after-free, and a recycled pbuf's length would mis-acknowledge
+	// the TCP receive window.
+	length := pbuf.TotalLen()
+
 	// Copy out of pbuf into Go-managed memory, then free the pbuf.
-	buf := make([]byte, pbuf.TotalLen())
-	pbuf.CopyPartial(unsafe.Pointer(&buf[0]), pbuf.TotalLen(), 0)
+	buf := make([]byte, length)
+	if length > 0 {
+		pbuf.CopyPartial(unsafe.Pointer(&buf[0]), length, 0)
+	}
 	pbuf.Free()
 
 	// Acknowledge received bytes so lwIP opens the TCP window.
-	pcb.Recved(pbuf.TotalLen())
+	pcb.Recved(length)
 
-	conn.rxBuf <- buf
+	if length > 0 {
+		conn.rxBuf <- buf
+	}
 
+	return errOk
+}
+
+// tcpSent is invoked by lwIP when the remote peer ACKs previously sent data,
+// freeing space in the send buffer. It wakes a writer parked in Write waiting
+// for room. The non-blocking send collapses bursts of ACKs into one wakeup.
+//
+//go:export tcpSent tcp_sent_callback
+func tcpSent(arg unsafe.Pointer, pcb *tcpControlBlock, length uint16) lwipError {
+	conn := (*TCPConn)(arg)
+	select {
+	case conn.sendSpace <- struct{}{}:
+	default:
+	}
 	return errOk
 }

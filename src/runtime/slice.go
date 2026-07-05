@@ -68,11 +68,13 @@ func sliceClear(s _slice, elementType *_type) {
 }
 
 func sliceCopy(dst, src _slice, elementType *_type) int {
-	// Copy either as much as what is available or as much as there is capacity
-	// for.
+	// The spec requires copy to transfer min(len(dst), len(src)) elements.
+	// Clamping to dst.cap instead of dst.len writes past the destination's
+	// length (silently corrupting whatever follows within the backing
+	// array) and over-reports the count to the caller.
 	n := src.len
-	if n > dst.cap {
-		n = dst.cap
+	if n > dst.len {
+		n = dst.len
 	}
 
 	// Copy N elements from the src into dst
@@ -83,9 +85,11 @@ func sliceCopy(dst, src _slice, elementType *_type) int {
 }
 
 func sliceCopyString(dst _slice, src _string) int {
+	// Same rule as sliceCopy: the destination bound is its length, not its
+	// capacity.
 	n := src.len
-	if n > dst.cap {
-		n = dst.cap
+	if n > dst.len {
+		n = dst.len
 	}
 
 	// Copy N chars from the src into dst

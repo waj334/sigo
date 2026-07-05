@@ -1,8 +1,5 @@
 package time
 
-//sigo:extern nanotime runtime.nanotime
-func nanotime() uint64
-
 type Time struct {
 	t uint64
 }

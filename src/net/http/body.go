@@ -7,6 +7,36 @@ import (
 	"net"
 )
 
+// bodyStateError builds a diagnostic error for the internal-corruption
+// guards. These fire only when the decoder's own invariants break (memory
+// corruption, a misbehaving conn, or a codegen fault), so the message
+// carries the site and the offending values — allocation on this path is
+// irrelevant.
+func bodyStateError(site string, a, b int64) error {
+	msg := make([]byte, 0, 96)
+	msg = append(msg, "http: corrupt body state ["...)
+	msg = append(msg, site...)
+	msg = append(msg, ' ')
+	msg = appendInt64(msg, a)
+	msg = append(msg, ' ')
+	msg = appendInt64(msg, b)
+	msg = append(msg, ']')
+	return errors.New(string(msg))
+}
+
+func appendInt64(dst []byte, v int64) []byte {
+	u := uint64(v)
+	if v < 0 {
+		dst = append(dst, '-')
+		// Two's-complement negation in the unsigned domain is correct even
+		// for MinInt64, where -v would overflow.
+		u = -uint64(v)
+	}
+	var scratch [20]byte
+	n := writeUint(scratch[:], u)
+	return append(dst, scratch[:n]...)
+}
+
 // BodyReader streams a response body. It is a concrete type rather
 // than an interface so the hot path (Read on a length-known body)
 // inlines and avoids an itab allocation. It still satisfies io.ReadCloser.
@@ -79,7 +109,7 @@ func (b *BodyReader) Read(p []byte) (int, error) {
 	case b.remaining == -2:
 		return b.readUntilClose(p)
 	}
-	return 0, errors.New("http: bad body state")
+	return 0, bodyStateError("dispatch", b.remaining, int64(b.chunkState))
 }
 
 // readIdentity reads up to len(p) bytes from prefetch + conn,
@@ -104,6 +134,10 @@ func (b *BodyReader) readIdentity(p []byte) (int, error) {
 
 	n, err := b.conn.Read(p[:want])
 	if n > 0 {
+		if int64(n) > want {
+			b.bad = true
+			return 0, bodyStateError("identityRead", int64(n), want)
+		}
 		b.remaining -= int64(n)
 	}
 	if err != nil {
@@ -201,6 +235,13 @@ func (b *BodyReader) readChunked(p []byte) (int, error) {
 				return written, nil
 			}
 			return 0, io.EOF
+
+		default:
+			// chunkState holds a value outside the state machine — the
+			// struct has been scribbled on. Without this case the loop
+			// would spin forever making no progress.
+			b.bad = true
+			return written, bodyStateError("chunkState", int64(b.chunkState), b.chunkRem)
 		}
 	}
 	return written, nil
@@ -245,6 +286,13 @@ func (b *BodyReader) readChunkSizeLine() (done bool, err error) {
 				b.bad = true
 				return false, ErrBadChunkSize
 			}
+			// chunkRem is int64. A size with bit 63 set (e.g. a line of
+			// sixteen 'f's) would flip chunkRem negative and later turn
+			// into a negative reslice; reject it as a protocol error.
+			if int64(n) < 0 {
+				b.bad = true
+				return false, ErrBadChunkSize
+			}
 			b.chunkLineN = 0
 			if n == 0 {
 				// Last chunk. Move on to trailers (which we discard).
@@ -274,6 +322,12 @@ func (b *BodyReader) readChunkData(p []byte) (int, error) {
 		b.chunkState = chunkStateNeedCRLF1
 		return 0, nil
 	}
+	if b.chunkRem < 0 {
+		// Corrupt decoder state. Fail the body rather than reslicing
+		// with a negative bound below.
+		b.bad = true
+		return 0, bodyStateError("chunkRem", b.chunkRem, int64(b.chunkState))
+	}
 	want := int64(len(p))
 	if want > b.chunkRem {
 		want = b.chunkRem
@@ -292,6 +346,13 @@ func (b *BodyReader) readChunkData(p []byte) (int, error) {
 
 	n, err := b.conn.Read(p[:want])
 	if n > 0 {
+		if int64(n) > want {
+			// A conn that reports more bytes than the buffer it was given
+			// has corrupted the framing (and possibly memory). Poison the
+			// body instead of driving chunkRem negative.
+			b.bad = true
+			return 0, bodyStateError("chunkRead", int64(n), want)
+		}
 		b.chunkRem -= int64(n)
 		if b.chunkRem == 0 {
 			b.chunkState = chunkStateNeedCRLF1

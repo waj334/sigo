@@ -1,7 +1,6 @@
 package runtime
 
 import (
-	"sync"
 	"unsafe"
 )
 
@@ -26,7 +25,7 @@ var (
 
 	//sigo:align _gc 64
 	gc   _gc
-	gcMu sync.Mutex // Protects GC data structures
+	gcMu mutex // Protects GC data structures
 
 	// Deferred barrier queue for write barriers that can't acquire gcMu
 	// (e.g. from an ISR, or while the collector holds the lock).
@@ -341,9 +340,9 @@ func (gc *_gc) shade(obj *gcObject) {
 //go:nosplit
 //go:nowritebarrier
 func (gc *_gc) shadeSafe(obj *gcObject) {
-	gcMu.Lock()
+	gcMu.lock()
 	gc.shade(obj)
-	gcMu.Unlock()
+	gcMu.unlock()
 }
 
 // The compiler must lower stores into GC-managed heap memory through this helper.
@@ -383,7 +382,7 @@ func gcWriteBarrier(slot *uintptr, val uintptr) {
 //go:nowritebarrier
 func gcTryShade(val uintptr) bool {
 	// Try to acquire the lock without blocking
-	if !gcMu.TryLock() {
+	if !gcMu.tryLock() {
 		return false
 	}
 
@@ -393,7 +392,7 @@ func gcTryShade(val uintptr) bool {
 		gc.shade(child)
 	}
 
-	gcMu.Unlock()
+	gcMu.unlock()
 	return true
 }
 
@@ -606,7 +605,7 @@ func (gc *_gc) advanceScanState() bool {
 
 func (gc *_gc) processGrayIncremental() bool {
 	for i := 0; i < gcGrayBatch; i++ {
-		gcMu.Lock()
+		gcMu.lock()
 
 		// Flush any queued barriers first
 		gcFlushBarrierQueue()
@@ -618,7 +617,7 @@ func (gc *_gc) processGrayIncremental() bool {
 			obj.color = gcBlack
 		}
 
-		gcMu.Unlock()
+		gcMu.unlock()
 
 		if obj == nil {
 			return true
@@ -627,10 +626,10 @@ func (gc *_gc) processGrayIncremental() bool {
 		gc.scanObject(obj)
 	}
 
-	gcMu.Lock()
+	gcMu.lock()
 	gcFlushBarrierQueue() // Flush again before checking if we're done
 	isEmpty := gc.grayList == nil
-	gcMu.Unlock()
+	gcMu.unlock()
 	return isEmpty
 }
 
@@ -655,7 +654,7 @@ func (gc *_gc) markStep() {
 // --------------------------------------------------------------------------
 
 func (gc *_gc) remark() {
-	gcMu.Lock()
+	gcMu.lock()
 
 	// Recovery: if the deferred barrier queue overflowed during this mark cycle,
 	// a dropped pointer may have left a black object referencing an unshaded
@@ -666,7 +665,7 @@ func (gc *_gc) remark() {
 		state := DisableInterrupts()
 		gc.fullGCLocked()
 		EnableInterrupts(state)
-		gcMu.Unlock()
+		gcMu.unlock()
 		return
 	}
 
@@ -717,7 +716,7 @@ func (gc *_gc) remark() {
 	gc.phase = gcSweep
 	gc.sweepCurr = gc.head
 	gc.sweepPrev = nil
-	gcMu.Unlock()
+	gcMu.unlock()
 }
 
 // scanRangeAtomic scans a memory range without batching.
@@ -738,14 +737,14 @@ func (gc *_gc) scanRangeAtomic(low, high uintptr) {
 func (gc *_gc) sweep() {
 	// Process objects one at a time, releasing lock between each.
 	// This minimizes lock hold time and reduces interrupt latency.
-	gcMu.Lock()
+	gcMu.lock()
 	curr := gc.sweepCurr
 	prev := gc.sweepPrev
 
 	if curr == nil {
 		// Sweep complete
 		gc.phase = gcIdle
-		gcMu.Unlock()
+		gcMu.unlock()
 		return
 	}
 
@@ -795,7 +794,7 @@ func (gc *_gc) sweep() {
 	if gc.sweepCurr == nil {
 		gc.phase = gcIdle
 	}
-	gcMu.Unlock()
+	gcMu.unlock()
 }
 
 // --------------------------------------------------------------------------
@@ -878,11 +877,11 @@ func (gc *_gc) fullGCLocked() {
 }
 
 func (gc *_gc) fullGC() {
-	gcMu.Lock()
+	gcMu.lock()
 	state := DisableInterrupts()
 	gc.fullGCLocked()
 	EnableInterrupts(state)
-	gcMu.Unlock()
+	gcMu.unlock()
 }
 
 // --------------------------------------------------------------------------
@@ -890,9 +889,9 @@ func (gc *_gc) fullGC() {
 // --------------------------------------------------------------------------
 
 func (gc *_gc) iterate() {
-	gcMu.Lock()
+	gcMu.lock()
 	phase := gc.phase
-	gcMu.Unlock()
+	gcMu.unlock()
 
 	switch phase {
 	case gcIdle:
@@ -900,7 +899,7 @@ func (gc *_gc) iterate() {
 		//
 		// Set the phase first so any heap stores that happen after this point
 		// use the write barrier.
-		gcMu.Lock()
+		gcMu.lock()
 		gc.phase = gcMark
 		gc.grayList = nil
 
@@ -915,7 +914,7 @@ func (gc *_gc) iterate() {
 		gc.currentGoroutine = nil
 		gc.sweepCurr = nil
 		gc.sweepPrev = nil
-		gcMu.Unlock()
+		gcMu.unlock()
 
 	case gcMark:
 		gc.markStep()
@@ -957,9 +956,13 @@ func initgc() {
 
 //go:export alloc runtime.alloc
 func alloc(size uintptr) unsafe.Pointer {
-	gcMu.Lock()
+	if InInterrupt() && !allowAllocFromInterrupt {
+		abort()
+	}
+
+	gcMu.lock()
 	ptr := gcAllocLocked(size)
-	gcMu.Unlock()
+	gcMu.unlock()
 	return ptr
 }
 
@@ -1004,6 +1007,9 @@ func gcAllocLocked(size uintptr) unsafe.Pointer {
 //go:export gcmain runtime.gcmain
 func gcmain() {
 	for {
+		// Reclaim the stacks of goroutines that exited since the last pass.
+		reapRetiredGoroutines()
+
 		gc.iterate()
 		for range 10 {
 			gosched()

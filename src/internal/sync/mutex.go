@@ -1,33 +1,44 @@
-// Copyright 2024 The Go Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
-// Package sync provides basic synchronization primitives such as mutual
-// exclusion locks to internal packages (including ones that depend on sync).
-//
-// This is a simplified SiGo implementation for cooperative schedulers.
 package sync
 
 import "sync/atomic"
 
-// A Mutex is a mutual exclusion lock.
-// The zero value for a Mutex is an unlocked mutex.
+const mutexLocked uint32 = 1
+
+//sigo:extern runtime.mutexLockSlow
+func runtimeMutexLockSlow(*uint32)
+
+//sigo:extern runtime.mutexUnlock
+func runtimeMutexUnlock(*uint32)
+
+// Mutex is the internal implementation used by the public sync package.
+//
+// The zero value is an unlocked mutex. Mutex must not be copied after first
+// use.
 type Mutex struct {
-	state int32
+	state uint32
 }
 
 // Lock locks m.
+//
+// The uncontended path is handled here. Contended locking is delegated to the
+// runtime, which queues and parks the current goroutine without allocating.
 func (m *Mutex) Lock() {
-	for !atomic.CompareAndSwapInt32(&m.state, 0, 1) {
+	if atomic.CompareAndSwapUint32(&m.state, 0, mutexLocked) {
+		return
 	}
+
+	runtimeMutexLockSlow(&m.state)
 }
 
 // TryLock tries to lock m and reports whether it succeeded.
 func (m *Mutex) TryLock() bool {
-	return atomic.CompareAndSwapInt32(&m.state, 0, 1)
+	return atomic.CompareAndSwapUint32(&m.state, 0, mutexLocked)
 }
 
 // Unlock unlocks m.
+//
+// The runtime handles both the uncontended release and direct handoff to a
+// parked waiter. It panics if m is not locked.
 func (m *Mutex) Unlock() {
-	atomic.StoreInt32(&m.state, 0)
+	runtimeMutexUnlock(&m.state)
 }

@@ -142,6 +142,7 @@ func (d *Dialer) DialTCP(network string, laddr, raddr *TCPAddr) (*TCPConn, error
 		rxBuf:       make(chan []byte, 8),
 		rxErr:       make(chan error, 1),
 		connectDone: make(chan error, 1),
+		sendSpace:   make(chan struct{}, 1),
 		remoteAddr:  raddr,
 		localAddr:   laddr,
 	}
@@ -168,8 +169,9 @@ func (d *Dialer) DialTCP(network string, laddr, raddr *TCPAddr) (*TCPConn, error
 		// Set the connection argument to point at our TCPConn.
 		pcb.Arg(unsafe.Pointer(conn))
 
-		// Install receive and error callbacks.
+		// Install receive, sent, and error callbacks.
 		pcb.SetRecv(nonstandard.PointerOf(tcpRecv))
+		pcb.SetSent(nonstandard.PointerOf(tcpSent))
 		pcb.SetErr(nonstandard.PointerOf(tcpDialErr))
 
 		// Initiate the TCP three-way handshake.
@@ -288,7 +290,26 @@ func tcpDialErr(arg unsafe.Pointer, err lwipError) {
 //go:export tcpConnErr tcp_conn_err_callback
 func tcpConnErr(arg unsafe.Pointer, err lwipError) {
 	conn := (*TCPConn)(arg)
-	conn.rxErr <- errors.New("net: connection error: " + err.Error())
+
+	// lwIP has already freed the pcb when the error callback fires; it must
+	// never be touched again. This runs on the Poll goroutine, which is
+	// where every other pcb access is serialized, so the write is safe.
+	conn.pcb = nil
+	conn.closed = true
+
+	// Never block the Poll goroutine; Read latches the first error it
+	// sees, so a second pending error can be dropped.
+	select {
+	case conn.rxErr <- errors.New("net: connection error: " + err.Error()):
+	default:
+	}
+
+	// Wake a writer parked waiting for send-buffer space so it observes
+	// the dead connection instead of hanging forever.
+	select {
+	case conn.sendSpace <- struct{}{}:
+	default:
+	}
 }
 
 // Dial connects to the address on the named network.

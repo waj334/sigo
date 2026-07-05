@@ -1,22 +1,9 @@
 package time
 
 import (
+	"runtime"
 	"unsafe"
 )
-
-//sigo:extern gopark runtime.gopark
-//sigo:extern goparkWithCallback runtime.goparkWithCallback
-//sigo:extern goresume runtime.goresume
-//sigo:extern getg runtime.getgPtr
-//sigo:extern DisableInterrupts runtime.DisableInterrupts
-//sigo:extern EnableInterrupts runtime.EnableInterrupts
-
-func gopark(unsafe.Pointer)
-func goparkWithCallback(unsafe.Pointer, func())
-func goresume(unsafe.Pointer)
-func getg() unsafe.Pointer
-func DisableInterrupts() uint32
-func EnableInterrupts(uint32)
 
 type sleepEntry struct {
 	g        unsafe.Pointer
@@ -26,90 +13,99 @@ type sleepEntry struct {
 
 var sleepQueue *sleepEntry
 
-//sigo:export addsleep runtime.addsleep
-//sigo:linkage addsleep weak
-func addsleep(uint64) {
-	// By default, this does nothing. When implemented, this function can be the entry point for setting up hardware
-	// timing mechanisms.
+func sleep(d uint64) {
+	// Allocate before disabling interrupts: allocation may park on the
+	// allocator lock, which briefly re-enables interrupts.
+	entry := &sleepEntry{}
+
+	state := DisableInterrupts()
+	sleepOn(entry, d, state)
 }
 
-func sleep(d uint64) {
+// sleepOn queues the current goroutine on the sleep queue using the provided
+// (unqueued) entry and parks until the deadline passes or the goroutine is
+// resumed directly. Interrupts must already be disabled; state is the
+// caller's saved interrupt state, restored per goparkRestore's protocol.
+//
+// On return the entry is guaranteed to no longer be on the sleep queue, so a
+// caller may reuse it and a stale entry can never fire a wakeup at a
+// goroutine that has moved on to wait on something else.
+func sleepOn(entry *sleepEntry, d uint64, state uint32) {
 	g := getg()
 	if g == nil {
+		EnableInterrupts(state)
 		panic("sleep called from non-goroutine")
 	}
 
-	deadline := nanotime() + d
+	entry.g = g
+	entry.deadline = nanotime() + d
+	entry.next = nil
 
-	// Create a new sleep entry.
-	entry := &sleepEntry{
-		g:        g,
-		deadline: deadline,
+	arm := false
+
+	if sleepQueue == nil || entry.deadline < sleepQueue.deadline {
+		entry.next = sleepQueue
+		sleepQueue = entry
+		arm = true
+	} else {
+		curr := sleepQueue
+		for curr.next != nil &&
+			curr.next.deadline <= entry.deadline {
+
+			curr = curr.next
+		}
+
+		entry.next = curr.next
+		curr.next = entry
 	}
 
-	// CRITICAL: Insert into the sleep queue AND arm the timer atomically
-	// with parking the goroutine. All three operations happen inside
-	// goparkWithCallback with interrupts disabled. This prevents:
-	//   - wake() from removing the entry before the goroutine is parked
-	//     (goresume would be a no-op since goroutine isn't parked yet,
-	//     causing the goroutine to sleep forever)
-	//   - The timer firing before the goroutine is parked
-	goparkWithCallback(g, func() {
-		// Interrupts are disabled here (goparkWithCallback holds them).
-		if sleepQueue == nil || deadline < sleepQueue.deadline {
-			entry.next = sleepQueue
-			sleepQueue = entry
-		} else {
-			curr := sleepQueue
-			for curr.next != nil && curr.next.deadline <= deadline {
-				curr = curr.next
-			}
-			entry.next = curr.next
-			curr.next = entry
-		}
-		addsleep(deadline)
-	})
+	if arm {
+		addsleep(entry.deadline)
+	}
+
+	goparkRestore(g, state)
+
+	// The wakeup may have come from goresume rather than the timer. Remove
+	// the entry if it is still queued (a no-op when wake already removed it)
+	// so it cannot fire later at a goroutine that is parked on something else.
+	cleanup := DisableInterrupts()
+	removeSleepEntry(entry)
+	EnableInterrupts(cleanup)
 }
 
 //go:export wake runtime.wake
 func wake(t uint64) {
-	// t must be in nanoseconds (same units as nanotime()).
-	// The platform's alarm callback is responsible for converting hardware
-	// tick counts to nanoseconds before calling wake. Safe to call from
-	// interrupt context: uses DisableInterrupts/EnableInterrupts instead of
-	// a spinlock mutex, and goresume() is ISR-safe (sets a flag and pends PendSV).
 	state := DisableInterrupts()
 
-	// Wake all goroutines whose deadlines have passed
-	var prev *sleepEntry
-	curr := sleepQueue
+	var ready *sleepEntry
 
-	for curr != nil {
-		if t >= curr.deadline {
-			g := curr.g
-			next := curr.next
+	for sleepQueue != nil && sleepQueue.deadline <= t {
+		entry := sleepQueue
+		sleepQueue = entry.next
 
-			// Remove from sleep queue
-			if prev == nil {
-				sleepQueue = next
-			} else {
-				prev.next = next
-			}
+		entry.next = ready
+		ready = entry
+	}
 
-			// Re-enable interrupts around goresume: it sets targetGoroutine
-			// and pends PendSV, both safe from ISR. Re-disabling afterward
-			// protects the next queue traversal step.
-			EnableInterrupts(state)
-			goresume(g)
-			state = DisableInterrupts()
+	if sleepQueue != nil {
+		addsleep(sleepQueue.deadline)
+	}
 
-			// Continue from the next entry (prev stays the same)
-			curr = next
-		} else {
-			// Entry not yet due, move to next
-			prev = curr
-			curr = curr.next
+	needsSchedule := false
+
+	for ready != nil {
+		entry := ready
+		ready = entry.next
+		entry.next = nil
+
+		if goready(entry.g) {
+			needsSchedule = true
 		}
+	}
+
+	// Pend PendSV while the entire wake operation is still atomic.
+	if needsSchedule {
+		runtime.Gosched()
 	}
 
 	EnableInterrupts(state)
@@ -132,8 +128,8 @@ func removeSleepEntry(target *sleepEntry) {
 	}
 }
 
-//sigo:export nextsleep runtime.nextsleep
-//sigo:linkage nextsleep weak
+//sigo:export runtime.nextsleep
+//sigo:linkage weak
 func nextsleep() uint64 {
 	// Returns the deadline (in nanoseconds) of the next pending sleeper, or 0
 	// if none. Called by platform code from interrupt context after wake()
@@ -146,7 +142,50 @@ func nextsleep() uint64 {
 }
 
 func Sleep(d Duration) {
-	if d > 0 {
-		sleep(uint64(d))
+	if d <= 0 {
+		return
 	}
+
+	// sleep may return early if this goroutine is resumed directly, so keep
+	// sleeping until the deadline has actually passed.
+	deadline := nanotime() + uint64(d)
+	for {
+		now := nanotime()
+		if now >= deadline {
+			return
+		}
+
+		sleep(deadline - now)
+	}
+}
+
+var fallbackSleepDeadline uint64
+
+// addsleep arms the generic scheduler-tick fallback.
+//
+// This function is called with interrupts disabled. It must not block,
+// allocate, or enable interrupts.
+//
+//sigo:export runtime.addsleep
+//sigo:linkage weak
+func addsleep(deadline uint64) {
+	fallbackSleepDeadline = deadline
+}
+
+// checksleep services the weak scheduler-tick sleep timer.
+//
+// A strong platform addsleep implementation never writes
+// fallbackSleepDeadline, so this becomes a cheap zero check.
+//
+//sigo:export runtime.checksleep
+func checksleep(now uint64) {
+	deadline := fallbackSleepDeadline
+	if deadline == 0 || now < deadline {
+		return
+	}
+
+	// Clear before wake. wake may arm the next queue head by calling
+	// addsleep again, and that new value must not be overwritten here.
+	fallbackSleepDeadline = 0
+	wake(now)
 }

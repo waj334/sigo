@@ -17,4 +17,5 @@ const (
 	ErrBodyClosed        commonError = "http: body already closed"
 	ErrUnexpectedEOF     commonError = "http: unexpected EOF in response body"
 	ErrChunkedAfterRead  commonError = "http: malformed chunked encoding"
+	ErrBodyState         commonError = "http: corrupt body state"
 )

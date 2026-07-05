@@ -26,6 +26,19 @@ func (conn *UDPConn) Read(b []byte) (n int, err error) {
 		return n, nil
 	}
 
+	// Same drain-order rule as TCPConn.Read: when a datagram and an error
+	// are both pending, deliver the data first instead of letting select
+	// pick randomly.
+	select {
+	case data := <-conn.rxBuf:
+		n := copy(b, data)
+		if n < len(data) {
+			conn.pending = data[n:]
+		}
+		return n, nil
+	default:
+	}
+
 	select {
 	case data := <-conn.rxBuf:
 		n := copy(b, data)

@@ -164,6 +164,11 @@ func wakeTimerGoroutine() {
 func timerLoop() {
 	timerGPtr = getg()
 
+	// Reused across iterations; sleepOn guarantees it is off the sleep queue
+	// before returning. Preallocated so the park decision below never
+	// allocates (allocation can park and re-enable interrupts).
+	entry := &sleepEntry{}
+
 	for {
 		// Check for pending wake request before doing any work.
 		atomic.CompareAndSwapUint32(&timerWakeRequested, 1, 0)
@@ -242,19 +247,31 @@ func timerLoop() {
 
 		timerQueueMutex.Unlock()
 
-		// Check if a wake was requested while we were processing.
+		// Decide atomically whether to park. Checking the wake flag with
+		// interrupts enabled and then parking would lose any wake request that
+		// lands between the check and the park, leaving this goroutine parked
+		// forever (and new tickers never serviced).
+		state := DisableInterrupts()
+
 		if atomic.CompareAndSwapUint32(&timerWakeRequested, 1, 0) {
+			EnableInterrupts(state)
 			continue
 		}
 
 		if nearest == ^uint64(0) {
-			// No active timers. Park until a new ticker is added.
-			gopark(getg())
-		} else {
-			now = nanotime()
-			if nearest > now {
-				sleep(nearest - now)
-			}
+			// No active timers. Park until a new ticker is added;
+			// wakeTimerGoroutine can only run once this goroutine is fully
+			// parked, so its goresume is never dropped.
+			goparkRestore(getg(), state)
+			continue
 		}
+
+		now = nanotime()
+		if nearest <= now {
+			EnableInterrupts(state)
+			continue
+		}
+
+		sleepOn(entry, nearest-now, state)
 	}
 }
